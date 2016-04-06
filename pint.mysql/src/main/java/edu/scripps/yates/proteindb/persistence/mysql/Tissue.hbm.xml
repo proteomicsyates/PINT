@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.Tissue" table="tissue" catalog="interactome_db">
+        <id name="tissueId" type="string">
+            <column name="tissueID" length="90" />
+            <generator class="assigned" />
+        </id>
+        <property name="name" type="string">
+            <column name="name" length="500" />
+        </property>
+        <set name="samples" table="sample" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Tissue_tissueID" length="90" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Sample" />
+        </set>
+    </class>
+</hibernate-mapping>

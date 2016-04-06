@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.Ptm" table="ptm" catalog="interactome_db">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="psm" class="edu.scripps.yates.proteindb.persistence.mysql.Psm" fetch="select">
+            <column name="PSM_id" not-null="true" />
+        </many-to-one>
+        <property name="massShift" type="double">
+            <column name="mass_shift" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="name" type="string">
+            <column name="name" length="200" not-null="true" />
+        </property>
+        <property name="cvId" type="string">
+            <column name="cv_id" length="10" />
+        </property>
+        <set name="ptmSites" table="ptm_site" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="PTM_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PtmSite" />
+        </set>
+    </class>
+</hibernate-mapping>

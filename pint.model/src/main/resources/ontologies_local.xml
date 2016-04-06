@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cvSourceList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="FILE">
+ 
+              
+  <cvSource source="psidev.psi.tools.ontology_manager.impl.local.LocalOntology"
+              uri="classpath:PSI-MOD.obo"
+              format="OBO" name="PSI-MOD" identifier="MOD" version="1.260"/>
+  
+  <cvSource source="psidev.psi.tools.ontology_manager.impl.local.LocalOntology"
+              uri="classpath:psi-ms.obo"
+              format="OBO" name="PSI Mass Spectrometry Ontology" identifier="MS" version="1.38"/>
+              
+
+              
+</cvSourceList>
+
+
+        

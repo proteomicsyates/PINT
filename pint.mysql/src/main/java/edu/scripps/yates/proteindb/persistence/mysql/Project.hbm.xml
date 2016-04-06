@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.Project" table="project" catalog="interactome_db">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="name" type="string">
+            <column name="name" length="150" not-null="true" />
+        </property>
+        <property name="description" type="string">
+            <column name="description" length="8000" />
+        </property>
+        <property name="releaseDate" type="date">
+            <column name="releaseDate" length="10" />
+        </property>
+        <property name="pubmedLink" type="string">
+            <column name="pubmedLink" length="1000" />
+        </property>
+        <property name="private_" type="boolean">
+            <column name="private" not-null="true" />
+        </property>
+        <property name="uploadedDate" type="date">
+            <column name="uploadedDate" length="10" not-null="true" />
+        </property>
+        <property name="tag" type="string">
+            <column name="tag" length="15" not-null="true" />
+        </property>
+        <property name="hidden" type="boolean">
+            <column name="hidden" not-null="true" />
+        </property>
+        <property name="big" type="boolean">
+            <column name="big" not-null="true" />
+        </property>
+        <set name="conditions" table="condition" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Project_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Condition" />
+        </set>
+        <!-- NEW -->
+        <set name="msRuns" table="ms_run" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Project_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" />
+        </set>
+        <!-- END NEW -->
+    </class>
+</hibernate-mapping>

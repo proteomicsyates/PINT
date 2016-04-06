@@ -1,0 +1,236 @@
+#keyword	uhls
+active site	FT
+agricola	RX
+allergen	CC
+allergome	DR
+alternative products	CC
+arachnoserver	DR
+arrayexpress	DR
+bgee	DR
+binding site	FT
+bindingdb	DR
+biocyc	DR
+biogrid	DR
+biophysicochemical properties	CC
+biotechnology	CC
+brenda	DR
+calcium-binding region	FT
+carbohyd	FT
+catalytic activity	CC
+caution	CC
+cazy	DR
+cgd	DR
+chain	FT
+"chain, peptide"	FT
+chembl	DR
+chitars	DR
+cleanex	DR
+cofactor	CC
+coiled-coil region	FT
+compluyeast-2dpage	DR
+compositionally biased region	FT
+conoserver	DR
+cross-link	FT
+ctd	DR
+cygd	DR
+developmental stage	CC
+dictybase	DR
+dip	DR
+disease	CC
+disprot	DR
+disruption phenotype	CC
+disulfide bond	FT
+dmdm	DR
+DNA-binding region	FT
+dnasu	DR
+doi	RX
+domain	CC
+domain	FT
+dosac-cobs-2dpage	DR
+drugbank	DR
+echobase	DR
+ec	FT
+ecogene	DR
+eggnog	DR
+embl	DR
+ensembl	DR
+ensemblbacteria	DR
+ensemblfungi	DR
+ensemblmetazoa	DR
+ensemblplants	DR
+ensemblprotists	DR
+enzyme regulation	CC
+erroneous gene model prediction	CC
+erroneous initiation	CC
+erroneous termination	CC
+erroneous translation	CC
+euhcvdb	DR
+eupathdb	DR
+evidence at protein level	PE
+evidence at transcript level	PE
+evolutionarytrace	DR
+flybase	DR
+frameshift	CC
+function	CC
+gene3d	DR
+genecards	DR
+genefarm	DR
+geneid	DR
+genetree	DR
+genevestigator	DR
+genewiki	DR
+genolist	DR
+genomernai	DR
+glycosylation site	FT
+go	DR
+gramene	DR
+guidetopharmacology	DR
+hamap	DR
+helix	FT
+hgnc	DR
+h-invdb	DR
+hogenom	DR
+hovergen	DR
+hpa	DR
+induction	CC
+inferred from homology	PE
+initiator methionine	FT
+inparanoid	DR
+intact	DR
+interaction	CC
+interpro	DR
+intramembrane region	FT
+ipi	DR
+kegg	DR
+keyword	KW
+ko	DR
+legiolist	DR
+leproma	DR
+lipid moiety-binding region	FT
+maizegdb	DR
+mass spectrometry	CC
+medline	RX
+merops	DR
+metal ion-binding site	FT
+mgi	DR
+mim	DR
+mint	DR
+miscellaneous	CC
+miscellaneous discrepancy	CC
+modified residue	FT
+mutagenesis site	FT
+mycoclap	DR
+nextbio	DR
+nextprot	DR
+non-consecutive residues	FT
+non-standard amino acid	FT
+non-terminal residue	FT
+nucleotide phosphate-binding region	FT
+ogp	DR
+oma	DR
+online information	CC
+orphanet	DR
+orthodb	DR
+panther	DR
+pathway	CC
+patric	DR
+paxdb	DR
+pdb	DR
+pdbsum	DR
+peptide	FT
+peptideatlas	DR
+peroxibase	DR
+pfam	DR
+pharmaceutical	CC
+pharmgkb	DR
+phosphosite	DR
+phossite	DR
+phylomedb	DR
+pir	DR
+pirsf	DR
+plasmid	RC
+pmap-cutdb	DR
+polymorphism	CC
+pombase	DR
+pptasedb	DR
+predicted	PE
+pride	DR
+prints	DR
+pro	DR
+prodom	DR
+promex	DR
+propep	FT
+propeptide	FT
+prosite	DR
+protclustdb	DR
+proteinmodelportal	DR
+pseudocap	DR
+PTM	CC
+ptm	CC
+pubmed	RX
+reactome	DR
+rebase	DR
+refseq	DR
+region of interest	FT
+repeat	FT
+reproduction-2dpage	DR
+rgd	DR
+RNA editing	CC
+sabio-rk	DR
+sequence caution	CC
+sequence conflict	FT
+sequence variant	FT
+sgd	DR
+short sequence motif	FT
+signal peptide	FT
+signalink	DR
+similarity	CC
+site	FT
+smart	DR
+smr	DR
+splice variant	FT
+status	STA
+strain	RC
+strand	FT
+string	DR
+subcellular location	CC
+subunit	CC
+supfam	DR
+swiss-2dpage	DR
+tair	DR
+tcdb	DR
+tigrfams	DR
+tissue	RC
+tissue specificity	CC
+topological domain	FT
+toxic dose	CC
+transit peptide	FT
+transmembrane region	FT
+transposon	RC
+treefam	DR
+tuberculist	DR
+turn	FT
+ucd-2dpage	DR
+ucsc	DR
+uncertain	PE
+unicarbkb	DR
+unigene	DR
+unipathway	DR
+unsure residue	FT
+var_seq	FT
+variant	FT
+vectorbase	DR
+webresource	CC
+web resource	CC
+world-2dpage	DR
+wormbase	DR
+xenbase	DR
+zfin	DR
+zinc finger region	FT
+manual annotation	MAN
+sequence version	SV
+entry creation date	DT
+entry modified	DT
+entry version	DT
+sequence version	DT
+sequence modified	DT

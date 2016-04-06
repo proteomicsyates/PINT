@@ -1,0 +1,240 @@
+package edu.scripps.yates.proteindb.queries.semantic;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.log4j.Logger;
+
+import edu.scripps.yates.proteindb.queries.LogicalOperator;
+import edu.scripps.yates.proteindb.queries.semantic.util.BinaryTree;
+
+public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
+	private final static Logger log = Logger.getLogger(QueryBinaryTree.class);
+
+	public QueryBinaryTree(AbstractQuery abstractQuery) {
+		super(new QueryBinaryTreeElement(abstractQuery));
+	}
+
+	public QueryBinaryTree(String word) {
+		super(new QueryBinaryTreeElement(word));
+	}
+
+	public boolean evaluate(LinkBetweenProteinAndPSM link) {
+		if (element.getLogicalOperator() != null) {
+			final boolean leftResult = getLeftBNode().evaluate(link);
+			if (leftResult == false && LogicalOperator.AND == element.getLogicalOperator())
+				return false;
+
+			final boolean rightResult = getRightBNode().evaluate(link);
+			if (rightResult == false && LogicalOperator.AND == element.getLogicalOperator())
+				return false;
+
+			switch (element.getLogicalOperator()) {
+			case AND:
+				return leftResult & rightResult;
+			case OR:
+				return leftResult || rightResult;
+			case XOR:
+				if (leftResult && !rightResult) {
+					return true;
+				} else if (!leftResult && rightResult) {
+					return true;
+				} else {
+					return false;
+				}
+			default:
+				break;
+			}
+
+		} else if (element.getAbstractQuery() != null) {
+			AbstractQuery query = element.getAbstractQuery();
+
+			// execute
+			boolean queryResult = query.evaluate(link);
+
+			// TODO CHECK THIS (11/11/15)
+			// if (queryResult == false && query instanceof
+			// QueryFromConditionCommand) {
+			// QueryFromConditionCommand queryCondition =
+			// (QueryFromConditionCommand) query;
+			// queryResult =
+			// queryCondition.evaluate(link.getLinkSetForSameProtein());
+			// }
+
+			// look if it is negative
+			if (query.isNegative()) {
+				return !queryResult;
+			} else {
+				return queryResult;
+
+			}
+		}
+		throw new IllegalArgumentException("Binary tree cannot be evaluated");
+
+	}
+
+	private QueryBinaryTree getLeftBNode() {
+		return (QueryBinaryTree) leftBNode;
+	}
+
+	private QueryBinaryTree getRightBNode() {
+		return (QueryBinaryTree) rightBNode;
+	}
+
+	private AbstractQuery getLeftAbstractQuery() {
+		return getLeftBNode().getElement().getAbstractQuery();
+	}
+
+	private AbstractQuery getRigthAbstractQuery() {
+		return getRightBNode().getElement().getAbstractQuery();
+	}
+
+	public List<AbstractQuery> getAbstractQueries() {
+		List<AbstractQuery> ret = new ArrayList<AbstractQuery>();
+		if (element.getLogicalOperator() != null) {
+			ret.addAll(getLeftBNode().getAbstractQueries());
+			ret.addAll(getRightBNode().getAbstractQueries());
+		} else {
+			ret.add(element.getAbstractQuery());
+		}
+		return ret;
+	}
+
+	/**
+	 * Returns true if all the logical operations in the tree are equals to the
+	 * one provided
+	 *
+	 * @return
+	 */
+	public boolean isAllLogicalOperations(LogicalOperator logicalOperator) {
+		if (element.getLogicalOperator() != null) {
+			return element.getLogicalOperator() == logicalOperator
+					&& getLeftBNode().isAllLogicalOperations(logicalOperator)
+					&& getRightBNode().isAllLogicalOperations(logicalOperator);
+		} else {
+			return true;
+		}
+
+	}
+
+	/**
+	 * Returns true if all the queries in the tree are equals to the one
+	 * provided
+	 *
+	 * @return
+	 */
+	public boolean isAllQueries(Class<? extends AbstractQuery> class1) {
+		if (element.getLogicalOperator() != null) {
+			return getLeftBNode().isAllQueries(class1) && getRightBNode().isAllQueries(class1);
+		} else {
+			return class1.isInstance(element.getAbstractQuery());
+		}
+	}
+
+	/**
+	 * Returns true if some of the queries in the tree are equals to the one
+	 * provided
+	 *
+	 * @return
+	 */
+	public boolean isSomeQueries(Class<? extends AbstractQuery> class1) {
+		if (element.getLogicalOperator() != null) {
+			return getLeftBNode().isAllQueries(class1) || getRightBNode().isAllQueries(class1);
+		} else {
+			return class1.isInstance(element.getAbstractQuery());
+		}
+	}
+
+	/**
+	 * Get a Set of the queries that are of the type passed in the argument
+	 *
+	 * @param class1
+	 * @return
+	 */
+	public Set<? extends AbstractQuery> getAbstractQueries(Class<? extends AbstractQuery> class1) {
+		Set<AbstractQuery> ret = new HashSet<AbstractQuery>();
+		for (AbstractQuery abstractQuery : getAbstractQueries()) {
+			if (class1.isInstance(abstractQuery)) {
+				ret.add(abstractQuery);
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Returns true if there is some query in the tree that is negative
+	 *
+	 * @return
+	 */
+	public boolean isSomeNegativeQuery() {
+		if (element.getLogicalOperator() != null) {
+			return getLeftBNode().isSomeNegativeQuery() || getRightBNode().isSomeNegativeQuery();
+		} else {
+			return element.getAbstractQuery().isNegative();
+		}
+	}
+
+	/**
+	 * Gets a set of queries of a certain class, which is predominant, which
+	 * means that going up in the query tree, all the logical operators are AND
+	 * By default, the queries have to be non negative
+	 *
+	 * @param class1
+	 * @return
+	 */
+	public Set<? extends AbstractQuery> getPredominantAbstractQueries(Class<? extends AbstractQuery> class1) {
+		return getPredominantAbstractQueries(class1, true);
+	}
+
+	/**
+	 * Gets a set of queries of a certain class, which is predominant, which
+	 * means that going up in the query tree, all the logical operators are AND
+	 *
+	 * @param require
+	 *            or not that the query is not negative.
+	 * @param class1
+	 * @return
+	 */
+	public Set<? extends AbstractQuery> getPredominantAbstractQueries(Class<? extends AbstractQuery> class1,
+			boolean requireNonNegative) {
+		Set<AbstractQuery> ret = new HashSet<AbstractQuery>();
+		if (element.getLogicalOperator() != null) {
+			if (element.getLogicalOperator() == LogicalOperator.AND) {
+				ret.addAll(getLeftBNode().getPredominantAbstractQueries(class1, requireNonNegative));
+				ret.addAll(getRightBNode().getPredominantAbstractQueries(class1, requireNonNegative));
+			}
+			return ret;
+		} else {
+			if (class1.isInstance(element.getAbstractQuery())) {
+				if (!requireNonNegative || !element.getAbstractQuery().isNegative()) {
+					ret.add(element.getAbstractQuery());
+				}
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Returns true if there is at least one query of a certain class that is
+	 * predominant, which means that going up in the query tree, all the logical
+	 * operators are AND
+	 *
+	 * @param class1
+	 * @return
+	 */
+	public boolean isPredominant(Class<? extends AbstractQuery> class1) {
+		if (element.getLogicalOperator() != null) {
+			if (element.getLogicalOperator() == LogicalOperator.AND) {
+				return getLeftBNode().isPredominant(class1) || getRightBNode().isPredominant(class1);
+			}
+			return false;
+		} else {
+			final AbstractQuery abstractQuery = element.getAbstractQuery();
+			final boolean negative = abstractQuery.isNegative();
+			return class1.isInstance(abstractQuery) && !negative;
+		}
+	}
+
+}

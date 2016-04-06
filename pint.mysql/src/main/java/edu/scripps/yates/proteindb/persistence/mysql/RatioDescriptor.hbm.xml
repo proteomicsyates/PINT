@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor" table="ratio_descriptor" catalog="interactome_db">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="conditionByExperimentalCondition1Id" class="edu.scripps.yates.proteindb.persistence.mysql.Condition" fetch="select">
+            <column name="Experimental_Condition_1_id" not-null="true" />
+        </many-to-one>
+        <many-to-one name="conditionByExperimentalCondition2Id" class="edu.scripps.yates.proteindb.persistence.mysql.Condition" fetch="select">
+            <column name="Experimental_Condition_2_id" not-null="true" />
+        </many-to-one>
+        <property name="description" type="string">
+            <column name="description" length="8000" not-null="true" />
+        </property>
+        <set name="proteinRatioValues" table="protein_ratio_value" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Ratio_Descriptor_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue" />
+        </set>
+        <set name="psmRatioValues" table="psm_ratio_value" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Ratio_Descriptor_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue" />
+        </set>
+        <set name="peptideRatioValues" table="peptide_ratio_value" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Ratio_Descriptor_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue" />
+        </set>
+    </class>
+</hibernate-mapping>

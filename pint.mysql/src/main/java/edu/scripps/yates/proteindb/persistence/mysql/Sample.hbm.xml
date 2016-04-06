@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.Sample" table="sample" catalog="interactome_db">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="label" class="edu.scripps.yates.proteindb.persistence.mysql.Label" fetch="select">
+            <column name="Label_id" />
+        </many-to-one>
+        <many-to-one name="tissue" class="edu.scripps.yates.proteindb.persistence.mysql.Tissue" fetch="select">
+            <column name="Tissue_tissueID" length="90" />
+        </many-to-one>
+        <property name="name" type="string">
+            <column name="name" length="500" not-null="true">
+                <comment>This table stores the different samples or conditions</comment>
+            </column>
+        </property>
+        <property name="description" type="string">
+            <column name="description" length="8000" />
+        </property>
+        <property name="wildtype" type="java.lang.Boolean">
+            <column name="wildtype" />
+        </property>
+        <set name="conditions" table="condition" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Sample_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Condition" />
+        </set>
+        <set name="organisms" table="sample_has_organism" inverse="false" lazy="true" fetch="select" >
+            <key>
+                <column name="Sample_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Organism">
+                <column name="Organism_taxonomyID" length="90" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>

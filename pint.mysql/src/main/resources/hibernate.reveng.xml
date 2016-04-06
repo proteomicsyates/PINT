@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+  <table-filter match-catalog="interactome_db" match-name="amount_type"/>
+  <table-filter match-catalog="interactome_db" match-name="annotation_type"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_threshold"/>
+  <table-filter match-catalog="interactome_db" match-name="combination_type"/>
+  <table-filter match-catalog="interactome_db" match-name="confidence_score_type"/>
+  <table-filter match-catalog="interactome_db" match-name="gene"/>
+  <table-filter match-catalog="interactome_db" match-name="condition"/>
+  <table-filter match-catalog="interactome_db" match-name="ms_run"/>
+  <table-filter match-catalog="interactome_db" match-name="operator_type"/>
+  <table-filter match-catalog="interactome_db" match-name="organism"/>
+  <table-filter match-catalog="interactome_db" match-name="project"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_accession"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_amount"/>
+  <table-filter match-catalog="interactome_db" match-name="peptide_amount"/>
+  <table-filter match-catalog="interactome_db" match-name="psm_amount"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_annotation"/>
+  <table-filter match-catalog="interactome_db" match-name="ratio_descriptor"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_ratio_value"/>
+  <table-filter match-catalog="interactome_db" match-name="peptide_ratio_value"/>
+  <table-filter match-catalog="interactome_db" match-name="psm_ratio_value"/>
+  <table-filter match-catalog="interactome_db" match-name="psm"/>
+  <table-filter match-catalog="interactome_db" match-name="ptm"/>
+  <table-filter match-catalog="interactome_db" match-name="ptm_site"/>
+  <table-filter match-catalog="interactome_db" match-name="peptide"/>
+  <table-filter match-catalog="interactome_db" match-name="sample"/>
+  <table-filter match-catalog="interactome_db" match-name="threshold"/>
+  <table-filter match-catalog="interactome_db" match-name="tissue"/>
+  <table-filter match-catalog="interactome_db" match-name="protein"/>
+  <table-filter match-catalog="interactome_db" match-name="psm_score"/>
+  <table-filter match-catalog="interactome_db" match-name="peptide_score"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_score"/>
+  <table-filter match-catalog="interactome_db" match-name="peptide_has_condition"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_has_gene"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_has_psm"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_has_peptide"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_has_condition"/>
+  <table-filter match-catalog="interactome_db" match-name="psm_has_condition"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_has_protein_accession"/>
+  <table-filter match-catalog="interactome_db" match-name="sample_has_organism"/>
+  <table-filter match-catalog="interactome_db" match-name="label"/>
+</hibernate-reverse-engineering>

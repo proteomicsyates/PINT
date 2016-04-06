@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- *****************************************************************************
+	UniProt Reference Clusters(UniRef) 
+        Version:        version 3.1
+        Date:           21-Jun-2011
+
+	Copyright (c) 2011 UniProt consortium 
+	All rights reserved.
+*******************************************************************************-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://uniprot.org/uniref" targetNamespace="http://uniprot.org/uniref" elementFormDefault="qualified">
+	<xs:complexType name="propertyType">
+		<xs:attribute name="type" type="xs:string" use="required"/>
+		<xs:attribute name="value" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="dbReferenceType">
+		<xs:annotation>
+			<xs:documentation>Database cross-references</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="property" type="propertyType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="type" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The name of the database this cross-reference is referring to.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="id" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The ID referred to.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="memberType">
+		<xs:annotation>
+			<xs:documentation>UniRef50/90/100 cluster members</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="dbReference" type="dbReferenceType"/>
+			<xs:element name="sequence" minOccurs="0">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="length" type="xs:int" use="required"/>
+							<xs:attribute name="checksum" type="xs:string" use="required"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="entryType">
+		<xs:annotation>
+			<xs:documentation>UniRef50/90/100 entry</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="property" type="propertyType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="representativeMember" type="memberType"/>
+			<xs:element name="member" type="memberType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="required">
+			<xs:annotation>
+				<xs:documentation>The entry identifier.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="updated" type="xs:date" use="required">
+			<xs:annotation>
+				<xs:documentation>The update date for the entry.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element name="UniRef100">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="entry" type="entryType" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="releaseDate" type="xs:date" use="required"/>
+			<xs:attribute name="version" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UniRef90">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="entry" type="entryType" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="releaseDate" type="xs:date" use="required"/>
+			<xs:attribute name="version" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UniRef50">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="entry" type="entryType" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="releaseDate" type="xs:date" use="required"/>
+			<xs:attribute name="version" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UniRef">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="entry" type="entryType" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="releaseDate" type="xs:date" use="optional"/>
+			<xs:attribute name="version" type="xs:string" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="UniRefType">
+		<xs:choice>
+			<xs:element ref="UniRef100"/>
+			<xs:element ref="UniRef90"/>
+			<xs:element ref="UniRef50"/>
+			<xs:element ref="UniRef"/>
+		</xs:choice>
+	</xs:complexType>
+</xs:schema>

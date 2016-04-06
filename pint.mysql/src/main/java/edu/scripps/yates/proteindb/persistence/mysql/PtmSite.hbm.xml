@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.PtmSite" table="ptm_site" catalog="interactome_db">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="confidenceScoreType" class="edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType" fetch="select">
+            <column name="Confidence_Score_Type_name" length="90" />
+        </many-to-one>
+        <many-to-one name="ptm" class="edu.scripps.yates.proteindb.persistence.mysql.Ptm" fetch="select">
+            <column name="PTM_id" not-null="true" />
+        </many-to-one>
+        <property name="aa" type="string">
+            <column name="aa" length="1" not-null="true" />
+        </property>
+        <property name="position" type="int">
+            <column name="position" not-null="true" />
+        </property>
+        <property name="confidenceScoreValue" type="string">
+            <column name="confidence_score_value" length="45" />
+        </property>
+        <property name="confidenceScoreName" type="string">
+            <column name="confidence_score_name" length="45" />
+        </property>
+    </class>
+</hibernate-mapping>

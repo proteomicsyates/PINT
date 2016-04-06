@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.Condition" table="condition" catalog="interactome_db">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="project" class="edu.scripps.yates.proteindb.persistence.mysql.Project" fetch="select">
+            <column name="Project_id" not-null="true" />
+        </many-to-one>
+        <many-to-one name="sample" class="edu.scripps.yates.proteindb.persistence.mysql.Sample" fetch="select">
+            <column name="Sample_id" not-null="true" />
+        </many-to-one>
+        <property name="name" type="string">
+            <column name="name" length="45" not-null="true" />
+        </property>
+        <property name="description" type="string">
+            <column name="description" length="4000" />
+        </property>
+        <property name="value" type="java.lang.Double">
+            <column name="value" precision="22" scale="0" />
+        </property>
+        <property name="unit" type="string">
+            <column name="unit" length="45" />
+        </property>
+        <set name="psmAmounts" table="psm_amount" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Condition_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PsmAmount" />
+        </set>
+        <set name="peptides" table="peptide_has_condition" inverse="false" lazy="true" fetch="select" >
+            <key>
+                <column name="Condition_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Peptide">
+                <column name="Peptide_id" not-null="true" />
+            </many-to-many>
+        </set>
+        <set name="proteinAmounts" table="protein_amount" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Condition_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount" />
+        </set>
+        <set name="ratioDescriptorsForExperimentalCondition2Id" table="ratio_descriptor" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Experimental_Condition_2_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor" />
+        </set>
+        <set name="proteins" table="protein_has_condition" inverse="false" lazy="true" fetch="select" >
+            <key>
+                <column name="Condition_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Protein">
+                <column name="Protein_id" not-null="true" />
+            </many-to-many>
+        </set>
+        <set name="peptideAmounts" table="peptide_amount" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Condition_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PeptideAmount" />
+        </set>
+        <set name="ratioDescriptorsForExperimentalCondition1Id" table="ratio_descriptor" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Experimental_Condition_1_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor" />
+        </set>
+        <set name="psms" table="psm_has_condition" inverse="false" lazy="true" fetch="select" >
+            <key>
+                <column name="Condition_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Psm">
+                <column name="PSM_id" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>

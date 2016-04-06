@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession" table="protein_accession" catalog="interactome_db">
+        <id name="accession" type="string">
+            <column name="accession" length="15" />
+            <generator class="assigned" />
+        </id>
+        <property name="accessionType" type="string">
+            <column name="accessionType" length="45" not-null="true" />
+        </property>
+        <property name="description" type="string">
+            <column name="description" />
+        </property>
+        <property name="isPrimary" type="boolean">
+            <column name="isPrimary" not-null="true" />
+        </property>
+        <property name="alternativeNames" type="string">
+            <column name="alternativeNames">
+                <comment>separated by special character &#180;***&#180;</comment>
+            </column>
+        </property>
+        <set name="proteins" table="protein_has_protein_accession" inverse="false" lazy="true" fetch="select" >
+            <key>
+                <column name="Protein_Accession_accession" length="15" not-null="true" />
+            </key>
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Protein">
+                <column name="Protein_id" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>

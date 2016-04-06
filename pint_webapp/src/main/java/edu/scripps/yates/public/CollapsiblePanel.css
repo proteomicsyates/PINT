@@ -1,0 +1,60 @@
+/**
+Default styling for CollapsiblePanel code.
+*/
+.gwt-CollapsiblePanel div:focus {
+  border: 0px;
+  -moz-outline: none !important
+}
+
+.gwt-CollapsiblePanel {
+  margin: 0px;
+  margin-right: 10px;
+  float: left;
+  height: 1000px; /* customize the height of the whole collapsible panel. It can be overrited by the height of the contained widget */
+  width: 365px; /* customize the width of the whole collapsible panel. If the contained widget is greater, it will not work properly */
+}
+
+.gwt-CollapsiblePanel .hover-bar {
+  position: relative;
+  background-color: gray;
+  width: 30px;  height: 100%;
+}
+
+.gwt-CollapsiblePanel .container {
+  border-right: 1px solid #59d;
+  border-bottom: 1px solid #59d;
+  background-color: white;
+  height: 100%;
+  position: relative;
+  z-index: 100;
+  position: relative;
+  background-color: white;
+	width:364px; /* this has to be 1 px less than the width of .gwt-CollapsiblePanel */
+} 
+
+/*----------------------------------------------------------------------------
+* Demo code.
+*/
+
+
+.CollapsibleToggle{
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+  cursor: hand;
+  font-size: 80%;
+  white-space: nowrap;
+  padding-right: 10px;
+  padding-top: 5px;
+  color:white;
+}
+
+.nav-tree-title {
+  height: 30px;
+  background-color: #26a;
+} 
+
+hl {
+.gwt-CollapsiblePanel .gwt-StackPanel {
+  padding-left: 8px;
+}

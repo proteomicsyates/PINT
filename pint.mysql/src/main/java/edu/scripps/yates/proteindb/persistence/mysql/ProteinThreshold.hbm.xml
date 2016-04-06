@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold" table="protein_threshold" catalog="interactome_db">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="protein" class="edu.scripps.yates.proteindb.persistence.mysql.Protein" fetch="select">
+            <column name="Protein_id" not-null="true" />
+        </many-to-one>
+        <many-to-one name="threshold" class="edu.scripps.yates.proteindb.persistence.mysql.Threshold" fetch="select">
+            <column name="Threshold_id" not-null="true" />
+        </many-to-one>
+        <property name="passThreshold" type="boolean">
+            <column name="pass_threshold" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

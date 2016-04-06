@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.MsRun" table="ms_run" catalog="interactome_db">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="runId" type="string">
+            <column name="runID" length="90" not-null="true" />
+        </property>
+        <property name="path" type="string">
+            <column name="path" length="800" not-null="true" />
+        </property>
+        <property name="date" type="date">
+            <column name="date" length="10" />
+        </property>
+        <!-- NEW -->
+        <many-to-one name="project" class="edu.scripps.yates.proteindb.persistence.mysql.Project" fetch="select">
+            <column name="Project_id" not-null="true" />
+        </many-to-one>
+        <!--  END NEW -->
+        <set name="peptides" table="peptide" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="MS_Run_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Peptide" />
+        </set>
+        <set name="proteins" table="protein" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="MS_Run_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Protein" />
+        </set>
+        <set name="psms" table="psm" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="MS_Run_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Psm" />
+        </set>
+    </class>
+</hibernate-mapping>

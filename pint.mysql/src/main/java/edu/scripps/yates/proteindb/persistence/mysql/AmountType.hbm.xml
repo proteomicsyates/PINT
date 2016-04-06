@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.AmountType" table="amount_type" catalog="interactome_db">
+        <id name="name" type="string">
+            <column name="name" length="90" />
+            <generator class="assigned" />
+        </id>
+        <set name="psmAmounts" table="psm_amount" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Amount_Type_name" length="90" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PsmAmount" />
+        </set>
+        <set name="proteinAmounts" table="protein_amount" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Amount_Type_name" length="90" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount" />
+        </set>
+        <set name="peptideAmounts" table="peptide_amount" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Amount_Type_name" length="90" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PeptideAmount" />
+        </set>
+    </class>
+</hibernate-mapping>

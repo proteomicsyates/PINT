@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue" table="protein_ratio_value" catalog="interactome_db">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="confidenceScoreType" class="edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType" fetch="select">
+            <column name="Confidence_Score_Type_name" length="90" />
+        </many-to-one>
+        <many-to-one name="protein" class="edu.scripps.yates.proteindb.persistence.mysql.Protein" fetch="select">
+            <column name="Protein_id" not-null="true" />
+        </many-to-one>
+        <many-to-one name="combinationType" class="edu.scripps.yates.proteindb.persistence.mysql.CombinationType" fetch="select">
+            <column name="Combination_Type_name" length="90" />
+        </many-to-one>
+        <many-to-one name="ratioDescriptor" class="edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor" fetch="select">
+            <column name="Ratio_Descriptor_id" not-null="true" />
+        </many-to-one>
+        <property name="value" type="double">
+            <column name="value" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="confidenceScoreValue" type="java.lang.Double">
+            <column name="confidence_score_value" precision="22" scale="0" />
+        </property>
+        <property name="confidenceScoreName" type="string">
+            <column name="confidence_score_name" length="500" />
+        </property>
+    </class>
+</hibernate-mapping>

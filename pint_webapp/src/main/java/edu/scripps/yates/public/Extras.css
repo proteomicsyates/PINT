@@ -1,0 +1,154 @@
+.gwt-drag-hint {
+	color: grey;
+	border: 1px solid black;
+}
+
+.gwt-extras-search {
+  color: black;
+  font-style: normal;
+}
+	
+.gwt-extras-search-hint {
+  color: silver;
+  font-style: italic;
+}
+
+.gwt-extras-search-suggest {
+  background-color: white;
+  border: 1px solid black;
+}
+
+.gwt-extras-search-suggest .item {
+  color: black;
+  font-style: normal;
+}
+
+.gwt-extras-search-suggest .item-selected {
+  color: black;
+  background-color: silver;
+  font-weight: bold;
+}
+
+.gwt-extras-input {
+  background-color: white;
+}
+
+.gwt-extras-input-invalid {
+  background-color: #FFADAD;
+  border-color: red;
+}
+
+.gwt-extras-InputBox {
+  background-color: white;
+}
+
+.gwt-extras-InputBox-invalid {
+  background-color: #FFADAD;
+  border-color: red;
+}
+
+.gwt-extras-Spinbox {
+  border: 0;
+}
+
+table .gwt-extras-Spinbox, table .gwt-extras-Spinbox th, table .gwt-extras-Spinbox td {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0px;
+  padding: 0;
+  margin:0;
+}
+
+a.gwt-extras-Spinbox-button {
+  display: block;
+  padding: 0;
+  width: 1em;
+  margin: 0;
+  cursor: pointer;
+  background: buttonface;
+  text-decoration: none;
+  font-size: 0.65em;
+  text-align: center;
+  vertical-align: middle;
+}
+
+a.gwt-extras-Spinbox-button:link, a.gwt-extras-Spinbox-button:hover, a.gwt-extras-Spinbox-button:visited {
+  color: black;
+  border: outset 1.5px buttonface;
+}
+
+a.gwt-extras-Spinbox-button:active {
+  color: black;
+  border: inset 1.5px buttonface;
+}
+
+
+.gwt-extras-DisclosurePopout-popout {
+  background-color: white;
+  border: solid 1px black;
+}
+
+.gwt-extras-DisclosurePopout-header {
+  background-color: white;
+  padding: 1px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gwt-extras-WindowBox .dialogMiddleCenter {
+  padding: 0px !important;
+}
+
+.gwt-extras-WindowBox .gwt-extras-dialog-container {
+  position: relative;  
+}
+
+.gwt-extras-WindowBox .gwt-extras-dialog-controls {
+  position: absolute;
+  top: -22px;
+  right: 2px;
+}
+
+.gwt-extras-WindowBox .gwt-extras-dialog-controls a {
+  cursor: pointer;
+  display: block;
+  height: 12px;
+  width: 12px;  
+}
+
+.gwt-extras-WindowBox .gwt-extras-dialog-controls a.gwt-extras-dialog-close {
+  background: transparent url(x-2panel.png) left top no-repeat;
+}
+
+.gwt-extras-WindowBox .gwt-extras-dialog-controls a.gwt-extras-dialog-close:hover {
+  background: transparent url(x-2panel.png) right top no-repeat;
+}
+
+.gwt-extras-WindowBox .gwt-extras-dialog-controls a.gwt-extras-dialog-minimize {
+  /*display: block;
+  height: 12px;
+  width: 12px;*/  
+  background: transparent url(min-4panel.png) left top no-repeat;
+}
+
+.gwt-extras-WindowBox .gwt-extras-dialog-controls a.gwt-extras-dialog-minimize:hover {
+  /*display: block;
+  height: 12px;
+  width: 12px;*/  
+  background: transparent url(min-4panel.png) left top no-repeat;
+}
+
+.gwt-extras-WindowBox .gwt-extras-dialog-controls a.gwt-extras-dialog-minimize:hover {
+  background: transparent url(min-4panel.png) right top no-repeat;
+}
+
+.gwt-extras-WindowBox .gwt-extras-dialog-controls a.gwt-extras-dialog-maximize {
+  /*display: block;
+  height: 12px;
+  width: 12px;*/  
+  background: transparent url(min-4panel.png) left bottom no-repeat;
+}
+
+.gwt-extras-WindowBox .gwt-extras-dialog-controls a.gwt-extras-dialog-maximize:hover {
+  background: transparent url(min-4panel.png) right bottom no-repeat;
+}

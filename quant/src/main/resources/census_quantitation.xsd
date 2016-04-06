@@ -1,0 +1,98 @@
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="relex_chro">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="xs:string" name="version"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="author">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute use="optional" type="xs:string" name="name"/>
+                                <xs:attribute use="optional" type="xs:string" name="email"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element type="xs:string" name="created_date"/>
+                <xs:element type="xs:byte" name="experiment_type"/>
+                <xs:element type="xs:byte" name="data_dependency"/>
+                <xs:element type="xs:byte" name="quantLevel"/>
+                <xs:element maxOccurs="unbounded" minOccurs="1" name="protein" type="protein_type"/>
+            </xs:sequence>
+        </xs:complexType>
+        
+    </xs:element>
+    <xs:complexType name="protein_type">
+        	<xs:sequence>
+                            <xs:element maxOccurs="unbounded" minOccurs="1" name="peptide">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="chro" minOccurs="1" />
+                                        <xs:element type="xs:string" name="iso" minOccurs="0" maxOccurs="1"/>
+                                        <xs:element type="xs:string" name="theo-mass" minOccurs="0" maxOccurs="1"/>
+                                        <xs:element type="xs:string" name="theo-int" minOccurs="0" maxOccurs="1"/>
+                                        <xs:element name="frag" minOccurs="0">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element type="xs:string" name="bs"/>
+                                                    <xs:element type="xs:string" name="br"/>
+                                                    <xs:element type="xs:string" name="ys"/>
+                                                    <xs:element type="xs:string" name="yr"/>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute use="optional" type="xs:string" name="unique"/>
+                                    <xs:attribute use="optional" type="xs:string" name="file"/>
+                                    <xs:attribute use="optional" type="xs:string" name="scan"/>
+                                    <xs:attribute use="optional" type="xs:string" name="seq"/>
+                                    <xs:attribute use="optional" type="xs:float" name="xcorr"/>
+                                    <xs:attribute use="optional" type="xs:float" name="calcMHplus"/>
+                                    <xs:attribute use="optional" type="xs:float" name="MHplus"/>
+                                    <xs:attribute use="optional" type="xs:float" name="totalIntensity"/>
+                                    <xs:attribute use="optional" type="xs:int" name="spRank"/>
+                                    <xs:attribute use="optional" type="xs:float" name="spScore"/>
+                                    <xs:attribute use="optional" type="xs:int" name="redundancy"/>
+                                    <xs:attribute use="optional" type="xs:float" name="deltaCN"/>
+                                    <xs:attribute use="optional" type="xs:float" name="deltaMass"/>
+                                    <xs:attribute use="optional" type="xs:int" name="charge"/>
+                                    <xs:attribute use="optional" type="xs:int" name="spC"/>
+                                    <xs:attribute use="optional" type="xs:float" name="enrichment"/>
+                                    <xs:attribute use="optional" type="xs:double" name="lightStartMass"/>
+                                    <xs:attribute use="optional" type="xs:double" name="heavyStartMass"/>
+                                    <xs:attribute use="optional" type="xs:double" name="lightAvgMass"/>
+                                    <xs:attribute use="optional" type="xs:double" name="heavyAvgMass"/>
+                                    <xs:attribute use="optional" type="xs:string" name="start_scan"/>
+                                    <xs:attribute use="optional" type="xs:string" name="end_scan"/>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element maxOccurs="1" minOccurs="0" name="redundant">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="redundant_protein_type" name="protein" minOccurs="1"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute use="optional" type="xs:string" name="locus"/>
+                        <xs:attribute use="optional" type="xs:int" name="seq_ct"/>
+                        <xs:attribute use="optional" type="xs:int" name="spec_ct"/>
+                        <xs:attribute use="optional" type="xs:string" name="seq_cov"/>
+                        <xs:attribute use="optional" type="xs:string" name="length"/>
+                        <xs:attribute use="optional" type="xs:string" name="molwt"/>
+                        <xs:attribute use="optional" type="xs:string" name="pi"/>
+                        <xs:attribute use="optional" type="xs:string" name="val"/>
+                        <xs:attribute use="optional" type="xs:string" name="desc"/>
+        </xs:complexType>
+        <xs:complexType name="redundant_protein_type">
+        	<xs:attribute use="optional" type="xs:string" name="locus"/>
+            <xs:attribute use="optional" type="xs:int" name="seq_ct"/>
+            <xs:attribute use="optional" type="xs:int" name="spec_ct"/>
+            <xs:attribute use="optional" type="xs:string" name="seq_cov"/>
+            <xs:attribute use="optional" type="xs:string" name="length"/>
+            <xs:attribute use="optional" type="xs:string" name="molwt"/>
+            <xs:attribute use="optional" type="xs:string" name="pi"/>
+            <xs:attribute use="optional" type="xs:string" name="val"/>
+            <xs:attribute use="optional" type="xs:string" name="desc"/>
+        </xs:complexType>
+</xs:schema>

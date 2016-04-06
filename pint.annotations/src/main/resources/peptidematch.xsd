@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<!--
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"> 
+<xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://research.bioinformatics.udel.edu/peptidematch" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://research.bioinformatics.udel.edu/peptidematch" xmlns:xsi="http://www.w3.org/2001/XMSchema-instance" xsi:schemaLocation="http://research.bioinforamtics.udel.edu/peptidematch/docs/peptidematch.xsd">
+ <xs:element name="peptideMatch">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="queryInfo">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="sequenceDataSet">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="version"/>
+                    <xs:element type="xs:string" name="uniref100Only"/>
+                    <xs:element type="xs:string" name="lEqi"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element type="xs:int" name="jobId"/>
+              <xs:element type="xs:int" name="uniqueQueryPeptides"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="matchPerPeptide">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="queryPeptide"/>
+              <xs:element type="xs:int" name="numberOfMatchedProteins"/>
+              <xs:element name="matchedProtein" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="proteinAC" minOccurs="0"/>
+                    <xs:element name="proteinID" minOccurs="0">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:string">
+                            <xs:attribute type="xs:string" name="type" use="required"/>
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element type="xs:string" name="UniRef100ClusterID" minOccurs="0"/>
+                    <xs:element type="xs:string" name="UniRef100RepresentativeProteinAC" minOccurs="0"/>
+                    <xs:element type="xs:string" name="proteinName"/>
+                    <xs:element type="xs:int" name="seqLength"/>
+                    <xs:element name="organism">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:string">
+                            <xs:attribute type="xs:string" name="name" use="required"/>
+                            <xs:attribute type="xs:int" name="taxonomyId" use="optional"/>
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="matchRanges">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="matchRange">
+                            <xs:complexType mixed="true">
+                              <xs:sequence>
+                                <xs:element type="xs:int" name="lEqiPos" minOccurs="0"/>
+                              </xs:sequence>
+                              <xs:attribute type="xs:int" name="start" use="optional"/>
+                              <xs:attribute type="xs:int" name="end" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="proteomicDBs">
+                      <xs:complexType mixed="true">
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="nist" minOccurs="0"/>
+                          <xs:element type="xs:string" name="peptideAtlas" minOccurs="0"/>
+                          <xs:element type="xs:string" name="pride" minOccurs="0"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="iedbs">
+                      <xs:complexType mixed="true">
+                        <xs:sequence>
+                          <xs:element type="xs:int" name="iedbID" maxOccurs="unbounded" minOccurs="0"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="perPeptideMatchSummaryReport">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:int" name="uniqueMatchedProteins"/>
+              <xs:element type="xs:int" name="uniqueMatchedOrganisms"/>
+              <xs:element name="perPeptideMatchInfo">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="queryPeptide"/>
+                    <xs:element type="xs:int" name="numberOfMatchedProteins"/>
+                    <xs:element type="xs:int" name="numberOfMatchedOrganisms"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+	<xs:element name="perProteinMatchSummaryReport">
+    	 <xs:complexType>
+      <xs:sequence>
+              <xs:element type="xs:int" name="uniqueMatchedProteins"/>
+              <xs:element type="xs:int" name="uniqueMatchedOrganisms"/>
+        <xs:element name="perProteinMatchInfo" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="UniRef100ClusterID" minOccurs="0"/>
+              <xs:element type="xs:string" name="proteinAC"/>
+              <xs:element type="xs:byte" name="numberOfMatchingPeptides"/>
+              <xs:element name="matchingPeptides">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="matchingPeptide"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

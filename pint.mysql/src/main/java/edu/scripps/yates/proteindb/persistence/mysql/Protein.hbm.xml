@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="edu.scripps.yates.proteindb.persistence.mysql.Protein" table="protein" catalog="interactome_db">
+        <cache usage="read-write"/>
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="organism" class="edu.scripps.yates.proteindb.persistence.mysql.Organism" fetch="select">
+            <column name="Organism_taxonomyID" length="90" not-null="true" />
+        </many-to-one>
+        <many-to-one name="msRun" class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" fetch="select">
+            <column name="MS_Run_id" not-null="true" />
+        </many-to-one>
+         <property name="acc" type="java.lang.String" >
+            <column name="acc" not-null="true" />
+        </property>
+        <property name="length" type="java.lang.Integer">
+            <column name="length" />
+        </property>
+        <property name="pi" type="java.lang.Double">
+            <column name="pi" precision="22" scale="0" />
+        </property>
+        <property name="mw" type="java.lang.Double">
+            <column name="mw" precision="22" scale="0" />
+        </property>
+        <set name="genes" table="protein_has_gene" inverse="false" lazy="true" fetch="select" >
+            <key>
+                <column name="Protein_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Gene">
+                <column name="Gene_id" not-null="true" />
+            </many-to-many>
+        </set>
+<!--         <set name="psms" table="protein_has_psm" inverse="true" lazy="true" fetch="select" > -->
+        <set name="psms" table="protein_has_psm" inverse="true" lazy="extra" fetch="join" batch-size="100" >
+            <key>
+                <column name="Protein_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Psm">
+                <column name="PSM_id" not-null="true" />
+            </many-to-many>
+        </set>
+        <set name="conditions" table="protein_has_condition" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Protein_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Condition">
+                <column name="Condition_id" not-null="true" />
+            </many-to-many>
+        </set>
+        <set name="proteinRatioValues" table="protein_ratio_value" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Protein_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue" />
+        </set>
+        <set name="proteinAccessions" table="protein_has_protein_accession" inverse="false" lazy="true" fetch="select" >
+            <key>
+                <column name="Protein_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession">
+                <column name="Protein_Accession_accession" length="15" not-null="true" />
+            </many-to-many>
+        </set>
+        <set name="proteinScores" table="protein_score" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Protein_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinScore" />
+        </set>
+        <set name="proteinAmounts" table="protein_amount" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Protein_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount" />
+        </set>
+        <set name="proteinThresholds" table="protein_threshold" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Protein_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold" />
+        </set>
+        <set name="proteinAnnotations" table="protein_annotation" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Protein_id" not-null="true" />
+            </key>
+            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation" />
+        </set>
+        <set name="peptides" table="protein_has_peptide" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Protein_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Peptide">
+                <column name="Peptide_id" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>
