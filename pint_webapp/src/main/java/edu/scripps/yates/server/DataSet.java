@@ -1,6 +1,7 @@
 package edu.scripps.yates.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDistribution;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
+import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 import edu.scripps.yates.shared.util.sublists.PeptideBeanSubList;
 import edu.scripps.yates.shared.util.sublists.ProteinBeanSubList;
@@ -184,7 +186,8 @@ public class DataSet {
 				addPsm(psmBean);
 			}
 		}
-
+		// add ratios to ratioAnalyzer
+		ratioAnalyzer.addRatios(proteinBean.getRatios());
 	}
 
 	public void addPsm(PSMBean psmBean) {
@@ -318,17 +321,39 @@ public class DataSet {
 
 		// assign ratioDistributions
 		assignRatioDistributionsToPSMs();
+		assignRatioDistributionsToPeptides();
+		assignRatioDistributionsToProteins();
+	}
+
+	private void assignRatioDistributions(Collection<ContainsRatios> containsRatios) {
+		for (ContainsRatios ratioContainer : containsRatios) {
+			final Set<RatioBean> ratios = ratioContainer.getRatios();
+			for (RatioBean ratioBean : ratios) {
+				final RatioDistribution ratioDistribution = ratioAnalyzer.getRatioDistribution(ratioBean);
+				ratioContainer.addRatioDistribution(ratioDistribution);
+			}
+		}
 	}
 
 	private void assignRatioDistributionsToPSMs() {
 		final List<PSMBean> psms2 = getPsms();
-		for (PSMBean psmBean : psms2) {
-			final Set<RatioBean> ratios = psmBean.getRatios();
-			for (RatioBean ratioBean : ratios) {
-				final RatioDistribution ratioDistribution = ratioAnalyzer.getRatioDistribution(ratioBean);
-				psmBean.addRatioDistribution(ratioDistribution);
-			}
-		}
+		List<ContainsRatios> list = new ArrayList<ContainsRatios>();
+		list.addAll(psms2);
+		assignRatioDistributions(list);
+	}
+
+	private void assignRatioDistributionsToProteins() {
+		final List<ProteinBean> proteins2 = getProteins();
+		List<ContainsRatios> list = new ArrayList<ContainsRatios>();
+		list.addAll(proteins2);
+		assignRatioDistributions(list);
+	}
+
+	private void assignRatioDistributionsToPeptides() {
+		final List<PeptideBean> peptides2 = getPeptides();
+		List<ContainsRatios> list = new ArrayList<ContainsRatios>();
+		list.addAll(peptides2);
+		assignRatioDistributions(list);
 	}
 
 	public List<PSMBean> getPsmsFromPsmProvider(ContainsPSMs psmProvider) {
@@ -475,7 +500,8 @@ public class DataSet {
 		peptidesBySequence.put(peptideBean.getSequence(), peptideBean);
 		peptides.add(peptideBean);
 		peptidesByPeptideBeanUniqueIdentifier.put(peptideBean.getPeptideBeanUniqueIdentifier(), peptideBean);
-
+		// add ratios to ratioAnalyzer
+		ratioAnalyzer.addRatios(peptideBean.getRatios());
 	}
 
 	private void mergePeptideBeans(PeptideBean peptideBean, PeptideBean peptideBean2) {

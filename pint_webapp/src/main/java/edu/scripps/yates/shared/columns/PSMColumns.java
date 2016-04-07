@@ -77,6 +77,8 @@ public class PSMColumns implements ColumnProvider<PSMBean> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PSM_RATIO_GRAPH, false);
 			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PSM_RATIO_SCORE, false);
+			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.CONDITION, false);
 			columns.add(col);
 		}

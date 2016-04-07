@@ -2,6 +2,7 @@ package edu.scripps.yates.client.gui.columns;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.cell.client.Cell.Context;
@@ -17,6 +18,7 @@ import edu.scripps.yates.shared.columns.PeptideColumns;
 import edu.scripps.yates.shared.columns.comparator.PeptideComparator;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PeptideBean;
+import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
 
@@ -178,6 +180,16 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 			super.render(context, pep, sb);
 			sb.append(template.endToolTip());
 			break;
+		case PEPTIDE_RATIO_SCORE:
+
+			final String extendedRatioScoreStringByConditions = ClientSafeHtmlUtils
+					.getExtendedRatioScoreStringByConditions(pep, conditionName, condition2Name, projectTag, ratioName,
+							false);
+			sb.append(template.startToolTip(extendedRatioScoreStringByConditions));
+
+			super.render(context, pep, sb);
+			sb.append(template.endToolTip());
+			break;
 		case ACC:
 
 			sb.append(ClientSafeHtmlUtils.getAccLinks(pep, true));
@@ -207,7 +219,13 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 				super.render(context, pep, sb);
 			}
 			break;
-
+		case PEPTIDE_RATIO_GRAPH:
+			final List<RatioBean> ratios = pep.getRatiosByConditions(conditionName, condition2Name, projectTag,
+					ratioName, true);
+			if (!ratios.isEmpty()) {
+				sb.append(ClientSafeHtmlUtils.getRatioGraphic(pep, ratios.get(0)));
+			}
+			break;
 		default:
 			sb.append(template.startToolTip(PeptideColumns.getInstance().getValue(columnName, pep, conditionName,
 					condition2Name, projectTag, amountType, scoreName, ratioName, false)));
@@ -235,6 +253,8 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 			return 50;
 		case PEPTIDE_RATIO:
 			return 100;
+		case PEPTIDE_RATIO_SCORE:
+			return 100;
 		case PEPTIDE_SEQUENCE:
 			return 300;
 		case PTM_SCORE:
@@ -255,6 +275,8 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 			return 150;
 		case PEPTIDE_EVIDENCE:
 			return 150;
+		case PEPTIDE_RATIO_GRAPH:
+			return 100;
 		default:
 			try {
 				// look if it is a column defined in the protein column, like

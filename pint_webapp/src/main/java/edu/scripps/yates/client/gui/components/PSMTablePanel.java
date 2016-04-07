@@ -33,6 +33,7 @@ import edu.scripps.yates.client.gui.columns.MySafeHtmlHeaderWithTooltip;
 import edu.scripps.yates.client.gui.columns.PSMColumnManager;
 import edu.scripps.yates.client.gui.columns.PSMTextColumn;
 import edu.scripps.yates.client.gui.columns.footers.PSMFooterManager;
+import edu.scripps.yates.client.gui.components.dataprovider.MyAsyncDataProvider;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.interfaces.HasColumns;
 import edu.scripps.yates.client.interfaces.RefreshData;
@@ -57,7 +58,7 @@ public class PSMTablePanel extends Composite implements HasColumns, RefreshData,
 	private VerticalPanel loadingPanel;
 	private final String emptyLabelString;
 	private final ShowHiddePanel psmLoaderFromProjects;
-	private final AsyncDataProvider<PSMBean> asyncDataListProvider;
+	private final MyAsyncDataProvider<PSMBean> asyncDataListProvider;
 
 	private final SingleSelectionModel<PSMBean> selectionModel;
 
@@ -65,7 +66,7 @@ public class PSMTablePanel extends Composite implements HasColumns, RefreshData,
 	private final FlowPanel mainPanel;
 
 	public PSMTablePanel(String emptyLabel, ShowHiddePanel showhiddePSMPanel,
-			AsyncDataProvider<PSMBean> asyncDataListProvider) {
+			MyAsyncDataProvider<PSMBean> asyncDataListProvider) {
 		super();
 		emptyLabelString = emptyLabel;
 		if (emptyLabelString != null)
@@ -159,7 +160,8 @@ public class PSMTablePanel extends Composite implements HasColumns, RefreshData,
 			// don't do anything with amount because the conditions
 			// are not loaded yet
 			if (columnName != ColumnName.PSM_AMOUNT && columnName != ColumnName.PSM_SCORE
-					&& columnName != ColumnName.PTM_SCORE && columnName != ColumnName.PSM_RATIO) {
+					&& columnName != ColumnName.PTM_SCORE && columnName != ColumnName.PSM_RATIO
+					&& columnName != ColumnName.PSM_RATIO_GRAPH) {
 				final Header<String> footer = psmColumnManager.getFooter(columnName);
 
 				dataGrid.addColumn(columnName,
@@ -216,7 +218,7 @@ public class PSMTablePanel extends Composite implements HasColumns, RefreshData,
 
 		}
 		dataGrid.setForceToRefresh(true);
-		// if (redraw) {
+		// if (true || redraw) {
 		dataGrid.redrawVisibleItems();
 		// dataGrid.updateTableMinimumWidth();
 		// }
@@ -306,10 +308,11 @@ public class PSMTablePanel extends Composite implements HasColumns, RefreshData,
 				}
 			}
 		}
-		if (redraw) {
-			dataGrid.redrawVisibleItems();
-			dataGrid.updateTableMinimumWidth();
-		}
+		dataGrid.setForceToRefresh(true);
+		// if (true || redraw) {
+		dataGrid.redrawVisibleItems();
+		// dataGrid.updateTableMinimumWidth();
+		// }
 
 	}
 
@@ -338,20 +341,20 @@ public class PSMTablePanel extends Composite implements HasColumns, RefreshData,
 		}
 	}
 
-	public void addColumnforConditionPSMRatio(String condition1Name, String condition1ID, String condition2Name,
-			String condition2ID, String projectTag, String ratioName) {
+	public void addColumnforConditionPSMRatio(ColumnName columnName, String condition1Name, String condition1ID,
+			String condition2Name, String condition2ID, String projectTag, String ratioName) {
+
 		// check first if the column is already present or not
-		if (!psmColumnManager.containsColumn(ColumnName.PSM_RATIO, condition1Name, condition2Name, projectTag,
-				ratioName)) {
-			PSMTextColumn column = psmColumnManager.addPSMRatioColumn(
-					PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO).isVisible(), condition1Name,
-					condition2Name, projectTag, ratioName);
+		if (!psmColumnManager.containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName)) {
+			PSMTextColumn column = psmColumnManager.addPSMRatioColumn(columnName,
+					PSMColumns.getInstance().getColumn(columnName).isVisible(), condition1Name, condition2Name,
+					projectTag, ratioName);
 
 			Header<String> footer = column.getFooter();
-			String headerName = SharedDataUtils.getRatioHeader(ratioName, condition1ID, condition2ID);
-			final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(ColumnName.PSM_RATIO,
+			String headerName = SharedDataUtils.getRatioHeader(columnName, ratioName, condition1ID, condition2ID);
+			final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 					SafeHtmlUtils.fromSafeConstant(headerName),
-					SharedDataUtils.getRatioHeaderTooltip(condition1Name, condition2Name, ratioName));
+					SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
 			if (footer != null) {
 				dataGrid.addColumn(column, header, footer);
 			} else {

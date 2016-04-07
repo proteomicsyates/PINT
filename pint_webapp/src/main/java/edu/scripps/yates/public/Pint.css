@@ -96,6 +96,31 @@
 	max-height:100%;
 	max-width:100%;
 }
+.PositiveRatio{
+	background-image: url("sequence_marker_blue.png");
+	max-height:100%;
+	max-width:100%;
+}
+.PositiveRatio:hover{
+	background-image: url("sequence_marker_black.png");
+	max-height:100%;
+	max-width:100%;
+}
+.NegativeRatio{
+	background-image: url("sequence_marker_red.png");
+	max-height:100%;
+	max-width:100%;
+}
+.NegativeRatio:hover{
+	background-image: url("sequence_marker_black.png");
+	max-height:100%;
+	max-width:100%;
+}
+.ratioBox{
+	border-style: solid;
+    border-width: thin;
+    height: 1EM;
+}
 .EditableDisclosurePanel {
 	padding: 20px;
 }
@@ -721,7 +746,23 @@ color: Black;
 	margin: 0px 0px 1px 0px;
 	float: left;
 }
-
+.graphicalviewRatio {
+    height: 1EM;
+    font-size:1EM;
+	font-family:'Courier New';
+	margin: 0px 0px 1px 0px;
+	float: left;
+}
+.bufferPositiveRatio {
+	background-image: url("sequence_marker_lightblue.png");
+    max-height:100%;
+	max-width:100%;
+}
+.bufferNegativeRatio {
+	background-image: url("sequence_marker_lightred.png");
+    max-height:100%;
+	max-width:100%;
+}
 .gwt-Button{
 	font-size: 12px;
 }
@@ -1385,21 +1426,21 @@ height:300px;
 }
 
 .tableHeader {
-	font-size: 12px;
+	font-size: 10px;
 	padding: 0px 0px !important;
 }
 .tableHeaderCenter {
-	font-size: 12px;
+	font-size: 10px;
 	padding: 0px 0px !important;
 	text-align: center !important;
 }
 .tableHeaderRight {
-	font-size: 12px;
+	font-size: 10px;
 	padding: 0px 0px !important;
 	text-align: right !important;
 }
 .tableHeaderLeft {
-	font-size: 12px;
+	font-size: 10px;
 	padding: 0px 0px !important;
 	text-align: left !important;
 }

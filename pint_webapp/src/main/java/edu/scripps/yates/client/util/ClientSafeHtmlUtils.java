@@ -11,23 +11,27 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.UriUtils;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 import edu.scripps.yates.client.gui.templates.HtmlTemplates;
+import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AccessionBean;
 import edu.scripps.yates.shared.model.AccessionType;
 import edu.scripps.yates.shared.model.GeneBean;
 import edu.scripps.yates.shared.model.OmimEntryBean;
 import edu.scripps.yates.shared.model.OrganismBean;
-import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideRelation;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ProteinEvidence;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.RatioBean;
+import edu.scripps.yates.shared.model.RatioDistribution;
+import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.model.UniprotProteinExistence;
 import edu.scripps.yates.shared.model.interfaces.ContainsGenes;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
+import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
 import edu.scripps.yates.shared.util.NumberFormat;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
@@ -514,116 +518,125 @@ public class ClientSafeHtmlUtils {
 		return sb.toSafeHtml();
 	}
 
-	public static SafeHtml getPSMRatioGraphic(PSMBean p, RatioBean r) {
-		final NumberFormat formatter = NumberFormat.getFormat("#.#");
-		final char[] ratioNegative = p.getRatioDistributionNegativeCharArray(r);
-		final char[] ratioPositive = p.getRatioDistributionPositiveCharArray(r);
+	public static SafeHtml getRatioGraphic(ContainsRatios p, RatioBean r) {
+		final RatioDistribution ratioDistribution = p.getRatioDistribution(r);
+		final char[] ratioNegative = getRatioDistributionNegativeCharArray(ratioDistribution, r);
+		final char[] ratioPositive = getRatioDistributionPositiveCharArray(ratioDistribution, r);
 		SafeHtmlBuilder sb = new SafeHtmlBuilder();
-
+		char[] ratioDistributionArray = null;
 		if (ratioNegative != null || ratioPositive != null) {
-			final char[] ratioDistribution = new char[ratioNegative.length + ratioPositive.length];
+			ratioDistributionArray = new char[ratioNegative.length + ratioPositive.length];
 			int index = 0;
 			if (ratioNegative != null) {
 				for (char c : ratioNegative) {
-					ratioDistribution[index++] = c;
+					ratioDistributionArray[index++] = c;
 				}
 			}
 			if (ratioPositive != null) {
 				for (char c : ratioPositive) {
-					ratioDistribution[index++] = c;
+					ratioDistributionArray[index++] = c;
 				}
 			}
 		} else {
 			sb.appendEscaped("-");
 			return sb.toSafeHtml();
 		}
+		boolean isInfinity = false;
+		if (Double.compare(r.getValue(), Double.MAX_VALUE) == 0
+				|| Double.compare(r.getValue(), -Double.MAX_VALUE) == 0) {
+			isInfinity = true;
+		}
+		String defaultTitle = new StringBuilder("Ratio value: ").append(r.getValue()).append(SharedConstants.SEPARATOR)
+				.append(SharedDataUtils.getRatioHeaderTooltip(ColumnName.PSM_RATIO, r.getCondition1().getId(),
+						r.getCondition2().getId(), r.getId()))
+				.append(SharedConstants.SEPARATOR).append(ratioDistribution.toString()).toString();
+		String minimumTitle = new StringBuilder("Minimum value of this ratio in the dataset:")
+				.append(SharedConstants.SEPARATOR).append(ratioDistribution.getMinRatio()).toString();
+		String maximumTitle = new StringBuilder("Maximum value of this ratio in the dataset:")
+				.append(SharedConstants.SEPARATOR).append(ratioDistribution.getMaxRatio()).toString();
+
 		List<Double> percentages = new ArrayList<Double>();
 		List<Boolean> coveredOrNot = new ArrayList<Boolean>();
 		List<String> titles = new ArrayList<String>();
-		String prefixTitle = "Ratio representation" + "\n";
-
-		int fragmentInitAA = 0;
+		List<Boolean> positives = new ArrayList<Boolean>();
 		int seqLenght = ratioNegative.length;
 		boolean currentPositionCovered = false;
 		int lengthFragment = 0;
-		for (int i = 0; i < ratioNegative.length; i++) {
-			if (ratioNegative[i] == '1') {
+		boolean positiveSign = false;
+		for (int i = 0; i < ratioDistributionArray.length; i++) {
+			positiveSign = i > ratioDistributionArray.length / 2;
+			if (ratioDistributionArray[i] == '1') {
 				if (currentPositionCovered) {
 					lengthFragment++;
 				} else {
 					double percentage = lengthFragment * 100.0 / seqLenght;
 					percentages.add(percentage);
 					coveredOrNot.add(false);
-
 					currentPositionCovered = true;
-
-					titles.add(
-							prefixTitle + lengthFragment + " not covered AAs (" + formatter.format(percentage) + "%)");
-					fragmentInitAA = i + 1;
+					titles.add(positiveSign ? maximumTitle : minimumTitle);
+					positives.add(positiveSign);
 					lengthFragment = 1;
 				}
-			} else if (ratioNegative[i] == '0') {
+			} else {
 				if (!currentPositionCovered) {
 					lengthFragment++;
 				} else {
 					double percentage = lengthFragment * 100.0 / seqLenght;
 					percentages.add(percentage);
 					coveredOrNot.add(true);
-
+					positives.add(positiveSign);
 					currentPositionCovered = false;
-
-					titles.add(prefixTitle + lengthFragment + " AAs length" + SharedConstants.SEPARATOR + fragmentInitAA
-							+ " to " + (i + 1) + " (" + formatter.format(percentage) + "%)");
-					fragmentInitAA = i + 1;
+					titles.add(defaultTitle);
 					lengthFragment = 1;
 				}
 			}
 		}
 		double percentage = lengthFragment * 100.0 / seqLenght;
 		percentages.add(percentage);
+		positives.add(positiveSign);
 		coveredOrNot.add(currentPositionCovered);
-		if (currentPositionCovered) {
-			titles.add(prefixTitle + lengthFragment + " AAs length" + SharedConstants.SEPARATOR + fragmentInitAA
-					+ " to " + seqLenght + " (" + formatter.format(percentage) + "%)");
+		if (!currentPositionCovered) {
+			titles.add(positiveSign ? maximumTitle : minimumTitle);
 		} else {
-			titles.add(prefixTitle + lengthFragment + " not covered AAs (" + formatter.format(percentage) + "%)");
+			titles.add(defaultTitle);
 		}
-
 		if (coveredOrNot.size() == 1 && !coveredOrNot.get(0)) {
 			sb.appendEscaped("-");
 			return sb.toSafeHtml();
 		}
+		final FlowPanel ratioBoxPanel = new FlowPanel();
+		ratioBoxPanel.setStyleName("ratioBox");
 		// iterate over resulting arraylists
 		for (int i = 0; i < coveredOrNot.size(); i++) {
-			final Boolean covered = coveredOrNot.get(i);
-			percentage = percentages.get(i);
-			SafeHtml safeHtml = null;
-			if (covered) {
-				// safeHtml = HtmlTemplates.instance.domainImage(percentage,
-				// MyClientBundle.INSTANCE.sequenceMarker().getSafeUri() ,
-				// titles.get(i));
-				// safeHtml = HtmlTemplates.instance.simpleDiv(percentage,
-				// titles.get(i), "Domain graphicalview");
-				final SimplePanel simplePanel = new SimplePanel();
-				simplePanel.setStyleName("Domain graphicalview");
-				simplePanel.setWidth(percentage + "%");
-				simplePanel.setTitle(titles.get(i));
-				safeHtml = new SafeHtmlBuilder().appendHtmlConstant(simplePanel.toString()).toSafeHtml();
-			} else {
-				// safeHtml = HtmlTemplates.instance.bufferImage(percentage,
-				// MyClientBundle.INSTANCE.sequenceBuffer().getSafeUri(),
-				// titles.get(i));
-				// safeHtml = HtmlTemplates.instance.simpleDiv(percentage,
-				// titles.get(i), "buffer graphicalview");
-				final SimplePanel simplePanel = new SimplePanel();
-				simplePanel.setStyleName("buffer graphicalview");
-				simplePanel.setWidth(percentage + "%");
-				simplePanel.setTitle(titles.get(i));
-				safeHtml = new SafeHtmlBuilder().appendHtmlConstant(simplePanel.toString()).toSafeHtml();
+			String styleName = "NegativeRatio";
+			if (positives.get(i)) {
+				styleName = "PositiveRatio";
 			}
-			sb.append(safeHtml);
+			if (isInfinity) {
+				styleName = "NegativeRatio:hover";
+			}
+			final Boolean covered = coveredOrNot.get(i);
+			percentage = percentages.get(i) / 2.0;
+			if (covered) {
+				final SimplePanel simplePanel = new SimplePanel();
+				simplePanel.setStyleName(styleName + " graphicalviewRatio");
+				simplePanel.setWidth(percentage + "%");
+				simplePanel.setTitle(titles.get(i));
+				ratioBoxPanel.add(simplePanel);
+			} else {
+				final SimplePanel simplePanel = new SimplePanel();
+				if (positives.get(i)) {
+					simplePanel.setStyleName("bufferPositiveRatio graphicalviewRatio");
+				} else {
+					simplePanel.setStyleName("bufferNegativeRatio graphicalviewRatio");
+				}
+				simplePanel.setWidth(percentage + "%");
+				simplePanel.setTitle(titles.get(i));
+				ratioBoxPanel.add(simplePanel);
+			}
 		}
 
+		sb.append(new SafeHtmlBuilder().appendHtmlConstant(ratioBoxPanel.toString()).toSafeHtml());
 		return sb.toSafeHtml();
 	}
 
@@ -673,5 +686,116 @@ public class ClientSafeHtmlUtils {
 			break;
 		}
 		return "";
+	}
+
+	private static char[] getRatioDistributionNegativeCharArray(RatioDistribution ratioDistribution, RatioBean ratio) {
+
+		final int arraySize = 1000;
+		if (Double.compare(-Double.MAX_VALUE, ratio.getValue()) == 0) {
+			char[] ret = new char[arraySize];
+			for (int i = 0; i < ret.length; i++) {
+				ret[i] = '1';
+			}
+			return ret;
+		}
+		if (ratio.getValue() <= 0.0) {
+			if (ratioDistribution != null) {
+				final double maxAbsRatio = ratioDistribution.getMaxAbsRatio();
+				double proportion = arraySize / maxAbsRatio;
+				int ratioIndex = Double.valueOf(Math.abs(ratio.getValue()) * proportion).intValue();
+				ratioIndex = arraySize - ratioIndex;
+				if (ratioIndex == arraySize) {
+					// paint something
+					ratioIndex = arraySize - 1;
+				}
+				char[] ret = new char[arraySize];
+				for (int i = 0; i < ret.length; i++) {
+					if (i <= ratioIndex) {
+					} else {
+						ret[i] = '1';
+					}
+				}
+				return ret;
+			}
+		}
+		return new char[arraySize];
+	}
+
+	private static char[] getRatioDistributionPositiveCharArray(RatioDistribution ratioDistribution, RatioBean ratio) {
+		final int arraySize = 1000;
+		if (Double.compare(Double.MAX_VALUE, ratio.getValue()) == 0) {
+			char[] ret = new char[arraySize];
+			for (int i = 0; i < ret.length; i++) {
+				ret[i] = '1';
+			}
+			return ret;
+		}
+		if (ratio.getValue() >= 0.0) {
+			if (ratioDistribution != null) {
+				final double maxAbsRatio = ratioDistribution.getMaxAbsRatio();
+				double proportion = arraySize / maxAbsRatio;
+				int ratioIndex = Double.valueOf(Math.abs(ratio.getValue()) * proportion).intValue();
+				char[] ret = new char[arraySize];
+				for (int i = 0; i < ret.length; i++) {
+					if (i <= ratioIndex) {
+						ret[i] = '1';
+					}
+				}
+				return ret;
+			}
+		}
+		return new char[arraySize];
+	}
+
+	/**
+	 * The same list getRatioScoreStringByConditions but including the score
+	 * name
+	 *
+	 * @param condition1Name
+	 * @param condition2Name
+	 * @param projectTag
+	 * @param ratioName
+	 * @param skipInfinities
+	 * @return
+	 */
+	public static String getExtendedRatioScoreStringByConditions(ContainsRatios p, String condition1Name,
+			String condition2Name, String projectTag, String ratioName, boolean skipInfinities) {
+		StringBuilder sb = new StringBuilder();
+
+		final List<ScoreBean> ratioScores = p.getRatioScoresByConditions(condition1Name, condition2Name, projectTag,
+				ratioName);
+		for (ScoreBean ratioScore : ratioScores) {
+			try {
+
+				if (!"".equals(sb.toString()))
+					sb.append(SharedConstants.SEPARATOR);
+				sb.append("Confident score associated to ratio: " + ratioName + SharedConstants.SEPARATOR
+						+ "Conditions in ratio: " + condition1Name + " / " + condition2Name + SharedConstants.SEPARATOR
+						+ "Score name: " + ratioScore.getScoreName() + SharedConstants.SEPARATOR);
+
+				Double doubleValue = Double.valueOf(ratioScore.getValue());
+				if (doubleValue.toString().endsWith(".0")) {
+					sb.append("Value: " + String.valueOf(doubleValue.intValue()));
+				} else {
+					try {
+						final String format = NumberFormat.getFormat("#.##").format(doubleValue);
+						sb.append("Score value: " + format);
+					} catch (NumberFormatException e2) {
+
+					}
+				}
+				if (ratioScore.getScoreType() != null) {
+					sb.append(SharedConstants.SEPARATOR + "Score type: " + ratioScore.getScoreType());
+				}
+				if (ratioScore.getScoreDescription() != null) {
+					sb.append(SharedConstants.SEPARATOR + "Score description: " + ratioScore.getScoreDescription());
+				}
+			} catch (NumberFormatException e) {
+				// add the string as it is
+			}
+
+		}
+
+		return sb.toString();
 	}
 }

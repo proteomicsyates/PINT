@@ -2090,8 +2090,12 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 													conditionsPanel);
 											break;
 										case PROTEIN:
-											proteinTablePanel.addColumnforConditionProteinRatio(condition1, letter1,
-													condition2, letter2, projectTag, ratioDescriptor.getRatioName());
+											proteinTablePanel.addColumnforConditionProteinRatio(
+													ColumnName.PROTEIN_RATIO, condition1, letter1, condition2, letter2,
+													projectTag, ratioDescriptor.getRatioName());
+											proteinTablePanel.addColumnforConditionProteinRatio(
+													ColumnName.PROTEIN_RATIO_GRAPH, condition1, letter1, condition2,
+													letter2, projectTag, ratioDescriptor.getRatioName());
 											proteinTablePanel.addColumnforConditionProteinRatioScore(condition1,
 													letter1, condition2, letter2, projectTag,
 													ratioDescriptor.getRatioName());
@@ -2103,17 +2107,30 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 													conditionsPanel);
 											break;
 										case PEPTIDE:
-											peptideTablePanel.addColumnforConditionPeptideRatio(condition1, letter1,
-													condition2, letter2, projectTag, ratioDescriptor.getRatioName());
+											peptideTablePanel.addColumnforConditionPeptideRatio(
+													ColumnName.PEPTIDE_RATIO, condition1, letter1, condition2, letter2,
+													projectTag, ratioDescriptor.getRatioName());
+											peptideTablePanel.addColumnforConditionPeptideRatio(
+													ColumnName.PEPTIDE_RATIO_GRAPH, condition1, letter1, condition2,
+													letter2, projectTag, ratioDescriptor.getRatioName());
 											peptideColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 													ColumnName.PEPTIDE_RATIO, condition1, condition2, projectTag,
 													conditionsPanel);
 											break;
 										case PSM:
-											psmTablePanel.addColumnforConditionPSMRatio(condition1, letter1, condition2,
-													letter2, projectTag, ratioDescriptor.getRatioName());
-											psmOnlyTablePanel.addColumnforConditionPSMRatio(condition1, letter1,
-													condition2, letter2, projectTag, ratioDescriptor.getRatioName());
+											psmTablePanel.addColumnforConditionPSMRatio(ColumnName.PSM_RATIO,
+													condition1, letter1, condition2, letter2, projectTag,
+													ratioDescriptor.getRatioName());
+											psmTablePanel.addColumnforConditionPSMRatio(ColumnName.PSM_RATIO_GRAPH,
+													condition1, letter1, condition2, letter2, projectTag,
+													ratioDescriptor.getRatioName());
+											psmOnlyTablePanel.addColumnforConditionPSMRatio(ColumnName.PSM_RATIO,
+													condition1, letter1, condition2, letter2, projectTag,
+													ratioDescriptor.getRatioName());
+
+											psmOnlyTablePanel.addColumnforConditionPSMRatio(ColumnName.PSM_RATIO_GRAPH,
+													condition1, letter1, condition2, letter2, projectTag,
+													ratioDescriptor.getRatioName());
 											psmColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 													ColumnName.PSM_RATIO, condition1, condition2, projectTag,
 													conditionsPanel);

@@ -47,9 +47,9 @@ public class PSMColumnManager extends ColumnManager<PSMBean> {
 		return column;
 	}
 
-	public PSMTextColumn addPSMRatioColumn(boolean visibleState, String condition1Name, String condition2Name,
-			String projectTag, String ratioName) {
-		final PSMTextColumn column = new PSMTextColumn(ColumnName.PSM_RATIO, visibleState,
+	public PSMTextColumn addPSMRatioColumn(ColumnName columnName, boolean visibleState, String condition1Name,
+			String condition2Name, String projectTag, String ratioName) {
+		final PSMTextColumn column = new PSMTextColumn(columnName, visibleState,
 				footerManager.getRatioFooterByConditions(condition1Name, condition2Name, projectTag, ratioName),
 				condition1Name, condition2Name, projectTag, ratioName);
 		super.addColumn(column);

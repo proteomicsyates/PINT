@@ -2,6 +2,7 @@ package edu.scripps.yates.client.gui.columns;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +22,7 @@ import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.OmimEntryBean;
 import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.ProteinBean;
+import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.NumberFormat;
 import edu.scripps.yates.shared.util.SharedConstants;
@@ -121,9 +123,9 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		case PROTEIN_AMOUNT:
 			return 60;
 		case PROTEIN_RATIO:
-			return 60;
+			return 100;
 		case PROTEIN_RATIO_SCORE:
-			return 60;
+			return 100;
 		case PROTEIN_LENGTH:
 			return 60;
 		case ALTERNATIVE_NAMES:
@@ -146,6 +148,8 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			return 150;
 		case PROTEIN_SEQUENCE_COVERAGE_IMG:
 			return 200;
+		case PROTEIN_RATIO_GRAPH:
+			return 100;
 		default:
 			throw new IllegalArgumentException("Default width not defined for column: " + columnName.getName());
 		}
@@ -217,20 +221,10 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			break;
 		case PROTEIN_RATIO_SCORE:
 
-			final String extendedRatioScoreStringByConditions = p.getExtendedRatioScoreStringByConditions(conditionName,
-					condition2Name, projectTag, ratioName, false);
-			// try {
-			// double value =
-			// Double.valueOf(p.getRatioScoreStringByConditions(conditionName,
-			// condition2Name,
-			// projectTag, ratioName, false));
-			// final String makeColor = CssColorUtil.makeColor(value);
-			// sb.append(template.startToolTip(template.coloredDiv(makeColor,
-			// extendedRatioScoreStringByConditions)
-			// .asString()));
-			// } catch (NumberFormatException e) {
+			final String extendedRatioScoreStringByConditions = ClientSafeHtmlUtils
+					.getExtendedRatioScoreStringByConditions(p, conditionName, condition2Name, projectTag, ratioName,
+							false);
 			sb.append(template.startToolTip(extendedRatioScoreStringByConditions));
-			// }
 
 			super.render(context, p, sb);
 			sb.append(template.endToolTip());
@@ -318,7 +312,13 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		case PROTEIN_SEQUENCE_COVERAGE_IMG:
 			sb.append(ClientSafeHtmlUtils.getProteinCoverageGraphic(p));
 			break;
-
+		case PROTEIN_RATIO_GRAPH:
+			final List<RatioBean> ratios = p.getRatiosByConditions(conditionName, condition2Name, projectTag, ratioName,
+					true);
+			if (!ratios.isEmpty()) {
+				sb.append(ClientSafeHtmlUtils.getRatioGraphic(p, ratios.get(0)));
+			}
+			break;
 		default:
 			sb.append(template.startToolTip(ProteinColumns.getInstance().getValue(columnName, p, conditionName,
 					condition2Name, projectTag, amountType, null, ratioName, false)));

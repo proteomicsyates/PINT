@@ -3,6 +3,7 @@ package edu.scripps.yates.proteindb.persistence.mysql.access;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
@@ -12,11 +13,15 @@ import org.hibernate.criterion.Restrictions;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Gene;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
+import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
+import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
+import edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue;
 
 public class PreparedCriteria {
+	private static final Logger log = Logger.getLogger(PreparedCriteria.class);
 
 	/**
 	 * Returns a criteria after creating it, using the paging on the distinct
@@ -207,6 +212,116 @@ public class PreparedCriteria {
 		cr.add(Restrictions.eq("project.tag", projectTag))
 				.addOrder(Order.asc("proteinAccession.accession").ignoreCase());
 
+		return cr;
+	}
+
+	public static Criteria getCriteriaForProteinRatio(String condition1Name, String condition2Name, String projectTag,
+			String ratioName) {
+
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(ProteinRatioValue.class, "ratio")
+				.createAlias("ratio.ratioDescriptor", "descriptor")
+				.createAlias("descriptor.conditionByExperimentalCondition1Id", "condition1")
+				.createAlias("descriptor.conditionByExperimentalCondition2Id", "condition2")
+				.createAlias("condition1.project", "project");
+		cr.add(Restrictions.eq("project.tag", projectTag));
+		cr.add(Restrictions.eq("condition1.name", condition1Name));
+		cr.add(Restrictions.eq("condition2.name", condition2Name));
+		cr.add(Restrictions.eq("descriptor.description", ratioName));
+		return cr;
+	}
+
+	public static Criteria getCriteriaForPeptideRatio(String condition1Name, String condition2Name, String projectTag,
+			String ratioName) {
+
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(PeptideRatioValue.class, "ratio")
+				.createAlias("ratio.ratioDescriptor", "descriptor")
+				.createAlias("descriptor.conditionByExperimentalCondition1Id", "condition1")
+				.createAlias("descriptor.conditionByExperimentalCondition2Id", "condition2")
+				.createAlias("condition1.project", "project");
+		cr.add(Restrictions.eq("project.tag", projectTag));
+		cr.add(Restrictions.eq("condition1.name", condition1Name));
+		cr.add(Restrictions.eq("condition2.name", condition2Name));
+		cr.add(Restrictions.eq("descriptor.description", ratioName));
+		return cr;
+	}
+
+	public static Criteria getCriteriaForPsmRatio(String condition1Name, String condition2Name, String projectTag,
+			String ratioName) {
+
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(PsmRatioValue.class, "ratio")
+				.createAlias("ratio.ratioDescriptor", "descriptor")
+				.createAlias("descriptor.conditionByExperimentalCondition1Id", "condition1")
+				.createAlias("descriptor.conditionByExperimentalCondition2Id", "condition2")
+				.createAlias("condition1.project", "project");
+		cr.add(Restrictions.eq("project.tag", projectTag));
+		cr.add(Restrictions.eq("condition1.name", condition1Name));
+		cr.add(Restrictions.eq("condition2.name", condition2Name));
+		cr.add(Restrictions.eq("descriptor.description", ratioName));
+		return cr;
+	}
+
+	public static Criteria getCriteriaForProteinRatioMaximumValue(String condition1Name, String condition2Name,
+			String projectTag, String ratioName) {
+		log.info("Preparing criteria for max protein ratio: " + condition1Name + " vs " + condition2Name
+				+ " ratioName: " + ratioName + " in project " + projectTag);
+		final Criteria cr = getCriteriaForProteinRatio(condition1Name, condition2Name, projectTag, ratioName);
+		cr.add(Restrictions.ne("ratio.value", Double.MAX_VALUE));
+		cr.setProjection(Projections.max("ratio.value"));
+		return cr;
+	}
+
+	public static Criteria getCriteriaForProteinRatioMinimumValue(String condition1Name, String condition2Name,
+			String projectTag, String ratioName) {
+		log.info("Preparing criteria for min protein ratio: " + condition1Name + " vs " + condition2Name
+				+ " ratioName: " + ratioName + " in project " + projectTag);
+
+		final Criteria cr = getCriteriaForProteinRatio(condition1Name, condition2Name, projectTag, ratioName);
+		cr.add(Restrictions.ne("ratio.value", -Double.MAX_VALUE));
+		cr.setProjection(Projections.min("ratio.value"));
+		return cr;
+	}
+
+	public static Criteria getCriteriaForPeptideRatioMaximumValue(String condition1Name, String condition2Name,
+			String projectTag, String ratioName) {
+		log.info("Preparing criteria for max peptide ratio: " + condition1Name + " vs " + condition2Name
+				+ " ratioName: " + ratioName + " in project " + projectTag);
+
+		final Criteria cr = getCriteriaForPeptideRatio(condition1Name, condition2Name, projectTag, ratioName);
+		cr.add(Restrictions.ne("ratio.value", Double.MAX_VALUE));
+		cr.setProjection(Projections.max("ratio.value"));
+		return cr;
+	}
+
+	public static Criteria getCriteriaForPeptideRatioMinimumValue(String condition1Name, String condition2Name,
+			String projectTag, String ratioName) {
+		log.info("Preparing criteria for min peptide ratio: " + condition1Name + " vs " + condition2Name
+				+ " ratioName: " + ratioName + " in project " + projectTag);
+
+		final Criteria cr = getCriteriaForPeptideRatio(condition1Name, condition2Name, projectTag, ratioName);
+		cr.add(Restrictions.ne("ratio.value", -Double.MAX_VALUE));
+		cr.setProjection(Projections.min("ratio.value"));
+		return cr;
+	}
+
+	public static Criteria getCriteriaForPsmRatioMaximumValue(String condition1Name, String condition2Name,
+			String projectTag, String ratioName) {
+		log.info("Preparing criteria for max psm ratio: " + condition1Name + " vs " + condition2Name + " ratioName: "
+				+ ratioName + " in project " + projectTag);
+
+		final Criteria cr = getCriteriaForPsmRatio(condition1Name, condition2Name, projectTag, ratioName);
+		cr.add(Restrictions.ne("ratio.value", Double.MAX_VALUE));
+		cr.setProjection(Projections.max("ratio.value"));
+		return cr;
+	}
+
+	public static Criteria getCriteriaForPsmRatioMinimumValue(String condition1Name, String condition2Name,
+			String projectTag, String ratioName) {
+		log.info("Preparing criteria for min psm ratio: " + condition1Name + " vs " + condition2Name + " ratioName: "
+				+ ratioName + " in project " + projectTag);
+
+		final Criteria cr = getCriteriaForPsmRatio(condition1Name, condition2Name, projectTag, ratioName);
+		cr.add(Restrictions.ne("ratio.value", -Double.MAX_VALUE));
+		cr.setProjection(Projections.min("ratio.value"));
 		return cr;
 	}
 }

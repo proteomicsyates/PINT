@@ -2,6 +2,8 @@ package edu.scripps.yates.shared.model;
 
 import java.io.Serializable;
 
+import edu.scripps.yates.shared.util.NumberFormat;
+
 public class RatioDistribution implements Serializable {
 	/**
 		 *
@@ -67,6 +69,24 @@ public class RatioDistribution implements Serializable {
 	 */
 	public void setRatioKey(String ratioKey) {
 		this.ratioKey = ratioKey;
+	}
+
+	/**
+	 * Return the maximum absolute number between the minimum and the maximum
+	 *
+	 * @return
+	 */
+	public double getMaxAbsRatio() {
+		return Math.max(Math.abs(getMinRatio()), Math.abs(getMaxRatio()));
+	}
+
+	@Override
+	public String toString() {
+		final NumberFormat format = NumberFormat.getFormat("#.##");
+		StringBuilder sb = new StringBuilder();
+		sb.append("Ratio distribution in the entire dataset: [").append(format.format(minRatio)).append(",")
+				.append(format.format(maxRatio)).append("]");
+		return sb.toString();
 	}
 
 }

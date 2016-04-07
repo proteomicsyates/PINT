@@ -18,7 +18,7 @@ public enum ColumnName {
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
 	PROTEIN_SEQUENCE_COVERAGE_IMG("Coverage graph", "Protein coverage graph",
-			"Graphical representation of sequence coverage", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
+			"Graphical representation of sequence coverage", HorizontalAlignmentSharedConstant.ALIGN_LEFT),
 	//
 	PROTEIN_LENGTH("Length", "Length", "Length of the protein sequence",
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
@@ -32,21 +32,30 @@ public enum ColumnName {
 	//
 	PROTEIN_AMOUNT("Protein amounts", "Prot. Am.", "Protein amounts"),
 	//
-	PROTEIN_RATIO("Protein ratios", "Prot. Ratios.", "Protein amount ratios"),
+	PROTEIN_RATIO("Protein ratios", "Prot. Ratios.", "Protein amount ratios",
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PROTEIN_RATIO_SCORE("Ratio score", "Ratio sc.", "Score or confident value associated to the protein ratio"),
+	PROTEIN_RATIO_SCORE("Ratio score", "Ratio sc.", "Score or confident value associated to the protein ratio",
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PSM_AMOUNT("Psm amounts", "Psm. Am.", "Psm amounts"),
+	PSM_AMOUNT("Psm amounts", "Psm. Am.", "Psm amounts", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PSM_RATIO("Psm ratios", "Psm. Ratios.", "Psm amount ratios"), // /
+	PSM_RATIO("Psm ratios", "Psm. Ratios.", "Psm amount ratios", HorizontalAlignmentSharedConstant.ALIGN_CENTER), // /
 	//
-	PSM_SCORE("PSM scores", "PSM sc.", "PSM scores"),
+	PSM_RATIO_SCORE("Ratio score", "Ratio sc.", "Score or confident value associated to the psm ratio",
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PEPTIDE_AMOUNT("Peptide amounts", "Pepm. Am.", "Peptide amounts"),
+	PSM_SCORE("PSM scores", "PSM sc.", "PSM scores", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PEPTIDE_RATIO("Peptide ratios", "Pep. Ratios.", "Peptide amount ratios"), // /
+	PEPTIDE_AMOUNT("Peptide amounts", "Pepm. Am.", "Peptide amounts", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PEPTIDE_SCORE("Peptide scores", "Pep sc.", "Peptide scores"),
+	PEPTIDE_RATIO("Peptide ratios", "Pep. Ratios.", "Peptide amount ratios",
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
+	//
+	PEPTIDE_RATIO_SCORE("Ratio score", "Ratio sc.", "Score or confident value associated to the peptide ratio",
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
+	//
+	PEPTIDE_SCORE("Peptide scores", "Pep sc.", "Peptide scores", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
 	PEPTIDE_SEQUENCE("Peptide sequence", "Seq.", "Peptide sequence"),
 	//
@@ -60,7 +69,7 @@ public enum ColumnName {
 	//
 	PTMS("PTMs", "PTMs", "Peptide Modifications"),
 	//
-	PTM_SCORE("PTM score", "PTM Sc.", "Modification confidence score"),
+	PTM_SCORE("PTM score", "PTM Sc.", "Modification confidence score", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
 	PEPTIDE_PI("Isoelectric Point", "PI", "Isoelectric point of the peptide sequence",
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
@@ -103,7 +112,11 @@ public enum ColumnName {
 	//
 	UNIPROT_PROTEIN_EXISTENCE("Protein Existence", "PE", "UniProtKB protein existence",
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
-	PSM_RATIO_GRAPH("Ratio", "R", "Graphical representation of the ratio",
+	PSM_RATIO_GRAPH("Ratio Graph", "R", "Graphical representation of the ratio",
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
+	PEPTIDE_RATIO_GRAPH("Ratio Graph", "R", "Graphical representation of the ratio",
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
+	PROTEIN_RATIO_GRAPH("Ratio Graph", "R", "Graphical representation of the ratio",
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER);
 	// , SPC_BY_RUN("SPC by run",
 	// "SPC by run", "Spectral counts per run");

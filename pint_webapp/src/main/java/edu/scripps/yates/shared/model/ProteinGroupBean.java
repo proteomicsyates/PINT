@@ -45,6 +45,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	// used only for the SPCs:
 	private Set<AmountBean> amounts = new HashSet<AmountBean>();
 
+	private Map<String, RatioDistribution> ratioDistributions;
+
 	public ProteinGroupBean() {
 
 	}
@@ -628,6 +630,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 				amount.setValue(spc);
 				lightVersion.amounts.add(amount);
 			}
+			lightVersion.ratioDistributions = getRatioDistributions();
 		}
 		return lightVersion;
 	}
@@ -727,5 +730,36 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 		list.addAll(this);
 		Collections.sort(list, comparator);
 		return list.iterator();
+	}
+
+	@Override
+	public Map<String, RatioDistribution> getRatioDistributions() {
+		if (ratioDistributions == null) {
+			ratioDistributions = new HashMap<String, RatioDistribution>();
+		}
+		return ratioDistributions;
+	}
+
+	@Override
+	public void addRatioDistribution(RatioDistribution ratioDistribution) {
+		final Map<String, RatioDistribution> ratioDistributions2 = getRatioDistributions();
+		if (!ratioDistributions2.containsKey(ratioDistribution.getRatioKey())) {
+			ratioDistributions.put(ratioDistribution.getRatioKey(), ratioDistribution);
+		}
+	}
+
+	@Override
+	public RatioDistribution getRatioDistribution(RatioBean ratio) {
+		return ratioDistributions.get(SharedDataUtils.getRatioKey(ratio));
+
+	}
+
+	@Override
+	public Set<RatioBean> getRatios() {
+		Set<RatioBean> ret = new HashSet<RatioBean>();
+		for (ProteinBean protein : this) {
+			ret.addAll(protein.getRatios());
+		}
+		return ret;
 	}
 }

@@ -551,8 +551,9 @@ public class DataExporter {
 					if (ratioDescriptors != null) {
 						// iterate over ratioDescriptors
 						for (RatioDescriptorBean ratioDescriptor : ratioDescriptors) {
-							fw.write(SharedDataUtils.getRatioHeader(ratioDescriptor.getRatioName(),
-									ratioDescriptor.getCondition1Name(), ratioDescriptor.getCondition2Name()));
+							fw.write(SharedDataUtils.getRatioHeader(ColumnName.PROTEIN_RATIO,
+									ratioDescriptor.getRatioName(), ratioDescriptor.getCondition1Name(),
+									ratioDescriptor.getCondition2Name()));
 							fw.write(TAB);
 						}
 					}
@@ -607,9 +608,9 @@ public class DataExporter {
 					// iterate over ratioDescriptors
 					if (ratioDescriptors != null) {
 						for (RatioDescriptorBean ratioDescriptor : ratioDescriptors) {
-							fw.write(projectTagString + ratioDescriptor.getRatioName() + " ("
-									+ ratioDescriptor.getCondition1Name() + "/" + ratioDescriptor.getCondition2Name()
-									+ ")");
+							fw.write(
+									SharedDataUtils.getRatioHeader(ColumnName.PSM_RATIO, ratioDescriptor.getRatioName(),
+											ratioDescriptor.getCondition1Name(), ratioDescriptor.getCondition2Name()));
 							fw.write(TAB);
 						}
 					}

@@ -570,7 +570,7 @@ public class CensusOutParser extends AbstractQuantParser {
 						}
 					}
 					Ratio ratio = new CensusRatio(ratioValue, stdValue, false, conditionsByLabels, labelNumerator,
-							labelDenominator, AggregationLevel.PROTEIN, AVERAGE_RATIO);
+							labelDenominator, AggregationLevel.PROTEIN, "AVG_RATIO");
 					quantifiedProtein.addRatio(ratio);
 				}
 			} catch (NumberFormatException e) {

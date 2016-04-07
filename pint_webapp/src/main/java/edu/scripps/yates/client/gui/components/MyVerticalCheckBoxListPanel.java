@@ -17,8 +17,7 @@ import edu.scripps.yates.client.interfaces.ItemList;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 
-public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements
-		ItemList {
+public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements ItemList {
 	private final List<CheckBox> listCheckBox = new ArrayList<CheckBox>();
 	private final Map<ColumnName, CheckBox> map = new HashMap<ColumnName, CheckBox>();
 	private final Set<ColumnManager<T>> columnManagers = new HashSet<ColumnManager<T>>();
@@ -44,11 +43,10 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements
 		// not add the click handler for the column amount, since, it will be a
 		// clickhandler fired by experimental condition name, and they will be
 		// created when receiving the condition names from server at Query
-		if (ColumnName.PROTEIN_AMOUNT != column
-				&& ColumnName.PSM_AMOUNT != column
-				&& ColumnName.PROTEIN_RATIO != column
-				&& ColumnName.PSM_RATIO != column
-				&& ColumnName.PSM_SCORE != null)
+		if (ColumnName.PROTEIN_AMOUNT != column && ColumnName.PSM_AMOUNT != column
+				&& ColumnName.PEPTIDE_AMOUNT != column && ColumnName.PROTEIN_RATIO != column
+				&& ColumnName.PEPTIDE_RATIO != column && ColumnName.PSM_RATIO != column && ColumnName.PSM_SCORE != null
+				&& ColumnName.PEPTIDE_SCORE != column)
 			checkBox.addClickHandler(getClickHandler(column));
 		else {
 		}
@@ -61,25 +59,22 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements
 		add(checkBox);
 	}
 
-	public void addConditionRelatedColumnCheckBoxHandler(ColumnName columnName,
-			String condition1Name, String condition2Name, String projectTag,
-			MyVerticalConditionsListBoxPanel conditionsPanel) {
+	public void addConditionRelatedColumnCheckBoxHandler(ColumnName columnName, String condition1Name,
+			String condition2Name, String projectTag, MyVerticalConditionsListBoxPanel conditionsPanel) {
 		for (CheckBox checkBox : listCheckBox) {
 			if (checkBox.getText().equals(columnName.getName())) {
-				checkBox.addClickHandler(getConditionRelatedColumnClickHandler(
-						columnName, condition1Name, condition2Name, projectTag,
-						conditionsPanel));
+				checkBox.addClickHandler(getConditionRelatedColumnClickHandler(columnName, condition1Name,
+						condition2Name, projectTag, conditionsPanel));
 			}
 		}
 	}
 
-	public void addConditionRelatedColumnCheckBoxHandler(ColumnName columnName,
-			String conditionName, String projectTag,
+	public void addConditionRelatedColumnCheckBoxHandler(ColumnName columnName, String conditionName, String projectTag,
 			MyVerticalConditionsListBoxPanel conditionsPanel) {
 		for (CheckBox checkBox : listCheckBox) {
 			if (checkBox.getText().equals(columnName.getName())) {
-				checkBox.addClickHandler(getConditionRelatedColumnClickHandler(
-						columnName, conditionName, projectTag, conditionsPanel));
+				checkBox.addClickHandler(
+						getConditionRelatedColumnClickHandler(columnName, conditionName, projectTag, conditionsPanel));
 			}
 		}
 	}
@@ -88,7 +83,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements
 	 * This {@link ClickHandler} gets the selection from the {@link CheckBox}
 	 * source of the event and pass it to the {@link ColumnManager} to show or
 	 * hide the corresponding column.
-	 * 
+	 *
 	 * @param column
 	 * @return
 	 */
@@ -108,10 +103,8 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements
 		return handler;
 	}
 
-	private ClickHandler getConditionRelatedColumnClickHandler(
-			final ColumnName columnName, final String conditionName,
-			final String projectTag,
-			final MyVerticalConditionsListBoxPanel conditionsPanel) {
+	private ClickHandler getConditionRelatedColumnClickHandler(final ColumnName columnName, final String conditionName,
+			final String projectTag, final MyVerticalConditionsListBoxPanel conditionsPanel) {
 
 		ClickHandler handler = new ClickHandler() {
 			@Override
@@ -133,8 +126,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements
 				// }
 				//
 				for (ColumnManager<T> columnManager : columnManagers) {
-					columnManager.setVisible(columnName, conditionName,
-							projectTag, visibility);
+					columnManager.setVisible(columnName, conditionName, projectTag, visibility);
 				}
 
 			}
@@ -142,8 +134,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements
 		return handler;
 	}
 
-	private ClickHandler getConditionRelatedColumnClickHandler(
-			final ColumnName columnName, final String condition1Name,
+	private ClickHandler getConditionRelatedColumnClickHandler(final ColumnName columnName, final String condition1Name,
 			final String condition2Name, final String projectTag,
 			final MyVerticalConditionsListBoxPanel conditionsPanel) {
 
@@ -170,8 +161,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements
 				//
 
 				for (ColumnManager<T> columnManager : columnManagers) {
-					columnManager.setVisible(columnName, condition1Name,
-							condition2Name, projectTag, visibility);
+					columnManager.setVisible(columnName, condition1Name, condition2Name, projectTag, visibility);
 				}
 
 			}
@@ -217,7 +207,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements
 	/**
 	 * Changes the value of the {@link CheckBox}es according to the
 	 * corresponding values in the list of {@link ColumnWithVisibility}
-	 * 
+	 *
 	 * @param columnsWithVisibility
 	 */
 	public void setDefaultView(List<ColumnWithVisibility> columnsWithVisibility) {

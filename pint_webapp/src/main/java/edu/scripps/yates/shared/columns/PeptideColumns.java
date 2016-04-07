@@ -56,6 +56,10 @@ public class PeptideColumns implements ColumnProvider<PeptideBean> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PEPTIDE_RATIO, false);
 			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PEPTIDE_RATIO_GRAPH, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PEPTIDE_RATIO_SCORE, false);
+			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.CONDITION, false);
 			columns.add(col);
 		}

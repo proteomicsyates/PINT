@@ -63,6 +63,8 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_RATIO, false);
 			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PROTEIN_RATIO_GRAPH, false);
+			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_RATIO_SCORE, false);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.CONDITION, false);

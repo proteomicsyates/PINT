@@ -59,6 +59,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	private int numPSMs;
 	private PeptideBean lightVersion;
 	private PeptideRelation relation;
+	private Map<String, RatioDistribution> ratioDistributions;
 
 	public PeptideBean() {
 
@@ -366,6 +367,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	/**
 	 * @return the ratios
 	 */
+	@Override
 	public Set<RatioBean> getRatios() {
 		return ratios;
 	}
@@ -904,6 +906,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 			lightVersion.setStartingPositions(getStartingPositions());
 			lightVersion.setRawSequences(getRawSequences());
 			lightVersion.setRelation(getRelation());
+			lightVersion.ratioDistributions = getRatioDistributions();
 		}
 		return lightVersion;
 	}
@@ -959,5 +962,27 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	 */
 	public void setRelation(PeptideRelation relation) {
 		this.relation = relation;
+	}
+
+	@Override
+	public Map<String, RatioDistribution> getRatioDistributions() {
+		if (ratioDistributions == null) {
+			ratioDistributions = new HashMap<String, RatioDistribution>();
+		}
+		return ratioDistributions;
+	}
+
+	@Override
+	public void addRatioDistribution(RatioDistribution ratioDistribution) {
+		final Map<String, RatioDistribution> ratioDistributions2 = getRatioDistributions();
+		if (!ratioDistributions2.containsKey(ratioDistribution.getRatioKey())) {
+			ratioDistributions.put(ratioDistribution.getRatioKey(), ratioDistribution);
+		}
+	}
+
+	@Override
+	public RatioDistribution getRatioDistribution(RatioBean ratio) {
+		return ratioDistributions.get(SharedDataUtils.getRatioKey(ratio));
+
 	}
 }

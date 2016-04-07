@@ -40,9 +40,9 @@ public class PeptideColumnManager extends ColumnManager<PeptideBean> {
 		return column;
 	}
 
-	public PeptideTextColumn addPeptideRatioColumn(boolean visibleState, String condition1Name, String condition2Name,
-			String projectTag, String ratioName) {
-		final PeptideTextColumn column = new PeptideTextColumn(ColumnName.PEPTIDE_RATIO, visibleState,
+	public PeptideTextColumn addPeptideRatioColumn(ColumnName columnName, boolean visibleState, String condition1Name,
+			String condition2Name, String projectTag, String ratioName) {
+		final PeptideTextColumn column = new PeptideTextColumn(columnName, visibleState,
 				footerManager.getRatioFooterByConditions(condition1Name, condition2Name, projectTag, ratioName),
 				condition1Name, condition2Name, projectTag, ratioName);
 		super.addColumn(column);

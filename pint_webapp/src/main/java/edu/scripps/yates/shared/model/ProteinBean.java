@@ -71,6 +71,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	private UniprotProteinExistence uniprotProteinExistence;
 	private char[] coverageArrayString;
 	private String ensemblID;
+	private Map<String, RatioDistribution> ratioDistributions;
 
 	public ProteinBean() {
 		proteinBeanUniqueIdentifier = hashCode();
@@ -475,6 +476,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	/**
 	 * @return the proteinRatios
 	 */
+	@Override
 	public Set<RatioBean> getRatios() {
 		return ratios;
 	}
@@ -863,58 +865,6 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	}
 
 	/**
-	 * The same list getRatioScoreStringByConditions but including the score
-	 * name
-	 *
-	 * @param condition1Name
-	 * @param condition2Name
-	 * @param projectTag
-	 * @param ratioName
-	 * @param skipInfinities
-	 * @return
-	 */
-	public String getExtendedRatioScoreStringByConditions(String condition1Name, String condition2Name,
-			String projectTag, String ratioName, boolean skipInfinities) {
-		StringBuilder sb = new StringBuilder();
-
-		final List<ScoreBean> ratioScores = getRatioScoresByConditions(condition1Name, condition2Name, projectTag,
-				ratioName);
-		for (ScoreBean ratioScore : ratioScores) {
-			try {
-
-				if (!"".equals(sb.toString()))
-					sb.append(SharedConstants.SEPARATOR);
-				sb.append("Confident score associated to ratio: " + ratioName + SharedConstants.SEPARATOR
-						+ "Conditions in ratio: " + condition1Name + " / " + condition2Name + SharedConstants.SEPARATOR
-						+ "Score name: " + ratioScore.getScoreName() + SharedConstants.SEPARATOR);
-
-				Double doubleValue = Double.valueOf(ratioScore.getValue());
-				if (doubleValue.toString().endsWith(".0")) {
-					sb.append("Value: " + String.valueOf(doubleValue.intValue()));
-				} else {
-					try {
-						final String format = NumberFormat.getFormat("#.##").format(doubleValue);
-						sb.append("Score value: " + format);
-					} catch (NumberFormatException e2) {
-
-					}
-				}
-				if (ratioScore.getScoreType() != null) {
-					sb.append(SharedConstants.SEPARATOR + "Score type: " + ratioScore.getScoreType());
-				}
-				if (ratioScore.getScoreDescription() != null) {
-					sb.append(SharedConstants.SEPARATOR + "Score description: " + ratioScore.getScoreDescription());
-				}
-			} catch (NumberFormatException e) {
-				// add the string as it is
-			}
-
-		}
-
-		return sb.toString();
-	}
-
-	/**
 	 * Gets a String with the amount types
 	 *
 	 * @param conditionName
@@ -1225,6 +1175,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 				lightVersion.addPeptideToProtein(lightPeptide);
 			}
 			lightVersion.coverageArrayString = coverageArrayString;
+			lightVersion.ratioDistributions = getRatioDistributions();
 		}
 		return lightVersion;
 	}
@@ -1395,4 +1346,25 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 
 	}
 
+	@Override
+	public Map<String, RatioDistribution> getRatioDistributions() {
+		if (ratioDistributions == null) {
+			ratioDistributions = new HashMap<String, RatioDistribution>();
+		}
+		return ratioDistributions;
+	}
+
+	@Override
+	public void addRatioDistribution(RatioDistribution ratioDistribution) {
+		final Map<String, RatioDistribution> ratioDistributions2 = getRatioDistributions();
+		if (!ratioDistributions2.containsKey(ratioDistribution.getRatioKey())) {
+			ratioDistributions.put(ratioDistribution.getRatioKey(), ratioDistribution);
+		}
+	}
+
+	@Override
+	public RatioDistribution getRatioDistribution(RatioBean ratio) {
+		return ratioDistributions.get(SharedDataUtils.getRatioKey(ratio));
+
+	}
 }

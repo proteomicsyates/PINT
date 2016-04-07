@@ -63,9 +63,12 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 
 			return compareNumberStrings(value1, value2);
 
-		} else if (columnName == ColumnName.PSM_RATIO) {
+		} else if (columnName == ColumnName.PSM_RATIO || columnName == ColumnName.PSM_RATIO_GRAPH) {
 			return SharedDataUtils.compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 
+		} else if (columnName == ColumnName.PSM_RATIO_SCORE) {
+			return SharedDataUtils.compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName,
+					false);
 		} else {
 			try {
 				switch (columnName) {

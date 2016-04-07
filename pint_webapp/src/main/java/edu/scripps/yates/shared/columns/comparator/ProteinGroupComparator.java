@@ -57,7 +57,7 @@ public class ProteinGroupComparator extends BeanComparator<ProteinGroupBean> {
 			} catch (NumberFormatException e) {
 				return amountString1.compareTo(amountString2);
 			}
-		} else if (columnName == ColumnName.PROTEIN_RATIO) {
+		} else if (columnName == ColumnName.PROTEIN_RATIO || columnName == ColumnName.PROTEIN_RATIO_GRAPH) {
 			return SharedDataUtils.compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 		}
 		switch (columnName) {

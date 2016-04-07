@@ -9,8 +9,8 @@ import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.RangeChangeEvent;
 
-import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.ProteinRetrievalService;
+import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
 
 public abstract class MyAsyncDataProvider<T> extends AsyncDataProvider<T> {
@@ -33,16 +33,22 @@ public abstract class MyAsyncDataProvider<T> extends AsyncDataProvider<T> {
 	 */
 	protected boolean needsUpdate(HasData<T> display) {
 		final ColumnSortList columnSortList = getColumnSortList(display);
-		if (columnSortList.size() == 0) {
-			return false;
-		}
 		if (!display.getVisibleRange().equals(range)) {
 			return true;
+		}
+		if (display instanceof MyDataGrid) {
+			MyDataGrid dataGrid = (MyDataGrid) display;
+			if (dataGrid.isForceToRefresh()) {
+				dataGrid.setForceToRefresh(false);
+				return true;
+			}
+		}
+		if (columnSortList.size() == 0) {
+			return false;
 		}
 		if (currentSortInfo == null) {
 			return true;
 		}
-
 		final ColumnSortInfo columnSortInfo = columnSortList.get(0);
 		if (Boolean.compare(currentSortInfo.isAscending(), columnSortInfo.isAscending()) != 0) {
 			return true;
@@ -51,12 +57,6 @@ public abstract class MyAsyncDataProvider<T> extends AsyncDataProvider<T> {
 			return true;
 		}
 
-		if (display instanceof MyDataGrid) {
-			MyDataGrid dataGrid = (MyDataGrid) display;
-			if (dataGrid.isForceToRefresh()) {
-				return true;
-			}
-		}
 		return false;
 	}
 

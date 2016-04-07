@@ -498,6 +498,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	/**
 	 * @return the ratios
 	 */
+	@Override
 	public Set<RatioBean> getRatios() {
 		return ratios;
 	}
@@ -961,6 +962,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 			lightVersion.setStartingPositions(getStartingPositions());
 			lightVersion.setTotalIntensity(getTotalIntensity());
 			lightVersion.setRelation(getRelation());
+			lightVersion.ratioDistributions = getRatioDistributions();
 		}
 		return lightVersion;
 	}
@@ -1073,13 +1075,15 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		}
 	}
 
-	private Map<String, RatioDistribution> getRatioDistributions() {
+	@Override
+	public Map<String, RatioDistribution> getRatioDistributions() {
 		if (ratioDistributions == null) {
 			ratioDistributions = new HashMap<String, RatioDistribution>();
 		}
 		return ratioDistributions;
 	}
 
+	@Override
 	public void addRatioDistribution(RatioDistribution ratioDistribution) {
 		final Map<String, RatioDistribution> ratioDistributions2 = getRatioDistributions();
 		if (!ratioDistributions2.containsKey(ratioDistribution.getRatioKey())) {
@@ -1087,44 +1091,10 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		}
 	}
 
-	public char[] getRatioDistributionNegativeCharArray(RatioBean ratio) {
-		final int arraySize = 100;
+	@Override
+	public RatioDistribution getRatioDistribution(RatioBean ratio) {
+		return ratioDistributions.get(SharedDataUtils.getRatioKey(ratio));
 
-		final RatioDistribution ratioDistribution = ratioDistributions.get(SharedDataUtils.getRatioKey(ratio));
-		if (ratioDistribution != null) {
-			final double maxRatio = ratioDistribution.getMaxRatio();
-			double proportion = arraySize / -maxRatio;
-			int ratioIndex = Double.valueOf(ratio.getValue() * proportion).intValue();
-			ratioIndex = ratioIndex - arraySize;
-			if (ratioIndex > 0) {
-				char[] ret = new char[arraySize];
-				for (int i = 0; i < ret.length; i++) {
-					// less than ratio value
-					if (i < ratioIndex) {
-						ret[i] = '0';
-					} else {
-						ret[i] = '1';
-					}
-				}
-				return ret;
-			}
-
-		}
-		return new char[0];
 	}
 
-	public char[] getRatioDistributionPositiveCharArray(RatioBean ratio) {
-		final RatioDistribution ratioDistribution = ratioDistributions.get(SharedDataUtils.getRatioKey(ratio));
-		if (ratioDistribution != null) {
-			final double minRatio = ratioDistribution.getMinRatio();
-			final double maxRatio = ratioDistribution.getMaxRatio();
-			final double width = ratioDistribution.getWidth();
-			if (maxRatio > 0) {
-				int sizeArray = Double.valueOf(maxRatio * 100.0 / width).intValue();
-				char[] ret = new char[sizeArray];
-				return ret;
-			}
-		}
-		return new char[0];
-	}
 }

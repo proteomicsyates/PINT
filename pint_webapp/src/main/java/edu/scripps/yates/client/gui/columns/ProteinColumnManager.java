@@ -138,9 +138,9 @@ public class ProteinColumnManager extends ColumnManager<ProteinBean> {
 		return column;
 	}
 
-	public ProteinTextColumn addProteinRatioColumn(boolean visibleState, String condition1Name, String condition2Name,
-			String projectTag, String ratioName) {
-		final ProteinTextColumn column = new ProteinTextColumn(ColumnName.PROTEIN_RATIO, visibleState,
+	public ProteinTextColumn addProteinRatioColumn(ColumnName columnName, boolean visibleState, String condition1Name,
+			String condition2Name, String projectTag, String ratioName) {
+		final ProteinTextColumn column = new ProteinTextColumn(columnName, visibleState,
 				footerManager.getRatioFooterByConditions(condition1Name, condition2Name, projectTag, ratioName),
 				condition1Name, condition2Name, projectTag, ratioName);
 		super.addColumn(column);

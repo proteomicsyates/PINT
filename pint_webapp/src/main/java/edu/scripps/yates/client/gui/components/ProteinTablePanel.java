@@ -34,6 +34,7 @@ import edu.scripps.yates.client.gui.columns.MySafeHtmlHeaderWithTooltip;
 import edu.scripps.yates.client.gui.columns.ProteinColumnManager;
 import edu.scripps.yates.client.gui.columns.footers.ProteinFooterManager;
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncProteinBeanListDataProvider;
+import edu.scripps.yates.client.gui.components.dataprovider.MyAsyncDataProvider;
 import edu.scripps.yates.client.interfaces.HasColumns;
 import edu.scripps.yates.client.interfaces.RefreshData;
 import edu.scripps.yates.shared.columns.ColumnName;
@@ -49,7 +50,7 @@ import edu.scripps.yates.shared.util.SharedDataUtils;
 public class ProteinTablePanel extends FlowPanel implements HasColumns, RefreshData, ProvidesResize {
 
 	private static final String cwDataGridEmpty = "No proteins shown";
-	private final AsyncProteinBeanListDataProvider asyncProteinDataListProvider;
+	private final MyAsyncDataProvider asyncProteinDataListProvider;
 	private final MyDataGrid<ProteinBean> dataGrid;
 	private final ProteinColumnManager proteinColumnManager;
 	private final ProteinFooterManager footerManager;
@@ -203,7 +204,8 @@ public class ProteinTablePanel extends FlowPanel implements HasColumns, RefreshD
 			ColumnName columnName = myColumn.getColumnName();
 			// don't do anything with amount because the conditions
 			// are not loaded yet
-			if (columnName != ColumnName.PROTEIN_AMOUNT && columnName != ColumnName.PROTEIN_RATIO) {
+			if (columnName != ColumnName.PROTEIN_AMOUNT && columnName != ColumnName.PROTEIN_RATIO
+					&& columnName != ColumnName.PROTEIN_RATIO_SCORE && columnName != ColumnName.PROTEIN_RATIO_GRAPH) {
 				final boolean visible = proteinColumnManager.isVisible(columnName);
 				final Header<String> footer = proteinColumnManager.getFooter(columnName);
 
@@ -225,7 +227,7 @@ public class ProteinTablePanel extends FlowPanel implements HasColumns, RefreshD
 	/**
 	 * @return the dataProvider
 	 */
-	public AsyncProteinBeanListDataProvider getAsyncDataProvider() {
+	public MyAsyncDataProvider getAsyncDataProvider() {
 		return asyncProteinDataListProvider;
 	}
 
@@ -382,20 +384,19 @@ public class ProteinTablePanel extends FlowPanel implements HasColumns, RefreshD
 		}
 	}
 
-	public void addColumnforConditionProteinRatio(String condition1Name, String condition1ID, String condition2Name,
-			String condition2ID, String projectTag, String ratioName) {
+	public void addColumnforConditionProteinRatio(ColumnName columnName, String condition1Name, String condition1ID,
+			String condition2Name, String condition2ID, String projectTag, String ratioName) {
 		// check first if the column is already present or not
-		if (!proteinColumnManager.containsColumn(ColumnName.PROTEIN_RATIO, condition1Name, condition2Name, projectTag,
-				ratioName)) {
-			Column<ProteinBean, String> column = proteinColumnManager.addProteinRatioColumn(
-					ProteinColumns.getInstance().getColumn(ColumnName.PROTEIN_RATIO).isVisible(), condition1Name,
-					condition2Name, projectTag, ratioName);
+		if (!proteinColumnManager.containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName)) {
+			Column<ProteinBean, String> column = proteinColumnManager.addProteinRatioColumn(columnName,
+					ProteinColumns.getInstance().getColumn(columnName).isVisible(), condition1Name, condition2Name,
+					projectTag, ratioName);
 			MyColumn<ProteinBean> myColumn = (MyColumn<ProteinBean>) column;
 			Header<String> footer = myColumn.getFooter();
-			String headerName = SharedDataUtils.getRatioHeader(ratioName, condition1ID, condition2ID);
-			final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(ColumnName.PROTEIN_RATIO,
+			String headerName = SharedDataUtils.getRatioHeader(columnName, ratioName, condition1ID, condition2ID);
+			final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 					SafeHtmlUtils.fromSafeConstant(headerName),
-					SharedDataUtils.getRatioHeaderTooltip(condition1Name, condition2Name, ratioName));
+					SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
 			if (footer != null) {
 				dataGrid.addColumn(column, header, footer);
 			} else {

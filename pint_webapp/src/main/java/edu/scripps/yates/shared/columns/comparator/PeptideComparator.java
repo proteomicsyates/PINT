@@ -62,9 +62,12 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 
 			return compareNumberStrings(value1, value2);
 
-		} else if (columnName == ColumnName.PEPTIDE_RATIO) {
+		} else if (columnName == ColumnName.PEPTIDE_RATIO || columnName == ColumnName.PEPTIDE_RATIO_GRAPH) {
 			return SharedDataUtils.compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 
+		} else if (columnName == ColumnName.PEPTIDE_RATIO_SCORE) {
+			return SharedDataUtils.compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName,
+					false);
 		} else {
 			try {
 				switch (columnName) {

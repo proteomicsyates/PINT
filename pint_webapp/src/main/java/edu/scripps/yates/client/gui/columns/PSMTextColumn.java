@@ -183,6 +183,16 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyColumn
 			super.render(context, psm, sb);
 			sb.append(template.endToolTip());
 			break;
+		case PSM_RATIO_SCORE:
+
+			final String extendedRatioScoreStringByConditions = ClientSafeHtmlUtils
+					.getExtendedRatioScoreStringByConditions(psm, conditionName, condition2Name, projectTag, ratioName,
+							false);
+			sb.append(template.startToolTip(extendedRatioScoreStringByConditions));
+
+			super.render(context, psm, sb);
+			sb.append(template.endToolTip());
+			break;
 		case ACC:
 			sb.append(ClientSafeHtmlUtils.getAccLinks(psm, true));
 
@@ -215,7 +225,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyColumn
 			final List<RatioBean> ratios = psm.getRatiosByConditions(conditionName, condition2Name, projectTag,
 					ratioName, true);
 			if (!ratios.isEmpty()) {
-				sb.append(ClientSafeHtmlUtils.getPSMRatioGraphic(psm, ratios.get(0)));
+				sb.append(ClientSafeHtmlUtils.getRatioGraphic(psm, ratios.get(0)));
 			}
 			break;
 		default:
@@ -272,6 +282,8 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyColumn
 			return 50;
 		case PSM_RATIO:
 			return 100;
+		case PSM_RATIO_SCORE:
+			return 100;
 		case PEPTIDE_SEQUENCE:
 			return 300;
 		case PTM_SCORE:
@@ -297,7 +309,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyColumn
 		case PEPTIDE_EVIDENCE:
 			return 150;
 		case PSM_RATIO_GRAPH:
-			return 200;
+			return 100;
 		default:
 			try {
 				// look if it is a column defined in the protein column, like

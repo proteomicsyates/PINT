@@ -482,13 +482,13 @@ public class RemoteServicesTasks {
 			}
 			// Peptide
 			final List<RatioDescriptor> peptideRatioDescriptorsByProject = PreparedQueries
-					.getPSMRatioDescriptorsByProject(projectName);
+					.getPeptideRatioDescriptorsByProject(projectName);
 			for (RatioDescriptor ratioDescriptor : peptideRatioDescriptorsByProject) {
 				ret.add(new RatioDescriptorAdapter(ratioDescriptor, SharedAggregationLevel.PEPTIDE).adapt());
 			}
 			// Protein
 			final List<RatioDescriptor> proteinRatioDescriptorsByProject = PreparedQueries
-					.getPSMRatioDescriptorsByProject(projectName);
+					.getProteinRatioDescriptorsByProject(projectName);
 			for (RatioDescriptor ratioDescriptor : proteinRatioDescriptorsByProject) {
 				ret.add(new RatioDescriptorAdapter(ratioDescriptor, SharedAggregationLevel.PROTEIN).adapt());
 			}

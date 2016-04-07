@@ -34,6 +34,7 @@ import edu.scripps.yates.client.gui.columns.MySafeHtmlHeaderWithTooltip;
 import edu.scripps.yates.client.gui.columns.PeptideColumnManager;
 import edu.scripps.yates.client.gui.columns.PeptideTextColumn;
 import edu.scripps.yates.client.gui.columns.footers.PeptideFooterManager;
+import edu.scripps.yates.client.gui.components.dataprovider.MyAsyncDataProvider;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.interfaces.HasColumns;
 import edu.scripps.yates.client.interfaces.RefreshData;
@@ -58,7 +59,7 @@ public class PeptideTablePanel extends Composite implements HasColumns, RefreshD
 	private VerticalPanel loadingPanel;
 	private final String emptyLabelString;
 	private final ShowHiddePanel peptideLoaderFromProjects;
-	private final AsyncDataProvider<PeptideBean> asyncDataListProvider;
+	private final MyAsyncDataProvider<PeptideBean> asyncDataListProvider;
 
 	private final SingleSelectionModel<PeptideBean> selectionModel;
 
@@ -66,7 +67,7 @@ public class PeptideTablePanel extends Composite implements HasColumns, RefreshD
 	private final FlowPanel mainPanel;
 
 	public PeptideTablePanel(String emptyLabel, ShowHiddePanel showhiddePSMPanel,
-			AsyncDataProvider<PeptideBean> asyncDataListProvider) {
+			MyAsyncDataProvider<PeptideBean> asyncDataListProvider) {
 		super();
 		emptyLabelString = emptyLabel;
 		if (emptyLabelString != null)
@@ -169,7 +170,7 @@ public class PeptideTablePanel extends Composite implements HasColumns, RefreshD
 			// don't do anything with amount because the conditions
 			// are not loaded yet
 			if (columnName != ColumnName.PEPTIDE_AMOUNT && columnName != ColumnName.PEPTIDE_SCORE
-					&& columnName != ColumnName.PEPTIDE_RATIO) {
+					&& columnName != ColumnName.PEPTIDE_RATIO && columnName != ColumnName.PEPTIDE_RATIO_GRAPH) {
 				final Header<String> footer = peptideColumnManager.getFooter(columnName);
 
 				dataGrid.addColumn(columnName,
@@ -226,7 +227,7 @@ public class PeptideTablePanel extends Composite implements HasColumns, RefreshD
 
 		}
 		dataGrid.setForceToRefresh(true);
-		// if (redraw) {
+		// if (true || redraw) {
 		dataGrid.redrawVisibleItems();
 		// dataGrid.updateTableMinimumWidth();
 		// }
@@ -316,7 +317,7 @@ public class PeptideTablePanel extends Composite implements HasColumns, RefreshD
 			}
 		}
 		dataGrid.setForceToRefresh(true);
-		// if (redraw) {
+		// if (true || redraw) {
 		dataGrid.redrawVisibleItems();
 		// dataGrid.updateTableMinimumWidth();
 		// }
@@ -348,20 +349,19 @@ public class PeptideTablePanel extends Composite implements HasColumns, RefreshD
 		}
 	}
 
-	public void addColumnforConditionPeptideRatio(String condition1Name, String condition1ID, String condition2Name,
-			String condition2ID, String projectTag, String ratioName) {
+	public void addColumnforConditionPeptideRatio(ColumnName columnName, String condition1Name, String condition1ID,
+			String condition2Name, String condition2ID, String projectTag, String ratioName) {
 		// check first if the column is already present or not
-		if (!peptideColumnManager.containsColumn(ColumnName.PEPTIDE_RATIO, condition1Name, condition2Name, projectTag,
-				ratioName)) {
-			PeptideTextColumn column = peptideColumnManager.addPeptideRatioColumn(
-					PeptideColumns.getInstance().getColumn(ColumnName.PEPTIDE_RATIO).isVisible(), condition1Name,
-					condition2Name, projectTag, ratioName);
+		if (!peptideColumnManager.containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName)) {
+			PeptideTextColumn column = peptideColumnManager.addPeptideRatioColumn(columnName,
+					PeptideColumns.getInstance().getColumn(columnName).isVisible(), condition1Name, condition2Name,
+					projectTag, ratioName);
 
 			Header<String> footer = column.getFooter();
-			String headerName = SharedDataUtils.getRatioHeader(ratioName, condition1ID, condition2ID);
-			final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(ColumnName.PEPTIDE_RATIO,
+			String headerName = SharedDataUtils.getRatioHeader(columnName, ratioName, condition1ID, condition2ID);
+			final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 					SafeHtmlUtils.fromSafeConstant(headerName),
-					SharedDataUtils.getRatioHeaderTooltip(condition1Name, condition2Name, ratioName));
+					SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
 			if (footer != null) {
 				dataGrid.addColumn(column, header, footer);
 			} else {

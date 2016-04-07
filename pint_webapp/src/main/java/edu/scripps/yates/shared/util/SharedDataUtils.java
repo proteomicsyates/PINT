@@ -19,6 +19,7 @@ import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.Proj
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsDataObject;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
+import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AccessionBean;
 import edu.scripps.yates.shared.model.AccessionType;
 import edu.scripps.yates.shared.model.AmountBean;
@@ -916,8 +917,10 @@ public class SharedDataUtils {
 	}
 
 	public static String getRatioKey(RatioBean ratio) {
-		return new StringBuilder().append(ratio.getDescription()).append(ratio.getCondition1().getId())
-				.append(ratio.getCondition2().getId()).append(ratio.getCondition1().getProject().getId()).toString();
+		final String key = new StringBuilder().append(ratio.getDescription()).append(ratio.getCondition1().getId())
+				.append(ratio.getCondition2().getId()).append(ratio.getCondition1().getProject().getId())
+				.append(ratio.getRatioDescriptorBean().getAggregationLevel().name()).toString();
+		return key;
 	}
 
 	public static String getAmountHeader(AmountType amountType, String conditionID) {
@@ -929,11 +932,20 @@ public class SharedDataUtils {
 				+ SharedConstants.SEPARATOR + "Project: " + projectTag;
 	}
 
-	public static String getRatioHeader(String ratioName, String condition1ID, String condition2ID) {
+	public static String getRatioHeader(ColumnName columnName, String ratioName, String condition1ID,
+			String condition2ID) {
+
 		return ratioName + "(" + condition1ID + " / " + condition2ID + ")";
 	}
 
-	public static String getRatioHeaderTooltip(String condition1Name, String condition2Name, String ratioName) {
+	public static String getRatioHeaderTooltip(ColumnName columnName, String condition1Name, String condition2Name,
+			String ratioName) {
+
+		if (columnName == ColumnName.PSM_RATIO_GRAPH || columnName == ColumnName.PROTEIN_RATIO_GRAPH
+				|| columnName == ColumnName.PEPTIDE_RATIO_GRAPH) {
+			return "Graphical representation of the ratio between conditions: " + condition1Name + " / "
+					+ condition2Name + SharedConstants.SEPARATOR + "Ratio name: " + ratioName;
+		}
 		return "Ratio between conditions: " + condition1Name + " / " + condition2Name + SharedConstants.SEPARATOR
 				+ "Ratio name: " + ratioName;
 	}
