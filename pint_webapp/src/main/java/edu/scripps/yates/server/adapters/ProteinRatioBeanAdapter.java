@@ -38,7 +38,7 @@ public class ProteinRatioBeanAdapter implements Adapter<RatioBean> {
 		ret.setValue(PersistenceUtils.parseRatioValueConvert2Infinities(proteinRatioValue.getValue()));
 		ret.setDbID(proteinRatioValue.getId());
 		RatioDescriptorBean ratioDescriptorBean = new RatioDescriptorAdapter(proteinRatioValue.getRatioDescriptor(),
-				SharedAggregationLevel.PSM).adapt();
+				SharedAggregationLevel.PROTEIN).adapt();
 		ret.setRatioDescriptorBean(ratioDescriptorBean);
 		return ret;
 	}
