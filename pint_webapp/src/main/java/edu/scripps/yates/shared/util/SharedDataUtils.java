@@ -916,6 +916,13 @@ public class SharedDataUtils {
 		}
 	}
 
+	/**
+	 * Gets a unique key for the ratio bean, including the ratio name, the
+	 * condition names, the project and the aggregation level
+	 * 
+	 * @param ratio
+	 * @return
+	 */
 	public static String getRatioKey(RatioBean ratio) {
 		final String key = new StringBuilder().append(ratio.getDescription()).append(ratio.getCondition1().getId())
 				.append(ratio.getCondition2().getId()).append(ratio.getCondition1().getProject().getId())
