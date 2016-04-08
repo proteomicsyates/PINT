@@ -710,7 +710,7 @@ public class ClientSafeHtmlUtils {
 				}
 				char[] ret = new char[arraySize];
 				for (int i = 0; i < ret.length; i++) {
-					if (i <= ratioIndex) {
+					if (i < ratioIndex) {
 					} else {
 						ret[i] = '1';
 					}
