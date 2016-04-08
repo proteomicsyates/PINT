@@ -209,8 +209,51 @@ public class PreparedCriteria {
 								.add(Projections.property("proteinAccession.accession"), "acc")
 								.add(Projections.property("proteinAccession.description"), "description")));
 
-		cr.add(Restrictions.eq("project.tag", projectTag))
-				.addOrder(Order.asc("proteinAccession.accession").ignoreCase());
+		cr.add(Restrictions.eq("project.tag", projectTag));
+
+		return cr;
+	}
+
+	public static Criteria getCriteriaForProteinProjectionByProteinACCInProject(String projectTag) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Protein.class, "protein")
+				.createAlias("protein.genes", "gene").createAlias("protein.proteinAccessions", "proteinAccession")
+				.createAlias("protein.conditions", "condition").createAlias("condition.project", "project")
+				.setProjection(Projections.projectionList()
+						.add(Projections.distinct(Projections.property("proteinAccession.accession")), "acc")
+						.add(Projections.property("gene.geneId"), "gene")
+						.add(Projections.property("proteinAccession.description"), "description"));
+
+		cr.add(Restrictions.eq("project.tag", projectTag));
+
+		return cr;
+	}
+
+	public static Criteria getCriteriaForProteinProjectionByProteinNameInProject(String projectTag) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Protein.class, "protein")
+				.createAlias("protein.genes", "gene").createAlias("protein.proteinAccessions", "proteinAccession")
+				.createAlias("protein.conditions", "condition").createAlias("condition.project", "project")
+				.setProjection(
+						Projections.projectionList()
+								.add(Projections.distinct(Projections.property("proteinAccession.description")),
+										"description")
+								.add(Projections.property("proteinAccession.accession"), "acc")
+								.add(Projections.property("gene.geneId"), "gene"));
+
+		cr.add(Restrictions.eq("project.tag", projectTag));
+
+		return cr;
+	}
+
+	public static Criteria getCriteriaForProteinProjectionByGeneNameInProject(String projectTag) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Protein.class, "protein")
+				.createAlias("protein.genes", "gene").createAlias("protein.proteinAccessions", "proteinAccession")
+				.createAlias("protein.conditions", "condition").createAlias("condition.project", "project")
+				.setProjection(Projections.projectionList()
+						.add(Projections.distinct(Projections.property("gene.geneId")), "gene")
+						.add(Projections.property("proteinAccession.accession"), "acc")
+						.add(Projections.property("proteinAccession.description"), "description"));
+
+		cr.add(Restrictions.eq("project.tag", projectTag));
 
 		return cr;
 	}
