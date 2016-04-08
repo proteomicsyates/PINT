@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,6 +70,7 @@ import edu.scripps.yates.server.grouping.GroupableExtendedPsmBean;
 import edu.scripps.yates.server.projectCreator.adapter.RemoteSSHFileReferenceAdapter;
 import edu.scripps.yates.server.util.DefaultViewReader;
 import edu.scripps.yates.server.util.FileManager;
+import edu.scripps.yates.server.util.ServerDataUtils;
 import edu.scripps.yates.server.util.ServerUtil;
 import edu.scripps.yates.shared.model.AccessionBean;
 import edu.scripps.yates.shared.model.AccessionType;
@@ -101,12 +103,10 @@ import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.Gene;
 import edu.scripps.yates.utilities.proteomicsmodel.UniprotLineHeader;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
-import edu.scripps.yates.utilities.strings.StringUtils;
 import edu.scripps.yates.utilities.util.Pair;
 
 public class RemoteServicesTasks {
 	private final static Logger log = Logger.getLogger(RemoteServicesTasks.class);
-	private static final String SPECIAL_CHARACTER = "$";
 	private static final Map<String, Set<String>> hiddenPTMsByProject = new HashMap<String, Set<String>>();
 
 	public static Map<String, Set<Protein>> getProteinsFromProject(String sessionID, String projectTag,
@@ -157,7 +157,7 @@ public class RemoteServicesTasks {
 	 */
 	public static void annotateProteinsUNIPROT(Collection<ProteinBean> proteinBeans, String uniprotVersion,
 			Collection<String> hiddenPTMs) {
-
+		int initialProteinNumber = proteinBeans.size();
 		UniprotProteinRetriever uplr = new UniprotProteinRetriever(uniprotVersion,
 				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 				UniprotProteinRetrievalSettings.getInstance().isUseIndex());
@@ -172,8 +172,13 @@ public class RemoteServicesTasks {
 		final Map<String, String> annotatedProteinsSequences = uplr.getAnnotatedProteinSequence(accessions);
 		log.info("Received " + annotatedProteinsSequences.size() + " annotated proteins sequences");
 
+		// keep a map of the proteins by its primery accession, in order to
+		// merge if needed
+		Map<String, ProteinBean> proteinMap = new HashMap<String, ProteinBean>();
 		int numSequences = 0;
-		for (ProteinBean proteinBean : proteinBeans) {
+		final Iterator<ProteinBean> iterator = proteinBeans.iterator();
+		while (iterator.hasNext()) {
+			ProteinBean proteinBean = iterator.next();
 			String accession = proteinBean.getPrimaryAccession().getAccession();
 			final edu.scripps.yates.utilities.proteomicsmodel.Protein annotatedProtein = annotatedProteins
 					.get(accession);
@@ -181,10 +186,13 @@ public class RemoteServicesTasks {
 				final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = annotatedProtein
 						.getAnnotations();
 				for (edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation proteinAnnotation : proteinAnnotations) {
+					// FUNCTION
 					if (proteinAnnotation.getAnnotationType() == AnnotationType.function) {
 						proteinBean.addFunction(proteinAnnotation.getValue());
+						// ENSAMBLE ID
 					} else if (proteinAnnotation.getAnnotationType() == AnnotationType.ensemblID) {
 						proteinBean.addEnsemblID(proteinAnnotation.getValue());
+						// PROTEIN EXISTENCE
 					} else if (!proteinAnnotation.getAnnotationType().getUniprotLineHeaders().isEmpty()
 							&& proteinAnnotation.getAnnotationType().getUniprotLineHeaders()
 									.contains(UniprotLineHeader.PE)) {
@@ -194,11 +202,11 @@ public class RemoteServicesTasks {
 						proteinBean.addAnnotation(new ProteinAnnotationBeanAdapter(proteinAnnotation).adapt());
 					}
 				}
-				// override the description of the primary accession
+				// override the primary accession
 				proteinBean.getPrimaryAccession()
 						.setDescription(annotatedProtein.getPrimaryAccession().getDescription());
 				proteinBean.getPrimaryAccession().setAccession(annotatedProtein.getPrimaryAccession().getAccession());
-
+				accession = annotatedProtein.getPrimaryAccession().getAccession();
 				if (annotatedProtein.getPrimaryAccession().getAlternativeNames() != null
 						&& !annotatedProtein.getPrimaryAccession().getAlternativeNames().isEmpty()) {
 					proteinBean.getPrimaryAccession().getAlternativeNames().clear();
@@ -234,82 +242,51 @@ public class RemoteServicesTasks {
 					}
 				}
 			}
+			// just add it to the map
+			boolean merged = addToMapAndMergeIfNecessary(proteinMap, proteinBean);
+			if (merged) {
+				// remove the protein from the collection (from the dataset)
+				// because it has been merged to another proteinBean
+				iterator.remove();
+				// assign to proteinBean the object with all the information
+				// merged, in order to calculate again the coverage below
+				proteinBean = proteinMap.get(proteinBean.getPrimaryAccession().getAccession());
+			}
 
 			if (annotatedProteinsSequences.containsKey(accession)) {
 				numSequences++;
 				String proteinSeq = annotatedProteinsSequences.get(accession).trim();
-
-				StringBuilder proteinSeqTMP = new StringBuilder();
-				proteinSeqTMP.append(proteinSeq);
-				List<PSMBean> psms = proteinBean.getPsms();
-				// RemoteServicesTasks.getPSMsFromProtein( sessionID,
-				// proteinBean, false);
-				for (PSMBean psmBean : psms) {
-					final String pepSeq = psmBean.getSequence();
-					if (pepSeq != null && !"".equals(pepSeq)) {
-						String specialString = getSpecialString(pepSeq.length());
-						List<Integer> positions = StringUtils.allIndexOf(proteinSeq, pepSeq);
-						if (!positions.isEmpty()) {
-							for (Integer position : positions) {
-								psmBean.addPositionByProtein(accession, position);
-								// replace the peptide in the protein with
-								// an special string
-								proteinSeqTMP.replace(position - 1, position + pepSeq.length() - 1, specialString);
-							}
-						}
-					}
-				}
-				List<PeptideBean> peptides = proteinBean.getPeptides();
-				// RemoteServicesTasks.getPSMsFromProtein( sessionID,
-				// proteinBean, false);
-				for (PeptideBean peptideBean : peptides) {
-					final String pepSeq = peptideBean.getSequence();
-					if (pepSeq != null && !"".equals(pepSeq)) {
-						String specialString = getSpecialString(pepSeq.length());
-						List<Integer> positions = StringUtils.allIndexOf(proteinSeq, pepSeq);
-						if (!positions.isEmpty()) {
-							for (Integer position : positions) {
-								peptideBean.addPositionByProtein(accession, position);
-								// replace the peptide in the protein with
-								// an special string
-								proteinSeqTMP.replace(position - 1, position + pepSeq.length() - 1, specialString);
-							}
-						}
-					}
-				}
-				// calculate the protein coverage
-				final int numberOfCoveredAA = StringUtils.allIndexOf(proteinSeqTMP.toString(), SPECIAL_CHARACTER)
-						.size();
-				double coverage = Double.valueOf(numberOfCoveredAA) / Double.valueOf(proteinSeq.length());
-				proteinBean.setCoverage(coverage);
-
-				char[] coveredSequenceArray = new char[proteinSeqTMP.length()];
-				for (int index = 0; index < proteinSeqTMP.length(); index++) {
-					if (proteinSeqTMP.charAt(index) == SPECIAL_CHARACTER.charAt(0)) {
-						coveredSequenceArray[index] = '1';
-					} else {
-						coveredSequenceArray[index] = '0';
-					}
-				}
-				proteinBean.setCoverageArrayString(coveredSequenceArray);
+				ServerDataUtils.calculateProteinCoverage(proteinBean, proteinSeq);
 			}
 		}
 		log.info("Annotations retrieved for " + proteinBeans.size() + " proteins");
 		log.info(numSequences + " protein sequences retrieved");
+		if (initialProteinNumber != proteinBeans.size()) {
+			log.info("Some proteins were merged. Before " + initialProteinNumber + ", after " + proteinBeans.size());
+		}
 	}
 
 	/**
-	 * Gets an special string with a certain length
+	 * add a protein to the map by its primary acc. If there is already a
+	 * protein with the same primary acc, that protein will be merged to the one
+	 * in the map and the function will return true.
 	 *
-	 * @param length
-	 * @return
+	 * @param proteinMap
+	 *            protein map
+	 * @param proteinBean
+	 *            protein to add
+	 * @return true if a merge has been done.
 	 */
-	private static String getSpecialString(int length) {
-		StringBuilder sb = new StringBuilder();
-		while (sb.toString().length() != length) {
-			sb.append(SPECIAL_CHARACTER);
+	private static boolean addToMapAndMergeIfNecessary(Map<String, ProteinBean> proteinMap, ProteinBean proteinBean) {
+		final String primaryAcc = proteinBean.getPrimaryAccession().getAccession();
+		if (!proteinMap.containsKey(primaryAcc)) {
+			proteinMap.put(primaryAcc, proteinBean);
+			return false;
+		} else {
+			log.info("Merging two instances of protein " + primaryAcc);
+			SharedDataUtils.mergeProteinBeans(proteinMap.get(primaryAcc), proteinBean);
+			return true;
 		}
-		return sb.toString();
 	}
 
 	/**
@@ -1137,7 +1114,7 @@ public class RemoteServicesTasks {
 				DataSetsManager.getDataSet(sessionID, null).addProtein(proteinBeanAdapted);
 			}
 			ret.add(proteinBeanAdapted);
-			log.info(numProteins++ + " / " + proteins.size() + " proteins: "
+			log.info(++numProteins + " / " + proteins.size() + " proteins: "
 					+ proteinBeanAdapted.getPrimaryAccession().getAccession());
 			//
 		}

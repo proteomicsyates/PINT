@@ -176,4 +176,13 @@ public interface ProteinRetrievalService extends RemoteService {
 
 	List<ProteinProjection> getProteinProjectionsFromProject(String projectTag) throws PintException;
 
+	Map<String, Set<ProteinProjection>> getProteinProjectionsByProteinACCFromProject(String projectTag)
+			throws PintException;
+
+	Map<String, Set<ProteinProjection>> getProteinProjectionsByProteinNameFromProject(String projectTag)
+			throws PintException;
+
+	Map<String, Set<ProteinProjection>> getProteinProjectionsByGeneNameFromProject(String projectTag)
+			throws PintException;
+
 }

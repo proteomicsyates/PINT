@@ -1012,15 +1012,19 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 						getHiddenPTMs(projectTags));
 				log.info("Creating Peptide beans in session '" + sessionID + "'");
 				RemoteServicesTasks.createPeptideBeansFromPeptideMap(sessionID, result.getPeptides());
-				log.info("Seeting dataset ready in session '" + sessionID + "'");
+				log.info("Setting dataset ready in session '" + sessionID + "'");
 				DataSetsManager.getDataSet(sessionID, queryInOrder).setReady(true);
 
 				log.info("Getting UniprotKB annotations in session '" + sessionID + "'");
 				task.setTaskDescription("Retrieving UniprotKB annotations in session '" + sessionID + "'");
 				task.incrementProgress(1);
+				log.info(DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins().size()
+						+ " protein before annotate");
 				RemoteServicesTasks.annotateProteinsUNIPROT(
 						DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(), null,
 						getHiddenPTMs(projectTags));
+				log.info(DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins().size()
+						+ " protein after annotate");
 				log.info("Getting OMIM annotations in session '" + sessionID + "'");
 				task.setTaskDescription("Retrieving OMIM annotations...");
 				task.incrementProgress(1);
@@ -1963,6 +1967,117 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				proteinProjection.setDescription(FastaParser.getDescription(proteinProjection.getDescription()));
 			}
 			return list;
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		} finally {
+			log.info("Retrieving protein projections for project '" + projectTag + "' is finished");
+
+		}
+	}
+
+	@Override
+	public Map<String, Set<ProteinProjection>> getProteinProjectionsByProteinACCFromProject(String projectTag)
+			throws PintException {
+		try {
+			log.info("Retrieving protein projections by accession for project '" + projectTag + "'");
+			final Criteria cr = PreparedCriteria.getCriteriaForProteinProjectionByProteinACCInProject(projectTag);
+			// transform the results in ProteinProjections
+			cr.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class));
+			List<ProteinProjection> list = cr.list();
+			log.info(list.size() + " protein projections by accession");
+			// override the protein names by using the FastaParser
+			for (ProteinProjection proteinProjection : list) {
+				proteinProjection.setDescription(FastaParser.getDescription(proteinProjection.getDescription()));
+			}
+			// add to the map by acc
+			Map<String, Set<ProteinProjection>> ret = new HashMap<String, Set<ProteinProjection>>();
+			for (ProteinProjection proteinProjection : list) {
+				if (ret.containsKey(proteinProjection.getAcc())) {
+					ret.get(proteinProjection.getAcc()).add(proteinProjection);
+				} else {
+					Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+					set.add(proteinProjection);
+					ret.put(proteinProjection.getAcc(), set);
+				}
+			}
+			return ret;
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		} finally {
+			log.info("Retrieving protein projections for project '" + projectTag + "' is finished");
+
+		}
+	}
+
+	@Override
+	public Map<String, Set<ProteinProjection>> getProteinProjectionsByGeneNameFromProject(String projectTag)
+			throws PintException {
+		try {
+			log.info("Retrieving protein projections by gene name for project '" + projectTag + "'");
+			final Criteria cr = PreparedCriteria.getCriteriaForProteinProjectionByGeneNameInProject(projectTag);
+			// transform the results in ProteinProjections
+			cr.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class));
+			List<ProteinProjection> list = cr.list();
+			log.info(list.size() + " protein projections by gene name");
+			// override the protein names by using the FastaParser
+			for (ProteinProjection proteinProjection : list) {
+				proteinProjection.setDescription(FastaParser.getDescription(proteinProjection.getDescription()));
+			}
+			// add to the map by gene name
+			Map<String, Set<ProteinProjection>> ret = new HashMap<String, Set<ProteinProjection>>();
+			for (ProteinProjection proteinProjection : list) {
+				if (ret.containsKey(proteinProjection.getGene())) {
+					ret.get(proteinProjection.getGene()).add(proteinProjection);
+				} else {
+					Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+					set.add(proteinProjection);
+					ret.put(proteinProjection.getGene(), set);
+				}
+			}
+			return ret;
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		} finally {
+			log.info("Retrieving protein projections for project '" + projectTag + "' is finished");
+
+		}
+	}
+
+	@Override
+	public Map<String, Set<ProteinProjection>> getProteinProjectionsByProteinNameFromProject(String projectTag)
+			throws PintException {
+		try {
+			log.info("Retrieving protein projections by protein name for project '" + projectTag + "'");
+			final Criteria cr = PreparedCriteria.getCriteriaForProteinProjectionByProteinNameInProject(projectTag);
+			// transform the results in ProteinProjections
+			cr.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class));
+			List<ProteinProjection> list = cr.list();
+			log.info(list.size() + " protein projections by protein name");
+			// override the protein names by using the FastaParser
+			for (ProteinProjection proteinProjection : list) {
+				proteinProjection.setDescription(FastaParser.getDescription(proteinProjection.getDescription()));
+			}
+			// add to the map by gene name
+			Map<String, Set<ProteinProjection>> ret = new HashMap<String, Set<ProteinProjection>>();
+			for (ProteinProjection proteinProjection : list) {
+				if (ret.containsKey(proteinProjection.getDescription())) {
+					ret.get(proteinProjection.getDescription()).add(proteinProjection);
+				} else {
+					Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+					set.add(proteinProjection);
+					ret.put(proteinProjection.getDescription(), set);
+				}
+			}
+			return ret;
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)

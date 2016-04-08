@@ -589,19 +589,19 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 			@Override
 			public void onClick(ClickEvent event) {
 
-				String queryText = queryEditorPanel.getQueryTextBox().getText();
+				String queryText = queryEditorPanel.getComplexQueryTextBox().getText();
 				queryText = queryText.replace("\n", " ");
 				sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion());
 
 			}
 		};
-		final ClickHandler sendSimpleQueryclickHandler = new ClickHandler() {
+		final ClickHandler sendSimpleQueryByProteinNameClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				String queryText = queryEditorPanel.getTranslatedQuery();
+				String queryText = queryEditorPanel.getTranslatedQueryFromProteinName();
 				if (queryText != null) {
 					// set the query into the regular query editor
-					queryEditorPanel.getQueryTextBox().setText(queryText);
+					queryEditorPanel.getComplexQueryTextBox().setText(queryText);
 					// send query to server
 					sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion());
 				} else {
@@ -609,7 +609,36 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 				}
 			}
 		};
-		queryEditorPanel = new MyQueryEditorPanel(sendQueryclickHandler, sendSimpleQueryclickHandler);
+		final ClickHandler sendSimpleQueryByAccClickHandler = new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				String queryText = queryEditorPanel.getTranslatedQueryFromAcc();
+				if (queryText != null) {
+					// set the query into the regular query editor
+					queryEditorPanel.getComplexQueryTextBox().setText(queryText);
+					// send query to server
+					sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion());
+				} else {
+					updateStatus("The query is not valid. Only suggested values are allowed in a simple query.");
+				}
+			}
+		};
+		final ClickHandler sendSimpleQueryByGeneNameClickHandler = new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				String queryText = queryEditorPanel.getTranslatedQueryFromGeneName();
+				if (queryText != null) {
+					// set the query into the regular query editor
+					queryEditorPanel.getComplexQueryTextBox().setText(queryText);
+					// send query to server
+					sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion());
+				} else {
+					updateStatus("The query is not valid. Only suggested values are allowed in a simple query.");
+				}
+			}
+		};
+		queryEditorPanel = new MyQueryEditorPanel(sendQueryclickHandler, sendSimpleQueryByProteinNameClickHandler,
+				sendSimpleQueryByAccClickHandler, sendSimpleQueryByGeneNameClickHandler);
 
 		projectInformationPanel = new ProjectInformationPanel(this);
 		scrollProjectInformationPanel = new ScrollPanel(projectInformationPanel);
@@ -674,7 +703,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 
 	protected void appendTextToQueryTextBox(String newText) {
 
-		final TextBoxBase suggestBoxQuery = queryEditorPanel.getQueryTextBox();
+		final TextBoxBase suggestBoxQuery = queryEditorPanel.getComplexQueryTextBox();
 		final int cursorPos = suggestBoxQuery.getCursorPos();
 
 		update(suggestBoxQuery, newText, true, false, false, cursorPos, suggestBoxQuery.getSelectedText());
@@ -928,7 +957,8 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 	private void prepareDownloadLinksForQuery() {
 		queryEditorPanel.setSendingStatusText("Preparing download link...");
 		proteinRetrievingService.getDownloadLinkForProteinsFromQuery(sessionID,
-				queryEditorPanel.getQueryTextBox().getText(), loadedProjects, new AsyncCallback<FileDescriptor>() {
+				queryEditorPanel.getComplexQueryTextBox().getText(), loadedProjects,
+				new AsyncCallback<FileDescriptor>() {
 
 					@Override
 					public void onFailure(Throwable caught) {
@@ -951,7 +981,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 					}
 				});
 		proteinRetrievingService.getDownloadLinkForProteinGroupsFromQuery(sessionID,
-				queryEditorPanel.getQueryTextBox().getText(), loadedProjects,
+				queryEditorPanel.getComplexQueryTextBox().getText(), loadedProjects,
 				proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), new AsyncCallback<FileDescriptor>() {
 
 					@Override
@@ -1357,7 +1387,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 				scoreTypesPanel.getListBox().addItem(scoreType);
 			}
 			// add to suggestions in the query editor
-			queryEditorPanel.addSuggestions(result);
+			queryEditorPanel.addSuggestionsToComplexQuery(result);
 			updateStatus(result.size() + " score types loaded.");
 		}
 	}
@@ -1371,7 +1401,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 				psmOnlyTablePanel.addColumnforPSMScore(scoreName);
 			}
 			// add to suggestions in the query editor
-			queryEditorPanel.addSuggestions(result);
+			queryEditorPanel.addSuggestionsToComplexQuery(result);
 			updateStatus(result.size() + " PSM scores loaded.");
 		}
 	}
@@ -1385,7 +1415,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 				psmOnlyTablePanel.addColumnforPTMScore(scoreName);
 			}
 			// add to suggestions in the query editor
-			queryEditorPanel.addSuggestions(result);
+			queryEditorPanel.addSuggestionsToComplexQuery(result);
 			updateStatus(result.size() + " PTM scores loaded.");
 		}
 	}
@@ -1410,7 +1440,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 						thresholdNamesPanel.getListBox().addItem(thresholdNameType);
 					}
 					// add to suggestions in the query editor
-					queryEditorPanel.addSuggestions(result);
+					queryEditorPanel.addSuggestionsToComplexQuery(result);
 					updateStatus(result.size() + " threshold names loaded.");
 				}
 			}
@@ -1458,7 +1488,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 						annotationsTypePanel.getListBox().addItem(projectName);
 					}
 					// add to suggestions in the query editor
-					queryEditorPanel.addSuggestions(result);
+					queryEditorPanel.addSuggestionsToComplexQuery(result);
 					updateStatus(result.size() + " annotations loaded.");
 				}
 			}
@@ -1552,19 +1582,54 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 	private void loadSimpleQuerySuggestions(Set<String> projectTags) {
 		// load protein projections in the projects
 		for (String projectTag : projectTags) {
-			proteinRetrievingService.getProteinProjectionsFromProject(projectTag,
-					new AsyncCallback<List<ProteinProjection>>() {
+			// by protein name
+			proteinRetrievingService.getProteinProjectionsByProteinNameFromProject(projectTag,
+					new AsyncCallback<Map<String, Set<ProteinProjection>>>() {
 
 						@Override
 						public void onFailure(Throwable caught) {
 							updateStatus(caught);
-							queryEditorPanel.enableSimpleQueries(false);
+							queryEditorPanel.enableSimpleQueriesByProteinName(false);
 						}
 
 						@Override
-						public void onSuccess(List<ProteinProjection> proteinProjections) {
-							queryEditorPanel.addSimpleQuerySuggestionsAsProteinProjections(proteinProjections);
-							queryEditorPanel.enableSimpleQueries(true);
+						public void onSuccess(Map<String, Set<ProteinProjection>> proteinProjections) {
+							queryEditorPanel
+									.addSimpleQueryByProteinNameSuggestionsAsProteinProjections(proteinProjections);
+							queryEditorPanel.enableSimpleQueriesByProteinName(true);
+						}
+					});
+			// by acc
+			proteinRetrievingService.getProteinProjectionsByProteinACCFromProject(projectTag,
+					new AsyncCallback<Map<String, Set<ProteinProjection>>>() {
+
+						@Override
+						public void onFailure(Throwable caught) {
+							updateStatus(caught);
+							queryEditorPanel.enableSimpleQueriesByAcc(false);
+						}
+
+						@Override
+						public void onSuccess(Map<String, Set<ProteinProjection>> proteinProjections) {
+							queryEditorPanel.addSimpleQueryByAccSuggestionsAsProteinProjections(proteinProjections);
+							queryEditorPanel.enableSimpleQueriesByAcc(true);
+						}
+					});
+			// by gene name
+			proteinRetrievingService.getProteinProjectionsByGeneNameFromProject(projectTag,
+					new AsyncCallback<Map<String, Set<ProteinProjection>>>() {
+
+						@Override
+						public void onFailure(Throwable caught) {
+							updateStatus(caught);
+							queryEditorPanel.enableSimpleQueriesByGeneName(false);
+						}
+
+						@Override
+						public void onSuccess(Map<String, Set<ProteinProjection>> proteinProjections) {
+							queryEditorPanel
+									.addSimpleQueryByGeneNameSuggestionsAsProteinProjections(proteinProjections);
+							queryEditorPanel.enableSimpleQueriesByGeneName(true);
 						}
 					});
 		}
@@ -1612,7 +1677,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 					String formattedCommand = result.get(commandAbbreviature);
 					commandsPanel.getListBox().addItem(commandAbbreviature, formattedCommand);
 					// add to suggestions in the query editor
-					queryEditorPanel.addSuggestion(formattedCommand);
+					queryEditorPanel.addSuggestionToComplexQuery(formattedCommand);
 				}
 			}
 		});

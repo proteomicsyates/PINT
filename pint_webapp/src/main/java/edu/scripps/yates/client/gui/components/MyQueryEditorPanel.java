@@ -29,10 +29,13 @@ import edu.scripps.yates.shared.model.ProteinProjection;
 import edu.scripps.yates.shared.util.sublists.QueryResultSubLists;
 
 public class MyQueryEditorPanel extends FlowPanel {
-	private final CommandSuggestion simpleQueryCommandSuggestion = new CommandSuggestion();
+	private final CommandSuggestion simpleQueryByProteinNameCommandSuggestion = new CommandSuggestion();
+	private final CommandSuggestion simpleQueryByAccCommandSuggestion = new CommandSuggestion();
+	private final CommandSuggestion simpleQueryByGeneNameCommandSuggestion = new CommandSuggestion();
+
 	private final CommandSuggestion commandSuggestion = new CommandSuggestion();
 
-	private final TextArea textArea;
+	private final TextArea complexQueryTextBox;
 	// private final SuggestBox suggestBox ;
 
 	private final InlineHTML inlinelabelSendingStatus;
@@ -57,18 +60,25 @@ public class MyQueryEditorPanel extends FlowPanel {
 	private final FlexTable flexTable;
 	private final Label lblNumberOfFeatures;
 
-	private final SuggestBox simpleQueryTextBox;
+	private final SuggestBox simpleQueryByProteinNameTextBox;
+	private final SuggestBox simpleQueryByAccTextBox;
+	private final SuggestBox simpleQueryByGeneNameTextBox;
 
 	private final Label queryDisabledLabel;
 
 	private final Button buttonSendQuery;
-	private final Map<String, Set<ProteinProjection>> proteinProjectionsByProteinAcc = new HashMap<String, Set<ProteinProjection>>();
-	private final Map<String, Set<ProteinProjection>> proteinProjectionsByProteinDescription = new HashMap<String, Set<ProteinProjection>>();
+	private final Map<String, Set<ProteinProjection>> proteinProjectionsByAcc = new HashMap<String, Set<ProteinProjection>>();
+	private final Map<String, Set<ProteinProjection>> proteinProjectionsByProteinName = new HashMap<String, Set<ProteinProjection>>();
 	private final Map<String, Set<ProteinProjection>> proteinProjectionsByGeneName = new HashMap<String, Set<ProteinProjection>>();
-	private final Image simpleQueryReadyState;
-	private final Button sendSimpleQueryButton;
+	private final Image simpleQueryByProteinNameReadyState;
+	private final Button sendSimpleQueryByProteinNameButton;
+	private final Image simpleQueryByAccReadyState;
+	private final Button sendSimpleQueryByAccButton;
+	private final Image simpleQueryByGeneNameReadyState;
+	private final Button sendSimpleQueryByGeneNameButton;
 
-	public MyQueryEditorPanel(ClickHandler sendQueryclickHandler, ClickHandler sendSimpleQueryclickHandler) {
+	public MyQueryEditorPanel(ClickHandler sendQueryclickHandler, ClickHandler sendSimpleQueryByProteinNameClickHandler,
+			ClickHandler sendSimpleQueryByAccClickHandler, ClickHandler sendSimpleQueryByGeneNameClickHandler) {
 		setStyleName("QueryPanel");
 		setWidth("100%");
 		// tabLayoutPanel.add(this, "Query", false);
@@ -80,28 +90,84 @@ public class MyQueryEditorPanel extends FlowPanel {
 		captionPanelSimpleQueryEditor.setStyleName("QueryPanel-horizontal");
 		this.add(captionPanelSimpleQueryEditor);
 		captionPanelSimpleQueryEditor.setSize("90%", "30%");
+		FlowPanel superFlow = new FlowPanel();
+		superFlow.setStyleName("verticalComponent");
+
+		// search by protein name
 		FlowPanel flow1 = new FlowPanel();
 		flow1.setStyleName("horizontalComponent");
-		Label label = new Label("Type here to search for protein names, protein accessions or gene names: ");
+		Label label = new Label("Type here to search for protein names: ");
 		label.getElement().getStyle().setProperty("margin", "10px");
 		label.setStyleName("horizontalComponent");
 		flow1.add(label);
-		simpleQueryTextBox = new SuggestBox(simpleQueryCommandSuggestion);
-		simpleQueryTextBox.setEnabled(false);
-		simpleQueryTextBox.setLimit(50);
-		simpleQueryTextBox.setStyleName("horizontalComponent");
-		((DefaultSuggestionDisplay) simpleQueryTextBox.getSuggestionDisplay()).setAnimationEnabled(true);
-		simpleQueryTextBox.getElement().getStyle().setProperty("margin", "10px");
-		flow1.add(simpleQueryTextBox);
-		simpleQueryReadyState = new Image(MyClientBundle.INSTANCE.smallLoader());
-		simpleQueryReadyState.setTitle("Initializing simple queries");
-		flow1.add(simpleQueryReadyState);
-		sendSimpleQueryButton = new Button("Go");
-		sendSimpleQueryButton.setEnabled(false);
-		sendSimpleQueryButton.addClickHandler(sendSimpleQueryclickHandler);
-		sendSimpleQueryButton.getElement().getStyle().setProperty("margin", "10px");
-		flow1.add(sendSimpleQueryButton);
-		captionPanelSimpleQueryEditor.setContentWidget(flow1);
+		simpleQueryByProteinNameTextBox = new SuggestBox(simpleQueryByProteinNameCommandSuggestion);
+		simpleQueryByProteinNameTextBox.setEnabled(false);
+		simpleQueryByProteinNameTextBox.setLimit(50);
+		simpleQueryByProteinNameTextBox.setStyleName("horizontalComponent");
+		((DefaultSuggestionDisplay) simpleQueryByProteinNameTextBox.getSuggestionDisplay()).setAnimationEnabled(true);
+		simpleQueryByProteinNameTextBox.getElement().getStyle().setProperty("margin", "10px");
+		flow1.add(simpleQueryByProteinNameTextBox);
+		simpleQueryByProteinNameReadyState = new Image(MyClientBundle.INSTANCE.smallLoader());
+		simpleQueryByProteinNameReadyState.setTitle("Initializing queries by protein name...");
+		flow1.add(simpleQueryByProteinNameReadyState);
+		sendSimpleQueryByProteinNameButton = new Button("Go");
+		sendSimpleQueryByProteinNameButton.setTitle("Search by protein name");
+		sendSimpleQueryByProteinNameButton.setEnabled(false);
+		sendSimpleQueryByProteinNameButton.addClickHandler(sendSimpleQueryByProteinNameClickHandler);
+		sendSimpleQueryByProteinNameButton.getElement().getStyle().setProperty("margin", "10px");
+		flow1.add(sendSimpleQueryByProteinNameButton);
+		superFlow.add(flow1);
+
+		// search by protein name
+		FlowPanel flow2 = new FlowPanel();
+		flow2.setStyleName("horizontalComponent");
+		Label label2 = new Label("Type here to search for protein accessions: ");
+		label2.getElement().getStyle().setProperty("margin", "10px");
+		label2.setStyleName("horizontalComponent");
+		flow2.add(label2);
+		simpleQueryByAccTextBox = new SuggestBox(simpleQueryByAccCommandSuggestion);
+		simpleQueryByAccTextBox.setEnabled(false);
+		simpleQueryByAccTextBox.setLimit(50);
+		simpleQueryByAccTextBox.setStyleName("horizontalComponent");
+		((DefaultSuggestionDisplay) simpleQueryByAccTextBox.getSuggestionDisplay()).setAnimationEnabled(true);
+		simpleQueryByAccTextBox.getElement().getStyle().setProperty("margin", "10px");
+		flow2.add(simpleQueryByAccTextBox);
+		simpleQueryByAccReadyState = new Image(MyClientBundle.INSTANCE.smallLoader());
+		simpleQueryByAccReadyState.setTitle("Initializing queries by protein accession...");
+		flow2.add(simpleQueryByAccReadyState);
+		sendSimpleQueryByAccButton = new Button("Go");
+		sendSimpleQueryByAccButton.setTitle("Search by protein accession");
+		sendSimpleQueryByAccButton.setEnabled(false);
+		sendSimpleQueryByAccButton.addClickHandler(sendSimpleQueryByAccClickHandler);
+		sendSimpleQueryByAccButton.getElement().getStyle().setProperty("margin", "10px");
+		flow2.add(sendSimpleQueryByAccButton);
+		superFlow.add(flow2);
+
+		// search by protein name
+		FlowPanel flow3 = new FlowPanel();
+		flow3.setStyleName("horizontalComponent");
+		Label label3 = new Label("Type here to search for gene names: ");
+		label3.getElement().getStyle().setProperty("margin", "10px");
+		label3.setStyleName("horizontalComponent");
+		flow3.add(label3);
+		simpleQueryByGeneNameTextBox = new SuggestBox(simpleQueryByGeneNameCommandSuggestion);
+		simpleQueryByGeneNameTextBox.setEnabled(false);
+		simpleQueryByGeneNameTextBox.setLimit(50);
+		simpleQueryByGeneNameTextBox.setStyleName("horizontalComponent");
+		((DefaultSuggestionDisplay) simpleQueryByGeneNameTextBox.getSuggestionDisplay()).setAnimationEnabled(true);
+		simpleQueryByGeneNameTextBox.getElement().getStyle().setProperty("margin", "10px");
+		flow3.add(simpleQueryByGeneNameTextBox);
+		simpleQueryByGeneNameReadyState = new Image(MyClientBundle.INSTANCE.smallLoader());
+		simpleQueryByGeneNameReadyState.setTitle("Initializing queries by gene name...");
+		flow3.add(simpleQueryByGeneNameReadyState);
+		sendSimpleQueryByGeneNameButton = new Button("Go");
+		sendSimpleQueryByGeneNameButton.setTitle("Search by gene name");
+		sendSimpleQueryByGeneNameButton.setEnabled(false);
+		sendSimpleQueryByGeneNameButton.addClickHandler(sendSimpleQueryByGeneNameClickHandler);
+		sendSimpleQueryByGeneNameButton.getElement().getStyle().setProperty("margin", "10px");
+		flow3.add(sendSimpleQueryByGeneNameButton);
+		superFlow.add(flow3);
+		captionPanelSimpleQueryEditor.setContentWidget(superFlow);
 
 		CaptionPanel captionPanelQueryEditor = new CaptionPanel("Advanced Query Editor");
 		captionPanelQueryEditor.setStyleName("QueryPanel-horizontal");
@@ -116,22 +182,23 @@ public class MyQueryEditorPanel extends FlowPanel {
 		flowPanel.add(queryDisabledLabel);
 		// suggestBox = new SuggestBox(commandSuggestion,
 		// new com.google.gwt.user.client.ui.TextArea());
-		textArea = new TextArea();
-		textArea.setHeight("100%");
-		textArea.setWidth("100%");
-		flowPanel.add(textArea);
+		complexQueryTextBox = new TextArea();
+		complexQueryTextBox.setHeight("100%");
+		complexQueryTextBox.setWidth("100%");
+		flowPanel.add(complexQueryTextBox);
 
 		captionPanelQueryEditor.setContentWidget(flowPanel);
-		getQueryTextBox().setSize("400px", "132px");
+		getComplexQueryTextBox().setSize("400px", "132px");
 
 		// uniprot versions
-		FlowPanel flow2 = new FlowPanel();
-		flow2.setStyleName("QueryPanel-vertical");
+		FlowPanel flow5 = new FlowPanel();
+		flow5.setStyleName("QueryPanel-vertical");
 		InlineHTML inLineHtml = new InlineHTML("Available Uniprot Annotations for the selected projects:");
-		flow2.add(inLineHtml);
-		uniprotVersionListBox = new ListBox(false);
-		flow2.add(uniprotVersionListBox);
-		this.add(flow2);
+		flow5.add(inLineHtml);
+		uniprotVersionListBox = new ListBox();
+		uniprotVersionListBox.setMultipleSelect(false);
+		flow5.add(uniprotVersionListBox);
+		this.add(flow5);
 
 		flowPanel = new FlowPanel();
 		flowPanel.setStyleName("QueryPanel-vertical");
@@ -261,7 +328,7 @@ public class MyQueryEditorPanel extends FlowPanel {
 
 	public void enableQueries(boolean enable) {
 		queryDisabledLabel.setVisible(!enable);
-		textArea.setVisible(enable);
+		complexQueryTextBox.setVisible(enable);
 		buttonSendQuery.setEnabled(enable);
 	}
 
@@ -278,38 +345,70 @@ public class MyQueryEditorPanel extends FlowPanel {
 	/**
 	 * @return the textAreaQuery
 	 */
-	public TextBoxBase getQueryTextBox() {
-		return textArea;
+	public TextBoxBase getComplexQueryTextBox() {
+		return complexQueryTextBox;
 	}
 
-	public void addSuggestions(Collection<String> text) {
+	public void addSuggestionsToComplexQuery(Collection<String> text) {
 		commandSuggestion.addAll(text);
 	}
 
-	public void addSuggestion(String text) {
+	public void addSuggestionToComplexQuery(String text) {
 		commandSuggestion.add(text);
 	}
 
-	private void addSimpleQuerySuggestions(Collection<String> texts) {
-		for (String text : texts) {
-			addSimpleQuerySuggestion(text);
-		}
-	}
+	// private void addSimpleQuerySuggestions(Collection<String> texts) {
+	// for (String text : texts) {
+	// addSimpleQueryByProteinNameSuggestion(text);
+	// }
+	// }
 
-	private void addSimpleQuerySuggestion(String text) {
+	private void addSimpleQueryByProteinNameSuggestion(String text) {
 		if (text != null) {
-			simpleQueryCommandSuggestion.add(text);
+			simpleQueryByProteinNameCommandSuggestion.add(text);
 		}
 	}
 
-	public void addSimpleQuerySuggestionsAsProteinProjections(Collection<ProteinProjection> suggestions) {
-		for (ProteinProjection proteinProjection : suggestions) {
-			addSimpleQuerySuggestion(proteinProjection.getAcc());
-			addSimpleQuerySuggestion(proteinProjection.getDescription());
-			addSimpleQuerySuggestion(proteinProjection.getGene());
-			addProteinProjection(proteinProjection);
+	private void addSimpleQueryByGeneNameSuggestion(String text) {
+		if (text != null) {
+			simpleQueryByGeneNameCommandSuggestion.add(text);
 		}
+	}
 
+	private void addSimpleQueryByAccSuggestion(String text) {
+		if (text != null) {
+			simpleQueryByAccCommandSuggestion.add(text);
+		}
+	}
+
+	public void addSimpleQueryByProteinNameSuggestionsAsProteinProjections(
+			Map<String, Set<ProteinProjection>> proteinProjections) {
+		for (String proteinName : proteinProjections.keySet()) {
+			addSimpleQueryByProteinNameSuggestion(proteinName);
+			for (ProteinProjection p : proteinProjections.get(proteinName)) {
+				addProteinProjectionByProteinName(p);
+			}
+		}
+	}
+
+	public void addSimpleQueryByAccSuggestionsAsProteinProjections(
+			Map<String, Set<ProteinProjection>> proteinProjections) {
+		for (String acc : proteinProjections.keySet()) {
+			addSimpleQueryByAccSuggestion(acc);
+			for (ProteinProjection p : proteinProjections.get(acc)) {
+				addProteinProjectionByAcc(p);
+			}
+		}
+	}
+
+	public void addSimpleQueryByGeneNameSuggestionsAsProteinProjections(
+			Map<String, Set<ProteinProjection>> proteinProjections) {
+		for (String geneName : proteinProjections.keySet()) {
+			addSimpleQueryByGeneNameSuggestion(geneName);
+			for (ProteinProjection p : proteinProjections.get(geneName)) {
+				addProteinProjectionByGeneName(p);
+			}
+		}
 	}
 
 	public void addUniprotVersion(String item, String value) {
@@ -383,13 +482,19 @@ public class MyQueryEditorPanel extends FlowPanel {
 	 * @return the simpleQueryTextBox
 	 */
 	public SuggestBox getSimpleQueryTextBox() {
-		return simpleQueryTextBox;
+		return simpleQueryByProteinNameTextBox;
 	}
 
-	private void addProteinProjection(ProteinProjection p) {
+	private void addProteinProjectionByAcc(ProteinProjection p) {
+		addToMap(proteinProjectionsByAcc, p, p.getAcc());
+	}
+
+	private void addProteinProjectionByProteinName(ProteinProjection p) {
+		addToMap(proteinProjectionsByProteinName, p, p.getDescription());
+	}
+
+	private void addProteinProjectionByGeneName(ProteinProjection p) {
 		addToMap(proteinProjectionsByGeneName, p, p.getGene());
-		addToMap(proteinProjectionsByGeneName, p, p.getAcc());
-		addToMap(proteinProjectionsByGeneName, p, p.getDescription());
 	}
 
 	private void addToMap(Map<String, Set<ProteinProjection>> map, ProteinProjection p, String key) {
@@ -403,26 +508,58 @@ public class MyQueryEditorPanel extends FlowPanel {
 
 	}
 
-	private Set<ProteinProjection> getProteinProjectionsByKey(String key) {
+	private Set<ProteinProjection> getProteinProjectionsByAcc(String key) {
 		Set<ProteinProjection> set = new HashSet<ProteinProjection>();
-		if (proteinProjectionsByGeneName.containsKey(key)) {
-			set.addAll(proteinProjectionsByGeneName.get(key));
+
+		if (proteinProjectionsByAcc.containsKey(key)) {
+			set.addAll(proteinProjectionsByAcc.get(key));
 		}
-		if (proteinProjectionsByProteinAcc.containsKey(key)) {
-			set.addAll(proteinProjectionsByProteinAcc.get(key));
-		}
-		if (proteinProjectionsByProteinDescription.containsKey(key)) {
-			set.addAll(proteinProjectionsByProteinDescription.get(key));
+
+		return set;
+	}
+
+	private Set<ProteinProjection> getProteinProjectionsByProteinName(String key) {
+		Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+		if (proteinProjectionsByProteinName.containsKey(key)) {
+			set.addAll(proteinProjectionsByProteinName.get(key));
 		}
 		return set;
 	}
 
-	public String getTranslatedQuery() {
-		final String queryText = simpleQueryTextBox.getText();
-		final Set<ProteinProjection> proteinProjectionsByKey = getProteinProjectionsByKey(queryText);
+	private Set<ProteinProjection> getProteinProjectionsByGeneName(String key) {
+		Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+		if (proteinProjectionsByGeneName.containsKey(key)) {
+			set.addAll(proteinProjectionsByGeneName.get(key));
+		}
+
+		return set;
+	}
+
+	public String getTranslatedQueryFromProteinName() {
+		final String queryText = simpleQueryByProteinNameTextBox.getText();
+		final Set<ProteinProjection> proteinProjectionsByKey = getProteinProjectionsByProteinName(queryText);
+		return getQueryFromProteinProjections(proteinProjectionsByKey);
+	}
+
+	public String getTranslatedQueryFromAcc() {
+		final String queryText = simpleQueryByAccTextBox.getText();
+		final Set<ProteinProjection> proteinProjectionsByKey = getProteinProjectionsByAcc(queryText);
+		return getQueryFromProteinProjections(proteinProjectionsByKey);
+	}
+
+	public String getTranslatedQueryFromGeneName() {
+		final String queryText = simpleQueryByGeneNameTextBox.getText();
+		final Set<ProteinProjection> proteinProjectionsByKey = getProteinProjectionsByGeneName(queryText);
+		return getQueryFromProteinProjections(proteinProjectionsByKey);
+	}
+
+	private String getQueryFromProteinProjections(Set<ProteinProjection> proteinProjections) {
+		if (proteinProjections == null || proteinProjections.isEmpty()) {
+			return null;
+		}
 		Set<String> accs = new HashSet<String>();
 		// get all the accs
-		for (ProteinProjection p : proteinProjectionsByKey) {
+		for (ProteinProjection p : proteinProjections) {
 			accs.add(p.getAcc());
 		}
 		// build the query
@@ -440,10 +577,21 @@ public class MyQueryEditorPanel extends FlowPanel {
 		return sb.toString();
 	}
 
-	public void enableSimpleQueries(boolean enable) {
-		simpleQueryTextBox.setEnabled(enable);
-		sendSimpleQueryButton.setEnabled(true);
-		simpleQueryReadyState.setVisible(false);
+	public void enableSimpleQueriesByProteinName(boolean enable) {
+		simpleQueryByProteinNameTextBox.setEnabled(enable);
+		sendSimpleQueryByProteinNameButton.setEnabled(true);
+		simpleQueryByProteinNameReadyState.setVisible(false);
+	}
 
+	public void enableSimpleQueriesByAcc(boolean enable) {
+		simpleQueryByAccTextBox.setEnabled(enable);
+		sendSimpleQueryByAccButton.setEnabled(true);
+		simpleQueryByAccReadyState.setVisible(false);
+	}
+
+	public void enableSimpleQueriesByGeneName(boolean enable) {
+		simpleQueryByGeneNameTextBox.setEnabled(enable);
+		sendSimpleQueryByGeneNameButton.setEnabled(true);
+		simpleQueryByGeneNameReadyState.setVisible(false);
 	}
 }

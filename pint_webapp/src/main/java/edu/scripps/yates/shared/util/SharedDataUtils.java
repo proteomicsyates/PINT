@@ -29,6 +29,8 @@ import edu.scripps.yates.shared.model.GeneBean;
 import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.OmimEntryBean;
 import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PTMBean;
+import edu.scripps.yates.shared.model.PTMSiteBean;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ProteinAnnotationBean;
 import edu.scripps.yates.shared.model.ProteinBean;
@@ -121,8 +123,8 @@ public class SharedDataUtils {
 		final List<RatioBean> ratios2 = o2.getRatiosByConditions(condition1Name, condition2Name, projectTag, ratioName,
 				skipInfinities);
 		if (!ratios1.isEmpty() && !ratios2.isEmpty()) {
-			final List<Double> ratioValues1 = SharedDataUtils.getRatioValues(condition1Name, condition2Name, ratios1);
-			final List<Double> ratioValues2 = SharedDataUtils.getRatioValues(condition1Name, condition2Name, ratios2);
+			final List<Double> ratioValues1 = getRatioValues(condition1Name, condition2Name, ratios1);
+			final List<Double> ratioValues2 = getRatioValues(condition1Name, condition2Name, ratios2);
 			if (ratioValues1.size() == 1 && ratioValues2.size() == 1) {
 				return Double.compare(ratioValues1.get(0), ratioValues2.get(0));
 			} else {
@@ -150,10 +152,8 @@ public class SharedDataUtils {
 			final List<RatioBean> ratios2 = o2.getRatiosByConditions(condition1Name, condition2Name, projectTag,
 					ratioName, skipInfinities);
 			if (!ratios1.isEmpty() && !ratios2.isEmpty()) {
-				final List<ScoreBean> ratioValues1 = SharedDataUtils.getRatioScoreValues(condition1Name, condition2Name,
-						ratios1);
-				final List<ScoreBean> ratioValues2 = SharedDataUtils.getRatioScoreValues(condition1Name, condition2Name,
-						ratios2);
+				final List<ScoreBean> ratioValues1 = getRatioScoreValues(condition1Name, condition2Name, ratios1);
+				final List<ScoreBean> ratioValues2 = getRatioScoreValues(condition1Name, condition2Name, ratios2);
 
 				final String value1 = ratioValues1.get(0).getValue();
 				final String value2 = ratioValues2.get(0).getValue();
@@ -919,7 +919,7 @@ public class SharedDataUtils {
 	/**
 	 * Gets a unique key for the ratio bean, including the ratio name, the
 	 * condition names, the project and the aggregation level
-	 * 
+	 *
 	 * @param ratio
 	 * @return
 	 */
@@ -955,5 +955,146 @@ public class SharedDataUtils {
 		}
 		return "Ratio between conditions: " + condition1Name + " / " + condition2Name + SharedConstants.SEPARATOR
 				+ "Ratio name: " + ratioName;
+	}
+
+	public static List<PSMBean> getPSMBeansFromProteinBeans(List<ProteinBean> proteinBeans) {
+		List<PSMBean> ret = new ArrayList<PSMBean>();
+		Set<Integer> psmIDs = new HashSet<Integer>();
+		if (proteinBeans != null) {
+			for (ProteinBean proteinBean : proteinBeans) {
+				final List<PSMBean> psmBeans = proteinBean.getPsms();
+				// RemoteServicesTasks .getPSMsFromProtein(proteinBean, false);
+				for (PSMBean psmBean : psmBeans) {
+					if (!psmIDs.contains(psmBean.getDbID())) {
+						psmIDs.add(psmBean.getDbID());
+						ret.add(psmBean);
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Get a Map of {@link RatioDescriptorBean} by project from a collection of
+	 * {@link ProteinBean}
+	 *
+	 * @param currentProteins
+	 * @return
+	 */
+	public static Map<String, List<RatioDescriptorBean>> getRatioDescriptorsByProjectsFromProteins(
+			Collection<ProteinBean> proteins) {
+		Map<String, List<RatioDescriptorBean>> ret = new HashMap<String, List<RatioDescriptorBean>>();
+		for (ProteinBean proteinBean : proteins) {
+			final Set<RatioBean> ratios = proteinBean.getRatios();
+			if (ratios != null && !ratios.isEmpty()) {
+				mergeRatioDescriptorMapsWithNoRepetitionsOnList(ret, getRatioDescriptorsByProjectsFromRatios(ratios));
+			}
+			final List<PSMBean> psms = proteinBean.getPsms();
+			// RemoteServicesTasks.getPSMsFromProtein(proteinBean, false);
+			for (PSMBean psmBean : psms) {
+				final Set<RatioBean> ratios2 = psmBean.getRatios();
+				if (ratios2 != null) {
+					mergeRatioDescriptorMapsWithNoRepetitionsOnList(ret,
+							getRatioDescriptorsByProjectsFromRatios(ratios2));
+				}
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a alphabetically sorted list of score names associated to psms
+	 *
+	 * @param protein
+	 * @return
+	 */
+	public static List<String> getPSMScoreNamesFromProteins(Collection<ProteinBean> proteins) {
+		List<String> ret = new ArrayList<String>();
+		if (proteins != null) {
+			for (ProteinBean protein : proteins) {
+				final List<PSMBean> psms = protein.getPsms();
+				// RemoteServicesTasks .getPSMsFromProtein(protein, false);
+				for (PSMBean psmBean : psms) {
+					final Map<String, ScoreBean> scores = psmBean.getScores();
+					if (scores != null) {
+						final Set<String> scoreNames = scores.keySet();
+						for (String scoreName : scoreNames) {
+							if (!ret.contains(scoreName))
+								ret.add(scoreName);
+						}
+					}
+				}
+			}
+		}
+		Collections.sort(ret);
+		return ret;
+	}
+
+	/**
+	 * Gets a alphabetically sorted list of score names associated to PTMs of
+	 * psms
+	 *
+	 * @param protein
+	 * @return
+	 */
+	public static List<String> getPTMScoreNamesFromProteins(Collection<ProteinBean> proteins) {
+		List<String> ret = new ArrayList<String>();
+		if (proteins != null) {
+			for (ProteinBean protein : proteins) {
+				final List<PSMBean> psms = protein.getPsms();
+				// RemoteServicesTasks .getPSMsFromProtein(protein, false);
+				for (PSMBean psmBean : psms) {
+					final List<PTMBean> ptms = psmBean.getPtms();
+					if (ptms != null) {
+						for (PTMBean ptmBean : ptms) {
+							final List<PTMSiteBean> ptmSites = ptmBean.getPtmSites();
+							if (ptmSites != null) {
+								for (PTMSiteBean ptmSiteBean : ptmSites) {
+									final ScoreBean score = ptmSiteBean.getScore();
+									if (score != null) {
+										if (!ret.contains(score.getScoreName()))
+											ret.add(score.getScoreName());
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		Collections.sort(ret);
+		return ret;
+	}
+
+	/**
+	 * Gets a Map of conditions by projects from the amounts and ratios of a
+	 * collections of proteins, looking also on amounts and ratios of their PSMs
+	 *
+	 * @param currentProteins
+	 * @return
+	 */
+	public static Map<String, List<String>> getConditionsByProjects(Collection<ProteinBean> proteins) {
+		Map<String, List<String>> ret = new HashMap<String, List<String>>();
+
+		if (proteins != null) {
+			for (ProteinBean proteinBean : proteins) {
+				mergeStringMapsWithNoRepetitionsOnList(ret,
+						getConditionsByProjectsFromAmounts(proteinBean.getAmounts()));
+				mergeStringMapsWithNoRepetitionsOnList(ret, getConditionsByProjectsFromRatios(proteinBean.getRatios()));
+				final List<PSMBean> psmBeans = proteinBean.getPsms();
+				// RemoteServicesTasks .getPSMsFromProtein(proteinBean, true);
+				if (psmBeans != null) {
+					for (PSMBean psmBean : psmBeans) {
+						mergeStringMapsWithNoRepetitionsOnList(ret,
+								getConditionsByProjectsFromAmounts(psmBean.getAmounts()));
+						mergeStringMapsWithNoRepetitionsOnList(ret,
+								getConditionsByProjectsFromRatios(psmBean.getRatios()));
+					}
+				}
+			}
+		}
+
+		return ret;
 	}
 }
