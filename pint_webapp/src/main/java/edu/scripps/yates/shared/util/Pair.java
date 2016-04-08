@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.util;
+package edu.scripps.yates.shared.util;
 
 public class Pair<T, Y> {
 	private T firstElement;
