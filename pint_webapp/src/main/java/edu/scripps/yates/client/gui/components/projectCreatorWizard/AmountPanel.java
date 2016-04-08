@@ -13,11 +13,11 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimpleCheckBox;
 
-import edu.scripps.yates.client.util.Pair;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.projectCreator.excel.AmountCombinationTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.AmountTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
+import edu.scripps.yates.shared.util.Pair;
 
 public class AmountPanel extends ContainsExcelColumnRefPanelAndTable<Pair<String, AmountTypeBean>, AmountTypeBean> {
 	private final ListBox combinationTypeComboBox;

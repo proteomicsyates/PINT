@@ -27,7 +27,6 @@ import com.google.gwt.user.client.ui.Widget;
 import edu.scripps.yates.client.ImportWizardService;
 import edu.scripps.yates.client.ImportWizardServiceAsync;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsObject;
-import edu.scripps.yates.client.util.Pair;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExcelAmountRatioTypeBean;
@@ -37,6 +36,7 @@ import edu.scripps.yates.shared.model.projectCreator.excel.PsmTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.RatioDescriptorTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ScoreTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SequenceTypeBean;
+import edu.scripps.yates.shared.util.Pair;
 
 public class ExcelRatioPanel
 		extends ContainsExcelColumnRefPanelAndTable<Pair<String, ExcelAmountRatioTypeBean>, ExcelAmountRatioTypeBean>

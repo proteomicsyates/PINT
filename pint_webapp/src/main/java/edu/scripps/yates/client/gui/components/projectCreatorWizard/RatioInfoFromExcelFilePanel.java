@@ -27,7 +27,6 @@ import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.Proj
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ReferencesDataObject;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsObject;
 import edu.scripps.yates.client.interfaces.ContainsImportJobID;
-import edu.scripps.yates.client.util.Pair;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.excel.util.ExcelUtils;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
@@ -38,6 +37,7 @@ import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.MsRunTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.RatioDescriptorTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ScoreTypeBean;
+import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 
 public class RatioInfoFromExcelFilePanel extends Composite

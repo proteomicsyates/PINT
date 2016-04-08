@@ -27,7 +27,6 @@ import edu.scripps.yates.server.DataSet;
 import edu.scripps.yates.server.DataSetsManager;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.util.FileManager;
-import edu.scripps.yates.server.util.ServerDataUtils;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnProvider;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
@@ -692,11 +691,11 @@ public class DataExporter {
 			if (queryText != null) {
 				fw.write(queryText + "\n");
 			}
-			Map<String, List<String>> conditionsByProject = ServerDataUtils.getConditionsByProjects(proteins);
-			final Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects = ServerDataUtils
+			Map<String, List<String>> conditionsByProject = SharedDataUtils.getConditionsByProjects(proteins);
+			final Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects = SharedDataUtils
 					.getRatioDescriptorsByProjectsFromProteins(proteins);
-			List<String> psmScoreNames = ServerDataUtils.getPSMScoreNamesFromProteins(proteins);
-			final List<String> ptmScoreNames = ServerDataUtils.getPTMScoreNamesFromProteins(proteins);
+			List<String> psmScoreNames = SharedDataUtils.getPSMScoreNamesFromProteins(proteins);
+			final List<String> ptmScoreNames = SharedDataUtils.getPTMScoreNamesFromProteins(proteins);
 			// HEADERS
 			List<String> projectTags = new ArrayList<String>();
 			projectTags.addAll(conditionsByProject.keySet());
@@ -765,11 +764,11 @@ public class DataExporter {
 			if (queryText != null) {
 				fw.write(queryText + "\n");
 			}
-			Map<String, List<String>> conditionsByProject = ServerDataUtils.getConditionsByProjects(proteins);
-			final Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects = ServerDataUtils
+			Map<String, List<String>> conditionsByProject = SharedDataUtils.getConditionsByProjects(proteins);
+			final Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects = SharedDataUtils
 					.getRatioDescriptorsByProjectsFromProteins(proteins);
-			List<String> psmScoreNames = ServerDataUtils.getPSMScoreNamesFromProteins(proteins);
-			final List<String> ptmScoreNames = ServerDataUtils.getPTMScoreNamesFromProteins(proteins);
+			List<String> psmScoreNames = SharedDataUtils.getPSMScoreNamesFromProteins(proteins);
+			final List<String> ptmScoreNames = SharedDataUtils.getPTMScoreNamesFromProteins(proteins);
 			// HEADERS
 			List<String> projectTags = new ArrayList<String>();
 			projectTags.addAll(conditionsByProject.keySet());

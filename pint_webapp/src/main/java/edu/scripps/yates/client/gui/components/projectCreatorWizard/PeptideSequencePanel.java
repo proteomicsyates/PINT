@@ -10,9 +10,9 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.ValueBoxBase.TextAlignment;
 
-import edu.scripps.yates.client.util.Pair;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SequenceTypeBean;
+import edu.scripps.yates.shared.util.Pair;
 
 public class PeptideSequencePanel extends
 		ContainsExcelColumnRefPanelAndTable<Pair<String, SequenceTypeBean>, SequenceTypeBean> {

@@ -20,10 +20,10 @@ import com.google.gwt.user.client.ui.ValueBoxBase.TextAlignment;
 
 import edu.scripps.yates.client.ImportWizardServiceAsync;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsObject;
-import edu.scripps.yates.client.util.Pair;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ScoreTypeBean;
+import edu.scripps.yates.shared.util.Pair;
 
 public class ScorePanel extends ContainsExcelColumnRefPanelAndTable<Pair<String, ScoreTypeBean>, ScoreTypeBean>
 		implements RepresentsObject<ScoreTypeBean> {

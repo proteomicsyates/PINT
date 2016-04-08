@@ -22,8 +22,8 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
 
 import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
+import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.client.ProteinRetrievalService;
-import edu.scripps.yates.client.util.Pair;
 
 public class ReplicatePickerPanel extends Composite {
 	protected static final String SEPARATOR = "&&&&&&&";

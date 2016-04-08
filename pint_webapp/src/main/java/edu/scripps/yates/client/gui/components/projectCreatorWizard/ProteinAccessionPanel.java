@@ -15,9 +15,9 @@ import com.google.gwt.user.client.ui.SimpleCheckBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.ValueBoxBase.TextAlignment;
 
-import edu.scripps.yates.client.util.Pair;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ProteinAccessionTypeBean;
+import edu.scripps.yates.shared.util.Pair;
 
 public class ProteinAccessionPanel
 		extends ContainsExcelColumnRefPanelAndTable<Pair<String, ProteinAccessionTypeBean>, ProteinAccessionTypeBean> {

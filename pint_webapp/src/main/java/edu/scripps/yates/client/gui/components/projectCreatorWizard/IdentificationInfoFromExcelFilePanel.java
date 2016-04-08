@@ -32,7 +32,6 @@ import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.Refe
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsObject;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.interfaces.ContainsImportJobID;
-import edu.scripps.yates.client.util.Pair;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.model.projectCreator.ExcelDataReference;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
@@ -48,6 +47,7 @@ import edu.scripps.yates.shared.model.projectCreator.excel.ProteinThresholdsType
 import edu.scripps.yates.shared.model.projectCreator.excel.PtmScoreTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ScoreTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SequenceTypeBean;
+import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 
 public class IdentificationInfoFromExcelFilePanel extends Composite

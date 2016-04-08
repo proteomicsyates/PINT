@@ -15,9 +15,9 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.ValueBoxBase.TextAlignment;
 import com.google.gwt.widgetideas.graphics.client.Color;
 
-import edu.scripps.yates.client.util.Pair;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ProteinThresholdTypeBean;
+import edu.scripps.yates.shared.util.Pair;
 
 public class ProteinThresholdPanel
 		extends ContainsExcelColumnRefPanelAndTable<Pair<String, ProteinThresholdTypeBean>, ProteinThresholdTypeBean> {
