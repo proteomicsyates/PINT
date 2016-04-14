@@ -22,9 +22,9 @@ import edu.scripps.yates.dbindex.io.Fasta;
 import edu.scripps.yates.dbindex.io.FastaReader;
 import edu.scripps.yates.dbindex.io.SearchParamReader;
 import edu.scripps.yates.dbindex.model.AssignMass;
-import edu.scripps.yates.dbindex.model.Enzyme;
 import edu.scripps.yates.dbindex.model.Util;
 import edu.scripps.yates.dbindex.util.IndexUtil;
+import edu.scripps.yates.utilities.dates.DatesUtil;
 
 /**
  *
@@ -279,10 +279,8 @@ public class DBIndexer {
 					final double aaMass = AssignMass.getMass(curIon);
 					precMass = precMass + aaMass;
 					final String peptideSeqString = String.valueOf(Arrays.copyOf(pepSeq, curSeqI));
-					if (peptideSeqString.equals("LSSIF")) {
-						System.out.println("asdf");
-					}
-					if (Enzyme.isEnzyme(protSeq.charAt(end))) {
+
+					if (sparam.getEnzyme().isEnzyme(protSeq.charAt(end))) {
 						intMisCleavageCount++;
 					}
 
@@ -507,15 +505,19 @@ public class DBIndexer {
 		// setup status writer
 		String statusFilePath = Util.getFileBaseName(sparam.getDatabaseName()) + "log";
 		FileWriter statusWriter = null;
-		String totalProteins = null;
+		int totalProteins = 0;
+		String totalProteinsString = null;
 		int indexedProteins = 0;
+		long t0 = System.currentTimeMillis();
 		try {
 			statusWriter = new FileWriter(statusFilePath);
-			totalProteins = Integer.toString(FastaReader.getNumberFastas(sparam.getDatabaseName()));
+			totalProteins = FastaReader.getNumberFastas(sparam.getDatabaseName());
+			totalProteinsString = String.valueOf(totalProteins);
 		} catch (IOException ex) {
 			logger.error("Error initializing index progress writer for file path: " + statusFilePath, ex);
 		}
 
+		int currentPercentage = 0;
 		// start indexing
 		try {
 			// index, set protein cache on the fly
@@ -542,15 +544,23 @@ public class DBIndexer {
 
 				++indexedProteins;
 				if (statusWriter != null) {
-					statusWriter.append(totalProteins).append("\t").append(Integer.toString(indexedProteins))
+					statusWriter.append(totalProteinsString).append("\t").append(Integer.toString(indexedProteins))
 							.append("\n");
 					if (indexedProteins % 100 == 0) {
 						statusWriter.flush();
 					}
 				}
+				int percentage = indexedProteins * 100 / totalProteins;
+				if (currentPercentage != percentage) {
+					logger.info(indexedProteins + " proteins indexed (" + percentage + "%)");
+					currentPercentage = percentage;
+					// average time per percentage:
+					double avgTime = (System.currentTimeMillis() - t0) / currentPercentage;
+					int percentageRemaining = 100 - currentPercentage;
+					double estimatedRemainingTime = percentageRemaining * avgTime;
+					logger.info(DatesUtil.getDescriptiveTimeFromMillisecs(estimatedRemainingTime) + " remaining...");
+				}
 
-				// logger.info(indexedProteins +
-				// " proteins indexed");
 			}
 			// System.out.print("Printing the last buffer....");
 			// indexStore.lastBuffertoDatabase();

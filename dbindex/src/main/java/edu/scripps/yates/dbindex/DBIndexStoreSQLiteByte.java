@@ -55,7 +55,9 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	private int totalSeqCount = 0;
 	// full cache commit interval
 	// NOTE: optimized for 7GB heap space, adjsut this setting accordingly
-	private static final int FULL_CACHE_COMMIT_INTERVAL = (100 * 1000 * 1000) / Constants.NUM_BUCKETS;
+	// private static final int FULL_CACHE_COMMIT_INTERVAL = (100 * 1000 * 1000)
+	// / Constants.NUM_BUCKETS;
+	private static final int FULL_CACHE_COMMIT_INTERVAL = (1000000) / Constants.NUM_BUCKETS;
 
 	;
 

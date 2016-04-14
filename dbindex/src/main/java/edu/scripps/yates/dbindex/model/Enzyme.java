@@ -11,7 +11,7 @@ package edu.scripps.yates.dbindex.model;
 public class Enzyme {
 
 	public static final int SIZE = 256;
-	private static boolean[] enzymeArr = new boolean[SIZE];
+	private final boolean[] enzymeArr = new boolean[SIZE];
 
 	private final int maxNumberOfMissedCleavages;
 	// private int maxInternalMiscleavage=-1;
@@ -43,8 +43,6 @@ public class Enzyme {
 	}
 
 	public boolean checkCleavage(String proteinSequence, int start, int end, String enzymeNoCutAA) {
-		final String peptideSequence = proteinSequence.substring(start, end + 1);
-		int numMissedCleavages = 0;
 
 		if (start > 0) {
 			// that is the case when is fully triptic but the preAA is not a
@@ -75,7 +73,8 @@ public class Enzyme {
 			}
 		}
 		// check the number of missedCleavages
-
+		int numMissedCleavages = 0;
+		final String peptideSequence = proteinSequence.substring(start, end + 1);
 		for (int index = 0; index < peptideSequence.length() - 1; index++) {
 			char aa = peptideSequence.charAt(index);
 			if (enzymeArr[aa]) {
@@ -93,11 +92,11 @@ public class Enzyme {
 		enzymeArr[ch] = true;
 	}
 
-	public static boolean[] getEnzymeArr() {
+	public boolean[] getEnzymeArr() {
 		return enzymeArr;
 	}
 
-	public static boolean isEnzyme(char ch) {
+	public boolean isEnzyme(char ch) {
 		return enzymeArr[ch];
 	}
 

@@ -21,22 +21,25 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger
 			.getLogger(DBIndexStoreSQLiteByteIndexMerge.class);
 	private static final int SEQ_SEPARATOR_INT = Integer.MAX_VALUE;
-	private static final byte[] SEQ_SEPARATOR = DynByteBuffer
-			.toByteArray(SEQ_SEPARATOR_INT); // read protein ids until
-												// hitting the separator
+	private static final byte[] SEQ_SEPARATOR = DynByteBuffer.toByteArray(SEQ_SEPARATOR_INT); // read
+																								// protein
+																								// ids
+																								// until
+																								// hitting
+																								// the
+																								// separator
 	private PreparedStatement getMassDataStatement;
 
 	DBIndexStoreSQLiteByteIndexMerge(int bucketId, ProteinCache proteinCache) {
 		super(bucketId, proteinCache);
 	}
 
-	DBIndexStoreSQLiteByteIndexMerge(boolean inMemory, int bucketId,
-			ProteinCache proteinCache) {
+	DBIndexStoreSQLiteByteIndexMerge(boolean inMemory, int bucketId, ProteinCache proteinCache) {
 		super(inMemory, bucketId, proteinCache);
 	}
 
-	DBIndexStoreSQLiteByteIndexMerge(DBIndexSearchParams searchParams,
-			boolean inMemory, int bucketId, ProteinCache proteinCache) {
+	DBIndexStoreSQLiteByteIndexMerge(DBIndexSearchParams searchParams, boolean inMemory, int bucketId,
+			ProteinCache proteinCache) {
 		super(searchParams, inMemory, bucketId, proteinCache);
 	}
 
@@ -46,11 +49,9 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 			super.initStatements();
 
 			getMassDataStatement = con
-					.prepareStatement("SELECT precursor_mass_key, data "
-							+ "FROM " + getIndexTableName());
+					.prepareStatement("SELECT precursor_mass_key, data " + "FROM " + getIndexTableName());
 		} catch (SQLException ex) {
-			throw new DBIndexStoreException(
-					"Error initializing get mass data st", ex);
+			throw new DBIndexStoreException("Error initializing get mass data st", ex);
 		}
 	}
 
@@ -73,8 +74,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 		// now can create the index
 		super.createIndex();
 
-		logger.info("Done merging sequences and compacting the index db: "
-				+ dbPath);
+		logger.info("Done merging sequences and compacting the index db: " + dbPath);
 	}
 
 	private void mergePeptides() throws DBIndexStoreException {
@@ -138,8 +138,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 	}
 
 	@Override
-	public List<IndexedSequence> getSequences(double precMass, double tolerance)
-			throws DBIndexStoreException {
+	public List<IndexedSequence> getSequences(double precMass, double tolerance) throws DBIndexStoreException {
 		if (!inited) {
 			throw new DBIndexStoreException("Indexer is not initialized");
 		}
@@ -200,9 +199,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 				try {
 					rs.close();
 				} catch (SQLException ex) {
-					logger.error(
-							"Error closing result set after getting sequences",
-							ex);
+					logger.error("Error closing result set after getting sequences", ex);
 				}
 			}
 		}
@@ -215,8 +212,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 	}
 
 	@Override
-	public List<IndexedSequence> getSequences(List<MassRange> ranges)
-			throws DBIndexStoreException {
+	public List<IndexedSequence> getSequences(List<MassRange> ranges) throws DBIndexStoreException {
 
 		int numRanges = ranges.size();
 
@@ -238,8 +234,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 
 	}
 
-	public List<IndexedSequence> getSequencesIntervals(List<Interval> ranges)
-			throws DBIndexStoreException {
+	public List<IndexedSequence> getSequencesIntervals(List<Interval> ranges) throws DBIndexStoreException {
 
 		int numRanges = ranges.size();
 
@@ -264,15 +259,12 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 
 				double minMassF = range.getStart();
 				double maxMassF = range.getEnd();
-				stSb.append("precursor_mass_key BETWEEN ").append(minMassF)
-						.append(" AND ").append(maxMassF);
+				stSb.append("precursor_mass_key BETWEEN ").append(minMassF).append(" AND ").append(maxMassF);
 			}
 			try {
 				rangesStatement = con.prepareStatement(stSb.toString());
 			} catch (SQLException ex) {
-				logger.error(
-						"Error preparing a temp statement: " + stSb.toString(),
-						ex);
+				logger.error("Error preparing a temp statement: " + stSb.toString(), ex);
 			}
 			tempStatement = true;
 
@@ -331,11 +323,8 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 																	// inclusive
 				}
 			} catch (SQLException ex) {
-				logger.error("Error setting up range query for range: "
-						+ curRange, ex);
-				throw new DBIndexStoreException(
-						"Error setting up range query for range: " + curRange,
-						ex);
+				logger.error("Error setting up range query for range: " + curRange, ex);
+				throw new DBIndexStoreException("Error setting up range query for range: " + curRange, ex);
 			}
 
 			minMassesF[curRange] = minMassF;
@@ -363,9 +352,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 				try {
 					rs.close();
 				} catch (SQLException ex) {
-					logger.error(
-							"Error closing result set after getting sequences",
-							ex);
+					logger.error("Error closing result set after getting sequences", ex);
 				}
 			}
 			if (rangesStatement != null && tempStatement == true) {
@@ -373,9 +360,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 					// destroy if temp statement
 					rangesStatement.close();
 				} catch (SQLException ex) {
-					logger.error(
-							"Error closing temp statement after getting sequences",
-							ex);
+					logger.error("Error closing temp statement after getting sequences", ex);
 				}
 			}
 		}
@@ -385,7 +370,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 
 	/**
 	 * Parse the encoded sequences and return them in toInsert
-	 * 
+	 *
 	 * @param data
 	 * @param toInsert
 	 * @param minMass
@@ -393,8 +378,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 	 * @param maxMass
 	 *            used to eliminate not matching masses in the 1ppm row
 	 */
-	private void parseAddPeptideInfo(byte[] data,
-			List<IndexedSequence> toInsert, double minMass, double maxMass) {
+	private void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double minMass, double maxMass) {
 
 		int dataLength = data.length;
 
@@ -456,20 +440,16 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 			// System.out.print("prot id: " + proteinId + " offset: " +
 			// offset + " len: " + length);
 
-			String peptideSequence = proteinCache.getPeptideSequence(proteinId,
-					offset, length);
+			String peptideSequence = proteinCache.getPeptideSequence(proteinId, offset, length);
 			// System.out.println("pep: " + peptideSequence);
 
 			List<Integer> proteinIds = new ArrayList<Integer>();
 			proteinIds.add(proteinId);
-			IndexedSequence firstSequence = new IndexedSequence(0, seqMass,
-					peptideSequence, "", "");
+			IndexedSequence firstSequence = new IndexedSequence(0, seqMass, peptideSequence, "", "");
 			firstSequence.setProteinIds(proteinIds);
 			// set residues
-			final String protSequence = proteinCache
-					.getProteinSequence(proteinId);
-			ResidueInfo residues = Util.getResidues(null, offset, length,
-					protSequence);
+			final String protSequence = proteinCache.getProteinSequence(proteinId);
+			ResidueInfo residues = Util.getResidues(null, offset, length, protSequence);
 			firstSequence.setResidues(residues);
 
 			toInsert.add(firstSequence);
@@ -495,7 +475,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 	 * Parse the encoded sequences and return them in toInsert This is version
 	 * with multiple mass ranges (slightly slower as we need to check every
 	 * range if sequence qualifies)
-	 * 
+	 *
 	 * @param data
 	 *            the data row for all peptides grouped by a single key, i.e. 1
 	 *            ppm value
@@ -506,8 +486,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 	 * @param maxMasses
 	 *            used to eliminate not matching masses in the 1ppm row
 	 */
-	private void parseAddPeptideInfo(byte[] data,
-			List<IndexedSequence> toInsert, double[] minMasses,
+	private void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double[] minMasses,
 			double[] maxMasses) {
 
 		int dataLength = data.length;
@@ -601,20 +580,16 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 			// System.out.print("prot id: " + proteinId + " offset: " +
 			// offset + " len: " + length);
 
-			String peptideSequence = proteinCache.getPeptideSequence(proteinId,
-					offset, length);
+			String peptideSequence = proteinCache.getPeptideSequence(proteinId, offset, length);
 			// System.out.println("pep: " + peptideSequence);
 
 			List<Integer> proteinIds = new ArrayList<Integer>();
 			proteinIds.add(proteinId);
-			IndexedSequence firstSequence = new IndexedSequence(0, seqMass,
-					peptideSequence, "", "");
+			IndexedSequence firstSequence = new IndexedSequence(0, seqMass, peptideSequence, "", "");
 			firstSequence.setProteinIds(proteinIds);
 			// set residues
-			final String protSequence = proteinCache
-					.getProteinSequence(proteinId);
-			ResidueInfo residues = Util.getResidues(null, offset, length,
-					protSequence);
+			final String protSequence = proteinCache.getProteinSequence(proteinId);
+			ResidueInfo residues = Util.getResidues(null, offset, length, protSequence);
 			firstSequence.setResidues(residues);
 
 			toInsert.add(firstSequence);
@@ -651,9 +626,9 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 
 		// modification made by Salvador Martinez on 5/21/2014
 		if (dataLength % 4 != 0) {
-			System.out.println(dataLength);
-			// throw new RuntimeException(
-			// "Unexpected number of peptide items: " + dataLength);
+			System.out.println("CUIDADO " + dataLength);
+			// throw new RuntimeException("Unexpected number of peptide items: "
+			// + dataLength);
 		}
 		for (int i = 0; i < dataLength;) {
 			// for (int i = 0; i + 16 <= dataLength;) {
@@ -680,12 +655,10 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 			// System.out.print("prot id: " + proteinId + " offset: " +
 			// offset + " len: " + length);
 
-			peptideSequence = proteinCache.getPeptideSequence(proteinId,
-					offset, length);
+			peptideSequence = proteinCache.getPeptideSequence(proteinId, offset, length);
 			// System.out.println("pep: " + peptideSequence);
 
-			final IndexedSeqInternal tempSequence = new IndexedSeqInternal(
-					seqMass, offset, length, proteinId, null);
+			final IndexedSeqInternal tempSequence = new IndexedSeqInternal(seqMass, offset, length, proteinId, null);
 
 			List<IndexedSeqInternal> sequences = temp.get(peptideSequence);
 			if (sequences == null) {
@@ -715,8 +688,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 			// make sure the 1st protein id is that of the first sequence
 			IndexedSeqInternal firstSeq = sequences.get(0);
 
-			IndexedSeqMerged merged = new IndexedSeqMerged(firstSeq.mass,
-					firstSeq.offset, firstSeq.length, proteinIds);
+			IndexedSeqMerged merged = new IndexedSeqMerged(firstSeq.mass, firstSeq.offset, firstSeq.length, proteinIds);
 
 			sortedMerged.add(merged);
 

@@ -244,6 +244,9 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 		if (!inited) {
 			throw new DBIndexStoreException("Indexer is not initialized");
 		}
+		if (sequence.equals("ERTFIMVKPDGVQRGLVGK")) {
+			logger.info(sequence);
+		}
 
 		totalSeqCount++;
 		if (totalSeqCount % 1000000 == 0) {

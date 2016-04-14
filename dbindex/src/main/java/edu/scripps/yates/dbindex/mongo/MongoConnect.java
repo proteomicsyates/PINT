@@ -14,6 +14,7 @@ import static com.mongodb.client.model.Filters.or;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -34,7 +35,7 @@ import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
  * @author greg
  */
 public class MongoConnect {
-
+	private static final Logger log = Logger.getLogger(MongoClient.class);
 	private MongoClient mongoClient;
 	private MongoDatabase massDB;
 	private MongoDatabase seqDB;
@@ -52,11 +53,12 @@ public class MongoConnect {
 
 	public MongoConnect(DBIndexSearchParams sParam) throws MongoException {
 		connectToMongoDB(sParam);
-		connectToMassDB(sParam);
+
 		if (sParam.isUsingProtDB())
 			connectToProtDB(sParam);
 		if (sParam.isUsingSeqDB())
 			connectToSeqDB(sParam);
+		connectToMassDB(sParam);
 	}
 
 	public void disconnect() {
@@ -75,7 +77,7 @@ public class MongoConnect {
 	 */
 	private void connectToMongoDB(DBIndexSearchParams sParam) throws MongoException {
 		mongoClient = new MongoClient(new MongoClientURI(sParam.getMongoDBURI(), options));
-		System.out.println("------Making new connection to MongoDB at " + mongoClient);
+		log.info("------Making new connection to MongoDB at " + mongoClient);
 
 		/*
 		 * // Connect to 4 random mongos hosts out of the full list
@@ -100,13 +102,13 @@ public class MongoConnect {
 		try {
 			massDB = mongoClient.getDatabase(sParam.getMassDBName());
 			massDBCollection = massDB.getCollection(sParam.getMassDBCollection());
-			System.out.println("Connecting to massdb: " + massDBCollection.getNamespace());
+			log.info("Connecting to massdb: " + massDBCollection.getNamespace());
 			if (massDBCollection.count() == 0) {
-				System.out.println("Massdb is empty!");
+				log.error("Massdb is empty!");
 				System.exit(1);
 			}
 		} catch (MongoException e) {
-			System.out.println("connectToMassDB error");
+			log.error("connectToMassDB error");
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -123,9 +125,13 @@ public class MongoConnect {
 		try {
 			seqDB = mongoClient.getDatabase(sParam.getSeqDBName());
 			seqDBCollection = seqDB.getCollection(sParam.getSeqDBCollection());
-			System.out.println(seqDBCollection);
+			log.info("Connecting to seqDB: " + seqDBCollection.getNamespace());
+			if (seqDBCollection.count() == 0) {
+				log.error("seqDB is empty!");
+				System.exit(1);
+			}
 		} catch (MongoException e) {
-			System.out.println("connectToSeqDB error");
+			log.error("connectToSeqDB error");
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -142,9 +148,13 @@ public class MongoConnect {
 		try {
 			protDB = mongoClient.getDatabase(sParam.getProtDBName());
 			protDBCollection = protDB.getCollection(sParam.getProtDBCollection());
-			System.out.println(protDBCollection);
+			log.info("Connecting to protDB: " + protDBCollection.getNamespace());
+			if (protDBCollection.count() == 0) {
+				log.error("protDB is empty!");
+				System.exit(1);
+			}
 		} catch (MongoException e) {
-			System.out.println("connectToProtDB error");
+			log.error("connectToProtDB error");
 			e.printStackTrace();
 			System.exit(1);
 		}
