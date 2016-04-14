@@ -1,7 +1,6 @@
 package edu.scripps.yates.shared.columns.comparator;
 
 import java.util.List;
-import java.util.Map;
 
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountType;
@@ -49,7 +48,7 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 					.getAmountDataGridRenderValue(o1, conditionName, amountType, projectTag).getValue();
 			String amountString2 = DataGridRenderValue
 					.getAmountDataGridRenderValue(o2, conditionName, amountType, projectTag).getValue();
-			return compareNumberStrings(amountString1, amountString2);
+			return compareNumberStrings(amountString1, amountString2, ascendant, true);
 
 		} else if (columnName == ColumnName.PSM_SCORE && scoreName != null) {
 			final ScoreBean score1 = o1.getScoreByName(scoreName);
@@ -61,36 +60,37 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 			if (score2 != null)
 				value2 = score2.getValue();
 
-			return compareNumberStrings(value1, value2);
+			return compareNumberStrings(value1, value2, ascendant, true);
 
 		} else if (columnName == ColumnName.PSM_RATIO || columnName == ColumnName.PSM_RATIO_GRAPH) {
-			return SharedDataUtils.compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
+			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false, ascendant);
 
 		} else if (columnName == ColumnName.PSM_RATIO_SCORE) {
-			return SharedDataUtils.compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName,
-					false);
+			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, false, ascendant);
 		} else {
 			try {
 				switch (columnName) {
 				case ACC:
-					return o1.getProteinAccessionString().compareTo(o2.getProteinAccessionString());
+					return compareStrings(o1.getProteinAccessionString(), o2.getProteinAccessionString(), ascendant,
+							true);
 				case PSM_ID:
-					return o1.getPsmID().compareTo(o2.getPsmID());
+					return compareStrings(o1.getPsmID(), o2.getPsmID(), ascendant, true);
 				case PSM_RUN_ID:
-					return o1.getMsRun().getRunID().compareTo(o2.getMsRun().getRunID());
+					return compareStrings(o1.getMsRun().getRunID(), o2.getMsRun().getRunID(), ascendant, true);
 				case DESCRIPTION:
-					return o1.getProteinDescriptionString().compareTo(o2.getProteinDescriptionString());
+					return compareStrings(o1.getProteinDescriptionString(), o2.getProteinDescriptionString(), ascendant,
+							true);
 				case PEPTIDE_SEQUENCE:
-					return o1.getSequence().compareTo(o2.getSequence());
+					return compareStrings(o1.getSequence(), o2.getSequence(), ascendant, true);
 				case PEPTIDE_PI:
-					return o1.getPi().compareTo(o2.getPi());
+					return compareNumbers(o1.getPi(), o2.getPi(), ascendant);
 				case PTM_SCORE:
 					// try to convert to numbers:
 					final String ptmScoreString1 = o1.getPTMScoreString();
 					final String ptmScoreString2 = o2.getPTMScoreString();
-					return compareNumberStrings(ptmScoreString1, ptmScoreString2);
+					return compareNumberStrings(ptmScoreString1, ptmScoreString2, ascendant, true);
 				case PTMS:
-					return o1.getPTMString().compareTo(o2.getPTMString());
+					return compareStrings(o1.getPTMString(), o2.getPTMString(), ascendant, true);
 				case NUM_PTMS:
 					List<PTMBean> ptms1 = o1.getPtms();
 					int numPtms1 = ptms1 != null ? ptms1.size() : 0;
@@ -110,24 +110,20 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 						}
 					return Integer.compare(ptmSites1, ptmSites2);
 				case CHARGE:
-					if (o1.getChargeState() != null && o2.getChargeState() != null) {
-						return Integer.compare(Integer.valueOf(o1.getChargeState()),
-								Integer.valueOf(o2.getChargeState()));
-					}
-					return 0;
+					return compareNumberStrings(o1.getChargeState(), o2.getChargeState(), ascendant, true);
 				case PEPTIDE_LENGTH:
 					return Integer.compare(o1.getSequence().length(), o2.getSequence().length());
 
 				case POSITION_IN_PROTEIN:
-					int position1 = getMinPosition(o1);
-					int position2 = getMinPosition(o2);
+					int position1 = SharedDataUtils.getMinStartingPosition(o1);
+					int position2 = SharedDataUtils.getMinStartingPosition(o2);
 					return Integer.compare(position1, position2);
 
 				case TAXONOMY:
-					return o1.getOrganismsString().compareTo(o2.getOrganismsString());
+					return compareStrings(o1.getOrganismsString(), o2.getOrganismsString(), ascendant, true);
 
 				case CONDITION:
-					return o1.getConditionsString().compareTo(o2.getConditionsString());
+					return compareStrings(o1.getConditionsString(), o2.getConditionsString(), ascendant, true);
 				case PEPTIDE_EVIDENCE:
 					return o1.getRelation().name().compareTo(o2.getRelation().name());
 				default:
@@ -138,19 +134,6 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 			}
 		}
 		return 0;
-	}
-
-	private int getMinPosition(PSMBean o1) {
-		int min = Integer.MAX_VALUE;
-		final Map<String, List<Integer>> startingPositions = o1.getStartingPositions();
-		for (List<Integer> positions : startingPositions.values()) {
-			for (Integer position : positions) {
-				if (min > position)
-					min = position;
-			}
-		}
-
-		return min;
 	}
 
 }

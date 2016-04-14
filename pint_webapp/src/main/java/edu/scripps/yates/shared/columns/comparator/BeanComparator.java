@@ -2,11 +2,20 @@ package edu.scripps.yates.shared.columns.comparator;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.List;
 
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountType;
+import edu.scripps.yates.shared.model.RatioBean;
+import edu.scripps.yates.shared.model.ScoreBean;
+import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
+import edu.scripps.yates.shared.util.SharedDataUtils;
 
 public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 6993812445713528073L;
 	ColumnName columnName;
 	String conditionName;
 	// in case of ratios
@@ -15,6 +24,7 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 	String ratioName;
 	AmountType amountType;
 	String scoreName;
+	boolean ascendant;
 
 	public BeanComparator() {
 		columnName = null;
@@ -174,7 +184,7 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 		this.scoreName = scoreName;
 	}
 
-	protected static int compareNumberStrings(String string1, String string2) {
+	protected static int compareNumberStrings(String string1, String string2, boolean ascendant, boolean ignoreCase) {
 		String tmp1 = string1;
 		String tmp2 = string2;
 		if ("".equals(string1) || string1 == null)
@@ -186,10 +196,132 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 			Double d2 = Double.valueOf(tmp2);
 			return d1.compareTo(d2);
 		} catch (NumberFormatException e) {
-			return tmp1.compareTo(tmp2);
+			return compareStrings(tmp1, tmp2, ascendant, ignoreCase);
 		}
 
 	}
-	// public abstract String getDBColumnName();
 
+	/**
+	 * @return the ascendant
+	 */
+	public boolean isAscendant() {
+		return ascendant;
+	}
+
+	/**
+	 * @param ascendant
+	 *            the ascendant to set
+	 */
+	public void setAscendant(boolean ascendant) {
+		this.ascendant = ascendant;
+	}
+
+	protected static int compareNumbers(Number o1, Number o2, boolean ascendant) {
+
+		if (o1 == null && o2 != null) {
+			return ascendant ? 1 : -1;
+		}
+		if (o1 != null && o2 == null) {
+			return ascendant ? -1 : 1;
+		}
+		if (o1 == null && o2 == null) {
+			return 0;
+		}
+		return Double.compare(o1.doubleValue(), o2.doubleValue());
+	}
+
+	/**
+	 * Compares strings taking into account that they could be null, so we want
+	 * that in that case, the null strings were at the end, which depends in the
+	 * order, determined by ignoreCase.
+	 *
+	 * @param string1
+	 * @param string2
+	 * @param ascendant
+	 * @param ignoreCase
+	 * @return
+	 */
+	protected static int compareStrings(String string1, String string2, boolean ascendant, boolean ignoreCase) {
+		if ("".equals(string1)) {
+			string1 = null;
+		}
+		if ("".equals(string2)) {
+			string2 = null;
+		}
+		if (string1 == null && string2 != null) {
+			return ascendant ? 1 : -1;
+		}
+		if (string1 != null && string2 == null) {
+			return ascendant ? -1 : 1;
+		}
+		if (string1 == null && string2 == null) {
+			return 0;
+		}
+		if (ignoreCase) {
+			return string1.compareToIgnoreCase(string2);
+		} else {
+			return string1.compareTo(string2);
+		}
+	}
+
+	protected static int compareRatios(ContainsRatios o1, ContainsRatios o2, String condition1Name,
+			String condition2Name, String projectTag, String ratioName, boolean skipInfinities, boolean ascendant) {
+		final List<RatioBean> ratios1 = o1.getRatiosByConditions(condition1Name, condition2Name, projectTag, ratioName,
+				skipInfinities);
+		final List<RatioBean> ratios2 = o2.getRatiosByConditions(condition1Name, condition2Name, projectTag, ratioName,
+				skipInfinities);
+		if (!ratios1.isEmpty() && !ratios2.isEmpty()) {
+			final List<Double> ratioValues1 = SharedDataUtils.getRatioValues(condition1Name, condition2Name, ratios1);
+			final List<Double> ratioValues2 = SharedDataUtils.getRatioValues(condition1Name, condition2Name, ratios2);
+			if (ratioValues1.size() == 1 && ratioValues2.size() == 1) {
+				return Double.compare(ratioValues1.get(0), ratioValues2.get(0));
+			} else {
+				// TODO sort in a concrete way when having several ratios??
+				final Double efectiveRatio1 = SharedDataUtils.getEfectiveRatio(ratioValues1);
+				final Double efectiveRatio2 = SharedDataUtils.getEfectiveRatio(ratioValues2);
+				if (efectiveRatio1 != null && efectiveRatio2 != null) {
+					return Double.compare(efectiveRatio1, efectiveRatio2);
+				}
+			}
+		} else if (ratios1.isEmpty() && !ratios2.isEmpty()) {
+			return ascendant ? 1 : -1;
+		} else if (!ratios1.isEmpty() && ratios2.isEmpty()) {
+			return ascendant ? -1 : 1;
+		}
+		return 0;
+
+	}
+
+	protected static int compareRatioScores(ContainsRatios o1, ContainsRatios o2, String condition1Name,
+			String condition2Name, String projectTag, String ratioName, boolean skipInfinities, boolean ascendant) {
+		try {
+			final List<RatioBean> ratios1 = o1.getRatiosByConditions(condition1Name, condition2Name, projectTag,
+					ratioName, skipInfinities);
+			final List<RatioBean> ratios2 = o2.getRatiosByConditions(condition1Name, condition2Name, projectTag,
+					ratioName, skipInfinities);
+			if (!ratios1.isEmpty() && !ratios2.isEmpty()) {
+				final List<ScoreBean> ratioValues1 = SharedDataUtils.getRatioScoreValues(condition1Name, condition2Name,
+						ratios1);
+				final List<ScoreBean> ratioValues2 = SharedDataUtils.getRatioScoreValues(condition1Name, condition2Name,
+						ratios2);
+
+				final String value1 = ratioValues1.get(0).getValue();
+				final String value2 = ratioValues2.get(0).getValue();
+				try {
+					return Double.compare(Double.valueOf(value1), Double.valueOf(value2));
+				} catch (NumberFormatException e) {
+					return value1.compareTo(value2);
+				}
+
+			} else if (ratios1.isEmpty() && !ratios2.isEmpty()) {
+				return ascendant ? 1 : -1;
+			} else if (!ratios1.isEmpty() && ratios2.isEmpty()) {
+				return ascendant ? -1 : 1;
+			}
+
+		} catch (Exception e) {
+
+		}
+		return 0;
+	}
 }

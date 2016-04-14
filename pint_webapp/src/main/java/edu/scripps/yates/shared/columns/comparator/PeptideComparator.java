@@ -8,7 +8,6 @@ import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
-import edu.scripps.yates.shared.util.SharedDataUtils;
 
 public class PeptideComparator extends BeanComparator<PeptideBean> {
 
@@ -63,18 +62,19 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 			return compareNumberStrings(value1, value2);
 
 		} else if (columnName == ColumnName.PEPTIDE_RATIO || columnName == ColumnName.PEPTIDE_RATIO_GRAPH) {
-			return SharedDataUtils.compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
+			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false, ascendant);
 
 		} else if (columnName == ColumnName.PEPTIDE_RATIO_SCORE) {
-			return SharedDataUtils.compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName,
-					false);
+			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, false, ascendant);
 		} else {
 			try {
 				switch (columnName) {
 				case ACC:
-					return o1.getProteinAccessionString().compareTo(o2.getProteinAccessionString());
+					return compareStrings(o1.getProteinAccessionString(), o2.getProteinAccessionString(), ascendant,
+							false);
 				case DESCRIPTION:
-					return o1.getProteinDescriptionString().compareTo(o2.getProteinDescriptionString());
+					return compareStrings(o1.getProteinDescriptionString(), o2.getProteinDescriptionString(), ascendant,
+							true);
 				case PEPTIDE_SEQUENCE:
 					return o1.getSequence().compareTo(o2.getSequence());
 				case PEPTIDE_LENGTH:
@@ -86,12 +86,12 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 					return Integer.compare(position1, position2);
 
 				case TAXONOMY:
-					return o1.getOrganismsString().compareTo(o2.getOrganismsString());
+					return compareStrings(o1.getOrganismsString(), o2.getOrganismsString(), ascendant, true);
 
 				case CONDITION:
-					return o1.getConditionsString().compareTo(o2.getConditionsString());
+					return compareStrings(o1.getConditionsString(), o2.getConditionsString(), ascendant, true);
 				case PEPTIDE_EVIDENCE:
-					return o1.getRelation().name().compareTo(o2.getRelation().name());
+					return compareStrings(o1.getRelation().name(), o2.getRelation().name(), ascendant, true);
 				case SPECTRUM_COUNT:
 					return Integer.compare(o1.getNumPSMs(), o2.getNumPSMs());
 				default:

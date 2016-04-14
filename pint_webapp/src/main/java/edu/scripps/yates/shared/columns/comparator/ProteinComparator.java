@@ -4,7 +4,6 @@ import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
-import edu.scripps.yates.shared.util.SharedDataUtils;
 
 public class ProteinComparator extends BeanComparator<ProteinBean> {
 
@@ -44,40 +43,36 @@ public class ProteinComparator extends BeanComparator<ProteinBean> {
 
 			try {
 				if ("".equals(amountString1))
-					amountString1 = "0";
+					amountString1 = ascendant ? String.valueOf(Double.MAX_VALUE) : String.valueOf(-Double.MAX_VALUE);
 				if ("".equals(amountString2))
-					amountString2 = "0";
+					amountString2 = ascendant ? String.valueOf(-Double.MAX_VALUE) : String.valueOf(Double.MAX_VALUE);
 				final Double amount1 = Double.valueOf(amountString1);
 				final Double amount2 = Double.valueOf(amountString2);
-				return amount1.compareTo(amount2);
+				return compareNumbers(amount1, amount2, ascendant);
 			} catch (NumberFormatException e) {
-				return amountString1.compareTo(amountString2);
+				return compareStrings(amountString1, amountString2, ascendant, true);
 			}
 		} else if (columnName == ColumnName.PROTEIN_RATIO || columnName == ColumnName.PROTEIN_RATIO_GRAPH) {
-			return SharedDataUtils.compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
+			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false, ascendant);
 		} else if (columnName == ColumnName.PROTEIN_RATIO_SCORE) {
-			return SharedDataUtils.compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName,
-					false);
+			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, false, ascendant);
 		}
 		switch (columnName) {
 		case ACC:
-			return o1.getPrimaryAccession().getAccession().compareTo(o2.getPrimaryAccession().getAccession());
+			return compareStrings(o1.getPrimaryAccession().getAccession(), o2.getPrimaryAccession().getAccession(),
+					ascendant, false);
 		case DESCRIPTION:
 			String description1 = o1.getPrimaryAccession().getDescription();
 			String description2 = o2.getPrimaryAccession().getDescription();
-			if (description1 == null)
-				description1 = "";
-			if (description2 == null)
-				description2 = "";
+			return compareStrings(description1, description2, ascendant, true);
 
-			return description1.compareToIgnoreCase(description2);
 		case SPECTRUM_COUNT:
 			return Integer.compare(o1.getNumPSMs(), o2.getNumPSMs());
 
 		case COVERAGE:
-			return compareCoverages(o1, o2);
+			return compareNumbers(o1.getCoverage(), o2.getCoverage(), ascendant);
 		case PROTEIN_SEQUENCE_COVERAGE_IMG:
-			return compareCoverages(o1, o2);
+			return compareNumbers(o1.getCoverage(), o2.getCoverage(), ascendant);
 		case MOL_W:
 			return Double.compare(o1.getMw(), o2.getMw());
 		case PROTEIN_PI:
@@ -91,28 +86,22 @@ public class ProteinComparator extends BeanComparator<ProteinBean> {
 			if ("".equals(genesString2))
 				genesString2 = o2.getGenesString(false);
 
-			if (genesString.equals(genesString2))
-				return 0;
-			// in order to have the empty ones at the bottom
-			if ("".equals(genesString) || "-".equals(genesString))
-				return 1;
-			if ("".equals(genesString2) || "-".equals(genesString2))
-				return -1;
-			return genesString.compareToIgnoreCase(genesString2);
+			return compareStrings(genesString, genesString2, ascendant, true);
 		case SEQUENCE_COUNT:
 			return Integer.compare(o1.getNumPeptides(), o2.getNumPeptides());
 		case PROTEIN_LENGTH:
 			return Integer.compare(o1.getLength(), o2.getLength());
 		case ALTERNATIVE_NAMES:
-			return o1.getAlternativeNamesString().compareToIgnoreCase(o2.getAlternativeNamesString());
+			return compareStrings(o1.getAlternativeNamesString(), o2.getAlternativeNamesString(), ascendant, true);
 		case PROTEIN_FUNCTION:
-			return o1.getFunctionString().compareToIgnoreCase(o2.getFunctionString());
+			return compareStrings(o1.getFunctionString(), o2.getFunctionString(), ascendant, true);
 		case SECONDARY_ACCS:
-			return o1.getSecondaryAccessionsString().compareTo(o2.getSecondaryAccessionsString());
+			return compareStrings(o1.getSecondaryAccessionsString(), o2.getSecondaryAccessionsString(), ascendant,
+					true);
 		case CONDITION:
-			return o1.getConditionsString().compareTo(o2.getConditionsString());
+			return compareStrings(o1.getConditionsString(), o2.getConditionsString(), ascendant, false);
 		case OMIM:
-			return o1.getOmimIDString().compareTo(o2.getOmimIDString());
+			return compareStrings(o1.getOmimIDString(), o2.getOmimIDString(), ascendant, true);
 		case PROTEIN_GROUP_TYPE:
 			return o1.getEvidence().name().compareTo(o2.getEvidence().name());
 		case UNIPROT_PROTEIN_EXISTENCE:
@@ -124,21 +113,11 @@ public class ProteinComparator extends BeanComparator<ProteinBean> {
 			if (o2.getUniprotProteinExistence() != null) {
 				name2 = o2.getUniprotProteinExistence().getName();
 			}
-			return name1.compareTo(name2);
+			return compareStrings(name1, name2, ascendant, true);
 		default:
 			break;
 		}
 		return 0;
-	}
-
-	protected static int compareCoverages(ProteinBean o1, ProteinBean o2) {
-		Double coverage1 = o1.getCoverage();
-		Double coverage2 = o2.getCoverage();
-		if (coverage1 == null)
-			coverage1 = 0.0;
-		if (coverage2 == null)
-			coverage2 = 0.0;
-		return Double.compare(coverage1, coverage2);
 	}
 
 }
