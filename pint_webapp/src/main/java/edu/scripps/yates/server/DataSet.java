@@ -160,7 +160,6 @@ public class DataSet {
 		peptidesByPeptideBeanUniqueIdentifier.clear();
 		peptidesBySequence.clear();
 		ready = false;
-		ratioAnalyzer.clear();
 	}
 
 	/**

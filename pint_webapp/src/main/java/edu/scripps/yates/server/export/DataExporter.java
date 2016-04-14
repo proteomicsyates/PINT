@@ -53,27 +53,25 @@ public class DataExporter {
 	private static final String PG = "PG";
 	private static final String EMPTY = "-";
 
-	public static File existsFileProteinsFromProjects(List<String> projectTags, String projectFilesPath)
-			throws PintException {
+	public static File existsFileProteinsFromProjects(List<String> projectTags) throws PintException {
 
 		String projectsStringTag = SharedDataUtils.getProjectTagCollectionKey(projectTags);
-		File newFile = FileManager.getDownloadFile(projectFilesPath, "proteins-" + projectsStringTag + ".csv");
+		File newFile = FileManager.getDownloadFile("proteins-" + projectsStringTag + ".csv");
 		if (newFile.exists() && newFile.length() > 0l)
 			return newFile;
 		return null;
 	}
 
-	public static File exportProteinsFromProjects(List<String> projectTags, String projectFilesPath, String omimAPIKey)
-			throws PintException {
+	public static File exportProteinsFromProjects(List<String> projectTags, String omimAPIKey) throws PintException {
 
 		String projectsStringTag = SharedDataUtils.getProjectTagCollectionKey(projectTags);
-		File newFile = FileManager.getDownloadFile(projectFilesPath, "proteins-" + projectsStringTag + ".csv");
+		File newFile = FileManager.getDownloadFile("proteins-" + projectsStringTag + ".csv");
 		if (newFile.exists() && newFile.length() > 0)
 			return newFile;
 		// File newFile = new File(FileDownloadServlet.TEMP_FOLDER_LOCATION
 		// + File.separator + "proteins" + new Random().nextLong()
 		// + ".csv");
-		final Set<String> hiddenPTMs = RemoteServicesTasks.getHiddenPTMs(projectTags, projectFilesPath);
+		final Set<String> hiddenPTMs = RemoteServicesTasks.getHiddenPTMs(projectTags);
 		log.info("Exporting proteins at file created at: " + newFile.getAbsolutePath());
 		FileWriter fw = null;
 		try {
@@ -139,23 +137,23 @@ public class DataExporter {
 	}
 
 	public static File existsFileProteinGroupsFromProjects(List<String> projectTags,
-			boolean separateNonConclusiveProteins, String projectFilesPath) throws PintException {
+			boolean separateNonConclusiveProteins) throws PintException {
 
 		String projectsStringTag = SharedDataUtils.getProjectTagCollectionKey(projectTags);
-		File newFile = FileManager.getDownloadFile(projectFilesPath, "proteinGroups-" + projectsStringTag + ".csv");
+		File newFile = FileManager.getDownloadFile("proteinGroups-" + projectsStringTag + ".csv");
 		if (newFile.exists() && newFile.length() > 0)
 			return newFile;
 		return null;
 	}
 
 	public static File exportProteinGroupsFromProjects(List<String> projectTags, boolean separateNonConclusiveProteins,
-			String projectFilesPath, String omimAPIKey) throws PintException {
+			String omimAPIKey) throws PintException {
 
 		String projectsStringTag = SharedDataUtils.getProjectTagCollectionKey(projectTags);
-		File newFile = FileManager.getDownloadFile(projectFilesPath, "proteinGroups-" + projectsStringTag + ".csv");
+		File newFile = FileManager.getDownloadFile("proteinGroups-" + projectsStringTag + ".csv");
 		if (newFile.exists() && newFile.length() > 0)
 			return newFile;
-		Set<String> hiddenPTMs = RemoteServicesTasks.getHiddenPTMs(projectTags, projectFilesPath);
+		Set<String> hiddenPTMs = RemoteServicesTasks.getHiddenPTMs(projectTags);
 		// File newFile = new File(FileDownloadServlet.TEMP_FOLDER_LOCATION
 		// + File.separator + "proteinGroups" + new Random().nextLong()
 		// + ".csv");
@@ -676,10 +674,9 @@ public class DataExporter {
 		return ratiosByProject;
 	}
 
-	public static File exportProteins(Collection<ProteinBean> proteins, String projectFilesPath, String queryText)
-			throws PintException {
+	public static File exportProteins(Collection<ProteinBean> proteins, String queryText) throws PintException {
 
-		File newFile = FileManager.getDownloadFile(projectFilesPath, "proteins" + new Random().nextLong() + ".csv");
+		File newFile = FileManager.getDownloadFile("proteins" + new Random().nextLong() + ".csv");
 		log.info("File created at : " + newFile.getAbsolutePath());
 		FileWriter fw = null;
 
@@ -749,10 +746,9 @@ public class DataExporter {
 	}
 
 	public static File exportProteinGroups(Collection<ProteinBean> proteins, boolean separateNonConclusiveProteins,
-			String projectFilesPath, String queryText) throws PintException {
+			String queryText) throws PintException {
 
-		File newFile = FileManager.getDownloadFile(projectFilesPath,
-				"proteinGroups" + new Random().nextLong() + ".csv");
+		File newFile = FileManager.getDownloadFile("proteinGroups" + new Random().nextLong() + ".csv");
 		log.info("File created at: " + newFile.getAbsolutePath());
 		FileWriter fw = null;
 
@@ -777,7 +773,7 @@ public class DataExporter {
 			writeHeader(fw, projectTags, conditionsByProject, ratioDescriptorsByProjects, psmScoreNames, ptmScoreNames,
 					ProteinGroupColumns.getInstance(), PSMColumns.getInstance());
 
-			Set<String> hiddenPTMs = RemoteServicesTasks.getHiddenPTMs(projectTags, projectFilesPath);
+			Set<String> hiddenPTMs = RemoteServicesTasks.getHiddenPTMs(projectTags);
 			final List<ProteinGroupBean> proteinGroups = RemoteServicesTasks.groupProteins(proteins,
 					separateNonConclusiveProteins);
 			for (String projectTag : projectTags) {
@@ -847,9 +843,9 @@ public class DataExporter {
 		return string;
 	}
 
-	public static String exportProteinsForReactome(String sessionID, String projectFilesPath) throws PintException {
+	public static String exportProteinsForReactome(String sessionID) throws PintException {
 		final String fileName = "Reactome_" + sessionID + "_" + System.currentTimeMillis() + ".csv";
-		File outFile = FileManager.getDownloadFile(projectFilesPath, fileName);
+		File outFile = FileManager.getDownloadFile(fileName);
 		BufferedWriter bw = null;
 		try {
 			FileWriter fw = new FileWriter(outFile.getAbsoluteFile());

@@ -29,19 +29,18 @@ public class DefaultViewReader {
 	private final DefaultView defaultView;
 	private static final String NEWLINE = "\n";
 
-	public DefaultViewReader(String projectTag, String projectFileDefaultPath) {
-		log.info("**Creating default view for project " + projectTag + " and " + projectFileDefaultPath);
+	public DefaultViewReader(String projectTag) {
+		log.info("**Creating default view for project " + projectTag);
 		defaultView = new DefaultView();
 		log.info("default view object created empty");
 		defaultView.setProjectTag(projectTag);
 		log.info("project tag set");
-		final File defaultViewConfigurationFile = FileManager.getProjectDefaultViewConfigurationTxt(projectTag,
-				projectFileDefaultPath);
+		final File defaultViewConfigurationFile = FileManager.getProjectDefaultViewConfigurationTxt(projectTag);
 		log.info("Default view configuration file is: " + defaultViewConfigurationFile.getAbsolutePath());
 		if (!defaultViewConfigurationFile.exists()) {
 			log.info("Default view  not configured for project: " + projectTag);
 			log.info("Creating new default configuration file for the default view: '" + projectTag + "'");
-			writeDefaultDefaultViewFile(projectTag, projectFileDefaultPath);
+			writeDefaultDefaultViewFile(projectTag);
 		} else {
 			log.info("Default view detected for project: " + projectTag);
 		}
@@ -332,8 +331,8 @@ public class DefaultViewReader {
 
 	}
 
-	public void writeDefaultDefaultViewFile(String projectTag, String projectFileDefaultPath) {
-		final File file = FileManager.getProjectDefaultViewConfigurationTxt(projectTag, projectFileDefaultPath);
+	public void writeDefaultDefaultViewFile(String projectTag) {
+		final File file = FileManager.getProjectDefaultViewConfigurationTxt(projectTag);
 		if (!file.exists()) {
 			file.getParentFile().mkdirs();
 		}

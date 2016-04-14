@@ -24,6 +24,7 @@ import org.hibernate.Criteria;
 import org.hibernate.transform.Transformers;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.ibm.icu.text.DateFormat;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRemoteRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
@@ -70,6 +71,7 @@ import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.HttpUtils;
 import edu.scripps.yates.server.util.ServletCommonInit;
 import edu.scripps.yates.server.util.ServletContextProperty;
+import edu.scripps.yates.shared.columns.comparator.BeanComparator;
 import edu.scripps.yates.shared.columns.comparator.PSMComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinGroupComparator;
@@ -98,6 +100,7 @@ import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.FileDescriptor;
 import edu.scripps.yates.shared.util.ProgressStatus;
 import edu.scripps.yates.shared.util.ProteinPeptideClusterAlignmentResults;
+import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 import edu.scripps.yates.shared.util.sublists.PeptideBeanSubList;
 import edu.scripps.yates.shared.util.sublists.ProteinBeanSubList;
@@ -343,6 +346,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				ProjectLocker.unlock(projectTags, enclosingMethod);
 			}
 		} catch (Exception e) {
+			log.error(e);
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
@@ -478,8 +482,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 								+ sessionID);
 
 						final List<ProteinBean> proteinsFromQuery = dataSet.getProteins();
-						file = DataExporter.exportProteins(proteinsFromQuery,
-								FileManager.getProjectFilesPath(getServletContext()), queryText);
+						file = DataExporter.exportProteins(proteinsFromQuery, queryText);
 
 						proteinResultFilesByQueryStringInOrder.put(queryInOrder + projectTagCollectionKey, file);
 
@@ -554,7 +557,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 						final List<ProteinBean> proteinsFromQuery = dataSet.getProteins();
 						file = DataExporter.exportProteinGroups(proteinsFromQuery, separateNonConclusiveProteins,
-								FileManager.getProjectFilesPath(getServletContext()), queryText);
+								queryText);
 
 						proteinGroupResultFilesByQueryStringInOrder.put(queryInOrder + projectTagCollectionKey, file);
 
@@ -609,8 +612,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 						.getFromCache(projectTagCollectionKey);
 			}
 
-			File file = DataExporter.existsFileProteinsFromProjects(projectTags,
-					FileManager.getProjectFilesPath(getServletContext()));
+			File file = DataExporter.existsFileProteinsFromProjects(projectTags);
 			if (file != null) {
 				FileDescriptor ret = new FileDescriptor(FilenameUtils.getName(file.getAbsolutePath()),
 						FileManager.getFileSizeString(file));
@@ -626,8 +628,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				// create a new one
 				String omimAPIKey = ServletContextProperty.getServletContextProperty(getServletContext(),
 						ServletContextProperty.OMIM_API_KEY);
-				file = DataExporter.exportProteinsFromProjects(projectTags,
-						FileManager.getProjectFilesPath(getServletContext()), omimAPIKey);
+				file = DataExporter.exportProteinsFromProjects(projectTags, omimAPIKey);
 				log.info("file created in the server at: " + file.getAbsolutePath());
 
 				log.info("creating file descriptor");
@@ -680,8 +681,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 						.getFromCache(projectTagCollectionKey);
 			}
 
-			File file = DataExporter.existsFileProteinGroupsFromProjects(projectTags, separateNonConclusiveProteins,
-					FileManager.getProjectFilesPath(getServletContext()));
+			File file = DataExporter.existsFileProteinGroupsFromProjects(projectTags, separateNonConclusiveProteins);
 			if (file != null) {
 				FileDescriptor ret = new FileDescriptor(FilenameUtils.getName(file.getAbsolutePath()),
 						FileManager.getFileSizeString(file));
@@ -700,7 +700,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				String omimAPIKey = ServletContextProperty.getServletContextProperty(getServletContext(),
 						ServletContextProperty.OMIM_API_KEY);
 				file = DataExporter.exportProteinGroupsFromProjects(projectTags, separateNonConclusiveProteins,
-						FileManager.getProjectFilesPath(getServletContext()), omimAPIKey);
+						omimAPIKey);
 				log.info("file created in the server at: " + file.getAbsolutePath());
 
 				log.info("creating file descriptor");
@@ -1266,43 +1266,43 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public Set<String> getHiddenPTMs(String sessionID, String projectTag) throws PintException {
-		String projectFilesPath = FileManager.getProjectFilesPath(getServletContext());
-		return RemoteServicesTasks.getHiddenPTMs(projectTag, projectFilesPath);
+		return RemoteServicesTasks.getHiddenPTMs(projectTag);
 	}
 
 	private Set<String> getHiddenPTMs(Collection<String> projectTags) throws PintException {
-		String projectFilesPath = FileManager.getProjectFilesPath(getServletContext());
-		log.info("Project file path is: " + projectFilesPath);
-		return RemoteServicesTasks.getHiddenPTMs(projectTags, projectFilesPath);
+		return RemoteServicesTasks.getHiddenPTMs(projectTags);
 	}
 
 	@Override
 	public DefaultView getDefaultViewByProject(String projectTag) throws PintException {
-		String projectFilesPath = FileManager.getProjectFilesPath(getServletContext());
-		return RemoteServicesTasks.getDefaultViewByProject(projectTag, projectFilesPath);
+		return RemoteServicesTasks.getDefaultViewByProject(projectTag);
 	}
 
 	public void sendTrackingEmail(String projectTag) {
 		try {
-			String remoteHost = "";
-			String text = "";
-			if (getThreadLocalRequest() != null) {
-				remoteHost = HttpUtils.remoteAddr(getThreadLocalRequest());
-				text = "Someone from IP " + remoteHost + " has loaded the project '" + projectTag + "'\n\n";
-				text += "Remote address: " + getThreadLocalRequest().getRemoteAddr() + "\n";
-				text += "Remote host: '" + remoteHost + "'\n";
-				text += "Remote port: '" + getThreadLocalRequest().getRemotePort() + "'\n";
-				text += "Remote user: '" + getThreadLocalRequest().getRemoteUser() + "'\n";
+			if (SharedConstants.EMAIL_ENABLED) {
+
+				log.info("Trying to send the tracking email");
+				String remoteHost = "";
+				String text = "";
+				if (getThreadLocalRequest() != null) {
+					remoteHost = HttpUtils.remoteAddr(getThreadLocalRequest());
+					text = "Someone from IP " + remoteHost + " has loaded the project '" + projectTag + "'\n\n";
+					text += "Remote address: " + getThreadLocalRequest().getRemoteAddr() + "\n";
+					text += "Remote host: '" + remoteHost + "'\n";
+					text += "Remote port: '" + getThreadLocalRequest().getRemotePort() + "'\n";
+					text += "Remote user: '" + getThreadLocalRequest().getRemoteUser() + "'\n";
+				}
+				String from = "salvador@scripps.edu";
+				String to = "salvador@scripps.edu";
+				String subject = "PINT tracking email at " + DateFormat.getDateInstance().format(new Date());
+				log.info("Trying to send the tracking email with text: " + text);
+				String error = EmailSender.sendEmail(subject, text, to, from);
+				if (error != null) {
+					log.warn(error);
+				}
+				log.info("After trying to send the tracking email");
 			}
-			String from = "salvador@scripps.edu";
-			String to = "salvador@scripps.edu";
-			String subject = "PINT tracking email at " + new Date().toLocaleString();
-			log.info("Trying to send the tracking email with text: " + text);
-			String error = EmailSender.sendEmail(subject, text, to, from);
-			if (error != null) {
-				log.warn(error);
-			}
-			log.info("After trying to send the tracking email");
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.warn("Something was wrong sending tracking email: " + e.getMessage());
@@ -1374,6 +1374,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
+				if (comparator instanceof BeanComparator) {
+					((BeanComparator<ProteinBean>) comparator).setAscendant(ascendant);
+				}
 				log.info("Getting sorted protein list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID);
 				if (!ascendant) {
@@ -1459,7 +1462,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
-
+				if (comparator instanceof BeanComparator) {
+					((BeanComparator<ProteinGroupBean>) comparator).setAscendant(ascendant);
+				}
 				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
 				}
@@ -1494,7 +1499,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
-
+				if (comparator instanceof BeanComparator) {
+					((BeanComparator<PSMBean>) comparator).setAscendant(ascendant);
+				}
 				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
 				}
@@ -1520,7 +1527,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public PsmBeanSubList getPsmBeansFromPsmProviderFromListSorted(String sessionID, ContainsPSMs psmProvider,
-			int start, int end, Comparator<PSMBean> comparator, boolean ascending) throws PintException {
+			int start, int end, Comparator<PSMBean> comparator, boolean ascendant) throws PintException {
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		try {
@@ -1529,7 +1536,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				log.info("Getting sorted psm list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID + " for psmProvider");
-				if (!ascending) {
+				if (comparator instanceof BeanComparator) {
+					((BeanComparator<PSMBean>) comparator).setAscendant(ascendant);
+				}
+				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
 				}
 
@@ -1636,9 +1646,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			PSEAQuantQuantType quantType, PSEAQuantAnnotationDatabase annotationDatabase, PSEAQuantCVTol cvTol,
 			Double cvTolFactor, PSEAQuantLiteratureBias literatureBias) throws PintException {
 
-		PSEAQuantSender pseaQuant = new PSEAQuantSender(FileManager.getProjectFilesPath(getServletContext()), email,
-				organism, replicates, ratioDescriptor, numberOfSamplings, quantType, annotationDatabase, cvTol,
-				cvTolFactor, literatureBias, RATIO_AVERAGING.AVERAGE);
+		PSEAQuantSender pseaQuant = new PSEAQuantSender(email, organism, replicates, ratioDescriptor, numberOfSamplings,
+				quantType, annotationDatabase, cvTol, cvTolFactor, literatureBias, RATIO_AVERAGING.AVERAGE);
 		final PSEAQuantResult response = pseaQuant.send();
 
 		return response;
@@ -1773,7 +1782,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
-
+				if (comparator instanceof BeanComparator) {
+					((BeanComparator<PeptideBean>) comparator).setAscendant(ascendant);
+				}
 				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
 				}
@@ -1823,7 +1834,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public PeptideBeanSubList getPeptideBeansFromPeptideProviderFromListSorted(String sessionID,
 			ContainsPeptides peptideProvider, int start, int end, Comparator<PeptideBean> comparator,
-			boolean ascending) {
+			boolean ascendant) {
 
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
@@ -1833,8 +1844,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				log.info("Getting sorted peptide list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID + " for peptideProvider");
-
-				if (!ascending) {
+				if (comparator instanceof BeanComparator) {
+					((BeanComparator<PeptideBean>) comparator).setAscendant(ascendant);
+				}
+				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
 				}
 
@@ -1944,8 +1957,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public String getPublicDataSetURL(String sessionID) throws PintException {
 		try {
-			return DataExporter.exportProteinsForReactome(sessionID,
-					FileManager.getProjectFilesPath(getServletContext()));
+			return DataExporter.exportProteinsForReactome(sessionID);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)

@@ -2,6 +2,7 @@ package edu.scripps.yates.server.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,10 +12,13 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FormatType;
+import edu.scripps.yates.excel.proteindb.importcfg.jaxb.PintImportCfg;
+import edu.scripps.yates.server.projectCreator.ImportCfgFileParserUtil;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
 import edu.scripps.yates.shared.util.NumberFormat;
@@ -23,6 +27,7 @@ public class FileManager {
 	private static final Logger log = Logger.getLogger(FileManager.class);
 	private static final String DATA = "data";
 	private static final String XML = "xml";
+	private static final String OLD = "old";
 	private static final String DOWNLOAD = "download";
 	private static final String UNIPROT_RELEASES = "uniprot";
 	private static final String PSEAQUANT = "psea_quant";
@@ -32,10 +37,12 @@ public class FileManager {
 	private static String projectFilesPath;
 	private static Map<Integer, List<FileWithFormat>> filesByImportProcessID = new HashMap<Integer, List<FileWithFormat>>();
 	private static Map<Integer, File> projectCfgFileByImportProcessID = new HashMap<Integer, File>();
+	private static boolean ready = false;
+	private static boolean loading;
 
-	private static File getXmlFolder(String projectFilesPath) {
+	private static File getXmlFolder() {
 
-		String folderName = projectFilesPath + File.separator + XML;
+		String folderName = getProjectFilesPath() + File.separator + XML;
 		File folder = new File(folderName);
 		if (!folder.exists()) {
 			log.info("Creating " + folder.getAbsolutePath() + " on server");
@@ -46,16 +53,81 @@ public class FileManager {
 		return folder;
 	}
 
-	public static File getDataFile(int jobID, String projectFilesPath, String fileName, String fileId,
-			FileFormat format) {
-		File folder = getDataFileFolder(jobID, projectFilesPath, fileId, format);
+	private static synchronized void loadProjectCfgFilesByImportProcessID() {
+		loading = true;
+		final File xmlFolder = getXmlFolder();
+		for (File xmlFile : xmlFolder.listFiles()) {
+			if (xmlFile.isFile()) {
+				try {
+					final PintImportCfg pintImportFromFile = ImportCfgFileParserUtil.getPintImportFromFile(xmlFile);
+					final Integer importID = pintImportFromFile.getImportID();
+					if (importID != null) {
+						if (projectCfgFileByImportProcessID.containsKey(importID)) {
+							final File xmlFile2 = projectCfgFileByImportProcessID.get(importID);
+							// both files have the same import process
+							// to solve this bug, we should keep the newer file
+							File fileToDelete = null;
+							if (xmlFile2.lastModified() < xmlFile.lastModified()) {
+								indexProjectCfgFileByImportProcessID(importID, xmlFile);
+								fileToDelete = xmlFile2;
+							} else {
+								fileToDelete = xmlFile;
+							}
+							moveToOLD(fileToDelete);
+
+						} else {
+							indexProjectCfgFileByImportProcessID(importID, xmlFile);
+						}
+					} else {
+						moveToOLD(xmlFile);
+					}
+				} catch (Exception e) {
+					log.warn("Error reading project cfg file: " + xmlFile.getAbsolutePath());
+				}
+			}
+		}
+
+		ready = true;
+		loading = false;
+	}
+
+	private static void moveToOLD(File fileToDelete) {
+		log.info("Moving file " + fileToDelete.getAbsolutePath() + " to " + getOLDXmlFolder().getAbsolutePath());
+		File destineFile = getOLDXmlFile(FilenameUtils.getBaseName(fileToDelete.getAbsolutePath()));
+		try {
+			FileUtils.moveFile(fileToDelete, destineFile);
+			log.info(fileToDelete.getAbsolutePath() + " moved to " + destineFile.getAbsolutePath());
+		} catch (IOException e) {
+			log.warn(e);
+		}
+
+	}
+
+	private static File getOLDXmlFile(String fileName) {
+		return new File(getOLDXmlFolder().getAbsolutePath() + File.separator + fileName + ".xml");
+	}
+
+	private static File getOLDXmlFolder() {
+		String folderName = getXmlFolder() + File.separator + OLD;
+		File folder = new File(folderName);
+		if (!folder.exists()) {
+			log.info("Creating " + folder.getAbsolutePath() + " on server");
+			folder.mkdirs();
+		} else {
+			log.info(folder.getAbsolutePath() + " found in server");
+		}
+		return folder;
+	}
+
+	public static File getDataFile(int jobID, String fileName, String fileId, FileFormat format) {
+		File folder = getDataFileFolder(jobID, fileId, format);
 		File file = new File(folder.getAbsoluteFile() + File.separator + fileName);
 		return file;
 	}
 
-	private static File getDataFileFolder(int jobID, String projectFilesPath, String fileId, FileFormat format) {
+	private static File getDataFileFolder(int jobID, String fileId, FileFormat format) {
 
-		final File projectDataFileFolder = getProjectDataFileFolder(jobID, projectFilesPath, true);
+		final File projectDataFileFolder = getProjectDataFileFolder(jobID, true);
 		File folder = new File(
 				projectDataFileFolder.getAbsolutePath() + File.separator + fileId + File.separator + format.name());
 		if (!folder.exists()) {
@@ -67,9 +139,9 @@ public class FileManager {
 		return folder;
 	}
 
-	public static File getProjectDataFileFolder(int jobID, String projectFilesPath, boolean createIfNotExist) {
+	public static File getProjectDataFileFolder(int jobID, boolean createIfNotExist) {
 
-		String folderName = projectFilesPath + File.separator + DATA + File.separator + jobID;
+		String folderName = getProjectFilesPath() + File.separator + DATA + File.separator + jobID;
 		File folder = new File(folderName);
 		if (!folder.exists()) {
 			if (createIfNotExist) {
@@ -85,18 +157,17 @@ public class FileManager {
 	/**
 	 * Gets the file located at: projectFilesPath/DOWNLOAD/
 	 *
-	 * @param projectFilesPath
 	 * @param fileName
 	 * @return
 	 */
-	public static File getDownloadFile(String projectFilesPath, String fileName) {
-		File folder = getDownloadFileFolder(projectFilesPath);
+	public static File getDownloadFile(String fileName) {
+		File folder = getDownloadFileFolder();
 		File file = new File(folder.getAbsoluteFile() + File.separator + fileName);
 		return file;
 	}
 
-	private static File getDownloadFileFolder(String projectFilesPath) {
-		String folderName = projectFilesPath + File.separator + DOWNLOAD;
+	private static File getDownloadFileFolder() {
+		String folderName = getProjectFilesPath() + File.separator + DOWNLOAD;
 		File folder = new File(folderName);
 		if (!folder.exists()) {
 			log.info("Creating " + folder.getAbsolutePath() + " on server");
@@ -107,8 +178,15 @@ public class FileManager {
 		return folder;
 	}
 
-	public static File getUniprotReleasesFolder(String projectFilesPath) {
-		String folderName = projectFilesPath + File.separator + UNIPROT_RELEASES;
+	private static String getProjectFilesPath() {
+		if (projectFilesPath == null) {
+			projectFilesPath = System.getProperty("java.io.tmpdir");
+		}
+		return projectFilesPath;
+	}
+
+	public static File getUniprotReleasesFolder() {
+		String folderName = getProjectFilesPath() + File.separator + UNIPROT_RELEASES;
 		File folder = new File(folderName);
 		if (!folder.exists()) {
 			log.info("Creating " + folder.getAbsolutePath() + " on server");
@@ -119,15 +197,15 @@ public class FileManager {
 		return folder;
 	}
 
-	public static File getProjectXmlFile(String projectFilesPath, String projectXmlFileName) {
-		File folder = getXmlFolder(projectFilesPath);
+	public static File getProjectXmlFile(String projectXmlFileName) {
+		File folder = getXmlFolder();
 		File file = new File(folder.getAbsoluteFile() + File.separator + projectXmlFileName);
 		return file;
 	}
 
 	public static String getProjectFilesPath(ServletContext servletContext) {
 		Map<String, String> env = System.getenv();
-		if (projectFilesPath == null) {
+		if (projectFilesPath == null || projectFilesPath.equals(System.getProperty("java.io.tmpdir"))) {
 			String projectFilePathProperty = ServletContextProperty.PROJECT_FILES_PATH_SERVER;
 			if (env.containsKey(ServerConstants.PINT_DEVELOPER_ENV_VAR)
 					&& env.get(ServerConstants.PINT_DEVELOPER_ENV_VAR).equals("true")) {
@@ -142,6 +220,7 @@ public class FileManager {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			loadIfNeeded();
 		}
 		return projectFilesPath;
 	}
@@ -213,8 +292,7 @@ public class FileManager {
 
 	public static List<FileWithFormat> getFilesByImportProcessID(int importProcessIdentifier, FileFormat format) {
 		if (!filesByImportProcessID.containsKey(importProcessIdentifier) && format != null) {
-			final File projectDataFileFolder = getProjectDataFileFolder(importProcessIdentifier, projectFilesPath,
-					true);
+			final File projectDataFileFolder = getProjectDataFileFolder(importProcessIdentifier, true);
 			if (projectDataFileFolder.exists() && projectDataFileFolder.listFiles() != null) {
 				for (File dataFileFolder : projectDataFileFolder.listFiles()) {
 					if (dataFileFolder.listFiles().length == 1) {
@@ -264,14 +342,25 @@ public class FileManager {
 	}
 
 	public static void indexProjectCfgFileByImportProcessID(int importProcessIdentifier, File cfgFile) {
+		loadIfNeeded();
+		log.info("Project cfg file '" + cfgFile.getAbsolutePath() + "' stored with import ID = "
+				+ importProcessIdentifier);
 		projectCfgFileByImportProcessID.put(importProcessIdentifier, cfgFile);
 	}
 
+	private static void loadIfNeeded() {
+		if (!ready && !loading) {
+			loadProjectCfgFilesByImportProcessID();
+		}
+	}
+
 	public static File getProjectCfgFileByImportProcessID(int importProcessIdentifier) {
+		loadIfNeeded();
 		return projectCfgFileByImportProcessID.get(importProcessIdentifier);
 	}
 
 	public static void removeProjectCfgFileByImportProcessID(int importProcessIdentifier) {
+		loadIfNeeded();
 		projectCfgFileByImportProcessID.remove(importProcessIdentifier);
 	}
 
@@ -297,10 +386,11 @@ public class FileManager {
 		return "empty file";
 	}
 
-	public static File getProjectDefaultViewConfigurationTxt(String projectTag, String projectFileDefaultPath) {
+	public static File getProjectDefaultViewConfigurationTxt(String projectTag) {
 		log.info("Getting project default view configuration txt file for " + projectTag + " in "
-				+ projectFileDefaultPath);
-		final File file = new File(projectFileDefaultPath + File.separator + DEFAULT_VIEWS + File.separator + projectTag + ".txt");
+				+ getProjectFilesPath());
+		final File file = new File(
+				getProjectFilesPath() + File.separator + DEFAULT_VIEWS + File.separator + projectTag + ".txt");
 		return file;
 	}
 
@@ -312,8 +402,8 @@ public class FileManager {
 	 * @param projectFileDefaultPath
 	 * @return
 	 */
-	public static File getFastaFile(String fastaFileName, String projectFileDefaultPath) {
-		return new File(projectFileDefaultPath + File.separator + FASTAS + File.separator + fastaFileName);
+	public static File getFastaFile(String fastaFileName) {
+		return new File(getProjectFilesPath() + File.separator + FASTAS + File.separator + fastaFileName);
 	}
 
 	/**
@@ -322,8 +412,8 @@ public class FileManager {
 	 * @param projectFileDefaultPath
 	 * @return
 	 */
-	public static File getFastaIndexFolder(String projectFileDefaultPath) {
-		return new File(projectFileDefaultPath + File.separator + FASTAS);
+	public static File getFastaIndexFolder() {
+		return new File(getProjectFilesPath() + File.separator + FASTAS);
 	}
 
 	/**
@@ -332,9 +422,9 @@ public class FileManager {
 	 *
 	 * @param jobID
 	 */
-	public static void removeDataFiles(int jobID, String projectFilesPath) {
+	public static void removeDataFiles(int jobID) {
 		log.info("Removing files from server for import process: " + jobID);
-		final File projectDataFileFolder = FileManager.getProjectDataFileFolder(jobID, projectFilesPath, false);
+		final File projectDataFileFolder = FileManager.getProjectDataFileFolder(jobID, false);
 		// go to the latest folder
 		try {
 			edu.scripps.yates.utilities.files.FileUtils.deleteFolderRecursive(projectDataFileFolder);
@@ -351,14 +441,14 @@ public class FileManager {
 	 * @param projectFilesPath2
 	 * @return
 	 */
-	public static File getUniprotReleasesDatesFile(String projectFilesPath2) {
-		return new File(getUniprotReleasesFolder(projectFilesPath2).getAbsolutePath() + File.separator
-				+ UNIPROT_RELEASES_DATES_FILE_NAME);
+	public static File getUniprotReleasesDatesFile() {
+		return new File(
+				getUniprotReleasesFolder().getAbsolutePath() + File.separator + UNIPROT_RELEASES_DATES_FILE_NAME);
 
 	}
 
-	public static File getPSEAQuantFolder(String projectFilesPath) {
-		final File folder = new File(projectFilesPath + File.separator + PSEAQUANT);
+	public static File getPSEAQuantFolder() {
+		final File folder = new File(getProjectFilesPath() + File.separator + PSEAQUANT);
 		if (!folder.exists()) {
 			log.info("creating " + folder.getAbsolutePath() + " in server");
 			folder.mkdirs();
@@ -366,7 +456,7 @@ public class FileManager {
 		return folder;
 	}
 
-	public static File getPSEAQuantFile(String projectFilesPath, String filename) {
-		return new File(getPSEAQuantFolder(projectFilesPath) + File.separator + filename);
+	public static File getPSEAQuantFile(String filename) {
+		return new File(getPSEAQuantFolder() + File.separator + filename);
 	}
 }

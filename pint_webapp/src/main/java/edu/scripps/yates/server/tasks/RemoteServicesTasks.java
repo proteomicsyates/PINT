@@ -489,9 +489,8 @@ public class RemoteServicesTasks {
 		return ret;
 	}
 
-	public static List<String> getRandomProteinAccessionsFromCensusChro(int jobID, String projectFilesPath,
-			File censusChroFile, FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues)
-			throws FileNotFoundException {
+	public static List<String> getRandomProteinAccessionsFromCensusChro(int jobID, File censusChroFile,
+			FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues) throws FileNotFoundException {
 		log.info("Getting " + numRandomValues + " accessions from census chro file: "
 				+ censusChroFile.getAbsolutePath());
 
@@ -513,7 +512,7 @@ public class RemoteServicesTasks {
 						new QuantCondition("light condition"), QuantificationLabel.HEAVY,
 						new QuantCondition("heavy condition"));
 				if (fileNameWithTypeFasta != null) {
-					parser.setDbIndex(getDBIndexInterface(jobID, projectFilesPath, fileNameWithTypeFasta));
+					parser.setDbIndex(getDBIndexInterface(jobID, fileNameWithTypeFasta));
 				}
 				final Map<String, QuantifiedProteinInterface> proteinMap = parser.getProteinMap();
 				if (proteinMap != null && !proteinMap.isEmpty()) {
@@ -561,19 +560,18 @@ public class RemoteServicesTasks {
 		return primaryAccession.getAccession();
 	}
 
-	public static List<String> getRandomProteinAccessionsFromCensusOut(int jobID, String projectFilesPath,
+	public static List<String> getRandomProteinAccessionsFromCensusOut(int jobID,
 			RemoteSSHFileReference remoteSSHCensusRef, FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues)
 			throws FileNotFoundException {
 		log.info("Getting " + numRandomValues + " accessions from census out file at: "
 				+ remoteSSHCensusRef.getHostName() + " " + remoteSSHCensusRef.getRemotePath());
 
-		return getRandomProteinAccessionsFromCensusOut(jobID, projectFilesPath, remoteSSHCensusRef.getRemoteFile(),
-				fileNameWithTypeFasta, numRandomValues);
+		return getRandomProteinAccessionsFromCensusOut(jobID, remoteSSHCensusRef.getRemoteFile(), fileNameWithTypeFasta,
+				numRandomValues);
 	}
 
-	public static List<String> getRandomProteinAccessionsFromCensusOut(int jobID, String projectFilesPath,
-			File censusOutFile, FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues)
-			throws FileNotFoundException {
+	public static List<String> getRandomProteinAccessionsFromCensusOut(int jobID, File censusOutFile,
+			FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues) throws FileNotFoundException {
 		log.info(
 				"Getting " + numRandomValues + " accessions from census chro file: " + censusOutFile.getAbsolutePath());
 
@@ -595,7 +593,7 @@ public class RemoteServicesTasks {
 						new QuantCondition("light condition"), QuantificationLabel.HEAVY,
 						new QuantCondition("heavy condition"));
 				if (fileNameWithTypeFasta != null) {
-					parser.setDbIndex(getDBIndexInterface(jobID, projectFilesPath, fileNameWithTypeFasta));
+					parser.setDbIndex(getDBIndexInterface(jobID, fileNameWithTypeFasta));
 				}
 				final Map<String, QuantifiedProteinInterface> proteinMap = parser.getProteinMap();
 				if (proteinMap != null) {
@@ -628,14 +626,13 @@ public class RemoteServicesTasks {
 		}
 	}
 
-	private static DBIndexInterface getDBIndexInterface(int jobID, String projectFilesPath,
-			FileNameWithTypeBean fileNameWithTypeFasta) {
+	private static DBIndexInterface getDBIndexInterface(int jobID, FileNameWithTypeBean fileNameWithTypeFasta) {
 		if (fileNameWithTypeFasta == null)
 			return null;
 		if (fileNameWithTypeFasta instanceof RemoteFileWithTypeBean) {
 			return getDBIndexInterface((RemoteFileWithTypeBean) fileNameWithTypeFasta);
 		} else {
-			File fastaFile = FileManager.getDataFile(jobID, projectFilesPath, fileNameWithTypeFasta.getFileName(),
+			File fastaFile = FileManager.getDataFile(jobID, fileNameWithTypeFasta.getFileName(),
 					fileNameWithTypeFasta.getId(), fileNameWithTypeFasta.getFileFormat());
 			DBIndexInterface ret = new DBIndexInterface(DBIndexInterface.getDefaultDBIndexParams(fastaFile));
 			return ret;
@@ -652,13 +649,13 @@ public class RemoteServicesTasks {
 		return ret;
 	}
 
-	public static List<String> getRandomProteinAccessionsFromCensusChro(int jobID, String projectFilesPath,
+	public static List<String> getRandomProteinAccessionsFromCensusChro(int jobID,
 			RemoteSSHFileReference remoteSSHCensusRef, FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues)
 			throws FileNotFoundException {
 		log.info("Getting " + numRandomValues + " accessions from census chro file at: "
 				+ remoteSSHCensusRef.getHostName() + " " + remoteSSHCensusRef.getRemotePath());
 
-		return getRandomProteinAccessionsFromCensusChro(jobID, projectFilesPath, remoteSSHCensusRef.getRemoteFile(),
+		return getRandomProteinAccessionsFromCensusChro(jobID, remoteSSHCensusRef.getRemoteFile(),
 				fileNameWithTypeFasta, numRandomValues);
 		// List<String> ret = new ArrayList<String>();
 		// if (numRandomValues == 0)
@@ -692,9 +689,8 @@ public class RemoteServicesTasks {
 		// return ret;
 	}
 
-	public static List<String> getRandomProteinAccessionsFromDTASelectFile(int jobID, String projectFilesPath,
-			File dtaSelectFilterFile, FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues)
-			throws IOException {
+	public static List<String> getRandomProteinAccessionsFromDTASelectFile(int jobID, File dtaSelectFilterFile,
+			FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues) throws IOException {
 		log.info("Getting " + numRandomValues + " accessions from DTASelect-filter file: "
 				+ dtaSelectFilterFile.getAbsolutePath());
 		// create a Task
@@ -713,7 +709,7 @@ public class RemoteServicesTasks {
 
 				DTASelectParser parser = new DTASelectParser(dtaSelectFilterFile.toURI().toURL());
 				if (fileNameWithTypeFasta != null)
-					parser.setDbIndex(getDBIndexInterface(jobID, projectFilesPath, fileNameWithTypeFasta));
+					parser.setDbIndex(getDBIndexInterface(jobID, fileNameWithTypeFasta));
 				final Map<String, DTASelectProtein> proteinMap = parser.getDTASelectProteins();
 				for (String proteinAcc : proteinMap.keySet()) {
 					// get the ProteinImpl in order to get the parsed Accession
@@ -743,12 +739,12 @@ public class RemoteServicesTasks {
 		return String.valueOf(file.length());
 	}
 
-	public static List<String> getRandomProteinAccessionsFromDTASelectFile(int jobID, String projectFilesPath,
+	public static List<String> getRandomProteinAccessionsFromDTASelectFile(int jobID,
 			RemoteSSHFileReference dtaSelectFilterFile, FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues)
 			throws IOException {
 		log.info("Getting " + numRandomValues + " accessions from DTASelect-filter file at: "
 				+ dtaSelectFilterFile.getHostName() + " - " + dtaSelectFilterFile.getRemotePath());
-		return getRandomProteinAccessionsFromDTASelectFile(jobID, projectFilesPath, dtaSelectFilterFile.getRemoteFile(),
+		return getRandomProteinAccessionsFromDTASelectFile(jobID, dtaSelectFilterFile.getRemoteFile(),
 				fileNameWithTypeFasta, numRandomValues);
 		// List<String> ret = new ArrayList<String>();
 		// if (numRandomValues == 0)
@@ -817,14 +813,14 @@ public class RemoteServicesTasks {
 	// return ret;
 	// }
 
-	public static Set<String> getHiddenPTMs(String projectTag, String projectFilePath) throws PintException {
+	public static Set<String> getHiddenPTMs(String projectTag) throws PintException {
 		try {
 			if (hiddenPTMsByProject.containsKey(projectTag)) {
 				return hiddenPTMsByProject.get(projectTag);
 			}
 			// return RemoteServicesTasks.getHiddenPTMs(projectTag);
 			log.info("Getting hidden PTMs from project " + projectTag);
-			final DefaultView defaultView = getDefaultViewByProject(projectTag, projectFilePath);
+			final DefaultView defaultView = getDefaultViewByProject(projectTag);
 			if (defaultView != null) {
 				final Set<String> hiddenPTMs = defaultView.getHiddenPTMs();
 				if (hiddenPTMs != null) {
@@ -845,17 +841,16 @@ public class RemoteServicesTasks {
 		}
 	}
 
-	public static Set<String> getHiddenPTMs(Collection<String> projectTags, String projectFilesPath)
-			throws PintException {
+	public static Set<String> getHiddenPTMs(Collection<String> projectTags) throws PintException {
 		final Set<String> hiddenPTMs = new HashSet<String>();
 		for (String projectTag : projectTags) {
-			hiddenPTMs.addAll(getHiddenPTMs(projectTag, projectFilesPath));
+			hiddenPTMs.addAll(getHiddenPTMs(projectTag));
 		}
 
 		return hiddenPTMs;
 	}
 
-	public static DefaultView getDefaultViewByProject(String projectTag, String projectFilesPath) throws PintException {
+	public static DefaultView getDefaultViewByProject(String projectTag) throws PintException {
 		try {
 			// look into cache
 			// DISABLED FOR THE MOMENT, TO ALLOW CHANGES IN THE SERVER
@@ -866,7 +861,7 @@ public class RemoteServicesTasks {
 			// .getFromCache(projectTag);
 			// } else {
 			log.info("Reading default view for project " + projectTag);
-			final DefaultViewReader defaultViewReader = new DefaultViewReader(projectTag, projectFilesPath);
+			final DefaultViewReader defaultViewReader = new DefaultViewReader(projectTag);
 			log.info("Default view reader created");
 
 			DefaultView defaultView = defaultViewReader.getDefaultView();
@@ -887,8 +882,7 @@ public class RemoteServicesTasks {
 		}
 	}
 
-	public static Map<String, Pair<DataSet, String>> batchQuery(File batchQueryFile, Set<String> projectTags,
-			String projectFilePath) {
+	public static Map<String, Pair<DataSet, String>> batchQuery(File batchQueryFile, Set<String> projectTags) {
 		Map<String, Pair<DataSet, String>> ret = new HashMap<String, Pair<DataSet, String>>();
 		String queryText;
 		BufferedReader br = null;
@@ -919,8 +913,7 @@ public class RemoteServicesTasks {
 				for (String proteinAcc : proteins.keySet()) {
 
 					final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(
-							proteins.get(proteinAcc), RemoteServicesTasks.getHiddenPTMs(projectTags, projectFilePath))
-									.adapt();
+							proteins.get(proteinAcc), RemoteServicesTasks.getHiddenPTMs(projectTags)).adapt();
 
 					// add to current dataset
 					DataSetsManager.getDataSet(sessionID, projectString).addProtein(proteinBeanAdapted);
@@ -946,8 +939,8 @@ public class RemoteServicesTasks {
 				}
 
 				log.info("Exporting protein beans to file");
-				String urlString = FilenameUtils.getName(
-						DataExporter.exportProteins(proteinBeans, projectFilePath, queryText).getAbsolutePath());
+				String urlString = FilenameUtils
+						.getName(DataExporter.exportProteins(proteinBeans, queryText).getAbsolutePath());
 
 				Pair<DataSet, String> pair = new Pair<DataSet, String>(
 						DataSetsManager.getDataSet(sessionID, projectString), urlString);

@@ -11,7 +11,6 @@ import javax.servlet.ServletContext;
 
 import edu.scripps.yates.server.DataSet;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
-import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.utilities.util.Pair;
 
 public class BatchQueryExecutionTask extends PintServerDaemonTask {
@@ -32,8 +31,7 @@ public class BatchQueryExecutionTask extends PintServerDaemonTask {
 		}
 		Set<String> projects = new HashSet<String>();
 		projects.add("DmDshybrids2014");
-		Map<String, Pair<DataSet, String>> results = RemoteServicesTasks.batchQuery(queriesFile, projects,
-				FileManager.getProjectFilesPath(servletContext));
+		Map<String, Pair<DataSet, String>> results = RemoteServicesTasks.batchQuery(queriesFile, projects);
 		FileWriter out = null;
 		try {
 			out = new FileWriter(outputFile);

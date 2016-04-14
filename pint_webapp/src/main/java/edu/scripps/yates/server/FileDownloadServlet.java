@@ -55,11 +55,11 @@ public class FileDownloadServlet extends HttpServlet {
 		// get file depending on the FILE TYPE
 		File file = null;
 		if (fileType != null && fileType.equals(SharedConstants.ID_DATA_FILE_TYPE)) {
-			file = FileManager.getDownloadFile(FileManager.getProjectFilesPath(getServletContext()), filename);
+			file = FileManager.getDownloadFile(filename);
 		} else if (fileType != null && fileType.equals(SharedConstants.IMPORT_CFG_FILE_TYPE)) {
-			file = FileManager.getProjectXmlFile(FileManager.getProjectFilesPath(getServletContext()), filename);
+			file = FileManager.getProjectXmlFile(filename);
 		} else if (fileType != null && fileType.equals(SharedConstants.PSEA_QUANT_DATA_FILE_TYPE)) {
-			file = FileManager.getPSEAQuantFile(FileManager.getProjectFilesPath(getServletContext()), filename);
+			file = FileManager.getPSEAQuantFile(filename);
 		}
 		if (file == null)
 			return;

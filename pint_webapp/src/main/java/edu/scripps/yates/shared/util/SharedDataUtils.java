@@ -40,7 +40,6 @@ import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.model.ThresholdBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsConditions;
-import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
@@ -114,65 +113,6 @@ public class SharedDataUtils {
 			}
 		}
 		return ret;
-	}
-
-	public static int compareRatios(ContainsRatios o1, ContainsRatios o2, String condition1Name, String condition2Name,
-			String projectTag, String ratioName, boolean skipInfinities) {
-		final List<RatioBean> ratios1 = o1.getRatiosByConditions(condition1Name, condition2Name, projectTag, ratioName,
-				skipInfinities);
-		final List<RatioBean> ratios2 = o2.getRatiosByConditions(condition1Name, condition2Name, projectTag, ratioName,
-				skipInfinities);
-		if (!ratios1.isEmpty() && !ratios2.isEmpty()) {
-			final List<Double> ratioValues1 = getRatioValues(condition1Name, condition2Name, ratios1);
-			final List<Double> ratioValues2 = getRatioValues(condition1Name, condition2Name, ratios2);
-			if (ratioValues1.size() == 1 && ratioValues2.size() == 1) {
-				return Double.compare(ratioValues1.get(0), ratioValues2.get(0));
-			} else {
-				// TODO sort in a concrete way when having several ratios??
-				final Double efectiveRatio1 = getEfectiveRatio(ratioValues1);
-				final Double efectiveRatio2 = getEfectiveRatio(ratioValues2);
-				if (efectiveRatio1 != null && efectiveRatio2 != null) {
-					return Double.compare(efectiveRatio1, efectiveRatio2);
-				}
-			}
-		} else if (ratios1.isEmpty() && !ratios2.isEmpty()) {
-			return -1;
-		} else if (!ratios1.isEmpty() && ratios2.isEmpty()) {
-			return 1;
-		}
-		return 0;
-
-	}
-
-	public static int compareRatioScores(ContainsRatios o1, ContainsRatios o2, String condition1Name,
-			String condition2Name, String projectTag, String ratioName, boolean skipInfinities) {
-		try {
-			final List<RatioBean> ratios1 = o1.getRatiosByConditions(condition1Name, condition2Name, projectTag,
-					ratioName, skipInfinities);
-			final List<RatioBean> ratios2 = o2.getRatiosByConditions(condition1Name, condition2Name, projectTag,
-					ratioName, skipInfinities);
-			if (!ratios1.isEmpty() && !ratios2.isEmpty()) {
-				final List<ScoreBean> ratioValues1 = getRatioScoreValues(condition1Name, condition2Name, ratios1);
-				final List<ScoreBean> ratioValues2 = getRatioScoreValues(condition1Name, condition2Name, ratios2);
-
-				final String value1 = ratioValues1.get(0).getValue();
-				final String value2 = ratioValues2.get(0).getValue();
-				try {
-					return Double.compare(Double.valueOf(value1), Double.valueOf(value2));
-				} catch (NumberFormatException e) {
-					return value1.compareTo(value2);
-				}
-
-			} else if (ratios1.isEmpty() && !ratios2.isEmpty()) {
-				return -1;
-			} else if (!ratios1.isEmpty() && ratios2.isEmpty()) {
-				return 1;
-			}
-
-		} catch (Exception e) {
-
-		}
-		return 0;
 	}
 
 	/**
@@ -1096,5 +1036,18 @@ public class SharedDataUtils {
 		}
 
 		return ret;
+	}
+
+	public static int getMinStartingPosition(PSMBean o1) {
+		int min = Integer.MAX_VALUE;
+		final Map<String, List<Integer>> startingPositions = o1.getStartingPositions();
+		for (List<Integer> positions : startingPositions.values()) {
+			for (Integer position : positions) {
+				if (min > position)
+					min = position;
+			}
+		}
+
+		return min;
 	}
 }

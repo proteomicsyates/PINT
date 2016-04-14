@@ -14,7 +14,7 @@ import edu.scripps.yates.shared.util.SharedDataUtils;
 
 public class RatioAnalyzer {
 	private final static Logger log = Logger.getLogger(RatioAnalyzer.class);
-	private final Map<String, RatioDistribution> ratioDistributionsByRatio = new HashMap<String, RatioDistribution>();
+	private static final Map<String, RatioDistribution> ratioDistributionsByRatio = new HashMap<String, RatioDistribution>();
 
 	public void addRatio(RatioBean ratio) {
 		String key = SharedDataUtils.getRatioKey(ratio);
@@ -80,6 +80,7 @@ public class RatioAnalyzer {
 			ratioDistribution.setMaxRatio(max);
 			ratioDistribution.setMinRatio(min);
 			ratioDistribution.setRatioKey(key);
+			log.info("Adding " + key + " ratio distribution");
 			ratioDistributionsByRatio.put(key, ratioDistribution);
 		} else {
 			if (!Double.isInfinite(ratio.getValue())) {
@@ -105,7 +106,4 @@ public class RatioAnalyzer {
 		}
 	}
 
-	public void clear() {
-		ratioDistributionsByRatio.clear();
-	}
 }

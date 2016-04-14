@@ -104,7 +104,6 @@ import psidev.psi.tools.validator.ValidatorMessage;
 public class ImportWizardServiceServlet extends RemoteServiceServlet implements ImportWizardService {
 	private static int importProcessNumber = 0;
 	private final ObjectFactory factory = new ObjectFactory();
-	private String projectFilesPath;
 	private ControlVocabularyManager cvManager;
 	private List<String> scoreTypes;
 	private List<String> ptmNames;
@@ -129,7 +128,6 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 		super.init(config);
 		ServletCommonInit.init(getServletContext());
-		projectFilesPath = FileManager.getProjectFilesPath(getServletContext());
 		final String developerMode = System.getenv().get(SharedConstants.PINT_DEVELOPER_ENV_VAR);
 		if (developerMode != null) {
 			numMaxInSuggestionLists = 10;
@@ -234,7 +232,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public int startNewImportProcess(String sessionID, String uploadedProjectCfgFileName) throws PintException {
 		// create new identifier for the process
 
-		File cfgFile = FileManager.getProjectXmlFile(projectFilesPath, uploadedProjectCfgFileName);
+		File cfgFile = FileManager.getProjectXmlFile(uploadedProjectCfgFileName);
 
 		// read file and get the project object
 		final PintImportCfg pintImportCfg = ImportCfgFileParserUtil.getPintImportFromFile(cfgFile);
@@ -348,7 +346,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		project.setTag(projectTag);
 		pintImportCfg.setProject(project);
 		pintImportCfg.setFileSet(new FileSetAdapter(files, remoteFilesWithTypes).adapt());
-		return ImportCfgFileParserUtil.saveFileCfg(pintImportCfg, projectFilesPath);
+		return ImportCfgFileParserUtil.saveFileCfg(pintImportCfg);
 
 	}
 
@@ -366,7 +364,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		// set name and id
 		pintImportCfg.getProject().setTag(projectTag);
 		// save locally with the new name
-		return ImportCfgFileParserUtil.saveFileCfg(pintImportCfg, projectFilesPath);
+		return ImportCfgFileParserUtil.saveFileCfg(pintImportCfg);
 
 	}
 
@@ -377,7 +375,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	 */
 	private int generateNewImportProcessID() {
 		importProcessNumber++;
-		while (FileManager.getProjectDataFileFolder(importProcessNumber, projectFilesPath, false).exists()) {
+		while (FileManager.getProjectDataFileFolder(importProcessNumber, false).exists()) {
 			importProcessNumber++;
 		}
 		return importProcessNumber;
@@ -403,8 +401,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		if (dataFileName.getFileFormat() == null)
 			throw new PintException("File format is empty or not valid", PINT_ERROR_TYPE.MISSING_INFORMATION);
 
-		final File dataFile = FileManager.getDataFile(jobID, projectFilesPath, dataFileName.getFileName(),
-				dataFileName.getId(), dataFileName.getFileFormat());
+		final File dataFile = FileManager.getDataFile(jobID, dataFileName.getFileName(), dataFileName.getId(),
+				dataFileName.getFileFormat());
 		if (!dataFile.exists()) {
 			throw new PintException("File '" + dataFileName.getFileName() + "' not found in the server",
 					PINT_ERROR_TYPE.REMOTE_FILE_NOT_REACHABLE);
@@ -430,8 +428,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			return ret;
 		log.info("Checking file availabilities of " + dataFileNames.size() + " files");
 		for (FileNameWithTypeBean dataFileName : dataFileNames) {
-			final File dataFile = FileManager.getDataFile(jobID, projectFilesPath, dataFileName.getFileName(),
-					dataFileName.getId(), dataFileName.getFileFormat());
+			final File dataFile = FileManager.getDataFile(jobID, dataFileName.getFileName(), dataFileName.getId(),
+					dataFileName.getFileFormat());
 			if (!dataFile.exists()) {
 				filesNotFound.add(dataFileName.getFileName());
 			} else {
@@ -495,7 +493,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		if (remoteFilesWithTypesBeans == null)
 			return ret;
 		for (RemoteFileWithTypeBean remoteFileWithTypeBean : remoteFilesWithTypesBeans) {
-			File outputFile = FileManager.getDataFile(jobID, projectFilesPath, remoteFileWithTypeBean.getFileName(),
+			File outputFile = FileManager.getDataFile(jobID, remoteFileWithTypeBean.getFileName(),
 					remoteFileWithTypeBean.getId(), remoteFileWithTypeBean.getFileFormat());
 			final ServerTypeBean serverBean = remoteFileWithTypeBean.getServer();
 			RemoteSSHFileReference remoteFileReference = new RemoteSSHFileReference(serverBean.getHostName(),
@@ -618,13 +616,13 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 					.adapt();
 			switch (remoteFileWithType.getFileFormat()) {
 			case CENSUS_OUT_TXT:
-				return RemoteServicesTasks.getRandomProteinAccessionsFromCensusOut(importJobID, projectFilesPath,
-						remoteSSHFileReference, fileNameWithTypeFasta, numRandomValues);
+				return RemoteServicesTasks.getRandomProteinAccessionsFromCensusOut(importJobID, remoteSSHFileReference,
+						fileNameWithTypeFasta, numRandomValues);
 			case CENSUS_CHRO_XML:
-				return RemoteServicesTasks.getRandomProteinAccessionsFromCensusChro(importJobID, projectFilesPath,
-						remoteSSHFileReference, fileNameWithTypeFasta, numRandomValues);
+				return RemoteServicesTasks.getRandomProteinAccessionsFromCensusChro(importJobID, remoteSSHFileReference,
+						fileNameWithTypeFasta, numRandomValues);
 			case DTA_SELECT_FILTER_TXT:
-				return RemoteServicesTasks.getRandomProteinAccessionsFromDTASelectFile(importJobID, projectFilesPath,
+				return RemoteServicesTasks.getRandomProteinAccessionsFromDTASelectFile(importJobID,
 						remoteSSHFileReference, fileNameWithTypeFasta, numRandomValues);
 			default:
 				throw new PintException(remoteFileWithType.getFileFormat() + " is not supported for this call",
@@ -639,7 +637,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public List<String> getRandomProteinAccessions(String sessionID, int importJobID,
 			FileNameWithTypeBean fileNameWithType, FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues)
-					throws PintException {
+			throws PintException {
 		try {
 			if (fileNameWithType instanceof RemoteFileWithTypeBean) {
 				return getRandomProteinAccessions(importJobID, (RemoteFileWithTypeBean) fileNameWithType,
@@ -650,13 +648,13 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 					switch (localFile.getFormat()) {
 					case CENSUS_OUT_TXT:
 						return RemoteServicesTasks.getRandomProteinAccessionsFromCensusOut(importJobID,
-								projectFilesPath, localFile.getFile(), fileNameWithTypeFasta, numRandomValues);
+								localFile.getFile(), fileNameWithTypeFasta, numRandomValues);
 					case CENSUS_CHRO_XML:
 						return RemoteServicesTasks.getRandomProteinAccessionsFromCensusChro(importJobID,
-								projectFilesPath, localFile.getFile(), fileNameWithTypeFasta, numRandomValues);
+								localFile.getFile(), fileNameWithTypeFasta, numRandomValues);
 					case DTA_SELECT_FILTER_TXT:
 						return RemoteServicesTasks.getRandomProteinAccessionsFromDTASelectFile(importJobID,
-								projectFilesPath, localFile.getFile(), fileNameWithTypeFasta, numRandomValues);
+								localFile.getFile(), fileNameWithTypeFasta, numRandomValues);
 					default:
 						throw new PintException(localFile.getFormat() + " is not supported for this call",
 								PINT_ERROR_TYPE.FILE_NOT_SUPPORTED_FOR_THIS_CALL);
@@ -712,7 +710,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 			log.info("Saving xml file...");
 			// save the xml file
-			final File savedFileCfg = ImportCfgFileParserUtil.saveFileCfg(pintImportCfg, projectFilesPath);
+			final File savedFileCfg = ImportCfgFileParserUtil.saveFileCfg(pintImportCfg);
 			log.info("Import project XML file saved at: " + savedFileCfg.getAbsolutePath());
 
 			// index projectCfgFile by process ID
@@ -897,7 +895,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 			log.info("Reading project from XML file");
 			final Project projectFromCfgFile = importReader.getProjectFromCfgFile(projectCfgFileByImportProcessID,
-					FileManager.getFastaIndexFolder(projectFilesPath));
+					FileManager.getFastaIndexFolder());
 			log.info("Project object created from XML file");
 			log.info("Beginning saving transaction");
 			// ThreadSessionHandler.beginGoodTransaction();
@@ -927,8 +925,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		dataFileNames.add(file);
 		checkDataFileAvailabilities(jobId, dataFileNames);
 
-		final File excelFile = FileManager.getDataFile(jobId, projectFilesPath, file.getFileName(), file.getId(),
-				file.getFileFormat());
+		final File excelFile = FileManager.getDataFile(jobId, file.getFileName(), file.getId(), file.getFileFormat());
 		ExcelFileImpl reader;
 		try {
 			reader = new ExcelFileImpl(excelFile);
@@ -1014,10 +1011,10 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public void moveDataFile(String sessionID, int jobID, FileNameWithTypeBean fileOLD, FileNameWithTypeBean fileNew)
 			throws PintException {
-		final File oldDataFile = FileManager.getDataFile(jobID, projectFilesPath, fileOLD.getFileName(),
-				fileOLD.getId(), fileOLD.getFileFormat());
-		final File newDataFile = FileManager.getDataFile(jobID, projectFilesPath, fileNew.getFileName(),
-				fileNew.getId(), fileNew.getFileFormat());
+		final File oldDataFile = FileManager.getDataFile(jobID, fileOLD.getFileName(), fileOLD.getId(),
+				fileOLD.getFileFormat());
+		final File newDataFile = FileManager.getDataFile(jobID, fileNew.getFileName(), fileNew.getId(),
+				fileNew.getFileFormat());
 
 		try {
 			if (newDataFile.exists())

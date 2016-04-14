@@ -64,8 +64,9 @@ public class XmlProjectUploadServlet extends UploadAction {
 		for (FileItem item : sessionFiles) {
 			if (false == item.isFormField()) {
 				try {
-					String projectFilesPath = FileManager.getProjectFilesPath(getServletContext());
-					File file = FileManager.getProjectXmlFile(projectFilesPath, item.getName());
+					// needed before the following line
+					FileManager.getProjectFilesPath(getServletContext());
+					File file = FileManager.getProjectXmlFile(item.getName());
 
 					log.info("Saving XML project file to: " + file.getAbsolutePath());
 

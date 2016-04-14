@@ -27,13 +27,12 @@ import edu.scripps.yates.shared.model.ProjectBean;
  * time point. Then, it will be able to tell if a certain project that was saved
  * in the database at certain date was annotated with which versions of Uniprot
  * since then.
- * 
+ *
  * @author Salva
- * 
+ *
  */
 public class UniprotVersionReleasesDates {
-	private static final Logger log = Logger
-			.getLogger(UniprotVersionReleasesDates.class);
+	private static final Logger log = Logger.getLogger(UniprotVersionReleasesDates.class);
 	private static UniprotVersionReleasesDates instance;
 	private static String projectFilesPath;
 	private final DateFormat df = new SimpleDateFormat("yyyy MM dd", Locale.US);
@@ -43,31 +42,21 @@ public class UniprotVersionReleasesDates {
 
 	}
 
-	public static UniprotVersionReleasesDates getInstance(
-			String projectFilesPath) {
-		if (instance == null
-				|| !UniprotVersionReleasesDates.projectFilesPath
-						.equals(projectFilesPath))
+	public static UniprotVersionReleasesDates getInstance(String projectFilesPath) {
+		if (instance == null || !UniprotVersionReleasesDates.projectFilesPath.equals(projectFilesPath))
 			instance = new UniprotVersionReleasesDates(projectFilesPath);
 		return instance;
 	}
 
-	public void saveNewVersion(String currentUniprotVersion, Date date)
-			throws IOException {
+	public void saveNewVersion(String currentUniprotVersion, Date date) throws IOException {
 		// check that that version is actually new
-		if (getUniprotReleaseDatesByVersions().containsKey(
-				currentUniprotVersion)) {
-			log.info("Uniprot version "
-					+ currentUniprotVersion
-					+ " was already registered with date: "
-					+ df.format(getUniprotReleaseDatesByVersions().get(
-							currentUniprotVersion)));
+		if (getUniprotReleaseDatesByVersions().containsKey(currentUniprotVersion)) {
+			log.info("Uniprot version " + currentUniprotVersion + " was already registered with date: "
+					+ df.format(getUniprotReleaseDatesByVersions().get(currentUniprotVersion)));
 			return;
 		}
-		final File uniprotReleasesDatesFile = FileManager
-				.getUniprotReleasesDatesFile(projectFilesPath);
-		FileOutputStream fos = new FileOutputStream(uniprotReleasesDatesFile,
-				true);
+		final File uniprotReleasesDatesFile = FileManager.getUniprotReleasesDatesFile();
+		FileOutputStream fos = new FileOutputStream(uniprotReleasesDatesFile, true);
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 		try {
 			bw.write(currentUniprotVersion + "\t" + df.format(date));
@@ -80,16 +69,14 @@ public class UniprotVersionReleasesDates {
 
 	/**
 	 * Gets a map of uniprot versions with its associated release date times
-	 * 
+	 *
 	 * @return
 	 */
 	public Map<String, Date> getUniprotReleaseDatesByVersions() {
 		Map<String, Date> ret = new HashMap<String, Date>();
-		final File uniprotReleasesDatesFile = FileManager
-				.getUniprotReleasesDatesFile(projectFilesPath);
+		final File uniprotReleasesDatesFile = FileManager.getUniprotReleasesDatesFile();
 		try {
-			List<String> lines = Files.readAllLines(
-					Paths.get(uniprotReleasesDatesFile.getAbsolutePath()),
+			List<String> lines = Files.readAllLines(Paths.get(uniprotReleasesDatesFile.getAbsolutePath()),
 					Charset.forName("UTF-8"));
 			for (String line : lines) {
 				if (line.contains("\t")) {
@@ -111,7 +98,7 @@ public class UniprotVersionReleasesDates {
 	/**
 	 * Gets all the uniprot versions that were released after the uploaded date
 	 * of the project
-	 * 
+	 *
 	 * @param project
 	 * @return
 	 */
@@ -121,13 +108,9 @@ public class UniprotVersionReleasesDates {
 		final Map<String, Date> uniprotReleaseDatesByVersions = getUniprotReleaseDatesByVersions();
 		for (String uniprotVersion : uniprotReleaseDatesByVersions.keySet()) {
 			// if uploadedDate is before the uniprot version release
-			if (uploadedDate.compareTo(uniprotReleaseDatesByVersions
-					.get(uniprotVersion)) < 0) {
-				log.info("Upload date '"
-						+ df.format(uploadedDate)
-						+ "' is before the uniprot release date '"
-						+ df.format(uniprotReleaseDatesByVersions
-								.get(uniprotVersion) + "'"));
+			if (uploadedDate.compareTo(uniprotReleaseDatesByVersions.get(uniprotVersion)) < 0) {
+				log.info("Upload date '" + df.format(uploadedDate) + "' is before the uniprot release date '"
+						+ df.format(uniprotReleaseDatesByVersions.get(uniprotVersion) + "'"));
 				ret.add(uniprotVersion);
 			}
 		}

@@ -9,6 +9,10 @@
 		<param-name>maxSize</param-name>
 		<param-value>2147483647</param-value> <!-- 2Gb -->
 	</context-param>
+	<context-param>
+		<param-name>maxFileSize</param-name>
+		<param-value>2147483647</param-value> <!-- 2Gb -->
+	</context-param>
 
 	<context-param>
 		<!-- Useful in development mode to slow down the uploads in fast networks.
@@ -206,7 +210,7 @@
 	<servlet-mapping>
 		<servlet-name>downloadServlet</servlet-name>
 		<!--     <url-pattern>/download</url-pattern> -->
-		<url-pattern>/pint/download</url-pattern>
+		<url-pattern>/download</url-pattern>
 	</servlet-mapping>
 
 	<!-- Default page to serve -->

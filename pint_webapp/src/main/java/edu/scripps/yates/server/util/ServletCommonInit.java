@@ -20,13 +20,13 @@ public class ServletCommonInit {
 		// configure the Uniprot annotations retrieval for using the local
 		// folder and whether to index or not the annotations file, all
 		// configured in the servlet context (web.xml file)
-		String projectFilesPath = FileManager.getProjectFilesPath(context);
+		FileManager.getProjectFilesPath(context);
 
 		// use the index
 		final boolean useIndex = Boolean.valueOf(ServletContextProperty.getServletContextProperty(context,
 				ServletContextProperty.INDEX_UNIPROT_ANNOTATIONS));
 		// uniprot releases folder
-		final File uniprotReleasesFolder = FileManager.getUniprotReleasesFolder(projectFilesPath);
+		final File uniprotReleasesFolder = FileManager.getUniprotReleasesFolder();
 		// configure the UniprotProteinRetrievalSettings
 		UniprotProteinRetrievalSettings.getInstance(uniprotReleasesFolder, useIndex);
 	}

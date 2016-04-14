@@ -125,7 +125,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 			.getInstance();
 
 	private final Set<String> loadedProjects = new HashSet<String>();
-	private final ProjectsBeanSet projectBeanSet = new ProjectsBeanSet();
+	private final ProjectsBeanSet loadedProjectBeanSet = new ProjectsBeanSet();
 	private MyDialogBox loadingDialog;
 
 	private StackLayoutPanel menuUpStackLayoutPanel;
@@ -143,6 +143,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 	private ProjectInformationPanel projectInformationPanel;
 	private ScrollPanel scrollQueryPanel;
 	private ScrollPanel scrollProjectInformationPanel;
+	private boolean defaultViewsApplied;
 
 	/**
 	 * Returns true if the projects contained in the loadedProjects set is the
@@ -1128,6 +1129,11 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 						if (result.getPsmSubList().getTotalNumber() > 0) {
 							prepareDownloadLinksForQuery();
 						}
+
+						if (!defaultViewsApplied) {
+							requestDefaultViews(loadedProjectBeanSet.iterator().next(), true, false, false,
+									loadedProjectBeanSet.containsBigProject());
+						}
 					}
 				});
 
@@ -1517,7 +1523,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 		updateStatus("Loading projects from database...");
 		projectListPanel.clearList();
 		loadedProjects.clear();
-		projectBeanSet.clear();
+		loadedProjectBeanSet.clear();
 		loadedProjects.addAll(projectTags);
 		for (final String projectTag : projectTags) {
 			proteinRetrievingService.getProjectBean(projectTag, new AsyncCallback<ProjectBean>() {
@@ -1536,7 +1542,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 
 				@Override
 				public void onSuccess(ProjectBean projectBean) {
-					projectBeanSet.add(projectBean);
+					loadedProjectBeanSet.add(projectBean);
 
 					GWT.log("project bean " + projectBean.getTag() + " received");
 					if (projectTags.size() > 1) {
@@ -1547,15 +1553,17 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 						projectListPanel.getListBox().addItem(projectTag, projectTag);
 					}
 					// if all projects are received
-					if (projectBeanSet.size() == loadedProjects.size()) {
+					if (loadedProjectBeanSet.size() == loadedProjects.size()) {
 						// show the welcome box
-						boolean shorWelcome = true;
-						final ProjectBean projectBeanForDisplay = projectBeanSet.getBigProject() != null
-								? projectBeanSet.getBigProject() : projectBean;
-						requestDefaultViews(projectBeanForDisplay, false, shorWelcome, false,
-								projectBeanSet.containsBigProject());
+						boolean showWelcome = true;
+						final ProjectBean projectBeanForDisplay = loadedProjectBeanSet.getBigProject() != null
+								? loadedProjectBeanSet.getBigProject() : projectBean;
+						boolean modifyColumns = loadedProjectBeanSet.containsBigProject();
+						boolean changeToDataTab = false;
+						requestDefaultViews(projectBeanForDisplay, modifyColumns, showWelcome, changeToDataTab,
+								loadedProjectBeanSet.containsBigProject());
 						// load the project
-						if (projectBeanSet.containsBigProject()) {
+						if (loadedProjectBeanSet.containsBigProject()) {
 							// disable queries for big projects. Only allow
 							// simple ones.
 							queryEditorPanel.enableQueries(false);
@@ -1797,8 +1805,8 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 												.getInstance().contains(projectTag)) {
 											final DefaultView defaultView = ClientCacheDefaultViewByProjectTag
 													.getInstance().getFromCache(projectTag);
-											applyDefaultViews(projectBeanSet.getByTag(projectTag), defaultView, true,
-													false, true, false);
+											applyDefaultViews(loadedProjectBeanSet.getByTag(projectTag), defaultView,
+													true, false, true, false);
 										}
 
 										// load on the grid
@@ -1885,11 +1893,11 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 	 * @param projectBean
 	 * @param modifyColumns
 	 * @param showWelcomeWindowBox
-	 * @param changeTab
+	 * @param changeToDataTab
 	 * @param bigProject
 	 */
 	private void requestDefaultViews(final ProjectBean projectBean, final boolean modifyColumns,
-			final boolean showWelcomeWindowBox, final boolean changeTab, final boolean bigProject) {
+			final boolean showWelcomeWindowBox, final boolean changeToDataTab, final boolean bigProject) {
 
 		if (loadedProjects.isEmpty()) {
 			return;
@@ -1901,7 +1909,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 
 				applyDefaultViews(projectBean,
 						ClientCacheDefaultViewByProjectTag.getInstance().getFromCache(projectTag), modifyColumns,
-						showWelcomeWindowBox, changeTab, bigProject);
+						showWelcomeWindowBox, changeToDataTab, bigProject);
 
 			} else {
 				proteinRetrievingService.getDefaultViewByProject(projectTag, new AsyncCallback<DefaultView>() {
@@ -1916,7 +1924,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 						if (defaultViews != null) {
 							if (projectBean.getTag().equals(projectTag)) {
 								applyDefaultViews(projectBean, defaultViews, modifyColumns, showWelcomeWindowBox,
-										changeTab, bigProject);
+										changeToDataTab, bigProject);
 							}
 							ClientCacheDefaultViewByProjectTag.getInstance().addtoCache(defaultViews, projectTag);
 							projectInformationPanel.addProjectView(projectBean, defaultViews);
@@ -1929,9 +1937,9 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 	}
 
 	private void applyDefaultViews(ProjectBean projectBean, DefaultView defaultViews, boolean modifyColumns,
-			boolean showWelcomeWindowBox, boolean changeTab, boolean bigProject) {
+			boolean showWelcomeWindowBox, boolean changeToDataTab, boolean bigProject) {
 
-		if (changeTab) {
+		if (changeToDataTab) {
 			// select default tab
 			final TAB defaultTab = defaultViews.getDefaultTab();
 			GWT.log("Changing tab to " + defaultTab.name());
@@ -2005,7 +2013,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 			welcomeToProjectWindowBox.center();
 			GWT.log("Showing welcome window for project END");
 		}
-
+		defaultViewsApplied = true;
 	}
 
 	/**
@@ -2211,6 +2219,9 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 							}
 
 						}
+						// set to false in order to force its application again
+						// when performing a query
+						defaultViewsApplied = false;
 					}
 
 				});

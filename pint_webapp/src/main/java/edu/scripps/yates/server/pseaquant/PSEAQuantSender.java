@@ -56,7 +56,6 @@ public class PSEAQuantSender {
 	private final PSEAQuantQuantType quantType;
 	private final Double cvTolFactor;
 	private final PSEAQuantLiteratureBias literatureBias;
-	private final String projectFilesPath;
 
 	public enum RATIO_AVERAGING {
 		AVERAGE, MEDIAN
@@ -64,11 +63,10 @@ public class PSEAQuantSender {
 
 	private final RATIO_AVERAGING ratioAveraging;
 
-	public PSEAQuantSender(String projectFilesPath, String email, PSEAQuantSupportedOrganism organism,
-			List<PSEAQuantReplicate> replicates, RatioDescriptorBean ratioDescriptor, long numberOfSamplings,
-			PSEAQuantQuantType quantType, PSEAQuantAnnotationDatabase annotationDatabase, PSEAQuantCVTol cvTol,
-			Double cvTolFactor, PSEAQuantLiteratureBias literatureBias, RATIO_AVERAGING ratioAveraging) {
-		this.projectFilesPath = projectFilesPath;
+	public PSEAQuantSender(String email, PSEAQuantSupportedOrganism organism, List<PSEAQuantReplicate> replicates,
+			RatioDescriptorBean ratioDescriptor, long numberOfSamplings, PSEAQuantQuantType quantType,
+			PSEAQuantAnnotationDatabase annotationDatabase, PSEAQuantCVTol cvTol, Double cvTolFactor,
+			PSEAQuantLiteratureBias literatureBias, RATIO_AVERAGING ratioAveraging) {
 
 		this.email = email;
 		this.organism = organism;
@@ -161,7 +159,7 @@ public class PSEAQuantSender {
 		} else {
 			valuesPerGeneAndReplicate = getSPCsFromReplicates();
 		}
-		final File pseaQuantFolder = FileManager.getPSEAQuantFolder(projectFilesPath);
+		final File pseaQuantFolder = FileManager.getPSEAQuantFolder();
 		final File newRatioFile = new File(
 				pseaQuantFolder.getAbsolutePath() + File.separator + "PSEA-Quant_input_" + random.nextInt() + ".txt");
 		writeRatioFile(valuesPerGeneAndReplicate, newRatioFile);

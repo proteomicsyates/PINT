@@ -67,21 +67,20 @@ public class ProjectSaverServiceImpl extends RemoteServiceServlet implements Pro
 
 		ImportCfgFileReader.ignoreDTASelectParameterT = true;
 
-		String projectFilesPath = FileManager.getProjectFilesPath(getServletContext());
 		log.info("Trying to save " + projectXmlFileNames.size() + " projects");
 
 		try {
 
 			for (String projectXmlFileName : projectXmlFileNames) {
 				log.info("Saving " + projectXmlFileName + " project");
-				File xmlFile = FileManager.getProjectXmlFile(projectFilesPath, projectXmlFileName);
+				File xmlFile = FileManager.getProjectXmlFile(projectXmlFileName);
 
 				// it is important to have a new ImportCfgFileReader per
 				// project. Otherwise, the information in local variables can be
 				// mixed between projects
 				ImportCfgFileReader importReader = new ImportCfgFileReader();
 				final Project projectFromCfgFile = importReader.getProjectFromCfgFile(xmlFile,
-						FileManager.getFastaIndexFolder(projectFilesPath));
+						FileManager.getFastaIndexFolder());
 				log.info(projectFromCfgFile.getName() + " file readed");
 				final MySQLSaver mySQLSaver = new MySQLSaver();
 				mySQLSaver.saveProject(projectFromCfgFile);
@@ -95,8 +94,7 @@ public class ProjectSaverServiceImpl extends RemoteServiceServlet implements Pro
 
 	@Override
 	public List<String> validateProjectXMLCfgFile(String sessionID, String projectFileName) {
-		String projectFilesPath = FileManager.getProjectFilesPath(getServletContext());
-		File xmlFile = FileManager.getProjectXmlFile(projectFilesPath, projectFileName);
+		File xmlFile = FileManager.getProjectXmlFile(projectFileName);
 		try {
 			Reader reader = new FileReader(xmlFile);
 			URI schemaURI = Thread.currentThread().getContextClassLoader().getResource(ServerConstants.PROJECT_XML_CFG)
