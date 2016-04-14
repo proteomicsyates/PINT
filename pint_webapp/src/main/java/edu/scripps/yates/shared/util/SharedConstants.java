@@ -45,4 +45,7 @@ public class SharedConstants {
 	public static final int DEFAULT_ALIGNMENT_SCORE = 20;
 	public static final double DEFAULT_SIMILARITY_SCORE = 70; // in %
 	public static final int MAX_NUMBER_PARALLEL_PROCESSES = 8;
+
+	// enable send emails
+	public static final boolean EMAIL_ENABLED = false;
 }
