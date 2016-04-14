@@ -124,6 +124,28 @@ public class ProteinClusterUtils {
 		return parser;
 	}
 
+	public static CensusChroParser getCensusChroParser(DBIndexSearchParams dbIndexParams, List<String> filePaths,
+			List<Map<QuantCondition, QuantificationLabel>> labelsByConditions, QuantificationLabel numeratorLabel,
+			QuantificationLabel denominatorLabel) throws FileNotFoundException {
+
+		int i = 0;
+		CensusChroParser parser = new CensusChroParser();
+		for (String filePath : filePaths) {
+			parser.addFile(new File(filePath), labelsByConditions.get(i), numeratorLabel, denominatorLabel);
+			i++;
+		}
+
+		parser.addIonExclusion(IonSerieType.B, 1);
+		parser.addIonExclusion(IonSerieType.Y, 1);
+
+		DBIndexInterface dbIndex = new DBIndexInterface(dbIndexParams);
+		parser.setDbIndex(dbIndex);
+		// gets rid of decoys
+		parser.setDecoyPattern("Reverse");
+
+		return parser;
+	}
+
 	public static CensusChroParser getCensusChroParser(String fastaName, List<String> filePaths,
 			List<Map<QuantCondition, QuantificationLabel>> labelsByConditions, List<QuantificationLabel> numeratorLabel,
 			List<QuantificationLabel> denominatorLabel) throws FileNotFoundException {
