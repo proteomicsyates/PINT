@@ -103,7 +103,7 @@ public class PSEAQuantFormPanel extends PSEAQuantFormAbstractPanel {
 		flexTable.getFlexCellFormatter().setColSpan(0, 0, 2);
 
 		InlineHTML nlnhtmlNewInlinehtml = new InlineHTML(
-				"<a href=\"http://sealion.scripps.edu:18080/PSEA-Quant/\" class=\"linkPINT\" target=\"_blank\">http://sealion.scripps.edu:18080/PSEA-Quant/</a>");
+				"<a href=\"http://pseaquant.scripps.edu\" class=\"linkPINT\" target=\"_blank\">http://pseaquant.scripps.edu</a>");
 		flexTable.setWidget(2, 1, nlnhtmlNewInlinehtml);
 
 		FlowPanel mainFlowPanel = new FlowPanel();
