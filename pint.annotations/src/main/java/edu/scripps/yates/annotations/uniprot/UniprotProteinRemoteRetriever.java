@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -59,6 +60,7 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 	private static JAXBContext jaxbContext;
 	private static Date currentUniprotVersionRetrievedDate;
 	private static String currentUniprotVersion;
+	private static boolean notTryUntilNextDay;
 
 	// service
 
@@ -505,12 +507,18 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 				&& DateUtils.isSameDay(UniprotProteinRemoteRetriever.currentUniprotVersionRetrievedDate, new Date())) {
 			return UniprotProteinRemoteRetriever.currentUniprotVersion;
 		}
+		if (notTryUntilNextDay
+				&& DateUtils.isSameDay(UniprotProteinRemoteRetriever.currentUniprotVersionRetrievedDate, new Date())) {
+			log.info("After a timeout today...I will try again tomorrow");
+			return "";
+		}
 		final String releaseNotesURLString = PropertiesUtil.getInstance(PropertiesUtil.UNIPROT_PROPERTIES_FILE)
 				.getPropertyValue(PropertiesUtil.UNIPROT_RELEASES_NOTES_PROP);
 		log.debug("Getting uniprot current release from " + releaseNotesURLString);
 		if (releaseNotesURLString != null) {
 			URL url;
 			try {
+				notTryUntilNextDay = false;
 				url = new URL(releaseNotesURLString);
 
 				InputStream is = url.openStream();
@@ -533,6 +541,10 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 				e.printStackTrace();
 			} catch (IOException e) {
 				log.warn(e.getMessage());
+				if (e instanceof ConnectException && e.getMessage().contains("Connection timed out: connect")) {
+					UniprotProteinRemoteRetriever.currentUniprotVersionRetrievedDate = new Date();
+					notTryUntilNextDay = true;
+				}
 			}
 		}
 		return "";
