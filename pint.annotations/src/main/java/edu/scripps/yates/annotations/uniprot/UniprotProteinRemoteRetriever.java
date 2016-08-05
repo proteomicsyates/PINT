@@ -303,7 +303,7 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 
 	private Uniprot getRDFEntries(Set<String> accessionsSent) {
 		Uniprot ret = new Uniprot();
-
+		int num = 0;
 		for (String accession : accessionsSent) {
 			try {
 				StringBuilder locationBuilder = new StringBuilder(
@@ -336,7 +336,8 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 				}
 				if (status == HttpURLConnection.HTTP_OK) {
 					long t2 = System.currentTimeMillis();
-					log.info("Got a OK reply in " + (t2 - t1) / 1000 + "sg");
+					log.info("Got a OK reply in " + (t2 - t1) / 1000 + "sg (protein " + num++ + "/"
+							+ accessionsSent.size() + ")");
 					InputStream is = conn.getInputStream();
 					URLConnection.guessContentTypeFromStream(is);
 					final Entry entry = parseRDFResponse(is, accession);
