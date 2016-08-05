@@ -15,11 +15,9 @@ import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 
 public class PeptideRatioValueAdapter
-		implements
-		Adapter<edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue>,
-		Serializable {
+		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue>, Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -4685761045421513044L;
 	private final Ratio ratio;
@@ -27,8 +25,7 @@ public class PeptideRatioValueAdapter
 	private final Project hibProject;
 	private final Peptide peptide;
 
-	public PeptideRatioValueAdapter(Ratio ratio, Peptide peptide,
-			Project hibProject) {
+	public PeptideRatioValueAdapter(Ratio ratio, Peptide peptide, Project hibProject) {
 		this.ratio = ratio;
 		this.hibProject = hibProject;
 		if (peptide == null)
@@ -39,21 +36,20 @@ public class PeptideRatioValueAdapter
 	@Override
 	public PeptideRatioValue adapt() {
 		PeptideRatioValue ret = new PeptideRatioValue();
-		// if (map.containsKey(peptideRatioModel.hashCode()))
-		// return map.get(peptideRatioModel.hashCode());
+		if (map.containsKey(ratio.hashCode())) {
+			return map.get(ratio.hashCode());
+		}
 		map.put(ratio.hashCode(), ret);
 
-		final RatioDescriptor peptideRatioDescriptor = new RatioDescriptorAdapter(
-				ratio.getDescription(), ratio.getCondition1(),
-				ratio.getCondition2(), ret, hibProject).adapt();
+		final RatioDescriptor peptideRatioDescriptor = new RatioDescriptorAdapter(ratio.getDescription(),
+				ratio.getCondition1(), ratio.getCondition2(), ret, hibProject).adapt();
 
 		ret.setRatioDescriptor(peptideRatioDescriptor);
 
 		// score
 		final Score score = ratio.getAssociatedConfidenceScore();
 		if (score != null) {
-			final ConfidenceScoreType scoreType = new ConfidenceScoreTypeAdapter(
-					score).adapt();
+			final ConfidenceScoreType scoreType = new ConfidenceScoreTypeAdapter(score).adapt();
 			ret.setConfidenceScoreType(scoreType);
 			ret.setConfidenceScoreValue(Double.valueOf(score.getValue()));
 			ret.setConfidenceScoreName(score.getScoreName());
@@ -61,11 +57,9 @@ public class PeptideRatioValueAdapter
 		// combination type
 		final CombinationType combinationType = ratio.getCombinationType();
 		if (combinationType != null) {
-			ret.setCombinationType(new CombinationTypeAdapter(combinationType,
-					ret).adapt());
+			ret.setCombinationType(new CombinationTypeAdapter(combinationType, ret).adapt());
 		}
-		ret.setValue(PersistenceUtils.parseRatioValueRemoveInfinities(ratio
-				.getValue()));
+		ret.setValue(PersistenceUtils.parseRatioValueRemoveInfinities(ratio.getValue()));
 
 		ret.setPeptide(peptide);
 

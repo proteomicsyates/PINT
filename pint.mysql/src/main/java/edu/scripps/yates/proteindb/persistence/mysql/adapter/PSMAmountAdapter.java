@@ -10,11 +10,10 @@ import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmAmount;
 
-public class PSMAmountAdapter implements
-		Adapter<edu.scripps.yates.proteindb.persistence.mysql.PsmAmount>,
-		Serializable {
+public class PSMAmountAdapter
+		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.PsmAmount>, Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 8212630940707841612L;
 	private final edu.scripps.yates.utilities.proteomicsmodel.Amount amount;
@@ -23,8 +22,7 @@ public class PSMAmountAdapter implements
 	private static final Logger log = Logger.getLogger(PSMAmountAdapter.class);
 	private final Project hibProject;
 
-	public PSMAmountAdapter(edu.scripps.yates.utilities.proteomicsmodel.Amount amount, Psm psm,
-			Project hibProject) {
+	public PSMAmountAdapter(edu.scripps.yates.utilities.proteomicsmodel.Amount amount, Psm psm, Project hibProject) {
 		this.amount = amount;
 		this.psm = psm;
 		this.hibProject = hibProject;
@@ -41,12 +39,10 @@ public class PSMAmountAdapter implements
 		map.put(amount.hashCode(), ret);
 		ret.setAmountType(new AmountTypeAdapter(amount.getAmountType()).adapt());
 		if (amount.getCombinationType() != null)
-			ret.setCombinationType(new CombinationTypeAdapter(amount
-					.getCombinationType(), ret).adapt());
+			ret.setCombinationType(new CombinationTypeAdapter(amount.getCombinationType(), ret).adapt());
 
 		ret.setValue(amount.getValue());
-		ret.setCondition(new ConditionAdapter(amount.getCondition(), hibProject)
-				.adapt());
+		ret.setCondition(new ConditionAdapter(amount.getCondition(), hibProject).adapt());
 		ret.setSingleton(amount.isSingleton());
 		// ms runs
 		// final Set<MSRun> runs = peptideAmount.getRuns();

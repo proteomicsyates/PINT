@@ -15,11 +15,9 @@ import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 
 public class ProteinRatioValueAdapter
-		implements
-		Adapter<edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue>,
-		Serializable {
+		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue>, Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -4685761045421513044L;
 	private final Ratio ratio;
@@ -27,8 +25,7 @@ public class ProteinRatioValueAdapter
 	private final Protein protein;
 	private final Project hibProject;
 
-	public ProteinRatioValueAdapter(Ratio proteinRatioModel2, Protein protein,
-			Project hibProject) {
+	public ProteinRatioValueAdapter(Ratio proteinRatioModel2, Protein protein, Project hibProject) {
 		ratio = proteinRatioModel2;
 		this.hibProject = hibProject;
 		if (protein == null)
@@ -43,17 +40,15 @@ public class ProteinRatioValueAdapter
 		ProteinRatioValue ret = new ProteinRatioValue();
 		map.put(ratio.hashCode(), ret);
 
-		final RatioDescriptor proteinRatioDescriptor = new RatioDescriptorAdapter(
-				ratio.getDescription(), ratio.getCondition1(),
-				ratio.getCondition2(), ret, hibProject).adapt();
+		final RatioDescriptor proteinRatioDescriptor = new RatioDescriptorAdapter(ratio.getDescription(),
+				ratio.getCondition1(), ratio.getCondition2(), ret, hibProject).adapt();
 
 		ret.setRatioDescriptor(proteinRatioDescriptor);
 
 		// score
 		final Score score = ratio.getAssociatedConfidenceScore();
 		if (score != null) {
-			final ConfidenceScoreType scoreType = new ConfidenceScoreTypeAdapter(
-					score).adapt();
+			final ConfidenceScoreType scoreType = new ConfidenceScoreTypeAdapter(score).adapt();
 			ret.setConfidenceScoreType(scoreType);
 			ret.setConfidenceScoreValue(Double.valueOf(score.getValue()));
 			ret.setConfidenceScoreName(score.getScoreName());
@@ -61,11 +56,9 @@ public class ProteinRatioValueAdapter
 		// combination type
 		final CombinationType combinationType = ratio.getCombinationType();
 		if (combinationType != null) {
-			ret.setCombinationType(new CombinationTypeAdapter(combinationType,
-					ret).adapt());
+			ret.setCombinationType(new CombinationTypeAdapter(combinationType, ret).adapt());
 		}
-		ret.setValue(PersistenceUtils.parseRatioValueRemoveInfinities(ratio
-				.getValue()));
+		ret.setValue(PersistenceUtils.parseRatioValueRemoveInfinities(ratio.getValue()));
 
 		ret.setProtein(protein);
 

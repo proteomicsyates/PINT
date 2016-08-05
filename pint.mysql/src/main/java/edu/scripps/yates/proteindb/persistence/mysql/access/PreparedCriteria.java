@@ -18,6 +18,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
+import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue;
 
 public class PreparedCriteria {
@@ -232,12 +233,10 @@ public class PreparedCriteria {
 		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Protein.class, "protein")
 				.createAlias("protein.genes", "gene").createAlias("protein.proteinAccessions", "proteinAccession")
 				.createAlias("protein.conditions", "condition").createAlias("condition.project", "project")
-				.setProjection(
-						Projections.projectionList()
-								.add(Projections.distinct(Projections.property("proteinAccession.description")),
-										"description")
-								.add(Projections.property("proteinAccession.accession"), "acc")
-								.add(Projections.property("gene.geneId"), "gene"));
+				.setProjection(Projections.projectionList()
+						.add(Projections.distinct(Projections.property("proteinAccession.description")), "description")
+						.add(Projections.property("proteinAccession.accession"), "acc")
+						.add(Projections.property("gene.geneId"), "gene"));
 
 		cr.add(Restrictions.eq("project.tag", projectTag));
 
@@ -365,6 +364,17 @@ public class PreparedCriteria {
 		final Criteria cr = getCriteriaForPsmRatio(condition1Name, condition2Name, projectTag, ratioName);
 		cr.add(Restrictions.ne("ratio.value", -Double.MAX_VALUE));
 		cr.setProjection(Projections.min("ratio.value"));
+		return cr;
+	}
+
+	public static Criteria getCriteriaForPsmSequence(String regexp, String projectTag) {
+
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm");
+		if (projectTag != null && !"".equals(projectTag)) {
+			cr.createAlias("psm.msRun", "msRun").createAlias("msRun.project", "project");
+			cr.add(Restrictions.eq("project.tag", projectTag));
+		}
+		cr.add(Restrictions.like("psm.sequence", regexp));
 		return cr;
 	}
 }

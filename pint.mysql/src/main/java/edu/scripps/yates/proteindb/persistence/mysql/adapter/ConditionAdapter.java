@@ -90,20 +90,23 @@ public class ConditionAdapter
 				final Set<Peptide> peptides = protein.getPeptides();
 
 				for (Peptide peptide : peptides) {
-					new PeptideAdapter(peptide, hibProject, false).adapt();
+					final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(peptide,
+							hibProject, false).adapt();
+					ret.getPeptides().add(hibPeptide);
 				}
 
 				final Set<PSM> psMs = protein.getPSMs();
 				for (PSM psm : psMs) {
-					new PSMAdapter(psm, hibProject, false).adapt();
+					final Psm hibPSM = new PSMAdapter(psm, hibProject, false).adapt();
+					ret.getPsms().add(hibPSM);
 				}
 
 				// ret.getProteins().add(new ProteinAdapter(protein, hibProject,
 				// false).adapt());
+
 				final edu.scripps.yates.proteindb.persistence.mysql.Protein hibProtein = new ProteinAdapter(protein,
 						hibProject, true).adapt();
 				ret.getProteins().add(hibProtein);
-
 			}
 
 			// now try to relate all the objects
@@ -126,6 +129,19 @@ public class ConditionAdapter
 						hibPeptide.getPsms().add(hibPSM);
 						hibProtein.getPsms().add(hibPSM);
 					}
+				}
+				final Set<PSM> psms2 = protein.getPSMs();
+				for (PSM psm2 : psms2) {
+					final Psm hibPSM = new PSMAdapter(psm2, hibProject, false).adapt();
+					hibProtein.getPsms().add(hibPSM);
+					hibPSM.getProteins().add(hibProtein);
+					final Peptide peptide = psm2.getPeptide();
+					final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(peptide,
+							hibProject, false).adapt();
+					hibPSM.setPeptide(hibPeptide);
+					hibPeptide.getProteins().add(hibProtein);
+					hibPeptide.getPsms().add(hibPSM);
+
 				}
 			}
 			log.info("Relationships done");

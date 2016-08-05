@@ -41,9 +41,11 @@ public class PSMRatioValueAdapter
 
 	@Override
 	public PsmRatioValue adapt() {
+
+		if (map.containsKey(ratio.hashCode())) {
+			return map.get(ratio.hashCode());
+		}
 		PsmRatioValue ret = new PsmRatioValue();
-		// if (map.containsKey(peptideRatioModel.hashCode()))
-		// return map.get(peptideRatioModel.hashCode());
 		map.put(ratio.hashCode(), ret);
 
 		final RatioDescriptor peptideRatioDescriptor = new RatioDescriptorAdapter(ratio.getDescription(),

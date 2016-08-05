@@ -1087,4 +1087,5 @@ public class PreparedQueries {
 		return parseParametersForQuery(PSM_WITH_PTM, "ptm.name=:name", ptmName, "project.tag=:projectTag", projectTag)
 				.list();
 	}
+
 }

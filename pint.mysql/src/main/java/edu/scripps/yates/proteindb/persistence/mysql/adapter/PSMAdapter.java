@@ -6,7 +6,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import edu.scripps.yates.dtaselect.PSMImplFromDTASelect;
+import org.apache.log4j.Logger;
+
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
@@ -22,6 +23,7 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 	/**
 	 *
 	 */
+	private static final Logger log = Logger.getLogger(PSMAdapter.class);
 	private static final long serialVersionUID = 8001310054173070297L;
 	private final PSM psm;
 	private final Project hibProject;
@@ -31,13 +33,9 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 
 	public PSMAdapter(PSM psm, Project hibProject, boolean createPeptidesAndProteins) {
 		this.psm = psm;
-		if (!(psm instanceof PSMImplFromDTASelect)) {
-			System.out.println(psm);
-		}
+
 		if (!psmIds.contains(psm.getPSMIdentifier())) {
 			psmIds.add(psm.getPSMIdentifier());
-		} else {
-			System.out.println("asdf");
 		}
 		this.hibProject = hibProject;
 		this.createPeptidesAndProteins = createPeptidesAndProteins;
@@ -55,6 +53,8 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 		Peptide parentPeptide = null;
 		if (createPeptidesAndProteins && psm.getPeptide() != null) {
 			parentPeptide = new PeptideAdapter(psm.getPeptide(), hibProject, createPeptidesAndProteins).adapt();
+		} else {
+			// log.error("No peptide in this psm!");
 		}
 		Psm ret = new Psm(msRun, parentPeptide, psm.getSequence(), psm.getFullSequence());
 		map.put(psm.hashCode(), ret);

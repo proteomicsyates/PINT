@@ -179,6 +179,9 @@ public class MySQLSaver {
 	}
 
 	private void savePeptide(Peptide peptide) {
+		if (peptide == null) {
+			log.info("Peptide is null");
+		}
 		if (peptide.getId() != null)
 			return;
 		saveMSRun(peptide.getMsRun());
@@ -526,7 +529,7 @@ public class MySQLSaver {
 		if (amountTypeInDB != null) {
 			// amountTypeInDB.getProteinAmounts().add(proteinAmount);
 			proteinAmount.setAmountType(amountTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(proteinAmount);
+			// ContextualSessionHandler.saveOrUpdate(proteinAmount);
 			ContextualSessionHandler.saveOrUpdate(amountTypeInDB);
 			amountType = amountTypeInDB;
 		} else {
@@ -541,7 +544,7 @@ public class MySQLSaver {
 		if (amountTypeInDB != null) {
 			// amountTypeInDB.getPeptideAmounts().add(peptideAmount);
 			peptideAmount.setAmountType(amountTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(peptideAmount);
+			// ContextualSessionHandler.saveOrUpdate(peptideAmount);
 			ContextualSessionHandler.saveOrUpdate(amountTypeInDB);
 			amountType = amountTypeInDB;
 		} else {
@@ -555,7 +558,7 @@ public class MySQLSaver {
 		if (amountTypeInDB != null) {
 			// amountTypeInDB.getPsmAmounts().add(psmAmount);
 			psmAmount.setAmountType(amountTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(psmAmount);
+			// ContextualSessionHandler.saveOrUpdate(psmAmount);
 			ContextualSessionHandler.saveOrUpdate(amountTypeInDB);
 			amountType = amountTypeInDB;
 		} else {
@@ -625,7 +628,7 @@ public class MySQLSaver {
 			combinationTypeInDB.setDescription(combinationType.getDescription());
 			// combinationTypeInDB.getProteinAmounts().add(proteinAmount);
 			proteinAmount.setCombinationType(combinationTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(proteinAmount);
+			// ContextualSessionHandler.saveOrUpdate(proteinAmount);
 			ContextualSessionHandler.saveOrUpdate(combinationTypeInDB);
 			combinationType = combinationTypeInDB;
 		} else {
@@ -642,7 +645,7 @@ public class MySQLSaver {
 			combinationTypeInDB.setDescription(combinationType.getDescription());
 			// combinationTypeInDB.getPeptideAmounts().add(peptideAmount);
 			peptideAmount.setCombinationType(combinationTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(peptideAmount);
+			// ContextualSessionHandler.saveOrUpdate(peptideAmount);
 			ContextualSessionHandler.saveOrUpdate(combinationTypeInDB);
 			combinationType = combinationTypeInDB;
 		} else {
@@ -659,7 +662,7 @@ public class MySQLSaver {
 			combinationTypeInDB.setDescription(combinationType.getDescription());
 			// combinationTypeInDB.getPsmAmounts().add(psmAmount);
 			psmAmount.setCombinationType(combinationTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(psmAmount);
+			// ContextualSessionHandler.saveOrUpdate(psmAmount);
 			ContextualSessionHandler.saveOrUpdate(combinationTypeInDB);
 			combinationType = combinationTypeInDB;
 		} else {
@@ -677,7 +680,7 @@ public class MySQLSaver {
 			confidenceScoreTypeInDB.setDescription(confidenceScoreType.getDescription());
 			// confidenceScoreTypeInDB.getPsmScores().add(score);
 			score.setConfidenceScoreType(confidenceScoreTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(score);
+			// ContextualSessionHandler.saveOrUpdate(score);
 			ContextualSessionHandler.saveOrUpdate(confidenceScoreTypeInDB);
 			confidenceScoreType = confidenceScoreTypeInDB;
 		} else {
@@ -694,7 +697,7 @@ public class MySQLSaver {
 			confidenceScoreTypeInDB.setDescription(confidenceScoreType.getDescription());
 			// confidenceScoreTypeInDB.getPeptideScores().add(score);
 			score.setConfidenceScoreType(confidenceScoreTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(score);
+			// ContextualSessionHandler.saveOrUpdate(score);
 			ContextualSessionHandler.saveOrUpdate(confidenceScoreTypeInDB);
 			confidenceScoreType = confidenceScoreTypeInDB;
 		} else {
@@ -711,7 +714,7 @@ public class MySQLSaver {
 			confidenceScoreTypeInDB.setDescription(confidenceScoreType.getDescription());
 			// confidenceScoreTypeInDB.getProteinScores().add(score);
 			score.setConfidenceScoreType(confidenceScoreTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(score);
+			// ContextualSessionHandler.saveOrUpdate(score);
 			ContextualSessionHandler.saveOrUpdate(confidenceScoreTypeInDB);
 			confidenceScoreType = confidenceScoreTypeInDB;
 		} else {
@@ -728,7 +731,7 @@ public class MySQLSaver {
 			confidenceScoreTypeInDB.setDescription(confidenceScoreType.getDescription());
 			// confidenceScoreTypeInDB.getPtmSites().add(ptmSite);
 			ptmSite.setConfidenceScoreType(confidenceScoreTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(ptmSite);
+			// ContextualSessionHandler.saveOrUpdate(ptmSite);
 			ContextualSessionHandler.saveOrUpdate(confidenceScoreTypeInDB);
 			confidenceScoreType = confidenceScoreTypeInDB;
 		} else {
@@ -811,8 +814,8 @@ public class MySQLSaver {
 		if (annotationTypeDB != null) {
 			// annotationTypeDB.getProteinAnnotations().add(proteinAnnotation);
 			proteinAnnotation.setAnnotationType(annotationTypeDB);
-			ContextualSessionHandler.saveOrUpdate(proteinAnnotation);
-			// ContextualSessionHandler.saveOrUpdate(annotationTypeDB);
+			// ContextualSessionHandler.saveOrUpdate(proteinAnnotation);
+			ContextualSessionHandler.saveOrUpdate(annotationTypeDB);
 			annotationType = annotationTypeDB;
 
 		} else {
@@ -850,9 +853,10 @@ public class MySQLSaver {
 		saveSample(sample);
 
 		ContextualSessionHandler.save(hibExperimentalCondition);
-		log.info("Saving proteins");
+
 		// proteinamounts
 		final Set<Protein> proteins = hibExperimentalCondition.getProteins();
+		log.info("Saving " + proteins.size() + " proteins");
 		Set<Protein> discardedProteins = new HashSet<Protein>();
 		if (proteins != null && !proteins.isEmpty()) {
 			int size = proteins.size();
@@ -881,7 +885,10 @@ public class MySQLSaver {
 						+ hibExperimentalCondition.getName() + " condition without PSMs");
 				for (Protein protein : discardedProteins) {
 					final boolean removed = hibExperimentalCondition.getProteins().remove(protein);
-
+				}
+				if (hibExperimentalCondition.getProteins().isEmpty()) {
+					throw new IllegalArgumentException("The condition '" + hibExperimentalCondition.getName()
+							+ "' has not proteins with at least one PSM");
 				}
 			}
 		} else {
@@ -983,7 +990,7 @@ public class MySQLSaver {
 			oldLabel.setMassDiff(label.getMassDiff());
 			// oldLabel.getSamples().add(sample);
 			sample.setLabel(oldLabel);
-			ContextualSessionHandler.saveOrUpdate(sample);
+			// ContextualSessionHandler.saveOrUpdate(sample);
 			ContextualSessionHandler.saveOrUpdate(oldLabel);
 			label = oldLabel;
 		} else {
@@ -997,7 +1004,7 @@ public class MySQLSaver {
 			oldTissue.setName(tissue.getName());
 			// oldTissue.getSamples().add(sample);
 			sample.setTissue(oldTissue);
-			ContextualSessionHandler.saveOrUpdate(sample);
+			// ContextualSessionHandler.saveOrUpdate(sample);
 			ContextualSessionHandler.saveOrUpdate(oldTissue);
 			tissue = oldTissue;
 		} else {

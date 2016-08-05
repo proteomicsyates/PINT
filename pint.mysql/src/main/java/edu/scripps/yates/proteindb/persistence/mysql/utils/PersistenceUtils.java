@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -158,12 +159,18 @@ public class PersistenceUtils {
 	 * @param psms
 	 * @return
 	 */
-	public static Map<String, Set<Protein>> getProteinsFromPsms(Collection<Psm> psms) {
+	public static Map<String, Set<Protein>> getProteinsFromPsms(Collection<Psm> psms, boolean removePsmsAndPeptides) {
 		Map<String, Set<Protein>> ret = new HashMap<String, Set<Protein>>();
+		Set<Protein> proteinSet = new HashSet<Protein>();
 		for (Psm psm : psms) {
 			final Set<Protein> proteins = psm.getProteins();
-
 			PersistenceUtils.addToMapByPrimaryAcc(ret, proteins);
+			proteinSet.addAll(proteins);
+		}
+		if (removePsmsAndPeptides) {
+			HashSet<Psm> psmSet = new HashSet<Psm>();
+			psmSet.addAll(psms);
+			removePsmsAndPeptidesFromProteins(proteinSet, psmSet);
 		}
 
 		log.info("Resulting " + ret.size() + " proteins from " + psms.size() + " psms");
@@ -176,19 +183,80 @@ public class PersistenceUtils {
 	 * @param psmResult
 	 * @return
 	 */
-	public static Map<String, Set<Protein>> getProteinsFromPsms(Map<String, Set<Psm>> psmResult) {
+	public static Map<String, Set<Protein>> getProteinsFromPsms(Map<String, Set<Psm>> psmResult,
+			boolean removePsmsAndPeptides) {
 		Map<String, Set<Protein>> ret = new HashMap<String, Set<Protein>>();
 		if (psmResult != null) {
-			Set<Psm> psms = new HashSet<Psm>();
-			for (Set<Psm> psmSet : psmResult.values()) {
-				psms.addAll(psmSet);
-			}
-			final Map<String, Set<Protein>> proteinsFromPsms = getProteinsFromPsms(psms);
+			HashSet<Psm> psmSet = getPsmSetFromMap(psmResult);
+			final Map<String, Set<Protein>> proteinsFromPsms = getProteinsFromPsms(psmSet, removePsmsAndPeptides);
 			addToMapByPrimaryAcc(ret, proteinsFromPsms);
 			log.info(ret.size() + " proteins comming from " + psmResult.size() + " PSMs");
 		}
 
 		return ret;
+
+	}
+
+	private static HashSet<Protein> getProteinSetFromMap(Map<String, Set<Protein>> proteinMap) {
+		HashSet<Protein> ret = new HashSet<Protein>();
+		for (Set<Protein> proteinSet : proteinMap.values()) {
+			ret.addAll(proteinSet);
+		}
+		return ret;
+	}
+
+	private static HashSet<Psm> getPsmSetFromMap(Map<String, Set<Psm>> psmMap) {
+		HashSet<Psm> ret = new HashSet<Psm>();
+		for (Set<Psm> psmSet : psmMap.values()) {
+			ret.addAll(psmSet);
+		}
+		return ret;
+	}
+
+	/**
+	 * Remove all the psms that are not in the collection of psms from the
+	 * proteins passed in the argument. Also remove the peptides of the proteins
+	 * that have not anymore psms associated.
+	 *
+	 * @param proteins
+	 * @param psms
+	 */
+	private static void removePsmsAndPeptidesFromProteins(Collection<Protein> proteins, HashSet<Psm> psms) {
+		Set<String> sequenceSet = new HashSet<String>();
+		for (Protein protein : proteins) {
+			sequenceSet.clear();
+			// for each protein, remove the psms not in the HashSet of psms
+			int initialNumPsms = protein.getPsms().size();
+			final Iterator<Psm> psmIterator = protein.getPsms().iterator();
+			while (psmIterator.hasNext()) {
+				Psm psm = psmIterator.next();
+				if (!psms.contains(psm)) {
+					psmIterator.remove();
+					psm.getProteins().remove(protein);
+				} else {
+					sequenceSet.add(psm.getSequence());
+				}
+			}
+			if (protein.getPsms().isEmpty()) {
+				log.warn("This should not happen. All proteins here should have at least one psm");
+			}
+			// look if some peptides are not in the sequenceSet, then remove
+			// them from proteins
+			int initialNumPeptides = protein.getPeptides().size();
+			final Iterator<Peptide> peptideIterator = protein.getPeptides().iterator();
+			while (peptideIterator.hasNext()) {
+				final Peptide peptide = peptideIterator.next();
+				if (!sequenceSet.contains(peptide.getSequence())) {
+					peptideIterator.remove();
+					peptide.getProteins().remove(protein);
+				}
+			}
+			if (initialNumPeptides != protein.getPeptides().size() || initialNumPsms != protein.getPsms().size()) {
+				log.info("Protein " + protein.getAcc() + " PSMs: from " + initialNumPsms + " to "
+						+ protein.getPsms().size() + ", Peptides: from " + initialNumPeptides + " to "
+						+ protein.getPeptides().size());
+			}
+		}
 
 	}
 
@@ -471,4 +539,92 @@ public class PersistenceUtils {
 		return value;
 	}
 
+	public static void detachPSM(Psm psm, boolean psmDetached, boolean peptideDetached, boolean proteinDetached) {
+		final Set<Protein> proteins = psm.getProteins();
+		Set<Protein> proteinsToDetach = new HashSet<Protein>();
+		for (Protein protein : proteins) {
+			boolean removed = protein.getPsms().remove(psm);
+			if (!proteinDetached) {
+				if (protein.getPsms().isEmpty()) {
+					proteinsToDetach.add(protein);
+				}
+			}
+		}
+		for (Protein protein : proteinsToDetach) {
+			detachProtein(protein, true, peptideDetached, proteinDetached);
+		}
+
+		final Peptide peptide = psm.getPeptide();
+		boolean removed = peptide.getPsms().remove(psm);
+		if (!peptideDetached) {
+			if (peptide.getPsms().isEmpty()) {
+				detachPeptide(peptide, true, peptideDetached, proteinDetached);
+			}
+		}
+	}
+
+	public static void detachPeptide(Peptide peptide, boolean psmDetached, boolean peptideDetached,
+			boolean proteinDetached) {
+		if (!psmDetached) {
+			Set<Psm> psms = peptide.getPsms();
+			Set<Psm> psmsToDetach = new HashSet<Psm>();
+			for (Psm psm : psms) {
+				// if (psm.getPeptide() != null) {
+				if (psm.getPeptide().equals(peptide)) {
+					// psm.setPeptide(null);
+					psmsToDetach.add(psm);
+
+				}
+				// }
+			}
+			for (Psm psm : psmsToDetach) {
+				detachPSM(psm, psmDetached, true, proteinDetached);
+			}
+		}
+
+		final Set<Protein> proteins = peptide.getProteins();
+		Set<Protein> proteinsToDetach = new HashSet<Protein>();
+		for (Protein protein : proteins) {
+			boolean removed = protein.getPeptides().remove(peptide);
+			if (!proteinDetached) {
+				if (protein.getPeptides().isEmpty()) {
+					proteinsToDetach.add(protein);
+				}
+			}
+		}
+		for (Protein protein : proteinsToDetach) {
+			detachProtein(protein, psmDetached, true, proteinDetached);
+		}
+	}
+
+	public static void detachProtein(Protein protein, boolean psmDetached, boolean peptideDetached,
+			boolean proteinDetached) {
+		final Set<Peptide> peptides = protein.getPeptides();
+		Set<Peptide> peptidesToDetach = new HashSet<Peptide>();
+		for (Peptide peptide : peptides) {
+			boolean removed = peptide.getProteins().remove(protein);
+			if (!peptideDetached) {
+				if (peptide.getProteins().isEmpty()) {
+					peptidesToDetach.add(peptide);
+				}
+			}
+		}
+		for (Peptide peptide : peptidesToDetach) {
+			detachPeptide(peptide, psmDetached, peptideDetached, true);
+		}
+
+		final Set<Psm> psms = protein.getPsms();
+		Set<Psm> psmsToDetach = new HashSet<Psm>();
+		for (Psm psm : psms) {
+			boolean removed = psm.getProteins().remove(protein);
+			if (!psmDetached) {
+				if (psm.getProteins().isEmpty()) {
+					psmsToDetach.add(psm);
+				}
+			}
+		}
+		for (Psm psm : psmsToDetach) {
+			detachPSM(psm, psmDetached, peptideDetached, true);
+		}
+	}
 }
