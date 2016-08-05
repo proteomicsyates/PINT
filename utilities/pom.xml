@@ -24,7 +24,7 @@
   	<dependency>
   		<groupId>com.compomics</groupId>
   		<artifactId>dbtoolkit</artifactId>
-  		<version>4.2.4</version>
+  		<version>4.2.6</version>
   		<exclusions> 
  				<exclusion>
 					<groupId>batik</groupId>
@@ -155,4 +155,13 @@
   	<version>0.2.0-SNAPSHOT</version>
   	<relativePath>../pint.parent</relativePath>
   </parent>
+  <repositories>
+  	<!-- UGent Genesis Maven 2 repository -->
+        <repository>
+            <id>genesis-maven2-repository</id>
+            <name>Genesis maven2 repository</name>
+            <url>http://genesis.UGent.be/maven2</url>
+            <layout>default</layout>
+        </repository>
+  </repositories>
 </project>
