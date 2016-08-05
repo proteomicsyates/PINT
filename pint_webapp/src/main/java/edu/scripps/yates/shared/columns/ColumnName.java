@@ -117,9 +117,57 @@ public enum ColumnName {
 	PEPTIDE_RATIO_GRAPH("Ratio Graph", "R", "Graphical representation of the ratio",
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
 	PROTEIN_RATIO_GRAPH("Ratio Graph", "R", "Graphical representation of the ratio",
-			HorizontalAlignmentSharedConstant.ALIGN_CENTER);
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
+
+	// REACTOME TABLE COLUMNS
+	PATHWAY_NAME("PathWay", "Pathway", "PathWay name"), //
+	PATHWAY_FDR("Pathway FDR", "FDR", "FDR of the enrichment of the pathway"), //
+	PATHWAY_PVALUE("Pathway p-value", "p-value", "p-value of the enrichment of the pathway"), //
+	PATHWAY_ENTITIES_RATIO("Ratio of found entities", "E.Ratio", "Ratio of found entities"), //
+	PATHWAY_REACTIONS_RATIO("Ratio of found reactions", "R.Ratio", "Ratio of found reactions"), //
+	PATHWAY_RESOURCE("Pathway resource", "Resource", "Pathway resource"), //
+	PATHWAY_ENTITIES_FOUND("Entities found", "E.Found", "Number of entities found"), //
+	PATHWAY_REACTIONS_FOUND("Reactions found", "R.Found", "Number of reactions found"), //
+	PATHWAY_ENTITIES_TOTAL("Total entities", "E.Total", "Number of total entities"), //
+	PATHWAY_REACTIONS_TOTAL("Total reactions", "R.Total", "Number of total reactions"), //
+	PATHWAY_ID("Pathway ID", "ID", "Pathway ID"),
 	// , SPC_BY_RUN("SPC by run",
 	// "SPC by run", "Spectral counts per run");
+	// UNIPROT FEATURES FOR PROTEINS
+	PROTEIN_DOMAIN_FAMILIES("Family & Domains", "Family & Domains",
+			"UniProt annnotation for providing information on sequence similarities with other proteins and the domain(s) present in a protein."), //
+	PROTEIN_ACTIVE_SITE("Functional sites", "Funct. sites", "UniProt annnotation for protein functional sites"), //
+	PROTEIN_MOLECULAR_PROCESSING("Molecular Processing", "Processing",
+			"UniProt annnotation for describing processing events."), //
+	PROTEIN_PTM("Protein PTMs", "PTMs", "UniProt annnotation for described aminoacid modifications in the protein"), //
+	PROTEIN_NATURAL_VARIATIONS("Natural Variations", "Nat. variations",
+			"UniProt annnotation for amino acid change(s) producing alternate protein isoforms / Description of a natural variant of the protein"), //
+	PROTEIN_SECONDARY_STRUCTURE("Secondary structure", "Sec. Struct.",
+			"UniProt annnotation for protein secondary structure (helix, beta strand or turn)"), //
+	PROTEIN_EXPERIMENTAL_INFO("Experimental info", "Exp. Info", "UniProt experimental information"), //
+	// UNIPROT FEATURES FOR PEPTIDES
+	PEPTIDE_DOMAIN_FAMILIES("Family & Domains", "Family & Domains",
+			"UniProt annnotation for providing information on sequence similarities with other proteins and the domain(s) present in a PEPTIDE."), //
+	PEPTIDE_ACTIVE_SITE("Functional sites", "Funct. sites", "UniProt annnotation for protein functional sites"), //
+	PEPTIDE_MOLECULAR_PROCESSING("Molecular Processing", "Processing",
+			"UniProt annnotation for describing processing events."), //
+	PEPTIDE_PTM("Protein PTMs", "PTMs", "UniProt annnotation for described aminoacid modifications in the protein"), //
+	PEPTIDE_NATURAL_VARIATIONS("Natural Variations", "Nat. variations",
+			"UniProt annnotation for amino acid change(s) producing alternate protein isoforms / Description of a natural variant of the protein"), //
+	PEPTIDE_SECONDARY_STRUCTURE("Secondary structure", "Sec. Struct.",
+			"UniProt annnotation for protein secondary structure (helix, beta strand or turn)"), //
+	PEPTIDE_EXPERIMENTAL_INFO("Experimental info", "Exp. Info", "UniProt experimental information"),
+
+	// link to pride cluster
+	LINK_TO_PRIDE_CLUSTER("Link to PRIDE cluster (EBI)", "PRIDE", "Link to information in PRIDE cluster (EBI)",
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
+	// link to intAct
+	LINK_TO_INTACT("Link to IntAct (EBI)", "IntAct",
+			"Link to information in IntAct Molecular Interaction Database (EBI)",
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
+	// link to Complex portal
+	LINK_TO_COMPLEX_PORTAL("Link to Complex Portal (EBI)", "Complex",
+			"Link to information in Complex Portal Database (EBI)", HorizontalAlignmentSharedConstant.ALIGN_CENTER);
 
 	private final String name;
 	private final String abr;
@@ -200,5 +248,40 @@ public enum ColumnName {
 
 	public HorizontalAlignmentSharedConstant getHorizontalAlignment() {
 		return horizontalAlignment;
+	}
+
+	/**
+	 * Based on the sortBy parameter needed in restfull webservice at
+	 * http://www.reactome.org/pages/documentation/developer-guide/analysis-
+	 * service/api/
+	 *
+	 * @param column
+	 * @return
+	 */
+	public static String getReactomeAnalysisPathwayColumnName(ColumnName column) {
+		switch (column) {
+		case PATHWAY_ENTITIES_FOUND:
+			return "FOUND_ENTITIES";
+		case PATHWAY_ENTITIES_RATIO:
+			return "ENTITIES_RATIO";
+		case PATHWAY_ENTITIES_TOTAL:
+			return "TOTAL_ENTITIES";
+		case PATHWAY_FDR:
+			return "ENTITIES_FDR";
+		case PATHWAY_NAME:
+			return "NAME";
+		case PATHWAY_PVALUE:
+			return "ENTITIES_PVALUE";
+		case PATHWAY_REACTIONS_FOUND:
+			return "FOUND_REACTIONS";
+		case PATHWAY_REACTIONS_RATIO:
+			return "REACTIONS_RATIO";
+		case PATHWAY_REACTIONS_TOTAL:
+			return "TOTAL_REACTIONS";
+
+		default:
+			return null;
+		}
+
 	}
 }

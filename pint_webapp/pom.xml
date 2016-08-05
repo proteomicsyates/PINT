@@ -20,6 +20,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     
     <pint.modules.version>0.2.0-SNAPSHOT</pint.modules.version>
+    
+    <failOnMissingWebXml>false</failOnMissingWebXml>
   </properties>
 
   <dependencyManagement>
@@ -123,13 +125,13 @@
   	 <dependency>
         <groupId>org.reactome.web</groupId>
         <artifactId>fireworks</artifactId>
-        <version>1.1.1</version>
+        <version>1.2.0</version>
     </dependency>
     
     <dependency>
         <groupId>org.reactome.web</groupId>
         <artifactId>diagram</artifactId>
-        <version>3.1.0-SNAPSHOT</version>
+        <version>3.2.1</version>
     </dependency>
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
@@ -145,6 +147,16 @@
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>pint.annotations</artifactId>
     	<version>1.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+    	<groupId>edu.scripps.yates</groupId>
+    	<artifactId>dbindex</artifactId>
+    	<version>1.1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+    	<groupId>edu.scripps.yates</groupId>
+    	<artifactId>pint.model</artifactId>
+    	<version>1.0.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
@@ -182,32 +194,24 @@
    
   </build>
   
-  <repositories>
-	<!-- EBI repo -->
-    <repository>
-        <id>nexus-ebi-repo</id>
-        <name>The EBI internal repository</name>
-        <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
-        <releases>
-            <enabled>true</enabled>
-        </releases>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-    </repository>
-    <!-- EBI SNAPSHOT repo -->
-    <repository>
-        <id>nexus-ebi-snapshot-repo</id>
-        <name>The EBI internal snapshot repository</name>
-        <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
-        <releases>
-            <enabled>false</enabled>
-        </releases>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
-    </repository>
-  </repositories>
+	
+	<repositories>
+					<!-- EBI repo -->
+					<repository>
+						<id>nexus-ebi-repo</id>
+						<name>The EBI internal repository</name>
+						<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+
+					</repository>
+					<!-- EBI SNAPSHOT repo -->
+					<repository>
+						<id>nexus-ebi-snapshot-repo</id>
+						<name>The EBI internal snapshot repository</name>
+						<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
+						
+					</repository>
+				
+	</repositories>
 
   <parent>
   	<groupId>edu.scripps.yates</groupId>

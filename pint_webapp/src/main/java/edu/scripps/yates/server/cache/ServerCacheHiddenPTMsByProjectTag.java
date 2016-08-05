@@ -9,8 +9,7 @@ import java.util.Set;
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ServerCacheHiddenPTMsByProjectTag implements
-		Cache<Set<String>, String> {
+public class ServerCacheHiddenPTMsByProjectTag implements Cache<Set<String>, String> {
 	private static final Map<String, Set<String>> map = new HashMap<String, Set<String>>();
 	private static ServerCacheHiddenPTMsByProjectTag instance;
 
@@ -80,4 +79,8 @@ public class ServerCacheHiddenPTMsByProjectTag implements
 		return ret;
 	}
 
+	@Override
+	public void clearCache() {
+		map.clear();
+	}
 }

@@ -21,8 +21,9 @@ import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
+import edu.scripps.yates.shared.util.UniprotFeatures;
 
-public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements MyColumn<PeptideBean> {
+public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements MyIdColumn<PeptideBean> {
 
 	private final ColumnName columnName;
 	private final Comparator<PeptideBean> comparator;
@@ -226,6 +227,35 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 				sb.append(ClientSafeHtmlUtils.getRatioGraphic(pep, ratios.get(0)));
 			}
 			break;
+		case PEPTIDE_ACTIVE_SITE:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(pep,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+
+		case PEPTIDE_DOMAIN_FAMILIES:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(pep,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PEPTIDE_NATURAL_VARIATIONS:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(pep,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PEPTIDE_SECONDARY_STRUCTURE:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(pep,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PEPTIDE_EXPERIMENTAL_INFO:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(pep,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PEPTIDE_MOLECULAR_PROCESSING:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(pep,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PEPTIDE_PTM:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(pep,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
 		default:
 			sb.append(template.startToolTip(PeptideColumns.getInstance().getValue(columnName, pep, conditionName,
 					condition2Name, projectTag, amountType, scoreName, ratioName, false)));
@@ -277,6 +307,20 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 			return 150;
 		case PEPTIDE_RATIO_GRAPH:
 			return 100;
+		case PEPTIDE_DOMAIN_FAMILIES:
+			return 150;
+		case PEPTIDE_ACTIVE_SITE:
+			return 150;
+		case PEPTIDE_EXPERIMENTAL_INFO:
+			return 150;
+		case PEPTIDE_MOLECULAR_PROCESSING:
+			return 150;
+		case PEPTIDE_PTM:
+			return 150;
+		case PEPTIDE_NATURAL_VARIATIONS:
+			return 150;
+		case PEPTIDE_SECONDARY_STRUCTURE:
+			return 150;
 		default:
 			try {
 				// look if it is a column defined in the protein column, like

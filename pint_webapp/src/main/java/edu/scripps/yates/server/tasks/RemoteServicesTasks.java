@@ -49,6 +49,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.QueryResult;
+import edu.scripps.yates.proteindb.queries.cache.Cache;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
 import edu.scripps.yates.proteindb.queries.semantic.QueryInterface;
@@ -64,6 +65,7 @@ import edu.scripps.yates.server.adapters.RatioDescriptorAdapter;
 import edu.scripps.yates.server.cache.ServerCacheDefaultViewByProjectTag;
 import edu.scripps.yates.server.cache.ServerCacheProjectBeanByProjectTag;
 import edu.scripps.yates.server.cache.ServerCacheProteinAccessionsByFileKey;
+import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
 import edu.scripps.yates.server.export.DataExporter;
 import edu.scripps.yates.server.grouping.GroupableExtendedProteinBean;
 import edu.scripps.yates.server.grouping.GroupableExtendedPsmBean;
@@ -71,7 +73,6 @@ import edu.scripps.yates.server.projectCreator.adapter.RemoteSSHFileReferenceAda
 import edu.scripps.yates.server.util.DefaultViewReader;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerDataUtils;
-import edu.scripps.yates.server.util.ServerUtil;
 import edu.scripps.yates.shared.model.AccessionBean;
 import edu.scripps.yates.shared.model.AccessionType;
 import edu.scripps.yates.shared.model.AmountType;
@@ -85,6 +86,7 @@ import edu.scripps.yates.shared.model.ProteinEvidence;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
+import edu.scripps.yates.shared.model.UniprotFeatureBean;
 import edu.scripps.yates.shared.model.UniprotProteinExistence;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.RemoteFileWithTypeBean;
@@ -180,6 +182,10 @@ public class RemoteServicesTasks {
 		while (iterator.hasNext()) {
 			ProteinBean proteinBean = iterator.next();
 			String accession = proteinBean.getPrimaryAccession().getAccession();
+			if (accession.contains("-")) {
+				// annotate the isoform with the same entry
+				accession = accession.substring(0, accession.indexOf("-"));
+			}
 			final edu.scripps.yates.utilities.proteomicsmodel.Protein annotatedProtein = annotatedProteins
 					.get(accession);
 			if (annotatedProtein != null) {
@@ -198,7 +204,17 @@ public class RemoteServicesTasks {
 									.contains(UniprotLineHeader.PE)) {
 						proteinBean.setUniprotProteinExistence(
 								UniprotProteinExistence.getFromValue(proteinAnnotation.getName()));
+					} else if (proteinAnnotation.getAnnotationType().getUniprotLineHeaders()
+							.contains(UniprotLineHeader.FT)) {
+						final UniprotFeatureBean uniprotFeature = ServerDataUtils.getFromValue(
+								proteinAnnotation.getAnnotationType().getKey(), proteinAnnotation.getName(),
+								proteinAnnotation.getValue());
+						if (uniprotFeature != null) {
+							proteinBean.addUniprotFeature(uniprotFeature);
+						}
 					} else {
+						// log.info("protein ann: " +
+						// proteinAnnotation.getAnnotationType());
 						proteinBean.addAnnotation(new ProteinAnnotationBeanAdapter(proteinAnnotation).adapt());
 					}
 				}
@@ -1092,6 +1108,19 @@ public class RemoteServicesTasks {
 		return ret;
 	}
 
+	/**
+	 * Creates the Set of {@link ProteinBean} from the proteins. It also creates
+	 * the {@link PSMBean}s that will be linked with the {@link ProteinBean}s.
+	 * <br>
+	 * Note that {@link PeptideBean}s are not created yet, so you will need to
+	 * call to createPeptideBeans or createPeptideBeansFromPeptideMap after
+	 * this.
+	 *
+	 * @param sessionID
+	 * @param proteins
+	 * @param hiddenPTMs
+	 * @return
+	 */
 	public static Set<ProteinBean> createProteinBeansFromQueriableProteins(String sessionID,
 			Map<String, Set<QueriableProteinInterface>> proteins, Set<String> hiddenPTMs) {
 		log.info("Creating protein beans from " + proteins.size() + " different Proteins");
@@ -1173,23 +1202,30 @@ public class RemoteServicesTasks {
 	// peptideList = reduciblePeptideMap.reduce(peptideReduction);
 	// }
 
-	public static Set<PeptideBean> createPeptideBeans(String sessionID, Map<String, Set<Protein>> proteins) {
-
-		log.info("Creating PeptideBeans from " + proteins.size() + " different proteins");
-		// create a PeptideBean for each peptide set ssharing
-		// the same sequence:
-		final Map<String, Set<Peptide>> peptideMap = ServerUtil.getPeptideMapFromProteins(proteins);
-		return createPeptideBeansFromPeptideMap(sessionID, peptideMap);
-	}
-
+	/**
+	 * Creates the Set of {@link PeptideBean} from the peptides. These peptides
+	 * will be linked to the corresponding {@link ProteinBean} and
+	 * {@link PSMBean} that should be accessible from the corresponding
+	 * {@link Cache} instances for {@link ProteinBean} and {@link PSMBean},
+	 * otherwise a {@link IllegalArgumentException} is thrown.
+	 *
+	 * @param sessionID
+	 * @param peptideMap
+	 * @return
+	 */
 	public static Set<PeptideBean> createPeptideBeansFromPeptideMap(String sessionID,
 			Map<String, Set<Peptide>> peptideMap) {
+		if (ServerCacheProteinBeansByProteinDBId.getInstance().isEmpty()) {
+			throw new IllegalArgumentException(
+					"ServerCacheProteinBeansByProteinDBId is empty. That is going to be needed when creating the peptide beans, so call before to createProteinBeansFromQueriableProteins");
+		}
 		Set<PeptideBean> ret = new HashSet<PeptideBean>();
 		// create a PeptideBean for each peptide set ssharing
 		// the same sequence:
 		log.info("Creating PeptideBeans from " + peptideMap.size() + " different peptides");
 
 		int numPeptides = 0;
+		int percentage = 0;
 		for (String sequence : peptideMap.keySet()) {
 			numPeptides++;
 			final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(peptideMap.get(sequence))
@@ -1199,7 +1235,12 @@ public class RemoteServicesTasks {
 			if (sessionID != null) {
 				DataSetsManager.getDataSet(sessionID, null).addPeptide(peptideBeanAdapted);
 			}
-			log.info(numPeptides + " / " + peptideMap.size() + " peptides adapted to beans");
+			int currentPercentage = numPeptides * 100 / peptideMap.size();
+			if (currentPercentage != percentage) {
+				log.info(currentPercentage + "% (" + numPeptides + " / " + peptideMap.size()
+						+ ") peptides adapted to beans");
+				percentage = currentPercentage;
+			}
 		}
 		return ret;
 	}

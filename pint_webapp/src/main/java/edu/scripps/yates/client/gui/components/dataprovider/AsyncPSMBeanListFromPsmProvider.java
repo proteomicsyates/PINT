@@ -1,20 +1,18 @@
 package edu.scripps.yates.client.gui.components.dataprovider;
 
-import com.google.gwt.user.cellview.client.ColumnSortList;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.view.client.HasData;
+import com.google.gwt.view.client.Range;
 
-import edu.scripps.yates.client.gui.columns.MyDataGrid;
-import edu.scripps.yates.client.gui.columns.PSMTextColumn;
+import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;
 
-public class AsyncPSMBeanListFromPsmProvider extends MyAsyncDataProvider<PSMBean> {
+public class AsyncPSMBeanListFromPsmProvider extends AbstractAsyncDataProvider<PSMBean> {
 	private ContainsPSMs psmProvider;
-	private boolean newProvider;
 
 	public AsyncPSMBeanListFromPsmProvider(String sessionID) {
 		super(sessionID);
@@ -25,73 +23,6 @@ public class AsyncPSMBeanListFromPsmProvider extends MyAsyncDataProvider<PSMBean
 		this.psmProvider = psmProvider;
 	}
 
-	@Override
-	protected void onRangeChanged(final HasData<PSMBean> display) {
-		if (psmProvider != null) {
-			if (needsUpdate(display) || newProvider) {
-				newProvider = false;
-				range = display.getVisibleRange();
-				final int start = range.getStart();
-				int end = start + range.getLength();
-				final ColumnSortList columnSortList = getColumnSortList(display);
-				if (columnSortList.size() > 0) {
-					if (display instanceof MyDataGrid) {
-						((MyDataGrid) display).setForceToRefresh(false);
-					}
-					final ColumnSortInfo columnSortInfo = columnSortList.get(0);
-					setCurrentSortInfo(columnSortInfo);
-					// List<PSMBean> psms = null;
-
-					final PSMTextColumn column = (PSMTextColumn) columnSortInfo.getColumn();
-					display.setVisibleRangeAndClearData(display.getVisibleRange(), true);
-					service.getPsmBeansFromPsmProviderFromListSorted(sessionID, psmProvider, start, end,
-							column.getComparator(), columnSortInfo.isAscending(), new AsyncCallback<PsmBeanSubList>() {
-
-								@Override
-								public void onSuccess(PsmBeanSubList result) {
-									if (result == null) {
-										updateRowCount(0, true);
-										refreshDisplay(display);
-										return;
-									}
-									updateRowData(start, result.getDataList());
-									updateRowCount(result.getTotalNumber(), true);
-									refreshDisplay(display);
-								}
-
-								@Override
-								public void onFailure(Throwable caught) {
-									StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-								}
-							});
-
-				} else {
-
-					service.getPsmBeansFromPsmProviderFromList(sessionID, psmProvider, start, end,
-							new AsyncCallback<PsmBeanSubList>() {
-
-								@Override
-								public void onSuccess(PsmBeanSubList result) {
-									if (result == null) {
-										updateRowCount(0, true);
-										refreshDisplay(display);
-										return;
-									}
-									updateRowCount(result.getTotalNumber(), true);
-									updateRowData(start, result.getDataList());
-									refreshDisplay(display);
-								}
-
-								@Override
-								public void onFailure(Throwable caught) {
-									StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-								}
-							});
-				}
-			}
-		}
-	}
-
 	public void setPSMProvider(ContainsPSMs psmProvider) {
 		if (psmProvider.equals(this.psmProvider))
 			return;
@@ -99,4 +30,41 @@ public class AsyncPSMBeanListFromPsmProvider extends MyAsyncDataProvider<PSMBean
 		newProvider = true;
 	}
 
+	@Override
+	protected void retrieveData(MyColumn<PSMBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
+			final Range range) {
+		GWT.log("Getting PSM beans sorted from provider");
+
+		service.getPsmBeansFromPsmProviderFromListSorted(sessionID, psmProvider, start, end, column.getComparator(),
+				columnSortInfo.isAscending(), new AsyncCallback<PsmBeanSubList>() {
+
+					@Override
+					public void onSuccess(PsmBeanSubList result) {
+						try {
+							GWT.log("Result from getting PSM beans from provider");
+							if (result == null) {
+								updateRowCount(0, true);
+								setRange(null);
+								return;
+							}
+							updateRowData(start, result.getDataList());
+							updateRowCount(result.getTotalNumber(), true);
+							setRange(range);
+						} finally {
+							retrievingDataFinished();
+						}
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						try {
+							updateRowCount(0, true);
+							setRange(null);
+							StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+						} finally {
+							retrievingDataFinished();
+						}
+					}
+				});
+	}
 }

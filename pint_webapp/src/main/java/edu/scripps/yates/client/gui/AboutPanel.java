@@ -38,8 +38,7 @@ public class AboutPanel extends Composite {
 
 		Label lblThisPageAllow = new Label("About PINT");
 		lblThisPageAllow.setStyleName("title1");
-		lblThisPageAllow
-				.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		lblThisPageAllow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		verticalPanel.add(lblThisPageAllow);
 
 		FlowPanel flowPanel = new FlowPanel();
@@ -52,8 +51,7 @@ public class AboutPanel extends Composite {
 		flowPanel.add(verticalPanel_1);
 
 		Label lblHowToBrowse = new Label("What is PINT?");
-		lblHowToBrowse
-				.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		lblHowToBrowse.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		verticalPanel_1.add(lblHowToBrowse);
 		lblHowToBrowse.setStyleName("title2");
 
@@ -66,11 +64,9 @@ public class AboutPanel extends Composite {
 		simplePanel.setWidget(nlnhtmlInOrderTo);
 		nlnhtmlInOrderTo.setSize("100%", "100%");
 
-		Label lblRelatedPublicationsAnd = new Label(
-				"Related publications and presentations on scientific symposiums");
+		Label lblRelatedPublicationsAnd = new Label("Related publications and presentations on scientific symposiums");
 		lblRelatedPublicationsAnd.setStyleName("title2");
-		lblRelatedPublicationsAnd
-				.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		lblRelatedPublicationsAnd.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		verticalPanel_1.add(lblRelatedPublicationsAnd);
 
 		SimplePanel simplePanel_1 = new SimplePanel();
@@ -84,8 +80,7 @@ public class AboutPanel extends Composite {
 
 		Label lblDeveloperTeam = new Label("Developer team");
 		lblDeveloperTeam.setStyleName("title2");
-		lblDeveloperTeam
-				.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		lblDeveloperTeam.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		verticalPanel_1.add(lblDeveloperTeam);
 
 		SimplePanel simplePanel_2 = new SimplePanel();
@@ -115,7 +110,7 @@ public class AboutPanel extends Composite {
 
 	private void showLoadingDialog(String text) {
 
-		loadingDialog = MyDialogBox.getInstance(text, false, false);
+		loadingDialog = new MyDialogBox(text, false, false);
 		loadingDialog.center();
 	}
 

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -52,6 +51,7 @@ import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.StatusReporter;
+import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.ProjectBean;
@@ -382,7 +382,7 @@ public class BrowsePanel extends Composite implements StatusReporter {
 
 	private void loadProjectList() {
 		projectListVerticalPanel.clear();
-		final MyDialogBox loadingDialog = MyDialogBox.getInstance("Loading projects...", true, false);
+		final MyDialogBox loadingDialog = new MyDialogBox("Loading projects...", true, false);
 		loadingDialog.center();
 		projectListVerticalPanel.clear();
 		proteinRetrievingService.getProjectBeans(new AsyncCallback<Set<ProjectBean>>() {
@@ -667,11 +667,15 @@ public class BrowsePanel extends Composite implements StatusReporter {
 		}
 	}
 
-	private void loadLink(FileDescriptor file, Anchor anchor) {
-		if (file != null) {
-			final String href = GWT.getModuleBaseURL() + "/download?" + SharedConstants.FILE_TO_DOWNLOAD + "="
-					+ file.getName() + "&" + SharedConstants.FILE_TYPE + "=" + SharedConstants.ID_DATA_FILE_TYPE;
-			anchor.setText("[" + file.getSize() + "]");
+	private void loadLink(FileDescriptor fileDescriptor, Anchor anchor) {
+		if (fileDescriptor != null) {
+			// final String href = GWT.getModuleBaseURL() + "/download?" +
+			// SharedConstants.FILE_TO_DOWNLOAD + "="
+			// + file.getName() + "&" + SharedConstants.FILE_TYPE + "=" +
+			// SharedConstants.ID_DATA_FILE_TYPE;
+			final String href = ClientSafeHtmlUtils.getDownloadURL(fileDescriptor.getName(),
+					SharedConstants.ID_DATA_FILE_TYPE);
+			anchor.setText("[" + fileDescriptor.getSize() + "]");
 			anchor.setHref(href);
 			anchor.setTarget("_blank");
 		} else {

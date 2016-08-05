@@ -87,4 +87,8 @@ public class ServerCacheProteinBeansByQueryString implements Cache<List<ProteinB
 		return ret;
 	}
 
+	@Override
+	public void clearCache() {
+		map.clear();
+	}
 }

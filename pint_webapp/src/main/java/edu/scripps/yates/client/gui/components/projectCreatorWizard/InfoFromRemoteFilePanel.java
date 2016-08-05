@@ -26,8 +26,8 @@ import com.google.gwt.user.client.ui.SimpleCheckBox;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.widgetideas.graphics.client.Color;
 
-import edu.scripps.yates.client.ImportWizardServiceAsync;
 import edu.scripps.yates.client.ImportWizardService;
+import edu.scripps.yates.client.ImportWizardServiceAsync;
 import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ProjectCreatorRegister;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ReferencesDataObject;
@@ -74,7 +74,7 @@ public class InfoFromRemoteFilePanel extends Composite
 		FlexTable flexTable = new FlexTable();
 		flexTable.setBorderWidth(0);
 		scroll.setWidget(flexTable);
-		flexTable.setSize("500px", "400px");
+		// flexTable.setSize("500px", "400px");
 
 		Grid grid = new Grid(4, 2);
 		flexTable.setWidget(0, 0, grid);
@@ -280,22 +280,22 @@ public class InfoFromRemoteFilePanel extends Composite
 						service.getRandomProteinAccessions(sessionID, importJobID, fileBean, null, numTestCases,
 								new AsyncCallback<List<String>>() {
 
-							@Override
-							public void onSuccess(List<String> result) {
-								proteinAccessions.clear();
-								proteinAccessions.addAll(result);
-								loadDataOnTable();
-								checkButton.setEnabled(true);
-								hiddeDialog();
-							}
+									@Override
+									public void onSuccess(List<String> result) {
+										proteinAccessions.clear();
+										proteinAccessions.addAll(result);
+										loadDataOnTable();
+										checkButton.setEnabled(true);
+										hiddeDialog();
+									}
 
-							@Override
-							public void onFailure(Throwable caught) {
-								StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-								checkButton.setEnabled(true);
-								hiddeDialog();
-							}
-						});
+									@Override
+									public void onFailure(Throwable caught) {
+										StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+										checkButton.setEnabled(true);
+										hiddeDialog();
+									}
+								});
 					}
 				});
 
@@ -412,7 +412,7 @@ public class InfoFromRemoteFilePanel extends Composite
 
 	private void showDialog(String text, boolean showLoaderBar, boolean autoHide, boolean modal) {
 		if (loadingDialog == null) {
-			loadingDialog = MyDialogBox.getInstance(text, autoHide, modal, showLoaderBar);
+			loadingDialog = new MyDialogBox(text, autoHide, modal, showLoaderBar);
 		} else {
 			loadingDialog.setAutoHideEnabled(autoHide);
 			loadingDialog.setModal(modal);

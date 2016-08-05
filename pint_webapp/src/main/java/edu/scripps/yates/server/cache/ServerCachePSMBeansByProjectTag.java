@@ -11,9 +11,8 @@ import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ServerCachePSMBeansByProjectTag implements
-		Cache<List<PSMBean>, String> {
-	private static final HashMap<String, List<PSMBean>> cachedPSMBeans = new HashMap<String, List<PSMBean>>();
+public class ServerCachePSMBeansByProjectTag implements Cache<List<PSMBean>, String> {
+	private static final HashMap<String, List<PSMBean>> map = new HashMap<String, List<PSMBean>>();
 
 	private static ServerCachePSMBeansByProjectTag instance;
 
@@ -31,34 +30,34 @@ public class ServerCachePSMBeansByProjectTag implements
 	@Override
 	public void addtoCache(List<PSMBean> PSMs, String key) {
 		if (SharedConstants.SERVER_CACHE_ENABLED)
-			cachedPSMBeans.put(key, PSMs);
+			map.put(key, PSMs);
 	}
 
 	public void addtoCache(PSMBean psm, String key) {
 		if (SharedConstants.SERVER_CACHE_ENABLED) {
-			if (cachedPSMBeans.containsKey(key)) {
-				cachedPSMBeans.get(key).add(psm);
+			if (map.containsKey(key)) {
+				map.get(key).add(psm);
 			} else {
 				List<PSMBean> list = new ArrayList<PSMBean>();
 				list.add(psm);
-				cachedPSMBeans.put(key, list);
+				map.put(key, list);
 			}
 		}
 	}
 
 	@Override
 	public List<PSMBean> getFromCache(String key) {
-		return cachedPSMBeans.get(key);
+		return map.get(key);
 	}
 
 	@Override
 	public void removeFromCache(String key) {
-		cachedPSMBeans.remove(key);
+		map.remove(key);
 	}
 
 	@Override
 	public boolean contains(String key) {
-		return cachedPSMBeans.containsKey(key);
+		return map.containsKey(key);
 	}
 
 	@Override
@@ -84,5 +83,10 @@ public class ServerCachePSMBeansByProjectTag implements
 	public String processKey(String key) {
 
 		return key;
+	}
+
+	@Override
+	public void clearCache() {
+		map.clear();
 	}
 }

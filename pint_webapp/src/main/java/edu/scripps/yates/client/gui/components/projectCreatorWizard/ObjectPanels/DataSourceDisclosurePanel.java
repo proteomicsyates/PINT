@@ -13,6 +13,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -78,12 +79,17 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 	public DataSourceDisclosurePanel(final String sessionID, int importJobID) {
 		super(sessionID, importJobID, "Input data file " + numDataSource++, true);
 		// fileFormat
+
 		Label formatLabel = new Label("File format:");
 		addWidget(formatLabel);
-		formatCombo = new ListBox(false);
+		FlowPanel horizPanel = new FlowPanel();
+		formatCombo = new ListBox();
+		formatCombo.setMultipleSelect(false);
 		addFormats(formatCombo);
-		addWidget(formatCombo);
+		horizPanel.add(formatCombo);
+		addWidget(horizPanel);
 		showFastaDigestionButton = new Button("show fasta digestion");
+		showFastaDigestionButton.setHeight("19px");
 		showFastaDigestionButton.addClickHandler(new ClickHandler() {
 
 			@Override
@@ -94,7 +100,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 		});
 		showFastaDigestionButton.setTitle("Click here to define how to digest the fasta database");
 		showFastaDigestionButton.setVisible(false);
-		addWidget(showFastaDigestionButton);
+		horizPanel.add(showFastaDigestionButton);
 		formatCombo.setVisibleItemCount(1);
 		formatCombo.addChangeHandler(new ChangeHandler() {
 			@Override
@@ -121,9 +127,13 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 						// set upload path with the new format and enable
 						// uploader if not server ref is selected
 						updateUploaderServletPath();
-						if (uploadFileRadioButton.getValue())
+						if (uploadFileRadioButton.getValue()) {
 							uploader.setEnabled(true);
+						}
 					}
+				} else {
+					showFastaDigestionButton(false);
+					uploader.setEnabled(false);
 				}
 				fireModificationEvent();
 				registerFileNameWithTypeBeanOnServer();
@@ -167,7 +177,8 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 			}
 		});
 		addWidget(locatedInServerRadioButton);
-		serverRefCombo = new ListBox(false);
+		serverRefCombo = new ListBox();
+		serverRefCombo.setMultipleSelect(false);
 		serverRefCombo.setVisibleItemCount(1);
 		serverRefCombo.setEnabled(false);
 		serverRefCombo.addChangeHandler(new ChangeHandler() {
@@ -284,22 +295,22 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 					service.moveDataFile(sessionID, DataSourceDisclosurePanel.this.importJobID, oldFile, newFile,
 							new AsyncCallback<Void>() {
 
-						@Override
-						public void onFailure(Throwable caught) {
-							StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-							// keep the old id
-							setId(oldID);
-							updateUploaderServletPath();
-							fireModificationEvent();
-						}
+								@Override
+								public void onFailure(Throwable caught) {
+									StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+									// keep the old id
+									setId(oldID);
+									updateUploaderServletPath();
+									fireModificationEvent();
+								}
 
-						@Override
-						public void onSuccess(Void result) {
-							GWT.log("ID of the file changed on server");
-							setId(newID);
-							updateUploaderServletPath();
-						}
-					});
+								@Override
+								public void onSuccess(Void result) {
+									GWT.log("ID of the file changed on server");
+									setId(newID);
+									updateUploaderServletPath();
+								}
+							});
 				}
 			}
 		});
@@ -468,7 +479,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 		roundLoader.setVisible(true);
 		greenTick.setVisible(false);
 		hideErrorMessage();
-		updateRepresentedObject();
+		updateGUIFromObjectData();
 
 		if (locatedInServerRadioButton.getValue()) {
 			RemoteFileWithTypeBean remoteFile = new RemoteFileWithTypeBean();
@@ -506,8 +517,9 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 		} else if (uploadFileRadioButton.getValue()) {
 			FileNameWithTypeBean remoteFile = new FileNameWithTypeBean();
 			remoteFile.setFileName(fileName.getText());
-			remoteFile.setFileFormat(
-					FileFormat.getFileFormatFromString(formatCombo.getItemText(formatCombo.getSelectedIndex())));
+			final String itemText = formatCombo.getItemText(formatCombo.getSelectedIndex());
+			final FileFormat fileFormatFromString = FileFormat.getFileFormatFromString(itemText);
+			remoteFile.setFileFormat(fileFormatFromString);
 			if (remoteFile.getFileFormat() == FileFormat.FASTA) {
 				remoteFile.setFastaDigestionBean(fastaDigestionPanel.getObject());
 			}

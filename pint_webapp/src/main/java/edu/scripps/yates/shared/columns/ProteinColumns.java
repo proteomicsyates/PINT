@@ -6,6 +6,8 @@ import java.util.List;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.util.NumberFormat;
+import edu.scripps.yates.shared.util.SharedDataUtils;
+import edu.scripps.yates.shared.util.UniprotFeatures;
 
 public class ProteinColumns implements ColumnProvider<ProteinBean> {
 	private static ProteinColumns instance;
@@ -28,6 +30,12 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 			columns = new ArrayList<ColumnWithVisibility>();
 
 			ColumnWithVisibility col = new ColumnWithVisibility(ColumnName.PEPTIDES_TABLE_BUTTON, true);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.LINK_TO_PRIDE_CLUSTER, true);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.LINK_TO_INTACT, true);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.LINK_TO_COMPLEX_PORTAL, true);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.ACC, true);
 			columns.add(col);
@@ -71,7 +79,22 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.OMIM, false);
 			columns.add(col);
+
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_FUNCTION, true);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PROTEIN_DOMAIN_FAMILIES, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PROTEIN_SECONDARY_STRUCTURE, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PROTEIN_ACTIVE_SITE, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PROTEIN_EXPERIMENTAL_INFO, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PROTEIN_MOLECULAR_PROCESSING, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PROTEIN_PTM, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PROTEIN_NATURAL_VARIATIONS, false);
 			columns.add(col);
 		}
 		return columns;
@@ -157,6 +180,34 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 				return parseEmptyString(p.getUniprotProteinExistence().getName());
 			}
 			break;
+
+		case PROTEIN_ACTIVE_SITE:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PROTEIN_DOMAIN_FAMILIES:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PROTEIN_EXPERIMENTAL_INFO:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PROTEIN_MOLECULAR_PROCESSING:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PROTEIN_NATURAL_VARIATIONS:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PROTEIN_SECONDARY_STRUCTURE:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PROTEIN_PTM:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case LINK_TO_PRIDE_CLUSTER:
+			return "+";
+		case LINK_TO_INTACT:
+			return "+";
+		case LINK_TO_COMPLEX_PORTAL:
+			return "+";
 		default:
 			return parseEmptyString("");
 		}

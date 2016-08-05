@@ -172,7 +172,7 @@ public interface ProteinRetrievalService extends RemoteService {
 	Set<AmountType> getProteinAmountTypesByCondition(String sessionID, String projectTag, String conditionName)
 			throws PintException;
 
-	String getPublicDataSetURL(String sessionID) throws PintException;
+	FileDescriptor getDownloadLinkForReactomeAnalysisResult(String sessionID) throws PintException;
 
 	List<ProteinProjection> getProteinProjectionsFromProject(String projectTag) throws PintException;
 

@@ -24,12 +24,14 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasText;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -62,17 +64,27 @@ import edu.scripps.yates.client.gui.components.WindowBox;
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncPSMBeanListDataProvider;
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncPSMBeanListFromPsmProvider;
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncPeptideBeanListDataProvider;
+import edu.scripps.yates.client.gui.components.dataprovider.AsyncProteinBeanListDataProvider;
+import edu.scripps.yates.client.gui.components.dataprovider.AsyncProteinGroupBeanListDataProvider;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ProjectCreatorWizardUtil;
 import edu.scripps.yates.client.gui.components.pseaquant.PSEAQuantFormPanel;
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.gui.reactome.ReactomePanel;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.ShowHiddePanel;
-import edu.scripps.yates.client.tasks.PendingTasks;
+import edu.scripps.yates.client.interfaces.StatusReporter;
+import edu.scripps.yates.client.tasks.PendingTaskHandler;
+import edu.scripps.yates.client.tasks.PendingTasksManager;
 import edu.scripps.yates.client.tasks.TaskType;
 import edu.scripps.yates.client.util.ClientGUIUtil;
+import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.client.util.ProjectsBeanSet;
+import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.columns.ColumnName;
+import edu.scripps.yates.shared.columns.ColumnWithVisibility;
+import edu.scripps.yates.shared.columns.PSMColumns;
+import edu.scripps.yates.shared.columns.PeptideColumns;
+import edu.scripps.yates.shared.columns.ProteinColumns;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
@@ -92,7 +104,7 @@ import edu.scripps.yates.shared.util.sublists.ProteinGroupBeanSubList;
 import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;
 import edu.scripps.yates.shared.util.sublists.QueryResultSubLists;
 
-public class QueryPanel extends Composite implements ShowHiddePanel {
+public class QueryPanel extends Composite implements ShowHiddePanel, StatusReporter, PendingTaskHandler {
 	private static final double HEADER_HEIGHT = 25;
 	private final java.util.logging.Logger log = java.util.logging.Logger.getLogger("NameOfYourLogger");
 
@@ -131,11 +143,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 	private StackLayoutPanel menuUpStackLayoutPanel;
 
 	private LayoutPanel layoutPanel;
-	/**
-	 * This variable will implement the doSomething() method in order to show or
-	 * hidde the loading dialog depending on the pending tasks in client
-	 */
-	private DoSomethingTask<Void> loadingDialogShowerTask;
+
 	private WindowBox welcomeToProjectWindowBox;
 	private final AsyncPSMBeanListFromPsmProvider asyncDataProviderForPSMsOfSelectedProtein;
 	private final AsyncPSMBeanListFromPsmProvider asyncDataProviderForPSMsOfSelectedPeptide;
@@ -171,7 +179,8 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 		return loadedProjects;
 	}
 
-	private static final ReactomePanel reactome = new ReactomePanel();
+	private final ReactomePanel reactomePanel;
+	private Timer timer;
 
 	public QueryPanel(String sessionID, Set<String> projectTags) {
 		this(sessionID);
@@ -180,14 +189,17 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 		PSEAQuantFormPanel pseaQuantFormPanel = new PSEAQuantFormPanel(loadedProjects);
 		ScrollPanel pseaQuantScrollPanel = new ScrollPanel(pseaQuantFormPanel);
 		firstLevelTabPanel.add(pseaQuantScrollPanel, "PSEA-Quant");
-		firstLevelTabPanel.add(reactome, "Reactome");
+		firstLevelTabPanel.add(reactomePanel, "Reactome");
+
 	}
 
 	/**
 	 * @wbp.parser.constructor
 	 */
 	private QueryPanel(String sessionID) {
+		PendingTasksManager.registerPendingTaskController(this);
 		this.sessionID = sessionID;
+		reactomePanel = ReactomePanel.getInstance(sessionID);
 		asyncDataProviderForPSMsOfSelectedProtein = new AsyncPSMBeanListFromPsmProvider(sessionID);
 		asyncDataProviderForPSMsOfSelectedPeptide = new AsyncPSMBeanListFromPsmProvider(sessionID);
 		DockLayoutPanel mainPanel = new DockLayoutPanel(Unit.PX);
@@ -207,6 +219,8 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 		textAreaStatus.setVisibleLines(4);
 		textAreaStatus.setText("Starting data view...");
 		textAreaStatus.setReadOnly(true);
+
+		StatusReportersRegister.getInstance().registerNewStatusReporter(this);
 
 		SplitLayoutPanel splitLayoutPanel = new SplitLayoutPanel(7);
 		mainPanel.add(splitLayoutPanel);
@@ -509,31 +523,37 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 		proteinGroupingCommandPanel = new MyVerticalProteinInferenceCommandPanel(
 				createStartGroupingButtonClickHandler());
 
-		proteinTablePanel = new ProteinTablePanel(sessionID, false, false);
+		proteinTablePanel = new ProteinTablePanel(sessionID, null, new AsyncProteinBeanListDataProvider(sessionID),
+				SharedConstants.TABLE_WITH_MULTIPLE_SELECTION);
 
 		proteinColumnNamesPanel = new MyVerticalCheckBoxListPanel<ProteinBean>(proteinTablePanel.getColumnManager());
 
 		// PSM COLUMN NAMES
-		psmTablePanel = new PSMTablePanel("Select one protein to load PSMs", null,
-				asyncDataProviderForPSMsOfSelectedProtein);
+		psmTablePanel = new PSMTablePanel(sessionID, "Select one protein to load PSMs", null,
+				asyncDataProviderForPSMsOfSelectedProtein, SharedConstants.TABLE_WITH_MULTIPLE_SELECTION);
 		layoutPanel = new LayoutPanel();
 		layoutPanel.add(psmTablePanel);
 		layoutPanel.setWidgetBottomHeight(psmTablePanel, 0, Unit.PCT, 50, Unit.PCT);
 		psmColumnNamesPanel = new MyVerticalCheckBoxListPanel<PSMBean>(psmTablePanel.getColumnManager());
 
 		// PROTEIN GROUP PANEL
-		proteinGroupTablePanel = new ProteinGroupTablePanel(sessionID, false, false,
-				getSelectProteinGroupingMenuHandler());
+
+		final Label emptyWidget = new Label("Click on 'Group Proteins' button under 'Protein inference' left menu");
+		emptyWidget.addMouseOverHandler(getSelectProteinGroupingMenuHandler());
+		proteinGroupTablePanel = new ProteinGroupTablePanel(sessionID, emptyWidget,
+				new AsyncProteinGroupBeanListDataProvider(sessionID), false);
 
 		proteinGroupColumnNamesPanel = new MyVerticalCheckBoxListPanel<ProteinGroupBean>(
 				proteinGroupTablePanel.getColumnManager());
 
 		// PSM ONLY TAB
-		psmOnlyTablePanel = new PSMTablePanel(null, this, new AsyncPSMBeanListDataProvider(sessionID));
+		psmOnlyTablePanel = new PSMTablePanel(sessionID, null, this, new AsyncPSMBeanListDataProvider(sessionID),
+				SharedConstants.TABLE_WITH_MULTIPLE_SELECTION);
 		psmColumnNamesPanel.addColumnManager(psmOnlyTablePanel.getColumnManager());
 
 		// PEPTIDE ONLY TAB
-		peptideTablePanel = new PeptideTablePanel(null, this, new AsyncPeptideBeanListDataProvider(sessionID));
+		peptideTablePanel = new PeptideTablePanel(sessionID, null, this,
+				new AsyncPeptideBeanListDataProvider(sessionID), SharedConstants.TABLE_WITH_MULTIPLE_SELECTION);
 		peptideColumnNamesPanel = new MyVerticalCheckBoxListPanel<PeptideBean>(peptideTablePanel.getColumnManager());
 		peptideColumnNamesPanel.addColumnManager(peptideTablePanel.getColumnManager());
 		// DATA PANEL: this panel will contain the protein/protein groups in the
@@ -541,15 +561,15 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 
 		// create a handler in order to retrieve the PSMs from a selected
 		// peptide and add them to the psm table
-		peptideTablePanel.addPeptideSelectionHandler(createPeptideSelectionHandler());
+		peptideTablePanel.addSelectionHandler(createPeptideSelectionHandler());
 
 		// create a handler in order to retrieve the PSMs from a selected
 		// protein and add them to the psm table
-		proteinTablePanel.addProteinSelectionHandler(createProteinSelectionHandler());
+		proteinTablePanel.addSelectionHandler(createProteinSelectionHandler());
 
 		// create a handler in order to retrieve the PSMs from a selected
 		// protein and add them to the psm table
-		proteinGroupTablePanel.addProteinSelectionHandler(createProteinGroupSelectionHandler());
+		proteinGroupTablePanel.addSelectionHandler(createProteinGroupSelectionHandler());
 
 		// two tabs, one for the protein and the other for the protein groups
 		secondLevelTabPanel = new ScrolledTabLayoutPanel(psmOnlyTablePanel);
@@ -564,16 +584,16 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 				final Integer item = event.getSelectedItem();
 				if (item != null) {
 					if (item == 0) {
-						proteinGroupTablePanel.forceReloadData();
+						// proteinGroupTablePanel.reloadData();
 						proteinGroupTablePanel.refreshData();
 					} else if (item == 1) {
-						proteinTablePanel.forceReloadData();
+						// proteinTablePanel.reloadData();
 						proteinTablePanel.refreshData();
 					} else if (item == 2) {
-						peptideTablePanel.forceReloadData();
+						// peptideTablePanel.reloadData();
 						peptideTablePanel.refreshData();
 					} else if (item == 3) {
-						psmOnlyTablePanel.forceReloadData();
+						// psmOnlyTablePanel.reloadData();
 						psmOnlyTablePanel.refreshData();
 					}
 				}
@@ -733,8 +753,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 				updateStatus(logMessage);
 
 				// add PendingTask
-				PendingTasks.addPendingTask(TaskType.GROUP_PROTEINS, "");
-				getLoadingDialogShowerTask().doSomething();
+				PendingTasksManager.addPendingTask(TaskType.GROUP_PROTEINS, "");
 				proteinGroupTablePanel.clearTable();
 				Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
@@ -750,8 +769,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 									public void onFailure(Throwable caught) {
 										updateStatus(caught);
 										// remove PendingTask
-										PendingTasks.removeTask(TaskType.GROUP_PROTEINS, "");
-										getLoadingDialogShowerTask().doSomething();
+										PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, "");
 									}
 
 									@Override
@@ -762,8 +780,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 											loadProteinGroupsOnGrid(0, proteinGroupSubList);
 										}
 										// remove PendingTask
-										PendingTasks.removeTask(TaskType.GROUP_PROTEINS, "");
-										getLoadingDialogShowerTask().doSomething();
+										PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, "");
 									}
 
 								});
@@ -781,12 +798,11 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 	private void loadProteinGroupsOnGrid(int start, final ProteinGroupBeanSubList result) {
 		if (result == null || result.isEmpty()) {
 			proteinGroupTablePanel.clearTable();
-			getLoadingDialogShowerTask().doSomething();
 		} else {
 			// fill the grid
 			proteinGroupTablePanel.getAsyncDataProvider().updateRowCount(result.getTotalNumber(), true);
 			proteinGroupTablePanel.getAsyncDataProvider().updateRowData(start, result.getDataList());
-			proteinGroupTablePanel.forceReloadData();
+			// proteinGroupTablePanel.reloadData();
 			proteinGroupTablePanel.refreshData();
 		}
 	}
@@ -809,7 +825,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 					if (selectedObject != null) {
 						ProteinBean selectedProtein = (ProteinBean) selectedObject;
 						asyncDataProviderForPSMsOfSelectedProtein.setPSMProvider(selectedProtein);
-						psmTablePanel.forceReloadData();
+						// psmTablePanel.reloadData();
 						psmTablePanel.refreshData();
 					}
 					Widget widget = null;
@@ -840,7 +856,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 					if (selectedObject != null) {
 						PeptideBean selectedPeptide = (PeptideBean) selectedObject;
 						asyncDataProviderForPSMsOfSelectedProtein.setPSMProvider(selectedPeptide);
-						psmTablePanel.forceReloadData();
+						// psmTablePanel.reloadData();
 						psmTablePanel.refreshData();
 					}
 					Widget widget = null;
@@ -867,7 +883,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 					if (selectedObject != null) {
 						ProteinGroupBean selectedProteinGroup = (ProteinGroupBean) selectedObject;
 						asyncDataProviderForPSMsOfSelectedProtein.setPSMProvider(selectedProteinGroup);
-						psmTablePanel.forceReloadData();
+						// psmTablePanel.reloadData();
 						psmTablePanel.refreshData();
 
 					}
@@ -973,9 +989,8 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 							String fileName = SafeHtmlUtils.htmlEscape(result.getName());
 							String fileSizeString = result.getSize();
 							queryEditorPanel.setSendingStatusText(null);
-							final String href = GWT.getModuleBaseURL() + "download?" + SharedConstants.FILE_TO_DOWNLOAD
-									+ "=" + fileName + "&" + SharedConstants.FILE_TYPE + "="
-									+ SharedConstants.ID_DATA_FILE_TYPE;
+							final String href = ClientSafeHtmlUtils.getDownloadURL(fileName,
+									SharedConstants.ID_DATA_FILE_TYPE);
 							queryEditorPanel.setLinksToResultsVisible(true);
 							queryEditorPanel.setLinksToProteinResults(href, "Proteins [" + fileSizeString + "]");
 						}
@@ -997,9 +1012,13 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 							String fileName = SafeHtmlUtils.htmlEscape(result.getName());
 							String fileSizeString = result.getSize();
 							queryEditorPanel.setSendingStatusText(null);
-							final String href = GWT.getModuleBaseURL() + "download?" + SharedConstants.FILE_TO_DOWNLOAD
-									+ "=" + fileName + "&" + SharedConstants.FILE_TYPE + "="
-									+ SharedConstants.ID_DATA_FILE_TYPE;
+							// final String href = GWT.getModuleBaseURL() +
+							// "download?" + SharedConstants.FILE_TO_DOWNLOAD
+							// + "=" + fileName + "&" +
+							// SharedConstants.FILE_TYPE + "="
+							// + SharedConstants.ID_DATA_FILE_TYPE;
+							final String href = ClientSafeHtmlUtils.getDownloadURL(fileName,
+									SharedConstants.ID_DATA_FILE_TYPE);
 							queryEditorPanel.setLinksToResultsVisible(true);
 							queryEditorPanel.setLinksToProteinGroupResults(href,
 									"Protein groups [" + fileSizeString + "]");
@@ -1063,11 +1082,11 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 
 		// set empty table widget on PSM table
 		psmTablePanel.setEmptyTableWidget(PSMTablePanel.SELECT_PROTEIN_TO_LOAD_PSMS_TEXT);
-		proteinGroupTablePanel.clearTable();
-		proteinTablePanel.clearTable();
-		psmTablePanel.clearTable();
-		psmOnlyTablePanel.clearTable();
-		peptideTablePanel.clearTable();
+		// proteinGroupTablePanel.clearTable();
+		// proteinTablePanel.clearTable();
+		// psmTablePanel.clearTable();
+		// psmOnlyTablePanel.clearTable();
+		// peptideTablePanel.clearTable();
 		if ("".equals(queryText)) {
 			updateStatus("Empty query. Loading whole project...");
 			loadProteinsFromProject(uniprotVersion, null);
@@ -1085,8 +1104,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 		queryEditorPanel.setLinksToResultsVisible(false);
 		queryEditorPanel.updateQueryResult(null);
 		// add pending task
-		PendingTasks.addPendingTask(TaskType.QUERY_SENT, queryText);
-		getLoadingDialogShowerTask().doSomething();
+		PendingTasksManager.addPendingTask(TaskType.QUERY_SENT, queryText);
 		// set status
 		updateStatus("Sending query '" + queryText + "' to server...");
 		// send query to server
@@ -1096,43 +1114,57 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						updateStatus(caught);
-						queryEditorPanel.setSendingStatusText(null);
-						// remove pending task
-						PendingTasks.removeTask(TaskType.QUERY_SENT, queryText);
-						getLoadingDialogShowerTask().doSomething();
+						try {
+							updateStatus(caught);
+							queryEditorPanel.setSendingStatusText(null);
+						} finally {
+							// remove pending task
+							PendingTasksManager.removeTask(TaskType.QUERY_SENT, queryText);
+						}
 					}
 
 					@Override
 					public void onSuccess(QueryResultSubLists result) {
-						String nullString = null;
-						queryEditorPanel.updateQueryResult(result);
-						proteinGroupTablePanel.setEmptyTableWidget(nullString);
-						proteinTablePanel.setEmptyTableWidget(nullString);
-						psmOnlyTablePanel.setEmptyTableWidget(nullString);
-						peptideTablePanel.setEmptyTableWidget(nullString);
-						psmTablePanel.setEmptyTableWidget(PSMTablePanel.SELECT_PROTEIN_TO_LOAD_PSMS_TEXT);
+						try {
+							String nullString = null;
+							queryEditorPanel.updateQueryResult(result);
+							proteinGroupTablePanel.setEmptyTableWidget(nullString);
+							proteinTablePanel.setEmptyTableWidget(nullString);
+							psmOnlyTablePanel.setEmptyTableWidget(nullString);
+							peptideTablePanel.setEmptyTableWidget(nullString);
+							psmTablePanel.setEmptyTableWidget(PSMTablePanel.SELECT_PROTEIN_TO_LOAD_PSMS_TEXT);
 
-						updateStatus(result.getPsmSubList().getTotalNumber() + " psms received.");
-						updateStatus(result.getPeptideSubList().getTotalNumber() + " peptides received.");
-						updateStatus(result.getProteinSubList().getTotalNumber() + " proteins received.");
-						updateStatus(result.getProteinGroupSubList().getTotalNumber() + " protein groups received.");
+							updateStatus(result.getPsmSubList().getTotalNumber() + " psms received.");
+							updateStatus(result.getPeptideSubList().getTotalNumber() + " peptides received.");
+							updateStatus(result.getProteinSubList().getTotalNumber() + " proteins received.");
+							updateStatus(
+									result.getProteinGroupSubList().getTotalNumber() + " protein groups received.");
 
-						loadProteinsOnGrid(0, result.getProteinSubList());
-						loadPSMsOnlyOnGrid(0, result.getPsmSubList());
-						loadPeptidesOnlyOnGrid(0, result.getPeptideSubList());
-						loadProteinGroupsOnGrid(0, result.getProteinGroupSubList());
+							// dont load the data and wait for the default view
+							// loadProteinsOnGrid(0,
+							// result.getProteinSubList());
+							// loadPSMsOnlyOnGrid(0, result.getPsmSubList());
+							// loadPeptidesOnlyOnGrid(0,
+							// result.getPeptideSubList());
+							// loadProteinGroupsOnGrid(0,
+							// result.getProteinGroupSubList());
 
-						// remove pending task
-						PendingTasks.removeTask(TaskType.QUERY_SENT, queryText);
-						getLoadingDialogShowerTask().doSomething();
-						if (result.getPsmSubList().getTotalNumber() > 0) {
-							prepareDownloadLinksForQuery();
-						}
+							if (result.getPsmSubList().getTotalNumber() > 0) {
+								prepareDownloadLinksForQuery();
+							}
 
-						if (!defaultViewsApplied) {
-							requestDefaultViews(loadedProjectBeanSet.iterator().next(), true, false, false,
+							// if (!defaultViewsApplied) {
+							requestDefaultViews(loadedProjectBeanSet.iterator().next(), true, false, true,
 									loadedProjectBeanSet.containsBigProject());
+							proteinGroupTablePanel.reloadData();
+							proteinTablePanel.reloadData();
+							psmOnlyTablePanel.reloadData();
+							peptideTablePanel.reloadData();
+							psmTablePanel.reloadData();
+							// }
+						} finally {
+							// remove pending task
+							PendingTasksManager.removeTask(TaskType.QUERY_SENT, queryText);
 						}
 					}
 				});
@@ -1239,10 +1271,12 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 					public void onSuccess(Set<AmountType> result) {
 						if (result != null) {
 							for (AmountType amountType : result) {
-								psmTablePanel.addColumnforConditionPSMAmount(conditionName, amountType, letter,
-										projectTag);
-								psmOnlyTablePanel.addColumnforConditionPSMAmount(conditionName, amountType, letter,
-										projectTag);
+								final ColumnWithVisibility psmAmountColumn = PSMColumns.getInstance()
+										.getColumn(ColumnName.PSM_AMOUNT);
+								psmTablePanel.addColumnForConditionAmount(ColumnName.PSM_AMOUNT,
+										psmAmountColumn.isVisible(), conditionName, amountType, letter, projectTag);
+								psmOnlyTablePanel.addColumnForConditionAmount(ColumnName.PSM_AMOUNT,
+										psmAmountColumn.isVisible(), conditionName, amountType, letter, projectTag);
 
 							}
 							if (!result.isEmpty()) {
@@ -1275,8 +1309,10 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 					public void onSuccess(Set<AmountType> result) {
 						if (result != null) {
 							for (AmountType amountType : result) {
-								peptideTablePanel.addColumnforConditionPeptideAmount(conditionName, amountType, letter,
-										projectTag);
+								final ColumnWithVisibility peptideAmountColumn = PeptideColumns.getInstance()
+										.getColumn(ColumnName.PEPTIDE_AMOUNT);
+								peptideTablePanel.addColumnForConditionAmount(ColumnName.PEPTIDE_AMOUNT,
+										peptideAmountColumn.isVisible(), conditionName, amountType, letter, projectTag);
 							}
 							if (!result.isEmpty()) {
 								// add handlers related to that
@@ -1308,10 +1344,12 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 					public void onSuccess(Set<AmountType> result) {
 						if (result != null) {
 							for (AmountType amountType : result) {
-								proteinTablePanel.addColumnforConditionProteinAmount(conditionName, amountType, letter,
-										projectTag);
-								proteinGroupTablePanel.addColumnforConditionProteinAmount(conditionName, amountType,
-										letter, projectTag);
+								final ColumnWithVisibility proteinAmountColumn = ProteinColumns.getInstance()
+										.getColumn(ColumnName.PROTEIN_AMOUNT);
+								proteinTablePanel.addColumnForConditionAmount(ColumnName.PROTEIN_AMOUNT,
+										proteinAmountColumn.isVisible(), conditionName, amountType, letter, projectTag);
+								proteinGroupTablePanel.addColumnForConditionAmount(ColumnName.PROTEIN_AMOUNT,
+										proteinAmountColumn.isVisible(), conditionName, amountType, letter, projectTag);
 							}
 							if (!result.isEmpty()) {// add handlers related to
 													// that
@@ -1403,8 +1441,8 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 			Collections.sort(result);
 			for (String scoreName : result) {
 				scoreNamesPanel.getListBox().addItem(scoreName);
-				psmTablePanel.addColumnforPSMScore(scoreName);
-				psmOnlyTablePanel.addColumnforPSMScore(scoreName);
+				psmTablePanel.addColumnForScore(scoreName, ColumnName.PSM_SCORE);
+				psmOnlyTablePanel.addColumnForScore(scoreName, ColumnName.PSM_SCORE);
 			}
 			// add to suggestions in the query editor
 			queryEditorPanel.addSuggestionsToComplexQuery(result);
@@ -1417,8 +1455,8 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 			Collections.sort(result);
 			for (String scoreName : result) {
 				scoreNamesPanel.getListBox().addItem(scoreName);
-				psmTablePanel.addColumnforPTMScore(scoreName);
-				psmOnlyTablePanel.addColumnforPTMScore(scoreName);
+				psmTablePanel.addColumnForScore(scoreName, ColumnName.PTM_SCORE);
+				psmOnlyTablePanel.addColumnForScore(scoreName, ColumnName.PTM_SCORE);
 			}
 			// add to suggestions in the query editor
 			queryEditorPanel.addSuggestionsToComplexQuery(result);
@@ -1530,13 +1568,14 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 
 				@Override
 				public void onFailure(Throwable caught) {
-					PendingTasks.removeTask(TaskType.PROTEINS_BY_PROJECT, projectTag);
+					PendingTasksManager.removeTask(TaskType.PROTEINS_BY_PROJECT, projectTag);
 
 					loadedProjects.remove(projectTag);
 					loadingDialog.hide();
 					updateStatus(caught);
-					MyDialogBox errorDialog = MyDialogBox.getInstance(
-							"Error loading project: '" + projectTag + "':\n" + caught.getMessage(), true, false, false);
+					MyDialogBox errorDialog = new MyDialogBox(
+							"Error loading project: '" + projectTag + "':\n" + caught.getMessage(), true, false, false,
+							getTimerOnClosingLoadingDialog());
 					errorDialog.center();
 				}
 
@@ -1585,6 +1624,18 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 
 		loadStaticDataFromProjects(projectTags);
 		loadSimpleQuerySuggestions(projectTags);
+	}
+
+	private Timer getTimerOnClosingLoadingDialog() {
+		if (timer == null) {
+			timer = new Timer() {
+				@Override
+				public void run() {
+					onTaskRemovedOrAdded();
+				}
+			};
+		}
+		return timer;
 	}
 
 	private void loadSimpleQuerySuggestions(Set<String> projectTags) {
@@ -1741,8 +1792,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 			peptideTablePanel.setEmptyTableWidget("Please wait for Peptides to be loaded...");
 			if (!loadedProjects.isEmpty()) {
 
-				PendingTasks.addPendingTasks(TaskType.PROTEINS_BY_PROJECT, loadedProjects);
-				getLoadingDialogShowerTask().doSomething();
+				PendingTasksManager.addPendingTasks(TaskType.PROTEINS_BY_PROJECT, loadedProjects);
 				// remove the score columns for psms
 				psmTablePanel.removeColumn(ColumnName.PSM_SCORE);
 				psmOnlyTablePanel.removeColumn(ColumnName.PSM_SCORE);
@@ -1771,13 +1821,13 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								// progressDialog.finishAndHide();
-								updateStatus(caught);
-								// removePending task
-								PendingTasks.removeTasks(TaskType.PROTEINS_BY_PROJECT, loadedProjects);
-								// show loading dialog if there are pending
-								// tasks
-								getLoadingDialogShowerTask().doSomething();
+								try {
+									// progressDialog.finishAndHide();
+									updateStatus(caught);
+								} finally {
+									// removePending task
+									PendingTasksManager.removeTasks(TaskType.PROTEINS_BY_PROJECT, loadedProjects);
+								}
 							}
 
 							@Override
@@ -1811,10 +1861,16 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 
 										// load on the grid
 										// loadProteinsOnGrid(result);
-										loadProteinsOnGrid(0, result.getProteinSubList());
-										loadPSMsOnlyOnGrid(0, result.getPsmSubList());
-										loadPeptidesOnlyOnGrid(0, result.getPeptideSubList());
-										loadProteinGroupsOnGrid(0, result.getProteinGroupSubList());
+										// NOT LOAD THE DATA YET, WAIT UNTIL
+										// DEFAULT VIEWS ASK FOR SORTED DATA
+										// loadProteinsOnGrid(0,
+										// result.getProteinSubList());
+										// loadPSMsOnlyOnGrid(0,
+										// result.getPsmSubList());
+										// loadPeptidesOnlyOnGrid(0,
+										// result.getPeptideSubList());
+										// loadProteinGroupsOnGrid(0,
+										// result.getProteinGroupSubList());
 
 										if (result.isEmpty()) {
 											psmOnlyTablePanel.setEmptyTableWidget("No data to show");
@@ -1826,10 +1882,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 									}
 								} finally {
 									// removePending task
-									PendingTasks.removeTasks(TaskType.PROTEINS_BY_PROJECT, loadedProjects);
-									// show loading dialog if there are pending
-									// tasks
-									getLoadingDialogShowerTask().doSomething();
+									PendingTasksManager.removeTasks(TaskType.PROTEINS_BY_PROJECT, loadedProjects);
 								}
 							}
 						});
@@ -1842,7 +1895,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 
 	@Override
 	public void hiddePanel() {
-		// hidde psmtable, thae one that is below the proteins
+		// hidde psmtable, the one that is below the proteins
 		if (layoutPanel.getWidgetIndex(psmTablePanel) >= 0)
 			layoutPanel.setWidgetBottomHeight(psmTablePanel, 0, Unit.PCT, 0, Unit.PCT);
 		if (layoutPanel.getWidgetIndex(secondLevelTabPanel) >= 0)
@@ -1872,7 +1925,7 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 			// fill the grid
 			proteinTablePanel.getAsyncDataProvider().updateRowCount(result.getTotalNumber(), true);
 			proteinTablePanel.getAsyncDataProvider().updateRowData(start, result.getDataList());
-			proteinTablePanel.forceReloadData();
+			// proteinTablePanel.reloadData();
 			proteinTablePanel.refreshData();
 			selectDataTab(proteinTablePanel);
 		}
@@ -1898,29 +1951,34 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 	 */
 	private void requestDefaultViews(final ProjectBean projectBean, final boolean modifyColumns,
 			final boolean showWelcomeWindowBox, final boolean changeToDataTab, final boolean bigProject) {
-
 		if (loadedProjects.isEmpty()) {
 			return;
 		}
+		GWT.log("Requesting default views");
 
 		for (final String projectTag : loadedProjects) {
 
 			if (ClientCacheDefaultViewByProjectTag.getInstance().contains(projectTag)) {
+				GWT.log("Default default view of project " + projectTag + " found in client cache");
 
 				applyDefaultViews(projectBean,
 						ClientCacheDefaultViewByProjectTag.getInstance().getFromCache(projectTag), modifyColumns,
 						showWelcomeWindowBox, changeToDataTab, bigProject);
 
 			} else {
+				GWT.log("Requesting default view of project " + projectTag + " ");
 				proteinRetrievingService.getDefaultViewByProject(projectTag, new AsyncCallback<DefaultView>() {
 
 					@Override
 					public void onFailure(Throwable caught) {
+						GWT.log("Problem requesting default view of project " + projectTag + ": "
+								+ caught.getMessage());
 						updateStatus(caught);
 					}
 
 					@Override
 					public void onSuccess(DefaultView defaultViews) {
+						GWT.log("Default view of project " + projectTag + " received");
 						if (defaultViews != null) {
 							if (projectBean.getTag().equals(projectTag)) {
 								applyDefaultViews(projectBean, defaultViews, modifyColumns, showWelcomeWindowBox,
@@ -2007,13 +2065,30 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 			welcomeToProjectWindowBox.setAnimationEnabled(true);
 			welcomeToProjectWindowBox.setWidget(new MyWelcomeProjectPanel(projectBean, defaultViews, this));
 			welcomeToProjectWindowBox.setText("Project '" + defaultViews.getProjectTag() + "'");
+			DoSomethingTask<Void> doSomething = new DoSomethingTask<Void>() {
+				@Override
+				public Void doSomething() {
+					onTaskRemovedOrAdded();
+					return null;
+				}
+			};
 			// add loadingDialogShowerTask to close event
-			welcomeToProjectWindowBox.addCloseEventDoSomethingTask(getLoadingDialogShowerTask());
+			welcomeToProjectWindowBox.addCloseEventDoSomethingTask(doSomething);
 			welcomeToProjectWindowBox.setGlassEnabled(true);
 			welcomeToProjectWindowBox.center();
 			GWT.log("Showing welcome window for project END");
 		}
 		defaultViewsApplied = true;
+	}
+
+	@Override
+	public void onTaskRemoved() {
+		onTaskRemovedOrAdded();
+	}
+
+	@Override
+	public void onTaskAdded() {
+		onTaskRemovedOrAdded();
 	}
 
 	/**
@@ -2023,47 +2098,38 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 	 *
 	 * @return
 	 */
-	private DoSomethingTask<Void> getLoadingDialogShowerTask() {
-		if (loadingDialogShowerTask == null) {
-			loadingDialogShowerTask = new DoSomethingTask<Void>() {
-				@Override
-				public Void doSomething() {
-					// if the welcome project windo is visible, dont do nothing
-					if (welcomeToProjectWindowBox != null && welcomeToProjectWindowBox.isShowing())
-						return null;
+	private void onTaskRemovedOrAdded() {
+		// if the welcome project window is visible, dont do nothing
+		if (welcomeToProjectWindowBox != null && welcomeToProjectWindowBox.isShowing())
+			return;
 
-					boolean someTaskIsPending = false;
-					final TaskType[] taskTypes = TaskType.values();
-					for (TaskType taskType : taskTypes) {
-						final List<String> pendingTaskKeys = PendingTasks.getPendingTaskKeys(taskType);
-						if (!pendingTaskKeys.isEmpty()) {
-							someTaskIsPending = true;
-							if (pendingTaskKeys.size() == 1) {
-								showLoadingDialog(taskType.getSingleTaskMessage("'" + pendingTaskKeys.get(0) + "'"));
-							} else {
-								showLoadingDialog(taskType.getMultipleTaskMessage("" + pendingTaskKeys.size()));
-							}
-						}
-					}
-					// if there is not any pending task, hidde the loading
-					// dialog
-					if (!someTaskIsPending)
-						hiddeLoadingDialog();
-					return null;
+		boolean someTaskIsPending = false;
+		final TaskType[] taskTypes = TaskType.values();
+		for (TaskType taskType : taskTypes) {
+			final List<String> pendingTaskKeys = PendingTasksManager.getPendingTaskKeys(taskType);
+			if (!pendingTaskKeys.isEmpty()) {
+				someTaskIsPending = true;
+				if (pendingTaskKeys.size() == 1) {
+					showLoadingDialog(taskType.getSingleTaskMessage("'" + pendingTaskKeys.get(0) + "'"));
+				} else {
+					showLoadingDialog(taskType.getMultipleTaskMessage("" + pendingTaskKeys.size()));
 				}
-			};
+			}
 		}
-		return loadingDialogShowerTask;
+		// if there is not any pending task, hidde the loading
+		// dialog
+		if (!someTaskIsPending)
+			hiddeLoadingDialog();
+		return;
 	}
 
 	private void loadPSMsOnlyOnGrid(int start, PsmBeanSubList result) {
 		if (result == null || result.isEmpty()) {
 			psmOnlyTablePanel.clearTable();
-			getLoadingDialogShowerTask().doSomething();
 		} else {
 			psmOnlyTablePanel.getAsyncDataProvider().updateRowCount(result.getTotalNumber(), true);
 			psmOnlyTablePanel.getAsyncDataProvider().updateRowData(start, result.getDataList());
-			psmOnlyTablePanel.forceReloadData();
+			// psmOnlyTablePanel.reloadData();
 			psmOnlyTablePanel.refreshData();
 		}
 	}
@@ -2071,18 +2137,17 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 	private void loadPeptidesOnlyOnGrid(int start, PeptideBeanSubList result) {
 		if (result == null || result.isEmpty()) {
 			peptideTablePanel.clearTable();
-			getLoadingDialogShowerTask().doSomething();
 		} else {
 			peptideTablePanel.getAsyncDataProvider().updateRowCount(result.getTotalNumber(), true);
 			peptideTablePanel.getAsyncDataProvider().updateRowData(start, result.getDataList());
-			peptideTablePanel.forceReloadData();
+			// peptideTablePanel.reloadData();
 			peptideTablePanel.refreshData();
 		}
 	}
 
 	private void showLoadingDialog(String text, boolean autohide, boolean modal) {
 		if (loadingDialog == null) {
-			loadingDialog = MyDialogBox.getInstance(text, autohide, modal);
+			loadingDialog = new MyDialogBox(text, autohide, modal, getTimerOnClosingLoadingDialog());
 		} else {
 			loadingDialog.setText(text);
 			loadingDialog.setAutoHideEnabled(autohide);
@@ -2149,28 +2214,35 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 										String letter1 = getLetterFromCondition(condition1, projectTag);
 										String letter2 = getLetterFromCondition(condition2, projectTag);
 
+										final ColumnWithVisibility proteinRatioColumn = ProteinColumns.getInstance()
+												.getColumn(ColumnName.PROTEIN_RATIO);
 										switch (ratioDescriptor.getAggregationLevel()) {
 										// addcolumn for pairs of conditions of
 										// the ratio descriptors
 										// add the corresponding ratio score
 										// column
 										case PROTEINGROUP:
-											proteinGroupTablePanel.addColumnforConditionProteinRatio(condition1,
-													letter1, condition2, letter2, projectTag,
-													ratioDescriptor.getRatioName());
+											proteinGroupTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO,
+													proteinRatioColumn.isVisible(), condition1, letter1, condition2,
+													letter2, projectTag, ratioDescriptor.getRatioName());
 											proteinGroupColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 													ColumnName.PROTEIN_RATIO, condition1, condition2, projectTag,
 													conditionsPanel);
 											break;
 										case PROTEIN:
-											proteinTablePanel.addColumnforConditionProteinRatio(
-													ColumnName.PROTEIN_RATIO, condition1, letter1, condition2, letter2,
-													projectTag, ratioDescriptor.getRatioName());
-											proteinTablePanel.addColumnforConditionProteinRatio(
-													ColumnName.PROTEIN_RATIO_GRAPH, condition1, letter1, condition2,
+											proteinTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO,
+													proteinRatioColumn.isVisible(), condition1, letter1, condition2,
 													letter2, projectTag, ratioDescriptor.getRatioName());
-											proteinTablePanel.addColumnforConditionProteinRatioScore(condition1,
-													letter1, condition2, letter2, projectTag,
+											proteinTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO_GRAPH,
+													ProteinColumns.getInstance()
+															.getColumn(ColumnName.PROTEIN_RATIO_GRAPH).isVisible(),
+													condition1, letter1, condition2, letter2, projectTag,
+													ratioDescriptor.getRatioName());
+											proteinTablePanel.addColumnForConditionRatioScore(
+													ColumnName.PROTEIN_RATIO_SCORE,
+													ProteinColumns.getInstance()
+															.getColumn(ColumnName.PROTEIN_RATIO_SCORE).isVisible(),
+													condition1, letter1, condition2, letter2, projectTag,
 													ratioDescriptor.getRatioName());
 											proteinColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 													ColumnName.PROTEIN_RATIO, condition1, condition2, projectTag,
@@ -2180,28 +2252,39 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 													conditionsPanel);
 											break;
 										case PEPTIDE:
-											peptideTablePanel.addColumnforConditionPeptideRatio(
-													ColumnName.PEPTIDE_RATIO, condition1, letter1, condition2, letter2,
-													projectTag, ratioDescriptor.getRatioName());
-											peptideTablePanel.addColumnforConditionPeptideRatio(
-													ColumnName.PEPTIDE_RATIO_GRAPH, condition1, letter1, condition2,
+											final ColumnWithVisibility peptideRatioColumn = PeptideColumns.getInstance()
+													.getColumn(ColumnName.PEPTIDE_RATIO);
+											peptideTablePanel.addColumnForConditionRatio(ColumnName.PEPTIDE_RATIO,
+													peptideRatioColumn.isVisible(), condition1, letter1, condition2,
 													letter2, projectTag, ratioDescriptor.getRatioName());
+											peptideTablePanel.addColumnForConditionRatio(ColumnName.PEPTIDE_RATIO_GRAPH,
+													PeptideColumns.getInstance()
+															.getColumn(ColumnName.PEPTIDE_RATIO_GRAPH).isVisible(),
+													condition1, letter1, condition2, letter2, projectTag,
+													ratioDescriptor.getRatioName());
 											peptideColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 													ColumnName.PEPTIDE_RATIO, condition1, condition2, projectTag,
 													conditionsPanel);
 											break;
 										case PSM:
-											psmTablePanel.addColumnforConditionPSMRatio(ColumnName.PSM_RATIO,
+											psmTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO,
+													PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO)
+															.isVisible(),
 													condition1, letter1, condition2, letter2, projectTag,
 													ratioDescriptor.getRatioName());
-											psmTablePanel.addColumnforConditionPSMRatio(ColumnName.PSM_RATIO_GRAPH,
+											psmTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO_GRAPH,
+													PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_GRAPH)
+															.isVisible(),
 													condition1, letter1, condition2, letter2, projectTag,
 													ratioDescriptor.getRatioName());
-											psmOnlyTablePanel.addColumnforConditionPSMRatio(ColumnName.PSM_RATIO,
+											psmOnlyTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO,
+													PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO)
+															.isVisible(),
 													condition1, letter1, condition2, letter2, projectTag,
 													ratioDescriptor.getRatioName());
-
-											psmOnlyTablePanel.addColumnforConditionPSMRatio(ColumnName.PSM_RATIO_GRAPH,
+											psmOnlyTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO_GRAPH,
+													PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_GRAPH)
+															.isVisible(),
 													condition1, letter1, condition2, letter2, projectTag,
 													ratioDescriptor.getRatioName());
 											psmColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
@@ -2277,6 +2360,16 @@ public class QueryPanel extends Composite implements ShowHiddePanel {
 		// }
 		// });
 		super.onUnload();
+	}
+
+	@Override
+	public void showMessage(String message) {
+		updateStatus(message);
+	}
+
+	@Override
+	public void showErrorMessage(Throwable throwable) {
+		updateStatus("ERROR: " + throwable.getMessage());
 	}
 
 }

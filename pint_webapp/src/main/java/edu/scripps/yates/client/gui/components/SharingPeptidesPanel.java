@@ -467,7 +467,7 @@ public class SharingPeptidesPanel extends Composite {
 		sb.append("Score: " + passAlignmentThresholds.getFinalAlignmentScore() + SharedConstants.SEPARATOR);
 		sb.append("Alignment lenth: " + passAlignmentThresholds.getAlignmentLength() + SharedConstants.SEPARATOR);
 		sb.append("Identical lenth: " + passAlignmentThresholds.getIdenticalLength() + SharedConstants.SEPARATOR);
-		sb.append("Sequence identity: " + format.format(passAlignmentThresholds.getSequenceIdentity() * 100) + "%"
+		sb.append("Sequence identity: " + format.format(passAlignmentThresholds.getSequenceIdentity()) + "%"
 				+ SharedConstants.SEPARATOR);
 
 		return sb.toString();
@@ -561,7 +561,7 @@ public class SharingPeptidesPanel extends Composite {
 
 	private void showLoadingDialog(String text, boolean autohide, boolean modal) {
 		if (loadingDialog == null) {
-			loadingDialog = MyDialogBox.getInstance(text, autohide, modal);
+			loadingDialog = new MyDialogBox(text, autohide, modal);
 		} else {
 			loadingDialog.setText(text);
 			loadingDialog.setAutoHideEnabled(autohide);

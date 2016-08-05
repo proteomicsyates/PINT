@@ -24,8 +24,9 @@ import edu.scripps.yates.shared.model.PTMSiteBean;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
+import edu.scripps.yates.shared.util.UniprotFeatures;
 
-public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyColumn<PSMBean> {
+public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColumn<PSMBean> {
 
 	private final ColumnName columnName;
 	private final Comparator<PSMBean> comparator;
@@ -228,6 +229,35 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyColumn
 				sb.append(ClientSafeHtmlUtils.getRatioGraphic(psm, ratios.get(0)));
 			}
 			break;
+		case PEPTIDE_ACTIVE_SITE:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+
+		case PEPTIDE_DOMAIN_FAMILIES:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PEPTIDE_NATURAL_VARIATIONS:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PEPTIDE_SECONDARY_STRUCTURE:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PEPTIDE_EXPERIMENTAL_INFO:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PEPTIDE_MOLECULAR_PROCESSING:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PEPTIDE_PTM:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
 		default:
 			sb.append(template.startToolTip(PSMColumns.getInstance().getValue(columnName, psm, conditionName,
 					condition2Name, projectTag, amountType, scoreName, ratioName, false)));
@@ -310,6 +340,20 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyColumn
 			return 150;
 		case PSM_RATIO_GRAPH:
 			return 100;
+		case PEPTIDE_DOMAIN_FAMILIES:
+			return 150;
+		case PEPTIDE_ACTIVE_SITE:
+			return 150;
+		case PEPTIDE_EXPERIMENTAL_INFO:
+			return 150;
+		case PEPTIDE_MOLECULAR_PROCESSING:
+			return 150;
+		case PEPTIDE_PTM:
+			return 150;
+		case PEPTIDE_NATURAL_VARIATIONS:
+			return 150;
+		case PEPTIDE_SECONDARY_STRUCTURE:
+			return 150;
 		default:
 			try {
 				// look if it is a column defined in the protein column, like

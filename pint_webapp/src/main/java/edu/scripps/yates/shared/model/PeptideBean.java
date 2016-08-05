@@ -16,12 +16,13 @@ import edu.scripps.yates.shared.model.interfaces.ContainsId;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
+import edu.scripps.yates.shared.model.interfaces.ContainsSequence;
 import edu.scripps.yates.shared.util.NumberFormat;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 
 public class PeptideBean implements Comparable<PeptideBean>, Serializable, ContainsRatios, ContainsAmounts, ContainsId,
-		ContainsConditions, ContainsPrimaryAccessions, ContainsPSMs {
+		ContainsConditions, ContainsPrimaryAccessions, ContainsPSMs, ContainsSequence {
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -146,6 +147,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		return calculatedMH;
 	}
 
+	@Override
 	public String getSequence() {
 		return sequence;
 	}

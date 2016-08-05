@@ -10,8 +10,7 @@ import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ClientCacheOrganismsByProjectTag implements
-		Cache<Set<OrganismBean>, String> {
+public class ClientCacheOrganismsByProjectTag implements Cache<Set<OrganismBean>, String> {
 	private static final Map<String, Set<OrganismBean>> map = new HashMap<String, Set<OrganismBean>>();
 	private static ClientCacheOrganismsByProjectTag instance;
 
@@ -72,5 +71,10 @@ public class ClientCacheOrganismsByProjectTag implements
 	@Override
 	public String processKey(String key) {
 		return key;
+	}
+
+	@Override
+	public void clearCache() {
+		map.clear();
 	}
 }

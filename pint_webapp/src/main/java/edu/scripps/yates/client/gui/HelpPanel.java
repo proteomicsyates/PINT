@@ -129,7 +129,7 @@ public class HelpPanel extends Composite {
 
 	private void showLoadingDialog(String text) {
 
-		loadingDialog = MyDialogBox.getInstance(text, false, false);
+		loadingDialog = new MyDialogBox(text, false, false);
 		loadingDialog.center();
 	}
 

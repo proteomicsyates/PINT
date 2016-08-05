@@ -178,7 +178,7 @@
 
 .ExperimentalConditionEditorPanel_IdentificationData {
 	display:block;
-	padding: 20px;
+/* 	padding: 20px; */
 }
 
 .HorizontalPanelWithHeader {
@@ -245,7 +245,7 @@
 }
 
 .IdentificationInfoRemoteFilePanel {
-	padding: 20px;
+	max-height: 400px;
 }
 
 .IdentificationInfoRemoteFilePanel_Label {
@@ -963,7 +963,7 @@ color: Black;
 
 .gwt-PopupPanel .popupContent {
    background: gray;
-	padding: 15px;
+	padding: 15px !important;
 	border: none;
 	background-color: lavender;
 	text-align             :    center;
@@ -979,6 +979,25 @@ color: Black;
   background-color: #000;
   opacity: 0.3;
   filter: alpha(opacity=30);
+}
+
+.popUpPanelRedirector { 
+/* 	padding: 10px; */
+	
+}
+
+.popUpPanelRedirectorButtonContainer { 
+	text-align:center;
+	
+}
+.popUpPanelRedirectorMessage{
+	padding: 10px;
+	font-size: 15px;
+}
+.popUpPanelRedirectorTitle{
+	font-size: 20px;
+	font-weight: bold;
+	text-align: center;
 }
 
 .gwt-ProgressBar-shell {
@@ -1582,4 +1601,11 @@ table td{
     overflow-y: scroll;
 }
 
+.reactomePanelSubmit{
+	padding: 10px;
+}
+
+.featureType{
+	font-weight: bold;
+}
 

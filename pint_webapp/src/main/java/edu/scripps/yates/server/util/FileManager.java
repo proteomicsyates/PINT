@@ -29,6 +29,8 @@ public class FileManager {
 	private static final String XML = "xml";
 	private static final String OLD = "old";
 	private static final String DOWNLOAD = "download";
+	private static final String REACTOME = "reactome";
+
 	private static final String UNIPROT_RELEASES = "uniprot";
 	private static final String PSEAQUANT = "psea_quant";
 	private static final String FASTAS = "fastas";
@@ -166,8 +168,32 @@ public class FileManager {
 		return file;
 	}
 
+	/**
+	 * Gets the file located at: projectFilesPath/REACTOME/
+	 *
+	 * @param fileName
+	 * @return
+	 */
+	public static File getReactomeFile(String fileName) {
+		File folder = getReactomeFileFolder();
+		File file = new File(folder.getAbsoluteFile() + File.separator + fileName);
+		return file;
+	}
+
 	private static File getDownloadFileFolder() {
 		String folderName = getProjectFilesPath() + File.separator + DOWNLOAD;
+		File folder = new File(folderName);
+		if (!folder.exists()) {
+			log.info("Creating " + folder.getAbsolutePath() + " on server");
+			folder.mkdirs();
+		} else {
+			log.info(folder.getAbsolutePath() + " found in server");
+		}
+		return folder;
+	}
+
+	private static File getReactomeFileFolder() {
+		String folderName = getProjectFilesPath() + File.separator + REACTOME;
 		File folder = new File(folderName);
 		if (!folder.exists()) {
 			log.info("Creating " + folder.getAbsolutePath() + " on server");

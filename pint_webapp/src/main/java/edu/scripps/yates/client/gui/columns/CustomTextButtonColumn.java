@@ -17,7 +17,7 @@ import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.ProteinPeptideCluster;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 
-public class CustomTextButtonColumn<T> extends Column<T, String> implements MyColumn<T> {
+public class CustomTextButtonColumn<T> extends Column<T, String> implements MyIdColumn<T> {
 	private final ColumnName columnName;
 	private boolean visibleState;
 	private final double defaultWidth;

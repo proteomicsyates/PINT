@@ -437,6 +437,11 @@ public class MyQueryEditorPanel extends FlowPanel {
 		linkToProteinResults.setVisible(visible);
 	}
 
+	/**
+	 * Update the labels with the numbers of proteins/peptides/etc obtained
+	 * 
+	 * @param queryResult
+	 */
 	public void updateQueryResult(QueryResultSubLists queryResult) {
 		if (queryResult != null) {
 			numProteinGroupsLabel.setText(String.valueOf(queryResult.getProteinGroupSubList().getTotalNumber()));

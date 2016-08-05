@@ -13,7 +13,6 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -35,6 +34,7 @@ import com.google.gwt.widgetideas.client.CollapsiblePanel;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasId;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsDataObject;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
+import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.shared.model.DataSourceBean;
 import edu.scripps.yates.shared.model.LabelBean;
 import edu.scripps.yates.shared.model.OrganismBean;
@@ -991,14 +991,17 @@ public class ProjectConfigurationHeaderCollapsiblePanel extends Composite implem
 	}
 
 	public void enableDownloadImportCfgFile(String projectTag) {
-		final String href = Window.Location.getProtocol() + "//" + Window.Location.getHost() + "/pint/download?"
-				+ SharedConstants.FILE_TO_DOWNLOAD + "=" + projectTag + ".xml" + "&" + SharedConstants.FILE_TYPE + "="
-				+ SharedConstants.IMPORT_CFG_FILE_TYPE;
+		// final String href = Window.Location.getProtocol() + "//" +
+		// Window.Location.getHost() + "/pint/download?"
+		// + SharedConstants.FILE_TO_DOWNLOAD + "=" + projectTag + ".xml" + "&"
+		// + SharedConstants.FILE_TYPE + "="
+		// + SharedConstants.IMPORT_CFG_FILE_TYPE;
+		final String href = ClientSafeHtmlUtils.getDownloadURL(projectTag + ".xml",
+				SharedConstants.IMPORT_CFG_FILE_TYPE);
 
 		linkToImportCfgFile.setVisible(true);
 		linkToImportCfgFile.setHref(href);
 		linkToImportCfgFile.setText("[" + projectTag + ".xml]");
-
 	}
 
 	public void disableDownloadImportCfgFile() {

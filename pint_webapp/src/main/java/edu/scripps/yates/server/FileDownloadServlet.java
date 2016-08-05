@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.MediaType;
+
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServletCommonInit;
 import edu.scripps.yates.shared.util.SharedConstants;
@@ -52,22 +54,29 @@ public class FileDownloadServlet extends HttpServlet {
 		String filename = request.getParameter(SharedConstants.FILE_TO_DOWNLOAD);
 		String fileType = request.getParameter(SharedConstants.FILE_TYPE);
 
+		p_response.setContentType(MediaType.TEXT_PLAIN_VALUE);
 		// get file depending on the FILE TYPE
 		File file = null;
 		if (fileType != null && fileType.equals(SharedConstants.ID_DATA_FILE_TYPE)) {
 			file = FileManager.getDownloadFile(filename);
+			p_response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 		} else if (fileType != null && fileType.equals(SharedConstants.IMPORT_CFG_FILE_TYPE)) {
 			file = FileManager.getProjectXmlFile(filename);
+			p_response.setContentType(MediaType.TEXT_XML_VALUE);
+			p_response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 		} else if (fileType != null && fileType.equals(SharedConstants.PSEA_QUANT_DATA_FILE_TYPE)) {
 			file = FileManager.getPSEAQuantFile(filename);
+			p_response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+		} else if (fileType != null && fileType.equals(SharedConstants.REACTOME_ANALYSIS_RESULT_FILE_TYPE)) {
+			file = FileManager.getReactomeFile(filename);
+			// dont add the header, just keep the plain text file
 		}
 		if (file == null)
 			return;
 
 		long length = file.length();
 		FileInputStream fis = new FileInputStream(file);
-		p_response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-		p_response.setContentType("application/octet-stream");
+
 		if (length > 0 && length <= Integer.MAX_VALUE)
 			p_response.setContentLength((int) length);
 		ServletOutputStream out = p_response.getOutputStream();

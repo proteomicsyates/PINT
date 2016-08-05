@@ -25,6 +25,9 @@ public class PintException extends Exception implements Serializable {
 
 	public PintException(Exception ex, PINT_ERROR_TYPE pintErrorType) {
 		message = ex.getMessage();
+		if (message == null) {
+			message = ex.getClass().getCanonicalName();
+		}
 		this.pintErrorType = pintErrorType;
 	}
 

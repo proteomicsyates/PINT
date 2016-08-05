@@ -81,4 +81,8 @@ public class ServerCacheProteinFileDescriptorByClientIDAndQuery implements Cache
 		return ret;
 	}
 
+	@Override
+	public void clearCache() {
+		map.clear();
+	}
 }

@@ -28,14 +28,14 @@ public class PopUpPanelRedirector extends VerticalPanel {
 	 * @param messageText
 	 * @param target
 	 */
-	public PopUpPanelRedirector(boolean autoHide, boolean modal, String title, String messageText,
-			final TargetHistory target) {
-
+	public PopUpPanelRedirector(boolean autoHide, boolean modal, boolean glassEnabled, String titleText,
+			String messageText, final TargetHistory target) {
+		this.setStyleName("popUpPanelRedirector");
 		popup = new PopupPanel(autoHide, modal);
 		popup.setAutoHideOnHistoryEventsEnabled(true);
 		popup.setAnimationEnabled(true);
-		if (title != null)
-			popup.setTitle(title);
+		if (titleText != null)
+			popup.setTitle(titleText);
 
 		// popup.setStyleName("mypopUpPanel");
 		listenerToClose = new ClickHandler() {
@@ -57,17 +57,21 @@ public class PopUpPanelRedirector extends VerticalPanel {
 				}
 			}
 		});
-
-		Button button = new Button("Close", listenerToClose);
-		SimplePanel holder = new SimplePanel();
-		holder.add(button);
-		holder.setStyleName("mypopUpPanel-footer");
-
+		if (titleText != null && !"".equals(titleText)) {
+			HTML titleHTML = new HTML(new SafeHtmlBuilder().appendEscapedLines(titleText).toSafeHtml());
+			titleHTML.setStyleName("popUpPanelRedirectorTitle");
+			this.add(titleHTML);
+		}
 		HTML message = new HTML(new SafeHtmlBuilder().appendEscapedLines(messageText).toSafeHtml());
+		message.setStyleName("popUpPanelRedirectorMessage");
 		this.add(message);
-		this.add(holder);
+		Button button = new Button("Go to Browse", listenerToClose);
+		button.setTitle("Click here to go to the Browse menu");
+		SimplePanel buttonContainer = new SimplePanel(button);
+		buttonContainer.setStyleName("popUpPanelRedirectorButtonContainer");
+		this.add(buttonContainer);
 		popup.setWidget(this);
-		popup.setGlassEnabled(false);
+		popup.setGlassEnabled(glassEnabled);
 	}
 
 	public void show() {

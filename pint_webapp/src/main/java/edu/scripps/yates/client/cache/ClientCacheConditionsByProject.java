@@ -9,8 +9,7 @@ import java.util.Set;
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ClientCacheConditionsByProject implements
-		Cache<Set<String>, String> {
+public class ClientCacheConditionsByProject implements Cache<Set<String>, String> {
 	private static final Map<String, Set<String>> map = new HashMap<String, Set<String>>();
 	private static ClientCacheConditionsByProject instance;
 
@@ -77,5 +76,10 @@ public class ClientCacheConditionsByProject implements
 	@Override
 	public String processKey(String key) {
 		return key;
+	}
+
+	@Override
+	public void clearCache() {
+		map.clear();
 	}
 }

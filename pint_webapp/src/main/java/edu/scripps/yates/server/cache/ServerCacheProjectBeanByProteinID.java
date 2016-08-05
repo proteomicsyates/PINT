@@ -10,8 +10,7 @@ import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ServerCacheProjectBeanByProteinID implements
-		Cache<ProjectBean, Integer> {
+public class ServerCacheProjectBeanByProteinID implements Cache<ProjectBean, Integer> {
 	private static final Map<Integer, ProjectBean> map = new HashMap<Integer, ProjectBean>();
 	private static ServerCacheProjectBeanByProteinID instance;
 
@@ -80,4 +79,8 @@ public class ServerCacheProjectBeanByProteinID implements
 		return ret;
 	}
 
+	@Override
+	public void clearCache() {
+		map.clear();
+	}
 }

@@ -9,9 +9,8 @@ import java.util.Set;
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ServerCacheProteinAccessionsByFileKey implements
-		Cache<List<String>, String> {
-	private static final HashMap<String, List<String>> cachedStrings = new HashMap<String, List<String>>();
+public class ServerCacheProteinAccessionsByFileKey implements Cache<List<String>, String> {
+	private static final HashMap<String, List<String>> map = new HashMap<String, List<String>>();
 
 	private static ServerCacheProteinAccessionsByFileKey instance;
 
@@ -29,22 +28,22 @@ public class ServerCacheProteinAccessionsByFileKey implements
 	@Override
 	public void addtoCache(List<String> proteins, String key) {
 		if (SharedConstants.SERVER_CACHE_ENABLED)
-			cachedStrings.put(key, proteins);
+			map.put(key, proteins);
 	}
 
 	@Override
 	public List<String> getFromCache(String key) {
-		return cachedStrings.get(key);
+		return map.get(key);
 	}
 
 	@Override
 	public void removeFromCache(String key) {
-		cachedStrings.remove(key);
+		map.remove(key);
 	}
 
 	@Override
 	public boolean contains(String key) {
-		return cachedStrings.containsKey(key);
+		return map.containsKey(key);
 	}
 
 	@Override
@@ -70,5 +69,10 @@ public class ServerCacheProteinAccessionsByFileKey implements
 	public String processKey(String key) {
 
 		return key;
+	}
+
+	@Override
+	public void clearCache() {
+		map.clear();
 	}
 }

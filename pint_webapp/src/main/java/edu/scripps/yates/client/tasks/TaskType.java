@@ -1,15 +1,13 @@
 package edu.scripps.yates.client.tasks;
 
 public enum TaskType {
-	PROTEINS_BY_PROJECT("Loading proteins from project %...",
-			"Loading proteins from % projects..."), PSMS_BY_PROJECT(
-			"Loading PSMs from project %...", "Loading PSMs from % projects..."), GROUP_PROTEINS(
-			"Grouping % proteins...", "Grouping % proteins..."), PSMS_BY_PROTEIN(
-			"Loading PSMs from protein %...", "Loading PSMs from % proteins..."), PSMS_BY_PROTEIN_GROUP(
-			"Loading PSMs from protein group %...",
-			"Loading PSMs from % protein groups..."), QUERY_SENT(
-			"Waiting for query results. Please wait...",
-			"Waiting for query results. Please wait...");
+	PROTEINS_BY_PROJECT("Loading proteins from project %...", "Loading proteins from % projects..."), //
+	PSMS_BY_PROJECT("Loading PSMs from project %...", "Loading PSMs from % projects..."), //
+	GROUP_PROTEINS("Grouping % proteins...", "Grouping % proteins..."), //
+	PSMS_BY_PROTEIN("Loading PSMs from protein %...", "Loading PSMs from % proteins..."), //
+	PSMS_BY_PROTEIN_GROUP("Loading PSMs from protein group %...", "Loading PSMs from % protein groups..."), //
+	QUERY_SENT("Waiting for query results. Please wait...", "Waiting for query results. Please wait..."), //
+	PROTEINS_BY_PEPTIDE("Retrieving peptides shared by % protein...", "Retrieving peptides shared by protein group");
 
 	private final String singleTaskMessage;
 	private final String multipleTaskMessage;

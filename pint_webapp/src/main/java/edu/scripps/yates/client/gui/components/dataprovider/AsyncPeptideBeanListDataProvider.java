@@ -1,84 +1,57 @@
 package edu.scripps.yates.client.gui.components.dataprovider;
 
-import com.google.gwt.user.cellview.client.ColumnSortList;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.view.client.HasData;
+import com.google.gwt.view.client.Range;
 
-import edu.scripps.yates.client.gui.columns.MyDataGrid;
-import edu.scripps.yates.client.gui.columns.PeptideTextColumn;
+import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.util.sublists.PeptideBeanSubList;
 
-public class AsyncPeptideBeanListDataProvider extends MyAsyncDataProvider<PeptideBean> {
+public class AsyncPeptideBeanListDataProvider extends AbstractAsyncDataProvider<PeptideBean> {
 
 	public AsyncPeptideBeanListDataProvider(String sessionID) {
 		super(sessionID);
 	}
 
 	@Override
-	protected void onRangeChanged(final HasData<PeptideBean> display) {
-		if (needsUpdate(display)) {
-			range = display.getVisibleRange();
-			final int start = range.getStart();
-			int end = start + range.getLength();
-			final ColumnSortList columnSortList = getColumnSortList(display);
-			if (columnSortList.size() > 0) {
-				if (display instanceof MyDataGrid) {
-					((MyDataGrid) display).setForceToRefresh(false);
-				}
-
-				final ColumnSortInfo columnSortInfo = columnSortList.get(0);
-				setCurrentSortInfo(columnSortInfo);
-				final PeptideTextColumn column = (PeptideTextColumn) columnSortInfo.getColumn();
-				display.setVisibleRangeAndClearData(display.getVisibleRange(), true);
-				service.getPeptideBeansFromListSorted(sessionID, start, end, column.getComparator(),
-						columnSortInfo.isAscending(), new AsyncCallback<PeptideBeanSubList>() {
-
-							@Override
-							public void onSuccess(PeptideBeanSubList result) {
-								if (result == null) {
-									updateRowCount(0, true);
-									refreshDisplay(display);
-									return;
-								}
-
-								updateRowData(start, result.getDataList());
-								updateRowCount(result.getTotalNumber(), true);
-								refreshDisplay(display);
-
-							}
-
-							@Override
-							public void onFailure(Throwable caught) {
-								StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-							}
-						});
-
-			} else {
-				service.getPeptideBeansFromList(sessionID, start, end, new AsyncCallback<PeptideBeanSubList>() {
+	protected void retrieveData(MyColumn<PeptideBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
+			final Range range) {
+		GWT.log("Getting peptide beans sorted");
+		service.getPeptideBeansFromListSorted(sessionID, start, end, column.getComparator(),
+				columnSortInfo.isAscending(), new AsyncCallback<PeptideBeanSubList>() {
 
 					@Override
 					public void onSuccess(PeptideBeanSubList result) {
-						if (result == null) {
-							updateRowCount(0, true);
-							refreshDisplay(display);
-							return;
-						}
-						updateRowCount(result.getTotalNumber(), true);
-						updateRowData(start, result.getDataList());
-						refreshDisplay(display);
+						try {
+							GWT.log("Result of getting peptide beans sorted");
+							if (result == null) {
+								updateRowCount(0, true);
+								setRange(null);
+								return;
+							}
 
+							updateRowData(start, result.getDataList());
+							updateRowCount(result.getTotalNumber(), true);
+							setRange(range);
+						} finally {
+							retrievingDataFinished();
+						}
 					}
 
 					@Override
 					public void onFailure(Throwable caught) {
-						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+						try {
+							updateRowCount(0, true);
+							setRange(null);
+							StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+						} finally {
+							retrievingDataFinished();
+						}
 					}
 				});
-			}
-		}
 
 	}
 

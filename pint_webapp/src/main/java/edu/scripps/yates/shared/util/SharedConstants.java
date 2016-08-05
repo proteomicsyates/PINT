@@ -14,6 +14,7 @@ public class SharedConstants {
 
 	public static final String FILE_TYPE = "fileType";
 	public static final String ID_DATA_FILE_TYPE = "idDataFile";
+	public static final String REACTOME_ANALYSIS_RESULT_FILE_TYPE = "reactomeAnalysisResultFile";
 	public static final String IMPORT_CFG_FILE_TYPE = "importCfgFile";
 	public static final String FILE_TO_DOWNLOAD = "filetodownload";
 	public static final char INFINITY_CHAR_CODE = '\u221e';
@@ -23,10 +24,10 @@ public class SharedConstants {
 	public static final String SEPARATOR = NEW_LINE_JAVA;
 
 	public static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
-	public static final int PSM_DEFAULT_PAGE_SIZE = 500;
-	public static final int PEPTIDE_DEFAULT_PAGE_SIZE = 500;
-	public static final int PROTEIN_DEFAULT_PAGE_SIZE = 100;
-	public static final int PROTEINGROUP_DEFAULT_PAGE_SIZE = 100;
+	public static final int PSM_DEFAULT_PAGE_SIZE = 200;
+	public static final int PEPTIDE_DEFAULT_PAGE_SIZE = 200;
+	public static final int PROTEIN_DEFAULT_PAGE_SIZE = 50;
+	public static final int PROTEINGROUP_DEFAULT_PAGE_SIZE = 50;
 	public static final String PSEA_QUANT_DATA_FILE_TYPE = "psea_quant_input";
 	// footers of the data view tables. to enable set to true
 	public static final boolean FOOTERS_ENABLED = false;
@@ -48,4 +49,7 @@ public class SharedConstants {
 
 	// enable send emails
 	public static final boolean EMAIL_ENABLED = false;
+
+	// tables selection model
+	public static final boolean TABLE_WITH_MULTIPLE_SELECTION = false;
 }

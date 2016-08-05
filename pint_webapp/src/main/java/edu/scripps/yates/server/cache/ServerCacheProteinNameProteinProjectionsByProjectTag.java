@@ -7,34 +7,34 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.shared.cache.Cache;
-import edu.scripps.yates.shared.model.OrganismBean;
+import edu.scripps.yates.shared.model.ProteinProjection;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ProteinProjectionsByProjectName implements
-		Cache<Set<OrganismBean>, String> {
-	private static final Map<String, Set<OrganismBean>> map = new HashMap<String, Set<OrganismBean>>();
-	private static ProteinProjectionsByProjectName instance;
+public class ServerCacheProteinNameProteinProjectionsByProjectTag
+		implements Cache<Map<String, Set<ProteinProjection>>, String> {
+	private static final Map<String, Map<String, Set<ProteinProjection>>> map = new HashMap<String, Map<String, Set<ProteinProjection>>>();
+	private static ServerCacheProteinNameProteinProjectionsByProjectTag instance;
 
-	private ProteinProjectionsByProjectName() {
+	private ServerCacheProteinNameProteinProjectionsByProjectTag() {
 
 	}
 
-	public static ProteinProjectionsByProjectName getInstance() {
+	public static ServerCacheProteinNameProteinProjectionsByProjectTag getInstance() {
 		if (instance == null) {
-			instance = new ProteinProjectionsByProjectName();
+			instance = new ServerCacheProteinNameProteinProjectionsByProjectTag();
 		}
 		return instance;
 	}
 
 	@Override
-	public void addtoCache(Set<OrganismBean> t, String key) {
+	public void addtoCache(Map<String, Set<ProteinProjection>> t, String key) {
 		if (SharedConstants.SERVER_CACHE_ENABLED)
 			map.put(key, t);
 
 	}
 
 	@Override
-	public Set<OrganismBean> getFromCache(String key) {
+	public Map<String, Set<ProteinProjection>> getFromCache(String key) {
 		return map.get(key);
 	}
 
@@ -60,8 +60,8 @@ public class ProteinProjectionsByProjectName implements
 	}
 
 	@Override
-	public Set<Set<OrganismBean>> getFromCache(Collection<String> keys) {
-		Set<Set<OrganismBean>> ret = new HashSet<Set<OrganismBean>>();
+	public Set<Map<String, Set<ProteinProjection>>> getFromCache(Collection<String> keys) {
+		Set<Map<String, Set<ProteinProjection>>> ret = new HashSet<Map<String, Set<ProteinProjection>>>();
 		for (String key : keys) {
 			if (contains(key))
 				ret.add(getFromCache(key));
@@ -73,5 +73,10 @@ public class ProteinProjectionsByProjectName implements
 	public String processKey(String key) {
 
 		return key;
+	}
+
+	@Override
+	public void clearCache() {
+		map.clear();
 	}
 }

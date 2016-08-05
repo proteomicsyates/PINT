@@ -357,7 +357,7 @@ public class RatioFromRemoteFilePanel extends Composite
 
 	private void showDialog(String text, boolean showLoaderBar, boolean autoHide, boolean modal) {
 		if (loadingDialog == null) {
-			loadingDialog = MyDialogBox.getInstance(text, autoHide, modal, showLoaderBar);
+			loadingDialog = new MyDialogBox(text, autoHide, modal, showLoaderBar);
 		} else {
 			loadingDialog.setAutoHideEnabled(autoHide);
 			loadingDialog.setModal(modal);

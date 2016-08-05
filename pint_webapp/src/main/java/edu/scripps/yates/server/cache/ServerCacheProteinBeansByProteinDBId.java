@@ -8,14 +8,17 @@ import java.util.Set;
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.ProteinBean;
 
-public class ServerCacheProteinBeansByProteinDBId implements
-		Cache<ProteinBean, Integer> {
+public class ServerCacheProteinBeansByProteinDBId implements Cache<ProteinBean, Integer> {
 	private static final HashMap<Integer, ProteinBean> cachedProteinBeans = new HashMap<Integer, ProteinBean>();
 
 	private static ServerCacheProteinBeansByProteinDBId instance;
 
 	private ServerCacheProteinBeansByProteinDBId() {
 
+	}
+
+	public boolean isEmpty() {
+		return cachedProteinBeans.isEmpty();
 	}
 
 	public static ServerCacheProteinBeansByProteinDBId getInstance() {
@@ -69,5 +72,10 @@ public class ServerCacheProteinBeansByProteinDBId implements
 	public Integer processKey(Integer key) {
 
 		return key;
+	}
+
+	@Override
+	public void clearCache() {
+		cachedProteinBeans.clear();
 	}
 }

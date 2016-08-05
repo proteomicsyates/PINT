@@ -15,12 +15,13 @@ import edu.scripps.yates.shared.model.interfaces.ContainsConditions;
 import edu.scripps.yates.shared.model.interfaces.ContainsId;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
+import edu.scripps.yates.shared.model.interfaces.ContainsSequence;
 import edu.scripps.yates.shared.util.NumberFormat;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 
 public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, ContainsId, ContainsConditions,
-		ContainsPrimaryAccessions {
+		ContainsPrimaryAccessions, ContainsSequence {
 	/**
 	 *
 	 */
@@ -103,6 +104,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		return fullSequence;
 	}
 
+	@Override
 	public String getSequence() {
 		return sequence;
 	}
@@ -267,8 +269,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	public void addScore(ScoreBean score) {
 		if (scores == null)
 			scores = new HashMap<String, ScoreBean>();
-		if (score.getScoreName() == null)
-			System.out.println("Asdf");
+
 		scores.put(score.getScoreName(), score);
 	}
 
@@ -947,8 +948,13 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 			lightVersion.setOrganisms(getOrganisms());
 			lightVersion.setPi(getPi());
 			// ret.setProteinDBIds(getProteinDBIds());
-			// ret.setProteins(getProteins());
-			lightVersion.setNumProteins(getProteins().size());
+
+			final Set<ProteinBean> proteins2 = getProteins();
+			for (ProteinBean proteinBean : proteins2) {
+				lightVersion.addProteinToPSM(proteinBean.cloneToLightProteinBean());
+			}
+
+			lightVersion.setNumProteins(proteins2.size());
 			lightVersion.setProteinsPrimaryAccessions(getProteinsPrimaryAccessions());
 			lightVersion.setPsmID(getPsmID());
 			lightVersion.setPtms(getPtms());
@@ -1050,7 +1056,12 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		for (ProteinBean protein : getProteins()) {
 			sb.append(protein.getPrimaryAccession().getAccession() + ",");
 		}
-		return "[psmID=" + psmID + ", seq=" + fullSequence + ", prot=" + sb.toString() + "]";
+		String score = "";
+		final ScoreBean scoreByName = getScoreByName("SEQUEST:xcorr");
+		if (scoreByName != null) {
+			score = scoreByName.getScoreName() + ":" + scoreByName.getValue();
+		}
+		return "[psmID=" + psmID + ", seq=" + fullSequence + ", prot=" + sb.toString() + ", " + score + "]";
 	}
 
 	public PeptideBean getPeptideBean() {

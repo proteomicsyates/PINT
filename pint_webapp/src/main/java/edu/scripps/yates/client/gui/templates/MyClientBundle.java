@@ -117,4 +117,16 @@ public interface MyClientBundle extends ClientBundle {
 
 	@Source("arrow_up.png")
 	public ImageResource arrowUp();
+
+	@Source("fireworks_small.png")
+	public ImageResource fireworksIcon();
+
+	@Source("PRIDEClusterLogo.png")
+	public ImageResource prideClusterLogo();
+
+	@Source("IntAct_logo.png")
+	public ImageResource intActLogo();
+
+	@Source("ComplexPortalLogo.png")
+	public ImageResource complexPortalLogo();
 }

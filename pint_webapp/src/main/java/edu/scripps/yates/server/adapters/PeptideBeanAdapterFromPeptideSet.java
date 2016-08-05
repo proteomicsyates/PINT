@@ -16,6 +16,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
+import edu.scripps.yates.server.cache.ServerCachePSMBeansByPSMDBId;
 import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
@@ -61,9 +62,6 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 		ret.addDbId(peptide.getId());
 
 		if (peptide.getSequence() != null) {
-			if (peptide.getSequence().equals("GNEQFINAAK")) {
-				log.info("as");
-			}
 			ret.setLength(peptide.getSequence().length());
 			ret.setSequence(peptide.getSequence());
 		}
@@ -75,6 +73,9 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 						.getFromCache(protein.getId());
 				if (proteinBean != null) {
 					ret.addProteinToPeptide(proteinBean);
+				} else {
+					throw new IllegalArgumentException("Protein with DB id: " + protein.getId()
+							+ " is not found in the ServerCacheProteinBeansByProteinDBId. You need to create the protein bean objects before create the peptide bean objects");
 				}
 			}
 		}
@@ -106,10 +107,15 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 			if (!ret.getPSMDBIds().contains(psm.getId())) {
 				ret.getPSMDBIds().add(psm.getId());
 
-				final PSMBean psmBeanByPSMId = PSMBeanAdapter.getPSMBeanByDBId(psm.getId());
+				final PSMBean psmBeanByPSMId = ServerCachePSMBeansByPSMDBId.getInstance().getFromCache(psm.getId());
 				if (psmBeanByPSMId != null) {
 					ret.addPSMToPeptide(psmBeanByPSMId);
 					psmBeanByPSMId.setPeptideBeanToPSM(ret);
+				} else {
+					final String message = "PSM with DB id: " + psm.getId() + " [" + psm.getPsmId() + ", "
+							+ psm.getSequence()
+							+ "] is not found in the ServerCachePSMBeansByPSMDBId. You need to create the PSMBean objects before create the peptide bean objects";
+					throw new IllegalArgumentException(message);
 				}
 
 				final Set<Condition> conditions = psm.getConditions();

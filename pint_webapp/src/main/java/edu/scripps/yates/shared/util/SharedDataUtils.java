@@ -39,6 +39,7 @@ import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.model.ThresholdBean;
+import edu.scripps.yates.shared.model.UniprotFeatureBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsConditions;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
@@ -810,6 +811,11 @@ public class SharedDataUtils {
 			proteinBeanReceiver.addFunction(function);
 		}
 
+		final Set<UniprotFeatureBean> uniprotFeatures = proteinBeanDonor.getUniprotFeatures();
+		for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {
+			proteinBeanReceiver.addUniprotFeature(uniprotFeature);
+		}
+
 		// reset geneString in order to be rebuilt after adding new genes
 		proteinBeanReceiver.setGeneString(null);
 		final Set<GeneBean> genes = proteinBeanDonor.getGenes();
@@ -1050,4 +1056,137 @@ public class SharedDataUtils {
 
 		return min;
 	}
+
+	public static Set<UniprotFeatureBean> getUniprotFeaturesByFeatureType(
+			Collection<UniprotFeatureBean> uniprotFeatures, String featureType) {
+		Set<UniprotFeatureBean> set = new HashSet<UniprotFeatureBean>();
+		for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {
+			if (uniprotFeature.getFeatureType().equalsIgnoreCase(featureType)) {
+				set.add(uniprotFeature);
+			}
+		}
+		return set;
+	}
+
+	public static Map<String, ProteinBean> getProteinBeansByPrimaryAccession(Set<ProteinBean> proteins) {
+		Map<String, ProteinBean> ret = new HashMap<String, ProteinBean>();
+		for (ProteinBean proteinBean : proteins) {
+			ret.put(proteinBean.getPrimaryAccession().getAccession(), proteinBean);
+		}
+		return ret;
+	}
+
+	public static String getUniprotFeatureString(PSMBean p, String... featureTypes) {
+		final Map<String, List<Integer>> startingPositions = p.getStartingPositions();
+		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
+		final Set<ProteinBean> proteins = p.getProteins();
+		final Map<String, ProteinBean> proteinBeanByAccession = SharedDataUtils
+				.getProteinBeansByPrimaryAccession(proteins);
+		// get a list of proteins according to the order of the primary
+		// accessions
+		List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
+		for (AccessionBean acc : primaryAccessions) {
+			if (proteinBeanByAccession.containsKey(acc.getAccession())) {
+				proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
+			}
+		}
+		return getUniprotFeatureString(startingPositions, proteinBeanList, featureTypes);
+	}
+
+	public static String getUniprotFeatureString(PeptideBean p, String... featureTypes) {
+		final Map<String, List<Integer>> startingPositions = p.getStartingPositions();
+		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
+		final Set<ProteinBean> proteins = p.getProteins();
+		final Map<String, ProteinBean> proteinBeanByAccession = SharedDataUtils
+				.getProteinBeansByPrimaryAccession(proteins);
+		// get a list of proteins according to the order of the primary
+		// accessions
+		List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
+		for (AccessionBean acc : primaryAccessions) {
+			if (proteinBeanByAccession.containsKey(acc.getAccession())) {
+				proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
+			}
+		}
+		return getUniprotFeatureString(startingPositions, proteinBeanList, featureTypes);
+	}
+
+	public static String getUniprotFeatureString(ProteinBean p, String... featureTypes) {
+		final Set<UniprotFeatureBean> uniprotFeatures = new HashSet<UniprotFeatureBean>();
+		for (String featureType : featureTypes) {
+			uniprotFeatures
+					.addAll(SharedDataUtils.getUniprotFeaturesByFeatureType(p.getUniprotFeatures(), featureType));
+		}
+		StringBuilder sb = new StringBuilder();
+		for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {
+			if (uniprotFeature.getDescription() != null) {
+				sb.append(uniprotFeature.getDescription());
+			} else {
+				sb.append(uniprotFeature.getFeatureType());
+			}
+			if (uniprotFeature.getPositionStart() > -1) {
+				if (uniprotFeature.getPositionStart() == uniprotFeature.getPositionEnd()) {
+					sb.append(" (").append(uniprotFeature.getPositionStart()).append(")");
+				} else {
+					sb.append(" (").append(uniprotFeature.getPositionStart()).append("-")
+							.append(uniprotFeature.getPositionEnd()).append(")");
+				}
+			}
+		}
+		return sb.toString();
+	}
+
+	private static String getUniprotFeatureString(Map<String, List<Integer>> startingPositionsByProtein,
+			List<ProteinBean> proteinBeans, String... featureTypes) {
+		StringBuilder sb = new StringBuilder();
+		for (ProteinBean p : proteinBeans) {
+			if (startingPositionsByProtein.containsKey(p.getPrimaryAccession().getAccession())) {
+				final Set<UniprotFeatureBean> uniprotFeatures = new HashSet<UniprotFeatureBean>();
+				for (String featureType : featureTypes) {
+					uniprotFeatures.addAll(
+							SharedDataUtils.getUniprotFeaturesByFeatureType(p.getUniprotFeatures(), featureType));
+				}
+
+				for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {
+					// only consider the ones with annotated start and end
+					// positions
+					if (uniprotFeature.getPositionStart() > -1 && uniprotFeature.getPositionEnd() > -1) {
+						final List<Integer> startingPositions = startingPositionsByProtein
+								.get(p.getPrimaryAccession().getAccession());
+						boolean included = isPeptideIncludedInThatRange(startingPositions,
+								uniprotFeature.getPositionStart(), uniprotFeature.getPositionEnd());
+						if (included) {
+							if (uniprotFeature.getDescription() != null) {
+								sb.append(uniprotFeature.getDescription());
+							} else {
+								sb.append(uniprotFeature.getFeatureType());
+							}
+
+							if (uniprotFeature.getPositionStart() == uniprotFeature.getPositionEnd()) {
+								sb.append(" (").append(uniprotFeature.getPositionStart()).append(")");
+							} else {
+								sb.append(" (").append(uniprotFeature.getPositionStart()).append("-")
+										.append(uniprotFeature.getPositionEnd()).append(")");
+							}
+						}
+					}
+				}
+			} else {
+				// there is not starting positions for this peptide in this
+				// protein
+			}
+			sb.append(SharedConstants.NEW_LINE_JAVA);
+		}
+		return sb.toString();
+	}
+
+	private static boolean isPeptideIncludedInThatRange(List<Integer> startingPositions, int positionStart,
+			int positionEnd) {
+		for (Integer startingPosition : startingPositions) {
+			if (startingPosition >= positionStart && startingPosition <= positionEnd) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

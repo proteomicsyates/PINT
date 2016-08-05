@@ -9,6 +9,8 @@ import edu.scripps.yates.shared.model.PTMBean;
 import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.NumberFormat;
+import edu.scripps.yates.shared.util.SharedDataUtils;
+import edu.scripps.yates.shared.util.UniprotFeatures;
 
 public class PSMColumns implements ColumnProvider<PSMBean> {
 	private static PSMColumns instance;
@@ -41,7 +43,9 @@ public class PSMColumns implements ColumnProvider<PSMBean> {
 		if (columns == null) {
 			columns = new ArrayList<ColumnWithVisibility>();
 
-			ColumnWithVisibility col = new ColumnWithVisibility(ColumnName.PSM_ID, true);
+			ColumnWithVisibility col = new ColumnWithVisibility(ColumnName.LINK_TO_PRIDE_CLUSTER, true);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PSM_ID, true);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PSM_RUN_ID, true);
 			columns.add(col);
@@ -80,6 +84,20 @@ public class PSMColumns implements ColumnProvider<PSMBean> {
 			col = new ColumnWithVisibility(ColumnName.PSM_RATIO_SCORE, false);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.CONDITION, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PEPTIDE_DOMAIN_FAMILIES, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PEPTIDE_SECONDARY_STRUCTURE, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PEPTIDE_ACTIVE_SITE, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PEPTIDE_EXPERIMENTAL_INFO, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PEPTIDE_MOLECULAR_PROCESSING, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PEPTIDE_PTM, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PEPTIDE_NATURAL_VARIATIONS, false);
 			columns.add(col);
 		}
 		return columns;
@@ -160,6 +178,29 @@ public class PSMColumns implements ColumnProvider<PSMBean> {
 			} else {
 				return parseEmptyString("");
 			}
+		case PEPTIDE_ACTIVE_SITE:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PEPTIDE_DOMAIN_FAMILIES:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PEPTIDE_EXPERIMENTAL_INFO:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PEPTIDE_MOLECULAR_PROCESSING:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PEPTIDE_NATURAL_VARIATIONS:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PEPTIDE_SECONDARY_STRUCTURE:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PEPTIDE_PTM:
+			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case LINK_TO_PRIDE_CLUSTER:
+			return "+";
 		default:
 
 			return parseEmptyString("");

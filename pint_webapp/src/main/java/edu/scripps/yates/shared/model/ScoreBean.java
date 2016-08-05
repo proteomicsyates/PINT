@@ -6,7 +6,7 @@ import edu.scripps.yates.shared.util.NumberFormat;
 
 public class ScoreBean implements Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -4774612233108800677L;
 	private String value;
@@ -14,8 +14,7 @@ public class ScoreBean implements Serializable {
 	private String description;
 	private String scoreName;
 
-	public ScoreBean(String value, String scoreName, String scoreType,
-			String description) {
+	public ScoreBean(String value, String scoreName, String scoreType, String description) {
 		this.value = value;
 		this.scoreType = scoreType;
 		this.description = description;
@@ -92,18 +91,26 @@ public class ScoreBean implements Serializable {
 	/**
 	 * If the value is a double, it is parsed with 3 decimals. Otherwise, the
 	 * value is returned as string
-	 * 
+	 *
 	 * @return
 	 */
 	public String getParsedValue() {
 		try {
 			double doubleValue = Double.valueOf(value);
-			final NumberFormat format = NumberFormat
-					.getFormat("#.###");
+			final NumberFormat format = NumberFormat.getFormat("#.###");
 			return format.format(doubleValue);
 		} catch (NumberFormatException e) {
 			return value;
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ScoreBean [scoreName=" + scoreName + ", value=" + value + "]";
 	}
 
 }

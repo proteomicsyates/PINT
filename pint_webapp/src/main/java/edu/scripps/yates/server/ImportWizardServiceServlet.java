@@ -396,17 +396,26 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		if (dataFileName == null)
 			throw new PintException("No file to check", PINT_ERROR_TYPE.REMOTE_FILE_NOT_REACHABLE);
 		log.info("Checking file availability of '" + dataFileName.getFileName() + "'");
-		if (dataFileName.getFileName() == null || "".equals(dataFileName.getFileName()))
-			throw new PintException("File name is empty or not valid", PINT_ERROR_TYPE.MISSING_INFORMATION);
-		if (dataFileName.getFileFormat() == null)
-			throw new PintException("File format is empty or not valid", PINT_ERROR_TYPE.MISSING_INFORMATION);
+		if (dataFileName.getFileName() == null || "".equals(dataFileName.getFileName())) {
+			final String message = "File name is empty or not valid";
+			log.warn(message);
+			throw new PintException(message, PINT_ERROR_TYPE.MISSING_INFORMATION);
+		}
+		if (dataFileName.getFileFormat() == null) {
+			final String message = "File format is empty or not valid";
+			log.warn(message);
+			throw new PintException(message, PINT_ERROR_TYPE.MISSING_INFORMATION);
+		}
 
 		final File dataFile = FileManager.getDataFile(jobID, dataFileName.getFileName(), dataFileName.getId(),
 				dataFileName.getFileFormat());
 		if (!dataFile.exists()) {
-			throw new PintException("File '" + dataFileName.getFileName() + "' not found in the server",
-					PINT_ERROR_TYPE.REMOTE_FILE_NOT_REACHABLE);
+			final String message = "File '" + dataFileName.getFileName() + "' not found in the server";
+			log.warn(message);
+			throw new PintException(message, PINT_ERROR_TYPE.REMOTE_FILE_NOT_REACHABLE);
 		}
+		log.info(dataFileName.getFileName() + " with format " + dataFileName.getFileFormat().getName() + " in jobID "
+				+ jobID + " in sessionID " + sessionID + " is present and valid");
 	}
 
 	/**
@@ -1002,9 +1011,10 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			oldDataFile.delete();
 
 			// remove oldDataFile parent folder
-			if (oldDataFile.getParentFile() != null && oldDataFile.getParentFile().exists()) {
-				edu.scripps.yates.utilities.files.FileUtils.removeFolderIfEmtpy(oldDataFile.getParentFile(), true);
-			}
+			File parentFile = oldDataFile.getParentFile();
+
+			edu.scripps.yates.utilities.files.FileUtils.removeFolderIfEmtpy(parentFile, true);
+
 		}
 	}
 
@@ -1017,12 +1027,15 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 				fileNew.getFileFormat());
 
 		try {
-			if (newDataFile.exists())
+			if (newDataFile.exists()) {
 				newDataFile.delete();
+			}
 			// move the file
 			FileUtils.moveFile(oldDataFile, newDataFile);
-			// remove oldDataFile parent folder if empty
-			edu.scripps.yates.utilities.files.FileUtils.removeFolderIfEmtpy(oldDataFile.getParentFile(), true);
+			// remove oldDataFile parent folder if empty recursively
+			File parentFile = oldDataFile.getParentFile();
+
+			edu.scripps.yates.utilities.files.FileUtils.removeFolderIfEmtpy(parentFile, true);
 
 			// remove old index
 			if (fileOLD.getFileFormat() != null) { // only if has a format has

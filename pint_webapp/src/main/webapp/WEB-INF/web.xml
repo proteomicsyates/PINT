@@ -31,7 +31,7 @@
 		<!--  change to your server path -->
 	</context-param>
 
-	<!-- Local storage of files on testing server. -->
+	<!-- Local storage of files on testing server/computer. -->
 	<!-- The testing server machine must have the environment variable PINT_DEVELOPER = true -->
 	<context-param>
 		<param-name>projectFilesPath</param-name>
@@ -39,7 +39,7 @@
 		<param-value>C:\Users\Salva\Desktop\tmp\PInt</param-value>
 		<!-- change to your testing server path -->
 	</context-param>
-
+	
 	<!-- This boolean property will determine if the uniprot annotations stored in the server (at $projectFilesPathServer/uniprot folder) will be indexed or not -->
 	<!-- If you change this property after having some annotations, the proper server functioning is not assured -->
 	<context-param>
@@ -52,7 +52,7 @@
 	<!-- For requesting a new one, go to http://www.omim.org/api -->
 	<context-param>
 		<param-name>OMIM_API_KEY</param-name>
-		<param-value>51E77029B606FCD5FC89D13DDE78A404C521072C</param-value>
+		<param-value>nUQ7nH12QW6GxlhZk4bu1g</param-value>
 		<!--  include here your API key -->
 	</context-param>
 
@@ -172,6 +172,23 @@
 			<param-value>/</param-value>
 		</init-param>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>ReactomeFigures</servlet-name>
+		<servlet-class>uk.ac.ebi.pride.web.util.servlet.proxy.ProxyServlet</servlet-class>
+		<init-param>
+			<param-name>proxyHost</param-name>
+			<param-value>www.reactome.org</param-value>
+		</init-param>
+		<init-param>
+			<param-name>proxyPort</param-name>
+			<param-value>80</param-value>
+		</init-param>
+		<init-param>
+			<param-name>proxyPath</param-name>
+			<param-value>/figures</param-value>
+		</init-param>
+	</servlet>
 
 	<servlet>
 		<servlet-name>ReactomeAnalysis</servlet-name>
@@ -195,7 +212,10 @@
 		<servlet-name>ReactomeRESTfulAPI</servlet-name>
 		<url-pattern>/reactome/*</url-pattern>
 	</servlet-mapping>
-	
+	<servlet-mapping>
+		<servlet-name>ReactomeFigures</servlet-name>
+		<url-pattern>/figures/*</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ReactomeAnalysis</servlet-name>
 		<url-pattern>/reactome/AnalysisService/*</url-pattern>
@@ -210,7 +230,7 @@
 	<servlet-mapping>
 		<servlet-name>downloadServlet</servlet-name>
 		<!--     <url-pattern>/download</url-pattern> -->
-		<url-pattern>/download</url-pattern>
+		<url-pattern>/pint/download</url-pattern>
 	</servlet-mapping>
 
 	<!-- Default page to serve -->
@@ -236,11 +256,9 @@
 	
 	<servlet-mapping>
 		<servlet-name>remoteLoggingServiceImpl</servlet-name>
-		<url-pattern>/logging</url-pattern>
+		<url-pattern>/pint/logging</url-pattern>
 	</servlet-mapping>
 
-	
-	
 	<!--  welcome-file-list -->
 	<welcome-file-list>
 		<welcome-file>Pint.html</welcome-file>

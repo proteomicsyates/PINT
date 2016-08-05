@@ -72,6 +72,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	private char[] coverageArrayString;
 	private String ensemblID;
 	private Map<String, RatioDistribution> ratioDistributions;
+	private Set<UniprotFeatureBean> uniprotFeatures = new HashSet<UniprotFeatureBean>();
 
 	public ProteinBean() {
 		proteinBeanUniqueIdentifier = hashCode();
@@ -1010,6 +1011,12 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 		functions.add(function);
 	}
 
+	public void addUniprotFeature(UniprotFeatureBean uniprotFeature) {
+		if (uniprotFeatures == null)
+			uniprotFeatures = new HashSet<UniprotFeatureBean>();
+		uniprotFeatures.add(uniprotFeature);
+	}
+
 	public String getSecondaryAccessionsString() {
 		List<String> list = new ArrayList<String>();
 		StringBuilder sb = new StringBuilder();
@@ -1166,6 +1173,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 			lightVersion.thresholds.addAll(getThresholds());
 			lightVersion.conditions.addAll(conditions);
 			lightVersion.omimEntries.putAll(getOmimEntries());
+			lightVersion.uniprotFeatures.addAll(getUniprotFeatures());
 			lightVersion.setUniprotProteinExistence(getUniprotProteinExistence());
 			// allow peptides in proteins.
 			// IMPORTANT: do it after cloning all the other features of the
@@ -1366,5 +1374,23 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	public RatioDistribution getRatioDistribution(RatioBean ratio) {
 		return ratioDistributions.get(SharedDataUtils.getRatioKey(ratio));
 
+	}
+
+	/**
+	 * @return the uniprotFeatures
+	 */
+	public Set<UniprotFeatureBean> getUniprotFeatures() {
+		if (uniprotFeatures == null) {
+			uniprotFeatures = new HashSet<UniprotFeatureBean>();
+		}
+		return uniprotFeatures;
+	}
+
+	/**
+	 * @param uniprotFeatures
+	 *            the uniprotFeatures to set
+	 */
+	public void setUniprotFeatures(Set<UniprotFeatureBean> uniprotFeatures) {
+		this.uniprotFeatures = uniprotFeatures;
 	}
 }

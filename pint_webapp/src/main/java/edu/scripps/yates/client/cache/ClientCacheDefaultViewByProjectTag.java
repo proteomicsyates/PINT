@@ -10,8 +10,7 @@ import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ClientCacheDefaultViewByProjectTag implements
-		Cache<DefaultView, String> {
+public class ClientCacheDefaultViewByProjectTag implements Cache<DefaultView, String> {
 	private static final Map<String, DefaultView> map = new HashMap<String, DefaultView>();
 	private static ClientCacheDefaultViewByProjectTag instance;
 
@@ -79,6 +78,11 @@ public class ClientCacheDefaultViewByProjectTag implements
 				ret.add(getFromCache(processedKey));
 		}
 		return ret;
+	}
+
+	@Override
+	public void clearCache() {
+		map.clear();
 	}
 
 }

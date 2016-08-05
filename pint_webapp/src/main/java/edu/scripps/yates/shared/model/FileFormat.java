@@ -20,6 +20,8 @@ public enum FileFormat {
 		for (FileFormat fileFormat : values) {
 			if (fileFormat.name().equalsIgnoreCase(string))
 				return fileFormat;
+			if (fileFormat.getName().equalsIgnoreCase(string))
+				return fileFormat;
 		}
 		return null;
 	}

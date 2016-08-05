@@ -12,7 +12,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import edu.scripps.yates.client.gui.columns.ColumnManager;
+import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
 import edu.scripps.yates.client.interfaces.ItemList;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
@@ -20,9 +20,9 @@ import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements ItemList {
 	private final List<CheckBox> listCheckBox = new ArrayList<CheckBox>();
 	private final Map<ColumnName, CheckBox> map = new HashMap<ColumnName, CheckBox>();
-	private final Set<ColumnManager<T>> columnManagers = new HashSet<ColumnManager<T>>();
+	private final Set<AbstractColumnManager<T>> columnManagers = new HashSet<AbstractColumnManager<T>>();
 
-	public MyVerticalCheckBoxListPanel(ColumnManager<T> columnManager) {
+	public MyVerticalCheckBoxListPanel(AbstractColumnManager<T> columnManager) {
 		this.columnManagers.add(columnManager);
 		setSize("100%", "100%");
 		setVerticalAlignment(ALIGN_TOP);
@@ -34,7 +34,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 		}
 	}
 
-	public void addColumnManager(ColumnManager<T> columnManager) {
+	public void addColumnManager(AbstractColumnManager<T> columnManager) {
 		this.columnManagers.add(columnManager);
 	}
 
@@ -81,7 +81,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 
 	/**
 	 * This {@link ClickHandler} gets the selection from the {@link CheckBox}
-	 * source of the event and pass it to the {@link ColumnManager} to show or
+	 * source of the event and pass it to the {@link AbstractColumnManager} to show or
 	 * hide the corresponding column.
 	 *
 	 * @param column
@@ -95,7 +95,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 
 				CheckBox checkbox = (CheckBox) event.getSource();
 				final Boolean visible = checkbox.getValue();
-				for (ColumnManager<T> columnManager : columnManagers) {
+				for (AbstractColumnManager<T> columnManager : columnManagers) {
 					columnManager.setVisible(column, visible);
 				}
 			}
@@ -125,7 +125,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 				// visibility = true;
 				// }
 				//
-				for (ColumnManager<T> columnManager : columnManagers) {
+				for (AbstractColumnManager<T> columnManager : columnManagers) {
 					columnManager.setVisible(columnName, conditionName, projectTag, visibility);
 				}
 
@@ -160,7 +160,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 				// }
 				//
 
-				for (ColumnManager<T> columnManager : columnManagers) {
+				for (AbstractColumnManager<T> columnManager : columnManagers) {
 					columnManager.setVisible(columnName, condition1Name, condition2Name, projectTag, visibility);
 				}
 

@@ -57,6 +57,9 @@ public class ServerCacheProteinFileDescriptorByProjectName implements Cache<File
 	@Override
 	public boolean contains(String key) {
 		String processedKey = processKey(key);
+		if (true) {
+			return false;
+		}
 		return map.containsKey(processedKey);
 	}
 
@@ -81,4 +84,8 @@ public class ServerCacheProteinFileDescriptorByProjectName implements Cache<File
 		return ret;
 	}
 
+	@Override
+	public void clearCache() {
+		map.clear();
+	}
 }

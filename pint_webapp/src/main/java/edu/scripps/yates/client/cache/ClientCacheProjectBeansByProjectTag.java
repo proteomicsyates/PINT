@@ -10,8 +10,7 @@ import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ClientCacheProjectBeansByProjectTag implements
-		Cache<ProjectBean, String> {
+public class ClientCacheProjectBeansByProjectTag implements Cache<ProjectBean, String> {
 	private static final Map<String, ProjectBean> map = new HashMap<String, ProjectBean>();
 	private static ClientCacheProjectBeansByProjectTag instance;
 
@@ -72,5 +71,10 @@ public class ClientCacheProjectBeansByProjectTag implements
 	@Override
 	public String processKey(String key) {
 		return key;
+	}
+
+	@Override
+	public void clearCache() {
+		map.clear();
 	}
 }

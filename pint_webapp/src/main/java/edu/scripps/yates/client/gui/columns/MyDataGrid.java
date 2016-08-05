@@ -23,6 +23,7 @@ import edu.scripps.yates.shared.util.DefaultView.ORDER;
 public class MyDataGrid<T> extends DataGrid<T> {
 	private final Map<ColumnName, Set<Column<T, ?>>> columnMapByColumnName = new HashMap<ColumnName, Set<Column<T, ?>>>();
 	private boolean forceToRefresh;
+	private boolean forceToReload;
 
 	public MyDataGrid(ProvidesKey<T> keyProvider) {
 		super(keyProvider);
@@ -82,7 +83,7 @@ public class MyDataGrid<T> extends DataGrid<T> {
 	 * Calls to redrawRow to the visible rows
 	 */
 	public void redrawVisibleItems() {
-
+		setForceToRefresh(true);
 		setVisibleRangeAndClearData(getVisibleRange(), true);
 
 		// final Range visibleRange = getVisibleRange();
@@ -97,7 +98,7 @@ public class MyDataGrid<T> extends DataGrid<T> {
 		// }
 	}
 
-	public boolean isEmptyColumn(Column<T, String> column) {
+	public boolean isEmptyColumn(Column<T, ?> column) {
 		final List<T> visibleItems = getVisibleItems();
 		for (T t : visibleItems) {
 			if (!"".equals(column.getValue(t)))
@@ -106,17 +107,19 @@ public class MyDataGrid<T> extends DataGrid<T> {
 		return true;
 	}
 
-	public boolean isNumberColumn(Column<T, String> column) {
+	public boolean isNumberColumn(Column<T, ?> column) {
 		final List<T> visibleItems = getVisibleItems();
 		for (T t : visibleItems) {
-			final String value = column.getValue(t);
-			try {
-				Double.valueOf(value);
-			} catch (NumberFormatException e) {
-				if (!"".equals(value) && !"-".equals(value))
-					return false;
-			} catch (NullPointerException e) {
+			final Object value = column.getValue(t);
+			if (value instanceof String) {
+				try {
+					Double.valueOf((String) value);
+				} catch (NumberFormatException e) {
+					if (!"".equals(value) && !"-".equals(value))
+						return false;
+				} catch (NullPointerException e) {
 
+				}
 			}
 		}
 		return true;
@@ -416,6 +419,21 @@ public class MyDataGrid<T> extends DataGrid<T> {
 	 */
 	public void setForceToRefresh(boolean forceToRefresh) {
 		this.forceToRefresh = forceToRefresh;
+	}
+
+	/**
+	 * @return the forceToReload
+	 */
+	public boolean isForceToReload() {
+		return forceToReload;
+	}
+
+	/**
+	 * @param forceToReload
+	 *            the forceToReload to set
+	 */
+	public void setforceToReload(boolean forceToReload) {
+		this.forceToReload = forceToReload;
 	}
 
 }

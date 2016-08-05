@@ -48,13 +48,19 @@ import edu.scripps.yates.proteindb.queries.semantic.QueryBinaryTree;
 import edu.scripps.yates.proteindb.queries.semantic.QueryInterface;
 import edu.scripps.yates.server.adapters.AlignmentResultAdapter;
 import edu.scripps.yates.server.adapters.OrganismBeanAdapter;
+import edu.scripps.yates.server.adapters.PSMBeanAdapter;
 import edu.scripps.yates.server.adapters.ProjectBeanAdapter;
+import edu.scripps.yates.server.cache.ServerCacheGeneNameProteinProjectionsByProjectTag;
 import edu.scripps.yates.server.cache.ServerCacheOrganismBeansByProjectName;
+import edu.scripps.yates.server.cache.ServerCachePSMBeansByPSMDBId;
 import edu.scripps.yates.server.cache.ServerCacheProjectBeanByProjectTag;
+import edu.scripps.yates.server.cache.ServerCacheProteinACCProteinProjectionsByProjectTag;
 import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProjectTag;
+import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
 import edu.scripps.yates.server.cache.ServerCacheProteinBeansByQueryString;
 import edu.scripps.yates.server.cache.ServerCacheProteinFileDescriptorByProjectName;
 import edu.scripps.yates.server.cache.ServerCacheProteinGroupFileDescriptorByProjectName;
+import edu.scripps.yates.server.cache.ServerCacheProteinNameProteinProjectionsByProjectTag;
 import edu.scripps.yates.server.export.DataExporter;
 import edu.scripps.yates.server.pseaquant.PSEAQuantSender;
 import edu.scripps.yates.server.pseaquant.PSEAQuantSender.RATIO_AVERAGING;
@@ -978,10 +984,14 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			// clear map of current proteins for this sessionID
 			DataSetsManager.clearDataSet(sessionID);
 			// look into cache
-			if (ServerCacheProteinBeansByQueryString.getInstance().contains(queryInOrder)) {
-				log.info("Getting proteinBeans from cache for query: " + queryInOrder + " in session '" + sessionID
-						+ "'");
-				List<ProteinBean> ret = ServerCacheProteinBeansByQueryString.getInstance().getFromCache(queryInOrder);
+			// attach the project Tags to the queryInOrder, otherwise, if
+			// someone execute one query in one project, and then another one in
+			// other project, it would return the results of the first one.
+			String projectTagsString = getProjectTagString(projectTags);
+			String key = projectTagsString + ": " + queryInOrder;
+			if (ServerCacheProteinBeansByQueryString.getInstance().contains(key)) {
+				log.info("Getting proteinBeans from cache for query: " + key + " in session '" + sessionID + "'");
+				List<ProteinBean> ret = ServerCacheProteinBeansByQueryString.getInstance().getFromCache(key);
 				if (!ret.isEmpty()) {
 					// add to the dataset
 					for (ProteinBean proteinBean : ret) {
@@ -1003,39 +1013,49 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				task.setTaskDescription("Performing query...");
 				task.setMaxSteps(2);
 				task.setCurrentStep(1);
+
+				// clear static data by DB identifiers
+				log.info("Clearing static beans objects by DB Identifiers");
+				PSMBeanAdapter.clearStaticMaps();
+				ServerCacheProteinBeansByProteinDBId.getInstance().clearCache();
+				ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
+				// end clearing cache
+
 				QueryResult result = getQueryResultFromQuery(expressionTree, projectTags);
 
 				final Map<String, Set<QueriableProteinInterface>> proteins = result.getProteins();
 				log.info(proteins.size() + " proteins comming from command  '" + queryText + "'");
-				log.info("Creating Protein beans in session '" + sessionID + "'");
-				RemoteServicesTasks.createProteinBeansFromQueriableProteins(sessionID, proteins,
-						getHiddenPTMs(projectTags));
-				log.info("Creating Peptide beans in session '" + sessionID + "'");
-				RemoteServicesTasks.createPeptideBeansFromPeptideMap(sessionID, result.getPeptides());
-				log.info("Setting dataset ready in session '" + sessionID + "'");
-				DataSetsManager.getDataSet(sessionID, queryInOrder).setReady(true);
+				if (!proteins.isEmpty()) {
+					log.info("Creating Protein beans in session '" + sessionID + "'");
+					RemoteServicesTasks.createProteinBeansFromQueriableProteins(sessionID, proteins,
+							getHiddenPTMs(projectTags));
+					log.info("Creating Peptide beans in session '" + sessionID + "'");
+					RemoteServicesTasks.createPeptideBeansFromPeptideMap(sessionID, result.getPeptides());
+					log.info("Setting dataset ready in session '" + sessionID + "'");
+					DataSetsManager.getDataSet(sessionID, queryInOrder).setReady(true);
 
-				log.info("Getting UniprotKB annotations in session '" + sessionID + "'");
-				task.setTaskDescription("Retrieving UniprotKB annotations in session '" + sessionID + "'");
-				task.incrementProgress(1);
-				log.info(DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins().size()
-						+ " protein before annotate");
-				RemoteServicesTasks.annotateProteinsUNIPROT(
-						DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(), null,
-						getHiddenPTMs(projectTags));
-				log.info(DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins().size()
-						+ " protein after annotate");
-				log.info("Getting OMIM annotations in session '" + sessionID + "'");
-				task.setTaskDescription("Retrieving OMIM annotations...");
-				task.incrementProgress(1);
-				RemoteServicesTasks.annotateProteinsOMIM(
-						DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(), ServletContextProperty
-								.getServletContextProperty(getServletContext(), ServletContextProperty.OMIM_API_KEY));
-
+					log.info("Getting UniprotKB annotations in session '" + sessionID + "'");
+					task.setTaskDescription("Retrieving UniprotKB annotations in session '" + sessionID + "'");
+					task.incrementProgress(1);
+					log.info(DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins().size()
+							+ " protein before annotate");
+					RemoteServicesTasks.annotateProteinsUNIPROT(
+							DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(), null,
+							getHiddenPTMs(projectTags));
+					log.info(DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins().size()
+							+ " protein after annotate");
+					log.info("Getting OMIM annotations in session '" + sessionID + "'");
+					task.setTaskDescription("Retrieving OMIM annotations...");
+					task.incrementProgress(1);
+					RemoteServicesTasks.annotateProteinsOMIM(
+							DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(),
+							ServletContextProperty.getServletContextProperty(getServletContext(),
+									ServletContextProperty.OMIM_API_KEY));
+				}
 				// add to cache by query if not empty
 				if (!DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins().isEmpty()) {
-					ServerCacheProteinBeansByQueryString.getInstance().addtoCache(
-							DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(), queryInOrder);
+					ServerCacheProteinBeansByQueryString.getInstance()
+							.addtoCache(DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(), key);
 				}
 
 				QueryResultSubLists ret = getQueryResultSubListsFromDataSet(sessionID, projectTags,
@@ -1050,6 +1070,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			if (e instanceof PintException) {
+				throw (PintException) e;
+			}
+
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
 			// release task
@@ -1955,9 +1979,23 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	@Override
-	public String getPublicDataSetURL(String sessionID) throws PintException {
+	public FileDescriptor getDownloadLinkForReactomeAnalysisResult(String sessionID) throws PintException {
 		try {
-			return DataExporter.exportProteinsForReactome(sessionID);
+			File file = DataExporter.exportProteinsForReactome(sessionID, getServletContext());
+			if (file != null && file.exists()) {
+				// prepare the return
+				FileDescriptor ret = new FileDescriptor(FilenameUtils.getName(file.getAbsolutePath()),
+						FileManager.getFileSizeString(file));
+				log.info("File for reactome created at: " + file.getAbsolutePath());
+				log.info("File will be at http://sealion.scripps.edu/pint/download?" + SharedConstants.FILE_TO_DOWNLOAD
+						+ "=" + FilenameUtils.getName(file.getAbsolutePath()) + "&" + SharedConstants.FILE_TYPE + "="
+						+ SharedConstants.REACTOME_ANALYSIS_RESULT_FILE_TYPE);
+				return ret;
+			} else {
+				throw new PintException(
+						"DataSet is not ready of there was an error while creating the file to be accessed by reactome",
+						PINT_ERROR_TYPE.DATA_EXPORTER_ERROR);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -1995,6 +2033,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			throws PintException {
 		try {
 			log.info("Retrieving protein projections by accession for project '" + projectTag + "'");
+			if (ServerCacheProteinACCProteinProjectionsByProjectTag.getInstance().contains(projectTag)) {
+				log.info("Protein projections for protein ACC are in server cache");
+				return ServerCacheProteinACCProteinProjectionsByProjectTag.getInstance().getFromCache(projectTag);
+			}
 			final Criteria cr = PreparedCriteria.getCriteriaForProteinProjectionByProteinACCInProject(projectTag);
 			// transform the results in ProteinProjections
 			cr.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class));
@@ -2015,6 +2057,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					ret.put(proteinProjection.getAcc(), set);
 				}
 			}
+			ServerCacheProteinACCProteinProjectionsByProjectTag.getInstance().addtoCache(ret, projectTag);
 			return ret;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2032,6 +2075,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			throws PintException {
 		try {
 			log.info("Retrieving protein projections by gene name for project '" + projectTag + "'");
+			if (ServerCacheGeneNameProteinProjectionsByProjectTag.getInstance().contains(projectTag)) {
+				log.info("Protein projections for protein name are in server cache");
+				return ServerCacheGeneNameProteinProjectionsByProjectTag.getInstance().getFromCache(projectTag);
+			}
 			final Criteria cr = PreparedCriteria.getCriteriaForProteinProjectionByGeneNameInProject(projectTag);
 			// transform the results in ProteinProjections
 			cr.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class));
@@ -2052,6 +2099,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					ret.put(proteinProjection.getGene(), set);
 				}
 			}
+			ServerCacheGeneNameProteinProjectionsByProjectTag.getInstance().addtoCache(ret, projectTag);
 			return ret;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2069,6 +2117,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			throws PintException {
 		try {
 			log.info("Retrieving protein projections by protein name for project '" + projectTag + "'");
+			if (ServerCacheProteinNameProteinProjectionsByProjectTag.getInstance().contains(projectTag)) {
+				log.info("Protein projections for protein name are in server cache");
+				return ServerCacheProteinNameProteinProjectionsByProjectTag.getInstance().getFromCache(projectTag);
+			}
 			final Criteria cr = PreparedCriteria.getCriteriaForProteinProjectionByProteinNameInProject(projectTag);
 			// transform the results in ProteinProjections
 			cr.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class));
@@ -2089,6 +2141,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					ret.put(proteinProjection.getDescription(), set);
 				}
 			}
+			ServerCacheProteinNameProteinProjectionsByProjectTag.getInstance().addtoCache(ret, projectTag);
 			return ret;
 		} catch (Exception e) {
 			e.printStackTrace();

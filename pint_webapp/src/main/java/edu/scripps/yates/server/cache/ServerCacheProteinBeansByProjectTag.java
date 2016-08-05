@@ -13,7 +13,7 @@ import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.util.SharedConstants;
 
 public class ServerCacheProteinBeansByProjectTag implements Cache<List<ProteinBean>, String> {
-	private static final HashMap<String, List<ProteinBean>> cachedProteinBeans = new HashMap<String, List<ProteinBean>>();
+	private static final HashMap<String, List<ProteinBean>> map = new HashMap<String, List<ProteinBean>>();
 	private static final Logger log = Logger.getLogger(ServerCacheDefaultViewByProjectTag.class);
 	private static ServerCacheProteinBeansByProjectTag instance;
 	private static final boolean ENABLED = true;
@@ -33,27 +33,27 @@ public class ServerCacheProteinBeansByProjectTag implements Cache<List<ProteinBe
 	public void addtoCache(List<ProteinBean> proteins, String key) {
 		if (SharedConstants.SERVER_CACHE_ENABLED && ENABLED && proteins != null && !proteins.isEmpty()) {
 			log.info("Adding to cache " + proteins.size() + " proteins with key: " + key);
-			if (cachedProteinBeans.containsKey(key)) {
-				cachedProteinBeans.get(key).addAll(proteins);
+			if (map.containsKey(key)) {
+				map.get(key).addAll(proteins);
 			} else {
-				cachedProteinBeans.put(key, proteins);
+				map.put(key, proteins);
 			}
 		}
 	}
 
 	@Override
 	public List<ProteinBean> getFromCache(String key) {
-		return cachedProteinBeans.get(key);
+		return map.get(key);
 	}
 
 	@Override
 	public void removeFromCache(String key) {
-		cachedProteinBeans.remove(key);
+		map.remove(key);
 	}
 
 	@Override
 	public boolean contains(String key) {
-		return cachedProteinBeans.containsKey(key);
+		return map.containsKey(key);
 	}
 
 	@Override
@@ -79,5 +79,10 @@ public class ServerCacheProteinBeansByProjectTag implements Cache<List<ProteinBe
 	public String processKey(String key) {
 
 		return key;
+	}
+
+	@Override
+	public void clearCache() {
+		map.clear();
 	}
 }

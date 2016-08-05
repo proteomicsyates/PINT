@@ -3,9 +3,11 @@ package edu.scripps.yates.server.util;
 import java.util.Collection;
 import java.util.List;
 
+import edu.scripps.yates.annotations.uniprot.ProteinImplFromUniprotEntry;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ProteinBean;
+import edu.scripps.yates.shared.model.UniprotFeatureBean;
 import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.utilities.strings.StringUtils;
 
@@ -43,7 +45,7 @@ public class ServerDataUtils {
 				final String pepSeq = psmBean.getSequence();
 				if (pepSeq != null && !"".equals(pepSeq)) {
 					String specialString = getSpecialString(pepSeq.length());
-					List<Integer> positions = StringUtils.allIndexOf(proteinSeq, pepSeq);
+					List<Integer> positions = StringUtils.allPositionsOf(proteinSeq, pepSeq);
 					if (!positions.isEmpty()) {
 						for (Integer position : positions) {
 							psmBean.addPositionByProtein(accession, position);
@@ -60,7 +62,7 @@ public class ServerDataUtils {
 				final String pepSeq = peptideBean.getSequence();
 				if (pepSeq != null && !"".equals(pepSeq)) {
 					String specialString = getSpecialString(pepSeq.length());
-					List<Integer> positions = StringUtils.allIndexOf(proteinSeq, pepSeq);
+					List<Integer> positions = StringUtils.allPositionsOf(proteinSeq, pepSeq);
 					if (!positions.isEmpty()) {
 						for (Integer position : positions) {
 							peptideBean.addPositionByProtein(accession, position);
@@ -73,7 +75,7 @@ public class ServerDataUtils {
 			}
 		}
 		// calculate the protein coverage
-		final int numberOfCoveredAA = StringUtils.allIndexOf(proteinSeqTMP.toString(), SPECIAL_CHARACTER).size();
+		final int numberOfCoveredAA = StringUtils.allPositionsOf(proteinSeqTMP.toString(), SPECIAL_CHARACTER).size();
 		double coverage = Double.valueOf(numberOfCoveredAA) / Double.valueOf(proteinSeq.length());
 
 		char[] coveredSequenceArray = new char[proteinSeqTMP.length()];
@@ -102,4 +104,64 @@ public class ServerDataUtils {
 		}
 		return sb.toString();
 	}
+
+	/**
+	 * Parse a string for getting the {@link UniprotFeatureBean}. The string has
+	 * been encoded in {@link ProteinImplFromUniprotEntry}.
+	 *
+	 * @param value
+	 * @param value
+	 * @param string2
+	 * @return
+	 */
+	public static UniprotFeatureBean getFromValue(String featureType, String name, String value) {
+		final String annotationSeparator = ProteinImplFromUniprotEntry.ANNOTATION_SEPARATOR;
+		UniprotFeatureBean ret = new UniprotFeatureBean();
+
+		ret.setFeatureType(featureType);
+		if (name != null) {
+			ret.setDescription(name);
+		}
+		if (value != null && value.contains(annotationSeparator)) {
+			final String[] split = value.split(annotationSeparator);
+			for (String string : split) {
+				if (string.contains(":")) {
+					final String[] split2 = string.split(":");
+					String type = split2[0].trim();
+					String tmp = split2[1].trim();
+					if (type.equals("status")) {
+						ret.setStatus(tmp);
+					} else if (type.equals("ref")) {
+						ret.setRef(tmp);
+					} else if (type.equals("begin")) {
+						try {
+							ret.setPositionStart(Integer.valueOf(tmp));
+						} catch (NumberFormatException e) {
+
+						}
+					} else if (type.equals("end")) {
+						try {
+							ret.setPositionEnd(Integer.valueOf(tmp));
+						} catch (NumberFormatException e) {
+
+						}
+					} else if (type.equals("original")) {
+						ret.setOriginal(tmp);
+					} else if (type.equals("id")) {
+						ret.setDescription(tmp);
+					} else if (type.equals("position")) {
+						try {
+							ret.setPositionStart(Integer.valueOf(tmp));
+							ret.setPositionEnd(Integer.valueOf(tmp));
+						} catch (NumberFormatException e) {
+
+						}
+					}
+				}
+			}
+
+		}
+		return ret;
+	}
+
 }

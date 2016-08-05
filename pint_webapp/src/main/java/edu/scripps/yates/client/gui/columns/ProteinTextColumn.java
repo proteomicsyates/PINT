@@ -26,8 +26,9 @@ import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.NumberFormat;
 import edu.scripps.yates.shared.util.SharedConstants;
+import edu.scripps.yates.shared.util.UniprotFeatures;
 
-public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements MyColumn<ProteinBean> {
+public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements MyIdColumn<ProteinBean> {
 	private final HtmlTemplates template = GWT.create(HtmlTemplates.class);
 
 	private final ColumnName columnName;
@@ -150,6 +151,21 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			return 200;
 		case PROTEIN_RATIO_GRAPH:
 			return 100;
+		case PROTEIN_DOMAIN_FAMILIES:
+			return 150;
+		case PROTEIN_ACTIVE_SITE:
+			return 150;
+		case PROTEIN_EXPERIMENTAL_INFO:
+			return 150;
+		case PROTEIN_MOLECULAR_PROCESSING:
+			return 150;
+		case PROTEIN_PTM:
+			return 150;
+		case PROTEIN_NATURAL_VARIATIONS:
+			return 150;
+		case PROTEIN_SECONDARY_STRUCTURE:
+			return 150;
+
 		default:
 			throw new IllegalArgumentException("Default width not defined for column: " + columnName.getName());
 		}
@@ -318,6 +334,36 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			if (!ratios.isEmpty()) {
 				sb.append(ClientSafeHtmlUtils.getRatioGraphic(p, ratios.get(0)));
 			}
+			break;
+
+		case PROTEIN_ACTIVE_SITE:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+
+		case PROTEIN_DOMAIN_FAMILIES:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PROTEIN_NATURAL_VARIATIONS:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PROTEIN_SECONDARY_STRUCTURE:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PROTEIN_EXPERIMENTAL_INFO:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PROTEIN_MOLECULAR_PROCESSING:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case PROTEIN_PTM:
+			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
+					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
 			break;
 		default:
 			sb.append(template.startToolTip(ProteinColumns.getInstance().getValue(columnName, p, conditionName,

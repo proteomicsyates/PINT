@@ -17,4 +17,6 @@ public interface Cache<T, V> {
 	boolean containsAll(Collection<V> keys);
 
 	public V processKey(V key);
+
+	public void clearCache();
 }

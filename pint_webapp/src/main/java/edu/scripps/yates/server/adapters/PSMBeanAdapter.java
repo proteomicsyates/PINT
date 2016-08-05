@@ -17,40 +17,46 @@ import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet2PSMLink;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
-import edu.scripps.yates.shared.model.AccessionBean;
+import edu.scripps.yates.server.cache.ServerCachePSMBeansByPSMDBId;
 import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.ScoreBean;
 
 public class PSMBeanAdapter implements Adapter<PSMBean> {
 	private static Map<String, Integer> staticPsmIdentifierByRunID = new HashMap<String, Integer>();
 	private static int staticPsmIdentifier = 0;
 	private final QueriablePsm queriablePsm;
-	private final static Map<Integer, PSMBean> map = new HashMap<Integer, PSMBean>();
 	private final Collection<String> hiddenPTMs;
+
+	public static void clearStaticMaps() {
+		staticPsmIdentifierByRunID.clear();
+	}
 
 	public PSMBeanAdapter(QueriablePsm queriablePsm, Collection<String> hiddenPTMs) {
 		this.queriablePsm = queriablePsm;
 		this.hiddenPTMs = hiddenPTMs;
 	}
 
-	public static PSMBean getPSMBeanByDBId(int psmDBId) {
-		return map.get(psmDBId);
-	}
-
 	@Override
 	public PSMBean adapt() {
 		Psm psm = queriablePsm.getPsm();
-		if (map.containsKey(psm.getId())) {
-			final PSMBean psmBean = map.get(psm.getId());
+		if (ServerCachePSMBeansByPSMDBId.getInstance().contains(psm.getId())) {
+			final PSMBean psmBean = ServerCachePSMBeansByPSMDBId.getInstance().getFromCache(psm.getId());
 			// even if the psmBean was already created, add the corresponding
 			// proteinbeans
+
+			// TEST
+			final ScoreBean scoreByName = psmBean.getScoreByName("SEQUEST:xcorr");
+			if (scoreByName != null && Double.valueOf(scoreByName.getValue()) < 7) {
+				System.out.println(scoreByName.getValue());
+			}
 			addProteinBeans(psmBean, queriablePsm);
 			return psmBean;
 		}
 		PSMBean ret = new PSMBean();
-		map.put(psm.getId(), ret);
+		ServerCachePSMBeansByPSMDBId.getInstance().addtoCache(ret, psm.getId());
 		ret.setDbID(psm.getId());
 		ret.setChargeState(psm.getChargeState());
 		ret.setCalculatedMH(psm.getCalMh());
@@ -115,17 +121,19 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 	}
 
 	private void addProteinBeans(PSMBean psmBean, QueriablePsm queriablePsm2) {
-		List<AccessionBean> primaryAccessions = new ArrayList<AccessionBean>();
+		// List<AccessionBean> primaryAccessions = new
+		// ArrayList<AccessionBean>();
 
-		for (QueriableProteinSet2PSMLink link : queriablePsm2.getProteinSetLinks()) {
+		for (LinkBetweenQueriableProteinSetAndPSM link : queriablePsm2.getProteinSetLinks()) {
 			QueriableProteinSet queriableProtein = link.getQueriableProtein();
 			psmBean.getProteinDBIds().addAll(queriableProtein.getProteinDBIds());
 
-			final AccessionBean accession = new AccessionBeanAdapter(queriableProtein.getPrimaryProteinAccession())
-					.adapt();
-			if (!primaryAccessions.contains(accession)) {
-				primaryAccessions.add(accession);
-			}
+			// final AccessionBean accession = new
+			// AccessionBeanAdapter(queriableProtein.getPrimaryProteinAccession())
+			// .adapt();
+			// if (!primaryAccessions.contains(accession)) {
+			// primaryAccessions.add(accession);
+			// }
 
 			if (queriableProtein.getOrganism() != null && queriableProtein.getOrganism().getName() != null) {
 				psmBean.addOrganism(new OrganismBeanAdapter(queriableProtein.getOrganism()).adapt());

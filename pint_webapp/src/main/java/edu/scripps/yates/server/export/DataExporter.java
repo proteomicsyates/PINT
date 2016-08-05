@@ -15,9 +15,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import javax.servlet.ServletContext;
 
-import com.google.gwt.user.client.Window;
+import org.apache.log4j.Logger;
 
 import edu.scripps.yates.client.exceptions.PintException;
 import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
@@ -25,6 +25,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.server.DataSet;
 import edu.scripps.yates.server.DataSetsManager;
+import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProjectTag;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.shared.columns.ColumnName;
@@ -33,6 +34,7 @@ import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.PSMColumns;
 import edu.scripps.yates.shared.columns.ProteinColumns;
 import edu.scripps.yates.shared.columns.ProteinGroupColumns;
+import edu.scripps.yates.shared.model.AccessionType;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.ProteinBean;
@@ -87,11 +89,21 @@ public class DataExporter {
 
 			for (String projectTag : projectTags) {
 				log.info("Exporting proteins from project: " + projectTag);
-				final Map<String, Set<Protein>> proteinMap = RemoteServicesTasks.getProteinsFromProject(null,
-						projectTag, null, hiddenPTMs, omimAPIKey);
+				Set<ProteinBean> proteinBeans = null;
+				if (ServerCacheProteinBeansByProjectTag.getInstance().contains(projectTag)) {
+					final List<ProteinBean> fromCache = ServerCacheProteinBeansByProjectTag.getInstance()
+							.getFromCache(projectTag);
+					proteinBeans = new HashSet<ProteinBean>();
+					proteinBeans.addAll(fromCache);
+				} else {
+					final Map<String, Set<Protein>> proteinMap = RemoteServicesTasks.getProteinsFromProject(null,
+							projectTag, null, hiddenPTMs, omimAPIKey);
 
-				final Set<ProteinBean> proteinBeans = RemoteServicesTasks.createProteinBeans(null, proteinMap,
-						hiddenPTMs);
+					proteinBeans = RemoteServicesTasks.createProteinBeans(null, proteinMap, hiddenPTMs);
+					List<ProteinBean> list = new ArrayList<ProteinBean>();
+					list.addAll(proteinBeans);
+					ServerCacheProteinBeansByProjectTag.getInstance().addtoCache(list, projectTag);
+				}
 
 				int i = 0;
 				log.info("Now iterating proteins to write the file");
@@ -171,14 +183,25 @@ public class DataExporter {
 					ProteinGroupColumns.getInstance(), PSMColumns.getInstance());
 
 			for (String projectTag : projectTags) {
+				Set<ProteinBean> proteinBeans = null;
+				if (ServerCacheProteinBeansByProjectTag.getInstance().contains(projectTag)) {
+					final List<ProteinBean> fromCache = ServerCacheProteinBeansByProjectTag.getInstance()
+							.getFromCache(projectTag);
+					proteinBeans = new HashSet<ProteinBean>();
+					proteinBeans.addAll(fromCache);
+				} else {
+					final Map<String, Set<Protein>> proteinMap = RemoteServicesTasks.getProteinsFromProject(null,
+							projectTag, null, hiddenPTMs, omimAPIKey);
 
-				Map<String, Set<Protein>> proteinMap = RemoteServicesTasks.getProteinsFromProject(null, projectTag,
-						null, hiddenPTMs, omimAPIKey);
-				Set<ProteinBean> proteins = RemoteServicesTasks.createProteinBeans(null, proteinMap, hiddenPTMs);
-				if (proteins.isEmpty()) {
+					proteinBeans = RemoteServicesTasks.createProteinBeans(null, proteinMap, hiddenPTMs);
+					List<ProteinBean> list = new ArrayList<ProteinBean>();
+					list.addAll(proteinBeans);
+					ServerCacheProteinBeansByProjectTag.getInstance().addtoCache(list, projectTag);
+				}
+				if (proteinBeans.isEmpty()) {
 					throw new PintException("No proteins to export", PINT_ERROR_TYPE.DATA_EXPORTER_ERROR);
 				}
-				final List<ProteinGroupBean> proteinGroups = RemoteServicesTasks.groupProteins(proteins,
+				final List<ProteinGroupBean> proteinGroups = RemoteServicesTasks.groupProteins(proteinBeans,
 						separateNonConclusiveProteins);
 				for (ProteinGroupBean proteinGroup : proteinGroups) {
 					writeProteinGroupRow(fw, proteinGroup, projectTag, projectTags, conditionsByProject,
@@ -507,8 +530,6 @@ public class DataExporter {
 		final List<ColumnWithVisibility> proteinColumns = proteinColumnProvider.getColumns();
 		for (ColumnWithVisibility columnWithOrder : proteinColumns) {
 
-			if (columnWithOrder == null)
-				log.info("asdf");
 			log.info(columnWithOrder.getColumn());
 			if (columnWithOrder.getColumn() == ColumnName.PROTEIN_AMOUNT) {
 
@@ -843,29 +864,36 @@ public class DataExporter {
 		return string;
 	}
 
-	public static String exportProteinsForReactome(String sessionID) throws PintException {
-		final String fileName = "Reactome_" + sessionID + "_" + System.currentTimeMillis() + ".csv";
-		File outFile = FileManager.getDownloadFile(fileName);
+	public static File exportProteinsForReactome(String sessionID, ServletContext servletContext) throws PintException {
+		final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
+		if (dataSet == null || dataSet.isEmpty() || !dataSet.isReady()) {
+			throw new PintException("DataSet is not ready or is empty", PINT_ERROR_TYPE.DATA_EXPORTER_ERROR);
+		}
+		// final String fileName = "Reactome_" + sessionID + ".txt";
+		// TODO
+		final String fileName = "Reactome.txt";
+		File outFile = FileManager.getReactomeFile(fileName);
 		BufferedWriter bw = null;
 		try {
 			FileWriter fw = new FileWriter(outFile.getAbsoluteFile());
 			bw = new BufferedWriter(fw);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
+
 			final List<ProteinGroupBean> proteinGroups = dataSet.getProteinGroups(false);
 			bw.write("PROTEINS\n");
 			for (ProteinGroupBean proteinGroupBean : proteinGroups) {
 				for (ProteinBean proteinBean : proteinGroupBean) {
 					if (proteinBean.getEvidence() != ProteinEvidence.NONCONCLUSIVE) {
-						bw.write(proteinBean.getPrimaryAccession().getAccession());
-						bw.write("\n");
+						// only proteins with uniprot accession
+						if (proteinBean.getPrimaryAccession().getAccessionType() == AccessionType.UNIPROT) {
+							bw.write(proteinBean.getPrimaryAccession().getAccession());
+							bw.write("\n");
+						}
 						break;
 					}
 				}
 			}
-			final String href = Window.Location.getProtocol() + "//" + Window.Location.getHost() + "/pint/download?"
-					+ SharedConstants.FILE_TO_DOWNLOAD + "=" + fileName + "&" + SharedConstants.FILE_TYPE + "="
-					+ SharedConstants.ID_DATA_FILE_TYPE;
-			return href;
+
+			return outFile;
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.REACTOME_INPUT_FILE_GENERATION_ERROR);

@@ -1,8 +1,8 @@
 package edu.scripps.yates.client.interfaces;
 
-public interface RefreshData {
+public interface ContainsData {
 	public void refreshData();
 
-	public void forceReloadData();
+	public void reloadData();
 
 }

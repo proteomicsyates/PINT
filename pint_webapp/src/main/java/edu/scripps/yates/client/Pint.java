@@ -83,7 +83,7 @@ public class Pint implements EntryPoint {
 
 	private void showLoadingDialog(String text) {
 		if (loadingDialog == null)
-			loadingDialog = MyDialogBox.getInstance(text, true, true);
+			loadingDialog = new MyDialogBox(text, true, true, null);
 		loadingDialog.setText(text);
 		loadingDialog.center();
 	}
@@ -129,8 +129,8 @@ public class Pint implements EntryPoint {
 
 			}
 			if (decodedProjectTag == null) {
-				final MyDialogBox instance = MyDialogBox.getInstance(
-						"PINT doesn't recognize the encrypted code as a valid project identifier", true, true);
+				final MyDialogBox instance = new MyDialogBox(
+						"PINT doesn't recognize the encrypted code as a valid project identifier", true, true, null);
 				instance.setShowLoadingBar(false);
 				instance.center();
 				return;
@@ -184,7 +184,7 @@ public class Pint implements EntryPoint {
 			}
 			History.newItem(TargetHistory.QUERY.getTargetHistory());
 		} else {
-			PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, "No projects selected",
+			PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true, "No projects selected",
 					"You need to select one project before to query the data.\nClick here to go to Browse menu.",
 					TargetHistory.BROWSE);
 			popup.show();
@@ -237,7 +237,7 @@ public class Pint implements EntryPoint {
 				if (historyToken.contains(TargetHistory.QUERY.getTargetHistory())) {
 					// queryPanel is suppose to be already created
 					if (queryPanel == null || queryPanel.getLoadedProjects().isEmpty()) {
-						PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, "No projects selected",
+						PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true, "No projects selected",
 								"You need to select one project before to query the data.\nClick here to go to Browse menu.",
 								TargetHistory.BROWSE);
 						popup.show();

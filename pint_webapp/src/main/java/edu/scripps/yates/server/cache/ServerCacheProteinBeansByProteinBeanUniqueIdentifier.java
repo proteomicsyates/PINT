@@ -8,9 +8,8 @@ import java.util.Set;
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.ProteinBean;
 
-public class ServerCacheProteinBeansByProteinBeanUniqueIdentifier implements
-		Cache<ProteinBean, Integer> {
-	private static final HashMap<Integer, ProteinBean> cachedProteinBeans = new HashMap<Integer, ProteinBean>();
+public class ServerCacheProteinBeansByProteinBeanUniqueIdentifier implements Cache<ProteinBean, Integer> {
+	private static final HashMap<Integer, ProteinBean> map = new HashMap<Integer, ProteinBean>();
 
 	private static ServerCacheProteinBeansByProteinBeanUniqueIdentifier instance;
 
@@ -28,22 +27,22 @@ public class ServerCacheProteinBeansByProteinBeanUniqueIdentifier implements
 	@Override
 	public void addtoCache(ProteinBean protein, Integer key) {
 		// if (SharedConstants.SERVER_CACHE_ENABLED)
-		cachedProteinBeans.put(key, protein);
+		map.put(key, protein);
 	}
 
 	@Override
 	public ProteinBean getFromCache(Integer key) {
-		return cachedProteinBeans.get(key);
+		return map.get(key);
 	}
 
 	@Override
 	public void removeFromCache(Integer key) {
-		cachedProteinBeans.remove(key);
+		map.remove(key);
 	}
 
 	@Override
 	public boolean contains(Integer key) {
-		return cachedProteinBeans.containsKey(key);
+		return map.containsKey(key);
 	}
 
 	@Override
@@ -69,5 +68,10 @@ public class ServerCacheProteinBeansByProteinBeanUniqueIdentifier implements
 	public Integer processKey(Integer key) {
 
 		return key;
+	}
+
+	@Override
+	public void clearCache() {
+		map.clear();
 	}
 }

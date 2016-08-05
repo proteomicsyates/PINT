@@ -2,9 +2,11 @@ package edu.scripps.yates.client.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
@@ -21,6 +23,8 @@ import edu.scripps.yates.shared.model.AccessionType;
 import edu.scripps.yates.shared.model.GeneBean;
 import edu.scripps.yates.shared.model.OmimEntryBean;
 import edu.scripps.yates.shared.model.OrganismBean;
+import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.PeptideRelation;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ProteinEvidence;
@@ -28,6 +32,7 @@ import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDistribution;
 import edu.scripps.yates.shared.model.ScoreBean;
+import edu.scripps.yates.shared.model.UniprotFeatureBean;
 import edu.scripps.yates.shared.model.UniprotProteinExistence;
 import edu.scripps.yates.shared.model.interfaces.ContainsGenes;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
@@ -796,6 +801,185 @@ public class ClientSafeHtmlUtils {
 
 		}
 
+		return sb.toString();
+	}
+
+	public static SafeHtml getUniprotFeatureSafeHtml(ProteinBean p, String... featureTypes) {
+		final Map<String, Set<UniprotFeatureBean>> uniprotFeatures = new HashMap<String, Set<UniprotFeatureBean>>();
+		for (String featureType : featureTypes) {
+			final Set<UniprotFeatureBean> uniprotFeaturesByFeatureType = SharedDataUtils
+					.getUniprotFeaturesByFeatureType(p.getUniprotFeatures(), featureType);
+			if (uniprotFeatures.containsKey(featureType)) {
+				uniprotFeatures.get(featureType).addAll(uniprotFeaturesByFeatureType);
+			} else {
+				Set<UniprotFeatureBean> set = new HashSet<UniprotFeatureBean>();
+				set.addAll(uniprotFeaturesByFeatureType);
+				uniprotFeatures.put(featureType, set);
+			}
+		}
+		SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		for (String uniprotFeatureString : uniprotFeatures.keySet()) {
+			final Set<UniprotFeatureBean> set = uniprotFeatures.get(uniprotFeatureString);
+			if (set.isEmpty()) {
+				continue;
+			}
+			sb.append(template.startToolTipWithClass(uniprotFeatureString, "featureType"));
+			sb.appendEscaped(uniprotFeatureString);
+			sb.append(template.endToolTip());
+
+			for (UniprotFeatureBean uniprotFeature : set) {
+				String toolTipText = getToolTipFromUniprotFeature(uniprotFeature);
+				sb.append(template.startToolTip(toolTipText));
+				if (uniprotFeature.getDescription() != null) {
+					sb.appendEscaped(uniprotFeature.getDescription());
+				} else {
+					sb.appendEscaped(uniprotFeature.getFeatureType());
+				}
+				if (uniprotFeature.getPositionStart() > -1) {
+					if (uniprotFeature.getPositionStart() == uniprotFeature.getPositionEnd()) {
+						sb.appendEscaped(" (").append(uniprotFeature.getPositionStart()).appendEscaped(")");
+					} else {
+						sb.appendEscaped(" (").append(uniprotFeature.getPositionStart()).appendEscaped("-")
+								.append(uniprotFeature.getPositionEnd()).appendEscaped(")");
+					}
+				}
+				sb.append(template.endToolTip());
+			}
+		}
+		return sb.toSafeHtml();
+	}
+
+	public static String getDownloadURL(String fileName, String fileType) {
+
+		// return Window.Location.getProtocol() + "//" +
+		// Window.Location.getHost() + "/pint/download?"
+		// + SharedConstants.FILE_TO_DOWNLOAD + "=" + fileName + "&" +
+		// SharedConstants.FILE_TYPE + "=" + fileType;
+
+		return GWT.getModuleBaseURL() + "download?" + SharedConstants.FILE_TO_DOWNLOAD + "=" + fileName + "&"
+				+ SharedConstants.FILE_TYPE + "=" + fileType;
+
+		// return GWT.getModuleBaseURL() + "download?" +
+		// SharedConstants.FILE_TO_DOWNLOAD + "=" + fileName + "&"
+		// + SharedConstants.FILE_TYPE + "=" + fileType;
+	}
+
+	public static SafeHtml getUniprotFeatureSafeHtml(PSMBean p, String... featureTypes) {
+		final Map<String, List<Integer>> startingPositions = p.getStartingPositions();
+		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
+		final Set<ProteinBean> proteins = p.getProteins();
+		final Map<String, ProteinBean> proteinBeanByAccession = SharedDataUtils
+				.getProteinBeansByPrimaryAccession(proteins);
+		// get a list of proteins according to the order of the primary
+		// accessions
+		List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
+		for (AccessionBean acc : primaryAccessions) {
+			proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
+		}
+		return getUniprotFeatureSafeHtml(startingPositions, proteinBeanList, featureTypes);
+	}
+
+	public static SafeHtml getUniprotFeatureSafeHtml(PeptideBean p, String... featureTypes) {
+		final Map<String, List<Integer>> startingPositions = p.getStartingPositions();
+		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
+		final Set<ProteinBean> proteins = p.getProteins();
+		final Map<String, ProteinBean> proteinBeanByAccession = SharedDataUtils
+				.getProteinBeansByPrimaryAccession(proteins);
+		// get a list of proteins according to the order of the primary
+		// accessions
+		List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
+		for (AccessionBean acc : primaryAccessions) {
+			proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
+		}
+		return getUniprotFeatureSafeHtml(startingPositions, proteinBeanList, featureTypes);
+	}
+
+	private static SafeHtml getUniprotFeatureSafeHtml(Map<String, List<Integer>> startingPositionsByProtein,
+			List<ProteinBean> proteinBeans, String... featureTypes) {
+		SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		for (ProteinBean p : proteinBeans) {
+			if (startingPositionsByProtein.containsKey(p.getPrimaryAccession().getAccession())) {
+				final Map<String, Set<UniprotFeatureBean>> uniprotFeatures = new HashMap<String, Set<UniprotFeatureBean>>();
+				for (String featureType : featureTypes) {
+					Set<UniprotFeatureBean> uniprotFeaturesByFeatureType = SharedDataUtils
+							.getUniprotFeaturesByFeatureType(p.getUniprotFeatures(), featureType);
+					if (uniprotFeatures.containsKey(featureType)) {
+						uniprotFeatures.get(featureType).addAll(uniprotFeaturesByFeatureType);
+					} else {
+						Set<UniprotFeatureBean> set = new HashSet<UniprotFeatureBean>();
+						set.addAll(uniprotFeaturesByFeatureType);
+						uniprotFeatures.put(featureType, set);
+					}
+				}
+				for (String uniprotFeatureString : uniprotFeatures.keySet()) {
+					final Set<UniprotFeatureBean> set = uniprotFeatures.get(uniprotFeatureString);
+					if (set.isEmpty()) {
+						continue;
+					}
+					for (UniprotFeatureBean uniprotFeature : set) {
+						// only consider the ones with annotated start and end
+						// positions
+						if (uniprotFeature.getPositionStart() > -1 && uniprotFeature.getPositionEnd() > -1) {
+
+							final List<Integer> startingPositions = startingPositionsByProtein
+									.get(p.getPrimaryAccession().getAccession());
+							boolean included = isPeptideIncludedInThatRange(startingPositions,
+									uniprotFeature.getPositionStart(), uniprotFeature.getPositionEnd());
+							if (included) {
+								sb.append(template.startToolTipWithClass(uniprotFeatureString, "featureType"));
+								sb.appendEscaped(uniprotFeatureString);
+								sb.append(template.endToolTip());
+								String toolTipText = getToolTipFromUniprotFeature(uniprotFeature);
+								sb.append(template.startToolTip(toolTipText));
+								if (uniprotFeature.getDescription() != null) {
+									sb.appendEscaped(uniprotFeature.getDescription());
+								} else {
+									sb.appendEscaped(uniprotFeature.getFeatureType());
+								}
+
+								if (uniprotFeature.getPositionStart() == uniprotFeature.getPositionEnd()) {
+									sb.appendEscaped(" (").append(uniprotFeature.getPositionStart()).appendEscaped(")");
+								} else {
+									sb.appendEscaped(" (").append(uniprotFeature.getPositionStart()).appendEscaped("-")
+											.append(uniprotFeature.getPositionEnd()).appendEscaped(")");
+								}
+								sb.append(template.endToolTip());
+							}
+						}
+					}
+				}
+			} else {
+				// there is not starting positions for this peptide in this
+				// protein
+			}
+			sb.appendEscaped(SharedConstants.NEW_LINE_JAVA);
+		}
+		return sb.toSafeHtml();
+	}
+
+	private static boolean isPeptideIncludedInThatRange(List<Integer> startingPositions, int positionStart,
+			int positionEnd) {
+		for (Integer startingPosition : startingPositions) {
+			if (startingPosition >= positionStart && startingPosition <= positionEnd) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static String getToolTipFromUniprotFeature(UniprotFeatureBean uniprotFeature) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(uniprotFeature.getFeatureType()).append(":\n");
+		sb.append(uniprotFeature.getDescription()).append("\n");
+		if (uniprotFeature.getPositionStart() > -1) {
+			if (uniprotFeature.getPositionStart() != uniprotFeature.getPositionEnd()) {
+				sb.append("Positions: ").append(uniprotFeature.getPositionStart()).append("-")
+						.append(uniprotFeature.getPositionEnd()).append("\n");
+			} else {
+				sb.append("Position: ").append(uniprotFeature.getPositionStart()).append("\n");
+			}
+			sb.append("Length: ").append(uniprotFeature.getLength());
+		}
 		return sb.toString();
 	}
 }

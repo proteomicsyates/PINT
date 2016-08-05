@@ -20,7 +20,7 @@ import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> implements MyColumn<ProteinGroupBean> {
+public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> implements MyIdColumn<ProteinGroupBean> {
 
 	private final ColumnName columnName;
 	private final Comparator<ProteinGroupBean> comparator;

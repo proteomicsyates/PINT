@@ -80,4 +80,8 @@ public class ClientCacheProteinGroupFileDescriptorByProjectName implements Cache
 		return ret;
 	}
 
+	@Override
+	public void clearCache() {
+		map.clear();
+	}
 }

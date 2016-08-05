@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
-import edu.scripps.yates.client.interfaces.RefreshData;
+import edu.scripps.yates.client.interfaces.ContainsData;
 
 public class ScrolledTabLayoutPanel extends TabLayoutPanel {
 	private static final int STEP = 50;
@@ -35,6 +35,13 @@ public class ScrolledTabLayoutPanel extends TabLayoutPanel {
 	private final ImageResource rightArrowImage;
 
 	private final boolean showArrowsWhenTabIsFull;
+
+	/**
+	 * Defaults, barHeight=30, barUnit=PX, showArrows=false
+	 */
+	public ScrolledTabLayoutPanel() {
+		this(30, Unit.PX, false);
+	}
 
 	public ScrolledTabLayoutPanel(double barHeight, Unit barUnit, boolean showArrowsWhenTabIsFull) {
 		this(barHeight, barUnit, showArrowsWhenTabIsFull, MyClientBundle.INSTANCE.smallLeftArrow(),
@@ -84,8 +91,8 @@ public class ScrolledTabLayoutPanel extends TabLayoutPanel {
 					}
 				}
 				final Widget widget = getWidget(selectedItem);
-				if (widget instanceof RefreshData) {
-					((RefreshData) widget).refreshData();
+				if (widget instanceof ContainsData) {
+					((ContainsData) widget).refreshData();
 				}
 			}
 		});
