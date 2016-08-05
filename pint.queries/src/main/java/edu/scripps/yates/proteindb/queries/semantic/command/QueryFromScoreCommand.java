@@ -126,16 +126,16 @@ public class QueryFromScoreCommand extends AbstractQuery {
 					scoreFound = true;
 
 					if (evaluateScore(score)) {
-						// if !=Nan
-						if (numericalCondition != null) {
-							if (numericalCondition.isNanValue()
-									&& numericalCondition.getOperator() == NumericalconditionOperator.NOT_EQUAL) {
-								return true;
-							} else {
-								continue;
-							}
-						}
 						return true;
+					}
+					// if !=Nan
+					if (numericalCondition != null) {
+						if (numericalCondition.isNanValue()
+								&& numericalCondition.getOperator() == NumericalconditionOperator.NOT_EQUAL) {
+							return true;
+						} else {
+							continue;
+						}
 					}
 				}
 			}
@@ -164,16 +164,17 @@ public class QueryFromScoreCommand extends AbstractQuery {
 								if (evaluateScore(ptmSite.getConfidenceScoreName(),
 										ptmSite.getConfidenceScoreType().getName(),
 										ptmSite.getConfidenceScoreValue())) {
-									// if !=Nan
-									if (numericalCondition != null) {
-										if (numericalCondition.isNanValue() && numericalCondition
-												.getOperator() == NumericalconditionOperator.NOT_EQUAL) {
-											return true;
-										} else {
-											continue;
-										}
-									}
+
 									return true;
+								}
+								// if !=Nan
+								if (numericalCondition != null) {
+									if (numericalCondition.isNanValue() && numericalCondition
+											.getOperator() == NumericalconditionOperator.NOT_EQUAL) {
+										return true;
+									} else {
+										continue;
+									}
 								}
 							}
 						}

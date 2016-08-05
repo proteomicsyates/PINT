@@ -53,7 +53,7 @@ public abstract class AbstractQuery implements Query {
 
 	/**
 	 * Returns true if the query still requires to evaluate the
-	 * {@link QueriableProteinSet2PSMLink} even when the user submit only one
+	 * {@link LinkBetweenQueriableProteinSetAndPSM} even when the user submit only one
 	 * simple query
 	 *
 	 * @return

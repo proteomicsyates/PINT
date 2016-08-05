@@ -14,7 +14,7 @@ import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenProteinAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProtein;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet2PSMLink;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 
@@ -78,9 +78,9 @@ public class QueryFromConditionCommand extends AbstractQuery {
 		return false;
 	}
 
-	public boolean evaluate(Set<QueriableProteinSet2PSMLink> linkSetForSameProtein) {
+	public boolean evaluate(Set<LinkBetweenQueriableProteinSetAndPSM> linkSetForSameProtein) {
 		Set<Condition> conditions = new HashSet<Condition>();
-		for (QueriableProteinSet2PSMLink proteinPSMLink : linkSetForSameProtein) {
+		for (LinkBetweenQueriableProteinSetAndPSM proteinPSMLink : linkSetForSameProtein) {
 			conditions.addAll(proteinPSMLink.getQueriableProtein().getConditions());
 		}
 		return conditionReference.passAllConditions(conditions);

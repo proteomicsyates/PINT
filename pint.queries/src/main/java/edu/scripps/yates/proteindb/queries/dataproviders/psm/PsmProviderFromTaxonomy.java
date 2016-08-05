@@ -26,7 +26,8 @@ public class PsmProviderFromTaxonomy implements ProteinProviderFromDB {
 		if (psms == null) {
 			psms = new HashMap<String, Set<Psm>>();
 			if (projectTags == null || projectTags.isEmpty()) {
-				PersistenceUtils.addToPSMMapByPsmId(psms, PreparedQueries.getPsmsWithTaxonomy(null, organismName, ncbiTaxID));
+				PersistenceUtils.addToPSMMapByPsmId(psms,
+						PreparedQueries.getPsmsWithTaxonomy(null, organismName, ncbiTaxID));
 			} else {
 				for (String projectTag : projectTags) {
 					PersistenceUtils.addToPSMMapByPsmId(psms,
@@ -39,7 +40,7 @@ public class PsmProviderFromTaxonomy implements ProteinProviderFromDB {
 
 	@Override
 	public Map<String, Set<Protein>> getProteinMap() {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap());
+		return PersistenceUtils.getProteinsFromPsms(getPsmMap(), true);
 	}
 
 	@Override

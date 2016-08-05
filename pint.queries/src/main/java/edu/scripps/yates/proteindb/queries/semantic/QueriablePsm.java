@@ -15,8 +15,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 
 public class QueriablePsm {
 	private Psm psm;
-	private final Set<QueriableProteinSet2PSMLink> proteinSetLinks = new HashSet<QueriableProteinSet2PSMLink>();
-	private final Set<QueriableProtein2PSMLink> proteinLinks = new HashSet<QueriableProtein2PSMLink>();
+	private final Set<LinkBetweenQueriableProteinSetAndPSM> proteinSetLinks = new HashSet<LinkBetweenQueriableProteinSetAndPSM>();
 	private static final Map<Integer, QueriablePsm> map = new HashMap<Integer, QueriablePsm>();
 	private final static Logger log = Logger.getLogger(QueriablePsm.class);
 
@@ -49,25 +48,12 @@ public class QueriablePsm {
 	/**
 	 * @return the links
 	 */
-	public Set<QueriableProteinSet2PSMLink> getProteinSetLinks() {
+	public Set<LinkBetweenQueriableProteinSetAndPSM> getProteinSetLinks() {
 		return proteinSetLinks;
 	}
 
-	/**
-	 * @return the links
-	 */
-	public Set<QueriableProtein2PSMLink> getProteinLinks() {
-		return proteinLinks;
-	}
-
-	public void removeProteinSetLink(QueriableProteinSet2PSMLink link) {
+	public void removeProteinSetLink(LinkBetweenQueriableProteinSetAndPSM link) {
 		boolean removed = proteinSetLinks.remove(link);
-		if (!removed)
-			log.warn("BAD");
-	}
-
-	public void removeProteinLink(QueriableProtein2PSMLink link) {
-		boolean removed = proteinLinks.remove(link);
 		if (!removed)
 			log.warn("BAD");
 	}

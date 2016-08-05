@@ -33,7 +33,8 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 
 			switch (element.getLogicalOperator()) {
 			case AND:
-				return leftResult & rightResult;
+				final boolean result = leftResult & rightResult;
+				return result;
 			case OR:
 				return leftResult || rightResult;
 			case XOR:
@@ -62,14 +63,15 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 			// queryResult =
 			// queryCondition.evaluate(link.getLinkSetForSameProtein());
 			// }
-
+			boolean finalResult = queryResult;
 			// look if it is negative
 			if (query.isNegative()) {
-				return !queryResult;
+				finalResult = !queryResult;
 			} else {
-				return queryResult;
-
+				finalResult = queryResult;
 			}
+
+			return finalResult;
 		}
 		throw new IllegalArgumentException("Binary tree cannot be evaluated");
 

@@ -15,18 +15,19 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet2PSMLink;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 
 public class QueriesUtil {
 	public static final Logger log = Logger.getLogger(QueriesUtil.class);
 	public static final boolean QUERY_CACHE_ENABLED = true;
 
-	public static List<QueriableProteinSet2PSMLink> createProteinPSMLinks(Map<String, Set<Protein>> proteinMap) {
+	public static List<LinkBetweenQueriableProteinSetAndPSM> createProteinPSMLinks(
+			Map<String, Set<Protein>> proteinMap) {
 		log.info("Creating proteinPSMLinks from a proteinMap of size: " + proteinMap.size());
-		List<QueriableProteinSet2PSMLink> ret = new ArrayList<QueriableProteinSet2PSMLink>();
+		List<LinkBetweenQueriableProteinSetAndPSM> ret = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
 		final Collection<Set<Protein>> proteinSets = proteinMap.values();
 		int numProteins = 0;
 		int numPSMs = 0;
@@ -38,26 +39,25 @@ public class QueriesUtil {
 				final Set<Psm> psms = protein.getPsms();
 				for (Psm psm : psms) {
 					numPSMs++;
-					QueriablePsm.getInstance(psm, true).getProteinLinks().clear();
 					QueriablePsm.getInstance(psm, true).getProteinSetLinks().clear();
 				}
 			}
 		}
 		log.info("proteinPSMLinks cleared for " + numProteins + " proteins and " + numPSMs + " PSMs");
 
-		Map<String, Set<QueriableProteinSet2PSMLink>> linkMapByProteinAcc = new HashMap<String, Set<QueriableProteinSet2PSMLink>>();
+		Map<String, Set<LinkBetweenQueriableProteinSetAndPSM>> linkMapByProteinAcc = new HashMap<String, Set<LinkBetweenQueriableProteinSetAndPSM>>();
 		for (Set<Protein> proteinSet : proteinSets) {
 			for (Protein protein : proteinSet) {
 				final Set<Psm> psms = protein.getPsms();
 				for (Psm psm : psms) {
-					final QueriableProteinSet2PSMLink proteinSet2PsmLink = new QueriableProteinSet2PSMLink(proteinSet,
-							psm);
+					final LinkBetweenQueriableProteinSetAndPSM proteinSet2PsmLink = new LinkBetweenQueriableProteinSetAndPSM(
+							proteinSet, psm);
 					ret.add(proteinSet2PsmLink);
 					final String accession = proteinSet2PsmLink.getQueriableProtein().getPrimaryAccession();
 					if (linkMapByProteinAcc.containsKey(accession)) {
 						linkMapByProteinAcc.get(accession).add(proteinSet2PsmLink);
 					} else {
-						Set<QueriableProteinSet2PSMLink> linkSet = new HashSet<QueriableProteinSet2PSMLink>();
+						Set<LinkBetweenQueriableProteinSetAndPSM> linkSet = new HashSet<LinkBetweenQueriableProteinSetAndPSM>();
 						linkSet.add(proteinSet2PsmLink);
 						linkMapByProteinAcc.put(accession, linkSet);
 					}
@@ -65,8 +65,8 @@ public class QueriesUtil {
 			}
 		}
 		// iterate over the set of links for the same protein
-		for (Set<QueriableProteinSet2PSMLink> linkSet : linkMapByProteinAcc.values()) {
-			for (QueriableProteinSet2PSMLink proteinPSMLink : linkSet) {
+		for (Set<LinkBetweenQueriableProteinSetAndPSM> linkSet : linkMapByProteinAcc.values()) {
+			for (LinkBetweenQueriableProteinSetAndPSM proteinPSMLink : linkSet) {
 				proteinPSMLink.setLinkSetForSameProtein(linkSet);
 			}
 		}

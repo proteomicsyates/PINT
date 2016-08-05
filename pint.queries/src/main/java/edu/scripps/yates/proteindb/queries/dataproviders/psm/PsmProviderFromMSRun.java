@@ -28,7 +28,8 @@ public class PsmProviderFromMSRun implements ProteinProviderFromDB {
 			if (projectTags != null) {
 				for (String projectTag : projectTags) {
 					for (String msRunID : msRunIDs) {
-						PersistenceUtils.addToPSMMapByPsmId(result, PreparedQueries.getPsmsWithMSRun(projectTag, msRunID));
+						PersistenceUtils.addToPSMMapByPsmId(result,
+								PreparedQueries.getPsmsWithMSRun(projectTag, msRunID));
 					}
 				}
 			} else {
@@ -42,7 +43,7 @@ public class PsmProviderFromMSRun implements ProteinProviderFromDB {
 
 	@Override
 	public Map<String, Set<Protein>> getProteinMap() {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap());
+		return PersistenceUtils.getProteinsFromPsms(getPsmMap(), true);
 	}
 
 	@Override

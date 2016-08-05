@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,8 +94,9 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	@Override
 	public Set<Protein> getProteins() {
 
-		for (Protein protein : proteins) {
-
+		final Iterator<Protein> proteinIterator = proteins.iterator();
+		while (proteinIterator.hasNext()) {
+			Protein protein = proteinIterator.next();
 			if (!ContextualSessionHandler.getSession().contains(protein)) {
 				// Lock lock = new ReentrantLock(true);
 				// try {
@@ -103,6 +105,9 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 				// } finally {
 				// lock.unlock();
 				// }
+			}
+			if (protein.getPsms().isEmpty()) {
+				proteinIterator.remove();
 			}
 		}
 		return proteins;
@@ -122,6 +127,31 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 		boolean removed = links.remove(link);
 		if (!removed)
 			log.warn("BAD");
+	}
+
+	/**
+	 * It removes the psm from the protein that has it
+	 *
+	 * @param psm
+	 */
+	public void remove(Psm psm) {
+		for (Protein protein : getProteins()) {
+			boolean removed = protein.getPsms().remove(psm);
+			if (removed) {
+				Set<Psm> psms = protein.getPsms();
+				Set<String> seqs = new HashSet<String>();
+				for (Psm psm2 : psms) {
+					seqs.add(psm2.getSequence());
+				}
+				final Iterator<Peptide> peptideIterator = protein.getPeptides().iterator();
+				while (peptideIterator.hasNext()) {
+					final Peptide peptide = peptideIterator.next();
+					if (!seqs.contains(peptide.getSequence())) {
+						peptideIterator.remove();
+					}
+				}
+			}
+		}
 	}
 
 	/*
@@ -144,17 +174,19 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 */
 	@Override
 	public Set<Peptide> getPeptides() {
-		Set<Peptide> ret = new HashSet<Peptide>();
+
+		HashSet<Peptide> peptideSet = new HashSet<Peptide>();
 		for (Protein protein : getProteins()) {
 			final Set<Peptide> peptides = protein.getPeptides();
 			for (Peptide peptide : peptides) {
 				if (!ContextualSessionHandler.getSession().contains(peptide)) {
 					peptide = (Peptide) ContextualSessionHandler.getSession().merge(peptide);
 				}
-				ret.add(peptide);
+				peptideSet.add(peptide);
 			}
 		}
-		return ret;
+
+		return peptideSet;
 	}
 
 	/**
@@ -166,17 +198,19 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 */
 	@Override
 	public Set<Psm> getPsms() {
-		Set<Psm> ret = new HashSet<Psm>();
+
+		HashSet<Psm> psmSet = new HashSet<Psm>();
 		for (Protein protein : getProteins()) {
 			final Set<Psm> psms = protein.getPsms();
 			for (Psm psm : psms) {
 				if (!ContextualSessionHandler.getSession().contains(psm)) {
 					psm = (Psm) ContextualSessionHandler.getSession().merge(psm);
 				}
-				ret.add(psm);
+				psmSet.add(psm);
 			}
 		}
-		return ret;
+
+		return psmSet;
 	}
 
 	@Override

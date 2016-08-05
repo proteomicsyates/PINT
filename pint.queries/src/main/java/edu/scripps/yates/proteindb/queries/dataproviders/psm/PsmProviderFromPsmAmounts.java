@@ -49,7 +49,7 @@ public class PsmProviderFromPsmAmounts implements ProteinProviderFromDB {
 
 	@Override
 	public Map<String, Set<Protein>> getProteinMap() {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap());
+		return PersistenceUtils.getProteinsFromPsms(getPsmMap(), true);
 	}
 
 	@Override

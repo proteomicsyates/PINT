@@ -1,34 +1,144 @@
 package edu.scripps.yates.proteindb.queries;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
+import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet2PSMLink;
+import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 
 public class QueryResult {
-
-	private boolean aProteinAmountSpectraCountIsInvolved;
-	private final List<AbstractQuery> specialQueries = new ArrayList<AbstractQuery>();
-	private final Collection<QueriableProteinSet2PSMLink> links;
+	private final static Logger log = Logger.getLogger(QueryResult.class);
+	private final Collection<LinkBetweenQueriableProteinSetAndPSM> links;
 	private Map<String, Set<QueriableProteinInterface>> proteinMap;
 	private Map<String, Set<QueriablePsm>> psmMap;
 	private Set<QueriablePsm> psmSet;
 	private HashMap<String, Set<Peptide>> peptideMap;
 
-	public QueryResult(Collection<QueriableProteinSet2PSMLink> links) {
+	public QueryResult(Collection<LinkBetweenQueriableProteinSetAndPSM> links) {
 		this.links = links;
+
+		Set<Psm> validPSMs = getPSMSetFromLinks(links);
+		// go for all items at protein level and remove all the psms not in the
+		// valid psmSet
+		Set<Psm> psmsToDetach = new HashSet<Psm>();
+		for (LinkBetweenQueriableProteinSetAndPSM link : links) {
+			final Set<Protein> proteins = link.getProtein();
+			for (Protein protein : proteins) {
+				final Iterator<Psm> psmIterator = protein.getPsms().iterator();
+				while (psmIterator.hasNext()) {
+					final Psm psm = psmIterator.next();
+					if (!validPSMs.contains(psm)) {
+						psmsToDetach.add(psm);
+					}
+				}
+			}
+		}
+		for (Psm psmToDetach : psmsToDetach) {
+			PersistenceUtils.detachPSM(psmToDetach, false, false, false);
+		}
+		//
+		Set<Protein> proteinsToDetach = new HashSet<Protein>();
+		Set<Protein> validProteins = getProteinSetFromLinks(links);
+		for (Psm psm : validPSMs) {
+			final Set<Protein> proteins = psm.getProteins();
+			for (Protein protein : proteins) {
+				if (!validProteins.contains(protein)) {
+					proteinsToDetach.add(protein);
+				}
+			}
+		}
+		for (Protein protein : proteinsToDetach) {
+			PersistenceUtils.detachProtein(protein, false, false, false);
+		}
+		Iterator<LinkBetweenQueriableProteinSetAndPSM> linksIterator = links.iterator();
+		while (linksIterator.hasNext()) {
+			LinkBetweenQueriableProteinSetAndPSM link = linksIterator.next();
+			if (link.getQueriableProtein().getPsms().isEmpty()) {
+				// remove the link
+				linksIterator.remove();
+			}
+			if (link.getQueriablePsm().getPsm().getProteins().isEmpty()) {
+				// remove the link
+				linksIterator.remove();
+			}
+		}
 	}
+
+	private Set<Protein> getProteinSetFromLinks(Collection<LinkBetweenQueriableProteinSetAndPSM> links2) {
+		Set<Protein> ret = new HashSet<Protein>();
+		for (LinkBetweenQueriableProteinSetAndPSM link : links2) {
+			ret.addAll(link.getProtein());
+		}
+		return ret;
+	}
+
+	private Set<Psm> getPSMSetFromLinks(Collection<LinkBetweenQueriableProteinSetAndPSM> links2) {
+		Set<Psm> ret = new HashSet<Psm>();
+		for (LinkBetweenQueriableProteinSetAndPSM link : links2) {
+			ret.add(link.getQueriablePsm().getPsm());
+		}
+		return ret;
+	}
+
+	// private void asdf(LinkBetweenProteinAndPSM link) {
+	//
+	// // remove the psm from the peptide
+	// final QueriablePsm queriablePsm = link.getQueriablePsm();
+	// final Psm psm = queriablePsm.getPsm();
+	// boolean deleted = psm.getPeptide().getPsms().remove(psm);
+	// if (!deleted) {
+	// log.info("BAD");
+	// }
+	// // if the peptide has no psms anymore:
+	// if (psm.getPeptide().getPsms().isEmpty()) {
+	// // remove the peptide from the protein
+	// final QueriableProteinSet queriableProtein = link.getQueriableProtein();
+	// final Set<Protein> proteins = queriableProtein.getProteins();
+	// boolean someDeleted = false;
+	// for (Protein protein : proteins) {
+	// boolean deleted2 = protein.getPeptides().remove(psm.getPeptide());
+	// if (deleted2) {
+	// someDeleted = true;
+	// }
+	// }
+	// if (!someDeleted) {
+	// log.info("BAD");
+	// }
+	// }
+	// // remove the psm from the protein
+	// final QueriableProteinSet queriableProtein = link.getQueriableProtein();
+	// final Set<Protein> proteins = queriableProtein.getProteins();
+	// boolean someDeleted = false;
+	// for (Protein protein : proteins) {
+	// boolean deleted2 = protein.getPsms().remove(psm);
+	// if (deleted2) {
+	// someDeleted = true;
+	// }
+	// // if the protein has no psms anymore:
+	// if (protein.getPsms().isEmpty()) {
+	// // remove the protein from the peptide
+	// boolean deleted3 = psm.getPeptide().getProteins().remove(protein);
+	// if (!deleted3) {
+	// log.info("BAD");
+	// }
+	// }
+	// }
+	// if (!someDeleted) {
+	// log.info("BAD");
+	// }
+	// }
 
 	/**
 	 * @return the proteins
@@ -36,11 +146,29 @@ public class QueryResult {
 	public Map<String, Set<QueriableProteinInterface>> getProteins() {
 		if (proteinMap == null) {
 			proteinMap = new HashMap<String, Set<QueriableProteinInterface>>();
-			for (QueriableProteinSet2PSMLink link : links) {
-
-				addToMap(proteinMap, link.getQueriableProtein());
-
+			final Set<QueriablePsm> queriablePsmsInResult = getPsms();
+			Set<Psm> psmsInResult = new HashSet<Psm>();
+			for (QueriablePsm queriablePsm : queriablePsmsInResult) {
+				psmsInResult.add(queriablePsm.getPsm());
 			}
+			final Iterator<LinkBetweenQueriableProteinSetAndPSM> linksIterator = links.iterator();
+			while (linksIterator.hasNext()) {
+				LinkBetweenQueriableProteinSetAndPSM link = linksIterator.next();
+				final QueriableProteinSet queriableProtein = link.getQueriableProtein();
+				final Set<Psm> psmsFromProtein = queriableProtein.getPsms();
+				for (Psm psmFromProtein : psmsFromProtein) {
+					if (!psmsInResult.contains(psmFromProtein)) {
+						queriableProtein.remove(psmFromProtein);
+					}
+				}
+				if (!queriableProtein.getPsms().isEmpty()) {
+					addToMap(proteinMap, queriableProtein);
+				} else {
+					// remove the link
+					linksIterator.remove();
+				}
+			}
+
 		}
 		return proteinMap;
 	}
@@ -83,8 +211,11 @@ public class QueryResult {
 	 */
 	public Map<String, Set<Peptide>> getPeptides() {
 		if (peptideMap == null) {
+			// call first to get proteins because maybe some links will be
+			// removed
+			getProteins();
 			peptideMap = new HashMap<String, Set<Peptide>>();
-			for (QueriableProteinSet2PSMLink link : links) {
+			for (LinkBetweenQueriableProteinSetAndPSM link : links) {
 
 				final Set<Peptide> peptides = link.getPeptides();
 				for (Peptide peptide : peptides) {
@@ -133,6 +264,7 @@ public class QueryResult {
 
 	private static void addToMap(Map<String, Set<QueriableProteinInterface>> map,
 			QueriableProteinInterface queriableProtein) {
+		Set<Psm> psms = queriableProtein.getPsms();
 		if (map != null) {
 			String primaryAcc = queriableProtein.getPrimaryAccession();
 			if (map.containsKey(primaryAcc)) {
@@ -147,8 +279,11 @@ public class QueryResult {
 
 	public Map<String, Set<QueriablePsm>> getPsmMap() {
 		if (psmMap == null) {
+			// call first to get proteins because maybe some links will be
+			// removed
+			getProteins();
 			psmMap = new HashMap<String, Set<QueriablePsm>>();
-			for (QueriableProteinSet2PSMLink link : links) {
+			for (LinkBetweenQueriableProteinSetAndPSM link : links) {
 
 				final String sequence = link.getQueriablePsm().getPsm().getSequence();
 				if (psmMap.containsKey(sequence)) {
@@ -206,9 +341,13 @@ public class QueryResult {
 	// }
 	public Set<QueriablePsm> getPsms() {
 		if (psmSet == null) {
+			// call first to get proteins because maybe some links will be
+			// removed
+			getProteins();
 			psmSet = new HashSet<QueriablePsm>();
-			for (QueriableProteinSet2PSMLink link : links) {
-				psmSet.add(link.getQueriablePsm());
+			for (LinkBetweenQueriableProteinSetAndPSM link : links) {
+				final QueriablePsm queriablePsm = link.getQueriablePsm();
+				psmSet.add(queriablePsm);
 			}
 		}
 		return psmSet;

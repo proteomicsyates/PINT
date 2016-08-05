@@ -33,8 +33,8 @@ public class PsmProviderFromProjectCondition implements ProteinProviderFromDB {
 					if (conditionProject.getProjectTag() == null) {
 						if (projectTags != null && !projectTags.isEmpty()) {
 							for (String projectTag : projectTags) {
-								PersistenceUtils.addToPSMMapByPsmId(psms, PreparedQueries.getPSMsByProjectCondition(projectTag,
-										conditionProject.getConditionName()));
+								PersistenceUtils.addToPSMMapByPsmId(psms, PreparedQueries
+										.getPSMsByProjectCondition(projectTag, conditionProject.getConditionName()));
 							}
 						}
 					} else {
@@ -50,7 +50,8 @@ public class PsmProviderFromProjectCondition implements ProteinProviderFromDB {
 					PersistenceUtils.addToPSMMapByPsmId(psms, PreparedQueries.getPSMsByProjectCondition(null, null));
 				} else {
 					for (String projectTag : projectTags) {
-						PersistenceUtils.addToPSMMapByPsmId(psms, PreparedQueries.getPSMsByProjectCondition(projectTag, null));
+						PersistenceUtils.addToPSMMapByPsmId(psms,
+								PreparedQueries.getPSMsByProjectCondition(projectTag, null));
 					}
 				}
 			}
@@ -60,7 +61,7 @@ public class PsmProviderFromProjectCondition implements ProteinProviderFromDB {
 
 	@Override
 	public Map<String, Set<Protein>> getProteinMap() {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap());
+		return PersistenceUtils.getProteinsFromPsms(getPsmMap(), true);
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromAmountComma
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromComplexAnnotationCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromPTMCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromProteinAccessionsCommand;
+import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSEQCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSimpleAnnotationCommand;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
@@ -119,6 +120,14 @@ public class QueryInterface {
 				annotateProteins(this.proteinProvider.getProteinMap(),
 						((QueryFromSimpleAnnotationCommand) abstractQuery).getUniprotVersion());
 				break;
+			}
+			if (abstractQuery instanceof QueryFromSEQCommand) {
+				// annotate the proteins in this case because the protein
+				// sequence is going to be needed in the query
+				if (abstractQuery.getAggregationLevel() == AggregationLevel.PROTEIN) {
+					annotateProteins(this.proteinProvider.getProteinMap(), null);
+					break;
+				}
 			}
 		}
 
@@ -252,9 +261,11 @@ public class QueryInterface {
 				UniprotProteinRetrievalSettings.getInstance().isUseIndex());
 		log.info("Getting Uniprot annotations from " + proteinList.size() + " proteins");
 		Collection<String> accessions = PersistenceUtils.getAccessionsByAccType(proteinList, AccessionType.UNIPROT);
-		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = uplr.getAnnotatedProteins(accessions);
+		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = uplr
+				.getAnnotatedProteins(accessions);
 		for (String accession : proteinList.keySet()) {
-			final edu.scripps.yates.utilities.proteomicsmodel.Protein annotatedProtein = annotatedProteins.get(accession);
+			final edu.scripps.yates.utilities.proteomicsmodel.Protein annotatedProtein = annotatedProteins
+					.get(accession);
 			if (annotatedProtein != null) {
 				final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = annotatedProtein
 						.getAnnotations();
@@ -276,7 +287,7 @@ public class QueryInterface {
 	public QueryResult getQueryResults() {
 		if (queryResult == null) {
 
-			List<QueriableProteinSet2PSMLink> links = QueriesUtil
+			List<LinkBetweenQueriableProteinSetAndPSM> links = QueriesUtil
 					.createProteinPSMLinks(proteinProvider.getProteinMap());
 			if (needLinkEvaluation) {
 
@@ -289,16 +300,17 @@ public class QueryInterface {
 					numValidLinks = 0;
 					int numLinks = 0;
 					int totalLinks = links.size();
-					final Iterator<QueriableProteinSet2PSMLink> linksIterator = links.iterator();
+					final Iterator<LinkBetweenQueriableProteinSetAndPSM> linksIterator = links.iterator();
 					while (linksIterator.hasNext()) {
-						QueriableProteinSet2PSMLink link = linksIterator.next();
+						LinkBetweenQueriableProteinSetAndPSM link = linksIterator.next();
 						numLinks++;
 						if (numLinks % 100 == 0) {
 							log.info(numRound + " round - " + numLinks + "/" + totalLinks + " links (" + numValidLinks
 									+ " valid, " + numDiscardedLinks + " discarded)");
 						}
 
-						final boolean valid = queryBinaryTree.evaluate(link);
+						boolean valid = queryBinaryTree.evaluate(link);
+
 						// evaluate the links between individual proteins and
 						// psms
 						// final Set<QueriableProtein2PSMLink> protein2psmLinks
@@ -314,6 +326,8 @@ public class QueryInterface {
 							numValidLinks++;
 						} else {
 							numDiscardedLinks++;
+							// delete link between QueriableProtein and
+							// QueriablePSM
 							link.detachFromProteinAndPSM();
 							linksIterator.remove();
 						}
@@ -333,13 +347,15 @@ public class QueryInterface {
 				} while (numDiscardedLinks > 0);
 			} else {
 				// create the links between individual proteins and psms
-				for (QueriableProteinSet2PSMLink link : links) {
-					final Set<QueriableProtein2PSMLink> protein2psmLinks = link.getProtein2PSMLinks();
-					for (QueriableProtein2PSMLink queriableProtein2PSMLink : protein2psmLinks) {
-						// link.setProtein2PsmResult(queriableProtein2PSMLink,
-						// true);
-					}
-				}
+				// for (LinkBetweenQueriableProteinSetAndPSM link : links) {
+				// final Set<LinkBetweenProteinAndPSMImpl> protein2psmLinks =
+				// link.getProtein2PSMLinks();
+				// for (LinkBetweenProteinAndPSMImpl queriableProtein2PSMLink :
+				// protein2psmLinks) {
+				// // link.setProtein2PsmResult(queriableProtein2PSMLink,
+				// // true);
+				// }
+				// }
 			}
 			queryResult = new QueryResult(links);
 			// }else{
@@ -373,7 +389,7 @@ public class QueryInterface {
 	 */
 	public QueryResult getQueryResultsParallel() {
 		if (queryResult == null) {
-			List<QueriableProteinSet2PSMLink> links = QueriesUtil
+			List<LinkBetweenQueriableProteinSetAndPSM> links = QueriesUtil
 					.createProteinPSMLinks(proteinProvider.getProteinMap());
 
 			int numDiscardedLinks = 0;
@@ -382,10 +398,10 @@ public class QueryInterface {
 				int threadCount = SystemCoreManager.getAvailableNumSystemCores(MAX_NUMBER_PARALLEL_PROCESSES);
 				log.info("Evaluating " + links.size() + " links in round " + numRound + " using " + threadCount
 						+ " cores out of " + Runtime.getRuntime().availableProcessors());
-				ParIterator<QueriableProteinSet2PSMLink> iterator = ParIteratorFactory.createParIterator(links,
+				ParIterator<LinkBetweenQueriableProteinSetAndPSM> iterator = ParIteratorFactory.createParIterator(links,
 						threadCount, Schedule.GUIDED);
 
-				Reducible<List<QueriableProteinSet2PSMLink>> reducibleLinkMap = new Reducible<List<QueriableProteinSet2PSMLink>>();
+				Reducible<List<LinkBetweenQueriableProteinSetAndPSM>> reducibleLinkMap = new Reducible<List<LinkBetweenQueriableProteinSetAndPSM>>();
 				List<ProteinPSMLinkParallelProcesor> runners = new ArrayList<ProteinPSMLinkParallelProcesor>();
 				for (int numCore = 0; numCore < threadCount; numCore++) {
 					// take current DB session
@@ -406,10 +422,11 @@ public class QueryInterface {
 					}
 				}
 
-				Reduction<List<QueriableProteinSet2PSMLink>> linkReduction = new Reduction<List<QueriableProteinSet2PSMLink>>() {
+				Reduction<List<LinkBetweenQueriableProteinSetAndPSM>> linkReduction = new Reduction<List<LinkBetweenQueriableProteinSetAndPSM>>() {
 					@Override
-					public List<QueriableProteinSet2PSMLink> reduce(List<QueriableProteinSet2PSMLink> first,
-							List<QueriableProteinSet2PSMLink> second) {
+					public List<LinkBetweenQueriableProteinSetAndPSM> reduce(
+							List<LinkBetweenQueriableProteinSetAndPSM> first,
+							List<LinkBetweenQueriableProteinSetAndPSM> second) {
 						first.addAll(second);
 						return first;
 					}

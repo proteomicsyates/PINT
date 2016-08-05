@@ -10,6 +10,7 @@ import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromMSRunComman
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromPTMCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromProteinAccessionsCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromRatioCommand;
+import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSEQCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromScoreCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSimpleAnnotationCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromTaxonomyCommand;
@@ -75,6 +76,9 @@ public class SemanticTranslator {
 			return query;
 		case PTM:
 			query = new QueryFromPTMCommand(commandReference);
+			return query;
+		case SEQ:
+			query = new QueryFromSEQCommand(commandReference);
 			return query;
 		default:
 			break;

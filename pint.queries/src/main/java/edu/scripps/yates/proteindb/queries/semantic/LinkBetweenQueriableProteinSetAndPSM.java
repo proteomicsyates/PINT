@@ -1,7 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -10,41 +9,26 @@ import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 
-public class QueriableProteinSet2PSMLink implements LinkBetweenProteinAndPSM {
-	private static final Logger log = Logger.getLogger(QueriableProteinSet2PSMLink.class);
+public class LinkBetweenQueriableProteinSetAndPSM implements LinkBetweenProteinAndPSM {
+	private static final Logger log = Logger.getLogger(LinkBetweenQueriableProteinSetAndPSM.class);
 	private final QueriableProteinSet queriableProteinSet;
 	private final QueriablePsm queriablePsm;
-	private final Set<QueriableProtein2PSMLink> protein2PSMLinks = new HashSet<QueriableProtein2PSMLink>();
 	// private final Map<Boolean, Set<QueriableProtein2PSMLink>>
 	// evaluatedProtein2PSMLinks = new HashMap<Boolean,
 	// Set<QueriableProtein2PSMLink>>();
-	private Set<QueriableProteinSet2PSMLink> linkSetForSameProtein;
+	private Set<LinkBetweenQueriableProteinSetAndPSM> linkSetForSameProtein;
 
-	public QueriableProteinSet2PSMLink(Collection<Protein> proteins, Psm psm) {
+	public LinkBetweenQueriableProteinSetAndPSM(Collection<Protein> proteins, Psm psm) {
 		this(QueriableProteinSet.getInstance(proteins, false), QueriablePsm.getInstance(psm, false));
 	}
 
-	public QueriableProteinSet2PSMLink(QueriableProteinSet queriableProteinSet, QueriablePsm queriablePsm) {
+	public LinkBetweenQueriableProteinSetAndPSM(QueriableProteinSet queriableProteinSet, QueriablePsm queriablePsm) {
 		this.queriableProteinSet = queriableProteinSet;
 		this.queriablePsm = queriablePsm;
 
 		this.queriableProteinSet.getLinks().add(this);
 		this.queriablePsm.getProteinSetLinks().add(this);
-		for (Protein protein : queriableProteinSet.getProteins()) {
-			// make the link only if they were detected in the same msRun
-			if (protein.getMsRun().equals(queriablePsm.getPsm().getMsRun())) {
-				protein2PSMLinks
-						.add(new QueriableProtein2PSMLink(QueriableProtein.getInstance(protein, false), queriablePsm));
-			}
-		}
 
-	}
-
-	/**
-	 * @return the protein2PSMLinks
-	 */
-	public Set<QueriableProtein2PSMLink> getProtein2PSMLinks() {
-		return protein2PSMLinks;
 	}
 
 	/**
@@ -93,16 +77,13 @@ public class QueriableProteinSet2PSMLink implements LinkBetweenProteinAndPSM {
 	// }
 
 	/**
-	 * Removes the {@link QueriableProteinSet2PSMLink} from the
+	 * Removes the {@link LinkBetweenQueriableProteinSetAndPSM} from the
 	 * {@link QueriableProteinSet} and {@link QueriablePsm}
 	 */
 	public void detachFromProteinAndPSM() {
 		queriableProteinSet.removeLink(this);
 		queriablePsm.removeProteinSetLink(this);
-		for (QueriableProtein2PSMLink link : protein2PSMLinks) {
-			link.detachFromProteinAndPSM();
-		}
-		protein2PSMLinks.clear();
+
 	}
 
 	/*
@@ -115,7 +96,8 @@ public class QueriableProteinSet2PSMLink implements LinkBetweenProteinAndPSM {
 	}
 
 	/**
-	 * Get the {@link Protein} in the {@link QueriableProteinSet2PSMLink}
+	 * Get the {@link Protein} in the
+	 * {@link LinkBetweenQueriableProteinSetAndPSM}
 	 *
 	 * @return
 	 */
@@ -125,7 +107,7 @@ public class QueriableProteinSet2PSMLink implements LinkBetweenProteinAndPSM {
 
 	/**
 	 * Gets the set of {@link Peptide} in the
-	 * {@link QueriableProteinSet2PSMLink}
+	 * {@link LinkBetweenQueriableProteinSetAndPSM}
 	 *
 	 * @return
 	 */
@@ -136,7 +118,7 @@ public class QueriableProteinSet2PSMLink implements LinkBetweenProteinAndPSM {
 	/**
 	 * @return the linkSetForSameProtein
 	 */
-	public Set<QueriableProteinSet2PSMLink> getLinkSetForSameProtein() {
+	public Set<LinkBetweenQueriableProteinSetAndPSM> getLinkSetForSameProtein() {
 		return linkSetForSameProtein;
 	}
 
@@ -144,7 +126,7 @@ public class QueriableProteinSet2PSMLink implements LinkBetweenProteinAndPSM {
 	 * @param linkSetForSameProtein
 	 *            the linkSetForSameProtein to set
 	 */
-	public void setLinkSetForSameProtein(Set<QueriableProteinSet2PSMLink> linkSetForSameProtein) {
+	public void setLinkSetForSameProtein(Set<LinkBetweenQueriableProteinSetAndPSM> linkSetForSameProtein) {
 		this.linkSetForSameProtein = linkSetForSameProtein;
 	}
 

@@ -5,4 +5,5 @@ public interface LinkBetweenProteinAndPSM {
 	public QueriablePsm getQueriablePsm();
 
 	public QueriableProteinInterface getQueriableProtein();
+
 }
