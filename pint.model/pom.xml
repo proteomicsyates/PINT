@@ -94,6 +94,18 @@
   		<artifactId>utilities</artifactId>
   		<version>1.0.1-SNAPSHOT</version>
   	</dependency>
+  	<!--  PTM Mapping new library -->
+	<dependency>
+    	<groupId>uk.ac.ebi.pride.utilities</groupId>
+        <artifactId>pride-mod</artifactId>
+        <version>2.1.0</version>
+    </dependency>
+    <!--  PTM Mapping old library -->
+    <dependency>
+    	<groupId>uk.ac.ebi.pride-mod</groupId>
+        <artifactId>pride-mod</artifactId>
+        <version>1.0.1-SNAPSHOT</version>
+    </dependency>
   </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

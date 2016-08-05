@@ -15,12 +15,7 @@
 		</snapshotRepository>
 	</distributionManagement>
   <dependencies>
-  	<!--  mapeo de modificaciones -->
-	<dependency>
-    	<groupId>uk.ac.ebi.pride-mod</groupId>
-        <artifactId>pride-mod</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
-    </dependency>
+  
   	<dependency>
   		<groupId>junit</groupId>
   		<artifactId>junit</artifactId>
@@ -120,28 +115,12 @@
   	</plugins>
   </build>
   <repositories>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>ebi-repo</id>
-      <name>The EBI Maven 2 repository</name>
-      <url>http://www.ebi.ac.uk/~maven/m2repo</url>
-    </repository>
-    <repository>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>ebi-repo-snapshots</id>
-      <name>The EBI internal repository</name>
-      <url>http://www.ebi.ac.uk/~maven/m2repo_snapshots</url>
-    </repository>
+  	<!-- EBI repo -->
+        <repository>
+    <id>nexus-ebi-repo</id>
+    <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo</url>
+</repository>
+     
     
     <repository>
       <releases>
@@ -152,7 +131,7 @@
       </snapshots>
       <id>internal</id>
       <name>Yates lab internal maven repository</name>
-      <url>dav:http://sealion.scripps.edu:8081/archiva/repository/internal/</url>
+      <url>dav:http://sealion.scripps.edu/archiva/repository/internal/</url>
     </repository>
     <repository>
       <releases>
@@ -163,7 +142,7 @@
       </snapshots>
       <id>snapshots</id>
       <name>Yates lab snapshots maven repository</name>
-      <url>dav:http://sealion.scripps.edu:8081/archiva/repository/snapshots/</url>
+      <url>dav:http://sealion.scripps.edu/archiva/repository/snapshots/</url>
     </repository>
     <repository>
       <id>genesis-maven2-repository</id>
