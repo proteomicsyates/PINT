@@ -325,12 +325,12 @@ public class RemoteFileReader {
 		return null;
 	}
 
-	public QuantParser getCensusQuantParser(List<FileReferenceType> fileRef) {
+	public QuantParser getQuantParser(List<FileReferenceType> fileRef) {
 		if (fileRef != null) {
 			for (FileReferenceType fileReferenceType : fileRef) {
-				final QuantParser censusParser = getCensusQuantParser(fileReferenceType.getFileRef());
-				if (censusParser != null)
-					return censusParser;
+				final QuantParser quantParser = getQuantParser(fileReferenceType.getFileRef());
+				if (quantParser != null)
+					return quantParser;
 			}
 		}
 		return null;
@@ -393,8 +393,9 @@ public class RemoteFileReader {
 				log.info("Building DBIndex from fasta file at: " + fastaFile.getAbsolutePath());
 				final DBIndexSearchParams defaultDBIndexParams = DBIndexInterface.getDefaultDBIndexParams(fastaFile);
 				if (fastaDigestionType != null) {
-					((DBIndexSearchParamsImpl) defaultDBIndexParams)
-							.setEnzymeArr(fastaDigestionType.getCleavageAAs().toCharArray());
+					((DBIndexSearchParamsImpl) defaultDBIndexParams).setEnzymeArr(
+							fastaDigestionType.getCleavageAAs().toCharArray(), fastaDigestionType.getMisscleavages(),
+							false);
 					((DBIndexSearchParamsImpl) defaultDBIndexParams)
 							.setEnzymeOffset(fastaDigestionType.getEnzymeOffset());
 					((DBIndexSearchParamsImpl) defaultDBIndexParams)
@@ -476,7 +477,7 @@ public class RemoteFileReader {
 	 * @param fileRef
 	 * @return
 	 */
-	public QuantParser getCensusQuantParser(String fileRef) {
+	public QuantParser getQuantParser(String fileRef) {
 		final CensusChroParser censusChroParser = getCensusChroParser(fileRef);
 		if (censusChroParser != null) {
 			return censusChroParser;

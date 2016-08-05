@@ -307,7 +307,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 
 			String msRunRef = remoteInfoType.getMsRunRef();
 			DBIndexInterface dbIndex = null;
-			QuantParser quantParser = remoteFileReader.getCensusQuantParser(remoteInfoType.getFileRef());
+			QuantParser quantParser = remoteFileReader.getQuantParser(remoteInfoType.getFileRef());
 			DTASelectParser dtaSelectParser = remoteFileReader.getDTASelectFilterParser(remoteInfoType.getFileRef());
 			dbIndex = remoteFileReader.getFastaDBIndex(remoteInfoType);
 

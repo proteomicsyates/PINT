@@ -131,10 +131,34 @@ public class ExcelReader {
 		try {
 			final Sheet sheetAt = getWorkbook().getSheetAt(sheetNumber);
 			final Row row = sheetAt.getRow(numRow);
+			final Cell cell = row.getCell(numCol, Row.RETURN_BLANK_AS_NULL);
+			if (cell == null) {
+				return null;
+			}
 			try {
-				return row.getCell(numCol, Row.RETURN_BLANK_AS_NULL).getStringCellValue();
+				return cell.getStringCellValue();
 			} catch (IllegalStateException e) {
-				return String.valueOf(row.getCell(numCol, Row.RETURN_BLANK_AS_NULL).getNumericCellValue());
+				return String.valueOf(cell.getNumericCellValue());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public String getNumberValue(int sheetNumber, int numRow, int numCol) {
+		try {
+			final Sheet sheetAt = getWorkbook().getSheetAt(sheetNumber);
+			final Row row = sheetAt.getRow(numRow);
+			final Cell cell = row.getCell(numCol, Row.RETURN_BLANK_AS_NULL);
+			if (cell == null) {
+				return null;
+			}
+			try {
+				final double numericCellValue = cell.getNumericCellValue();
+				return String.valueOf(numericCellValue);
+			} catch (IllegalStateException e) {
+				return cell.getStringCellValue();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

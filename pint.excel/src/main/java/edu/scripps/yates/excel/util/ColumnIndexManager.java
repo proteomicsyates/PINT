@@ -51,6 +51,9 @@ public class ColumnIndexManager {
 	}
 
 	public ColumnName getColumnName(String columnName) {
+		if (columnName == null) {
+			return null;
+		}
 		columnName = columnName.replace("ausgangsfile_copy::", "");
 		columnName = columnName.trim();
 		switch (columnName) {

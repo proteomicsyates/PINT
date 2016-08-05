@@ -4,11 +4,11 @@
   <distributionManagement>
 		<repository>
 			<id>internal</id>
-			<url>http://sealion.scripps.edu:8080/archiva/repository/internal/</url>
+			<url>http://sealion.scripps.edu/archiva/repository/internal/</url>
 		</repository>
 		<snapshotRepository>
 			<id>snapshots</id>
-			<url>http://sealion.scripps.edu:8080/archiva/repository/snapshots/</url>
+			<url>http://sealion.scripps.edu/archiva/repository/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
   <dependencies>
@@ -74,6 +74,11 @@
   		<groupId>edu.scripps.yates</groupId>
   		<artifactId>pint.model</artifactId>
   		<version>1.0.0-SNAPSHOT</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>edu.scripps.yates</groupId>
+  		<artifactId>dbindex</artifactId>
+  		<version>1.1.0-SNAPSHOT</version>
   	</dependency>
   </dependencies>
   <properties>
@@ -144,7 +149,7 @@
     <repository>
         <id>internal</id>
         <name>The Yates lab maven releases repository</name>
-        <url>http://sealion.scripps.edu:8080/archiva/repository/internal/</url>
+        <url>http://sealion.scripps.edu/archiva/repository/internal/</url>
         <releases>
             <enabled>true</enabled>
         </releases>
@@ -156,7 +161,7 @@
     <repository>
         <id>snapshots</id>
         <name>The Yates lab maven snapshot repository</name>
-        <url>http://sealion.scripps.edu:8080/archiva/repository/snapshots/</url>
+        <url>http://sealion.scripps.edu/archiva/repository/snapshots/</url>
         <releases>
             <enabled>false</enabled>
         </releases>

@@ -31,7 +31,7 @@ import edu.scripps.yates.census.read.model.IsobaricQuantifiedProtein;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
-import edu.scripps.yates.census.read.model.interfaces.Ratio;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.proteindb.importcfg.ExcelFileReader;
@@ -606,7 +606,7 @@ public class ImportCfgFileReader {
 				String msRunRef = remoteFilesRatioType.getMsRunRef();
 
 				final QuantParser censusQuantParser = remoteFileReader
-						.getCensusQuantParser(remoteFilesRatioType.getFileRef());
+						.getQuantParser(remoteFilesRatioType.getFileRef());
 				if (censusQuantParser != null) {
 					if (remoteFilesRatioType.getDiscardDecoys() != null)
 						censusQuantParser.setDecoyPattern(remoteFilesRatioType.getDiscardDecoys());
@@ -631,10 +631,10 @@ public class ImportCfgFileReader {
 								// /////////////////////////////////////////////
 								// ratios (from ratios of
 								// peaks = pairs)
-								final Set<Ratio> ratios = quantifiedPSM.getRatios();
+								final Set<QuantRatio> ratios = quantifiedPSM.getRatios();
 								if (ratios != null) {
-									Map<Pair<String, String>, List<Ratio>> mapQuantRatios = new HashMap<Pair<String, String>, List<Ratio>>();
-									for (Ratio quantRatio : ratios) {
+									Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new HashMap<Pair<String, String>, List<QuantRatio>>();
+									for (QuantRatio quantRatio : ratios) {
 										final QuantificationLabel label1 = quantRatio.getLabel1();
 										final QuantificationLabel label2 = quantRatio.getLabel2();
 
@@ -650,7 +650,7 @@ public class ImportCfgFileReader {
 											// take LOG 2 ratio
 											mapQuantRatios.get(samplePair).add(quantRatio);
 										} else {
-											List<Ratio> list = new ArrayList<Ratio>();
+											List<QuantRatio> list = new ArrayList<QuantRatio>();
 											list.add(quantRatio);
 											mapQuantRatios.put(samplePair, list);
 										}
@@ -663,12 +663,12 @@ public class ImportCfgFileReader {
 										Condition condition2 = getConditionBySampleAndRatio(sample2,
 												remoteFilesRatioType);
 
-										final List<Ratio> ratioList = mapQuantRatios.get(pair);
+										final List<QuantRatio> ratioList = mapQuantRatios.get(pair);
 										// treat MAX or MIN value ratios
 										// separetely
-										final List<Ratio> safeRatios = new ArrayList<Ratio>();
-										final List<Ratio> maxOrMinValueRatioValues = new ArrayList<Ratio>();
-										for (Ratio ratioValue : ratioList) {
+										final List<QuantRatio> safeRatios = new ArrayList<QuantRatio>();
+										final List<QuantRatio> maxOrMinValueRatioValues = new ArrayList<QuantRatio>();
+										for (QuantRatio ratioValue : ratioList) {
 											// discard a ratio that is not
 											// between the two conditions
 											if (!ratioValue.getCondition1().getName().equals(condition1.getName())
@@ -698,14 +698,14 @@ public class ImportCfgFileReader {
 											// get the ratios by its names, in
 											// order to average them if there is
 											// more than one of the same name
-											Map<String, Set<Ratio>> ratiosByNames = getRatiosByDescription(safeRatios);
-											for (Set<Ratio> safeRatiosSameName : ratiosByNames.values()) {
+											Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(safeRatios);
+											for (Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
 
 												if (safeRatiosSameName.size() > 1) {
 													// make the average of the
 													// values
 													List<Double> safeRatioValues = new ArrayList<Double>();
-													for (Ratio safeRatio : safeRatiosSameName) {
+													for (QuantRatio safeRatio : safeRatiosSameName) {
 														final Double log2Ratio = safeRatio.getLog2Ratio(
 																condition1.getName(), condition2.getName());
 														if (log2Ratio != null) {
@@ -729,7 +729,7 @@ public class ImportCfgFileReader {
 													}
 													runPSM.addRatio(ratio);
 												} else {
-													final Ratio safeRatio = safeRatiosSameName.iterator().next();
+													final QuantRatio safeRatio = safeRatiosSameName.iterator().next();
 													final Double log2RatioValue = safeRatio
 															.getLog2Ratio(condition1.getName(), condition2.getName());
 													if (log2RatioValue != null) {
@@ -763,7 +763,7 @@ public class ImportCfgFileReader {
 										// store the infinite ratios as
 										// singleton intensity ratios
 										if (!maxOrMinValueRatioValues.isEmpty()) {
-											for (Ratio infiniteRatio : maxOrMinValueRatioValues) {
+											for (QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
 												final Double nonLogRatio = infiniteRatio
 														.getNonLogRatio(condition1.getName(), condition2.getName());
 												if (nonLogRatio != null) {
@@ -868,11 +868,11 @@ public class ImportCfgFileReader {
 		}
 	}
 
-	private Map<String, Set<Ratio>> getRatiosByDescription(List<Ratio> safeRatios) {
-		Map<String, Set<Ratio>> ret = new HashMap<String, Set<Ratio>>();
-		for (Ratio ratio : safeRatios) {
+	private Map<String, Set<QuantRatio>> getRatiosByDescription(List<QuantRatio> safeRatios) {
+		Map<String, Set<QuantRatio>> ret = new HashMap<String, Set<QuantRatio>>();
+		for (QuantRatio ratio : safeRatios) {
 			if (!ret.containsKey(ratio.getDescription())) {
-				Set<Ratio> set = new HashSet<Ratio>();
+				Set<QuantRatio> set = new HashSet<QuantRatio>();
 				set.add(ratio);
 				ret.put(ratio.getDescription(), set);
 			} else {
@@ -889,7 +889,7 @@ public class ImportCfgFileReader {
 				String msRunRef = remoteFilesRatioType.getMsRunRef();
 
 				final QuantParser censusQuantParser = remoteFileReader
-						.getCensusQuantParser(remoteFilesRatioType.getFileRef());
+						.getQuantParser(remoteFilesRatioType.getFileRef());
 				if (censusQuantParser != null) {
 					if (remoteFilesRatioType.getDiscardDecoys() != null) {
 						censusQuantParser.setDecoyPattern(remoteFilesRatioType.getDiscardDecoys());
@@ -924,10 +924,10 @@ public class ImportCfgFileReader {
 
 								// /////////////////////////////////////////////
 								// ratios
-								final Set<Ratio> ratios = quantifiedProtein.getRatios();
+								final Set<QuantRatio> ratios = quantifiedProtein.getRatios();
 								if (ratios != null) {
-									Map<Pair<String, String>, List<Ratio>> mapQuantRatios = new HashMap<Pair<String, String>, List<Ratio>>();
-									for (Ratio quantRatio : ratios) {
+									Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new HashMap<Pair<String, String>, List<QuantRatio>>();
+									for (QuantRatio quantRatio : ratios) {
 										final QuantificationLabel label1 = quantRatio.getLabel1();
 										final QuantificationLabel label2 = quantRatio.getLabel2();
 
@@ -943,7 +943,7 @@ public class ImportCfgFileReader {
 											// take LOG 2 ratio
 											mapQuantRatios.get(samplePair).add(quantRatio);
 										} else {
-											List<Ratio> list = new ArrayList<Ratio>();
+											List<QuantRatio> list = new ArrayList<QuantRatio>();
 											list.add(quantRatio);
 											mapQuantRatios.put(samplePair, list);
 										}
@@ -956,12 +956,12 @@ public class ImportCfgFileReader {
 										Condition condition2 = getConditionBySampleAndRatio(sample2,
 												remoteFilesRatioType);
 
-										final List<Ratio> ratioList = mapQuantRatios.get(pair);
+										final List<QuantRatio> ratioList = mapQuantRatios.get(pair);
 										// treat MAX or MIN value ratios
 										// separetely
-										final List<Ratio> safeRatios = new ArrayList<Ratio>();
-										final List<Ratio> maxOrMinValueRatioValues = new ArrayList<Ratio>();
-										for (Ratio ratioValue : ratioList) {
+										final List<QuantRatio> safeRatios = new ArrayList<QuantRatio>();
+										final List<QuantRatio> maxOrMinValueRatioValues = new ArrayList<QuantRatio>();
+										for (QuantRatio ratioValue : ratioList) {
 											final Double log2Ratio = ratioValue.getLog2Ratio(condition1.getName(),
 													condition2.getName());
 											if (Maths.isMaxOrMinValue(log2Ratio)) {
@@ -975,14 +975,14 @@ public class ImportCfgFileReader {
 											// get the ratios by its names, in
 											// order to average them if there is
 											// more than one of the same name
-											Map<String, Set<Ratio>> ratiosByNames = getRatiosByDescription(safeRatios);
-											for (Set<Ratio> safeRatiosSameName : ratiosByNames.values()) {
+											Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(safeRatios);
+											for (Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
 
 												if (safeRatiosSameName.size() > 1) {
 													// make the average of the
 													// values
 													List<Double> safeRatioValues = new ArrayList<Double>();
-													for (Ratio safeRatio : safeRatiosSameName) {
+													for (QuantRatio safeRatio : safeRatiosSameName) {
 														final Double log2Ratio = safeRatio.getLog2Ratio(
 																condition1.getName(), condition2.getName());
 														if (log2Ratio != null) {
@@ -1005,7 +1005,7 @@ public class ImportCfgFileReader {
 													}
 													runProtein.addRatio(ratio);
 												} else {
-													final Ratio safeRatio = safeRatiosSameName.iterator().next();
+													final QuantRatio safeRatio = safeRatiosSameName.iterator().next();
 
 													final Double log2Ratio = safeRatio
 															.getLog2Ratio(condition1.getName(), condition2.getName());
@@ -1041,7 +1041,7 @@ public class ImportCfgFileReader {
 										// store the infinite ratios as
 										// singleton intensity ratios
 										if (!maxOrMinValueRatioValues.isEmpty()) {
-											for (Ratio infiniteRatio : maxOrMinValueRatioValues) {
+											for (QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
 												final Double nonLogRatio = infiniteRatio
 														.getNonLogRatio(condition1.getName(), condition2.getName());
 												if (nonLogRatio != null) {
