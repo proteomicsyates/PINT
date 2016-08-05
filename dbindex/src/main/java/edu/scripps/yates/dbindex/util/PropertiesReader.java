@@ -22,6 +22,7 @@ public class PropertiesReader {
 	public static final String MASS_GROUP_FACTOR = "mass_group_factor";
 	public static final String ADD_H2O_PLUS_PROTON = "add_h2o_plus_proton";
 	public static final String MANDATORY_INTERNAL_AAs = "mandatory_internal_AAs";
+	public static final String SEMICLEAVAGE = "default_semicleavage";
 
 	public static Properties getProperties() throws Exception {
 		ClassLoader cl = PropertiesReader.class.getClassLoader();

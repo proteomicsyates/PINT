@@ -256,7 +256,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	@Override
 	protected final void commitCachedData() throws SQLException {
 		// called at the end of indexing to commit all buffers
-		logger.info("Bucket " + bucketId + ": Commiting cached data");
+		logger.debug("Bucket " + bucketId + ": Commiting cached data");
 		// change by Salva 21Nov2014
 		// for (int massKey = 0; massKey < MAX_MASS; ++massKey) {
 		// for (int massKey = 0; massKey < data.length; ++massKey) {

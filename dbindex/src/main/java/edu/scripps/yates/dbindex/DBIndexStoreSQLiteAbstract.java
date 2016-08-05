@@ -15,9 +15,9 @@ import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.io.SearchParams;
 
 /**
- * 
+ *
  * SQLite store abstract class with common code
- * 
+ *
  * @author Adam
  */
 public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
@@ -59,12 +59,11 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 
 	/**
 	 * Construct new store, with in memory option
-	 * 
+	 *
 	 * @param inMemory
 	 *            true if should use in memory database
 	 */
-	public DBIndexStoreSQLiteAbstract(DBIndexSearchParams sparam,
-			boolean inMemory, ProteinCache proteinCache) {
+	public DBIndexStoreSQLiteAbstract(DBIndexSearchParams sparam, boolean inMemory, ProteinCache proteinCache) {
 		this(proteinCache);
 		this.sparam = sparam;
 		this.inMemory = inMemory;
@@ -74,8 +73,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 	@Override
 	public final void init(String databaseID) throws DBIndexStoreException {
 		if (databaseID == null || databaseID.equals("")) {
-			throw new DBIndexStoreException(
-					"Index path is missing, cannot initialize the indexer.");
+			throw new DBIndexStoreException("Index path is missing, cannot initialize the indexer.");
 		}
 
 		if (inited) {
@@ -89,9 +87,8 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 
 		File indexFile = new File(dbPath);
 		if (indexFile.exists() && !indexFile.canRead()) {
-			throw new DBIndexStoreException(
-					"Index file already exists and is not readable: "
-							+ databaseID + ", cannot initialize the indexer.");
+			throw new DBIndexStoreException("Index file already exists and is not readable: " + databaseID
+					+ ", cannot initialize the indexer.");
 		}
 
 		Statement statement = null;
@@ -101,8 +98,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 				Class.forName("org.sqlite.JDBC");
 			} catch (ClassNotFoundException ex) {
 				logger.error(null, ex);
-				throw new DBIndexStoreException(
-						"Could not load sqlite driver, ", ex);
+				throw new DBIndexStoreException("Could not load sqlite driver, ", ex);
 			}
 
 			// increase cache size from 2k to 100k pages (100k * 4k bytes)
@@ -153,30 +149,23 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 				config.setMaxPageCount(10 * 1000 * 1000 * 1000 / pageSize);
 				con = DriverManager.getConnection("jdbc:sqlite::memory:"); // ,
 																			// config.toProperties());
-				logger.info("Using in-memory database");
+				logger.debug("Using in-memory database");
 
 				if (needBackup == false) {
 					// already exists (search mode) so load it
 					logger.info("Loading the in-memory database");
-					con.prepareStatement(
-							"ATTACH DATABASE \"" + dbPath + "\" AS  inputDB")
-							.execute();
+					con.prepareStatement("ATTACH DATABASE \"" + dbPath + "\" AS  inputDB").execute();
 
 					// copy all the tables
 
 					// create index and table
-					con.prepareStatement(
-							"CREATE TABLE IF NOT EXISTS blazmass_sequences "
-									+ "(precursor_mass_key INTEGER PRIMARY KEY, "
-									+ "data BINARY" + ");").execute();
-					con.prepareStatement(
-							"CREATE INDEX IF NOT EXISTS precursor_mass_key_index_dsc ON "
-									+ " blazmass_sequences (precursor_mass_key DESC);")
-							.execute();
+					con.prepareStatement("CREATE TABLE IF NOT EXISTS blazmass_sequences "
+							+ "(precursor_mass_key INTEGER PRIMARY KEY, " + "data BINARY" + ");").execute();
+					con.prepareStatement("CREATE INDEX IF NOT EXISTS precursor_mass_key_index_dsc ON "
+							+ " blazmass_sequences (precursor_mass_key DESC);").execute();
 
 					// copy data
-					con.prepareStatement(
-							"INSERT INTO blazmass_sequences  SELECT * FROM inputDB.blazmass_sequences")
+					con.prepareStatement("INSERT INTO blazmass_sequences  SELECT * FROM inputDB.blazmass_sequences")
 							.execute();
 					// TODO create index?
 					logger.info("Done loading the in-memory database");
@@ -186,8 +175,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 				if (new File(dbPath).isDirectory()) {
 					throw new RuntimeException(
 							"Index should be a file, check if you are using the new version of indexer"
-									+ " and delete the old index directory: "
-									+ dbPath);
+									+ " and delete the old index directory: " + dbPath);
 				}
 				con = DriverManager.getConnection("jdbc:sqlite:" + dbPath); // ,
 																			// config.toProperties());
@@ -220,10 +208,8 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 			initStatements();
 			try {
 				if (SQLiteJDBCLoader.isNativeMode() == false) {
-					logger.warn(String.format(
-							"sqlite-jdbc version %s loaded in %s mode",
-							SQLiteJDBCLoader.getVersion(), SQLiteJDBCLoader
-									.isNativeMode() ? "native" : "pure-java"));
+					logger.warn(String.format("sqlite-jdbc version %s loaded in %s mode", SQLiteJDBCLoader.getVersion(),
+							SQLiteJDBCLoader.isNativeMode() ? "native" : "pure-java"));
 				}
 			} catch (Exception ex) {
 				logger.error("Can't check sqlite native mode", ex);
@@ -233,8 +219,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 
 		} catch (SQLException e) {
 			logger.error("Error initializing db, path: " + dbPath, e);
-			throw new DBIndexStoreException("Error initializing db, path: "
-					+ dbPath, e);
+			throw new DBIndexStoreException("Error initializing db, path: " + dbPath, e);
 		} finally {
 			try {
 				if (statement != null) {
@@ -274,8 +259,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 
 		} catch (SQLException e) {
 			logger.error("Unable to start add sequence transaction, ", e);
-			throw new DBIndexStoreException(
-					"Unable to start add sequence transaction, ", e);
+			throw new DBIndexStoreException("Unable to start add sequence transaction, ", e);
 		}
 
 		inTransaction = true;
@@ -283,7 +267,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 
 	/**
 	 * Hook to flush out any cached data to db before final commit
-	 * 
+	 *
 	 * @throws SQLException
 	 */
 	protected void commitCachedData() throws SQLException {
@@ -349,10 +333,8 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 		try {
 			return getLastSequenceId();
 		} catch (SQLException ex) {
-			logger.error("Error executing query to get number of sequences.",
-					ex);
-			throw new DBIndexStoreException(
-					"Error executing query to get number of sequences.", ex);
+			logger.error("Error executing query to get number of sequences.", ex);
+			throw new DBIndexStoreException("Error executing query to get number of sequences.", ex);
 		}
 
 	}
@@ -372,7 +354,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 
 	/**
 	 * Helper to get id of lastly indexed protein def
-	 * 
+	 *
 	 * @return id
 	 * @throws SQLException
 	 *             exception throws if query errored
@@ -394,7 +376,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 
 	/**
 	 * Helper to get id of lastly indexed sequence
-	 * 
+	 *
 	 * @return id
 	 * @throws SQLException
 	 *             exception throws if query errored
@@ -455,50 +437,49 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 
 	/**
 	 * Delete db index, implementation specific
-	 * 
+	 *
 	 * @throws DBIndexStoreException
 	 */
 	protected abstract void deleteTempIndex() throws DBIndexStoreException;
 
 	/**
 	 * Create temp db index, implementation specific
-	 * 
+	 *
 	 * @throws DBIndexStoreException
 	 */
 	protected abstract void createTempIndex() throws DBIndexStoreException;
 
 	/**
 	 * Create db index, implementation specific
-	 * 
+	 *
 	 * @throws DBIndexStoreException
 	 */
 	protected abstract void createIndex() throws DBIndexStoreException;
 
 	/**
 	 * Create db tables, implementation specific
-	 * 
+	 *
 	 * @throws DBIndexStoreException
 	 */
 	protected abstract void createTables() throws DBIndexStoreException;
 
 	/**
 	 * init statements, implementation specific
-	 * 
+	 *
 	 * @throws DBIndexStoreException
 	 */
 	protected abstract void initStatements() throws DBIndexStoreException;
 
 	/**
 	 * init statements common
-	 * 
+	 *
 	 * @throws DBIndexStoreException
 	 */
 	protected void initStatementsCommon() throws DBIndexStoreException {
 		try {
-			getMaxProtDefIdStatement = con
-					.prepareStatement("SELECT MAX(id) FROM blazmass_proteins;");
-			getMaxSeqIdStatement = con.prepareStatement("SELECT MAX("
-					+ getSequencesTablePriKey() + ") FROM blazmass_sequences;");
+			getMaxProtDefIdStatement = con.prepareStatement("SELECT MAX(id) FROM blazmass_proteins;");
+			getMaxSeqIdStatement = con
+					.prepareStatement("SELECT MAX(" + getSequencesTablePriKey() + ") FROM blazmass_sequences;");
 		} catch (SQLException e) {
 			logger.error("Could not initialize statement", e);
 			throw new DBIndexStoreException("Could not initialize statement", e);

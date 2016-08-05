@@ -244,13 +244,10 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 		if (!inited) {
 			throw new DBIndexStoreException("Indexer is not initialized");
 		}
-		if (sequence.equals("ERTFIMVKPDGVQRGLVGK")) {
-			logger.info(sequence);
-		}
 
 		totalSeqCount++;
 		if (totalSeqCount % 1000000 == 0) {
-			logger.info("Total sequences so far: " + totalSeqCount);
+			logger.info("Total peptides indexed so far: " + totalSeqCount);
 		}
 
 		int bucket = getBucketForMass(precMass);
