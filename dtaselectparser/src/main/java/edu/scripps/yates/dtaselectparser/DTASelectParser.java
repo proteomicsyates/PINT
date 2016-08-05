@@ -30,6 +30,7 @@ import edu.scripps.yates.dbindex.IndexedProtein;
 import edu.scripps.yates.dtaselectparser.util.DTASelectPSM;
 import edu.scripps.yates.dtaselectparser.util.DTASelectProtein;
 import edu.scripps.yates.dtaselectparser.util.DTASelectProteinGroup;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 
 /**
@@ -84,6 +85,11 @@ public class DTASelectParser {
 		for (File remoteFile : s) {
 			fs.put(remoteFile.getAbsolutePath(), new FileInputStream(remoteFile));
 		}
+	}
+
+	public DTASelectParser(File file) throws FileNotFoundException {
+		fs = new HashMap<String, InputStream>();
+		fs.put(file.getAbsolutePath(), new FileInputStream(file));
 	}
 
 	public DTASelectParser(String runId, InputStream f) {
@@ -266,6 +272,16 @@ public class DTASelectParser {
 										+ psm.getSequence().getSequence() + " on fasta file");
 								for (IndexedProtein indexedProtein : indexedProteins) {
 									final String indexedAccession = indexedProtein.getAccession();
+									// we should take into account that in the
+									// indexed database you may have decoy hits
+									// that you want to avoid
+									if (decoyPattern != null) {
+										final Matcher matcher = decoyPattern.matcher(indexedAccession);
+										if (matcher.find()) {
+											numDecoy++;
+											continue;
+										}
+									}
 									keys.add(indexedAccession);
 									DTASelectProtein protein = null;
 									if (proteinsTable.containsKey(indexedAccession)) {
@@ -334,8 +350,8 @@ public class DTASelectParser {
 		String[] elements = line.split("\t");
 
 		String psmIdentifier = elements[positions.get(DTASelectPSM.PSM_ID)];
-		String scan = DTASelectPSM.getScanFromPSMIdentifier(psmIdentifier);
-		String fileName = DTASelectPSM.getFileNameFromPSMIdentifier(psmIdentifier);
+		String scan = FastaParser.getScanFromPSMIdentifier(psmIdentifier);
+		String fileName = FastaParser.getFileNameFromPSMIdentifier(psmIdentifier);
 		return fileName + "-" + scan;
 	}
 

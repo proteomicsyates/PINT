@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.scripps.yates.utilities.fasta.FastaParser;
+
 public class DTASelectPSM {
 	public static final Map<String, DTASelectPSM> map = new HashMap<String, DTASelectPSM>();
 	public static final String PSM_ID = "FileName";
@@ -47,6 +49,7 @@ public class DTASelectPSM {
 	private final String fileName;
 	private final Integer chargeState;
 	private String psmIdentifier;
+	private String msRunId;
 
 	public DTASelectPSM(String dtaSelectRow, HashMap<String, Integer> positions, String runPath) {
 
@@ -54,9 +57,9 @@ public class DTASelectPSM {
 		// parse the headerRow
 		String[] elements = dtaSelectRow.split("\t");
 		rawPSMIdentifier = elements[positions.get(PSM_ID)];
-		scan = getScanFromPSMIdentifier(rawPSMIdentifier);
-		fileName = getFileNameFromPSMIdentifier(rawPSMIdentifier);
-		chargeState = getChargeStateFromPSMIdentifier(rawPSMIdentifier);
+		scan = FastaParser.getScanFromPSMIdentifier(rawPSMIdentifier);
+		fileName = FastaParser.getFileNameFromPSMIdentifier(rawPSMIdentifier);
+		chargeState = FastaParser.getChargeStateFromPSMIdentifier(rawPSMIdentifier);
 		runID = fileName;
 		// store by scan number in the map
 		map.put(scan, this);
@@ -91,41 +94,6 @@ public class DTASelectPSM {
 			prob_score = Double.parseDouble(elements[positions.get(PROB_SCORE)]);
 		else
 			prob_score = null;
-	}
-
-	private static Integer getChargeStateFromPSMIdentifier(String psmId) {
-		if (psmId.contains(".")) {
-			final int indexOf = psmId.lastIndexOf(".");
-			String chargeStateString = psmId.substring(indexOf + 1);
-			try {
-				return Integer.valueOf(chargeStateString);
-			} catch (NumberFormatException e) {
-
-			}
-		}
-		return null;
-	}
-
-	public static String getScanFromPSMIdentifier(String psmId) {
-		final int lastIndexOf = psmId.lastIndexOf(".");
-		String scan = psmId.substring(0, lastIndexOf);
-		final int lastIndexOf2 = scan.lastIndexOf(".");
-		scan = scan.substring(lastIndexOf2 + 1);
-		return scan;
-	}
-
-	public static String getFileNameFromPSMIdentifier(String psmId) {
-		if (psmId.contains(".")) {
-			final int indexOf = psmId.indexOf(".");
-			String fileName = psmId.substring(0, indexOf);
-			return fileName;
-		} else {
-			if (psmId.contains("-")) {
-				int index = psmId.lastIndexOf("-");
-				return psmId.substring(0, index);
-			}
-		}
-		return null;
 	}
 
 	public String getSpectraFileName() {
@@ -307,5 +275,20 @@ public class DTASelectPSM {
 	 */
 	public Integer getChargeState() {
 		return chargeState;
+	}
+
+	public String getMsRunId() {
+		if (msRunId == null) {
+			return getSpectraFileName();
+		}
+		return msRunId;
+	}
+
+	/**
+	 * @param msRunId
+	 *            the msRunId to set
+	 */
+	public void setMsRunId(String msRunId) {
+		this.msRunId = msRunId;
 	}
 }

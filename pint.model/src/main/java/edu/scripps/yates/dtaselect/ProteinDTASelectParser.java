@@ -28,6 +28,7 @@ import edu.scripps.yates.utilities.model.factories.AccessionEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 import edu.scripps.yates.utilities.util.Pair;
 
@@ -62,6 +63,13 @@ public class ProteinDTASelectParser {
 		parser = new DTASelectParser(runId, f);
 	}
 
+	/**
+	 * Gets a map of proteins. A single accession can be mapped to several
+	 * proteins, because each protein is a protein in a particular msRun, and
+	 * sometimes DTASelect contains proteins from multiple msRuns
+	 *
+	 * @return
+	 */
 	public HashMap<String, Set<Protein>> getProteins() {
 		if (proteins == null) {
 			proteins = new HashMap<String, Set<Protein>>();
@@ -76,8 +84,14 @@ public class ProteinDTASelectParser {
 						msRunIDs.add(dtaPSM.getSpectraFileName());
 					}
 					for (String msRunID : msRunIDs) {
-						final ProteinImplFromDTASelect protein = new ProteinImplFromDTASelect(dtaSelectProtein,
-								msRunID);
+						Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msRunID);
+						if (ProteomicsModelStaticStorage.containsProtein(msRunID, null, protein.getAccession())) {
+							protein = ProteomicsModelStaticStorage.getSingleProtein(msRunID, null,
+									protein.getAccession());
+						} else {
+							ProteomicsModelStaticStorage.addProtein(protein, msRunID, null);
+						}
+
 						if (!proteins.containsKey(protein.getAccession())) {
 							Set<Protein> set = new HashSet<Protein>();
 							set.add(protein);
