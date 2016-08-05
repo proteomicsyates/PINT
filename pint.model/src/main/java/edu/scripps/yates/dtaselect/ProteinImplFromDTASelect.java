@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import edu.scripps.yates.dtaselectparser.util.DTASelectPSM;
 import edu.scripps.yates.dtaselectparser.util.DTASelectProtein;
 import edu.scripps.yates.util.ProteinExistenceUtil;
@@ -41,6 +43,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
 
 public class ProteinImplFromDTASelect implements Protein {
+	private static final Logger log = Logger.getLogger(ProteinImplFromDTASelect.class);
 	private final DTASelectProtein dtaSelectProtein;
 	private Accession primaryAccession;
 	private final Set<PSM> psms = new HashSet<PSM>();
@@ -62,6 +65,8 @@ public class ProteinImplFromDTASelect implements Protein {
 	private boolean genesParsed = false;
 	private final List<Accession> secondaryAccessions = new ArrayList<Accession>();
 	private boolean peptidesParsed;
+	private final boolean forceAllPSMsToBeFromThisMSRun;
+	private static int max = 0;
 	private final static Map<String, MSRun> msRunMap = new HashMap<String, MSRun>();
 
 	public ProteinImplFromDTASelect(DTASelectProtein dtaSelectProtein, String msRunID) {
@@ -76,6 +81,13 @@ public class ProteinImplFromDTASelect implements Protein {
 		} else {
 			msrun = msRunMap.get(msRunID);
 		}
+		forceAllPSMsToBeFromThisMSRun = false;
+
+		final int length2 = getPrimaryAccession().getAccession().length();
+		if (length2 > max) {
+			log.debug(getPrimaryAccession().getAccession() + " length=" + length2);
+			max = length2;
+		}
 	}
 
 	public ProteinImplFromDTASelect(DTASelectProtein dtaSelectProtein2, MSRun msrun2) {
@@ -87,7 +99,12 @@ public class ProteinImplFromDTASelect implements Protein {
 
 		msrun = msrun2;
 		msRunMap.put(msrun.getRunId(), msrun);
-
+		forceAllPSMsToBeFromThisMSRun = true;
+		final int length2 = getPrimaryAccession().getAccession().length();
+		if (length2 > max) {
+			log.info(getPrimaryAccession().getAccession() + " length=" + length2);
+			max = length2;
+		}
 	}
 
 	@Override
@@ -194,55 +211,60 @@ public class ProteinImplFromDTASelect implements Protein {
 		if (!psmsParsed) {
 			final List<DTASelectPSM> dtaSelectPSMs = dtaSelectProtein.getPSMs();
 			for (DTASelectPSM dtaSelectPSM : dtaSelectPSMs) {
+				if (forceAllPSMsToBeFromThisMSRun) {
+					dtaSelectPSM.setMsRunId(getMSRun().getRunId());
+				}
 				// only assign the ones from the same msRun, that is, fileName
-				// if
-				// (dtaSelectPSM.getSpectraFileName().equals(msrun.getRunId()))
-				// {
-				PSM psm = null;
-				// if (PSMImplFromDTASelect.psmMap.containsKey(dtaSelectPSM)) {
-				// psm = PSMImplFromDTASelect.psmMap.get(dtaSelectPSM);
-				if (ProteomicsModelStaticStorage.containsPSM(msrun, null, dtaSelectPSM.getPsmIdentifier())) {
-					psm = ProteomicsModelStaticStorage.getSinglePSM(msrun, null, dtaSelectPSM.getPsmIdentifier());
-					psm.addProtein(this);
-					psms.add(psm);
-				} else {
-					psm = new PSMImplFromDTASelect(dtaSelectPSM, msrun);
-					psm.addProtein(this);
-					psms.add(psm);
-					ProteomicsModelStaticStorage.addPSM(psm, msrun, null);
-				}
-				// create or retrieve the corresponding Peptide
-				final String sequence = dtaSelectPSM.getSequence().getSequence();
-				Peptide peptide = null;
-				if (ProteomicsModelStaticStorage.containsPeptide(msrun, null, sequence)) {
-					peptide = ProteomicsModelStaticStorage.getSinglePeptide(msrun, null, sequence);
-				} else {
-					peptide = new PeptideEx(sequence, msrun);
-					ProteomicsModelStaticStorage.addPeptide(peptide, msrun, null);
-				}
-				// Map<String, Peptide> peptideMap = null;
-				// if
-				// (PSMImplFromDTASelect.peptideMapByMSRun.containsKey(msrun.getRunId()))
-				// {
-				// peptideMap =
-				// PSMImplFromDTASelect.peptideMapByMSRun.get(msrun.getRunId());
-				// } else {
-				// peptideMap = new HashMap<String, Peptide>();
-				// PSMImplFromDTASelect.peptideMapByMSRun.put(msrun.getRunId(),
-				// peptideMap);
-				// }
-				// if (peptideMap.containsKey(sequence)) {
-				// peptide = peptideMap.get(sequence);
-				// } else {
-				// peptide = new PeptideEx(sequence, msrun);
-				// peptideMap.put(sequence, peptide);
-				// }
+				// otherwise, we are going to assign psms to a protein belonging
+				// to another MSRun
+				if (dtaSelectPSM.getMsRunId().equals(msrun.getRunId())) {
+					PSM psm = null;
+					// if
+					// (PSMImplFromDTASelect.psmMap.containsKey(dtaSelectPSM)) {
+					// psm = PSMImplFromDTASelect.psmMap.get(dtaSelectPSM);
+					if (ProteomicsModelStaticStorage.containsPSM(msrun, null, dtaSelectPSM.getPsmIdentifier())) {
+						psm = ProteomicsModelStaticStorage.getSinglePSM(msrun, null, dtaSelectPSM.getPsmIdentifier());
+						psm.addProtein(this);
+						psms.add(psm);
+					} else {
+						psm = new PSMImplFromDTASelect(dtaSelectPSM, msrun);
+						psm.addProtein(this);
+						psms.add(psm);
+						ProteomicsModelStaticStorage.addPSM(psm, msrun, null);
+					}
+					// create or retrieve the corresponding Peptide
+					final String sequence = dtaSelectPSM.getSequence().getSequence();
+					Peptide peptide = null;
+					if (ProteomicsModelStaticStorage.containsPeptide(msrun, null, sequence)) {
+						peptide = ProteomicsModelStaticStorage.getSinglePeptide(msrun, null, sequence);
+					} else {
+						peptide = new PeptideEx(sequence, msrun);
+						ProteomicsModelStaticStorage.addPeptide(peptide, msrun, null);
+					}
+					// Map<String, Peptide> peptideMap = null;
+					// if
+					// (PSMImplFromDTASelect.peptideMapByMSRun.containsKey(msrun.getRunId()))
+					// {
+					// peptideMap =
+					// PSMImplFromDTASelect.peptideMapByMSRun.get(msrun.getRunId());
+					// } else {
+					// peptideMap = new HashMap<String, Peptide>();
+					// PSMImplFromDTASelect.peptideMapByMSRun.put(msrun.getRunId(),
+					// peptideMap);
+					// }
+					// if (peptideMap.containsKey(sequence)) {
+					// peptide = peptideMap.get(sequence);
+					// } else {
+					// peptide = new PeptideEx(sequence, msrun);
+					// peptideMap.put(sequence, peptide);
+					// }
 
-				peptide.addPSM(psm);
-				psm.setPeptide(peptide);
-				for (Protein protein : psm.getProteins()) {
-					protein.addPeptide(peptide);
-					peptide.addProtein(protein);
+					peptide.addPSM(psm);
+					psm.setPeptide(peptide);
+					for (Protein protein : psm.getProteins()) {
+						protein.addPeptide(peptide);
+						peptide.addProtein(protein);
+					}
 				}
 			}
 			// }

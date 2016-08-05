@@ -58,6 +58,13 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	private static Logger log = Logger.getLogger(ProteinImplFromUniprotEntry.class);
 	public static final String ANNOTATION_SEPARATOR = "###";
 	private final static String GO = "GO";
+	public static final String ID = "id";
+	public static final String STATUS = "status";
+	public static final String REF = "ref";
+	public static final String BEGIN = "begin";
+	public static final String END = "end";
+	public static final String POSITION = "position";
+	public static final String ORIGINAL = "original";
 	private final SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 	private final Entry entry;
 	private final List<Accession> secondaryAccessions = new ArrayList<Accession>();
@@ -72,7 +79,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	private final Set<PSM> psms = new HashSet<PSM>();
 	private boolean organismParsed;
 	private MSRun msRun;
-	private int length;
+	private int length = 0;
 	private boolean lengthParsed;
 	private double pi;
 	private double mw;
@@ -383,11 +390,11 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	private String getValueFromFeature(FeatureType feature) {
 		StringBuilder sb = new StringBuilder();
 		if (feature.getId() != null)
-			sb.append("id:" + feature.getDescription());
+			sb.append(ID + ":" + feature.getDescription());
 
 		if (feature.getStatus() != null) {
 			appendIfNotEmpty(sb, ANNOTATION_SEPARATOR);
-			sb.append("status:" + feature.getStatus());
+			sb.append(STATUS + ":" + feature.getStatus());
 		}
 
 		if (feature.getEvidence() != null) {
@@ -396,22 +403,22 @@ public class ProteinImplFromUniprotEntry implements Protein {
 
 		if (feature.getRef() != null) {
 			appendIfNotEmpty(sb, ANNOTATION_SEPARATOR);
-			sb.append("ref:" + feature.getRef());
+			sb.append(REF + ":" + feature.getRef());
 		}
 
 		final LocationType location = feature.getLocation();
 		if (location != null) {
 			if (location.getBegin() != null) {
 				appendIfNotEmpty(sb, ANNOTATION_SEPARATOR);
-				sb.append(" begin:" + location.getBegin().getPosition());
+				sb.append(BEGIN + ":" + location.getBegin().getPosition());
 			}
 			if (location.getEnd() != null) {
 				appendIfNotEmpty(sb, ANNOTATION_SEPARATOR);
-				sb.append(" end:" + location.getEnd().getPosition());
+				sb.append(END + ":" + location.getEnd().getPosition());
 			}
 			if (location.getPosition() != null) {
 				appendIfNotEmpty(sb, ANNOTATION_SEPARATOR);
-				sb.append(" position:" + location.getPosition().getPosition());
+				sb.append(POSITION + ":" + location.getPosition().getPosition());
 			}
 		}
 
@@ -419,7 +426,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		if (original != null) {
 			if (!"".equals(sb.toString()))
 				sb.append(ANNOTATION_SEPARATOR);
-			sb.append("original:" + original);
+			sb.append(ORIGINAL + ":" + original);
 		}
 
 		return sb.toString().trim();
