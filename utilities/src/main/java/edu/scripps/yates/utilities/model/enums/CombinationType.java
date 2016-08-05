@@ -2,7 +2,7 @@ package edu.scripps.yates.utilities.model.enums;
 
 public enum CombinationType {
 	AVERAGE("average", "the average between the values"), SUM("sum",
-			"the sum between the values");
+			"the sum between the values"), WEIGHTED_AVERAGE("Weighted average", "Weigthed average of the ratios");
 	private final String name;
 	private final String description;
 
@@ -28,8 +28,7 @@ public enum CombinationType {
 	public static CombinationType getCombinationType(String name) {
 		final CombinationType[] values = CombinationType.values();
 		for (CombinationType combinationType : values) {
-			if (combinationType.name.equalsIgnoreCase(name)
-					|| combinationType.description.equalsIgnoreCase(name))
+			if (combinationType.name.equalsIgnoreCase(name) || combinationType.description.equalsIgnoreCase(name))
 				return combinationType;
 		}
 		return null;

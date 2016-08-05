@@ -8,9 +8,14 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
+
 public class FileUtils {
+	private final static Logger log = Logger.getLogger(FileUtils.class);
+	private static final DecimalFormat df = new DecimalFormat("#.#");
 
 	public static void mergeFiles(Collection<File> files, File mergedFile, boolean skipHeaderOfNotFirstFiles) {
 		File[] fileArray = new File[files.size()];
@@ -24,49 +29,67 @@ public class FileUtils {
 
 	public static void mergeFiles(File[] files, File mergedFile, boolean skipHeaderOfNotFirstFiles) {
 		// if the file already exists, delete it
-		if (mergedFile.exists())
+		if (mergedFile.exists()) {
 			mergedFile.delete();
+		}
 		FileWriter fstream = null;
 		BufferedWriter out = null;
 		try {
-			fstream = new FileWriter(mergedFile, true);
-			out = new BufferedWriter(fstream);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		boolean firstFile = true;
-		for (File f : files) {
-			System.out.println("merging: " + f.getName());
-			FileInputStream fis;
 			try {
-				fis = new FileInputStream(f);
-				BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+				fstream = new FileWriter(mergedFile, true);
+				out = new BufferedWriter(fstream);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 
-				String aLine;
-				boolean firstLine = true;
-				while ((aLine = in.readLine()) != null) {
-					if (skipHeaderOfNotFirstFiles && (!firstFile && firstLine)) {
-						firstLine = false;
-						continue;
+			boolean firstFile = true;
+			for (File f : files) {
+				log.debug("merging: " + f.getName());
+				FileInputStream fis;
+				BufferedReader in = null;
+				try {
+					fis = new FileInputStream(f);
+					in = new BufferedReader(new InputStreamReader(fis));
+
+					String aLine;
+					boolean firstLine = true;
+					while ((aLine = in.readLine()) != null) {
+						if (skipHeaderOfNotFirstFiles && (!firstFile && firstLine)) {
+							firstLine = false;
+							continue;
+						}
+
+						out.write(aLine);
+						out.newLine();
+
+					}
+					firstLine = false;
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					if (in != null) {
+						try {
+							in.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+							log.error(e);
+						}
 					}
 
-					out.write(aLine);
-					out.newLine();
-
 				}
-				firstLine = false;
-				in.close();
+				firstFile = false;
+			}
+		} finally {
+			try {
+				if (out != null) {
+					out.close();
+					log.debug("File merged at: " + mergedFile.getAbsolutePath());
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
+				log.error(e);
 			}
-			firstFile = false;
-		}
-
-		try {
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 
 	}
@@ -110,5 +133,21 @@ public class FileUtils {
 			}
 		}
 		return ret && path.delete();
+	}
+
+	public static String getDescriptiveSizeFromBytes(long sizeInBytes) {
+		if (sizeInBytes < 1024) {
+			return df.format(sizeInBytes) + " bytes";
+		}
+		double sizeInMBytes = sizeInBytes / 1024;
+		if (sizeInMBytes < 1024) {
+			return df.format(sizeInMBytes) + " Mb";
+		}
+		double sizeInGBytes = sizeInMBytes / 1024;
+		if (sizeInGBytes < 1024) {
+			return df.format(sizeInGBytes) + " Gb";
+		}
+		double sizeInTBytes = sizeInGBytes / 1024;
+		return df.format(sizeInTBytes) + " TBytes";
 	}
 }

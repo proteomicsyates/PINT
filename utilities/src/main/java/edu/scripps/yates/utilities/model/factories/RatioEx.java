@@ -109,8 +109,8 @@ public class RatioEx implements Ratio, Serializable {
 	 */
 	@Override
 	public boolean equals(Object arg0) {
-		if (arg0 instanceof RatioEx) {
-			RatioEx ratio = (RatioEx) arg0;
+		if (arg0 instanceof Ratio) {
+			Ratio ratio = (Ratio) arg0;
 			if (ratio.getValue() != getValue())
 				return false;
 			if (!ratio.getCondition1().equals(getCondition1()))

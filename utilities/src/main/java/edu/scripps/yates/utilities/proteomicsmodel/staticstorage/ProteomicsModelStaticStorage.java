@@ -187,6 +187,17 @@ public class ProteomicsModelStaticStorage {
 		return peptides.iterator().next();
 	}
 
+	public static Protein getSingleProtein(String msRunID, String conditionID, String accession) {
+		final Set<Protein> proteins = getProtein(msRunID, conditionID, accession);
+		if (proteins == null || proteins.isEmpty()) {
+			return null;
+		}
+		if (proteins.size() > 1) {
+			log.warn("Retrieved proteins are multiple!");
+		}
+		return proteins.iterator().next();
+	}
+
 	public static Set<Peptide> getPeptide(String msRunID, String conditionID, int excelRowIndex, String sequence) {
 		return peptideStorage.get(msRunID, conditionID, excelRowIndex, sequence);
 	}

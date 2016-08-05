@@ -12,14 +12,14 @@ import java.util.regex.Pattern;
 
 /**
  * Class that provides a {@link String} comparator with some additional features
- * 
+ *
  * @author Salva
- * 
+ *
  */
 public class StringUtils {
 	/**
 	 * Comparison between two {@link String} with several options
-	 * 
+	 *
 	 * @param text1
 	 * @param text2
 	 * @param ignoreCase
@@ -34,13 +34,11 @@ public class StringUtils {
 	 *            performContains is false.
 	 * @return
 	 */
-	public static boolean compareStrings(String text1, String text2,
-			boolean ignoreCase, boolean performContains,
+	public static boolean compareStrings(String text1, String text2, boolean ignoreCase, boolean performContains,
 			boolean reverseComparison) {
 		if (text1 == null && text2 == null)
 			return true;
-		if ((text1 == null && text2 != null)
-				|| (text1 != null && text2 == null))
+		if ((text1 == null && text2 != null) || (text1 != null && text2 == null))
 			return false;
 
 		if (ignoreCase && text1.equalsIgnoreCase(text2))
@@ -53,8 +51,7 @@ public class StringUtils {
 			if (!ignoreCase && text1.contains(text2))
 				return true;
 			if (reverseComparison) {
-				if (ignoreCase
-						&& text2.toLowerCase().contains(text1.toLowerCase()))
+				if (ignoreCase && text2.toLowerCase().contains(text1.toLowerCase()))
 					return true;
 				if (!ignoreCase && text2.contains(text1))
 					return true;
@@ -63,11 +60,17 @@ public class StringUtils {
 		return false;
 	}
 
-	public static List<Integer> allIndexOf(String sourceString,
-			String targetString) {
+	/**
+	 * Search the targetString in the source string and returns the positions
+	 * (starting by 1) in which the targetString appears in the sourceString
+	 *
+	 * @param sourceString
+	 * @param targetString
+	 * @return
+	 */
+	public static List<Integer> allPositionsOf(String sourceString, String targetString) {
 		List<Integer> ret = new ArrayList<Integer>();
-		if (sourceString != null && targetString != null
-				&& !"".equals(sourceString) && !"".equals(targetString)) {
+		if (sourceString != null && targetString != null && !"".equals(sourceString) && !"".equals(targetString)) {
 			Pattern p = Pattern.compile(targetString, Pattern.LITERAL);
 			Matcher m = p.matcher(sourceString);
 			int start = 0;
@@ -79,8 +82,7 @@ public class StringUtils {
 		return ret;
 	}
 
-	public static String convertStreamToString(InputStream is, int bufferSize,
-			String encoding) throws IOException {
+	public static String convertStreamToString(InputStream is, int bufferSize, String encoding) throws IOException {
 
 		Reader reader = new BufferedReader(new InputStreamReader(is, encoding));
 		StringBuffer content = new StringBuffer();

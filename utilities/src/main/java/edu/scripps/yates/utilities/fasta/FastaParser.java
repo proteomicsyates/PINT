@@ -740,4 +740,60 @@ public class FastaParser {
 		}
 		return false;
 	}
+
+	/**
+	 * Gets the scan number from a string like 'rawfile.scan.scan.charge'
+	 *
+	 * @param psmId
+	 * @return
+	 */
+	public static String getScanFromPSMIdentifier(String psmId) {
+		if (psmId == null) {
+			return null;
+		}
+		final int lastIndexOf = psmId.lastIndexOf(".");
+		String scan = psmId.substring(0, lastIndexOf);
+		final int lastIndexOf2 = scan.lastIndexOf(".");
+		scan = scan.substring(lastIndexOf2 + 1);
+		return scan;
+	}
+
+	/**
+	 * Gets the file name from a string like 'rawfile.scan.scan.charge'
+	 *
+	 * @param psmId
+	 * @return
+	 */
+	public static String getFileNameFromPSMIdentifier(String psmId) {
+		if (psmId == null) {
+			return null;
+		}
+		if (psmId.contains(".")) {
+			final int indexOf = psmId.indexOf(".");
+			String fileName = psmId.substring(0, indexOf);
+			return fileName;
+		} else {
+			if (psmId.contains("-")) {
+				int index = psmId.lastIndexOf("-");
+				return psmId.substring(0, index);
+			}
+		}
+		return null;
+	}
+
+	public static Integer getChargeStateFromPSMIdentifier(String psmId) {
+		if (psmId == null) {
+			return null;
+		}
+		if (psmId.contains(".")) {
+			final int indexOf = psmId.lastIndexOf(".");
+			String chargeStateString = psmId.substring(indexOf + 1);
+			try {
+				return Integer.valueOf(chargeStateString);
+			} catch (NumberFormatException e) {
+
+			}
+		}
+		return null;
+	}
 }

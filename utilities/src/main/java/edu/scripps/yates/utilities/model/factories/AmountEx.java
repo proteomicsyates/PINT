@@ -12,7 +12,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 public class AmountEx implements Amount, Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -6291033827811837759L;
 	/**
@@ -40,13 +40,12 @@ public class AmountEx implements Amount, Serializable {
 	 * same for all of them.<br>
 	 * The {@link Protein} referenced by these {@link Amount} must be the same
 	 * for all of them.
-	 * 
+	 *
 	 * @param value
 	 * @param amountType
 	 * @param replicatesAmounts
 	 */
-	public AmountEx(double value, AmountType amountType,
-			CombinationType combinationType, Condition condition) {
+	public AmountEx(double value, AmountType amountType, CombinationType combinationType, Condition condition) {
 		this.value = value;
 		this.amountType = amountType;
 		this.combinationType = combinationType;
@@ -76,8 +75,7 @@ public class AmountEx implements Amount, Serializable {
 	 */
 	@Override
 	public String toString() {
-		String string = "ProteinAmountEx [value=" + value + ", amountType="
-				+ amountType;
+		String string = "AmountEx [value=" + value + ", amountType=" + amountType;
 		if (combinationType != null)
 			string += ", combinationType=" + combinationType + " ";
 		if (singleton != null)
