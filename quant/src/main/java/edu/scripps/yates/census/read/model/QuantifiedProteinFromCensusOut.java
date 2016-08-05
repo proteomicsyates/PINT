@@ -9,14 +9,17 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.census.analysis.QuantCondition;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPeptideInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
-import edu.scripps.yates.census.read.model.interfaces.Ratio;
+import edu.scripps.yates.census.read.util.QuantUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupablePSM;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
+import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.util.Pair;
 
@@ -37,12 +40,14 @@ public class QuantifiedProteinFromCensusOut extends AbstractContainsQuantifiedPS
 
 	private String taxonomy;
 
-	public QuantifiedProteinFromCensusOut(String proteinACC) {
+	private final Set<String> fileNames = new HashSet<String>();
 
+	private boolean discarded;
+
+	public QuantifiedProteinFromCensusOut(String proteinACC) {
 		final Pair<String, String> accPair = FastaParser.getACC(proteinACC);
 		accession = accPair.getFirstelement();
 		accessionType = accPair.getSecondElement();
-		StaticMaps.proteinMap.addItem(this);
 	}
 
 	@Override
@@ -148,14 +153,15 @@ public class QuantifiedProteinFromCensusOut extends AbstractContainsQuantifiedPS
 	}
 
 	/**
-	 * @return the fileNames
+	 * @return the rawfileNames
 	 */
+
 	@Override
-	public Set<String> getFileNames() {
+	public Set<String> getRawFileNames() {
 		Set<String> ret = new HashSet<String>();
 		final Set<QuantifiedPSMInterface> quantifiedPSMs2 = getQuantifiedPSMs();
 		for (QuantifiedPSMInterface quantifiedPSMInterface : quantifiedPSMs2) {
-			ret.add(quantifiedPSMInterface.getFileName());
+			ret.add(quantifiedPSMInterface.getRawFileName());
 		}
 		return ret;
 	}
@@ -226,7 +232,8 @@ public class QuantifiedProteinFromCensusOut extends AbstractContainsQuantifiedPS
 		return sb.toString();
 	}
 
-	public void addRatio(Ratio ratio) {
+	@Override
+	public void addRatio(QuantRatio ratio) {
 		ratios.add(ratio);
 
 	}
@@ -239,5 +246,49 @@ public class QuantifiedProteinFromCensusOut extends AbstractContainsQuantifiedPS
 	@Override
 	public void addAmount(Amount amount) {
 		amounts.add(amount);
+	}
+
+	@Override
+	public Set<QuantRatio> getNonInfinityRatios() {
+		return QuantUtil.getNonInfinityRatios(getRatios());
+	}
+
+	@Override
+	public void addFileName(String fileName) {
+		fileNames.add(fileName);
+
+	}
+
+	@Override
+	public Set<String> getFileNames() {
+		return fileNames;
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition quantConditionNumerator,
+			QuantCondition quantConditionDenominator) {
+		return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios()), AggregationLevel.PROTEIN);
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition quantConditionNumerator,
+			QuantCondition quantConditionDenominator, String replicateName) {
+		return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios(replicateName)),
+				AggregationLevel.PROTEIN);
+	}
+
+	@Override
+	public boolean isDiscarded() {
+
+		return discarded;
+	}
+
+	@Override
+	public void setDiscarded(boolean discarded) {
+		this.discarded = discarded;
+		final Set<QuantifiedPSMInterface> quantifiedPSMs = getQuantifiedPSMs();
+		for (QuantifiedPSMInterface quantifiedPSMInterface : quantifiedPSMs) {
+			quantifiedPSMInterface.setDiscarded(discarded);
+		}
 	}
 }

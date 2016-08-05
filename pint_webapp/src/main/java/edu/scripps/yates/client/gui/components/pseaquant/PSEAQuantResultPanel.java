@@ -2,7 +2,6 @@ package edu.scripps.yates.client.gui.components.pseaquant;
 
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.UriUtils;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -10,6 +9,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 
 import edu.scripps.yates.client.gui.templates.HtmlTemplates;
+import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantResult;
 import edu.scripps.yates.shared.util.SharedConstants;
 
@@ -47,9 +47,14 @@ public class PSEAQuantResultPanel extends Composite {
 		Label lblHereYouCan = new Label("Here you can download the data you sent to PSEA-Quant:");
 		flexTable.setWidget(2, 1, lblHereYouCan);
 
-		final String href = Window.Location.getProtocol() + "//" + Window.Location.getHost() + "/pint/download?"
-				+ SharedConstants.FILE_TO_DOWNLOAD + "=" + result.getLinkToRatios() + "&" + SharedConstants.FILE_TYPE
-				+ "=" + SharedConstants.PSEA_QUANT_DATA_FILE_TYPE;
+		// final String href = Window.Location.getProtocol() + "//" +
+		// Window.Location.getHost() + "/pint/download?"
+		// + SharedConstants.FILE_TO_DOWNLOAD + "=" + result.getLinkToRatios() +
+		// "&" + SharedConstants.FILE_TYPE
+		// + "=" + SharedConstants.PSEA_QUANT_DATA_FILE_TYPE;
+
+		final String href = ClientSafeHtmlUtils.getDownloadURL(result.getLinkToRatios(),
+				SharedConstants.PSEA_QUANT_DATA_FILE_TYPE);
 		final SafeHtml link2 = HtmlTemplates.instance.link(UriUtils.fromString(href), "link",
 				"Download data sent to PSEA-Quant", "Download data sent to PSEA-Quant", "data");
 		// Anchor anchor2 = new Anchor("data", href);

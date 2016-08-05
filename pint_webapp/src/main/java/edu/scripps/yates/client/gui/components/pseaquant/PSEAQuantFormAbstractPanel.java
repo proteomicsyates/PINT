@@ -96,8 +96,7 @@ public abstract class PSEAQuantFormAbstractPanel extends Composite implements PS
 
 	protected void showLoadingDialog(String text, boolean autohide, boolean modal, boolean showBarProgress) {
 
-		loadingDialog = MyDialogBox.getInstance(text, autohide, modal, showBarProgress);
-
+		loadingDialog = new MyDialogBox(text, autohide, modal, showBarProgress, null);
 		loadingDialog.center();
 
 	}

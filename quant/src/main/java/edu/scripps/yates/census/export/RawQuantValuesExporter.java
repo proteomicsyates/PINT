@@ -212,7 +212,7 @@ public class RawQuantValuesExporter {
 		boolean dmdv = false;
 		boolean dvdm = false;
 
-		final String fileName = quantifiedPSM.getFileName();
+		final String fileName = quantifiedPSM.getRawFileName();
 		if (fileName.contains("DmDv"))
 			dmdv = true;
 		if (fileName.contains("DvDm"))

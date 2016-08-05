@@ -7,20 +7,19 @@ import java.util.Set;
 
 import edu.scripps.yates.census.analysis.QuantCondition;
 import edu.scripps.yates.census.read.model.interfaces.HasRatios;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
-import edu.scripps.yates.census.read.model.interfaces.Ratio;
 import edu.scripps.yates.utilities.maths.Maths;
 
 public abstract class AbstractContainsQuantifiedPSMs implements HasRatios {
 
-	protected Set<Ratio> ratios = new HashSet<Ratio>();
+	protected final Set<QuantRatio> ratios = new HashSet<QuantRatio>();
 
 	public abstract Set<QuantifiedPSMInterface> getQuantifiedPSMs();
 
 	@Override
-	public Set<Ratio> getRatios() {
+	public Set<QuantRatio> getRatios() {
 		if (ratios == null || ratios.isEmpty()) {
-			ratios = new HashSet<Ratio>();
 			for (QuantifiedPSMInterface psm : getQuantifiedPSMs()) {
 				ratios.addAll(psm.getRatios());
 			}
@@ -28,11 +27,23 @@ public abstract class AbstractContainsQuantifiedPSMs implements HasRatios {
 		return ratios;
 	}
 
+	public Set<QuantRatio> getRatios(String replicateName) {
+		Set<QuantRatio> replicateRatios = new HashSet<QuantRatio>();
+
+		for (QuantifiedPSMInterface psm : getQuantifiedPSMs()) {
+			if (psm.getFileNames().contains(replicateName)) {
+				replicateRatios.addAll(psm.getRatios());
+			}
+		}
+
+		return replicateRatios;
+	}
+
 	@Override
 	public double getMeanRatios(QuantCondition quantConditionNumerator, QuantCondition quantConditionDenominator) {
 		List<Double> ratioValues = new ArrayList<Double>();
 
-		for (Ratio ratio : getRatios()) {
+		for (QuantRatio ratio : getRatios()) {
 			ratioValues.add(ratio.getLog2Ratio(quantConditionNumerator, quantConditionDenominator));
 		}
 
@@ -43,7 +54,7 @@ public abstract class AbstractContainsQuantifiedPSMs implements HasRatios {
 	public double getSTDRatios(QuantCondition quantConditionNumerator, QuantCondition quantConditionDenominator) {
 		List<Double> ratioValues = new ArrayList<Double>();
 
-		for (Ratio ratio : getRatios()) {
+		for (QuantRatio ratio : getRatios()) {
 			ratioValues.add(ratio.getLog2Ratio(quantConditionNumerator, quantConditionDenominator));
 		}
 

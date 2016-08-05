@@ -7,10 +7,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import edu.scripps.yates.census.analysis.QuantCondition;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
+import edu.scripps.yates.census.read.util.QuantUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
+import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 
 public class QuantifiedProteinGroup extends AbstractContainsQuantifiedPSMs {
 	private static final String SEPARATOR = " ## ";
@@ -110,4 +114,26 @@ public class QuantifiedProteinGroup extends AbstractContainsQuantifiedPSMs {
 		return ret;
 	}
 
+	@Override
+	public void addRatio(QuantRatio ratio) {
+		ratios.add(ratio);
+	}
+
+	@Override
+	public Set<QuantRatio> getNonInfinityRatios() {
+		return QuantUtil.getNonInfinityRatios(getRatios());
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition quantConditionNumerator,
+			QuantCondition quantConditionDenominator) {
+		return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios()), AggregationLevel.PROTEINGROUP);
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition quantConditionNumerator,
+			QuantCondition quantConditionDenominator, String replicateName) {
+		return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios(replicateName)),
+				AggregationLevel.PROTEIN);
+	}
 }

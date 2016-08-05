@@ -6,7 +6,7 @@ import java.util.Set;
 import edu.scripps.yates.census.read.model.IsoRatio;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedProtein;
 import edu.scripps.yates.census.read.model.QuantifiedProteinFromCensusOut;
-import edu.scripps.yates.census.read.model.interfaces.Ratio;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 
@@ -243,8 +243,8 @@ public class CensusChroUtil {
 	 * @param proteinGroup
 	 * @return
 	 */
-	public static Set<Ratio> getRatiosFromProteinGroup(ProteinGroup proteinGroup) {
-		Set<Ratio> ret = new HashSet<Ratio>();
+	public static Set<QuantRatio> getRatiosFromProteinGroup(ProteinGroup proteinGroup) {
+		Set<QuantRatio> ret = new HashSet<QuantRatio>();
 		for (GroupableProtein protein : proteinGroup) {
 			if (protein instanceof IsobaricQuantifiedProtein) {
 				IsobaricQuantifiedProtein quantProtein = (IsobaricQuantifiedProtein) protein;

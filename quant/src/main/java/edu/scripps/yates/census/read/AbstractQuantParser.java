@@ -16,7 +16,6 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.census.analysis.QuantCondition;
-import edu.scripps.yates.census.read.model.StaticMaps;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPeptideInterface;
@@ -97,26 +96,26 @@ public abstract class AbstractQuantParser implements QuantParser {
 		addFile(remoteSSHServer, labelsByConditions, labelNumerator, labelDenominator);
 	}
 
-	public AbstractQuantParser(File xmlFile, Map<QuantCondition, QuantificationLabel> labelsByConditions,
+	public AbstractQuantParser(File inputFile, Map<QuantCondition, QuantificationLabel> labelsByConditions,
 			QuantificationLabel labelNumerator, QuantificationLabel labelDenominator) throws FileNotFoundException {
-		addFile(xmlFile, labelsByConditions, labelNumerator, labelDenominator);
+		addFile(inputFile, labelsByConditions, labelNumerator, labelDenominator);
 	}
 
-	public AbstractQuantParser(File[] xmlFiles, Map<QuantCondition, QuantificationLabel> labelsByConditions,
+	public AbstractQuantParser(File[] inputFiles, Map<QuantCondition, QuantificationLabel> labelsByConditions,
 			QuantificationLabel labelNumerator, QuantificationLabel labelDenominator) throws FileNotFoundException {
-		this(Arrays.asList(xmlFiles), labelsByConditions, labelNumerator, labelDenominator);
+		this(Arrays.asList(inputFiles), labelsByConditions, labelNumerator, labelDenominator);
 	}
 
-	public AbstractQuantParser(File[] xmlFiles, Map<QuantCondition, QuantificationLabel>[] labelsByConditions,
+	public AbstractQuantParser(File[] inputFiles, Map<QuantCondition, QuantificationLabel>[] labelsByConditions,
 			QuantificationLabel[] labelNumerator, QuantificationLabel[] labelDenominator) throws FileNotFoundException {
-		for (int i = 0; i < xmlFiles.length; i++) {
-			addFile(xmlFiles[i], labelsByConditions[i], labelNumerator[i], labelDenominator[i]);
+		for (int i = 0; i < inputFiles.length; i++) {
+			addFile(inputFiles[i], labelsByConditions[i], labelNumerator[i], labelDenominator[i]);
 		}
 	}
 
-	public AbstractQuantParser(Collection<File> xmlFiles, Map<QuantCondition, QuantificationLabel> labelsByConditions,
+	public AbstractQuantParser(Collection<File> inputFiles, Map<QuantCondition, QuantificationLabel> labelsByConditions,
 			QuantificationLabel labelNumerator, QuantificationLabel labelDenominator) throws FileNotFoundException {
-		for (File xmlFile : xmlFiles) {
+		for (File xmlFile : inputFiles) {
 			addFile(xmlFile, labelsByConditions, labelNumerator, labelDenominator);
 		}
 	}
@@ -155,7 +154,7 @@ public abstract class AbstractQuantParser implements QuantParser {
 		numeratorLabelByFile.put(remoteFileReference, labelNumerator);
 		denominatorLabelByFile.put(remoteFileReference, labelDenominator);
 		remoteFileRetrievers.add(remoteFileReference);
-		clearStaticInfo();
+		// clearStaticInfo();
 		checkParameters();
 	}
 
@@ -167,10 +166,7 @@ public abstract class AbstractQuantParser implements QuantParser {
 	 * create just one {@link QuantifiedProteinInterface} for all the replicates
 	 * and experiments for a given accession.
 	 */
-	public static void clearStaticInfo() {
-		StaticMaps.proteinMap.clear();
-		StaticMaps.psmMap.clear();
-		StaticMaps.peptideMap.clear();
+	private void clearStaticInfo() {
 	}
 
 	protected void checkParameters() {
@@ -298,7 +294,7 @@ public abstract class AbstractQuantParser implements QuantParser {
 
 	protected abstract void process();
 
-	protected void addToMap(String key, HashMap<String, Set<String>> map, String value) {
+	public static void addToMap(String key, HashMap<String, Set<String>> map, String value) {
 		if (map.containsKey(key)) {
 			map.get(key).add(value);
 		} else {
@@ -312,6 +308,7 @@ public abstract class AbstractQuantParser implements QuantParser {
 	/**
 	 * @return the ignoreNotFoundPeptidesInDB
 	 */
+	@Override
 	public boolean isIgnoreNotFoundPeptidesInDB() {
 		return ignoreNotFoundPeptidesInDB;
 	}
@@ -320,6 +317,7 @@ public abstract class AbstractQuantParser implements QuantParser {
 	 * @param ignoreNotFoundPeptidesInDB
 	 *            the ignoreNotFoundPeptidesInDB to set
 	 */
+	@Override
 	public void setIgnoreNotFoundPeptidesInDB(boolean ignoreNotFoundPeptidesInDB) {
 		this.ignoreNotFoundPeptidesInDB = ignoreNotFoundPeptidesInDB;
 	}
@@ -333,6 +331,7 @@ public abstract class AbstractQuantParser implements QuantParser {
 	 *
 	 * @return
 	 */
+	@Override
 	public Set<String> getUniprotAccSet() {
 		Set<String> ret = new HashSet<String>();
 		final Set<String> keySet = getProteinMap().keySet();

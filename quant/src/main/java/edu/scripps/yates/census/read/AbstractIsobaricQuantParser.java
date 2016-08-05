@@ -18,9 +18,10 @@ import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 
 public abstract class AbstractIsobaricQuantParser extends AbstractQuantParser implements IsobaricQuantParser {
-	protected final Set<String> ionKeys = new HashSet<String>();
 	// key=spectrumKeys, values=ionKeys
 	protected final HashMap<String, Set<String>> spectrumToIonsMap = new HashMap<String, Set<String>>();
+	protected final Set<String> ionKeys = new HashSet<String>();
+
 	// ion exclusions
 	protected final List<IonExclusion> ionExclusions = new ArrayList<IonExclusion>();
 

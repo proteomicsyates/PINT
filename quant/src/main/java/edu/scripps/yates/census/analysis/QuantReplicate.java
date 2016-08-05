@@ -16,11 +16,10 @@ public class QuantReplicate {
 	private final QuantParser parser;
 
 	public QuantReplicate(String name, QuantParser quantParser,
-			Map<QuantCondition, QuantificationLabel> labelsByConditions, String decoyRegexp)
-					throws FileNotFoundException {
+			Map<QuantCondition, QuantificationLabel> labelsByConditions) throws FileNotFoundException {
 		this.name = name;
 		parser = quantParser;
-		parser.setDecoyPattern(decoyRegexp);
+
 		this.labelsByConditions.putAll(labelsByConditions);
 
 		for (QuantCondition cond : labelsByConditions.keySet()) {

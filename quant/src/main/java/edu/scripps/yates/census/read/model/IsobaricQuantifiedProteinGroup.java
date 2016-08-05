@@ -249,8 +249,8 @@ public class IsobaricQuantifiedProteinGroup extends QuantifiedProteinGroup imple
 	}
 
 	@Override
-	public double getMaxPeak() {
-		double max = Double.MIN_VALUE;
+	public Double getMaxPeak() {
+		double max = -Double.MAX_VALUE;
 		for (IsobaricQuantifiedPSM psm : getIsobaricQuantifiedPSMs()) {
 			if (max < psm.getMaxPeak()) {
 				max = psm.getMaxPeak();

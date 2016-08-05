@@ -15,12 +15,15 @@ import edu.scripps.yates.census.analysis.QuantCondition;
 import edu.scripps.yates.census.analysis.util.KeyUtils;
 import edu.scripps.yates.census.quant.xml.ProteinType.Peptide;
 import edu.scripps.yates.census.quant.xml.ProteinType.Peptide.Frag;
+import edu.scripps.yates.census.read.AbstractQuantParser;
 import edu.scripps.yates.census.read.model.IonSerie.IonSerieType;
 import edu.scripps.yates.census.read.model.interfaces.HasIsoRatios;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
+import edu.scripps.yates.census.read.model.interfaces.QuantifiedPeptideInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
-import edu.scripps.yates.census.read.model.interfaces.Ratio;
 import edu.scripps.yates.census.read.util.IonExclusion;
+import edu.scripps.yates.census.read.util.QuantUtil;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
@@ -34,10 +37,6 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 	private static final Logger log = Logger.getLogger(IsobaricQuantifiedPSM.class);
 	private final Peptide peptide;
 	private final Set<QuantifiedProteinInterface> quantifiedProteins = new HashSet<QuantifiedProteinInterface>();
-	private final HashMap<String, Set<String>> spectrumToIonsMap;
-	private final HashMap<String, Set<String>> peptideToSpectraMap;
-	private final Set<String> ionKeys;
-
 	private final Set<edu.scripps.yates.census.read.util.QuantificationLabel> labels = new HashSet<QuantificationLabel>();
 	private final Set<String> taxonomies = new HashSet<String>();
 	private IonSerie serieYHeavy;
@@ -47,18 +46,19 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 	private List<IsoRatio> ratiosSerieY;
 	private List<IsoRatio> ratiosSerieB;
 	private PeptideRelation relation;
-	private final Set<IsoRatio> ratios = new HashSet<IsoRatio>();
+	private final Set<QuantRatio> ratios = new HashSet<QuantRatio>();
 	private final Collection<IonExclusion> ionExclusions;
 	private final boolean chargeStateSensible;
-	private String fileName;
 	private final String scan;
 	private final String sequence;
 	private static int scanNum = 0;
 	private final Map<QuantCondition, QuantificationLabel> labelsByConditions;
 	private final Map<QuantificationLabel, QuantCondition> conditionsByLabels;
-	private QuantifiedPeptide quantifiedPeptide;
+	private QuantifiedPeptideInterface quantifiedPeptide;
 	private final HashMap<String, Double> countRatiosByConditionKey = new HashMap<String, Double>();
 	private final Set<Amount> amounts = new HashSet<Amount>();
+	private final Set<String> fileNames = new HashSet<String>();
+	private boolean discarded;
 
 	/**
 	 *
@@ -78,13 +78,9 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 	 */
 	public IsobaricQuantifiedPSM(Peptide peptide, Map<QuantCondition, QuantificationLabel> labelsByConditions,
 			HashMap<String, Set<String>> spectrumToIonsMap, HashMap<String, Set<String>> peptideToSpectraMap,
-			Set<String> ionKeys, Collection<IonExclusion> ionExclusions, boolean chargeStateSensible, String fileName)
-			throws IOException {
+			Collection<IonExclusion> ionExclusions, boolean chargeStateSensible) throws IOException {
 		this.chargeStateSensible = chargeStateSensible;
 		this.peptide = peptide;
-		this.spectrumToIonsMap = spectrumToIonsMap;
-		this.peptideToSpectraMap = peptideToSpectraMap;
-		this.ionKeys = ionKeys;
 		this.ionExclusions = ionExclusions;
 		scan = peptide.getScan();
 		sequence = peptide.getSeq();
@@ -95,9 +91,6 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 			final QuantificationLabel quantificationLabel = labelsByConditions.get(condition);
 			conditionsByLabels.put(quantificationLabel, condition);
 		}
-
-		this.fileName = fileName;
-		StaticMaps.psmMap.addItem(this);
 
 		process();
 	}
@@ -111,28 +104,18 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 	 * @return the fileName
 	 */
 	@Override
-	public String getFileName() {
-		if (fileName == null) {
-			if (peptide != null)
-				fileName = peptide.getFile();
-		}
-		return fileName;
-	}
+	public String getRawFileName() {
 
-	/**
-	 * @param fileName
-	 *            the fileName to set
-	 */
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+		if (peptide != null) {
+			return peptide.getFile();
+		}
+		return null;
 	}
 
 	private void process() throws IOException {
 		final String peptideKey = KeyUtils.getSequenceChargeKey(this, chargeStateSensible);
 
 		final String spectrumKey = KeyUtils.getSpectrumKey(this, chargeStateSensible);
-
-		addToMap(peptideKey, peptideToSpectraMap, spectrumKey);
 
 		final Frag frag = peptide.getFrag();
 		final String yr = frag.getYr();
@@ -146,17 +129,7 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 		checkIons(serieYLight, serieYHeavy);
 
 		ratiosSerieY = getRatiosFromSeries(serieYLight, serieYHeavy);
-		for (IsoRatio ratio : ratiosSerieY) {
-			ratios.add(ratio);
-			String ionKey = KeyUtils.getIonKey(ratio, peptide, chargeStateSensible);
-			if (ionKeys.contains(ionKey)) {
-				continue;
-			}
-			ionKeys.add(ionKey);
-
-			addToMap(spectrumKey, spectrumToIonsMap, ionKey);
-
-		}
+		ratios.addAll(ratiosSerieY);
 
 		// SERIE B
 		final String br = frag.getBr();
@@ -168,19 +141,30 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 		checkIons(serieBLight, serieBHeavy);
 		ratiosSerieB = getRatiosFromSeries(serieBLight, serieBHeavy);
 
+		ratios.addAll(ratiosSerieB);
+
+		// create ion amounts
+		createIonAmounts();
+	}
+
+	public void addSpectrumToIonsMaps(String spectrumKey, HashMap<String, Set<String>> spectrumToIonsMap,
+			Set<String> ionKeys) {
+		for (IsoRatio ratio : ratiosSerieY) {
+			ratios.add(ratio);
+			String ionKey = KeyUtils.getIonKey(ratio, peptide, chargeStateSensible);
+			if (ionKeys.contains(ionKey)) {
+				continue;
+			}
+			AbstractQuantParser.addToMap(spectrumKey, spectrumToIonsMap, ionKey);
+		}
 		for (IsoRatio ratio : ratiosSerieB) {
 			ratios.add(ratio);
 			String ionKey = KeyUtils.getIonKey(ratio, peptide, chargeStateSensible);
 			if (ionKeys.contains(ionKey)) {
 				continue;
 			}
-			ionKeys.add(ionKey);
-			addToMap(spectrumKey, spectrumToIonsMap, ionKey);
-
+			AbstractQuantParser.addToMap(spectrumKey, spectrumToIonsMap, ionKey);
 		}
-
-		// create ion amounts
-		createIonAmounts();
 	}
 
 	private void createIonAmounts() {
@@ -272,15 +256,6 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 	public String getUnique() {
 
 		return peptide.getUnique();
-	}
-
-	public String getFile() {
-		if (fileName == null) {
-			if (peptide != null)
-				fileName = peptide.getFile();
-		}
-		return fileName;
-
 	}
 
 	@Override
@@ -430,19 +405,6 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 		return false;
 	}
 
-	private void addToMap(String key, HashMap<String, Set<String>> map, String value) {
-		if (map == null)
-			return;
-		if (map.containsKey(key)) {
-			map.get(key).add(value);
-		} else {
-			Set<String> set = new HashSet<String>();
-			set.add(value);
-			map.put(key, set);
-		}
-
-	}
-
 	private List<IsoRatio> getRatiosFromSeries(IonSerie serier, IonSerie series) {
 
 		List<IsoRatio> ret = new ArrayList<IsoRatio>();
@@ -501,8 +463,13 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 	 */
 	@Override
 	public Set<IsoRatio> getIsoRatios() {
-
-		return ratios;
+		Set<IsoRatio> isoRatios = new HashSet<IsoRatio>();
+		for (QuantRatio ratio : getRatios()) {
+			if (ratio instanceof IsoRatio) {
+				isoRatios.add((IsoRatio) ratio);
+			}
+		}
+		return isoRatios;
 	}
 
 	/**
@@ -511,11 +478,12 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 	@Override
 	public Set<IsoRatio> getNonInfinityIsoRatios() {
 		Set<IsoRatio> ret = new HashSet<IsoRatio>();
-		for (IsoRatio isoRatio : ratios) {
+		for (IsoRatio isoRatio : getIsoRatios()) {
 			if (Double.compare(isoRatio.getLog2Ratio(isoRatio.getLabel1(), isoRatio.getLabel2()), Double.MAX_VALUE) == 0
 					|| Double.compare(isoRatio.getLog2Ratio(isoRatio.getLabel1(), isoRatio.getLabel2()),
-							-Double.MAX_VALUE) == 0)
+							-Double.MAX_VALUE) == 0) {
 				continue;
+			}
 			ret.add(isoRatio);
 		}
 		return ret;
@@ -677,7 +645,7 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 		if (peptide != null) {
 			return KeyUtils.getSpectrumKey(peptide, chargeStateSensible);
 		} else {
-			return getFile() + "-" + getScan();
+			return getRawFileName() + "-" + getScan();
 		}
 	}
 
@@ -700,8 +668,8 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 	}
 
 	@Override
-	public double getMaxPeak() {
-		double max = Double.MIN_VALUE;
+	public Double getMaxPeak() {
+		double max = -Double.MAX_VALUE;
 		final Map<QuantificationLabel, Set<Ion>> ionsBylabel = getIonsByLabel();
 		for (Set<Ion> ions : ionsBylabel.values()) {
 			for (Ion ion : ions) {
@@ -713,7 +681,7 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 	}
 
 	public double getMaxPeakInRatio() {
-		double max = Long.MIN_VALUE;
+		double max = -Long.MAX_VALUE;
 		final Set<IsoRatio> ratios = getIsoRatios();
 		for (IsoRatio ratio : ratios) {
 			if (ratio.getMaxIntensity() > max) {
@@ -793,11 +761,11 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 	}
 
 	@Override
-	public void setQuantifiedPeptide(QuantifiedPeptide quantifiedPeptide) {
+	public void setQuantifiedPeptide(QuantifiedPeptideInterface quantifiedPeptide) {
 		if (quantifiedPeptide instanceof IsobaricQuantifiedPeptide) {
 			this.quantifiedPeptide = quantifiedPeptide;
 			if (quantifiedPeptide != null) {
-				quantifiedPeptide.addPSM(this);
+				quantifiedPeptide.addQuantifiedPSM(this);
 			}
 		} else {
 			throw new IllegalArgumentException("Only IsobaricQuantifiedPeptides are allowed");
@@ -855,10 +823,8 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 	}
 
 	@Override
-	public Set<Ratio> getRatios() {
-		Set<Ratio> ret = new HashSet<Ratio>();
-		ret.addAll(ratios);
-		return ret;
+	public Set<QuantRatio> getRatios() {
+		return ratios;
 	}
 
 	@Override
@@ -872,4 +838,65 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 
 	}
 
+	@Override
+	public void addRatio(QuantRatio ratio) {
+		ratios.add(ratio);
+
+	}
+
+	@Override
+	public Set<QuantRatio> getNonInfinityRatios() {
+		return QuantUtil.getNonInfinityRatios(getRatios());
+	}
+
+	/**
+	 * @return the peptide
+	 */
+	public Peptide getPeptide() {
+		return peptide;
+	}
+
+	@Override
+	public void addFileName(String fileName) {
+		fileNames.add(fileName);
+
+	}
+
+	@Override
+	public Set<String> getFileNames() {
+		return fileNames;
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition quantConditionNumerator,
+			QuantCondition quantConditionDenominator) {
+		return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios()), AggregationLevel.PSM);
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition quantConditionNumerator,
+			QuantCondition quantConditionDenominator, String replicateName) {
+		if (getRawFileName().equals(replicateName)) {
+			return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios()), AggregationLevel.PSM);
+		}
+		return null;
+
+	}
+
+	@Override
+	public boolean isDiscarded() {
+
+		return discarded;
+	}
+
+	@Override
+	public void setDiscarded(boolean discarded) {
+		this.discarded = discarded;
+
+	}
+
+	@Override
+	public boolean isSingleton() {
+		return getNonInfinityIsoRatios().isEmpty();
+	}
 }

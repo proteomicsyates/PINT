@@ -33,4 +33,8 @@ public class StaticItemStorage<T extends HasKey> {
 	public void clear() {
 		map.clear();
 	}
+
+	public void remove(T hasKeyObj) {
+		map.remove(hasKeyObj.getKey());
+	}
 }

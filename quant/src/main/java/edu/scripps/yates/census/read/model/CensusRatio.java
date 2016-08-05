@@ -3,14 +3,14 @@ package edu.scripps.yates.census.read.model;
 import java.util.Map;
 
 import edu.scripps.yates.census.analysis.QuantCondition;
-import edu.scripps.yates.census.read.model.interfaces.Ratio;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.model.enums.CombinationType;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 
-public class CensusRatio implements Ratio {
+public class CensusRatio implements QuantRatio {
 	private final QuantCondition quantConditionNumerator;
 	private final QuantCondition quantConditionDenominator;
 	private final QuantificationLabel labelNumerator;
@@ -65,7 +65,7 @@ public class CensusRatio implements Ratio {
 		this.labelNumerator = labelNumerator;
 		this.labelDenominator = labelDenominator;
 		this.description = description;
-		if (isLogValue != null && isLogValue) {
+		if (isLogValue != null && isLogValue && ratioValue != null) {
 			nonLogValue = Math.pow(2, ratioValue);
 		} else {
 			nonLogValue = ratioValue;
@@ -80,7 +80,7 @@ public class CensusRatio implements Ratio {
 	}
 
 	@Override
-	public double getLog2Ratio(QuantificationLabel labelNumerator, QuantificationLabel labelDenominator) {
+	public Double getLog2Ratio(QuantificationLabel labelNumerator, QuantificationLabel labelDenominator) {
 		if (!containsLabels()) {
 			throw new IllegalArgumentException("This ratio doesn't contains labels");
 		}
@@ -102,7 +102,7 @@ public class CensusRatio implements Ratio {
 	}
 
 	@Override
-	public double getNonLogRatio(QuantificationLabel labelNumerator, QuantificationLabel labelDenominator) {
+	public Double getNonLogRatio(QuantificationLabel labelNumerator, QuantificationLabel labelDenominator) {
 		if (!containsLabels()) {
 			throw new IllegalArgumentException("This ratio doesn't contains labels");
 		}
@@ -150,7 +150,9 @@ public class CensusRatio implements Ratio {
 			return -getLog2Value();
 		} else {
 			throw new IllegalArgumentException(
-					"Labels are not used in this ratio. Use: " + labelNumerator + " and " + labelDenominator);
+					"There is no ratio between these two conditions ('" + quantConditionNumerator.getName() + "','"
+							+ quantConditionDenominator.getName() + "'). Use these ones: ('"
+							+ this.quantConditionNumerator + "','" + quantConditionDenominator + "')");
 		}
 	}
 
@@ -228,6 +230,42 @@ public class CensusRatio implements Ratio {
 	 */
 	public void setCombinationType(CombinationType combinationType) {
 		this.combinationType = combinationType;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof CensusRatio) {
+			return toString().equals(obj.toString());
+		}
+		return super.equals(obj);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "CensusRatio [quantConditionNumerator=" + quantConditionNumerator + ", quantConditionDenominator="
+				+ quantConditionDenominator + ", labelNumerator=" + labelNumerator + ", labelDenominator="
+				+ labelDenominator + ", nonLogValue=" + getNonLogRatio(labelNumerator, labelDenominator)
+				+ ", ratioScore=" + ratioScore + ", log2Value=" + getLog2Ratio(labelNumerator, labelDenominator)
+				+ ", description=" + description + ", aggregationLevel=" + aggregationLevel + ", combinationType="
+				+ combinationType + "]";
+	}
+
+	@Override
+	public QuantCondition getQuantCondition1() {
+		return quantConditionNumerator;
+	}
+
+	@Override
+	public QuantCondition getQuantCondition2() {
+		return quantConditionDenominator;
 	}
 
 }

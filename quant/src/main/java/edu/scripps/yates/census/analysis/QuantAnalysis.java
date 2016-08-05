@@ -23,18 +23,19 @@ import edu.scripps.yates.census.analysis.util.KeyUtils;
 import edu.scripps.yates.census.analysis.wrappers.IntegrationResultWrapper;
 import edu.scripps.yates.census.analysis.wrappers.OutStatsLine;
 import edu.scripps.yates.census.analysis.wrappers.SanXotAnalysisResult;
-import edu.scripps.yates.census.read.CensusChroParser;
-import edu.scripps.yates.census.read.CensusOutParser;
 import edu.scripps.yates.census.read.model.IonSerie.IonSerieType;
 import edu.scripps.yates.census.read.model.IsoRatio;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedPSM;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedPeptide;
+import edu.scripps.yates.census.read.model.QuantifiedPSMFromCensusOut;
 import edu.scripps.yates.census.read.model.interfaces.IsobaricQuantParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPeptideInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
 import edu.scripps.yates.census.read.util.IonExclusion;
+import edu.scripps.yates.census.read.util.QuantUtil;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.dbindex.DBIndexInterface;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
@@ -43,6 +44,7 @@ import edu.scripps.yates.utilities.grouping.GroupablePSM;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.PAnalyzer;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
+import edu.scripps.yates.utilities.model.enums.AmountType;
 
 public class QuantAnalysis implements PropertyChangeListener {
 	private static final Logger log = Logger.getLogger(QuantAnalysis.class);
@@ -72,6 +74,7 @@ public class QuantAnalysis implements PropertyChangeListener {
 	private int minConsecutiveLength;
 	private Set<Set<String>> proteinAccClusters;
 	private final QuantificationType quantType;
+	private Boolean keepExperimentsSeparated;
 
 	public static enum ANALYSIS_LEVEL_OUTCOME {
 		PEPTIDE, PROTEIN, PROTEINGROUP, PROTEIN_CLUSTER, FORCED_CLUSTERS
@@ -151,12 +154,27 @@ public class QuantAnalysis implements PropertyChangeListener {
 		return folder;
 	}
 
-	private File createWorkingFolder(File workingFolder, ANALYSIS_LEVEL_OUTCOME outcome) {
+	public static File createWorkingFolder(File workingFolder, ANALYSIS_LEVEL_OUTCOME outcome) {
 		File folder = new File(
 				workingFolder.getAbsolutePath() + File.separator + QUANT_FOLDER + File.separator + outcome.name());
 		if (!folder.exists())
 			folder.mkdirs();
 		return folder;
+	}
+
+	/**
+	 * @return the keepExperimentsSeparated
+	 */
+	public Boolean getKeepExperimentsSeparated() {
+		return keepExperimentsSeparated;
+	}
+
+	/**
+	 * @param keepExperimentsSeparated
+	 *            the keepExperimentsSeparated to set
+	 */
+	public void setKeepExperimentsSeparated(Boolean keepExperimentsSeparated) {
+		this.keepExperimentsSeparated = keepExperimentsSeparated;
 	}
 
 	public void addQuantExperiment(QuantExperiment exp) {
@@ -181,9 +199,8 @@ public class QuantAnalysis implements PropertyChangeListener {
 	public void runSanXot() throws IOException {
 
 		// clear static data from censusParsers
-		log.info("Clearing static data from parser");
-		CensusOutParser.clearStaticInfo();
-		CensusChroParser.clearStaticInfo();
+		// log.info("Clearing static data from parser");
+		// QuantStaticMaps.clearInfo();
 
 		// set chargeStateSesible to all experiments and replicates
 		setChargeStateSensible(chargeStateSensible);
@@ -193,7 +210,10 @@ public class QuantAnalysis implements PropertyChangeListener {
 		}
 		SanXotInterfaze sanxot = new SanXotInterfaze(fileMappingResults, quantParameters);
 		if (timeout != null) {
-			sanxot.setTimeout(timeout);
+			SanXotInterfaze.setTimeout(timeout);
+		}
+		if (keepExperimentsSeparated != null) {
+			sanxot.setKeepExperimentsSeparated(keepExperimentsSeparated);
 		}
 		// sanxot.addPropertyChangeListener(this);
 		// sanxot.execute();
@@ -295,48 +315,68 @@ public class QuantAnalysis implements PropertyChangeListener {
 
 		FileWriter dataFileWriter = new FileWriter(
 				getWorkingPath().getAbsolutePath() + File.separator + FileMappingResults.DATA_FILE);
-		dataFileWriter.write("id\tX\tVcal" + NL);
-
+		dataFileWriter.write("#id\tX\tVcal" + NL);
+		int numPSMsDiscarded = 0;
 		try {
 			for (QuantExperiment exp : quantExperiments) {
-				String expName = "_" + exp.getName();
-				if (quantExperiments.size() == 1)
-					expName = "";
+				String expName = "";
+				if (quantExperiments.size() > 1) {
+					expName = exp.getName();
+				}
 				for (QuantReplicate rep : exp.getReplicates()) {
-					String repName = rep.getName();
-					if (exp.getReplicates().size() == 1) {
-						if (!"".equals(expName))
-							repName = "_" + expName;
-						else
-							repName = "";
-					} else {
-						repName = "_" + repName + expName;
+					String repName = "";
+					if (exp.getReplicates().size() > 1) {
+						repName = rep.getName();
+					}
+					String expRepKey = "";
+					if (!"".equals(repName)) {
+						expRepKey = "_" + repName;
+					}
+					if (!"".equals(expName)) {
+						expRepKey += "_" + expName;
 					}
 					final QuantParser parser = rep.getParser();
 					final Collection<QuantifiedPSMInterface> quantifiedPSMs = parser.getPSMMap().values();
 					for (QuantifiedPSMInterface quantifiedPSM : quantifiedPSMs) {
+						if (quantifiedPSM.isDiscarded()) {
+							numPSMsDiscarded++;
+							continue;
+						}
+						Double ratioValue = null;
+						String key = null;
+						Double fittingWeight = null;
+
+						// in case of isobaric isotopologues, we will write a
+						// data line per isobaric ratio in the PSM
+						final Set<QuantRatio> nonInfinityRatios = quantifiedPSM.getNonInfinityRatios();
+						if (nonInfinityRatios.isEmpty()) {
+							// skip this one
+							continue;
+						}
 						if (quantifiedPSM instanceof IsobaricQuantifiedPSM) {
-							IsobaricQuantifiedPSM isoPSM = (IsobaricQuantifiedPSM) quantifiedPSM;
-							final Set<IsoRatio> ratios = isoPSM.getNonInfinityIsoRatios();
-							for (IsoRatio ratio : ratios) {
-								double ratioValue = ratio.getLog2Ratio(condition1, condition2);
+							for (QuantRatio ratio : nonInfinityRatios) {
+								ratioValue = ratio.getLog2Ratio(condition1, condition2);
+								if (ratio instanceof IsoRatio) {
 
-								String ionKey = KeyUtils.getIonKey(ratio, isoPSM, chargeStateSensible) + repName;
-								Double fittingWeight = null;
+									IsoRatio isoRatio = (IsoRatio) ratio;
+									key = KeyUtils.getIonKey(isoRatio,
+											((IsobaricQuantifiedPSM) quantifiedPSM).getPeptide(), chargeStateSensible)
+											+ expRepKey;
 
-								switch (quantType) {
-								case ISOTOPOLOGUES:
-									fittingWeight = (ratio.getMaxIntensity())
-											/ Math.sqrt(ratio.getMass(QuantificationLabel.LIGHT));
-									break;
-								case iTRAQ:
-									fittingWeight = isoPSM.getMaxPeak();
-									break;
-								case TMT:
-									fittingWeight = isoPSM.getMaxPeak();
-									break;
-								default:
-									break;
+									fittingWeight = null;
+
+									switch (quantType) {
+									case ISOTOPOLOGUES:
+										fittingWeight = (isoRatio.getMaxIntensity())
+												/ Math.sqrt(isoRatio.getMass(QuantificationLabel.LIGHT));
+										dataFileWriter.write(key + "\t" + ratioValue + "\t" + fittingWeight + "\n");
+										break;
+
+									default:
+										throw new IllegalArgumentException("Quant type " + quantType
+												+ " is not suitable for Isobaric Isotopologues. Use instead "
+												+ QuantificationType.ISOTOPOLOGUES);
+									}
 								}
 								// TODO
 								// double qualityMeasurement =
@@ -345,17 +385,69 @@ public class QuantAnalysis implements PropertyChangeListener {
 								// / (ratio.getIon1().getMass() *
 								// ratio.getIon1().getMass());
 
-								dataFileWriter.write(ionKey + "\t" + ratioValue + "\t" + fittingWeight + "\n");
 							}
 						} else {
-							throw new IllegalArgumentException(
-									"Other psm not isobaricquantifiedPSM is not supported yet!");
+							switch (quantType) {
+							case iTRAQ:
+								fittingWeight = quantifiedPSM.getMaxPeak();
+								break;
+							case TMT:
+								fittingWeight = quantifiedPSM.getMaxPeak();
+								break;
+							case SILAC:
+								// fittingWeight =
+								// QuantUtil.getRegressionFactor(quantifiedPSM.getAmounts());
+								fittingWeight = QuantUtil.getMaxAmountValueByAmountType(quantifiedPSM.getAmounts(),
+										AmountType.AREA);
+								if (fittingWeight == null) {
+									log.info("no regression factor");
+								}
+								break;
+							case UNKNOWN:
+								// the PSM has to have only one ratio, and it
+								// has to have associated a confidence score
+								// which is the weight
+								Double.valueOf(quantifiedPSM.getRatios().iterator().next()
+										.getAssociatedConfidenceScore().getValue());
+							default:
+								throw new IllegalArgumentException("Quant type " + quantType
+										+ " is not supported with this analysis configuration");
+							}
+
+							key = KeyUtils.getSpectrumKey(quantifiedPSM, chargeStateSensible) + expRepKey;
+							// in case of not having isobaric isotopologues, we
+							// have one ratio per PSM in the replicate, not
+							// matters if it is comming from a TMT, where we
+							// have more than one ratio per PSM, because we will
+							// write each ratio in different replicates
+							if (quantifiedPSM instanceof QuantifiedPSMFromCensusOut) {
+								QuantRatio validRatio = QuantUtil
+										.getValidRatio((QuantifiedPSMFromCensusOut) quantifiedPSM);
+								if (validRatio != null) {
+									ratioValue = validRatio.getLog2Ratio(condition1, condition2);
+									if (ratioValue == null || Double.isInfinite(ratioValue)
+											|| Double.isNaN(ratioValue)) {
+										// do not print
+										continue;
+									}
+								} else {
+									// dont print
+									continue;
+								}
+							} else {
+								ratioValue = nonInfinityRatios.iterator().next().getLog2Ratio(condition1, condition2);
+							}
+
+							dataFileWriter.write(key + "\t" + ratioValue + "\t" + fittingWeight + "\n");
 						}
+
 					}
 
 				}
 			}
+
 		} finally {
+			log.info(numPSMsDiscarded + " PSMs were tagged as discarded ");
 			if (dataFileWriter != null) {
 				dataFileWriter.close();
 			}
@@ -825,18 +917,19 @@ public class QuantAnalysis implements PropertyChangeListener {
 		HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
 		for (QuantExperiment exp : quantExperiments) {
-			String expName = "_" + exp.getName();
-			if (quantExperiments.size() == 1)
-				expName = "";
+			String expName = "";
+			if (quantExperiments.size() > 1) {
+				expName = exp.getName();
+			}
 			for (QuantReplicate rep : exp.getReplicates()) {
 				final QuantParser parser = rep.getParser();
 				final Map<String, QuantifiedProteinInterface> quantifiedProteinMap = parser.getProteinMap();
 				for (String proteinKey : quantifiedProteinMap.keySet()) {
 					if (map.containsKey(proteinKey)) {
-						map.get(proteinKey).add(proteinKey + expName);
+						map.get(proteinKey).add(proteinKey + "_" + expName);
 					} else {
 						Set<String> set = new HashSet<String>();
-						set.add(proteinKey + expName);
+						set.add(proteinKey + "_" + expName);
 						map.put(proteinKey, set);
 					}
 				}
@@ -868,17 +961,18 @@ public class QuantAnalysis implements PropertyChangeListener {
 		HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
 		for (QuantExperiment exp : quantExperiments) {
-			String expName = "_" + exp.getName();
-			if (quantExperiments.size() == 1)
-				expName = "";
+			String expName = "";
+			if (quantExperiments.size() > 1) {
+				expName = exp.getName();
+			}
 			for (QuantReplicate rep : exp.getReplicates()) {
 				final QuantParser parser = rep.getParser();
 				for (String peptideKey : parser.getPeptideToSpectraMap().keySet()) {
 					if (map.containsKey(peptideKey)) {
-						map.get(peptideKey).add(peptideKey + expName);
+						map.get(peptideKey).add(peptideKey + "_" + expName);
 					} else {
 						Set<String> set = new HashSet<String>();
-						set.add(peptideKey + expName);
+						set.add(peptideKey + "_" + expName);
 						map.put(peptideKey, set);
 					}
 				}
@@ -903,9 +997,10 @@ public class QuantAnalysis implements PropertyChangeListener {
 		HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
 		for (QuantExperiment exp : quantExperiments) {
-			String expName = "_" + exp.getName();
-			if (quantExperiments.size() == 1)
-				expName = "";
+			String expName = "";
+			if (quantExperiments.size() > 1) {
+				expName = exp.getName();
+			}
 			for (QuantReplicate rep : exp.getReplicates()) {
 				final QuantParser parser = rep.getParser();
 				List<GroupableProtein> groupableProteins = new ArrayList<GroupableProtein>();
@@ -914,10 +1009,10 @@ public class QuantAnalysis implements PropertyChangeListener {
 				for (ProteinGroup proteinGroup : proteinGroups) {
 					String proteinGroupKey = KeyUtils.getGroupKey(proteinGroup);
 					if (map.containsKey(proteinGroupKey)) {
-						map.get(proteinGroupKey).add(proteinGroupKey + expName);
+						map.get(proteinGroupKey).add(proteinGroupKey + "_" + expName);
 					} else {
 						Set<String> set = new HashSet<String>();
-						set.add(proteinGroupKey + expName);
+						set.add(proteinGroupKey + "_" + expName);
 						map.put(proteinGroupKey, set);
 					}
 				}
@@ -957,28 +1052,31 @@ public class QuantAnalysis implements PropertyChangeListener {
 		HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
 		for (QuantExperiment exp : quantExperiments) {
-			String expName = "_" + exp.getName();
-			if (quantExperiments.size() == 1)
-				expName = "";
+			String expName = "";
+			if (quantExperiments.size() > 1) {
+				expName = exp.getName();
+			}
 			for (QuantReplicate rep : exp.getReplicates()) {
-				String repName = rep.getName();
-				if (exp.getReplicates().size() == 1) {
-					if (!"".equals(expName))
-						repName = "_" + expName;
-					else
-						repName = "";
-				} else {
-					repName = "_" + repName + expName;
+				String repName = "";
+				if (exp.getReplicates().size() > 1) {
+					repName = rep.getName();
+				}
+				String expRepKey = "";
+				if (!"".equals(repName)) {
+					expRepKey = "_" + repName;
+				}
+				if (!"".equals(expName)) {
+					expRepKey += "_" + expName;
 				}
 				final QuantParser parser = rep.getParser();
 				final Map<String, QuantifiedProteinInterface> quantifiedProteinMap = parser.getProteinMap();
 				for (String proteinKey : quantifiedProteinMap.keySet()) {
-					if (map.containsKey(proteinKey + expName)) {
-						map.get(proteinKey + expName).add(proteinKey + repName);
+					if (map.containsKey(proteinKey + "_" + expName)) {
+						map.get(proteinKey + "_" + expName).add(proteinKey + expRepKey);
 					} else {
 						Set<String> set = new HashSet<String>();
-						set.add(proteinKey + repName);
-						map.put(proteinKey + expName, set);
+						set.add(proteinKey + expRepKey);
+						map.put(proteinKey + "_" + expName, set);
 					}
 				}
 
@@ -1019,27 +1117,30 @@ public class QuantAnalysis implements PropertyChangeListener {
 		HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
 		for (QuantExperiment exp : quantExperiments) {
-			String expName = "_" + exp.getName();
-			if (quantExperiments.size() == 1)
-				expName = "";
+			String expName = "";
+			if (quantExperiments.size() > 1) {
+				expName = exp.getName();
+			}
 			for (QuantReplicate rep : exp.getReplicates()) {
-				String repName = rep.getName();
-				if (exp.getReplicates().size() == 1) {
-					if (!"".equals(expName))
-						repName = "_" + expName;
-					else
-						repName = "";
-				} else {
-					repName = "_" + repName + expName;
+				String repName = "";
+				if (exp.getReplicates().size() > 1) {
+					repName = rep.getName();
+				}
+				String expRepKey = "";
+				if (!"".equals(repName)) {
+					expRepKey = "_" + repName;
+				}
+				if (!"".equals(expName)) {
+					expRepKey += "_" + expName;
 				}
 				final QuantParser parser = rep.getParser();
 				for (String peptideKey : parser.getPeptideToSpectraMap().keySet()) {
-					if (map.containsKey(peptideKey + expName)) {
-						map.get(peptideKey + expName).add(peptideKey + repName);
+					if (map.containsKey(peptideKey + "_" + expName)) {
+						map.get(peptideKey + "_" + expName).add(peptideKey + expRepKey);
 					} else {
 						Set<String> set = new HashSet<String>();
-						set.add(peptideKey + repName);
-						map.put(peptideKey + expName, set);
+						set.add(peptideKey + expRepKey);
+						map.put(peptideKey + "_" + expName, set);
 					}
 				}
 			}
@@ -1069,18 +1170,21 @@ public class QuantAnalysis implements PropertyChangeListener {
 		HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
 		for (QuantExperiment exp : quantExperiments) {
-			String expName = "_" + exp.getName();
-			if (quantExperiments.size() == 1)
-				expName = "";
+			String expName = "";
+			if (quantExperiments.size() > 1) {
+				expName = exp.getName();
+			}
 			for (QuantReplicate rep : exp.getReplicates()) {
-				String repName = rep.getName();
-				if (exp.getReplicates().size() == 1) {
-					if (!"".equals(expName))
-						repName = "_" + expName;
-					else
-						repName = "";
-				} else {
-					repName = "_" + repName + expName;
+				String repName = "";
+				if (exp.getReplicates().size() > 1) {
+					repName = rep.getName();
+				}
+				String expRepKey = "";
+				if (!"".equals(repName)) {
+					expRepKey = "_" + repName;
+				}
+				if (!"".equals(expName)) {
+					expRepKey += "_" + expName;
 				}
 				final QuantParser parser = rep.getParser();
 				List<GroupableProtein> groupableProteins = new ArrayList<GroupableProtein>();
@@ -1088,12 +1192,12 @@ public class QuantAnalysis implements PropertyChangeListener {
 				final List<ProteinGroup> proteinGroups = getProteinGroups(groupableProteins);
 				for (ProteinGroup proteinGroup : proteinGroups) {
 					final String proteinGroupKey = KeyUtils.getGroupKey(proteinGroup);
-					if (map.containsKey(proteinGroupKey + expName)) {
-						map.get(proteinGroupKey + expName).add(proteinGroupKey + repName);
+					if (map.containsKey(proteinGroupKey + "_" + expName)) {
+						map.get(proteinGroupKey + "_" + expName).add(proteinGroupKey + expRepKey);
 					} else {
 						Set<String> set = new HashSet<String>();
-						set.add(proteinGroupKey + repName);
-						map.put(proteinGroupKey + expName, set);
+						set.add(proteinGroupKey + expRepKey);
+						map.put(proteinGroupKey + "_" + expName, set);
 					}
 				}
 
@@ -1125,18 +1229,21 @@ public class QuantAnalysis implements PropertyChangeListener {
 		HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
 		for (QuantExperiment exp : quantExperiments) {
-			String expName = "_" + exp.getName();
-			if (quantExperiments.size() == 1)
-				expName = "";
+			String expName = "";
+			if (quantExperiments.size() > 1) {
+				expName = exp.getName();
+			}
 			for (QuantReplicate rep : exp.getReplicates()) {
-				String repName = rep.getName();
-				if (exp.getReplicates().size() == 1) {
-					if (!"".equals(expName))
-						repName = "_" + expName;
-					else
-						repName = "";
-				} else {
-					repName = "_" + repName + expName;
+				String repName = "";
+				if (exp.getReplicates().size() > 1) {
+					repName = rep.getName();
+				}
+				String expRepKey = "";
+				if (!"".equals(repName)) {
+					expRepKey = "_" + repName;
+				}
+				if (!"".equals(expName)) {
+					expRepKey += "_" + expName;
 				}
 				final QuantParser parser = rep.getParser();
 				// in this case, get all proteins and construct protein groups.
@@ -1147,7 +1254,7 @@ public class QuantAnalysis implements PropertyChangeListener {
 				final HashMap<String, Set<String>> proteinGroupToPeptideMap2 = getProteinGroupToPeptideMap(
 						proteinGroups);
 
-				mergeMaps(map, proteinGroupToPeptideMap2, repName, repName);
+				mergeMaps(map, proteinGroupToPeptideMap2, expRepKey, expRepKey);
 			}
 		}
 		String header = "acc+replicate+experiment" + "\t" + "sequence+charge+replicate+experiment" + "\t"
@@ -1176,18 +1283,21 @@ public class QuantAnalysis implements PropertyChangeListener {
 		HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
 		for (QuantExperiment exp : quantExperiments) {
-			String expName = "_" + exp.getName();
-			if (quantExperiments.size() == 1)
-				expName = "";
+			String expName = "";
+			if (quantExperiments.size() > 1) {
+				expName = exp.getName();
+			}
 			for (QuantReplicate rep : exp.getReplicates()) {
-				String repName = rep.getName();
-				if (exp.getReplicates().size() == 1) {
-					if (!"".equals(expName))
-						repName = "_" + expName;
-					else
-						repName = "";
-				} else {
-					repName = "_" + repName + expName;
+				String repName = "";
+				if (exp.getReplicates().size() > 1) {
+					repName = rep.getName();
+				}
+				String expRepKey = "";
+				if (!"".equals(repName)) {
+					expRepKey = "_" + repName;
+				}
+				if (!"".equals(expName)) {
+					expRepKey += "_" + expName;
 				}
 				final QuantParser parser = rep.getParser();
 				// in this case, get all proteins and construct protein groups.
@@ -1196,22 +1306,7 @@ public class QuantAnalysis implements PropertyChangeListener {
 				final HashMap<String, Set<String>> map2 = new HashMap<String, Set<String>>();
 				for (String proteinKey : proteinMap.keySet()) {
 					final QuantifiedProteinInterface quantifiedProtein = proteinMap.get(proteinKey);
-					// final List<Peptide> peptides = quantifiedProtein
-					// .getPeptide();
-					// if (peptides != null) {
-					//
-					// for (Peptide peptide : peptides) {
-					// final String peptideKey = CensusChroUtil
-					// .getPeptideKey(peptide);
-					// if (map2.containsKey(proteinKey)) {
-					// map2.get(proteinKey).add(peptideKey);
-					// } else {
-					// Set<String> set = new HashSet<String>();
-					// set.add(peptideKey);
-					// map2.put(proteinKey, set);
-					// }
-					// }
-					// } else {
+
 					final Set<QuantifiedPSMInterface> quantifiedPSMs = quantifiedProtein.getQuantifiedPSMs();
 					for (QuantifiedPSMInterface quantifiedPSM : quantifiedPSMs) {
 						final String peptideKey = KeyUtils.getSequenceChargeKey(quantifiedPSM, chargeStateSensible);
@@ -1225,7 +1320,7 @@ public class QuantAnalysis implements PropertyChangeListener {
 					}
 					// }
 				}
-				mergeMaps(map, map2, repName, repName);
+				mergeMaps(map, map2, expRepKey, expRepKey);
 			}
 		}
 		String header = "acc+replicate+experiment" + "\t" + "sequence+charge+replicate+experiment" + "\t"
@@ -1284,23 +1379,26 @@ public class QuantAnalysis implements PropertyChangeListener {
 		HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
 		for (QuantExperiment exp : quantExperiments) {
-			String expName = "_" + exp.getName();
-			if (quantExperiments.size() == 1)
-				expName = "";
+			String expName = "";
+			if (quantExperiments.size() > 1) {
+				expName = exp.getName();
+			}
 			for (QuantReplicate rep : exp.getReplicates()) {
-				String repName = rep.getName();
-				if (exp.getReplicates().size() == 1) {
-					if (!"".equals(expName))
-						repName = "_" + expName;
-					else
-						repName = "";
-				} else {
-					repName = "_" + repName + expName;
+				String repName = "";
+				if (exp.getReplicates().size() > 1) {
+					repName = rep.getName();
+				}
+				String expRepKey = "";
+				if (!"".equals(repName)) {
+					expRepKey = "_" + repName;
+				}
+				if (!"".equals(expName)) {
+					expRepKey += "_" + expName;
 				}
 				final QuantParser parser = rep.getParser();
 				final HashMap<String, Set<String>> tmpMap = parser.getPeptideToSpectraMap();
-				final HashMap<String, Set<String>> peptideToSpectraMap2 = addRepNameToMap(tmpMap, repName);
-				mergeMaps(map, peptideToSpectraMap2, repName, "");
+				final HashMap<String, Set<String>> peptideToSpectraMap2 = addRepNameToMap(tmpMap, expRepKey);
+				mergeMaps(map, peptideToSpectraMap2, expRepKey, "");
 			}
 		}
 		String header = "sequence+charge+replicate+experiment" + "\t" + "scan+raw_file" + "\t"
@@ -1329,25 +1427,29 @@ public class QuantAnalysis implements PropertyChangeListener {
 		HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
 		for (QuantExperiment exp : quantExperiments) {
-			String expName = "_" + exp.getName();
-			if (quantExperiments.size() == 1)
-				expName = "";
+
+			String expName = "";
+			if (quantExperiments.size() > 1) {
+				expName = exp.getName();
+			}
 			for (QuantReplicate rep : exp.getReplicates()) {
 
-				String repName = rep.getName();
-				if (exp.getReplicates().size() == 1) {
-					if (!"".equals(expName))
-						repName = "_" + expName;
-					else
-						repName = "";
-				} else {
-					repName = "_" + repName + expName;
+				String repName = "";
+				if (exp.getReplicates().size() > 1) {
+					repName = rep.getName();
+				}
+				String expRepKey = "";
+				if (!"".equals(repName)) {
+					expRepKey = "_" + repName;
+				}
+				if (!"".equals(expName)) {
+					expRepKey += "_" + expName;
 				}
 				final IsobaricQuantParser parser = (IsobaricQuantParser) rep.getParser();
 				final HashMap<String, Set<String>> tmpMap = parser.getSpectrumToIonsMap();
 
 				// add repName to the elements of the map
-				final HashMap<String, Set<String>> spectrumToIonsMap2 = addRepNameToMap(tmpMap, repName);
+				final HashMap<String, Set<String>> spectrumToIonsMap2 = addRepNameToMap(tmpMap, expRepKey);
 
 				mergeMaps(map, spectrumToIonsMap2, "", "");
 			}
@@ -1378,7 +1480,7 @@ public class QuantAnalysis implements PropertyChangeListener {
 
 	private void writeMapToFile(String header, HashMap<String, Set<String>> map, FileWriter writer) throws IOException {
 		try {
-			writer.write(header + NL);
+			writer.write("#" + header + NL);
 			final Set<String> keySet = map.keySet();
 			List<String> list = new ArrayList<String>();
 			list.addAll(keySet);

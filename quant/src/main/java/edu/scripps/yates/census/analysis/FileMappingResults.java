@@ -46,7 +46,7 @@ public class FileMappingResults {
 
 		switch (analysisOutcome) {
 		case PROTEINGROUP:
-			if (quantType != QuantificationType.ISOTOPOLOGUES) {
+			if (quantType == QuantificationType.ISOTOPOLOGUES) {
 				fileNamesByLevels.put(1, ION_TO_SPECTRUM_1);
 			}
 			fileNamesByLevels.put(2, SPECTRUM_TO_PEPTIDE_REPLICATE_EXPERIMENT_2);
@@ -57,7 +57,7 @@ public class FileMappingResults {
 			MAX_LEVEL = 6;
 			break;
 		case PROTEIN:
-			if (quantType != QuantificationType.ISOTOPOLOGUES) {
+			if (quantType == QuantificationType.ISOTOPOLOGUES) {
 				fileNamesByLevels.put(1, ION_TO_SPECTRUM_1);
 			}
 			fileNamesByLevels.put(2, SPECTRUM_TO_PEPTIDE_REPLICATE_EXPERIMENT_2);
@@ -68,7 +68,7 @@ public class FileMappingResults {
 			MAX_LEVEL = 6;
 			break;
 		case PEPTIDE:
-			if (quantType != QuantificationType.ISOTOPOLOGUES) {
+			if (quantType == QuantificationType.ISOTOPOLOGUES) {
 				fileNamesByLevels.put(1, ION_TO_SPECTRUM_1);
 			}
 			fileNamesByLevels.put(2, SPECTRUM_TO_PEPTIDE_REPLICATE_EXPERIMENT_2);
@@ -78,7 +78,7 @@ public class FileMappingResults {
 			MAX_LEVEL = 5;
 			break;
 		case PROTEIN_CLUSTER:
-			if (quantType != QuantificationType.ISOTOPOLOGUES) {
+			if (quantType == QuantificationType.ISOTOPOLOGUES) {
 				fileNamesByLevels.put(1, ION_TO_SPECTRUM_1);
 			}
 			fileNamesByLevels.put(2, SPECTRUM_TO_PEPTIDE_REPLICATE_EXPERIMENT_2);
@@ -89,7 +89,7 @@ public class FileMappingResults {
 			MAX_LEVEL = 6;
 			break;
 		case FORCED_CLUSTERS:
-			if (quantType != QuantificationType.ISOTOPOLOGUES) {
+			if (quantType == QuantificationType.ISOTOPOLOGUES) {
 				fileNamesByLevels.put(1, ION_TO_SPECTRUM_1);
 			}
 			fileNamesByLevels.put(2, SPECTRUM_TO_PEPTIDE_REPLICATE_EXPERIMENT_2);
@@ -126,17 +126,25 @@ public class FileMappingResults {
 		case PROTEIN:
 			if (fileName.equals(PROTEIN_REPLICATE_EXPERIMENT_TO_PROTEIN_EXPERIMENT_4))
 				return true;
+			if (fileName.equals(PROTEIN_EXPERIMENT_TO_PROTEIN_5))
+				return true;
 			break;
 		case PEPTIDE:
 			if (fileName.equals(PEPTIDE_REPLICATE_EXPERIMENT_TO_PEPTIDE_EXPERIMENT_3))
+				return true;
+			if (fileName.equals(PEPTIDE_EXPERIMENT_TO_PEPTIDE_4))
 				return true;
 			break;
 		case PROTEIN_CLUSTER:
 			if (fileName.equals(PEPTIDE_REPLICATE_EXPERIMENT_TO_PEPTIDE_EXPERIMENT_3))
 				return true;
+			if (fileName.equals(PEPTIDE_EXPERIMENT_TO_PEPTIDE_4))
+				return true;
 			break;
 		case FORCED_CLUSTERS:
 			if (fileName.equals(PEPTIDE_REPLICATE_EXPERIMENT_TO_PEPTIDE_EXPERIMENT_3))
+				return true;
+			if (fileName.equals(PEPTIDE_EXPERIMENT_TO_PEPTIDE_4))
 				return true;
 			break;
 		default:

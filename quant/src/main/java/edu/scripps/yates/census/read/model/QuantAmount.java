@@ -122,4 +122,26 @@ public class QuantAmount implements Amount {
 		return quantCondition;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof QuantAmount) {
+			return toString().equals(obj.toString());
+		}
+		return super.equals(obj);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "QuantAmount [value=" + value + ", amountType=" + amountType + ", combinationType=" + combinationType
+				+ ", singleton=" + singleton + ", manualSpc=" + manualSpc + ", quantCondition=" + quantCondition + "]";
+	}
+
 }

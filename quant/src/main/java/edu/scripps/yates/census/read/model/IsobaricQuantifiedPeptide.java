@@ -89,7 +89,7 @@ public class IsobaricQuantifiedPeptide extends QuantifiedPeptide implements Quan
 	public Set<String> getRawFileNames() {
 		Set<String> ret = new HashSet<String>();
 		for (QuantifiedPSMInterface quantPSM : psms) {
-			ret.add(quantPSM.getFileName());
+			ret.add(quantPSM.getRawFileName());
 		}
 		return ret;
 	}
@@ -248,8 +248,8 @@ public class IsobaricQuantifiedPeptide extends QuantifiedPeptide implements Quan
 	}
 
 	@Override
-	public double getMaxPeak() {
-		double max = Double.MIN_VALUE;
+	public Double getMaxPeak() {
+		double max = -Double.MAX_VALUE;
 		for (IsobaricQuantifiedPSM psm : getIsobaricQuantifiedPSMs()) {
 			if (max < psm.getMaxPeak()) {
 				max = psm.getMaxPeak();

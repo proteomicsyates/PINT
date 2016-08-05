@@ -77,7 +77,7 @@ public class IsoRatio extends CensusRatio {
 	 * @return the ratio
 	 */
 	@Override
-	public double getLog2Ratio(QuantificationLabel labelNumerator, QuantificationLabel labelDenominator) {
+	public Double getLog2Ratio(QuantificationLabel labelNumerator, QuantificationLabel labelDenominator) {
 		if (ionsByLabel.containsKey(labelNumerator) && ionsByLabel.containsKey(labelDenominator)) {
 			final Ion ion1 = ionsByLabel.get(labelNumerator);
 			final Ion ion2 = ionsByLabel.get(labelDenominator);
@@ -151,7 +151,7 @@ public class IsoRatio extends CensusRatio {
 	 * @return the norLogRatio
 	 */
 	@Override
-	public double getNonLogRatio(QuantificationLabel labelNumerator, QuantificationLabel labelDenominator) {
+	public Double getNonLogRatio(QuantificationLabel labelNumerator, QuantificationLabel labelDenominator) {
 		if (ionsByLabel.containsKey(labelNumerator) && ionsByLabel.containsKey(labelDenominator)) {
 			final Ion ion1 = ionsByLabel.get(labelNumerator);
 			final Ion ion2 = ionsByLabel.get(labelDenominator);

@@ -52,8 +52,8 @@ public class KeyUtils {
 	public static String getSpectrumKey(QuantifiedPSMInterface psm, boolean chargeSensible) {
 
 		StringBuilder sb = new StringBuilder();
-		if (psm.getFileName() != null)
-			sb.append(psm.getFileName());
+		if (psm.getRawFileName() != null)
+			sb.append(psm.getRawFileName());
 		if (!"".equals(sb.toString())) {
 			sb.append("-");
 		}
@@ -85,34 +85,35 @@ public class KeyUtils {
 		}
 	}
 
-	/**
-	 * returns ionSerieTypeName+numIon+spectrumKey
-	 *
-	 * @param ratio
-	 * @param peptide
-	 * @param chargeSensible
-	 *            if true, then, the charge will be considered for
-	 *            differentiating peptides with different charge states. If
-	 *            false, peptides with different charge states will have the
-	 *            same key
-	 * @return
-	 */
-	public static String getIonKey(IsoRatio ratio, QuantifiedPSMInterface quantPSM, boolean chargeSensible) {
-		String ionSerieTypeName = "";
-		if (ratio.getIonSerieType() != null) {
-			ionSerieTypeName = ratio.getIonSerieType().name();
-		}
-		String numIon = "";
-		if (ratio.getNumIon() > 0)
-			numIon = String.valueOf(ratio.getNumIon());
-		String ret = ionSerieTypeName + numIon;
-		if (!"".equals(ret)) {
-			ret += "-";
-		}
-		ret += getSpectrumKey(quantPSM, chargeSensible);
-		return ret;
-
-	}
+	// /**
+	// * returns ionSerieTypeName+numIon+spectrumKey
+	// *
+	// * @param ratio
+	// * @param peptide
+	// * @param chargeSensible
+	// * if true, then, the charge will be considered for
+	// * differentiating peptides with different charge states. If
+	// * false, peptides with different charge states will have the
+	// * same key
+	// * @return
+	// */
+	// public static String getIonKey(IsoRatio ratio, QuantifiedPSMInterface
+	// quantPSM, boolean chargeSensible) {
+	// String ionSerieTypeName = "";
+	// if (ratio.getIonSerieType() != null) {
+	// ionSerieTypeName = ratio.getIonSerieType().name();
+	// }
+	// String numIon = "";
+	// if (ratio.getNumIon() > 0)
+	// numIon = String.valueOf(ratio.getNumIon());
+	// String ret = ionSerieTypeName + numIon;
+	// if (!"".equals(ret)) {
+	// ret += "-";
+	// }
+	// ret += getSpectrumKey(quantPSM, chargeSensible);
+	// return ret;
+	//
+	// }
 
 	/**
 	 * returns ionSerieTypeName+numIon+spectrumKey

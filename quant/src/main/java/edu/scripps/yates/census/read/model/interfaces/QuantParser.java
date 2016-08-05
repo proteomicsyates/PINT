@@ -46,4 +46,10 @@ public interface QuantParser {
 
 	void setChargeStateSensible(boolean chargeSensible);
 
+	Set<String> getUniprotAccSet();
+
+	void setIgnoreNotFoundPeptidesInDB(boolean ignoreNotFoundPeptidesInDB);
+
+	boolean isIgnoreNotFoundPeptidesInDB();
+
 }

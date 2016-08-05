@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.census.analysis.util.KeyUtils;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedPSM;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
-import edu.scripps.yates.census.read.model.interfaces.Ratio;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.utilities.maths.Maths;
 
@@ -145,7 +145,7 @@ public class StatisticsOnPSMLevel {
 			if (!quantifiedPSM.getRatios().isEmpty()) {
 				double sum = 0.0;
 				int valid = 0;
-				for (Ratio ratio : quantifiedPSM.getRatios()) {
+				for (QuantRatio ratio : quantifiedPSM.getRatios()) {
 					if (!Maths.isMaxOrMinValue(ratio.getLog2Ratio(labelNumerator, labelDenominator))
 							&& !Double.isNaN(ratio.getLog2Ratio(labelNumerator, labelDenominator))) {
 						sum += ratio.getLog2Ratio(labelNumerator, labelDenominator);

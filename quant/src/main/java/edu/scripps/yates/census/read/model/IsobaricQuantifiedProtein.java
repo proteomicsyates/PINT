@@ -15,20 +15,22 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.census.analysis.QuantCondition;
 import edu.scripps.yates.census.quant.xml.ProteinType;
 import edu.scripps.yates.census.quant.xml.ProteinType.Peptide;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPeptideInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
-import edu.scripps.yates.census.read.model.interfaces.Ratio;
+import edu.scripps.yates.census.read.util.QuantUtil;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupablePSM;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.maths.Maths;
+import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.util.Pair;
 
-public class IsobaricQuantifiedProtein implements QuantifiedProteinInterface {
+public class IsobaricQuantifiedProtein extends AbstractContainsQuantifiedPSMs implements QuantifiedProteinInterface {
 	private static final Logger log = Logger.getLogger(IsobaricQuantifiedProtein.class);
 
 	private final ProteinType protein;
@@ -41,17 +43,20 @@ public class IsobaricQuantifiedProtein implements QuantifiedProteinInterface {
 	private final Set<QuantifiedPeptideInterface> quantifiedPeptides = new HashSet<QuantifiedPeptideInterface>();
 	private String description;
 	private String taxonomy;
-	private Set<IsoRatio> ratios;
+	private final Set<QuantRatio> ratios = new HashSet<QuantRatio>();
 	private final Map<String, Double> countRatiosByConditionKey = new HashMap<String, Double>();
 	private Map<QuantCondition, Set<Ion>> ionsByConditions;
 	private final Set<Amount> amounts = new HashSet<Amount>();
+
+	private final Set<String> fileNames = new HashSet<String>();
+
+	private boolean discarded;
 
 	public IsobaricQuantifiedProtein(ProteinType protein) throws IOException {
 		this.protein = protein;
 		final Pair<String, String> accPair = FastaParser.getACC(protein.getLocus());
 		primaryAccession = accPair.getFirstelement();
 		accessionType = accPair.getSecondElement();
-		StaticMaps.proteinMap.addItem(this);
 	}
 
 	public IsobaricQuantifiedProtein(String proteinACC) throws IOException {
@@ -59,7 +64,6 @@ public class IsobaricQuantifiedProtein implements QuantifiedProteinInterface {
 		final Pair<String, String> accPair = FastaParser.getACC(proteinACC);
 		primaryAccession = accPair.getFirstelement();
 		accessionType = accPair.getSecondElement();
-		StaticMaps.proteinMap.addItem(this);
 	}
 
 	@Override
@@ -286,11 +290,11 @@ public class IsobaricQuantifiedProtein implements QuantifiedProteinInterface {
 	 * @return the fileNames
 	 */
 	@Override
-	public Set<String> getFileNames() {
+	public Set<String> getRawFileNames() {
 		Set<String> ret = new HashSet<String>();
 		final Set<QuantifiedPSMInterface> quantifiedPSMs2 = getQuantifiedPSMs();
 		for (QuantifiedPSMInterface quantifiedPSMInterface : quantifiedPSMs2) {
-			ret.add(quantifiedPSMInterface.getFileName());
+			ret.add(quantifiedPSMInterface.getRawFileName());
 		}
 		return ret;
 	}
@@ -366,13 +370,6 @@ public class IsobaricQuantifiedProtein implements QuantifiedProteinInterface {
 
 	}
 
-	@Override
-	public Set<Ratio> getRatios() {
-		Set<Ratio> ret = new HashSet<Ratio>();
-		ret.addAll(getIsoRatios());
-		return ret;
-	}
-
 	public Set<IsobaricQuantifiedPSM> getIsobaricQuantifiedPSMs() {
 		Set<IsobaricQuantifiedPSM> ret = new HashSet<IsobaricQuantifiedPSM>();
 		final Set<QuantifiedPSMInterface> quantifiedPSMs2 = getQuantifiedPSMs();
@@ -395,11 +392,23 @@ public class IsobaricQuantifiedProtein implements QuantifiedProteinInterface {
 		return ret;
 	}
 
-	public Set<IsoRatio> getIsoRatios() {
-		if (ratios == null || ratios.isEmpty()) {
-			ratios = new HashSet<IsoRatio>();
+	@Override
+	public Set<QuantRatio> getRatios() {
+		if (ratios.isEmpty()) {
 			for (IsobaricQuantifiedPSM psm : getIsobaricQuantifiedPSMs()) {
 				ratios.addAll(psm.getIsoRatios());
+			}
+		}
+		return ratios;
+	}
+
+	@Override
+	public Set<QuantRatio> getRatios(String replicateName) {
+		if (ratios.isEmpty()) {
+			for (IsobaricQuantifiedPSM psm : getIsobaricQuantifiedPSMs()) {
+				if (psm.getRawFileName().equals(replicateName)) {
+					ratios.addAll(psm.getIsoRatios());
+				}
 			}
 		}
 		return ratios;
@@ -640,5 +649,54 @@ public class IsobaricQuantifiedProtein implements QuantifiedProteinInterface {
 	@Override
 	public void addAmount(Amount amount) {
 		amounts.add(amount);
+	}
+
+	@Override
+	public void addRatio(QuantRatio ratio) {
+		getRatios();
+		ratios.add(ratio);
+
+	}
+
+	@Override
+	public Set<QuantRatio> getNonInfinityRatios() {
+		return QuantUtil.getNonInfinityRatios(getRatios());
+	}
+
+	@Override
+	public void addFileName(String fileName) {
+		fileNames.add(fileName);
+
+	}
+
+	@Override
+	public Set<String> getFileNames() {
+		return fileNames;
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition cond1, QuantCondition cond2) {
+		return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios()), AggregationLevel.PROTEIN);
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition cond1, QuantCondition cond2, String replicateName) {
+		return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios(replicateName)),
+				AggregationLevel.PROTEIN);
+	}
+
+	@Override
+	public boolean isDiscarded() {
+
+		return discarded;
+	}
+
+	@Override
+	public void setDiscarded(boolean discarded) {
+		this.discarded = discarded;
+		final Set<QuantifiedPSMInterface> quantifiedPSMs = getQuantifiedPSMs();
+		for (QuantifiedPSMInterface quantifiedPSMInterface : quantifiedPSMs) {
+			quantifiedPSMInterface.setDiscarded(discarded);
+		}
 	}
 }

@@ -1,10 +1,11 @@
 package edu.scripps.yates.census.read.model;
 
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
+import edu.scripps.yates.census.read.model.interfaces.QuantifiedPeptideInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
 import edu.scripps.yates.census.read.model.interfaces.StaticItemStorage;
 
-public class StaticMaps {
+public class QuantStaticMaps {
 	/**
 	 * The map that stores the {@link QuantifiedPSMInterface} by the spectrum
 	 * key
@@ -23,6 +24,12 @@ public class StaticMaps {
 	/**
 	 * The map that stores the {@link QuantifiedPeptide} by the peptide key
 	 */
-	public static StaticItemStorage<QuantifiedPeptide> peptideMap = new StaticItemStorage<QuantifiedPeptide>();
+	public static StaticItemStorage<QuantifiedPeptideInterface> peptideMap = new StaticItemStorage<QuantifiedPeptideInterface>();
+
+	public static void clearInfo() {
+		proteinMap.clear();
+		psmMap.clear();
+		peptideMap.clear();
+	}
 
 }

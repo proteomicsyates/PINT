@@ -134,4 +134,14 @@ public class SanxotQuantResult {
 		return Math.pow(2.0, log2ratio);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SanxotQuantResult [key=" + key + ", log2ratio=" + log2ratio + ", weight=" + weight + ", fdr=" + fdr
+				+ ", zValue=" + zValue + "]";
+	}
+
 }

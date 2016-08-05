@@ -5,7 +5,14 @@ import java.util.Set;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.proteomicsmodel.HasAmounts;
 
-public interface QuantifiedProteinInterface extends GroupableProtein, HasRatios, HasAmounts, HasKey {
+/**
+ * A quantified protein that can be quantified in different msruns and
+ * experiments.
+ *
+ * @author Salva
+ *
+ */
+public interface QuantifiedProteinInterface extends GroupableProtein, HasRatios, HasAmounts, HasKey, HasFileName {
 
 	public String getDescription();
 
@@ -23,12 +30,16 @@ public interface QuantifiedProteinInterface extends GroupableProtein, HasRatios,
 
 	public void setTaxonomy(String taxonomy);
 
-	public Set<String> getFileNames();
-
 	public Integer getLength();
 
 	public void setAccession(String primaryAccession);
 
 	public void setDescription(String description);
+
+	public Set<String> getRawFileNames();
+
+	public void setDiscarded(boolean b);
+
+	public boolean isDiscarded();
 
 }

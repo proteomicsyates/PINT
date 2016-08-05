@@ -6,11 +6,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import edu.scripps.yates.census.analysis.QuantCondition;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPeptideInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
-import edu.scripps.yates.census.read.model.interfaces.Ratio;
 import edu.scripps.yates.census.read.util.QuantUtil;
+import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 
 public class QuantifiedPeptide extends AbstractContainsQuantifiedPSMs implements QuantifiedPeptideInterface {
@@ -18,6 +20,8 @@ public class QuantifiedPeptide extends AbstractContainsQuantifiedPSMs implements
 	protected final boolean distinguishModifiedSequences;
 	protected final Set<QuantifiedPSMInterface> psms = new HashSet<QuantifiedPSMInterface>();
 	private final Set<Amount> amounts = new HashSet<Amount>();
+	private final Set<String> fileNames = new HashSet<String>();
+	private boolean discarded;
 
 	/**
 	 * Creates a {@link QuantifiedPeptide} object, adding the
@@ -29,9 +33,8 @@ public class QuantifiedPeptide extends AbstractContainsQuantifiedPSMs implements
 	 */
 	public QuantifiedPeptide(QuantifiedPSMInterface quantPSM, boolean distinguishModifiedSequences) {
 		sequenceKey = QuantUtil.getSequenceKey(quantPSM, distinguishModifiedSequences);
-		StaticMaps.peptideMap.addItem(this);
 		this.distinguishModifiedSequences = distinguishModifiedSequences;
-		addPSM(quantPSM);
+		addQuantifiedPSM(quantPSM);
 
 	}
 
@@ -44,7 +47,8 @@ public class QuantifiedPeptide extends AbstractContainsQuantifiedPSMs implements
 	 * It assures that has the same sequence, taking into account the
 	 * distinguishModifiedSequences of the instance
 	 */
-	public boolean addPSM(QuantifiedPSMInterface quantPSM) {
+	@Override
+	public boolean addQuantifiedPSM(QuantifiedPSMInterface quantPSM) {
 		if (sequenceKey.equals(QuantUtil.getSequenceKey(quantPSM, distinguishModifiedSequences))) {
 			return psms.add(quantPSM);
 		}
@@ -150,7 +154,7 @@ public class QuantifiedPeptide extends AbstractContainsQuantifiedPSMs implements
 	public Set<String> getRawFileNames() {
 		Set<String> ret = new HashSet<String>();
 		for (QuantifiedPSMInterface quantPSM : psms) {
-			ret.add(quantPSM.getFileName());
+			ret.add(quantPSM.getRawFileName());
 		}
 		return ret;
 	}
@@ -183,18 +187,6 @@ public class QuantifiedPeptide extends AbstractContainsQuantifiedPSMs implements
 	}
 
 	@Override
-	public Set<Ratio> getRatios() {
-		Set<Ratio> ret = new HashSet<Ratio>();
-
-		final Set<QuantifiedPSMInterface> quantifiedPSMs = getQuantifiedPSMs();
-		for (QuantifiedPSMInterface quantifiedPSM : quantifiedPSMs) {
-			ret.addAll(quantifiedPSM.getRatios());
-		}
-
-		return ret;
-	}
-
-	@Override
 	public Set<Amount> getAmounts() {
 		if (amounts.isEmpty()) {
 			for (QuantifiedPSMInterface psm : getQuantifiedPSMs()) {
@@ -210,4 +202,52 @@ public class QuantifiedPeptide extends AbstractContainsQuantifiedPSMs implements
 
 	}
 
+	@Override
+	public void addRatio(QuantRatio ratio) {
+		ratios.add(ratio);
+	}
+
+	@Override
+	public Set<QuantRatio> getNonInfinityRatios() {
+		return QuantUtil.getNonInfinityRatios(getRatios());
+	}
+
+	@Override
+	public void addFileName(String fileName) {
+		fileNames.add(fileName);
+
+	}
+
+	@Override
+	public Set<String> getFileNames() {
+		return fileNames;
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition quantConditionNumerator,
+			QuantCondition quantConditionDenominator) {
+		return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios()), AggregationLevel.PEPTIDE);
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition quantConditionNumerator,
+			QuantCondition quantConditionDenominator, String replicateName) {
+		return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios(replicateName)),
+				AggregationLevel.PEPTIDE);
+	}
+
+	@Override
+	public boolean isDiscarded() {
+
+		return discarded;
+	}
+
+	@Override
+	public void setDiscarded(boolean discarded) {
+		this.discarded = discarded;
+		final Set<QuantifiedPSMInterface> quantifiedPSMs = getQuantifiedPSMs();
+		for (QuantifiedPSMInterface quantifiedPSMInterface : quantifiedPSMs) {
+			quantifiedPSMInterface.setDiscarded(discarded);
+		}
+	}
 }

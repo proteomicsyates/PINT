@@ -9,15 +9,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.census.analysis.FileMappingResults;
 
 public class IntegrationResultWrapper {
-	private final Logger log = Logger.getLogger(IntegrationResultWrapper.class);
+	private static final Logger log = Logger.getLogger(IntegrationResultWrapper.class);
 	private final File workingFolder;
 	private final String prefix;
 	private String higherLevelSuffix;
@@ -45,6 +47,20 @@ public class IntegrationResultWrapper {
 		this.lowLevel = lowLevel;
 		this.upperLevel = upperLevel;
 		this.fileMappingResults = fileMappingResults;
+		higherLevelSuffix = DEFAULT_HIGHERLEVEL_SUFFIX;
+		infoFileSuffix = DEFAULT_INFO_FILE_SUFFIX;
+		lowerLevelVSuffix = DEFAULT_LOWERLEVEL_V_SUFFIX;
+		lowerLevelWSuffix = DEFAULT_LOWERLEVEL_W_SUFFIX;
+		statisticsSuffix = DEFAULT_STATISTICS_SUFFIX;
+		graphSuffix = DEFAULT_GRAPH_SUFFIX;
+	}
+
+	public IntegrationResultWrapper(File workingFolder, String prefix, int lowLevel, int upperLevel) {
+		this.workingFolder = workingFolder;
+		this.prefix = prefix;
+		this.lowLevel = lowLevel;
+		this.upperLevel = upperLevel;
+		fileMappingResults = null;
 		higherLevelSuffix = DEFAULT_HIGHERLEVEL_SUFFIX;
 		infoFileSuffix = DEFAULT_INFO_FILE_SUFFIX;
 		lowerLevelVSuffix = DEFAULT_LOWERLEVEL_V_SUFFIX;
@@ -161,6 +177,100 @@ public class IntegrationResultWrapper {
 				SanxotQuantResult ratioAndWeight = new SanxotQuantResult(line);
 				ret.put(ratioAndWeight.getKey(), ratioAndWeight);
 
+			}
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			// Done with the file
+			try {
+				br.close();
+			} catch (IOException e) {
+
+			}
+			br = null;
+			fis = null;
+		}
+		return ret;
+	}
+
+	public static Map<String, SanxotQuantResult> getSanXotQuantResultFromDataFile(File file) {
+		Map<String, SanxotQuantResult> ret = new HashMap<String, SanxotQuantResult>();
+		InputStream fis;
+		BufferedReader br = null;
+		String line;
+
+		try {
+			fis = new FileInputStream(file);
+			br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
+			while ((line = br.readLine()) != null) {
+				if (line.trim().startsWith("#") || line.trim().startsWith("idsup")) {
+					continue;
+				}
+				if (line.contains("\t")) {
+					final String[] split = line.split("\t");
+					if (split.length == 3) {
+						try {
+							SanxotQuantResult ratioAndWeight = new SanxotQuantResult(split[0], Double.valueOf(split[1]),
+									Double.valueOf(split[2]));
+							ret.put(ratioAndWeight.getKey(), ratioAndWeight);
+						} catch (NumberFormatException e) {
+							log.warn(e);
+						}
+					}
+				}
+			}
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			// Done with the file
+			try {
+				br.close();
+			} catch (IOException e) {
+
+			}
+			br = null;
+			fis = null;
+		}
+		return ret;
+	}
+
+	public static Map<String, Set<String>> getRelationShipsFromRelatFile(File file) {
+		Map<String, Set<String>> ret = new HashMap<String, Set<String>>();
+		InputStream fis;
+		BufferedReader br = null;
+		String line;
+
+		try {
+			fis = new FileInputStream(file);
+			br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
+			while ((line = br.readLine()) != null) {
+				if (line.trim().startsWith("#")) {
+					continue;
+				}
+				if (line.contains("\t")) {
+					final String[] split = line.split("\t");
+					if (split.length == 2) {
+						try {
+							String upperLevel = split[0];
+							String lowerLevel = split[1];
+							if (ret.containsKey(upperLevel)) {
+								ret.get(upperLevel).add(lowerLevel);
+							} else {
+								Set<String> set = new HashSet<String>();
+								set.add(lowerLevel);
+								ret.put(upperLevel, set);
+							}
+						} catch (NumberFormatException e) {
+							log.warn(e);
+						}
+					}
+				}
 			}
 
 		} catch (FileNotFoundException e) {
@@ -391,8 +501,10 @@ public class IntegrationResultWrapper {
 	public String toString() {
 
 		String ret = "Integration results:\n\tFrom level " + getLowLevel() + " to level " + getUpperLevel() + "\n";
-		ret += "\tFrom level " + fileMappingResults.getFileNameByLevel(getLowLevel()) + " to level "
-				+ fileMappingResults.getFileNameByLevel(getUpperLevel()) + "\n";
+		if (fileMappingResults != null) {
+			ret += "\tFrom level " + fileMappingResults.getFileNameByLevel(getLowLevel()) + " to level "
+					+ fileMappingResults.getFileNameByLevel(getUpperLevel()) + "\n";
+		}
 		try {
 			ret += "\t\tVariance at this level=" + getIntegrationVariance() + "\n";
 		} catch (IOException e) {

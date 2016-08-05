@@ -14,15 +14,18 @@ import edu.scripps.yates.census.analysis.QuantCondition;
 import edu.scripps.yates.census.analysis.util.KeyUtils;
 import edu.scripps.yates.census.read.model.interfaces.HasRatios;
 import edu.scripps.yates.census.read.model.interfaces.PeptideSequenceInterface;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
+import edu.scripps.yates.census.read.model.interfaces.QuantifiedPeptideInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
-import edu.scripps.yates.census.read.model.interfaces.Ratio;
+import edu.scripps.yates.census.read.util.QuantUtil;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupablePSM;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.PeptideRelation;
 import edu.scripps.yates.utilities.maths.Maths;
+import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 
 public class QuantifiedPSMFromCensusOut
@@ -33,12 +36,12 @@ public class QuantifiedPSMFromCensusOut
 	private final HashSet<String> taxonomies = new HashSet<String>();
 
 	private PeptideRelation relation;
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
-	private final String fileName;
+	private final Set<QuantRatio> ratios = new HashSet<QuantRatio>();
+	private final String rawFileName;
 	private final String scan;
 	private final String sequence;
 	private final Map<QuantificationLabel, QuantCondition> conditionsByLabels;
-	private QuantifiedPeptide quantifiedPeptide;
+	private QuantifiedPeptideInterface quantifiedPeptide;
 	private final String fullSequence;
 	private final Integer charge;
 	private Float calcMHplus;
@@ -47,10 +50,13 @@ public class QuantifiedPSMFromCensusOut
 	private Float xcorr;
 	private Float deltaMass;
 	private final Set<Amount> amounts = new HashSet<Amount>();
+	private final Set<String> fileNames = new HashSet<String>();
+	private boolean discarded;
+	private boolean singleton;
 
 	public QuantifiedPSMFromCensusOut(String sequence, Map<QuantCondition, QuantificationLabel> labelsByConditions,
 			HashMap<String, Set<String>> peptideToSpectraMap, int scanNumber, int chargeState,
-			boolean chargeStateSensible, String fileName) throws IOException {
+			boolean chargeStateSensible, String rawFileName, boolean singleton) throws IOException {
 		fullSequence = sequence;
 		this.sequence = FastaParser.cleanSequence(sequence);
 		scan = String.valueOf(scanNumber);
@@ -60,9 +66,13 @@ public class QuantifiedPSMFromCensusOut
 			conditionsByLabels.put(quantificationLabel, condition);
 		}
 		charge = chargeState;
-		this.fileName = fileName;
-		StaticMaps.psmMap.addItem(this);
-
+		// remove the H of HEAVY
+		if (rawFileName != null && rawFileName.startsWith("H")) {
+			this.rawFileName = rawFileName.substring(1);
+		} else {
+			this.rawFileName = rawFileName;
+		}
+		this.singleton = singleton;
 		final String peptideKey = KeyUtils.getSequenceChargeKey(this, chargeStateSensible);
 		final String spectrumKey = KeyUtils.getSpectrumKey(this, chargeStateSensible);
 
@@ -91,8 +101,8 @@ public class QuantifiedPSMFromCensusOut
 	 * @return the fileName
 	 */
 	@Override
-	public String getFileName() {
-		return fileName;
+	public String getRawFileName() {
+		return rawFileName;
 	}
 
 	/*
@@ -129,7 +139,7 @@ public class QuantifiedPSMFromCensusOut
 	 * @return the ratios
 	 */
 	@Override
-	public Set<Ratio> getRatios() {
+	public Set<QuantRatio> getRatios() {
 
 		return ratios;
 	}
@@ -184,10 +194,10 @@ public class QuantifiedPSMFromCensusOut
 	@Override
 	public double getMeanRatios(QuantCondition quantConditionNumerator, QuantCondition quantConditionDenominator) {
 
-		final Set<Ratio> ratioSet = getRatios();
+		final Set<QuantRatio> ratioSet = getRatios();
 		List<Double> ratios = new ArrayList<Double>();
 
-		for (Ratio isoRatio : ratioSet) {
+		for (QuantRatio isoRatio : ratioSet) {
 			ratios.add(isoRatio.getLog2Ratio(quantConditionNumerator, quantConditionDenominator));
 		}
 		return Maths.mean(ratios.toArray(new Double[0]));
@@ -196,19 +206,19 @@ public class QuantifiedPSMFromCensusOut
 	@Override
 	public double getSTDRatios(QuantCondition quantConditionNumerator, QuantCondition quantConditionDenominator) {
 
-		final Set<Ratio> ratioSet = getRatios();
+		final Set<QuantRatio> ratioSet = getRatios();
 		List<Double> ratios = new ArrayList<Double>();
-		for (Ratio isoRatio : ratioSet) {
+		for (QuantRatio isoRatio : ratioSet) {
 			ratios.add(isoRatio.getLog2Ratio(quantConditionNumerator, quantConditionDenominator));
 		}
 		return Maths.stddev(ratios.toArray(new Double[0]));
 	}
 
 	@Override
-	public void setQuantifiedPeptide(QuantifiedPeptide quantifiedPeptide) {
+	public void setQuantifiedPeptide(QuantifiedPeptideInterface quantifiedPeptide) {
 		this.quantifiedPeptide = quantifiedPeptide;
 		if (quantifiedPeptide != null) {
-			quantifiedPeptide.addPSM(this);
+			quantifiedPeptide.addQuantifiedPSM(this);
 		}
 	}
 
@@ -216,7 +226,7 @@ public class QuantifiedPSMFromCensusOut
 	 * @return the quantifiedPeptide
 	 */
 	@Override
-	public QuantifiedPeptide getQuantifiedPeptide() {
+	public QuantifiedPeptideInterface getQuantifiedPeptide() {
 		return quantifiedPeptide;
 	}
 
@@ -240,7 +250,17 @@ public class QuantifiedPSMFromCensusOut
 		return mhPlus;
 	}
 
-	public void addRatio(Ratio ratio) {
+	@Override
+	public void addRatio(QuantRatio ratio) {
+		// dont add it if it is already one ratio with the same value and
+		// description
+		for (QuantRatio ratio2 : ratios) {
+			if (ratio2.getDescription().equals(ratio.getDescription())) {
+				if (Double.compare(ratio2.getValue(), ratio.getValue()) == 0) {
+					return;
+				}
+			}
+		}
 		ratios.add(ratio);
 	}
 
@@ -294,4 +314,74 @@ public class QuantifiedPSMFromCensusOut
 
 	}
 
+	@Override
+	public Double getMaxPeak() {
+
+		double max = -Double.MAX_VALUE;
+		for (Amount amount : getAmounts()) {
+			if (Double.compare(amount.getValue(), max) > 0) {
+				max = amount.getValue();
+			}
+		}
+		if (Double.compare(max, -Double.MAX_VALUE) != 0) {
+			return max;
+		}
+		return null;
+	}
+
+	@Override
+	public Set<QuantRatio> getNonInfinityRatios() {
+		return QuantUtil.getNonInfinityRatios(getRatios());
+	}
+
+	@Override
+	public void addFileName(String fileName) {
+		fileNames.add(fileName);
+
+	}
+
+	@Override
+	public Set<String> getFileNames() {
+		return fileNames;
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition quantConditionNumerator,
+			QuantCondition quantConditionDenominator) {
+		return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios()), AggregationLevel.PSM);
+	}
+
+	@Override
+	public QuantRatio getConsensusRatio(QuantCondition quantConditionNumerator,
+			QuantCondition quantConditionDenominator, String replicateName) {
+		if (getRawFileName().equals(replicateName)) {
+			return QuantUtil.getAverageRatio(QuantUtil.getNonInfinityRatios(getRatios()), AggregationLevel.PSM);
+		}
+		return null;
+	}
+
+	@Override
+	public boolean isDiscarded() {
+
+		return discarded;
+	}
+
+	@Override
+	public void setDiscarded(boolean discarded) {
+		this.discarded = discarded;
+
+	}
+
+	/**
+	 * @return the singleton
+	 */
+	@Override
+	public boolean isSingleton() {
+		return singleton;
+	}
+
+	public void setSingleton(boolean singleton) {
+		this.singleton = singleton;
+
+	}
 }
