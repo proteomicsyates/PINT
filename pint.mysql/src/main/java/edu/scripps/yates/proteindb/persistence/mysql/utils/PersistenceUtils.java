@@ -602,7 +602,9 @@ public class PersistenceUtils {
 		final Set<Peptide> peptides = protein.getPeptides();
 		Set<Peptide> peptidesToDetach = new HashSet<Peptide>();
 		for (Peptide peptide : peptides) {
-			boolean removed = peptide.getProteins().remove(protein);
+			if (!peptide.getProteins().isEmpty()) {
+				boolean removed = peptide.getProteins().remove(protein);
+			}
 			if (!peptideDetached) {
 				if (peptide.getProteins().isEmpty()) {
 					peptidesToDetach.add(peptide);
@@ -616,7 +618,9 @@ public class PersistenceUtils {
 		final Set<Psm> psms = protein.getPsms();
 		Set<Psm> psmsToDetach = new HashSet<Psm>();
 		for (Psm psm : psms) {
-			boolean removed = psm.getProteins().remove(protein);
+			if (!psm.getProteins().isEmpty()) {
+				boolean removed = psm.getProteins().remove(protein);
+			}
 			if (!psmDetached) {
 				if (psm.getProteins().isEmpty()) {
 					psmsToDetach.add(psm);

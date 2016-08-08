@@ -50,6 +50,9 @@ public class QueriesUtil {
 			for (Protein protein : proteinSet) {
 				final Set<Psm> psms = protein.getPsms();
 				for (Psm psm : psms) {
+					if (psm.getProteins().isEmpty()) {
+						log.info("PSM without proteins: PSM id: " + psm.getId());
+					}
 					final LinkBetweenQueriableProteinSetAndPSM proteinSet2PsmLink = new LinkBetweenQueriableProteinSetAndPSM(
 							proteinSet, psm);
 					ret.add(proteinSet2PsmLink);
