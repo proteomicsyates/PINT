@@ -101,7 +101,7 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 				// Lock lock = new ReentrantLock(true);
 				// try {
 				// lock.lock();
-				protein = (Protein) ContextualSessionHandler.getSession().merge(protein);
+				protein = (Protein) ContextualSessionHandler.load(protein.getId(), Protein.class);
 				// } finally {
 				// lock.unlock();
 				// }
@@ -176,14 +176,13 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	public Set<Peptide> getPeptides() {
 
 		HashSet<Peptide> peptideSet = new HashSet<Peptide>();
-		for (Protein protein : getProteins()) {
-			final Set<Peptide> peptides = protein.getPeptides();
-			for (Peptide peptide : peptides) {
-				if (!ContextualSessionHandler.getSession().contains(peptide)) {
-					peptide = (Peptide) ContextualSessionHandler.getSession().merge(peptide);
-				}
-				peptideSet.add(peptide);
+		for (Psm psm : getPsms()) {
+			Peptide peptide = psm.getPeptide();
+			if (!ContextualSessionHandler.getSession().contains(peptide)) {
+				peptide = (Peptide) ContextualSessionHandler.load(peptide.getId(), Peptide.class);
 			}
+			peptideSet.add(peptide);
+
 		}
 
 		return peptideSet;
@@ -204,7 +203,7 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 			final Set<Psm> psms = protein.getPsms();
 			for (Psm psm : psms) {
 				if (!ContextualSessionHandler.getSession().contains(psm)) {
-					psm = (Psm) ContextualSessionHandler.getSession().merge(psm);
+					psm = (Psm) ContextualSessionHandler.load(psm.getId(), Psm.class);
 				}
 				psmSet.add(psm);
 			}
