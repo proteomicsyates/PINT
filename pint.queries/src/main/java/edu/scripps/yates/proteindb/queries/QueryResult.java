@@ -45,10 +45,13 @@ public class QueryResult {
 				}
 			}
 		}
+		// detach PSMs
+		log.info("Detaching " + psmsToDetach.size() + " PSMs");
 		for (Psm psmToDetach : psmsToDetach) {
 			PersistenceUtils.detachPSM(psmToDetach, false, false, false);
 		}
-		//
+		log.info("Detached PSMs finished");
+		log.info("Removing links now...");
 		Set<Protein> proteinsToDetach = new HashSet<Protein>();
 		Set<Protein> validProteins = getProteinSetFromLinks(links);
 		for (Psm psm : validPSMs) {
@@ -59,9 +62,14 @@ public class QueryResult {
 				}
 			}
 		}
+		log.info("Links removed");
+		// detach proteins
+		log.info("Detaching " + proteinsToDetach.size() + " proteins");
 		for (Protein protein : proteinsToDetach) {
 			PersistenceUtils.detachProtein(protein, false, false, false);
 		}
+		log.info("Detached proteins finished");
+		log.info("Removing links now...");
 		Iterator<LinkBetweenQueriableProteinSetAndPSM> linksIterator = links.iterator();
 		while (linksIterator.hasNext()) {
 			LinkBetweenQueriableProteinSetAndPSM link = linksIterator.next();
@@ -74,6 +82,7 @@ public class QueryResult {
 				linksIterator.remove();
 			}
 		}
+		log.info("Links removed");
 	}
 
 	private Set<Protein> getProteinSetFromLinks(Collection<LinkBetweenQueriableProteinSetAndPSM> links2) {
