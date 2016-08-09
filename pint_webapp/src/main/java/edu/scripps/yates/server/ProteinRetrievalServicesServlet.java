@@ -39,13 +39,13 @@ import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
-import edu.scripps.yates.proteindb.queries.QueryResult;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.Command;
 import edu.scripps.yates.proteindb.queries.semantic.Infix2QueryBinaryTree;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
+import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueryBinaryTree;
 import edu.scripps.yates.proteindb.queries.semantic.QueryInterface;
+import edu.scripps.yates.proteindb.queries.semantic.QueryResult;
 import edu.scripps.yates.server.adapters.AlignmentResultAdapter;
 import edu.scripps.yates.server.adapters.OrganismBeanAdapter;
 import edu.scripps.yates.server.adapters.PSMBeanAdapter;
@@ -1023,7 +1023,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 				QueryResult result = getQueryResultFromQuery(expressionTree, projectTags);
 
-				final Map<String, Set<QueriableProteinInterface>> proteins = result.getProteins();
+				final Map<String, Set<QueriableProteinSet>> proteins = result.getProteins();
 				log.info(proteins.size() + " proteins comming from command  '" + queryText + "'");
 				if (!proteins.isEmpty()) {
 					log.info("Creating Protein beans in session '" + sessionID + "'");

@@ -18,8 +18,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
-import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenProteinAndPSM;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
 import edu.scripps.yates.shared.model.AmountBean;
@@ -38,7 +37,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	private final static Logger log = Logger.getLogger(ProteinBeanAdapterFromProteinSet.class);
 	// private final static Map<String, ProteinBean> map = new HashMap<String,
 	// ProteinBean>();
-	private final Set<QueriableProteinInterface> queriableProteins;
+	private final Set<QueriableProteinSet> queriableProteins;
 	// private final String primaryAcc;
 	private final Collection<String> hiddenPTMs;
 
@@ -46,7 +45,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 
 		// primaryAcc = primaryAcc;
 		this.hiddenPTMs = hiddenPTMs;
-		queriableProteins = new HashSet<QueriableProteinInterface>();
+		queriableProteins = new HashSet<QueriableProteinSet>();
 
 		if (proteins != null) {
 			// for (Protein protein : proteins) {
@@ -64,8 +63,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		}
 	}
 
-	public ProteinBeanAdapterFromProteinSet(Set<QueriableProteinInterface> queriableProteins,
-			Collection<String> hiddenPTMs) {
+	public ProteinBeanAdapterFromProteinSet(Set<QueriableProteinSet> queriableProteins, Collection<String> hiddenPTMs) {
 		this.queriableProteins = queriableProteins;
 		this.hiddenPTMs = hiddenPTMs;
 	}
@@ -81,7 +79,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// if (primaryAcc != null)
 		// map.put(primaryAcc, ret);
 		// }
-		for (QueriableProteinInterface queriableProtein : queriableProteins) {
+		for (QueriableProteinSet queriableProtein : queriableProteins) {
 			addProteinInformationToProteinBean(ret, queriableProtein, hiddenPTMs);
 
 		}
@@ -96,7 +94,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	 * @param queriableProtein
 	 * @param hiddenPTMs
 	 */
-	private void addProteinInformationToProteinBean(ProteinBean proteinBean, QueriableProteinInterface queriableProtein,
+	private void addProteinInformationToProteinBean(ProteinBean proteinBean, QueriableProteinSet queriableProtein,
 			Collection<String> hiddenPTMs) {
 		for (Integer dbId : queriableProtein.getProteinDBIds()) {
 			ServerCacheProteinBeansByProteinDBId.getInstance().addtoCache(proteinBean, dbId);
@@ -133,7 +131,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		}
 		// log.debug("Adapting amounts for protein DbID: " +
 		// protein.getId());
-		for (Protein protein : queriableProtein.getProteins()) {
+		for (Protein protein : queriableProtein.getIndividualProteins()) {
 			if (protein.getProteinAmounts() != null) {
 				for (Object obj : protein.getProteinAmounts()) {
 					ProteinAmount proteinAmount = (ProteinAmount) obj;
@@ -187,7 +185,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 
 		// log.debug("Adapting psms for protein DbID: " + protein.getId());
 		if (queriableProtein.getLinks() != null) {
-			for (LinkBetweenProteinAndPSM link : queriableProtein.getLinks()) {
+			for (LinkBetweenQueriableProteinSetAndPSM link : queriableProtein.getLinks()) {
 				final Psm psm = link.getQueriablePsm().getPsm();
 
 				if (!proteinBean.getPSMDBIds().contains(psm.getId())) {

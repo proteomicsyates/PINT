@@ -104,19 +104,21 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 
 		for (Object obj : peptide.getPsms()) {
 			final Psm psm = (Psm) obj;
+			final PSMBean psmBeanByPSMId = ServerCachePSMBeansByPSMDBId.getInstance().getFromCache(psm.getId());
+			if (psmBeanByPSMId != null) {
+				ret.addPSMToPeptide(psmBeanByPSMId);
+				psmBeanByPSMId.setPeptideBeanToPSM(ret);
+			} else {
+				// if it is not in the cache, is because the PSMBean has not
+				// created, because it was filtered out by a query
+				final String message = "PSM with DB id: " + psm.getId() + " [" + psm.getPsmId() + ", "
+						+ psm.getSequence()
+						+ "] is not found in the ServerCachePSMBeansByPSMDBId. You need to create the PSMBean objects before create the peptide bean objects";
+				continue;
+				// throw new IllegalArgumentException(message);
+			}
 			if (!ret.getPSMDBIds().contains(psm.getId())) {
 				ret.getPSMDBIds().add(psm.getId());
-
-				final PSMBean psmBeanByPSMId = ServerCachePSMBeansByPSMDBId.getInstance().getFromCache(psm.getId());
-				if (psmBeanByPSMId != null) {
-					ret.addPSMToPeptide(psmBeanByPSMId);
-					psmBeanByPSMId.setPeptideBeanToPSM(ret);
-				} else {
-					final String message = "PSM with DB id: " + psm.getId() + " [" + psm.getPsmId() + ", "
-							+ psm.getSequence()
-							+ "] is not found in the ServerCachePSMBeansByPSMDBId. You need to create the PSMBean objects before create the peptide bean objects";
-					throw new IllegalArgumentException(message);
-				}
 
 				final Set<Condition> conditions = psm.getConditions();
 				for (Condition condition : conditions) {

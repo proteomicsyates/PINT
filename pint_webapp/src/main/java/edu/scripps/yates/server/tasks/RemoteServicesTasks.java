@@ -48,11 +48,11 @@ import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.queries.QueryResult;
 import edu.scripps.yates.proteindb.queries.cache.Cache;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
+import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueryInterface;
+import edu.scripps.yates.proteindb.queries.semantic.QueryResult;
 import edu.scripps.yates.server.DataSet;
 import edu.scripps.yates.server.DataSetsManager;
 import edu.scripps.yates.server.adapters.GeneBeanAdapter;
@@ -920,7 +920,7 @@ public class RemoteServicesTasks {
 
 				QueryResult result = expressionTree.getQueryResults();
 
-				final Map<String, Set<QueriableProteinInterface>> proteins = result.getProteins();
+				final Map<String, Set<QueriableProteinSet>> proteins = result.getProteins();
 
 				log.info(proteins.size() + " proteins comming from command '" + queryText + "'");
 
@@ -1122,7 +1122,7 @@ public class RemoteServicesTasks {
 	 * @return
 	 */
 	public static Set<ProteinBean> createProteinBeansFromQueriableProteins(String sessionID,
-			Map<String, Set<QueriableProteinInterface>> proteins, Set<String> hiddenPTMs) {
+			Map<String, Set<QueriableProteinSet>> proteins, Set<String> hiddenPTMs) {
 		log.info("Creating protein beans from " + proteins.size() + " different Proteins");
 		Set<ProteinBean> ret = new HashSet<ProteinBean>();
 		int numProteins = 0;
@@ -1130,7 +1130,7 @@ public class RemoteServicesTasks {
 			if (numProteins == SharedConstants.MAX_NUM_PROTEINS)// test purposes
 				break;
 
-			final Set<QueriableProteinInterface> proteinSet = proteins.get(proteinAcc);
+			final Set<QueriableProteinSet> proteinSet = proteins.get(proteinAcc);
 			final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs).adapt();
 			if (sessionID != null) {
 				DataSetsManager.getDataSet(sessionID, null).addProtein(proteinBeanAdapted);

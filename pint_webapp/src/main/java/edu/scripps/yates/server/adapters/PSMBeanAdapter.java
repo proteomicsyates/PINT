@@ -90,7 +90,7 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 				ret.addRatio(new PSMRatioBeanAdapter((PsmRatioValue) obj).adapt());
 			}
 		}
-		if (queriablePsm.getProteinSetLinks() != null) {
+		if (queriablePsm.getLinks() != null) {
 			addProteinBeans(ret, queriablePsm);
 
 		}
@@ -124,7 +124,7 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 		// List<AccessionBean> primaryAccessions = new
 		// ArrayList<AccessionBean>();
 
-		for (LinkBetweenQueriableProteinSetAndPSM link : queriablePsm2.getProteinSetLinks()) {
+		for (LinkBetweenQueriableProteinSetAndPSM link : queriablePsm2.getLinks()) {
 			QueriableProteinSet queriableProtein = link.getQueriableProtein();
 			psmBean.getProteinDBIds().addAll(queriableProtein.getProteinDBIds());
 
