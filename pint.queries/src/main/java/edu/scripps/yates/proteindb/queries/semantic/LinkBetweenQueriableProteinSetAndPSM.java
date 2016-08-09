@@ -9,7 +9,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 
-public class LinkBetweenQueriableProteinSetAndPSM implements LinkBetweenProteinAndPSM {
+public class LinkBetweenQueriableProteinSetAndPSM {
 	private static final Logger log = Logger.getLogger(LinkBetweenQueriableProteinSetAndPSM.class);
 	private final QueriableProteinSet queriableProteinSet;
 	private final QueriablePsm queriablePsm;
@@ -26,15 +26,15 @@ public class LinkBetweenQueriableProteinSetAndPSM implements LinkBetweenProteinA
 		this.queriableProteinSet = queriableProteinSet;
 		this.queriablePsm = queriablePsm;
 
-		this.queriableProteinSet.getLinks().add(this);
-		this.queriablePsm.getProteinSetLinks().add(this);
+		this.queriableProteinSet.addLink(this);
+		this.queriablePsm.addLink(this);
 
 	}
 
 	/**
 	 * @return the protein
 	 */
-	@Override
+
 	public QueriableProteinSet getQueriableProtein() {
 		return queriableProteinSet;
 	}
@@ -42,7 +42,7 @@ public class LinkBetweenQueriableProteinSetAndPSM implements LinkBetweenProteinA
 	/**
 	 * @return the psm
 	 */
-	@Override
+
 	public QueriablePsm getQueriablePsm() {
 		return queriablePsm;
 	}
@@ -101,18 +101,18 @@ public class LinkBetweenQueriableProteinSetAndPSM implements LinkBetweenProteinA
 	 *
 	 * @return
 	 */
-	public Set<Protein> getProtein() {
-		return queriableProteinSet.getProteins();
+	public Set<Protein> getIndividualProteins() {
+		return queriableProteinSet.getIndividualProteins();
 	}
 
 	/**
-	 * Gets the set of {@link Peptide} in the
+	 * Gets the {@link Peptide} in the
 	 * {@link LinkBetweenQueriableProteinSetAndPSM}
 	 *
 	 * @return
 	 */
-	public Set<Peptide> getPeptides() {
-		return queriableProteinSet.getPeptides();
+	public Peptide getPeptide() {
+		return queriablePsm.getPsm().getPeptide();
 	}
 
 	/**

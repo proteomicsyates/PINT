@@ -17,8 +17,8 @@ import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.psm.PsmProviderFromSEQ;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
-import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenProteinAndPSM;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
@@ -147,7 +147,7 @@ public class QueryFromSEQCommand extends AbstractQuery {
 	}
 
 	@Override
-	public boolean evaluate(LinkBetweenProteinAndPSM link) {
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
 		if (aggregationLevel == AggregationLevel.PSM || aggregationLevel == AggregationLevel.PEPTIDE) {
 			return evaluate(link.getQueriablePsm());
 		} else if (aggregationLevel == AggregationLevel.PROTEIN) {
@@ -163,14 +163,14 @@ public class QueryFromSEQCommand extends AbstractQuery {
 
 	}
 
-	private boolean evaluate(QueriableProteinInterface protein) {
+	private boolean evaluate(QueriableProteinSet protein) {
 		final String seq = getProteinSequence(protein);
 
 		return evaluateSequence(seq);
 
 	}
 
-	private String getProteinSequence(QueriableProteinInterface protein) {
+	private String getProteinSequence(QueriableProteinSet protein) {
 		final String acc = protein.getPrimaryAccession();
 		Set<String> uniprotACCs = new HashSet<String>();
 		final Pair<String, String> accPair = FastaParser.getACC(acc);

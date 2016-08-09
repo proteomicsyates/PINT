@@ -9,8 +9,8 @@ import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProteinAccs;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
-import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenProteinAndPSM;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
@@ -50,8 +50,8 @@ public class QueryFromProteinAccessionsCommand extends AbstractQuery {
 	}
 
 	@Override
-	public boolean evaluate(LinkBetweenProteinAndPSM link) {
-		final QueriableProteinInterface protein = link.getQueriableProtein();
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
+		final QueriableProteinSet protein = link.getQueriableProtein();
 
 		final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
 		for (ProteinAccession proteinAccession : proteinAccessions) {

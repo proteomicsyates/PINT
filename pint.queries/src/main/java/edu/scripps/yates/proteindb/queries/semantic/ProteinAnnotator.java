@@ -45,9 +45,11 @@ public class ProteinAnnotator {
 	public void annotateProteins(Map<String, Set<Protein>> proteinList) {
 		log.info("Getting Uniprot annotations from " + proteinList.size() + " proteins");
 		Collection<String> accessions = PersistenceUtils.getAccessionsByAccType(proteinList, AccessionType.UNIPROT);
-		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = getAnnotatedProteins(accessions);
+		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = getAnnotatedProteins(
+				accessions);
 		for (String accession : proteinList.keySet()) {
-			final edu.scripps.yates.utilities.proteomicsmodel.Protein annotatedProtein = annotatedProteins.get(accession);
+			final edu.scripps.yates.utilities.proteomicsmodel.Protein annotatedProtein = annotatedProteins
+					.get(accession);
 			if (annotatedProtein != null) {
 				final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = annotatedProtein
 						.getAnnotations();
@@ -123,23 +125,8 @@ public class ProteinAnnotator {
 		return Collections.emptySet();
 	}
 
-	private Set<String> getAccessionsByAccType(Map<String, Set<QueriableProteinInterface>> proteinList,
-			AccessionType accType) {
-		Set<String> ret = new HashSet<String>();
-		for (Set<QueriableProteinInterface> set : proteinList.values()) {
-			for (QueriableProteinInterface queriableProteinInterface : set) {
-				final Set<ProteinAccession> proteinAccessions = queriableProteinInterface.getProteinAccessions();
-				for (ProteinAccession proteinAccession : proteinAccessions) {
-					if (proteinAccession.getAccessionType().equalsIgnoreCase(accType.name())) {
-						ret.add(proteinAccession.getAccession());
-					}
-				}
-			}
-		}
-		return ret;
-	}
-
-	private Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> getAnnotatedProteins(Collection<String> accessions) {
+	private Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> getAnnotatedProteins(
+			Collection<String> accessions) {
 		Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> ret = new HashMap<String, edu.scripps.yates.utilities.proteomicsmodel.Protein>();
 		Set<String> notAnnotatedAccs = new HashSet<String>();
 		for (String acc : accessions) {

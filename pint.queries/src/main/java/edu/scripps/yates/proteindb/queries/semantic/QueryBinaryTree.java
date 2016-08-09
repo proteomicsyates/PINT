@@ -21,7 +21,7 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 		super(new QueryBinaryTreeElement(word));
 	}
 
-	public boolean evaluate(LinkBetweenProteinAndPSM link) {
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
 		if (element.getLogicalOperator() != null) {
 			final boolean leftResult = getLeftBNode().evaluate(link);
 			if (leftResult == false && LogicalOperator.AND == element.getLogicalOperator())

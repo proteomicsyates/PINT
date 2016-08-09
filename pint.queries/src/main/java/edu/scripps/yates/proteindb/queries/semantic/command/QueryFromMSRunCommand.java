@@ -11,7 +11,7 @@ import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromMSRun;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
-import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenProteinAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
@@ -49,7 +49,7 @@ public class QueryFromMSRunCommand extends AbstractQuery {
 	}
 
 	@Override
-	public boolean evaluate(LinkBetweenProteinAndPSM link) {
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
 
 		final boolean queryOverProtein = queryOverPsm(link.getQueriablePsm().getPsm());
 		return queryOverProtein;

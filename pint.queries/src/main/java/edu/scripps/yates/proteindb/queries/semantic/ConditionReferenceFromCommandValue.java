@@ -176,7 +176,7 @@ public class ConditionReferenceFromCommandValue {
 	 * @param protein
 	 * @return
 	 */
-	public boolean passCondition(QueriableProteinInterface protein) {
+	public boolean passCondition(QueriableProteinSet protein) {
 		final Set<Condition> conditions = protein.getConditions();
 		return passCondition(conditions);
 	}

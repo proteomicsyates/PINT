@@ -15,7 +15,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 
 public class QueriablePsm {
 	private Psm psm;
-	private final Set<LinkBetweenQueriableProteinSetAndPSM> proteinSetLinks = new HashSet<LinkBetweenQueriableProteinSetAndPSM>();
+	private final Set<LinkBetweenQueriableProteinSetAndPSM> links = new HashSet<LinkBetweenQueriableProteinSetAndPSM>();
 	private static final Map<Integer, QueriablePsm> map = new HashMap<Integer, QueriablePsm>();
 	private final static Logger log = Logger.getLogger(QueriablePsm.class);
 
@@ -48,12 +48,12 @@ public class QueriablePsm {
 	/**
 	 * @return the links
 	 */
-	public Set<LinkBetweenQueriableProteinSetAndPSM> getProteinSetLinks() {
-		return proteinSetLinks;
+	public Set<LinkBetweenQueriableProteinSetAndPSM> getLinks() {
+		return links;
 	}
 
 	public void removeProteinSetLink(LinkBetweenQueriableProteinSetAndPSM link) {
-		boolean removed = proteinSetLinks.remove(link);
+		boolean removed = links.remove(link);
 		if (!removed)
 			log.warn("BAD");
 	}
@@ -82,5 +82,14 @@ public class QueriablePsm {
 
 	public String getSequence() {
 		return getPsm().getSequence();
+	}
+
+	public void clearLinks() {
+		links.clear();
+
+	}
+
+	public void addLink(LinkBetweenQueriableProteinSetAndPSM link) {
+		links.add(link);
 	}
 }

@@ -16,7 +16,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 
@@ -33,13 +32,13 @@ public class QueriesUtil {
 		int numPSMs = 0;
 		// clear links before create them
 		for (Set<Protein> proteinSet : proteinSets) {
-			QueriableProteinSet.getInstance(proteinSet, true).getLinks().clear();
+			QueriableProteinSet.getInstance(proteinSet, true).clearLinks();
 			for (Protein protein : proteinSet) {
 				numProteins++;
 				final Set<Psm> psms = protein.getPsms();
 				for (Psm psm : psms) {
 					numPSMs++;
-					QueriablePsm.getInstance(psm, true).getProteinSetLinks().clear();
+					QueriablePsm.getInstance(psm, true).clearLinks();
 				}
 			}
 		}
@@ -77,7 +76,7 @@ public class QueriesUtil {
 		return ret;
 	}
 
-	public static ProteinAccession getPrimaryProteinAccession(QueriableProteinInterface queriableProteinInt) {
+	public static ProteinAccession getPrimaryProteinAccession(QueriableProteinSet queriableProteinInt) {
 		ProteinAccession primaryAcc = null;
 		final Set<ProteinAccession> proteinAccessions = queriableProteinInt.getProteinAccessions();
 		for (ProteinAccession proteinAccession : proteinAccessions) {

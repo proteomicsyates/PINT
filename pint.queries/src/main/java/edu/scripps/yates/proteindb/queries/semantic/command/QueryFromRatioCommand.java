@@ -21,8 +21,8 @@ import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
-import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenProteinAndPSM;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
@@ -207,7 +207,7 @@ public class QueryFromRatioCommand extends AbstractQuery {
 
 	}
 
-	private boolean queryOverProtein(QueriableProteinInterface queriableProtein) {
+	private boolean queryOverProtein(QueriableProteinSet queriableProtein) {
 		// protein ratios
 		boolean specifiedRatioPresent = false;
 		if (isTheProteinToLog(queriableProtein)) {
@@ -293,7 +293,7 @@ public class QueryFromRatioCommand extends AbstractQuery {
 		return false;
 	}
 
-	private boolean isTheProteinToLog(QueriableProteinInterface protein) {
+	private boolean isTheProteinToLog(QueriableProteinSet protein) {
 		if (protein.getPrimaryAccession().equals("Q99442")) {
 			return true;
 		}
@@ -336,7 +336,7 @@ public class QueryFromRatioCommand extends AbstractQuery {
 	}
 
 	@Override
-	public boolean evaluate(LinkBetweenProteinAndPSM link) {
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
 
 		switch (aggregationLevel) {
 		case PROTEIN:

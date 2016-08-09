@@ -13,8 +13,8 @@ import edu.scripps.yates.proteindb.queries.Query;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
-import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenProteinAndPSM;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
@@ -99,16 +99,16 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 		return false;
 	}
 
-	public boolean evaluate(QueriableProteinInterface protein) {
+	public boolean evaluate(QueriableProteinSet protein) {
 		final Set<ProteinAnnotation> proteinAnnotations = protein.getProteinAnnotations();
 		return evaluate(proteinAnnotations);
 	}
 
 	@Override
-	public boolean evaluate(LinkBetweenProteinAndPSM link) {
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
 
 		// annotate the proteins according to the uniprot version provided
-		final QueriableProteinInterface protein = link.getQueriableProtein();
+		final QueriableProteinSet protein = link.getQueriableProtein();
 		// QueryFromComplexAnnotationCommand.annotateProtein(protein,
 		// uniprotVersion);
 		return evaluate(protein);

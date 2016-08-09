@@ -17,9 +17,8 @@ import edu.scripps.yates.proteindb.queries.dataproviders.psm.PsmProviderFromPsmA
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
-import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenProteinAndPSM;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProtein;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
@@ -92,13 +91,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 				+ commandReference.getCommand().getFormat());
 	}
 
-	private boolean queryOverProtein(QueriableProteinInterface queriableProtein) {
-		// in case of being a QueriableProtein and not a QueriableProteinSet, if
-		// the query command is SPC, it should be ignored,
-		// returning true
-		if (queriableProtein instanceof QueriableProtein && amountType == AmountType.SPC) {
-			return true;
-		}
+	private boolean queryOverProtein(QueriableProteinSet queriableProtein) {
 
 		boolean amountFound = false;
 
@@ -203,7 +196,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 		return ret;
 	}
 
-	private Set<ProteinAmount> getProteinAmountsByType(QueriableProteinInterface protein) {
+	private Set<ProteinAmount> getProteinAmountsByType(QueriableProteinSet protein) {
 		Set<ProteinAmount> ret = new HashSet<ProteinAmount>();
 		final Set<ProteinAmount> proteinAmounts = protein.getProteinAmounts();
 		thereIsProteinAmountManuallyAdded = false;
@@ -234,12 +227,12 @@ public class QueryFromAmountCommand extends AbstractQuery {
 		return ret;
 	}
 
-	public ProteinAmount getSpectralCountProteinAmount(Condition condition, QueriableProteinInterface protein) {
+	public ProteinAmount getSpectralCountProteinAmount(Condition condition, QueriableProteinSet protein) {
 		final ProteinAmount spc = new ProteinAmount();
 		spc.setAmountType(new edu.scripps.yates.proteindb.persistence.mysql.AmountType(AmountType.SPC.name()));
 		spc.setManualSPC(false);
 		int spcNum = 0;
-		for (LinkBetweenProteinAndPSM link : protein.getLinks()) {
+		for (LinkBetweenQueriableProteinSetAndPSM link : protein.getLinks()) {
 			if (link.getQueriablePsm().getConditions().contains(condition)) {
 				spcNum++;
 			}
@@ -263,7 +256,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 	}
 
 	@Override
-	public boolean evaluate(LinkBetweenProteinAndPSM link) {
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
 		switch (aggregationLevel) {
 		case PROTEIN:
 

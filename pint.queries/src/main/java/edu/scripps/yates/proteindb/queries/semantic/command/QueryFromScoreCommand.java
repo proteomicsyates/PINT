@@ -20,8 +20,8 @@ import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProvider
 import edu.scripps.yates.proteindb.queries.dataproviders.psm.PsmProviderFromPsmScores;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
-import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenProteinAndPSM;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinInterface;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
@@ -86,7 +86,7 @@ public class QueryFromScoreCommand extends AbstractQuery {
 	}
 
 	@Override
-	public boolean evaluate(LinkBetweenProteinAndPSM link) {
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
 
 		switch (aggregationLevel) {
 		case PROTEIN:
@@ -194,7 +194,7 @@ public class QueryFromScoreCommand extends AbstractQuery {
 		return false;
 	}
 
-	private boolean queryOverProtein(QueriableProteinInterface protein) {
+	private boolean queryOverProtein(QueriableProteinSet protein) {
 		final Set<ProteinScore> proteinScores = protein.getProteinScores();
 		if (proteinScores != null) {
 			boolean scoreFound = false;

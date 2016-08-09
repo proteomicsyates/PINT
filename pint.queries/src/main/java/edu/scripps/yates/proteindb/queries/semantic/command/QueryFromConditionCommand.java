@@ -12,8 +12,6 @@ import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProvider
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
-import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenProteinAndPSM;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProtein;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
@@ -44,13 +42,8 @@ public class QueryFromConditionCommand extends AbstractQuery {
 	}
 
 	@Override
-	public boolean evaluate(LinkBetweenProteinAndPSM link) {
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
 
-		// in case of being a QueriableProtein and not a QueriableProteinSet, it
-		// should be ignored, returning true
-		if (link.getQueriableProtein() instanceof QueriableProtein) {
-			return true;
-		}
 		if (conditionReference.passCondition(link.getQueriableProtein())) {
 			return true;
 		}

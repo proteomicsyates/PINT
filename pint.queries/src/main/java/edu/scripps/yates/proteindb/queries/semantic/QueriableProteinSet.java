@@ -36,14 +36,15 @@ import edu.scripps.yates.utilities.model.enums.AccessionType;
  * @author Salva
  *
  */
-public class QueriableProteinSet implements QueriableProteinInterface {
-	private final Set<LinkBetweenProteinAndPSM> links = new HashSet<LinkBetweenProteinAndPSM>();
+public class QueriableProteinSet {
+	private final Set<LinkBetweenQueriableProteinSetAndPSM> links = new HashSet<LinkBetweenQueriableProteinSetAndPSM>();
 	/**
 	 * Proteins that share the same primary accession
 	 */
 	private final Set<Protein> proteins = new HashSet<Protein>();
 	private final String primaryAcc;
 	private ProteinAccession primaryProteinAcc;
+	private Set<Protein> individualProteins;
 
 	private final static Logger log = Logger.getLogger(QueriableProteinSet.class);
 	private static final Map<String, QueriableProteinSet> map = new HashMap<String, QueriableProteinSet>();
@@ -74,57 +75,70 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 		return sb.toString();
 	}
 
-	private QueriableProteinSet(Protein protein) {
-		primaryAcc = protein.getAcc();
-		proteins.add(protein);
-	}
-
 	private QueriableProteinSet(Collection<Protein> proteins) {
 		primaryAcc = proteins.iterator().next().getAcc();
 		this.proteins.addAll(proteins);
 	}
 
 	/**
-	 * Returns the protein, assuring that the returned protein is available in
+	 * Returns the proteins, assuring that the returned protein is available in
 	 * the current Hibernate session, by calling merge(Protein) if
 	 * {@link Protein} is not in the session.
 	 *
 	 * @return the proteins
 	 */
-	@Override
-	public Set<Protein> getProteins() {
 
-		final Iterator<Protein> proteinIterator = proteins.iterator();
-		while (proteinIterator.hasNext()) {
-			Protein protein = proteinIterator.next();
-			if (!ContextualSessionHandler.getSession().contains(protein)) {
-				// Lock lock = new ReentrantLock(true);
-				// try {
-				// lock.lock();
-				protein = (Protein) ContextualSessionHandler.load(protein.getId(), Protein.class);
-				// } finally {
-				// lock.unlock();
-				// }
-			}
-			if (protein.getPsms().isEmpty()) {
-				proteinIterator.remove();
+	public Set<Protein> getIndividualProteins() {
+		if (individualProteins == null) {
+			individualProteins = new HashSet<Protein>();
+			final Set<LinkBetweenQueriableProteinSetAndPSM> links2 = getLinks();
+			for (LinkBetweenQueriableProteinSetAndPSM link : links2) {
+				final Psm psm = link.getQueriablePsm().getPsm();
+				final Set<Protein> proteins2 = psm.getProteins();
+				if (!proteins2.isEmpty()) {
+					for (Protein protein : proteins2) {
+						if (!ContextualSessionHandler.getSession().contains(protein)) {
+							protein = (Protein) ContextualSessionHandler.load(protein.getId(), Protein.class);
+						}
+						individualProteins.add(protein);
+					}
+				}
 			}
 		}
-		return proteins;
+		return individualProteins;
+		// final Iterator<Protein> proteinIterator = proteins.iterator();
+		// while (proteinIterator.hasNext()) {
+		// Protein protein = proteinIterator.next();
+		// if (!ContextualSessionHandler.getSession().contains(protein)) {
+		// // Lock lock = new ReentrantLock(true);
+		// // try {
+		// // lock.lock();
+		// protein = (Protein) ContextualSessionHandler.load(protein.getId(),
+		// Protein.class);
+		// // } finally {
+		// // lock.unlock();
+		// // }
+		// }
+		// if (protein.getPsms().isEmpty()) {
+		// proteinIterator.remove();
+		// }
+		// }
+		// return proteins;
 
 	}
 
 	/**
 	 * @return the links
 	 */
-	@Override
-	public Set<LinkBetweenProteinAndPSM> getLinks() {
+
+	public Set<LinkBetweenQueriableProteinSetAndPSM> getLinks() {
 		return links;
 	}
 
-	@Override
-	public void removeLink(LinkBetweenProteinAndPSM link) {
+	public void removeLink(LinkBetweenQueriableProteinSetAndPSM link) {
 		boolean removed = links.remove(link);
+		// force to recreate the individual proteins
+		individualProteins = null;
 		if (!removed)
 			log.warn("BAD");
 	}
@@ -135,7 +149,7 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 * @param psm
 	 */
 	public void remove(Psm psm) {
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			boolean removed = protein.getPsms().remove(psm);
 			if (removed) {
 				Set<Psm> psms = protein.getPsms();
@@ -172,7 +186,7 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 *
 	 * @return the peptides
 	 */
-	@Override
+
 	public Set<Peptide> getPeptides() {
 
 		HashSet<Peptide> peptideSet = new HashSet<Peptide>();
@@ -195,11 +209,11 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 *
 	 * @return the peptides
 	 */
-	@Override
+
 	public Set<Psm> getPsms() {
 
 		HashSet<Psm> psmSet = new HashSet<Psm>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			final Set<Psm> psms = protein.getPsms();
 			for (Psm psm : psms) {
 				if (!ContextualSessionHandler.getSession().contains(psm)) {
@@ -212,10 +226,9 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 		return psmSet;
 	}
 
-	@Override
 	public Set<ProteinAccession> getProteinAccessions() {
 		Set<ProteinAccession> ret = new HashSet<ProteinAccession>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getProteinAccessions());
 		}
 		return ret;
@@ -228,12 +241,11 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 *
 	 * @return
 	 */
-	@Override
+
 	public String getPrimaryAccession() {
 		return primaryAcc;
 	}
 
-	@Override
 	public ProteinAccession getPrimaryProteinAccession() {
 		if (primaryProteinAcc == null) {
 			String accessionType = null;
@@ -254,10 +266,10 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 *
 	 * @return
 	 */
-	@Override
+
 	public Set<Condition> getConditions() {
 		Set<Condition> ret = new HashSet<Condition>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getConditions());
 		}
 		return ret;
@@ -269,10 +281,10 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 *
 	 * @return
 	 */
-	@Override
+
 	public Set<ProteinAmount> getProteinAmounts() {
 		Set<ProteinAmount> ret = new HashSet<ProteinAmount>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			final Set<ProteinAmount> proteinAmounts = protein.getProteinAmounts();
 			for (ProteinAmount proteinAmount : proteinAmounts) {
 				if (!ContextualSessionHandler.getSession().contains(proteinAmount)) {
@@ -289,10 +301,10 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 *
 	 * @return
 	 */
-	@Override
+
 	public Set<Integer> getProteinDBIds() {
 		Set<Integer> ret = new HashSet<Integer>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			ret.add(protein.getId());
 		}
 		return ret;
@@ -304,10 +316,10 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 *
 	 * @return
 	 */
-	@Override
+
 	public Organism getOrganism() {
 
-		Organism organism = getProteins().iterator().next().getOrganism();
+		Organism organism = getIndividualProteins().iterator().next().getOrganism();
 		if (!ContextualSessionHandler.getSession().contains(organism)) {
 			organism = (Organism) ContextualSessionHandler.getSession().merge(organism);
 		}
@@ -319,10 +331,10 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 *
 	 * @return
 	 */
-	@Override
+
 	public Set<ProteinAnnotation> getProteinAnnotations() {
 		Set<ProteinAnnotation> ret = new HashSet<ProteinAnnotation>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getProteinAnnotations());
 		}
 		return ret;
@@ -334,10 +346,10 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 	 *
 	 * @return
 	 */
-	@Override
+
 	public Set<ProteinThreshold> getProteinThresholds() {
 		Set<ProteinThreshold> ret = new HashSet<ProteinThreshold>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			final Set<ProteinThreshold> proteinThresholds = protein.getProteinThresholds();
 			for (ProteinThreshold proteinThreshold : proteinThresholds) {
 				if (!ContextualSessionHandler.getSession().contains(proteinThreshold)) {
@@ -349,20 +361,18 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 		return ret;
 	}
 
-	@Override
 	public Set<Gene> getGenes() {
 		Set<Gene> ret = new HashSet<Gene>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getGenes());
 		}
 		return ret;
 	}
 
-	@Override
 	public Set<ProteinRatioValue> getProteinRatiosBetweenTwoConditions(String condition1Name, String condition2Name,
 			String ratioName) {
 		Set<ProteinRatioValue> ret = new HashSet<ProteinRatioValue>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			final Set<ProteinRatioValue> proteinRatiosBetweenTwoConditions = PersistenceUtils
 					.getProteinRatiosBetweenTwoConditions(protein, condition1Name, condition2Name, ratioName);
 			ret.addAll(proteinRatiosBetweenTwoConditions);
@@ -370,48 +380,54 @@ public class QueriableProteinSet implements QueriableProteinInterface {
 		return ret;
 	}
 
-	@Override
 	public Set<ProteinScore> getProteinScores() {
 		Set<ProteinScore> ret = new HashSet<ProteinScore>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getProteinScores());
 		}
 		return ret;
 
 	}
 
-	@Override
 	public Integer getLength() {
-		return getProteins().iterator().next().getLength();
+		return getIndividualProteins().iterator().next().getLength();
 	}
 
-	@Override
 	public Double getMw() {
 
-		return getProteins().iterator().next().getMw();
+		return getIndividualProteins().iterator().next().getMw();
 	}
 
-	@Override
 	public Double getPi() {
-		return getProteins().iterator().next().getPi();
+		return getIndividualProteins().iterator().next().getPi();
 	}
 
-	@Override
 	public Set<MsRun> getMsRuns() {
 		Set<MsRun> ret = new HashSet<MsRun>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			ret.add(protein.getMsRun());
 		}
 		return ret;
 	}
 
-	@Override
 	public Set<ProteinRatioValue> getProteinRatioValues() {
 		Set<ProteinRatioValue> ret = new HashSet<ProteinRatioValue>();
-		for (Protein protein : getProteins()) {
+		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getProteinRatioValues());
 		}
 		return ret;
+	}
+
+	public void addLink(LinkBetweenQueriableProteinSetAndPSM link) {
+		links.add(link);
+		// force to recreate the individual proteins
+		individualProteins = null;
+	}
+
+	public void clearLinks() {
+		links.clear();
+		// force to recreate the individual proteins
+		individualProteins = null;
 	}
 
 }
