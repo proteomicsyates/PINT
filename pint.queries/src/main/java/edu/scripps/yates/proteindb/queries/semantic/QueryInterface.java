@@ -288,6 +288,7 @@ public class QueryInterface {
 
 			List<LinkBetweenQueriableProteinSetAndPSM> links = QueriesUtil
 					.createProteinPSMLinks(proteinProvider.getProteinMap());
+			List<LinkBetweenQueriableProteinSetAndPSM> invalidLinks = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
 			if (needLinkEvaluation) {
 
 				int numDiscardedLinks = 0;
@@ -324,6 +325,7 @@ public class QueryInterface {
 						if (valid) {
 							numValidLinks++;
 						} else {
+							invalidLinks.add(link);
 							numDiscardedLinks++;
 							// delete link between QueriableProtein and
 							// QueriablePSM
@@ -356,7 +358,7 @@ public class QueryInterface {
 				// }
 				// }
 			}
-			queryResult = new QueryResult(links);
+			queryResult = new QueryResult(links, invalidLinks);
 			// }else{
 			// queryBinaryTree.getAbstractQueries().get(0).
 			// }
@@ -443,7 +445,7 @@ public class QueryInterface {
 				numRound++;
 			} while (numDiscardedLinks > 0);
 
-			queryResult = new QueryResult(links);
+			queryResult = new QueryResult(links, null);
 
 		}
 		return queryResult;

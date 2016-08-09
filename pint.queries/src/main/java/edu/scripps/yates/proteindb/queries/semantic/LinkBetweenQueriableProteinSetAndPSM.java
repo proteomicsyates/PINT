@@ -130,6 +130,20 @@ public class LinkBetweenQueriableProteinSetAndPSM {
 		this.linkSetForSameProtein = linkSetForSameProtein;
 	}
 
+	public void invalidateLink() {
+		final Psm psm = getQueriablePsm().getPsm();
+
+		// PersistenceUtils.detachPSM(psm, false, false, false);
+		final Set<Protein> allProteins = getQueriableProtein().getAllProteins();
+		final Set<Protein> proteinsFromPSM = psm.getProteins();
+		for (Protein protein : allProteins) {
+			protein.getPsms().remove(psm);
+			proteinsFromPSM.remove(protein);
+
+		}
+
+	}
+
 	// public void setProtein2PsmResult(QueriableProtein2PSMLink
 	// queriableProtein2PSMLink, boolean result) {
 	// if (evaluatedProtein2PSMLinks.containsKey(result)) {

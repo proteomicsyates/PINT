@@ -81,6 +81,16 @@ public class QueriableProteinSet {
 	}
 
 	/**
+	 * Return all the individual proteins<br>
+	 * <b>Note that maybe some of them have no PSMs and are not valid</b>
+	 *
+	 * @return
+	 */
+	public Set<Protein> getAllProteins() {
+		return proteins;
+	}
+
+	/**
 	 * Returns the proteins, assuring that the returned protein is available in
 	 * the current Hibernate session, by calling merge(Protein) if
 	 * {@link Protein} is not in the session.
@@ -91,19 +101,26 @@ public class QueriableProteinSet {
 	public Set<Protein> getIndividualProteins() {
 		if (individualProteins == null) {
 			individualProteins = new HashSet<Protein>();
-			final Set<LinkBetweenQueriableProteinSetAndPSM> links2 = getLinks();
-			for (LinkBetweenQueriableProteinSetAndPSM link : links2) {
-				final Psm psm = link.getQueriablePsm().getPsm();
-				final Set<Protein> proteins2 = psm.getProteins();
-				if (!proteins2.isEmpty()) {
-					for (Protein protein : proteins2) {
-						if (!ContextualSessionHandler.getSession().contains(protein)) {
-							protein = (Protein) ContextualSessionHandler.load(protein.getId(), Protein.class);
-						}
-						individualProteins.add(protein);
-					}
+			final Set<Protein> allProteins = getAllProteins();
+			for (Protein protein : allProteins) {
+				if (!protein.getPsms().isEmpty()) {
+					individualProteins.add(protein);
 				}
 			}
+			// if (!proteins2.isEmpty()) {
+			// for (Protein protein : proteins2) {
+			// if
+			// (!ContextualSessionHandler.getSession().contains(protein))
+			// {
+			// protein = (Protein)
+			// ContextualSessionHandler.load(protein.getId(),
+			// Protein.class);
+			// }
+			// individualProteins.add(protein);
+			// }
+			// individualProteins.addAll(proteins2);
+			// }
+
 		}
 		return individualProteins;
 		// final Iterator<Protein> proteinIterator = proteins.iterator();
