@@ -132,14 +132,15 @@ public class LinkBetweenQueriableProteinSetAndPSM {
 
 	public void invalidateLink() {
 		final Psm psm = getQueriablePsm().getPsm();
-
+		final Peptide peptide = psm.getPeptide();
 		// PersistenceUtils.detachPSM(psm, false, false, false);
 		final Set<Protein> allProteins = getQueriableProtein().getAllProteins();
 		final Set<Protein> proteinsFromPSM = psm.getProteins();
 		for (Protein protein : allProteins) {
 			protein.getPsms().remove(psm);
 			proteinsFromPSM.remove(protein);
-
+			peptide.getProteins().remove(protein);
+			protein.getPeptides().remove(peptide);
 		}
 
 	}

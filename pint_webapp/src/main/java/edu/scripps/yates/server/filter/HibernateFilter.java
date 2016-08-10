@@ -10,7 +10,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 
@@ -29,12 +28,12 @@ public class HibernateFilter implements Filter {
 		try {
 			// /////
 			// log.info("Creating a new session from Hibernate filter");
-			final Session session = ContextualSessionHandler.getSession();
-			log.info("Session id: " + session.hashCode());
+			// final Session session = ContextualSessionHandler.getSession();
+			// log.info("Session id: " + session.hashCode());
 			ContextualSessionHandler.beginGoodTransaction();
 			// pass the request along the filter chain
 			chain.doFilter(request, response);
-			ContextualSessionHandler.finishGoodTransaction();
+			// ContextualSessionHandler.finishGoodTransaction();
 		} catch (Exception ex) {
 			log.warn(ex.getMessage());
 			errorMessage = ex.getMessage();

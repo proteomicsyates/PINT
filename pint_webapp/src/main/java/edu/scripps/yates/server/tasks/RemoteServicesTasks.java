@@ -965,7 +965,7 @@ public class RemoteServicesTasks {
 				log.info("Dataset created: " + DataSetsManager.getDataSet(sessionID, projectString));
 
 				ret.put(queryText, pair);
-				ContextualSessionHandler.finishGoodTransaction();
+				// ContextualSessionHandler.finishGoodTransaction();
 
 			}
 

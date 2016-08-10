@@ -42,16 +42,16 @@ public class QueriesUtil {
 				}
 			}
 		}
-		log.info("proteinPSMLinks cleared for " + numProteins + " proteins and " + numPSMs + " PSMs");
+		log.info("proteinPSMLinks cleared for  " + numProteins + " proteins and " + numPSMs + " PSMs");
 
 		Map<String, Set<LinkBetweenQueriableProteinSetAndPSM>> linkMapByProteinAcc = new HashMap<String, Set<LinkBetweenQueriableProteinSetAndPSM>>();
 		for (Set<Protein> proteinSet : proteinSets) {
 			for (Protein protein : proteinSet) {
 				final Set<Psm> psms = protein.getPsms();
 				for (Psm psm : psms) {
-					if (psm.getProteins().isEmpty()) {
-						log.info("PSM without proteins: PSM id: " + psm.getId());
-					}
+					// if (psm.getProteins().isEmpty()) {
+					// log.info("PSM without proteins: PSM id: " + psm.getId());
+					// }
 					final LinkBetweenQueriableProteinSetAndPSM proteinSet2PsmLink = new LinkBetweenQueriableProteinSetAndPSM(
 							proteinSet, psm);
 					ret.add(proteinSet2PsmLink);

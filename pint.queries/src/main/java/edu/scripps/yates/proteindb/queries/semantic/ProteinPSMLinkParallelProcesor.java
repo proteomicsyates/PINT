@@ -60,7 +60,7 @@ public class ProteinPSMLinkParallelProcesor extends Thread {
 			ContextualSessionHandler.rollbackTransaction();
 		} finally {
 		}
-		ContextualSessionHandler.finishGoodTransaction();
+		// ContextualSessionHandler.finishGoodTransaction();
 	}
 
 	/**

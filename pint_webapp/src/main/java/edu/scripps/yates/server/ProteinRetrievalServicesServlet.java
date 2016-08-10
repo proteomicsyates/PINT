@@ -974,6 +974,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public QueryResultSubLists getProteinsFromQuery(String sessionID, String queryText, Set<String> projectTags,
 			boolean separateNonConclusiveProteins, boolean lock) throws PintException {
 		GetProteinsFromQuery task = null;
+
 		try {
 			QueryInterface expressionTree = new QueryInterface(projectTags, queryText);
 			String queryInOrder = expressionTree.printInOrder();
@@ -1079,6 +1080,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			// release task
 			if (task != null)
 				ServerTaskRegister.endTask(task);
+			log.warn("Rolling back transaction for not making any change in DB");
+			ContextualSessionHandler.rollbackTransaction();
+			log.warn("Transaction rolled back");
 
 		}
 	}
