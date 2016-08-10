@@ -62,6 +62,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RatiosType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteFilesRatioType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServerType;
 import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
+import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLSaver;
 import edu.scripps.yates.server.projectCreator.ImportCfgFileParserUtil;
 import edu.scripps.yates.server.projectCreator.adapter.FileSetAdapter;
@@ -914,6 +915,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			// log.info("Removing data files from server");
 			// FileManager.removeDataFiles(jobID, projectFilesPath);
 			// log.info("Data files removed");
+			ContextualSessionHandler.finishGoodTransaction();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)

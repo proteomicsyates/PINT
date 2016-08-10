@@ -16,13 +16,12 @@ import edu.scripps.yates.proteindb.persistence.mysql.PsmScore;
 import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
-import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 import edu.scripps.yates.server.cache.ServerCachePSMBeansByPSMDBId;
 import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.PSMBean;
-import edu.scripps.yates.shared.model.ScoreBean;
 
 public class PSMBeanAdapter implements Adapter<PSMBean> {
 	private static Map<String, Integer> staticPsmIdentifierByRunID = new HashMap<String, Integer>();
@@ -47,11 +46,6 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 			// even if the psmBean was already created, add the corresponding
 			// proteinbeans
 
-			// TEST
-			final ScoreBean scoreByName = psmBean.getScoreByName("SEQUEST:xcorr");
-			if (scoreByName != null && Double.valueOf(scoreByName.getValue()) < 7) {
-				System.out.println(scoreByName.getValue());
-			}
 			addProteinBeans(psmBean, queriablePsm);
 			return psmBean;
 		}

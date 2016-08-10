@@ -89,7 +89,7 @@ public class ProteinUniprotAnnotationUpdater extends PintServerDaemonTask {
 				if (annotatedProteins.containsKey(proteinAcc.getAccession())) {
 					final Protein protein = annotatedProteins.get(proteinAcc.getAccession());
 
-					if (proteinAcc.isIsPrimary()) {
+					if (proteinAcc.isIsPrimary() && protein != null) {
 
 						// check if that is still primary in Uniprot
 						final Accession primaryAccession = protein.getPrimaryAccession();

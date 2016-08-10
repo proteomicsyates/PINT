@@ -130,6 +130,7 @@ public class QueryResult {
 	 */
 	public Map<String, Set<QueriableProteinSet>> getProteins() {
 		if (proteinMap == null) {
+			log.info("Getting proteins from the query Result, from " + validLinks.size() + " links");
 			proteinMap = new HashMap<String, Set<QueriableProteinSet>>();
 			final Iterator<LinkBetweenQueriableProteinSetAndPSM> linksIterator = validLinks.iterator();
 			while (linksIterator.hasNext()) {
@@ -151,6 +152,7 @@ public class QueryResult {
 	 */
 	public Map<String, Set<Peptide>> getPeptides() {
 		if (peptideMap == null) {
+			log.info("Getting peptides from query result from " + validLinks.size() + " links");
 			peptideMap = new HashMap<String, Set<Peptide>>();
 			for (LinkBetweenQueriableProteinSetAndPSM link : validLinks) {
 				final Peptide peptide = link.getPeptide();
@@ -182,6 +184,7 @@ public class QueryResult {
 
 	public Map<String, Set<QueriablePsm>> getPsmMap() {
 		if (psmMap == null) {
+			log.info("Getting PSMs from query result from " + validLinks.size() + " links");
 			psmMap = new HashMap<String, Set<QueriablePsm>>();
 			for (LinkBetweenQueriableProteinSetAndPSM link : validLinks) {
 				final String sequence = link.getQueriablePsm().getPsm().getSequence();
@@ -200,6 +203,8 @@ public class QueryResult {
 
 	public Set<QueriablePsm> getPsms() {
 		if (psmSet == null) {
+			log.info("Getting queriable PSMs from query result from " + validLinks.size() + " links");
+
 			psmSet = new HashSet<QueriablePsm>();
 			for (LinkBetweenQueriableProteinSetAndPSM link : validLinks) {
 				final QueriablePsm queriablePsm = link.getQueriablePsm();
