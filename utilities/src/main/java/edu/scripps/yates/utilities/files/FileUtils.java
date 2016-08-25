@@ -139,7 +139,11 @@ public class FileUtils {
 		if (sizeInBytes < 1024) {
 			return df.format(sizeInBytes) + " bytes";
 		}
-		double sizeInMBytes = sizeInBytes / 1024;
+		double sizeInKBytes = sizeInBytes / 1024;
+		if (sizeInKBytes < 1024) {
+			return df.format(sizeInKBytes) + " Kb";
+		}
+		double sizeInMBytes = sizeInKBytes / 1024;
 		if (sizeInMBytes < 1024) {
 			return df.format(sizeInMBytes) + " Mb";
 		}
@@ -148,6 +152,12 @@ public class FileUtils {
 			return df.format(sizeInGBytes) + " Gb";
 		}
 		double sizeInTBytes = sizeInGBytes / 1024;
-		return df.format(sizeInTBytes) + " TBytes";
+		if (sizeInTBytes < 1024) {
+			return df.format(sizeInTBytes) + " Tb";
+		}
+		double sizeInPBytes = sizeInTBytes / 1024;
+		// if (sizeInPBytes < 1024) {
+		return df.format(sizeInPBytes) + " Pb";
+		// }
 	}
 }
