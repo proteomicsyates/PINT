@@ -159,6 +159,10 @@
 			<xsd:selector xpath="project/experimental_conditions/experimental_condition/identification_info/remoteFiles_ident_info"/>
 			<xsd:field xpath="@msRunRef"/>
 		</xsd:keyref>
+		<xsd:keyref name="FK_QuantificationMSRunRef" refer="PK_RUN">
+			<xsd:selector xpath="project/experimental_conditions/experimental_condition/quantification_info/remoteFiles_quant_info"/>
+			<xsd:field xpath="@msRunRef"/>
+		</xsd:keyref>
 		<xsd:keyref name="FK_QuantificationFileRef" refer="PK_FILE">
 			<xsd:selector xpath="project/experimental_conditions/experimental_condition/quantification_info/remoteFiles_quant_info/fileRef"/>
 			<xsd:field xpath="@fileRef"/>
