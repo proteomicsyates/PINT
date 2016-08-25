@@ -68,16 +68,20 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 
 		final Set<Protein> proteins = peptide.getProteins();
 		if (proteins != null) {
+			boolean oneProteinIsGood = false;
 			for (Protein protein : proteins) {
 				final ProteinBean proteinBean = ServerCacheProteinBeansByProteinDBId.getInstance()
 						.getFromCache(protein.getId());
 				if (proteinBean != null) {
+					oneProteinIsGood = true;
 					ret.addProteinToPeptide(proteinBean);
-				} else {
-					throw new IllegalArgumentException("Protein with DB id: " + protein.getId()
-							+ " is not found in the ServerCacheProteinBeansByProteinDBId. You need to create the protein bean objects before create the peptide bean objects");
 				}
 			}
+			if (!oneProteinIsGood) {
+				throw new IllegalArgumentException("Peptide id: " + peptide.getId()
+						+ " has not valid associated protein. It should have been filtered out before");
+			}
+
 		}
 
 		// log.debug("Adapting msRun for peptide DbID: " + peptide.getId());

@@ -367,10 +367,22 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 										+ " doesn't have quantitative information. Skipping it...");
 								continue;
 							}
-
-							AmountEx amount = new AmountEx(dtaSelectProtein.getSpectrumCount(),
+							// SPECTRAL COUNT AMOUNT
+							AmountEx spcAmount = new AmountEx(dtaSelectProtein.getSpectrumCount(),
 									edu.scripps.yates.utilities.model.enums.AmountType.SPC, condition);
-							runProtein.addAmount(amount);
+							runProtein.addAmount(spcAmount);
+							// NSAF AMOUNT
+							if (dtaSelectProtein.getNsaf() != null) {
+								AmountEx nsafAmount = new AmountEx(dtaSelectProtein.getNsaf(),
+										edu.scripps.yates.utilities.model.enums.AmountType.NSAF, condition);
+								runProtein.addAmount(nsafAmount);
+							}
+							// EMPAI AMOUNT
+							if (dtaSelectProtein.getEmpai() != null) {
+								AmountEx empaiAmount = new AmountEx(dtaSelectProtein.getEmpai(),
+										edu.scripps.yates.utilities.model.enums.AmountType.EMPAI, condition);
+								runProtein.addAmount(empaiAmount);
+							}
 						}
 
 					}
@@ -430,8 +442,8 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					// final Set<Protein> rowProteins =
 					// ProteinsAdapterByExcel.getProteinsByMSRunAndRowIndex(msRunRef,
 					// rowIndex);
-					final Set<Protein> rowProteins = ProteomicsModelStaticStorage.getProtein(msRunRef, condition.getName(), rowIndex,
-							null);
+					final Set<Protein> rowProteins = ProteomicsModelStaticStorage.getProtein(msRunRef,
+							condition.getName(), rowIndex, null);
 					for (Protein rowProtein : rowProteins) {
 						if (runProteins != null) {
 							if (runProteins.contains(rowProtein)) {
@@ -457,7 +469,8 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					// PSMAdapterByExcel.getPSMsByMSRunAndRow(rowIndex,
 					// msRunRef);
 					String psmId = rowIndex + msRunRef;
-					final Set<PSM> rowPSMs = ProteomicsModelStaticStorage.getPSM(psmId, condition.getName(), rowIndex, null);
+					final Set<PSM> rowPSMs = ProteomicsModelStaticStorage.getPSM(psmId, condition.getName(), rowIndex,
+							null);
 					for (PSM rowPSM : rowPSMs) {
 						if (runPSMs.contains(rowPSM)) {
 							((PSMEx) rowPSM).addAmount(psmAmount);
@@ -480,8 +493,8 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					// assign just to the peptides in that rowIndex
 					// final Set<Peptide> rowPeptides =
 					// PeptideAdapterByExcel.peptideByRowIndex.get(rowIndex);
-					final Set<Peptide> rowPeptides = ProteomicsModelStaticStorage.getPeptide(msRunRef, condition.getName(), rowIndex,
-							null);
+					final Set<Peptide> rowPeptides = ProteomicsModelStaticStorage.getPeptide(msRunRef,
+							condition.getName(), rowIndex, null);
 					for (Peptide rowPeptide : rowPeptides) {
 						if (runPeptides.contains(rowPeptide)) {
 							((PeptideEx) rowPeptide).addAmount(peptideAmount);

@@ -169,7 +169,6 @@ public class QueryResult {
 	}
 
 	private static void addToMap(Map<String, Set<QueriableProteinSet>> map, QueriableProteinSet queriableProtein) {
-		Set<Psm> psms = queriableProtein.getPsms();
 		if (map != null) {
 			String primaryAcc = queriableProtein.getPrimaryAccession();
 			if (map.containsKey(primaryAcc)) {

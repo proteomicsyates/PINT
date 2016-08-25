@@ -214,7 +214,7 @@
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ReactomeFigures</servlet-name>
-		<url-pattern>/figures/*</url-pattern>
+		<url-pattern>/pint/figures/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ReactomeAnalysis</servlet-name>
