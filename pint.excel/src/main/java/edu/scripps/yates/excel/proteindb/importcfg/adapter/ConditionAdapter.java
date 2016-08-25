@@ -368,9 +368,11 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 								continue;
 							}
 							// SPECTRAL COUNT AMOUNT
-							AmountEx spcAmount = new AmountEx(dtaSelectProtein.getSpectrumCount(),
-									edu.scripps.yates.utilities.model.enums.AmountType.SPC, condition);
-							runProtein.addAmount(spcAmount);
+							if (dtaSelectProtein.getSpectrumCount() != null) {
+								AmountEx spcAmount = new AmountEx(dtaSelectProtein.getSpectrumCount(),
+										edu.scripps.yates.utilities.model.enums.AmountType.SPC, condition);
+								runProtein.addAmount(spcAmount);
+							}
 							// NSAF AMOUNT
 							if (dtaSelectProtein.getNsaf() != null) {
 								AmountEx nsafAmount = new AmountEx(dtaSelectProtein.getNsaf(),
