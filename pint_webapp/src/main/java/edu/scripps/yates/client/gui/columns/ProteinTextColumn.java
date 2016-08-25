@@ -24,7 +24,6 @@ import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
-import edu.scripps.yates.shared.util.NumberFormat;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.UniprotFeatures;
 
@@ -264,9 +263,9 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			if (coverage != null && coverage != 0.0) {
 				final int length = p.getLength();
 				final int numAACovered = Double.valueOf(length * coverage).intValue();
-				sb.append(template.startToolTip(
-						"Covered " + numAACovered + " out of " + length + " AAs." + SharedConstants.SEPARATOR
-								+ "Sequence coverage: " + NumberFormat.getFormat("#.#").format(coverage * 100) + "%"));
+				sb.append(template.startToolTip("Covered " + numAACovered + " out of " + length + " AAs."
+						+ SharedConstants.SEPARATOR + "Sequence coverage: "
+						+ com.google.gwt.i18n.client.NumberFormat.getFormat("#.#").format(coverage * 100) + "%"));
 			} else {
 				sb.append(template.startToolTip("Coverage cannot be calculated for any reason"));
 			}

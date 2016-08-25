@@ -3,6 +3,7 @@ package edu.scripps.yates.server.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,7 +22,6 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.PintImportCfg;
 import edu.scripps.yates.server.projectCreator.ImportCfgFileParserUtil;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
-import edu.scripps.yates.shared.util.NumberFormat;
 
 public class FileManager {
 	private static final Logger log = Logger.getLogger(FileManager.class);
@@ -41,6 +41,7 @@ public class FileManager {
 	private static Map<Integer, File> projectCfgFileByImportProcessID = new HashMap<Integer, File>();
 	private static boolean ready = false;
 	private static boolean loading;
+	private final static DecimalFormat myFormatter = new DecimalFormat("#.#");
 
 	private static File getXmlFolder() {
 
@@ -392,22 +393,9 @@ public class FileManager {
 
 	public static String getFileSizeString(File newTempFile) {
 		if (newTempFile.exists()) {
-			double length = Double.valueOf(String.valueOf(newTempFile.length()));
-			if (length < 1024) {
-				return NumberFormat.getFormat("#.#").format(length) + " bytes";
-			}
-			length = length / 1024;
-			if (length < 1024) {
-				return NumberFormat.getFormat("#.#").format(length) + " Kb";
-			}
-			length = length / 1024;
-			if (length < 1024) {
-				return NumberFormat.getFormat("#.#").format(length) + " Mb";
-			}
-			length = length / 1024;
-			if (length < 1024) {
-				return NumberFormat.getFormat("#.#").format(length) + " Gb";
-			}
+
+			return edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(newTempFile.length());
+
 		}
 		return "empty file";
 	}

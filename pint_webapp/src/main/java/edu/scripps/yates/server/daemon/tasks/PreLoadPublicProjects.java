@@ -1,5 +1,6 @@
 package edu.scripps.yates.server.daemon.tasks;
 
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,10 +12,9 @@ import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServletContextProperty;
 import edu.scripps.yates.shared.model.ProjectBean;
-import edu.scripps.yates.shared.util.NumberFormat;
 
 public class PreLoadPublicProjects extends PintServerDaemonTask {
-
+	private final static DecimalFormat myFormatter = new DecimalFormat("#.##");
 	private final String sessionID;
 	private final Set<String> projectsToLoad = new HashSet<String>();
 
@@ -86,8 +86,7 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 						projectTagSet.add(projectBean.getTag());
 						proteinRetrieval.getProteinsFromProjects(sessionID, projectTagSet, null, false, null);
 						double t2 = (System.currentTimeMillis() * 1.0 - t1 * 1.0) / 1000;
-						log.info(projectBean.getTag() + " pre loaded in " + NumberFormat.getFormat("#.##").format(t2)
-								+ " seconds");
+						log.info(projectBean.getTag() + " pre loaded in " + myFormatter.format(t2) + " seconds");
 					} catch (Exception e) {
 						e.printStackTrace();
 						ContextualSessionHandler.getSession().getTransaction().rollback();
