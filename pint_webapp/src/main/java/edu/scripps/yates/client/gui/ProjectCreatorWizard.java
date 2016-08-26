@@ -230,6 +230,7 @@ public class ProjectCreatorWizard extends Composite implements StatusReporter, C
 							}
 							hiddeDialog();
 						}
+
 					});
 
 		}
@@ -828,7 +829,8 @@ public class ProjectCreatorWizard extends Composite implements StatusReporter, C
 			public void onClick(ClickEvent event) {
 				projectConfigurationPanel.removeCondition(disclosurePanel.getObject());
 				disclosurePanels.remove(disclosurePanel);
-				projectConfigurationPanel.updateIncrementableTextBoxes();
+				// is already called in removeCondition
+				// projectConfigurationPanel.updateIncrementableTextBoxes();
 				// close the tab having the name like the condition
 				closeConditionTab(disclosurePanel.getObject().getId());
 			}
@@ -1136,18 +1138,22 @@ public class ProjectCreatorWizard extends Composite implements StatusReporter, C
 	private void closeConditionTab(String conditionName) {
 		for (int i = 0; i < tabPanel.getWidgetCount(); i++) {
 			// remove from the list of condition Editors to save mem
-			final Widget widget = tabPanel.getWidget(i);
-			if (widget instanceof ExperimentalConditionEditorPanel) {
-				ExperimentalConditionEditorPanel editor = (ExperimentalConditionEditorPanel) widget;
-				editor.unregisterAsListener();
-				conditionEditors.remove(editor);
-			}
+
 			final Widget tabWidget = tabPanel.getTabWidget(i);
 			if (tabWidget instanceof HasText) {
 				String tabName = ((HasText) tabWidget).getText();
 				if (tabName.equals(conditionName)) {
 					tabPanel.remove(i);
+
 				}
+			}
+		}
+		// iterate over condition editors
+		for (ExperimentalConditionEditorPanel conditionEditor : conditionEditors) {
+			if (conditionEditor.getExperimentalConditionTypeBean() != null
+					&& conditionEditor.getExperimentalConditionTypeBean().getId().equals(conditionName)) {
+				conditionEditor.unregisterAsListener();
+				conditionEditors.remove(conditionEditor);
 			}
 		}
 
@@ -1160,18 +1166,34 @@ public class ProjectCreatorWizard extends Composite implements StatusReporter, C
 				String tabName = ((HasText) tabWidget).getText();
 				if (tabName.equals(ratioName)) {
 					tabPanel.remove(i);
-					break;
 				}
 			}
-			// remove from the list of condition Editors to save mem
-			final Widget widget = tabPanel.getWidget(i);
-			if (widget instanceof RatioEditorPanel) {
-				RatioEditorPanel editor = (RatioEditorPanel) widget;
-				editor.unregisterAsListener();
-				ratioEditors.remove(editor);
+
+		}
+		// iterate over ratioEditors
+		for (RatioEditorPanel ratioEditor : ratioEditors) {
+			boolean found = false;
+			if (ratioEditor.getPeptideExcelRatioTypeBean() != null
+					&& ratioEditor.getPeptideExcelRatioTypeBean().getId().equals(ratioName)) {
+				found = true;
+			}
+			if (ratioEditor.getProteinExcelRatioTypeBean() != null
+					&& ratioEditor.getProteinExcelRatioTypeBean().getId().equals(ratioName)) {
+				found = true;
+			}
+			if (ratioEditor.getPSMExcelRatioTypeBean() != null
+					&& ratioEditor.getPSMExcelRatioTypeBean().getId().equals(ratioName)) {
+				found = true;
+			}
+			if (ratioEditor.getRemoteFilesRatioTypeBean() != null
+					&& ratioEditor.getRemoteFilesRatioTypeBean().getId().equals(ratioName)) {
+				found = true;
+			}
+			if (found) {
+				ratioEditor.unregisterAsListener();
+				ratioEditors.remove(ratioEditor);
 			}
 		}
-
 	}
 
 	/**
