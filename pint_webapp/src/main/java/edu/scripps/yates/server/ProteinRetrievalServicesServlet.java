@@ -1395,7 +1395,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public ProteinBeanSubList getProteinBeansFromListSorted(String sessionID, int start, int end,
 			Comparator<ProteinBean> comparator, boolean ascendant) throws PintException {
-
+		if (comparator == null) {
+			return getProteinBeansFromList(sessionID, start, end);
+		}
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		try {
@@ -1483,7 +1485,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public ProteinGroupBeanSubList getProteinGroupBeansFromListSorted(String sessionID, int start, int end,
 			Comparator<ProteinGroupBean> comparator, boolean ascendant) throws PintException {
-
+		if (comparator == null) {
+			return getProteinGroupBeansFromList(sessionID, start, end);
+		}
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		try {
@@ -1520,7 +1524,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public PsmBeanSubList getPSMBeansFromListSorted(String sessionID, int start, int end,
 			Comparator<PSMBean> comparator, boolean ascendant) throws PintException {
-
+		if (comparator == null) {
+			return getPSMBeansFromList(sessionID, start, end);
+		}
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		try {
@@ -1556,6 +1562,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public PsmBeanSubList getPsmBeansFromPsmProviderFromListSorted(String sessionID, ContainsPSMs psmProvider,
 			int start, int end, Comparator<PSMBean> comparator, boolean ascendant) throws PintException {
+		if (comparator == null) {
+			return getPsmBeansFromPsmProviderFromList(sessionID, psmProvider, start, end);
+		}
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		try {
@@ -1803,7 +1812,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public PeptideBeanSubList getPeptideBeansFromListSorted(String sessionID, int start, int end,
 			Comparator<PeptideBean> comparator, boolean ascendant) throws PintException {
-
+		if (comparator == null) {
+			return getPeptideBeansFromList(sessionID, start, end);
+		}
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		try {
@@ -1863,7 +1874,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public PeptideBeanSubList getPeptideBeansFromPeptideProviderFromListSorted(String sessionID,
 			ContainsPeptides peptideProvider, int start, int end, Comparator<PeptideBean> comparator,
 			boolean ascendant) {
-
+		if (comparator == null) {
+			return getPeptideBeansFromPeptideProviderFromList(sessionID, peptideProvider, start, end);
+		}
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		try {
