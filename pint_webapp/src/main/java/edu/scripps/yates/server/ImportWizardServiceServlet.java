@@ -287,16 +287,19 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public List<String> getTissueList(String sessionID) {
 		log.info("Getting tissue list");
-		if (tissues.isEmpty()) {
-			final List<ControlVocabularyTerm> possibleValues = TissuesTypes.getInstance(cvManager).getPossibleValues();
-			for (ControlVocabularyTerm controlVocabularyTerm : possibleValues) {
-				// TODO remove
-				if (tissues.size() == numMaxInSuggestionLists)
-					break;
-				tissues.add(controlVocabularyTerm.getPreferredName());
+		synchronized (sessionID) {
+			if (tissues.isEmpty()) {
+				final List<ControlVocabularyTerm> possibleValues = TissuesTypes.getInstance(cvManager)
+						.getPossibleValues();
+				for (ControlVocabularyTerm controlVocabularyTerm : possibleValues) {
+					// TODO remove
+					if (tissues.size() == numMaxInSuggestionLists)
+						break;
+					tissues.add(controlVocabularyTerm.getPreferredName());
+				}
+				// sort by name
+				Collections.sort(tissues);
 			}
-			// sort by name
-			Collections.sort(tissues);
 		}
 		log.info("Returning tissue list with " + tissues.size() + " elements");
 		return tissues;
