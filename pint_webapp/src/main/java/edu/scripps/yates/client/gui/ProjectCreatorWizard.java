@@ -78,7 +78,6 @@ import edu.scripps.yates.shared.model.projectCreator.excel.SampleTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ServerTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ServersTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.TissueTypeBean;
-import edu.scripps.yates.shared.util.CryptoUtil;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 import gwtupload.client.IUploadStatus.Status;
@@ -1284,7 +1283,7 @@ public class ProjectCreatorWizard extends Composite implements StatusReporter, C
 									"Submitting data to the server and retrieving corresponding UniProt annotations...\nThis may take several minutes.",
 									true, false, true);
 							importWizardService.submitProject(importJobID, pintImportCfgTypeBean,
-									new AsyncCallback<Void>() {
+									new AsyncCallback<String>() {
 
 										@Override
 										public void onFailure(Throwable caught) {
@@ -1292,9 +1291,9 @@ public class ProjectCreatorWizard extends Composite implements StatusReporter, C
 										}
 
 										@Override
-										public void onSuccess(Void result) {
-											final String encrypt = CryptoUtil
-													.encrypt(pintImportCfgTypeBean.getProject().getTag());
+										public void onSuccess(String encrypt) {
+											// final String encrypt = CryptoUtil
+											// .encrypt(pintImportCfgTypeBean.getProject().getTag());
 											String privateURL = Window.Location.getProtocol() + "//"
 													+ Window.Location.getHost() + "/pint/?project=" + encrypt;
 											StatusReportersRegister.getInstance().notifyStatusReporters(
@@ -1302,8 +1301,10 @@ public class ProjectCreatorWizard extends Composite implements StatusReporter, C
 															+ "by default, the project will be private, only accesible by this encoded URL: "
 															+ privateURL + "\n");
 											hiddeDialog();
-											showDialog("Project has been successfully uploaded in the database", false,
-													true, false);
+											showDialog(
+													"Project has been successfully uploaded in the database\nTo access the project, go to:\n"
+															+ privateURL,
+													false, true, false);
 										}
 									});
 						} catch (PintException e) {

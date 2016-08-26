@@ -256,9 +256,10 @@ public interface ImportWizardService extends RemoteService {
 	 *
 	 * @param jobID
 	 * @param pintImportCfgBean
+	 * @return the encoded project tag
 	 * @throws PintException
 	 */
-	public void submitProject(int jobID, PintImportCfgBean pintImportCfgBean) throws PintException;
+	public String submitProject(int jobID, PintImportCfgBean pintImportCfgBean) throws PintException;
 
 	/**
 	 * Get the available list of score types

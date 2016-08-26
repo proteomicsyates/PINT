@@ -882,7 +882,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	}
 
 	@Override
-	public void submitProject(int jobID, PintImportCfgBean pintImportCfgBean) throws PintException {
+	public String submitProject(int jobID, PintImportCfgBean pintImportCfgBean) throws PintException {
 		try {
 			// clear cache dbIndexes
 			ImportCfgUtil.clearDBIndexes();
@@ -916,6 +916,9 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			// FileManager.removeDataFiles(jobID, projectFilesPath);
 			// log.info("Data files removed");
 			ContextualSessionHandler.finishGoodTransaction();
+
+			final String encryptedProjectTag = CryptoUtil.encrypt(pintImportCfgBean.getProject().getTag());
+			return encryptedProjectTag;
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
