@@ -24,7 +24,7 @@
   	<dependency>
   		<groupId>com.compomics</groupId>
   		<artifactId>dbtoolkit</artifactId>
-  		<version>4.2.6</version>
+  		<version>4.2.5</version>
   		<exclusions> 
  				<exclusion>
 					<groupId>batik</groupId>
@@ -41,6 +41,10 @@
 				 <exclusion>
 				 	<artifactId>ssj</artifactId>
 				 	<groupId>umontreal.iro.lecuyer.gof</groupId>
+				 </exclusion>
+				 <exclusion>
+				 	<artifactId>jshortcut</artifactId>
+				 	<groupId>net.jimmc</groupId>
 				 </exclusion>
   		</exclusions>
   	</dependency>
