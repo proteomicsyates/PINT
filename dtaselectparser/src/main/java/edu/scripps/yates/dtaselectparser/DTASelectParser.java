@@ -216,27 +216,28 @@ public class DTASelectParser {
 						currentProteinGroup = new DTASelectProteinGroup();
 
 					}
-					if (dbIndex == null) {
-						DTASelectProtein p = new DTASelectProtein(line, proteinHeaderPositions);
-						if (proteinsTable.containsKey(p.getLocus())) {
-							p = proteinsTable.get(p.getLocus());
-						}
-						if (!searchEngines.isEmpty())
-							p.setSearchEngine(searchEngines.iterator().next());
-						boolean skip = false;
-						if (decoyPattern != null) {
-							final Matcher matcher = decoyPattern.matcher(p.getLocus());
-							if (matcher.find()) {
-								numDecoy++;
-								skip = true;
-							}
-						}
-						if (!skip) {
-							proteinsTable.put(p.getLocus(), p);
-							keys.add(p.getLocus());
-							currentProteinGroup.add(p);
+					// if (dbIndex == null) {
+					DTASelectProtein p = new DTASelectProtein(line, proteinHeaderPositions);
+					if (proteinsTable.containsKey(p.getLocus())) {
+						DTASelectProtein p2 = proteinsTable.get(p.getLocus());
+						p = mergeProteins(p, p2);
+					}
+					if (!searchEngines.isEmpty())
+						p.setSearchEngine(searchEngines.iterator().next());
+					boolean skip = false;
+					if (decoyPattern != null) {
+						final Matcher matcher = decoyPattern.matcher(p.getLocus());
+						if (matcher.find()) {
+							numDecoy++;
+							skip = true;
 						}
 					}
+					if (!skip) {
+						proteinsTable.put(p.getLocus(), p);
+						keys.add(p.getLocus());
+						currentProteinGroup.add(p);
+					}
+					// }
 					isPsm = false;
 				} else {
 					// this is the case of a psm
@@ -331,6 +332,15 @@ public class DTASelectParser {
 		}
 		if (decoyPattern != null)
 			log.info(numDecoy + " proteins discarded as decoy.");
+	}
+
+	private DTASelectProtein mergeProteins(DTASelectProtein destination, DTASelectProtein origin) {
+		if (destination == null)
+			return null;
+
+		destination.mergeWithProtein(origin);
+
+		return destination;
 	}
 
 	private void addTopsmTable(DTASelectPSM psm) {

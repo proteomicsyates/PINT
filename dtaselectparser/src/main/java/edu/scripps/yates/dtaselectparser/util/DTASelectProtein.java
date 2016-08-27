@@ -19,27 +19,25 @@ public class DTASelectProtein {
 	private static final String DESCRIPTION = "Descriptive Name";
 	private static final String NSAF = "NSAF";
 	private static final String EMPAI = "EMPAI";
-	private final String id;
-	private final Integer spcount;
-	private final Integer length;
-	private final double coverage;
-	private final double pi;
-	private final String description;
-	private final double mw;
+	private String id;
+	private Integer spcount;
+	private Integer length;
+	private double coverage;
+	private double pi;
+	private String description;
+	private double mw;
 	private final List<DTASelectPSM> psms = new ArrayList<DTASelectPSM>();
-	private final double nsaf_norm;
-	private final Double nsaf;
-	private final Double empai;
+	private double nsaf_norm;
+	private Double nsaf;
+	private Double empai;
 	private final List<DTASelectProteinGroup> proteinGroups = new ArrayList<DTASelectProteinGroup>();
 	private String searchEngine;
 
-	public DTASelectProtein(String lineToParse,
-			HashMap<String, Integer> positions) {
+	public DTASelectProtein(String lineToParse, HashMap<String, Integer> positions) {
 		final String[] elements = lineToParse.split("\t");
 		id = elements[positions.get(ID)];
 		spcount = Integer.parseInt(elements[positions.get(SP_COUNT)]);
-		coverage = Double.parseDouble(elements[positions.get(COVERAGE)]
-				.replace("%", ""));
+		coverage = Double.parseDouble(elements[positions.get(COVERAGE)].replace("%", ""));
 
 		length = Integer.parseInt(elements[positions.get(LENGTH)]);
 		mw = Double.parseDouble(elements[positions.get(MW)]);
@@ -73,7 +71,7 @@ public class DTASelectProtein {
 
 	/**
 	 * SPC / LENGTH
-	 * 
+	 *
 	 * @return
 	 */
 	public double getRatio() {
@@ -92,7 +90,7 @@ public class DTASelectProtein {
 
 	/**
 	 * Gets the empai number calculated as ((Math.pow(10, coverage / 100)) - 1)
-	 * 
+	 *
 	 * @return
 	 */
 	public double getEmpaiCov() {
@@ -101,7 +99,7 @@ public class DTASelectProtein {
 
 	/**
 	 * Gets the empai number as reported in the DTASelect
-	 * 
+	 *
 	 * @return
 	 */
 	public Double getEmpai() {
@@ -176,7 +174,7 @@ public class DTASelectProtein {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public List<DTASelectProtein> getSibilingProteinsInGroup() {
@@ -213,4 +211,44 @@ public class DTASelectProtein {
 		return searchEngine;
 	}
 
+	public void mergeWithProtein(DTASelectProtein protein) {
+
+		if (coverage == -1.0) {
+			coverage = protein.getCoverage();
+		}
+		description = protein.getDescription();
+		if (protein.getEmpai() != null) {
+			empai = protein.getEmpai();
+		}
+		if (protein.getLength() != null) {
+			length = protein.getLength();
+		}
+		if (protein.getLocus() != null) {
+			id = protein.getLocus();
+		}
+		if (mw == -1.0) {
+			mw = protein.getMw();
+		}
+		if (protein.getNsaf() != null) {
+			nsaf = protein.getNsaf();
+		}
+		if (nsaf_norm == -1.0) {
+			nsaf_norm = protein.getNsaf_norm();
+		}
+		if (pi == -1.0) {
+			pi = protein.getPi();
+		}
+		if (!protein.getProteinGroups().isEmpty()) {
+			proteinGroups.addAll(protein.getProteinGroups());
+		}
+		if (!protein.getPSMs().isEmpty()) {
+			psms.addAll(protein.getPSMs());
+		}
+		if (spcount == null) {
+			spcount = protein.getSpectrumCount();
+		}
+		if (searchEngine == null) {
+			searchEngine = protein.getSearchEngine();
+		}
+	}
 }
