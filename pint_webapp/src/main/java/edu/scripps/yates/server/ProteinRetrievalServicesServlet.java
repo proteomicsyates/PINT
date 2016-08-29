@@ -77,7 +77,6 @@ import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.HttpUtils;
 import edu.scripps.yates.server.util.ServletCommonInit;
 import edu.scripps.yates.server.util.ServletContextProperty;
-import edu.scripps.yates.shared.columns.comparator.BeanComparator;
 import edu.scripps.yates.shared.columns.comparator.PSMComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinGroupComparator;
@@ -1404,9 +1403,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
-				if (comparator instanceof BeanComparator) {
-					((BeanComparator<ProteinBean>) comparator).setAscendant(ascendant);
-				}
 				log.info("Getting sorted protein list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID);
 				if (!ascendant) {
@@ -1494,9 +1490,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
-				if (comparator instanceof BeanComparator) {
-					((BeanComparator<ProteinGroupBean>) comparator).setAscendant(ascendant);
-				}
 				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
 				}
@@ -1533,9 +1526,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
-				if (comparator instanceof BeanComparator) {
-					((BeanComparator<PSMBean>) comparator).setAscendant(ascendant);
-				}
 				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
 				}
@@ -1573,9 +1563,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				log.info("Getting sorted psm list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID + " for psmProvider");
-				if (comparator instanceof BeanComparator) {
-					((BeanComparator<PSMBean>) comparator).setAscendant(ascendant);
-				}
 				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
 				}
@@ -1821,9 +1808,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
-				if (comparator instanceof BeanComparator) {
-					((BeanComparator<PeptideBean>) comparator).setAscendant(ascendant);
-				}
 				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
 				}
@@ -1885,9 +1869,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				log.info("Getting sorted peptide list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID + " for peptideProvider");
-				if (comparator instanceof BeanComparator) {
-					((BeanComparator<PeptideBean>) comparator).setAscendant(ascendant);
-				}
 				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
 				}
