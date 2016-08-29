@@ -24,7 +24,6 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 	String ratioName;
 	AmountType amountType;
 	String scoreName;
-	boolean ascendant;
 
 	public BeanComparator() {
 		columnName = null;
@@ -184,7 +183,7 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 		this.scoreName = scoreName;
 	}
 
-	protected static int compareNumberStrings(String string1, String string2, boolean ascendant, boolean ignoreCase) {
+	protected static int compareNumberStrings(String string1, String string2, boolean ignoreCase) {
 		String tmp1 = string1;
 		String tmp2 = string2;
 		if ("".equals(string1) || string1 == null)
@@ -196,37 +195,23 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 			Double d2 = Double.valueOf(tmp2);
 			return d1.compareTo(d2);
 		} catch (NumberFormatException e) {
-			return compareStrings(tmp1, tmp2, ascendant, ignoreCase);
+			return compareStrings(tmp1, tmp2, ignoreCase);
 		}
 
 	}
 
-	/**
-	 * @return the ascendant
-	 */
-	public boolean isAscendant() {
-		return ascendant;
-	}
-
-	/**
-	 * @param ascendant
-	 *            the ascendant to set
-	 */
-	public void setAscendant(boolean ascendant) {
-		this.ascendant = ascendant;
-	}
-
-	protected static int compareNumbers(Number o1, Number o2, boolean ascendant) {
+	protected static int compareNumbers(Number o1, Number o2) {
 
 		if (o1 == null && o2 != null) {
-			return ascendant ? 1 : -1;
+			return 1;
 		}
 		if (o1 != null && o2 == null) {
-			return ascendant ? -1 : 1;
+			return -1;
 		}
 		if (o1 == null && o2 == null) {
 			return 0;
 		}
+
 		return Double.compare(o1.doubleValue(), o2.doubleValue());
 	}
 
@@ -241,7 +226,7 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 	 * @param ignoreCase
 	 * @return
 	 */
-	protected static int compareStrings(String string1, String string2, boolean ascendant, boolean ignoreCase) {
+	protected static int compareStrings(String string1, String string2, boolean ignoreCase) {
 		if ("".equals(string1)) {
 			string1 = null;
 		}
@@ -249,10 +234,10 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 			string2 = null;
 		}
 		if (string1 == null && string2 != null) {
-			return ascendant ? 1 : -1;
+			return 1;
 		}
 		if (string1 != null && string2 == null) {
-			return ascendant ? -1 : 1;
+			return -1;
 		}
 		if (string1 == null && string2 == null) {
 			return 0;
@@ -265,7 +250,7 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 	}
 
 	protected static int compareRatios(ContainsRatios o1, ContainsRatios o2, String condition1Name,
-			String condition2Name, String projectTag, String ratioName, boolean skipInfinities, boolean ascendant) {
+			String condition2Name, String projectTag, String ratioName, boolean skipInfinities) {
 		final List<RatioBean> ratios1 = o1.getRatiosByConditions(condition1Name, condition2Name, projectTag, ratioName,
 				skipInfinities);
 		final List<RatioBean> ratios2 = o2.getRatiosByConditions(condition1Name, condition2Name, projectTag, ratioName,
@@ -274,26 +259,26 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 			final List<Double> ratioValues1 = SharedDataUtils.getRatioValues(condition1Name, condition2Name, ratios1);
 			final List<Double> ratioValues2 = SharedDataUtils.getRatioValues(condition1Name, condition2Name, ratios2);
 			if (ratioValues1.size() == 1 && ratioValues2.size() == 1) {
-				return Double.compare(ratioValues1.get(0), ratioValues2.get(0));
+				return compareNumbers(ratioValues1.get(0), ratioValues2.get(0));
 			} else {
 				// TODO sort in a concrete way when having several ratios??
 				final Double efectiveRatio1 = SharedDataUtils.getEfectiveRatio(ratioValues1);
 				final Double efectiveRatio2 = SharedDataUtils.getEfectiveRatio(ratioValues2);
 				if (efectiveRatio1 != null && efectiveRatio2 != null) {
-					return Double.compare(efectiveRatio1, efectiveRatio2);
+					return compareNumbers(efectiveRatio1, efectiveRatio2);
 				}
 			}
 		} else if (ratios1.isEmpty() && !ratios2.isEmpty()) {
-			return ascendant ? 1 : -1;
+			return 1;
 		} else if (!ratios1.isEmpty() && ratios2.isEmpty()) {
-			return ascendant ? -1 : 1;
+			return -1;
 		}
 		return 0;
 
 	}
 
 	protected static int compareRatioScores(ContainsRatios o1, ContainsRatios o2, String condition1Name,
-			String condition2Name, String projectTag, String ratioName, boolean skipInfinities, boolean ascendant) {
+			String condition2Name, String projectTag, String ratioName, boolean skipInfinities) {
 		try {
 			final List<RatioBean> ratios1 = o1.getRatiosByConditions(condition1Name, condition2Name, projectTag,
 					ratioName, skipInfinities);
@@ -308,15 +293,15 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 				final String value1 = ratioValues1.get(0).getValue();
 				final String value2 = ratioValues2.get(0).getValue();
 				try {
-					return Double.compare(Double.valueOf(value1), Double.valueOf(value2));
+					return compareNumbers(Double.valueOf(value1), Double.valueOf(value2));
 				} catch (NumberFormatException e) {
 					return value1.compareTo(value2);
 				}
 
 			} else if (ratios1.isEmpty() && !ratios2.isEmpty()) {
-				return ascendant ? 1 : -1;
+				return 1;
 			} else if (!ratios1.isEmpty() && ratios2.isEmpty()) {
-				return ascendant ? -1 : 1;
+				return -1;
 			}
 
 		} catch (Exception e) {

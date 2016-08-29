@@ -62,19 +62,17 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 			return compareNumberStrings(value1, value2);
 
 		} else if (columnName == ColumnName.PEPTIDE_RATIO || columnName == ColumnName.PEPTIDE_RATIO_GRAPH) {
-			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false, ascendant);
+			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 
 		} else if (columnName == ColumnName.PEPTIDE_RATIO_SCORE) {
-			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, false, ascendant);
+			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 		} else {
 			try {
 				switch (columnName) {
 				case ACC:
-					return compareStrings(o1.getProteinAccessionString(), o2.getProteinAccessionString(), ascendant,
-							false);
+					return compareStrings(o1.getProteinAccessionString(), o2.getProteinAccessionString(), false);
 				case DESCRIPTION:
-					return compareStrings(o1.getProteinDescriptionString(), o2.getProteinDescriptionString(), ascendant,
-							true);
+					return compareStrings(o1.getProteinDescriptionString(), o2.getProteinDescriptionString(), true);
 				case PEPTIDE_SEQUENCE:
 					return o1.getSequence().compareTo(o2.getSequence());
 				case PEPTIDE_LENGTH:
@@ -86,12 +84,12 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 					return Integer.compare(position1, position2);
 
 				case TAXONOMY:
-					return compareStrings(o1.getOrganismsString(), o2.getOrganismsString(), ascendant, true);
+					return compareStrings(o1.getOrganismsString(), o2.getOrganismsString(), true);
 
 				case CONDITION:
-					return compareStrings(o1.getConditionsString(), o2.getConditionsString(), ascendant, true);
+					return compareStrings(o1.getConditionsString(), o2.getConditionsString(), true);
 				case PEPTIDE_EVIDENCE:
-					return compareStrings(o1.getRelation().name(), o2.getRelation().name(), ascendant, true);
+					return compareStrings(o1.getRelation().name(), o2.getRelation().name(), true);
 				case SPECTRUM_COUNT:
 					return Integer.compare(o1.getNumPSMs(), o2.getNumPSMs());
 				default:

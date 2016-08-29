@@ -52,12 +52,12 @@ public class ProteinGroupComparator extends BeanComparator<ProteinGroupBean> {
 					amountString2 = "0";
 				final Double amount1 = Double.valueOf(amountString1);
 				final Double amount2 = Double.valueOf(amountString2);
-				return compareNumbers(amount1, amount2, ascendant);
+				return compareNumbers(amount1, amount2);
 			} catch (NumberFormatException e) {
-				return compareStrings(amountString1, amountString2, ascendant, true);
+				return compareStrings(amountString1, amountString2, true);
 			}
 		} else if (columnName == ColumnName.PROTEIN_RATIO || columnName == ColumnName.PROTEIN_RATIO_GRAPH) {
-			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false, ascendant);
+			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 		}
 		switch (columnName) {
 		case ACC:
@@ -75,28 +75,27 @@ public class ProteinGroupComparator extends BeanComparator<ProteinGroupBean> {
 			return Integer.compare(o1.getNumPSMs(), o2.getNumPSMs());
 
 		case COVERAGE:
-			return compareNumbers(o1.get(0).getCoverage(), o2.get(0).getCoverage(), ascendant);
+			return compareNumbers(o1.get(0).getCoverage(), o2.get(0).getCoverage());
 		case PROTEIN_SEQUENCE_COVERAGE_IMG:
-			return compareNumbers(o1.get(0).getCoverage(), o2.get(0).getCoverage(), ascendant);
+			return compareNumbers(o1.get(0).getCoverage(), o2.get(0).getCoverage());
 
 		case GENE:
 			final String genesString = o1.getGenesString(true);
 			final String genesString2 = o2.getGenesString(true);
-			return compareStrings(genesString, genesString2, ascendant, true);
+			return compareStrings(genesString, genesString2, true);
 		case SEQUENCE_COUNT:
 			return Integer.compare(o1.getNumPeptides(), o2.getNumPeptides());
 		case PROTEIN_GROUP_TYPE:
-			return compareStrings(o1.getGroupMemberEvidences(), o2.getGroupMemberEvidences(), ascendant, true);
+			return compareStrings(o1.getGroupMemberEvidences(), o2.getGroupMemberEvidences(), true);
 		case UNIPROT_PROTEIN_EXISTENCE:
 			return o1.getGroupMemberExistences().compareTo(o2.getGroupMemberExistences());
 		case NUM_PROTEIN_GROUP_MEMBERS:
 			return Integer.compare(o1.getDifferentPrimaryAccessions().size(),
 					o2.getDifferentPrimaryAccessions().size());
 		case SECONDARY_ACCS:
-			return compareStrings(o1.getSecondaryAccessionsString(), o2.getSecondaryAccessionsString(), ascendant,
-					true);
+			return compareStrings(o1.getSecondaryAccessionsString(), o2.getSecondaryAccessionsString(), true);
 		case CONDITION:
-			return compareStrings(o1.getConditionsString(), o2.getConditionsString(), ascendant, true);
+			return compareStrings(o1.getConditionsString(), o2.getConditionsString(), true);
 		default:
 			break;
 		}

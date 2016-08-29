@@ -48,7 +48,7 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 					.getAmountDataGridRenderValue(o1, conditionName, amountType, projectTag).getValue();
 			String amountString2 = DataGridRenderValue
 					.getAmountDataGridRenderValue(o2, conditionName, amountType, projectTag).getValue();
-			return compareNumberStrings(amountString1, amountString2, ascendant, true);
+			return compareNumberStrings(amountString1, amountString2, true);
 
 		} else if (columnName == ColumnName.PSM_SCORE && scoreName != null) {
 			final ScoreBean score1 = o1.getScoreByName(scoreName);
@@ -60,37 +60,35 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 			if (score2 != null)
 				value2 = score2.getValue();
 
-			return compareNumberStrings(value1, value2, ascendant, true);
+			return compareNumberStrings(value1, value2, true);
 
 		} else if (columnName == ColumnName.PSM_RATIO || columnName == ColumnName.PSM_RATIO_GRAPH) {
-			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false, ascendant);
+			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 
 		} else if (columnName == ColumnName.PSM_RATIO_SCORE) {
-			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, false, ascendant);
+			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 		} else {
 			try {
 				switch (columnName) {
 				case ACC:
-					return compareStrings(o1.getProteinAccessionString(), o2.getProteinAccessionString(), ascendant,
-							true);
+					return compareStrings(o1.getProteinAccessionString(), o2.getProteinAccessionString(), true);
 				case PSM_ID:
-					return compareStrings(o1.getPsmID(), o2.getPsmID(), ascendant, true);
+					return compareStrings(o1.getPsmID(), o2.getPsmID(), true);
 				case PSM_RUN_ID:
-					return compareStrings(o1.getMsRun().getRunID(), o2.getMsRun().getRunID(), ascendant, true);
+					return compareStrings(o1.getMsRun().getRunID(), o2.getMsRun().getRunID(), true);
 				case DESCRIPTION:
-					return compareStrings(o1.getProteinDescriptionString(), o2.getProteinDescriptionString(), ascendant,
-							true);
+					return compareStrings(o1.getProteinDescriptionString(), o2.getProteinDescriptionString(), true);
 				case PEPTIDE_SEQUENCE:
-					return compareStrings(o1.getSequence(), o2.getSequence(), ascendant, true);
+					return compareStrings(o1.getSequence(), o2.getSequence(), true);
 				case PEPTIDE_PI:
-					return compareNumbers(o1.getPi(), o2.getPi(), ascendant);
+					return compareNumbers(o1.getPi(), o2.getPi());
 				case PTM_SCORE:
 					// try to convert to numbers:
 					final String ptmScoreString1 = o1.getPTMScoreString();
 					final String ptmScoreString2 = o2.getPTMScoreString();
-					return compareNumberStrings(ptmScoreString1, ptmScoreString2, ascendant, true);
+					return compareNumberStrings(ptmScoreString1, ptmScoreString2, true);
 				case PTMS:
-					return compareStrings(o1.getPTMString(), o2.getPTMString(), ascendant, true);
+					return compareStrings(o1.getPTMString(), o2.getPTMString(), true);
 				case NUM_PTMS:
 					List<PTMBean> ptms1 = o1.getPtms();
 					int numPtms1 = ptms1 != null ? ptms1.size() : 0;
@@ -110,7 +108,7 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 						}
 					return Integer.compare(ptmSites1, ptmSites2);
 				case CHARGE:
-					return compareNumberStrings(o1.getChargeState(), o2.getChargeState(), ascendant, true);
+					return compareNumberStrings(o1.getChargeState(), o2.getChargeState(), true);
 				case PEPTIDE_LENGTH:
 					return Integer.compare(o1.getSequence().length(), o2.getSequence().length());
 
@@ -120,10 +118,10 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 					return Integer.compare(position1, position2);
 
 				case TAXONOMY:
-					return compareStrings(o1.getOrganismsString(), o2.getOrganismsString(), ascendant, true);
+					return compareStrings(o1.getOrganismsString(), o2.getOrganismsString(), true);
 
 				case CONDITION:
-					return compareStrings(o1.getConditionsString(), o2.getConditionsString(), ascendant, true);
+					return compareStrings(o1.getConditionsString(), o2.getConditionsString(), true);
 				case PEPTIDE_EVIDENCE:
 					return o1.getRelation().name().compareTo(o2.getRelation().name());
 				default:
