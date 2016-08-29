@@ -391,7 +391,7 @@ public class MyDataGrid<T> extends DataGrid<T> {
 	 * @param column
 	 * @param order
 	 */
-	public void sortColumn(Column<T, ?> column, ORDER order) {
+	private void sortColumn(Column<T, ?> column, ORDER order) {
 		pushColumnToColumnSortList(column, order);
 		// fire event to actually sort the table
 		ColumnSortEvent.fire(this, getColumnSortList());
