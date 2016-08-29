@@ -212,7 +212,22 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 			return 0;
 		}
 
-		return Double.compare(o1.doubleValue(), o2.doubleValue());
+		return compareDouble(o1.doubleValue(), o2.doubleValue());
+	}
+
+	private static int compareDouble(double d1, double d2) {
+		Double double1 = d1;
+		Double double2 = d2;
+		if (Double.isNaN(d1)) {
+			double1 = null;
+		}
+		if (Double.isNaN(d2)) {
+			double2 = null;
+		}
+		if (double1 == null || double2 == null) {
+			return compareNumbers(double1, double2);
+		}
+		return Double.compare(d1, d2);
 	}
 
 	/**
