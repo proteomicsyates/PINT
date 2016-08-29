@@ -1,5 +1,7 @@
 package edu.scripps.yates.client.gui.components.dataprovider;
 
+import java.util.Comparator;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -20,8 +22,16 @@ public class AsyncProteinBeanListDataProvider extends AbstractAsyncDataProvider<
 	protected void retrieveData(MyColumn<ProteinBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
 			final Range range) {
 		GWT.log("Getting proteins beans sorted");
-		service.getProteinBeansFromListSorted(sessionID, start, end, column.getComparator(),
-				columnSortInfo.isAscending(), new AsyncCallback<ProteinBeanSubList>() {
+		Comparator<ProteinBean> comparator = null;
+		if (column != null) {
+			comparator = column.getComparator();
+		}
+		boolean isAscending = false;
+		if (columnSortInfo != null) {
+			isAscending = columnSortInfo.isAscending();
+		}
+		service.getProteinBeansFromListSorted(sessionID, start, end, comparator, isAscending,
+				new AsyncCallback<ProteinBeanSubList>() {
 
 					@Override
 					public void onSuccess(ProteinBeanSubList result) {

@@ -182,28 +182,35 @@ public abstract class AbstractAsyncDataProvider<T> extends AsyncDataProvider<T> 
 				final Range range = display.getVisibleRange();
 				final int start = range.getStart();
 				int end = start + range.getLength();
-				final ColumnSortList columnSortList = getColumnSortList(display);
-				if (columnSortList.size() > 0 && !retrievingData) {
-					if (forceToReload || sortingChanged || newProvider || rangeChanged
-							|| (!rangeChanged && !containsData)) {
-						if (display instanceof MyDataGrid) {
-							((MyDataGrid) display).setForceToRefresh(false);
+
+				if (!retrievingData) {
+					final ColumnSortList columnSortList = getColumnSortList(display);
+					if (columnSortList.size() > 0) {
+						if (forceToReload || sortingChanged || newProvider || rangeChanged
+								|| (!rangeChanged && !containsData)) {
+							if (display instanceof MyDataGrid) {
+								((MyDataGrid) display).setForceToRefresh(false);
+							}
+
+							ColumnSortInfo columnSortInfo = null;
+							MyColumn<T> column = null;
+							if (columnSortList.size() > 0) {
+								columnSortInfo = columnSortList.get(0);
+								setCurrentSortInfo(columnSortInfo);
+								column = (MyColumn<T>) columnSortInfo.getColumn();
+							}
+							// display.setVisibleRangeAndClearData(display.getVisibleRange(),
+							// true);
+							retrievingData = true;
+							retrieveData(column, start, end, columnSortInfo, range);
+
+						} else if (forceToRefresh) {
+							refresh();
 						}
-						final ColumnSortInfo columnSortInfo = columnSortList.get(0);
-						setCurrentSortInfo(columnSortInfo);
-						final MyColumn<T> column = (MyColumn<T>) columnSortInfo.getColumn();
-						// display.setVisibleRangeAndClearData(display.getVisibleRange(),
-						// true);
-						retrievingData = true;
-						retrieveData(column, start, end, columnSortInfo, range);
-
-					} else if (forceToRefresh) {
-						refresh();
+						if (rangeChanged) {
+							setRange(range);
+						}
 					}
-					if (rangeChanged) {
-						setRange(range);
-					}
-
 				}
 			}
 		} finally {

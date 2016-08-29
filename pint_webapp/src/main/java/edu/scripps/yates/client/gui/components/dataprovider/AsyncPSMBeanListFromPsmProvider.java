@@ -1,5 +1,7 @@
 package edu.scripps.yates.client.gui.components.dataprovider;
 
+import java.util.Comparator;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -34,9 +36,16 @@ public class AsyncPSMBeanListFromPsmProvider extends AbstractAsyncDataProvider<P
 	protected void retrieveData(MyColumn<PSMBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
 			final Range range) {
 		GWT.log("Getting PSM beans sorted from provider");
-
-		service.getPsmBeansFromPsmProviderFromListSorted(sessionID, psmProvider, start, end, column.getComparator(),
-				columnSortInfo.isAscending(), new AsyncCallback<PsmBeanSubList>() {
+		Comparator<PSMBean> comparator = null;
+		if (column != null) {
+			comparator = column.getComparator();
+		}
+		boolean isAscending = false;
+		if (columnSortInfo != null) {
+			isAscending = columnSortInfo.isAscending();
+		}
+		service.getPsmBeansFromPsmProviderFromListSorted(sessionID, psmProvider, start, end, comparator, isAscending,
+				new AsyncCallback<PsmBeanSubList>() {
 
 					@Override
 					public void onSuccess(PsmBeanSubList result) {

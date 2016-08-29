@@ -25,27 +25,30 @@ public class AsyncPathwaySummaryDataProvider extends AbstractAsyncDataProvider<P
 	@Override
 	protected void retrieveData(MyColumn<PathwaySummary> column, final int start, int end,
 			ColumnSortInfo columnSortInfo, final Range range) {
-		GWT.log("submitting reactome analysis");
-		updateRowCount(0, true);
-		AnalysisSubmiter.getSubmittedReactomeAnalysis(token, start, end, columnSortInfo,
-				new edu.scripps.yates.client.gui.reactome.AnalysisPerformedHandler() {
+		if (token != null) {
+			GWT.log("submitting reactome analysis");
+			updateRowCount(0, true);
+			AnalysisSubmiter.getSubmittedReactomeAnalysis(token, start, end, columnSortInfo,
+					new edu.scripps.yates.client.gui.reactome.AnalysisPerformedHandler() {
 
-					@Override
-					public void onAnalysisPerformed(AnalysisResult result) {
-						GWT.log("Result of reactome analysis received");
-						try {
-							if (result == null) {
-								updateRowCount(0, true);
-								AsyncPathwaySummaryDataProvider.this.setRange(null);
-								return;
+						@Override
+						public void onAnalysisPerformed(AnalysisResult result) {
+							GWT.log("Result of reactome analysis received");
+							try {
+								if (result == null) {
+									updateRowCount(0, true);
+									AsyncPathwaySummaryDataProvider.this.setRange(null);
+									return;
+								}
+								updateRowData(start, result.getPathways());
+								AsyncPathwaySummaryDataProvider.this.setRange(range);
+							} finally {
+								retrievingDataFinished();
 							}
-							updateRowData(start, result.getPathways());
-							AsyncPathwaySummaryDataProvider.this.setRange(range);
-						} finally {
-							retrievingDataFinished();
 						}
-					}
-				});
-
+					});
+		} else {
+			retrievingDataFinished();
+		}
 	}
 }
