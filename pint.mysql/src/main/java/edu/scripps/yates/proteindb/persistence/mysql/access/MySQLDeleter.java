@@ -523,20 +523,22 @@ public class MySQLDeleter {
 		ContextualSessionHandler.delete(condition);
 	}
 
-	public void deleteProject(edu.scripps.yates.utilities.proteomicsmodel.Project project) {
-
-		// check if there is already a project with that name
-		String projectTag = project.getTag();
+	public boolean deleteProject(String projectTag) {
 
 		// look into the database if a project with the same name is already
 		// created
 		Project hibProject = MySQLProteinDBInterface.getDBProjectByTag(projectTag);
 		if (hibProject != null) {
+
 			final Set<Condition> conditions = hibProject.getConditions();
 			for (Condition condition : conditions) {
 				deleteExperimentalCondition(condition);
 			}
 			ContextualSessionHandler.delete(hibProject);
+
+			return true;
+		} else {
+			throw new IllegalArgumentException(projectTag + " doesn't exist");
 		}
 
 	}
