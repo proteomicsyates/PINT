@@ -236,6 +236,13 @@
 	display:block;
 }
 
+.IdentificationInfoFromExcelHoverPanelSelected {
+	font-weight: bold;
+	padding: 10px;
+	background-color: #ffac46;
+	display:block;
+}
+
 .IdentificationInfoFromExcelHoverPanel:hover {
 	font-weight: bold;
 	background-color: lightblue;
@@ -1608,4 +1615,28 @@ table td{
 .featureType{
 	font-weight: bold;
 }
+.configurationPanel{
+	width: 600px;
+	height: 500px;
+}
+.configurationPanel_welcome{
+	font-size: 20px;
+}
+.configurationPanel_welcome2{
+	font-size: 15px;
+}
 
+.configurationPanel_CaptionPanel{
+	padding: 10px;
+}
+.configurationPanel_Grid{
+	padding: 10px;
+}
+.configurationPanel_Status{
+	font-style: normal;	
+	color: black;
+}
+.configurationPanel_Status_Error{
+	font-weight: bold;
+	color: red;
+}

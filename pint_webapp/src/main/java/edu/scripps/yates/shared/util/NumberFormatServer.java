@@ -13,6 +13,10 @@ class NumberFormatServer extends NumberFormat {
 		return new NumberFormatServer(pattern);
 	}
 
+	public static NumberFormat getScientificFormat() {
+		return new NumberFormatServer("0.0E0");
+	}
+
 	@Override
 	public String format(double number) {
 		return formater.format(number);

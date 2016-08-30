@@ -11,7 +11,6 @@ public class ServletContextProperty {
 	public static final String DOWNLOAD_FILES_PATH = "downloadFilesPath";
 	public static final String DOWNLOAD_FILES_PATH_SERVER = "downloadFilesPathServer";
 	public static final String INDEX_UNIPROT_ANNOTATIONS = "indexUniprotAnnotations";
-	public static final String OMIM_API_KEY = "OMIM_API_KEY";
 	public static final String PRELOAD_PUBLIC_PROJECTS = "preLoadPublicProjects";
 	public static final String PROJECTS_TO_PRELOAD = "projectsToPreLoad";
 	public static final String PROJECTS_TO_NOT_PRELOAD = "projectsToNotPreLoad";

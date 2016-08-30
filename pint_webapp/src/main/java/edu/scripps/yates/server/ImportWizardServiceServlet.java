@@ -64,6 +64,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServerType;
 import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLSaver;
+import edu.scripps.yates.server.configuration.ConfigurationPropertiesIO;
 import edu.scripps.yates.server.projectCreator.ImportCfgFileParserUtil;
 import edu.scripps.yates.server.projectCreator.adapter.FileSetAdapter;
 import edu.scripps.yates.server.projectCreator.adapter.RemoteSSHFileReferenceAdapter;
@@ -1067,9 +1068,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 	@Override
 	public void checkUserLogin(String userName, String encryptedPassword) throws PintException {
-		final String decrypt = CryptoUtil.decrypt(encryptedPassword);
-		String PASSWORD_FOR_SUBMISSION = "yateslab2015";
-		if (PASSWORD_FOR_SUBMISSION.equals(decrypt)) {
+		final String adminPassword = ConfigurationPropertiesIO.readProperties().getAdminPassword();
+		if (adminPassword.equals(encryptedPassword)) {
 			return;
 		} else {
 			throw new PintException("Password is not correct", PINT_ERROR_TYPE.LOGIN_FAILED);

@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import edu.scripps.yates.client.Pint;
 import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.gui.components.HtmlList;
 import edu.scripps.yates.client.gui.components.HtmlList.ListType;
@@ -27,8 +28,11 @@ public class MainPanel extends Composite {
 	private final FocusPanel focusAccessDataPanel;
 
 	private final HtmlList listItemPanel;
+	private final FocusPanel focusConfigurationPanel;
+	private final Pint pintEntryPoint;
 
-	public MainPanel() {
+	public MainPanel(Pint pintEntryPoint) {
+		this.pintEntryPoint = pintEntryPoint;
 		FlowPanel mainPanel = new FlowPanel();
 		mainPanel.setStyleName("MainPanel");
 		initWidget(mainPanel);
@@ -128,6 +132,26 @@ public class MainPanel extends Composite {
 		nlnhtmlAccessDataExplanation.setStyleName("mainPageBoxExplanation");
 		accessDataVerticalPanel.add(nlnhtmlAccessDataExplanation);
 
+		////
+
+		VerticalPanel configurationVerticalPanel = new VerticalPanel();
+		focusConfigurationPanel = new FocusPanel(configurationVerticalPanel);
+		sectionsHorizontalPanel.add(focusConfigurationPanel);
+		configurationVerticalPanel.setSpacing(10);
+		configurationVerticalPanel.setBorderWidth(0);
+		configurationVerticalPanel.setStyleName("mainPageBoxes");
+
+		InlineHTML nlnhtmlConfiguration = new InlineHTML("Configuration:");
+		nlnhtmlConfiguration.setStyleName("title2");
+		configurationVerticalPanel.add(nlnhtmlConfiguration);
+
+		InlineHTML nlnhtmlConfigurationExplanation = new InlineHTML(
+				"Click here to go to the basic configuration of PINT.");
+		nlnhtmlConfigurationExplanation.setStyleName("mainPageBoxExplanation");
+		configurationVerticalPanel.add(nlnhtmlConfigurationExplanation);
+
+		////
+
 		setStyleName("MainPanel");
 
 		loadStatistics();
@@ -150,7 +174,13 @@ public class MainPanel extends Composite {
 				History.newItem(TargetHistory.BROWSE.getTargetHistory());
 			}
 		});
+		focusConfigurationPanel.addClickHandler(new ClickHandler() {
 
+			@Override
+			public void onClick(ClickEvent event) {
+				pintEntryPoint.startupConfiguration(true);
+			}
+		});
 	}
 
 	public void loadStatistics() {

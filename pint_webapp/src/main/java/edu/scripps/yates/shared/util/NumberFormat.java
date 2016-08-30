@@ -1,6 +1,5 @@
 package edu.scripps.yates.shared.util;
 
-
 /**
  * The purpose of this class is to allow number formatting on both the client
  * and server side.
@@ -12,6 +11,14 @@ public abstract class NumberFormat {
 			return NumberFormatServer.getFormat(pattern);
 		else
 			return NumberFormatClient.getFormat(pattern);
+
+	}
+
+	public static NumberFormat getScientificFormat() {
+		if (!com.google.gwt.core.shared.GWT.isClient())
+			return NumberFormatServer.getScientificFormat();
+		else
+			return NumberFormatClient.getScientificFormat();
 
 	}
 

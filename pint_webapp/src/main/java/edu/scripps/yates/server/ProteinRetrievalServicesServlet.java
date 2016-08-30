@@ -61,6 +61,7 @@ import edu.scripps.yates.server.cache.ServerCacheProteinBeansByQueryString;
 import edu.scripps.yates.server.cache.ServerCacheProteinFileDescriptorByProjectName;
 import edu.scripps.yates.server.cache.ServerCacheProteinGroupFileDescriptorByProjectName;
 import edu.scripps.yates.server.cache.ServerCacheProteinNameProteinProjectionsByProjectTag;
+import edu.scripps.yates.server.configuration.ConfigurationPropertiesIO;
 import edu.scripps.yates.server.export.DataExporter;
 import edu.scripps.yates.server.pseaquant.PSEAQuantSender;
 import edu.scripps.yates.server.pseaquant.PSEAQuantSender.RATIO_AVERAGING;
@@ -76,7 +77,6 @@ import edu.scripps.yates.server.tasks.Task;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.HttpUtils;
 import edu.scripps.yates.server.util.ServletCommonInit;
-import edu.scripps.yates.server.util.ServletContextProperty;
 import edu.scripps.yates.shared.columns.comparator.PSMComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinGroupComparator;
@@ -631,8 +631,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				// lock project
 				ProjectLocker.lock(projectTags, enclosingMethod);
 				// create a new one
-				String omimAPIKey = ServletContextProperty.getServletContextProperty(getServletContext(),
-						ServletContextProperty.OMIM_API_KEY);
+				String omimAPIKey = ConfigurationPropertiesIO.readProperties().getOmimKey();
 				file = DataExporter.exportProteinsFromProjects(projectTags, omimAPIKey);
 				log.info("file created in the server at: " + file.getAbsolutePath());
 
@@ -702,8 +701,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				// lock projects
 				ProjectLocker.lock(projectTags, enclosingMethod);
 				// create a new one
-				String omimAPIKey = ServletContextProperty.getServletContextProperty(getServletContext(),
-						ServletContextProperty.OMIM_API_KEY);
+				String omimAPIKey = ConfigurationPropertiesIO.readProperties().getOmimKey();
 				file = DataExporter.exportProteinGroupsFromProjects(projectTags, separateNonConclusiveProteins,
 						omimAPIKey);
 				log.info("file created in the server at: " + file.getAbsolutePath());
@@ -1049,8 +1047,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					task.incrementProgress(1);
 					RemoteServicesTasks.annotateProteinsOMIM(
 							DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(),
-							ServletContextProperty.getServletContextProperty(getServletContext(),
-									ServletContextProperty.OMIM_API_KEY));
+							ConfigurationPropertiesIO.readProperties().getOmimKey());
 				}
 				// add to cache by query if not empty
 				if (!DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins().isEmpty()) {

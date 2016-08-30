@@ -10,8 +10,18 @@ class NumberFormatClient extends NumberFormat {
 		formater = com.google.gwt.i18n.client.NumberFormat.getFormat(pattern);
 	}
 
-	public static NumberFormat getFormat(String pattern) {
+	protected NumberFormatClient(com.google.gwt.i18n.client.NumberFormat formater) {
+		this.formater = formater;
+	}
+
+	public static edu.scripps.yates.shared.util.NumberFormat getFormat(String pattern) {
 		return new NumberFormatClient(pattern);
+	}
+
+	public static edu.scripps.yates.shared.util.NumberFormat getScientificFormat() {
+
+		return new NumberFormatClient(
+				com.google.gwt.i18n.client.NumberFormat.getScientificFormat().overrideFractionDigits(2, 3));
 	}
 
 	@Override

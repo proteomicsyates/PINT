@@ -3,7 +3,6 @@ package edu.scripps.yates.server.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,7 +40,7 @@ public class FileManager {
 	private static Map<Integer, File> projectCfgFileByImportProcessID = new HashMap<Integer, File>();
 	private static boolean ready = false;
 	private static boolean loading;
-	private final static DecimalFormat myFormatter = new DecimalFormat("#.#");
+	private static final String PINT_PROPERTIES_FILE_NAME = "pint.properties";
 
 	private static File getXmlFolder() {
 
@@ -472,5 +471,9 @@ public class FileManager {
 
 	public static File getPSEAQuantFile(String filename) {
 		return new File(getPSEAQuantFolder() + File.separator + filename);
+	}
+
+	public static File getPintPropertiesFile() {
+		return new File(getProjectFilesPath() + File.separator + PINT_PROPERTIES_FILE_NAME);
 	}
 }

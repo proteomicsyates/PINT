@@ -40,5 +40,7 @@ public interface ProjectSaverService extends RemoteService {
 
 	public void saveProject(String sessionID, List<String> projectXmlFileName) throws PintException;
 
+	public void deleteProject(String projectTag) throws PintException;
+
 	public List<String> validateProjectXMLCfgFile(String sessionID, String projectFileName);
 }

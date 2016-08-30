@@ -2,8 +2,6 @@ package edu.scripps.yates.client;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -27,14 +25,14 @@ import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.components.MyWindowScrollPanel;
 import edu.scripps.yates.client.gui.components.pseaquant.PSEAQuantFormPanel;
+import edu.scripps.yates.client.gui.configuration.ConfigurationClientManager;
+import edu.scripps.yates.client.gui.configuration.ConfigurationPanel;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.util.ClientToken;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.util.CryptoUtil;
 
 public class Pint implements EntryPoint {
-
-	private static final Logger log = Logger.getLogger("PINT");
 
 	private QueryPanel queryPanel;
 	private ProjectCreator createProjectPanel;
@@ -46,6 +44,10 @@ public class Pint implements EntryPoint {
 
 	private MyDialogBox loadingDialog;
 
+	private ConfigurationPanel panel;
+
+	private ConfigurationPanel configurationPanel;
+
 	@Override
 	public void onModuleLoad() {
 
@@ -53,7 +55,7 @@ public class Pint implements EntryPoint {
 			@Override
 			public void onUncaughtException(Throwable e) {
 				Throwable unwrapped = unwrap(e);
-				log.log(Level.SEVERE, "Ex caught!", e);
+				GWT.log("Ex caught!" + e.getMessage());
 
 				Window.alert(unwrapped.getMessage());
 				StatusReportersRegister.getInstance().notifyStatusReporters(unwrapped);
@@ -76,14 +78,80 @@ public class Pint implements EntryPoint {
 		GWT.log("Version is:  " + GWT.getVersion());
 		GWT.log("Production mode: " + GWT.isProdMode());
 
-		// generate new client ID and login
+		// login
 		login();
 
 	}
 
+	public void startupConfiguration(final boolean forceToShowPanel) {
+
+		showLoadingDialog("Configuring PINT. Please wait...");
+		ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
+		final ConfigurationClientManager configurationManager = ConfigurationClientManager.getInstance();
+		service.getAdminPassword(new AsyncCallback<String>() {
+
+			@Override
+			public void onSuccess(String encryptedAdminPassword) {
+				String decryptedAdminPassword = CryptoUtil.decrypt(encryptedAdminPassword);
+				if (decryptedAdminPassword == null) {
+					decryptedAdminPassword = "";
+				}
+				configurationManager.setAdminPassword(decryptedAdminPassword);
+				if (configurationManager.isConfigurationCheckingIsFinished()) {
+					if (forceToShowPanel || configurationManager.isSomeConfigurationMissing()) {
+						showConfigurationPanel();
+					} else {
+						hiddeLoadingDialog();
+					}
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+				GWT.log("Error setting up PINT: " + caught.getMessage());
+				hiddeLoadingDialog();
+			}
+		});
+		service.getOMIMKey(new AsyncCallback<String>() {
+
+			@Override
+			public void onSuccess(String omimKey) {
+				if (omimKey == null) {
+					omimKey = "";
+				}
+				configurationManager.setOMIMKey(omimKey);
+				if (configurationManager.isConfigurationCheckingIsFinished()) {
+					if (forceToShowPanel || configurationManager.isSomeConfigurationMissing()) {
+						showConfigurationPanel();
+					} else {
+						hiddeLoadingDialog();
+					}
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+				GWT.log("Error setting up PINT: " + caught.getMessage());
+				hiddeLoadingDialog();
+			}
+		});
+
+	}
+
+	protected void showConfigurationPanel() {
+		if (configurationPanel == null) {
+			configurationPanel = new ConfigurationPanel();
+		}
+		hiddeLoadingDialog();
+		configurationPanel.center();
+	}
+
 	private void showLoadingDialog(String text) {
-		if (loadingDialog == null)
+		if (loadingDialog == null) {
 			loadingDialog = new MyDialogBox(text, true, true, null);
+		}
 		loadingDialog.setText(text);
 		loadingDialog.center();
 	}
@@ -105,7 +173,7 @@ public class Pint implements EntryPoint {
 		// loading dialog
 		// showLoadingDialog("Loading PINT components...");
 		// MAIN PANEL
-		mainPanel = new MainPanel();
+		mainPanel = new MainPanel(this);
 		scroll.add(mainPanel);
 
 		// / PROJECT CREATOR #projectCreator
@@ -193,7 +261,7 @@ public class Pint implements EntryPoint {
 	}
 
 	private void login() {
-		showLoadingDialog("Loading PINT: Proteomics INTegrator. Please wait...");
+		showLoadingDialog("Entering into PINT. Please wait...");
 		ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 		String clientToken = ClientToken.getToken();
 
@@ -203,16 +271,17 @@ public class Pint implements EntryPoint {
 
 			@Override
 			public void onSuccess(String sessionID) {
-				log.log(Level.INFO, "New session id:" + sessionID);
+				GWT.log("New session id:" + sessionID);
 				Pint.this.sessionID = sessionID;
 				loadGUI();
 				hiddeLoadingDialog();
+				startupConfiguration(false);
 			}
 
 			@Override
 			public void onFailure(Throwable caught) {
 				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-				log.log(Level.SEVERE, "Error in login: " + caught.getMessage());
+				GWT.log("Error in login: " + caught.getMessage());
 				hiddeLoadingDialog();
 			}
 		});
@@ -232,7 +301,7 @@ public class Pint implements EntryPoint {
 
 				String historyToken = event.getValue();
 
-				log.log(Level.INFO, "HISTORY VALUE: " + historyToken);
+				GWT.log("HISTORY VALUE: " + historyToken);
 				// Parse the history token
 				if (historyToken.contains(TargetHistory.QUERY.getTargetHistory())) {
 					// queryPanel is suppose to be already created
@@ -252,7 +321,7 @@ public class Pint implements EntryPoint {
 				}
 				if (historyToken.contains(TargetHistory.HOME.getTargetHistory())) {
 					if (mainPanel == null)
-						mainPanel = new MainPanel();
+						mainPanel = new MainPanel(Pint.this);
 					loadPanel(mainPanel);
 					mainPanel.loadStatistics();
 				}

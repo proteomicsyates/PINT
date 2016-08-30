@@ -18,9 +18,9 @@ import com.google.gwt.view.client.ProvidesKey;
 import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
+import edu.scripps.yates.client.gui.columns.MyIdColumn;
 import edu.scripps.yates.client.gui.columns.MySafeHtmlHeaderWithTooltip;
 import edu.scripps.yates.client.gui.columns.PeptideColumnManager;
-import edu.scripps.yates.client.gui.columns.PeptideTextColumn;
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.client.gui.columns.footers.PeptideFooterManager;
 import edu.scripps.yates.client.gui.components.dataprovider.AbstractAsyncDataProvider;
@@ -176,34 +176,36 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 			String projectName, boolean show) {
 		boolean redraw = false;
 		for (MyColumn<PeptideBean> mycolumn : getColumnManager().getColumnsByColumnName(columnName)) {
+			if (mycolumn instanceof MyIdColumn) {
+				MyIdColumn<PeptideBean> idColumn = (MyIdColumn<PeptideBean>) mycolumn;
+				final Column<PeptideBean, String> column = (Column<PeptideBean, String>) mycolumn;
+				String condition1ReferredByColumn = idColumn.getExperimentalConditionName();
+				String condition2ReferredByColumn = idColumn.getExperimentalCondition2Name() != null
+						? idColumn.getExperimentalCondition2Name() : condition1ReferredByColumn;
 
-			final PeptideTextColumn column = (PeptideTextColumn) mycolumn;
-			String condition1ReferredByColumn = column.getExperimentalConditionName();
-			String condition2ReferredByColumn = column.getExperimentalCondition2Name() != null
-					? column.getExperimentalCondition2Name() : condition1ReferredByColumn;
+				if (projectName == null || idColumn.getProjectTag().equalsIgnoreCase(projectName)) {
+					if (conditionNames == null || (conditionNames.contains(condition1ReferredByColumn)
+							&& conditionNames.contains(condition2ReferredByColumn))) {
 
-			if (projectName == null || column.getProjectTag().equalsIgnoreCase(projectName)) {
-				if (conditionNames == null || (conditionNames.contains(condition1ReferredByColumn)
-						&& conditionNames.contains(condition2ReferredByColumn))) {
-
-					if (show) {
-						final String newWidth = String.valueOf(column.getDefaultWidth())
-								+ column.getDefaultWidthUnit().getType();
-						final String columnWidth = dataGrid.getColumnWidth(column);
-						if (!columnWidth.equals(newWidth)) {
-							if (dataGrid.isEmptyColumn(column))
-								redraw = true;
-							dataGrid.setColumnWidth(column, newWidth);
-							column.setWidth(column.getDefaultWidth());
-						}
-					} else {
-						final String newWidth = "0.0" + column.getDefaultWidthUnit().getType();
-						final String columnWidth = dataGrid.getColumnWidth(column);
-						if (!columnWidth.equals(newWidth)) {
-							if (!dataGrid.isNumberColumn(column))
-								redraw = true;
-							dataGrid.setColumnWidth(column, newWidth);
-							column.setWidth(0);
+						if (show) {
+							final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
+									+ mycolumn.getDefaultWidthUnit().getType();
+							final String columnWidth = dataGrid.getColumnWidth(column);
+							if (!columnWidth.equals(newWidth)) {
+								if (dataGrid.isEmptyColumn(column))
+									redraw = true;
+								dataGrid.setColumnWidth(column, newWidth);
+								mycolumn.setWidth(mycolumn.getDefaultWidth());
+							}
+						} else {
+							final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
+							final String columnWidth = dataGrid.getColumnWidth(column);
+							if (!columnWidth.equals(newWidth)) {
+								if (!dataGrid.isNumberColumn(column))
+									redraw = true;
+								dataGrid.setColumnWidth(column, newWidth);
+								mycolumn.setWidth(0);
+							}
 						}
 					}
 				}

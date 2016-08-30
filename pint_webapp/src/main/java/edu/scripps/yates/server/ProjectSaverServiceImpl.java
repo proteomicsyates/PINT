@@ -36,6 +36,8 @@ import edu.scripps.yates.client.ProjectSaverService;
 import edu.scripps.yates.client.exceptions.PintException;
 import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.excel.proteindb.importcfg.adapter.ImportCfgFileReader;
+import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
+import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLDeleter;
 import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLSaver;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerConstants;
@@ -84,10 +86,12 @@ public class ProjectSaverServiceImpl extends RemoteServiceServlet implements Pro
 				log.info(projectFromCfgFile.getName() + " file readed");
 				final MySQLSaver mySQLSaver = new MySQLSaver();
 				mySQLSaver.saveProject(projectFromCfgFile);
+				ContextualSessionHandler.finishGoodTransaction();
 				log.info("Project saved in db");
 			}
 			log.info("Everything is OK!");
 		} catch (Exception e) {
+			log.error(e);
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		}
 	}
@@ -117,6 +121,22 @@ public class ProjectSaverServiceImpl extends RemoteServiceServlet implements Pro
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	@Override
+	public void deleteProject(String projectTag) throws PintException {
+		try {
+			final MySQLDeleter mySQLDeleter = new MySQLDeleter();
+			mySQLDeleter.deleteProject(projectTag);
+			log.info("Project " + projectTag + " is deleted");
+			ContextualSessionHandler.finishGoodTransaction();
+			log.info("Everything is OK!");
+
+		} catch (Exception e) {
+			log.error(e);
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+
 	}
 
 	// @Override

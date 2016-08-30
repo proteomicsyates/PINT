@@ -135,6 +135,11 @@
 		<servlet-name>ImportWizard</servlet-name>
 		<servlet-class>edu.scripps.yates.server.ImportWizardServiceServlet</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>ConfigurationService</servlet-name>
+		<servlet-class>edu.scripps.yates.server.ConfigurationServiceServlet</servlet-class>
+	</servlet>
 
 	<servlet>
 		<servlet-name>xmlProjectUploadServlet</servlet-name>
@@ -224,6 +229,11 @@
 	<servlet-mapping>
 		<servlet-name>pintServlet</servlet-name>
 		<url-pattern>/pint/proteins</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>ConfigurationService</servlet-name>
+		<url-pattern>/pint/configuration</url-pattern>
 	</servlet-mapping>
 
 	<!-- Servlet to download files from server  -->

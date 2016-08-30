@@ -31,6 +31,8 @@ public class DataGridRenderValue implements Serializable {
 	private String tooltip;
 	private Double actualNonRoundedValue;
 	private static final NumberFormat twoDecimalsFormat = NumberFormat.getFormat("#.##");
+	private static final NumberFormat threeDecimalsFormat = NumberFormat.getFormat("#.##");
+	private static final NumberFormat scientificDecimalsFormat = NumberFormat.getScientificFormat();
 
 	public DataGridRenderValue(String value, Double actualNonRoundedValue, String tooltip) {
 		this.value = value;
@@ -131,11 +133,11 @@ public class DataGridRenderValue implements Serializable {
 				if (amountType == AmountType.SPC) {
 					// sum
 					combinationNotRounded = ClientMaths.sum(total.toArray(new Double[0]));
-					combination.append(twoDecimalsFormat.format(combinationNotRounded));
+					combination.append(formatDouble(combinationNotRounded));
 				} else {
 					// mean
 					combinationNotRounded = ClientMaths.mean(total.toArray(new Double[0]));
-					combination.append(twoDecimalsFormat.format(combinationNotRounded));
+					combination.append(formatDouble(combinationNotRounded));
 				}
 
 				return new DataGridRenderValue(combination.toString(), combinationNotRounded, tooltip.toString());
@@ -173,4 +175,13 @@ public class DataGridRenderValue implements Serializable {
 		this.actualNonRoundedValue = actualNonRoundedValue;
 	}
 
+	private static String formatDouble(Double number) {
+		if (number >= 0.01) {
+			return twoDecimalsFormat.format(number);
+		} else {
+
+			return scientificDecimalsFormat.format(number);
+
+		}
+	}
 }

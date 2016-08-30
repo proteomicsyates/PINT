@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -16,6 +17,8 @@ import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.shared.DateTimeFormat;
@@ -40,8 +43,12 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 
+import edu.scripps.yates.client.ProjectSaverServiceAsync;
 import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.cache.ClientCacheOrganismsByProjectTag;
 import edu.scripps.yates.client.cache.ClientCacheProjectBeansByProjectTag;
@@ -88,6 +95,7 @@ public class BrowsePanel extends Composite implements StatusReporter {
 	private final String publicationTag = "Link to publication in PUBMED, if available";
 
 	public BrowsePanel() {
+		StatusReportersRegister.getInstance().registerNewStatusReporter(this);
 		proteinGroupsLink.setStyleName("linkPINT");
 		proteinsLink.setStyleName("linkPINT");
 
@@ -233,7 +241,29 @@ public class BrowsePanel extends Composite implements StatusReporter {
 				History.newItem(historyToken);
 			}
 		});
+		CaptionPanel cptnpnlDeleteProject = new CaptionPanel("Delete project:");
+		cptnpnlDeleteProject.setStyleName("browserSelectedProject");
+		flowPanel.add(cptnpnlDeleteProject);
 
+		FlexTable horizontalPanel2 = new FlexTable();
+		cptnpnlDeleteProject.setContentWidget(horizontalPanel2);
+		horizontalPanel2.setSize("100%", "100%");
+
+		final TextBox projectTagTextBox = new TextBox();
+		horizontalPanel2.setWidget(0, 0, projectTagTextBox);
+
+		Button btnDeleteProject = new Button("Delete");
+		btnDeleteProject.setStyleName("selectionButton");
+		horizontalPanel2.setWidget(0, 1, btnDeleteProject);
+		horizontalPanel2.getCellFormatter().setWidth(0, 1, "30%");
+		btnDeleteProject.setWidth("100px");
+		btnDeleteProject.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				checkUserNameForDeletion(projectTagTextBox.getText());
+			}
+		});
 		FlowPanel verticalPanelRigth = new FlowPanel();
 		verticalPanelRigth.setStyleName("browserRigthPart");
 		horizontalFlowPanel.add(verticalPanelRigth);
@@ -369,6 +399,42 @@ public class BrowsePanel extends Composite implements StatusReporter {
 		loadProjectList();
 
 		setStyleName("MainPanel");
+	}
+
+	protected void checkUserNameForDeletion(final String projectTag) {
+		// check first the login
+		PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
+				"Enter password for project deletion:");
+		loginPanel.addCloseHandler(new CloseHandler<PopupPanel>() {
+
+			@Override
+			public void onClose(CloseEvent<PopupPanel> event) {
+				final PopupPanel popup = event.getTarget();
+				final Widget widget = popup.getWidget();
+				if (widget instanceof PopUpPanelPasswordChecker) {
+					PopUpPanelPasswordChecker loginPanel = (PopUpPanelPasswordChecker) widget;
+					if (loginPanel.isLoginOK()) {
+						ProjectSaverServiceAsync.Util.getInstance().deleteProject(projectTag,
+								new AsyncCallback<Void>() {
+
+									@Override
+									public void onFailure(Throwable caught) {
+										StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+
+									}
+
+									@Override
+									public void onSuccess(Void result) {
+										StatusReportersRegister.getInstance()
+												.notifyStatusReporters("Project '" + projectTag + "' deleted");
+
+									}
+								});
+					}
+				}
+			}
+		});
+		loginPanel.show();
 	}
 
 	protected Set<String> getSelectedProjects() {
@@ -815,7 +881,8 @@ public class BrowsePanel extends Composite implements StatusReporter {
 
 	@Override
 	public void showMessage(String message) {
-		Window.alert(message);
+		GWT.log("Message: " + message);
+		Window.confirm(message);
 
 	}
 
