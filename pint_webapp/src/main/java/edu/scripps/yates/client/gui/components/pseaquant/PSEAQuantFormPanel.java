@@ -705,4 +705,10 @@ public class PSEAQuantFormPanel extends PSEAQuantFormAbstractPanel {
 		}
 		return ret;
 	}
+
+	@Override
+	public void initialize() {
+		// TODO Auto-generated method stub
+
+	}
 }

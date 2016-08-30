@@ -14,7 +14,6 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -53,6 +52,7 @@ import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.Proj
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ReferencesDataObject;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.ContainsImportJobID;
+import edu.scripps.yates.client.interfaces.InitializableComposite;
 import edu.scripps.yates.client.interfaces.StatusReporter;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.model.DataSourceBean;
@@ -89,7 +89,7 @@ import gwtupload.client.IUploader.ServerMessage;
 import gwtupload.client.IUploader.UploadedInfo;
 import gwtupload.client.SingleUploader;
 
-public class ProjectCreatorWizard extends Composite implements StatusReporter, ContainsImportJobID {
+public class ProjectCreatorWizard extends InitializableComposite implements StatusReporter, ContainsImportJobID {
 	private final HorizontalPanel contentPanel;
 	private SingleUploader uploader;
 	private final ImportWizardServiceAsync importWizardService = ImportWizardServiceAsync.Util.getInstance();
@@ -152,12 +152,13 @@ public class ProjectCreatorWizard extends Composite implements StatusReporter, C
 		contentPanel.setSize("100%", "100%");
 		mainPanel.add(contentPanel);
 
-		askQuestionToUser();
+		// askQuestionToUser();
 
 	}
 
 	public void askQuestionToUser() {
-		// contentPanel.clear();
+
+		contentPanel.clear();
 		// load yes/no dialog
 		final boolean confirm = Window
 				.confirm("Do you want to start from a previously created import data configuration file?");
@@ -402,7 +403,6 @@ public class ProjectCreatorWizard extends Composite implements StatusReporter, C
 		addPlusMinusHandlers();
 		projectConfigurationPanel.addSaveImportConfigurationClickHandler(getSaveConfigurationClickHandler());
 		projectConfigurationPanel.addDataSubmissionClickHandler(getDataSubmissionClickHandler());
-		// contentPanel.clear();
 		contentPanel.add(projectConfigurationPanel);
 
 		tabPanel = new ScrolledTabLayoutPanel(30, Unit.PX, false);
@@ -1579,5 +1579,10 @@ public class ProjectCreatorWizard extends Composite implements StatusReporter, C
 		// ratios
 		pintImportCfgTypeBean.getProject().setRatios(ratiosTypeBean);
 
+	}
+
+	@Override
+	public void initialize() {
+		askQuestionToUser();
 	}
 }

@@ -9,7 +9,6 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -23,8 +22,9 @@ import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.gui.components.HtmlList;
 import edu.scripps.yates.client.gui.components.HtmlList.ListType;
 import edu.scripps.yates.client.history.TargetHistory;
+import edu.scripps.yates.client.interfaces.InitializableComposite;
 
-public class MainPanel extends Composite {
+public class MainPanel extends InitializableComposite {
 
 	protected final edu.scripps.yates.client.ProteinRetrievalServiceAsync proteinRetrievingService = ProteinRetrievalServiceAsync.Util
 			.getInstance();
@@ -282,5 +282,11 @@ public class MainPanel extends Composite {
 				Window.alert(caught.getMessage());
 			}
 		});
+	}
+
+	@Override
+	public void initialize() {
+		// TODO Auto-generated method stub
+
 	}
 }

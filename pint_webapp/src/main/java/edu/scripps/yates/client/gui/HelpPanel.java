@@ -1,6 +1,5 @@
 package edu.scripps.yates.client.gui;
 
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -13,8 +12,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.history.TargetHistory;
+import edu.scripps.yates.client.interfaces.InitializableComposite;
 
-public class HelpPanel extends Composite {
+public class HelpPanel extends InitializableComposite {
 	private final NavigationHorizontalPanel navigation;
 
 	public HelpPanel() {
@@ -136,5 +136,11 @@ public class HelpPanel extends Composite {
 	private void hiddeLoadingDialog() {
 		if (loadingDialog != null)
 			loadingDialog.hide();
+	}
+
+	@Override
+	public void initialize() {
+		// TODO Auto-generated method stub
+
 	}
 }

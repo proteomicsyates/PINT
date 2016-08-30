@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -13,11 +12,12 @@ import com.google.gwt.user.client.ui.Widget;
 import edu.scripps.yates.client.ProteinRetrievalService;
 import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.components.WindowBox;
+import edu.scripps.yates.client.interfaces.InitializableComposite;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantForm;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantReplicate;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantResult;
 
-public abstract class PSEAQuantFormAbstractPanel extends Composite implements PSEAQuantForm {
+public abstract class PSEAQuantFormAbstractPanel extends InitializableComposite implements PSEAQuantForm {
 	protected final edu.scripps.yates.client.ProteinRetrievalServiceAsync service = GWT
 			.create(ProteinRetrievalService.class);
 	private MyDialogBox loadingDialog;

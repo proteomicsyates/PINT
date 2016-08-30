@@ -12,7 +12,6 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.gui.AboutPanel;
 import edu.scripps.yates.client.gui.BrowsePanel;
@@ -27,6 +26,7 @@ import edu.scripps.yates.client.gui.components.pseaquant.PSEAQuantFormPanel;
 import edu.scripps.yates.client.gui.configuration.ConfigurationClientManager;
 import edu.scripps.yates.client.gui.configuration.ConfigurationPanel;
 import edu.scripps.yates.client.history.TargetHistory;
+import edu.scripps.yates.client.interfaces.InitializableComposite;
 import edu.scripps.yates.client.util.ClientToken;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.util.CryptoUtil;
@@ -360,7 +360,7 @@ public class Pint implements EntryPoint {
 
 	}
 
-	protected void loadPanel(Widget widget) {
+	protected void loadPanel(InitializableComposite widget) {
 		RootLayoutPanel.get().clear();
 
 		if (widget instanceof QueryPanel) {
@@ -372,7 +372,9 @@ public class Pint implements EntryPoint {
 			scroll.add(widget);
 
 		}
-
+		if (widget != null) {
+			widget.initialize();
+		}
 	}
 
 }

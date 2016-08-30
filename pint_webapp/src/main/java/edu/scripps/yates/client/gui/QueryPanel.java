@@ -27,7 +27,6 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasText;
@@ -71,6 +70,7 @@ import edu.scripps.yates.client.gui.components.pseaquant.PSEAQuantFormPanel;
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.gui.reactome.ReactomePanel;
 import edu.scripps.yates.client.history.TargetHistory;
+import edu.scripps.yates.client.interfaces.InitializableComposite;
 import edu.scripps.yates.client.interfaces.ShowHiddePanel;
 import edu.scripps.yates.client.interfaces.StatusReporter;
 import edu.scripps.yates.client.tasks.PendingTaskHandler;
@@ -104,7 +104,7 @@ import edu.scripps.yates.shared.util.sublists.ProteinGroupBeanSubList;
 import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;
 import edu.scripps.yates.shared.util.sublists.QueryResultSubLists;
 
-public class QueryPanel extends Composite implements ShowHiddePanel, StatusReporter, PendingTaskHandler {
+public class QueryPanel extends InitializableComposite implements ShowHiddePanel, StatusReporter, PendingTaskHandler {
 	private static final double HEADER_HEIGHT = 25;
 	private final java.util.logging.Logger log = java.util.logging.Logger.getLogger("NameOfYourLogger");
 
@@ -2370,6 +2370,12 @@ public class QueryPanel extends Composite implements ShowHiddePanel, StatusRepor
 	@Override
 	public void showErrorMessage(Throwable throwable) {
 		updateStatus("ERROR: " + throwable.getMessage());
+	}
+
+	@Override
+	public void initialize() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

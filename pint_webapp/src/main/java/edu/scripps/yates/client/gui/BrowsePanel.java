@@ -32,7 +32,6 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DateLabel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -57,6 +56,7 @@ import edu.scripps.yates.client.cache.ClientCacheProteinGroupFileDescriptorByPro
 import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.history.TargetHistory;
+import edu.scripps.yates.client.interfaces.InitializableComposite;
 import edu.scripps.yates.client.interfaces.StatusReporter;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.client.util.StatusReportersRegister;
@@ -65,7 +65,7 @@ import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.util.FileDescriptor;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class BrowsePanel extends Composite implements StatusReporter {
+public class BrowsePanel extends InitializableComposite implements StatusReporter {
 	private final Label projectTagLabel;
 	private final Label projectTitleLabel;
 	private final Label projectDescriptionLabel;
@@ -889,6 +889,12 @@ public class BrowsePanel extends Composite implements StatusReporter {
 	@Override
 	public void showErrorMessage(Throwable throwable) {
 		showMessage(throwable.getMessage());
+	}
+
+	@Override
+	public void initialize() {
+		// TODO Auto-generated method stub
+
 	}
 
 }
