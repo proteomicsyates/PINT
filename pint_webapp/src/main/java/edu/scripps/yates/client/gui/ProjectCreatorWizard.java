@@ -158,82 +158,102 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 
 	public void askQuestionToUser() {
 
+		final PopUpPanelYesNo yesNoPanel = new PopUpPanelYesNo(false, true, true, "Import data to PINT",
+				"Do you want to start from a previously created import data configuration file?");
+		yesNoPanel.addButton1ClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				startFromPreviousXML();
+				yesNoPanel.hide();
+			}
+		});
+		yesNoPanel.addButton2ClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				startFromScratch();
+				yesNoPanel.hide();
+			}
+		});
+		yesNoPanel.show();
+	}
+
+	protected void startFromScratch() {
 		contentPanel.clear();
-		// load yes/no dialog
-		final boolean confirm = Window
-				.confirm("Do you want to start from a previously created import data configuration file?");
-		if (confirm) {
-			// if (false) {
-			pintImportCfgTypeBean = null;
-			// allow the user to select the file
-			uploader = new SingleUploader();
+		loadGUI(null, null);
+		showDialog("Wait while a new import process is registered...", true, false, true);
+		importWizardService.startNewImportProcess(sessionID, projectConfigurationPanel.getProjectTag(),
+				projectConfigurationPanel.getFileNamesWithTypes(),
+				projectConfigurationPanel.getRemoteFileWithTypeBeans(), new AsyncCallback<Integer>() {
 
-			contentPanel.add(uploader);
-			uploader.setServletPath("xmlProject.gupld?" + SharedConstants.JOB_ID_PARAM + "=" + importJobID);
-			uploader.addOnFinishUploadHandler(getOnFinishUploaderHandler());
-			uploader.addOnCancelUploadHandler(getOnCancelUploaderHandler());
-			uploader.addOnStartUploadHandler(new OnStartUploaderHandler() {
+					@Override
+					public void onFailure(Throwable caught) {
+						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+						hiddeDialog();
+					}
 
-				@Override
-				public void onStart(IUploader uploader) {
-					showDialog("Uploading file...", true, false, true);
-				}
-			});
-			final TextBox textBox = new TextBox();
-			contentPanel.add(textBox);
-			Button saveProjectButton = new Button("Save project");
-			contentPanel.add(saveProjectButton);
-			final Label label = new Label("status");
-			contentPanel.add(label);
-			saveProjectButton.addClickHandler(new ClickHandler() {
-
-				@Override
-				public void onClick(ClickEvent event) {
-					List<String> projectTagNames = new ArrayList<String>();
-					projectTagNames.add(textBox.getValue());
-					projectSaverService.saveProject(sessionID, projectTagNames, new AsyncCallback<Void>() {
-
-						@Override
-						public void onFailure(Throwable caught) {
-							label.setText(caught.getMessage());
-							StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+					@Override
+					public void onSuccess(Integer importJobID) {
+						if (importJobID != null) {
+							setImportJobID(importJobID);
+							StatusReportersRegister.getInstance()
+									.notifyStatusReporters("Import process registered (id:'" + importJobID + "')");
 						}
+						hiddeDialog();
+					}
 
-						@Override
-						public void onSuccess(Void result) {
-							label.setText("EVERYTHING IS OK");
+				});
 
-						}
-					});
+	}
 
-				}
-			});
-		} else {
-			loadGUI(null, null);
-			showDialog("Wait while a new import process is registered...", true, false, true);
-			importWizardService.startNewImportProcess(sessionID, projectConfigurationPanel.getProjectTag(),
-					projectConfigurationPanel.getFileNamesWithTypes(),
-					projectConfigurationPanel.getRemoteFileWithTypeBeans(), new AsyncCallback<Integer>() {
+	protected void startFromPreviousXML() {
+		contentPanel.clear();
+		// if (false) {
+		pintImportCfgTypeBean = null;
+		// allow the user to select the file
+		uploader = new SingleUploader();
 
-						@Override
-						public void onFailure(Throwable caught) {
-							StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-							hiddeDialog();
-						}
+		contentPanel.add(uploader);
+		uploader.setServletPath("xmlProject.gupld?" + SharedConstants.JOB_ID_PARAM + "=" + importJobID);
+		uploader.addOnFinishUploadHandler(getOnFinishUploaderHandler());
+		uploader.addOnCancelUploadHandler(getOnCancelUploaderHandler());
+		uploader.addOnStartUploadHandler(new OnStartUploaderHandler() {
 
-						@Override
-						public void onSuccess(Integer importJobID) {
-							if (importJobID != null) {
-								setImportJobID(importJobID);
-								StatusReportersRegister.getInstance()
-										.notifyStatusReporters("Import process registered (id:'" + importJobID + "')");
-							}
-							hiddeDialog();
-						}
+			@Override
+			public void onStart(IUploader uploader) {
+				showDialog("Uploading file...", true, false, true);
+			}
+		});
+		final TextBox textBox = new TextBox();
+		contentPanel.add(textBox);
+		Button saveProjectButton = new Button("Save project");
+		contentPanel.add(saveProjectButton);
+		final Label label = new Label("status");
+		contentPanel.add(label);
+		saveProjectButton.addClickHandler(new ClickHandler() {
 
-					});
+			@Override
+			public void onClick(ClickEvent event) {
+				List<String> projectTagNames = new ArrayList<String>();
+				projectTagNames.add(textBox.getValue());
+				projectSaverService.saveProject(sessionID, projectTagNames, new AsyncCallback<Void>() {
 
-		}
+					@Override
+					public void onFailure(Throwable caught) {
+						label.setText(caught.getMessage());
+						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+					}
+
+					@Override
+					public void onSuccess(Void result) {
+						label.setText("EVERYTHING IS OK");
+
+					}
+				});
+
+			}
+		});
 
 	}
 
