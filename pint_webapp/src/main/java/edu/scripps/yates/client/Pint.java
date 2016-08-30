@@ -19,7 +19,6 @@ import edu.scripps.yates.client.gui.BrowsePanel;
 import edu.scripps.yates.client.gui.HelpPanel;
 import edu.scripps.yates.client.gui.MainPanel;
 import edu.scripps.yates.client.gui.PopUpPanelRedirector;
-import edu.scripps.yates.client.gui.ProjectCreator;
 import edu.scripps.yates.client.gui.ProjectCreatorWizard;
 import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.components.MyDialogBox;
@@ -35,7 +34,6 @@ import edu.scripps.yates.shared.util.CryptoUtil;
 public class Pint implements EntryPoint {
 
 	private QueryPanel queryPanel;
-	private ProjectCreator createProjectPanel;
 	private MainPanel mainPanel;
 	private BrowsePanel browsePanel;
 
@@ -43,8 +41,6 @@ public class Pint implements EntryPoint {
 	private String sessionID;
 
 	private MyDialogBox loadingDialog;
-
-	private ConfigurationPanel panel;
 
 	private ConfigurationPanel configurationPanel;
 
