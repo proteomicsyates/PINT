@@ -2,6 +2,7 @@ package edu.scripps.yates.client.gui.components.projectCreatorWizard;
 
 import java.util.Collection;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.regexp.shared.RegExp;
@@ -142,8 +143,13 @@ public class RegularExpressionTextBox extends Composite {
 	 * @return
 	 */
 	public RegExp getCurrentRegularExpression() {
-		if (checkRegularExpression())
-			return RegExp.compile(getCurrentRegularExpressionText());
+		if (checkRegularExpression()) {
+			try {
+				return RegExp.compile(getCurrentRegularExpressionText());
+			} catch (RuntimeException e) {
+				GWT.log(e.getMessage());
+			}
+		}
 		return null;
 	}
 

@@ -3,6 +3,7 @@ package edu.scripps.yates.client.gui.components.projectCreatorWizard;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.regexp.shared.MatchResult;
@@ -42,7 +43,7 @@ public class ProteinDescriptionPanel extends
 		Label lblRegularExpression = new Label("Regular expression:");
 		flexTable.setWidget(3, 0, lblRegularExpression);
 
-		regularExpression = new RegularExpressionTextBox(".*", 2);
+		regularExpression = new RegularExpressionTextBox(".*", 1);
 		reloadTableIfChange(regularExpression.getSuggestBox());
 		flexTable.setWidget(3, 1, regularExpression);
 		flexTable.getFlexCellFormatter().setColSpan(2, 0, 2);
@@ -100,10 +101,14 @@ public class ProteinDescriptionPanel extends
 				final ProteinDescriptionTypeBean proteinDescription = pair.getSecondElement();
 				if (proteinDescription != null) {
 					if (proteinDescription.getRegexp() != null) {
-						System.out.println(proteinDescription.getRegexp());
+						GWT.log("Regular expression for protein description: " + proteinDescription.getRegexp());
 						RegExp regexp = null;
 						if (proteinDescription.getRegexp() != null && !"".equals(proteinDescription.getRegexp())) {
-							regexp = RegExp.compile(proteinDescription.getRegexp());
+							try {
+								regexp = RegExp.compile(proteinDescription.getRegexp());
+							} catch (RuntimeException e) {
+								GWT.log(e.getMessage());
+							}
 						}
 						List<String> rawValues = new ArrayList<String>();
 						if (proteinDescription.isGroups() && proteinDescription.getGroupSeparator() != null

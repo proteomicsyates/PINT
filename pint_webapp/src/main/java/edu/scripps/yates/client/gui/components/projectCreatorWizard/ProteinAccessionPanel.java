@@ -3,6 +3,7 @@ package edu.scripps.yates.client.gui.components.projectCreatorWizard;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.regexp.shared.MatchResult;
@@ -42,7 +43,7 @@ public class ProteinAccessionPanel
 		Label lblRegularExpression = new Label("Regular expression:");
 		flexTable.setWidget(3, 0, lblRegularExpression);
 
-		regularExpression = new RegularExpressionTextBox(".*", 2);
+		regularExpression = new RegularExpressionTextBox(".*", 1);
 		reloadTableIfChange(regularExpression.getSuggestBox());
 		flexTable.setWidget(3, 1, regularExpression);
 		flexTable.getFlexCellFormatter().setColSpan(2, 0, 2);
@@ -139,8 +140,12 @@ public class ProteinAccessionPanel
 				if (proteinAccessionType != null) {
 					RegExp regexp = null;
 					if (proteinAccessionType.getRegexp() != null && !"".equals(proteinAccessionType.getRegexp())) {
-						System.out.println("Regular expression for accessions: " + proteinAccessionType.getRegexp());
-						regexp = RegExp.compile(proteinAccessionType.getRegexp());
+						GWT.log("Regular expression for accessions: " + proteinAccessionType.getRegexp());
+						try {
+							regexp = RegExp.compile(proteinAccessionType.getRegexp());
+						} catch (RuntimeException e) {
+							GWT.log(e.getMessage());
+						}
 					}
 					List<String> rawValues = new ArrayList<String>();
 					if (proteinAccessionType.isGroups() && proteinAccessionType.getGroupSeparator() != null

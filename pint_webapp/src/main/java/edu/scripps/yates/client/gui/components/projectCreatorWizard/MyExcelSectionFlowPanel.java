@@ -50,6 +50,7 @@ public class MyExcelSectionFlowPanel extends FlowPanel {
 
 				@Override
 				public void onMouseOver(MouseOverEvent event) {
+					MyExcelSectionFlowPanelSelector.getInstance().selectPanel(MyExcelSectionFlowPanel.this);
 					optionPanelContainer.setWidget(optionPanel);
 
 					ScrollPanel scrollPanel = new ScrollPanel();
@@ -71,6 +72,15 @@ public class MyExcelSectionFlowPanel extends FlowPanel {
 	public void removeFromParent() {
 		// TODO Auto-generated method stub
 		super.removeFromParent();
+	}
+
+	public void unselect() {
+		setStyleName("IdentificationInfoFromExcelHoverPanel");
+
+	}
+
+	public void select() {
+		setStyleName("IdentificationInfoFromExcelHoverPanelSelected");
 	}
 
 }
