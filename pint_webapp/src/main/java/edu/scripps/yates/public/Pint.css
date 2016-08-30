@@ -1636,7 +1636,24 @@ table td{
 	font-style: normal;	
 	color: black;
 }
+
 .configurationPanel_Status_Error{
 	font-weight: bold;
+	color: red;
+}
+.checkLoginPopUp-title{
+	font-size: 20px;
+    font-weight: bold;
+    padding-bottom: 20px;
+}
+.checkLoginPopUp-message{
+	font-size: 15px;
+}
+.checkLoginPopUp-grid{
+	padding: 10px 20px 10px 10px;
+}
+.checkLoginPopUp-status{
+	font-weight: bold;
+	font-size: 20px;
 	color: red;
 }

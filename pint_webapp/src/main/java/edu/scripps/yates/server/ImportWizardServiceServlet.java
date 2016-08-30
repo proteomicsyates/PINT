@@ -1069,7 +1069,9 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public void checkUserLogin(String userName, String encryptedPassword) throws PintException {
 		final String adminPassword = ConfigurationPropertiesIO.readProperties().getAdminPassword();
-		if (adminPassword.equals(encryptedPassword)) {
+		if (adminPassword == null || "".equals(adminPassword)) {
+			return;
+		} else if (adminPassword.equals(encryptedPassword)) {
 			return;
 		} else {
 			throw new PintException("Password is not correct", PINT_ERROR_TYPE.LOGIN_FAILED);

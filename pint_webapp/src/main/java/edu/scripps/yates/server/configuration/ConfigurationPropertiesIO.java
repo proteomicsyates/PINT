@@ -93,9 +93,15 @@ public class ConfigurationPropertiesIO {
 	private static PintConfigurationProperties readPintParametersFromProperties(Properties prop) {
 		PintConfigurationProperties ret = new PintConfigurationProperties();
 
-		final String property = prop.getProperty(OMIM_PROPERTY);
+		String property = prop.getProperty(OMIM_PROPERTY);
+		if (property != null) {
+			property = property.trim();
+		}
 		ret.setOmimKey(property);
-		final String property2 = prop.getProperty(ADMIN_PASSWORD_PROPERTY);
+		String property2 = prop.getProperty(ADMIN_PASSWORD_PROPERTY);
+		if (property2 != null) {
+			property2 = property2.trim();
+		}
 		ret.setAdminPassword(property2);
 
 		return ret;

@@ -2,6 +2,8 @@ package edu.scripps.yates.client.gui;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
@@ -12,7 +14,9 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.InlineHTML;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.Pint;
 import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
@@ -178,9 +182,31 @@ public class MainPanel extends Composite {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				pintEntryPoint.startupConfiguration(true);
+				checkLoginBeforeStartconfiguration();
 			}
 		});
+	}
+
+	protected void checkLoginBeforeStartconfiguration() {
+		// check first the login
+		PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
+				"Enter admin password to enter in PINT configuration:");
+		loginPanel.addCloseHandler(new CloseHandler<PopupPanel>() {
+
+			@Override
+			public void onClose(CloseEvent<PopupPanel> event) {
+				final PopupPanel popup = event.getTarget();
+				final Widget widget = popup.getWidget();
+				if (widget instanceof PopUpPanelPasswordChecker) {
+					PopUpPanelPasswordChecker loginPanel = (PopUpPanelPasswordChecker) widget;
+					if (loginPanel.isLoginOK()) {
+						pintEntryPoint.startupConfiguration(true);
+					}
+				}
+			}
+		});
+		loginPanel.show();
+
 	}
 
 	public void loadStatistics() {
