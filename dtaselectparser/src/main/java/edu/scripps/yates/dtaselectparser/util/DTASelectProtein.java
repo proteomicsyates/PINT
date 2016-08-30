@@ -34,6 +34,7 @@ public class DTASelectProtein {
 	private String searchEngine;
 
 	public DTASelectProtein(String lineToParse, HashMap<String, Integer> positions) {
+		// log.info("Creating protein from line: " + lineToParse);
 		final String[] elements = lineToParse.split("\t");
 		id = elements[positions.get(ID)];
 		spcount = Integer.parseInt(elements[positions.get(SP_COUNT)]);

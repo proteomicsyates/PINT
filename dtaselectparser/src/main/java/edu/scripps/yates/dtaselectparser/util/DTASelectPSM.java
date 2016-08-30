@@ -6,9 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
+import edu.scripps.yates.dtaselectparser.DTASelectParser;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 
 public class DTASelectPSM {
+	private static final Logger log = Logger.getLogger(DTASelectParser.class);
 	public static final Map<String, DTASelectPSM> map = new HashMap<String, DTASelectPSM>();
 	public static final String PSM_ID = "FileName";
 	private static final String XCORR = "XCorr";
@@ -52,6 +56,7 @@ public class DTASelectPSM {
 	private String msRunId;
 
 	public DTASelectPSM(String dtaSelectRow, HashMap<String, Integer> positions, String runPath) {
+		// log.info("Creating PSM from line: " + dtaSelectRow);
 
 		this.runPath = runPath;
 		// parse the headerRow

@@ -33,10 +33,6 @@ import edu.scripps.yates.dtaselectparser.util.DTASelectProteinGroup;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 
-/**
- * @author diego
- *
- */
 public class DTASelectParser {
 	private static final Logger log = Logger.getLogger(DTASelectParser.class);
 	private final HashMap<String, DTASelectProtein> proteinsTable = new HashMap<String, DTASelectProtein>();
@@ -48,7 +44,6 @@ public class DTASelectParser {
 	private final List<String> keys = new ArrayList<String>();
 	public static final String PROLUCID = "ProLuCID";
 	public static final String SEQUEST = "Sequest";
-	private boolean dtaselect;
 	private String runPath;
 	private DBIndexInterface dbIndex;
 	private boolean processed = false;
@@ -104,224 +99,249 @@ public class DTASelectParser {
 		HashMap<String, Integer> proteinHeaderPositions = new HashMap<String, Integer>();
 		int numDecoy = 0;
 		for (String runId : fs.keySet()) {
-			log.info("Reading " + runId + "...");
-			InputStream f = fs.get(runId);
-			BufferedInputStream bis = new BufferedInputStream(f);
-			BufferedReader dis = new BufferedReader(new InputStreamReader(bis));
+			log.info("Reading input stream: " + runId + "...");
 
-			String line;
-			int numLine = 0;
-			int searchEngineLine = -1;
-			boolean intro = false;
-			boolean conclusion = false;
-			boolean isPsm = false;
-			boolean subsetProteinsRemoved = false;
-			while ((line = dis.readLine()) != null) {
-				numLine++;
-				if (numLine == 1) {
-					dtaSelectVersion = line.split(" ")[1];
-				}
-				if (numLine == 2) {
-					runPath = line.trim();
-				}
-				if (numLine == 3) {
-					fastaPath = line.trim();
-				}
-				if (line.toLowerCase().startsWith(SEQUEST.toLowerCase())) {
-					searchEngineLine = numLine;
-					searchEngines.add(SEQUEST);
-					setSearchEngineVersion(line.split(" ")[1]);
-				}
-				if (line.toLowerCase().startsWith(PROLUCID.toLowerCase())) {
-					searchEngineLine = numLine;
-					searchEngines.add(PROLUCID);
-					setSearchEngineVersion(line.split(" ")[1]);
-				}
-				if (numLine == searchEngineLine + 1) {
-					commandLineParameterStrings.add(line);
-					commandLineParameter = new DTASelectCommandLineParameters(line);
-				}
-				if (line.startsWith("DTASelect")) {
-					// DTASelectProtein p = new DTASelectProtein("DTA", 0, 0, 0,
-					// line);
-					// ptable.put("DTA", p);
-					intro = true;
-					continue;
-				}
-				if (line.startsWith("Locus")) {
-					// parse psm header positions
-					String[] splitted = line.split("\t");
-					for (int position = 0; position < splitted.length; position++) {
-						String header = splitted[position];
-						proteinHeaderPositions.put(header, position);
-					}
+			InputStream f = null;
+			try {
+				f = fs.get(runId);
 
-					// DTASelectProtein p = new DTASelectProtein("Title", 0, 0,
-					// 0,
-					// line);
-					// ptable.put("Title", p);
-					intro = false;
-					continue;
-				}
-				if (line.startsWith("Unique")) {
-					// parse psm header positions
-					String[] splitted = line.split("\t");
-					for (int position = 0; position < splitted.length; position++) {
-						String header = splitted[position];
-						psmHeaderPositions.put(header, position);
-					}
+				BufferedInputStream bis = new BufferedInputStream(f);
+				BufferedReader dis = new BufferedReader(new InputStreamReader(bis));
 
-					// DTASelectProtein p = new DTASelectProtein("Unique", 0, 0,
-					// 0, line);
-					// ptable.put("Unique", p);
-					continue;
-				}
-				if (intro) {
-					if (line.contains("Remove subset proteins")) {
-						final String[] splitted = line.split("\t");
-						if ("TRUE".equals(splitted[0])) {
-							subsetProteinsRemoved = true;
-						}
-					}
-					// DTASelectProtein p = ptable.get("DTA");
-					// p.addExtra(line);
-					continue;
-				}
-				if (conclusion) {
-					// DTASelectProtein p = ptable.get("Conclusion");
-					// p.addExtra(line);
-					continue;
-				}
-
-				String[] elements = line.split("\t");
-				// if (elements[1].equals("DTASelectProteins")) {
-				if (elements[1].equals("Proteins")) {
-					conclusion = true;
-					// DTASelectProtein p = new DTASelectProtein("Conclusion",
-					// 0,
-					// 0, 0, line);
-					// ptable.put("Conclusion", p);
-					continue;
-				}
-
-				// this is the case of a protein
-				if (isNumeric(elements[1])) {
-
-					// if comes from a psm line, clear the current group of
-					// proteins
-					if (isPsm && dbIndex == null) {
-						dtaSelectProteinGroups.add(currentProteinGroup);
-
-						// restart the protein group
-						currentProteinGroup = new DTASelectProteinGroup();
-
-					}
-					// if (dbIndex == null) {
-					DTASelectProtein p = new DTASelectProtein(line, proteinHeaderPositions);
-					if (proteinsTable.containsKey(p.getLocus())) {
-						DTASelectProtein p2 = proteinsTable.get(p.getLocus());
-						p = mergeProteins(p, p2);
-					}
-					if (!searchEngines.isEmpty())
-						p.setSearchEngine(searchEngines.iterator().next());
-					boolean skip = false;
-					if (decoyPattern != null) {
-						final Matcher matcher = decoyPattern.matcher(p.getLocus());
-						if (matcher.find()) {
-							numDecoy++;
-							skip = true;
-						}
-					}
-					if (!skip) {
-						proteinsTable.put(p.getLocus(), p);
-						keys.add(p.getLocus());
-						currentProteinGroup.add(p);
-					}
+				String line;
+				int numLine = 0;
+				int searchEngineLine = -1;
+				boolean intro = false;
+				boolean conclusion = false;
+				boolean isPsm = false;
+				while ((line = dis.readLine()) != null) {
+					numLine++;
+					// if (numLine % 10 == 0) {
+					// log.info(numLine + " lines readed");
 					// }
-					isPsm = false;
-				} else {
-					// this is the case of a psm
-					isPsm = true;
-					String psmID = getPSMIdentifier(line, psmHeaderPositions);
-					DTASelectPSM psm;
-					if (psmTableByPSMID.containsKey(psmID)) {
-						psm = psmTableByPSMID.get(psmID);
-					} else {
-						psm = new DTASelectPSM(line, psmHeaderPositions, runPath);
-						if (!searchEngines.isEmpty())
-							psm.setSearchEngine(searchEngines.iterator().next());
-						if (!spectraFileNames.contains(psm.getSpectraFileName())) {
-							spectraFileNames.add(psm.getSpectraFileName());
-							log.debug(psm.getSpectraFileName() + " added to a set of " + spectraFileNames.size()
-									+ " spectra file names in total");
+					// log.info(line);
+					if (numLine == 1) {
+						dtaSelectVersion = line.split(" ")[1];
+					}
+					if (numLine == 2) {
+						runPath = line.trim();
+					}
+					if (numLine == 3) {
+						fastaPath = line.trim();
+					}
+					if (line.toLowerCase().startsWith(SEQUEST.toLowerCase())) {
+						searchEngineLine = numLine;
+						searchEngines.add(SEQUEST);
+						setSearchEngineVersion(line.split(" ")[1]);
+					}
+					if (line.toLowerCase().startsWith(PROLUCID.toLowerCase())) {
+						searchEngineLine = numLine;
+						searchEngines.add(PROLUCID);
+						setSearchEngineVersion(line.split(" ")[1]);
+					}
+					if (numLine == searchEngineLine + 1) {
+						commandLineParameterStrings.add(line);
+						commandLineParameter = new DTASelectCommandLineParameters(line);
+					}
+					if (line.startsWith("DTASelect")) {
+						// DTASelectProtein p = new DTASelectProtein("DTA", 0,
+						// 0, 0,
+						// line);
+						// ptable.put("DTA", p);
+						intro = true;
+						continue;
+					}
+					if (line.startsWith("Locus")) {
+						// parse psm header positions
+						String[] splitted = line.split("\t");
+						for (int position = 0; position < splitted.length; position++) {
+							String header = splitted[position];
+							proteinHeaderPositions.put(header, position);
 						}
-						String spectraFileFullPath = new File(runId).getParent() + File.separator
-								+ psm.getSpectraFileName() + ".ms2";
-						if (!spectraFileFullPaths.contains(spectraFileFullPath)) {
-							spectraFileFullPaths.add(spectraFileFullPath);
-							log.debug(spectraFileFullPath + " added to a set of " + spectraFileFullPaths.size()
-									+ " spectra paths in total");
+
+						// DTASelectProtein p = new DTASelectProtein("Title", 0,
+						// 0,
+						// 0,
+						// line);
+						// ptable.put("Title", p);
+						intro = false;
+						continue;
+					}
+					if (line.startsWith("Unique")) {
+						// parse psm header positions
+						String[] splitted = line.split("\t");
+						for (int position = 0; position < splitted.length; position++) {
+							String header = splitted[position];
+							psmHeaderPositions.put(header, position);
 						}
-						psmTableByPSMID.put(psm.getPsmIdentifier(), psm);
-						addTopsmTable(psm);
-						// if there is an indexed Fasta, look into it to get the
+
+						// DTASelectProtein p = new DTASelectProtein("Unique",
+						// 0, 0,
+						// 0, line);
+						// ptable.put("Unique", p);
+						continue;
+					}
+					if (intro) {
+						if (line.contains("Remove subset proteins")) {
+							final String[] splitted = line.split("\t");
+							if ("TRUE".equals(splitted[0])) {
+							}
+						}
+						// DTASelectProtein p = ptable.get("DTA");
+						// p.addExtra(line);
+						continue;
+					}
+					if (conclusion) {
+						// DTASelectProtein p = ptable.get("Conclusion");
+						// p.addExtra(line);
+						continue;
+					}
+
+					String[] elements = line.split("\t");
+					// if (elements[1].equals("DTASelectProteins")) {
+					if (elements[1].equals("Proteins")) {
+						conclusion = true;
+						// DTASelectProtein p = new
+						// DTASelectProtein("Conclusion",
+						// 0,
+						// 0, 0, line);
+						// ptable.put("Conclusion", p);
+						continue;
+					}
+
+					// this is the case of a protein
+					if (isNumeric(elements[1])) {
+
+						// if comes from a psm line, clear the current group of
 						// proteins
-						if (dbIndex != null) {
-							Set<IndexedProtein> indexedProteins = dbIndex.getProteins(psm.getSequence().getSequence());
-							if (indexedProteins != null) {
-								log.debug(indexedProteins.size() + " proteins contains "
-										+ psm.getSequence().getSequence() + " on fasta file");
-								for (IndexedProtein indexedProtein : indexedProteins) {
-									final String indexedAccession = indexedProtein.getAccession();
-									// we should take into account that in the
-									// indexed database you may have decoy hits
-									// that you want to avoid
-									if (decoyPattern != null) {
-										final Matcher matcher = decoyPattern.matcher(indexedAccession);
-										if (matcher.find()) {
-											numDecoy++;
-											continue;
+						if (isPsm && dbIndex == null) {
+							dtaSelectProteinGroups.add(currentProteinGroup);
+
+							// restart the protein group
+							currentProteinGroup = new DTASelectProteinGroup();
+
+						}
+						// if (dbIndex == null) {
+						DTASelectProtein p = new DTASelectProtein(line, proteinHeaderPositions);
+						if (proteinsTable.containsKey(p.getLocus())) {
+							DTASelectProtein p2 = proteinsTable.get(p.getLocus());
+							p = mergeProteins(p, p2);
+						}
+						if (!searchEngines.isEmpty())
+							p.setSearchEngine(searchEngines.iterator().next());
+						boolean skip = false;
+						if (decoyPattern != null) {
+							final Matcher matcher = decoyPattern.matcher(p.getLocus());
+							if (matcher.find()) {
+								numDecoy++;
+								skip = true;
+							}
+						}
+						if (!skip) {
+							proteinsTable.put(p.getLocus(), p);
+							keys.add(p.getLocus());
+							currentProteinGroup.add(p);
+						}
+						// }
+						isPsm = false;
+					} else {
+						// this is the case of a psm
+						isPsm = true;
+						String psmID = getPSMIdentifier(line, psmHeaderPositions);
+						DTASelectPSM psm;
+						if (psmTableByPSMID.containsKey(psmID)) {
+							psm = psmTableByPSMID.get(psmID);
+						} else {
+							psm = new DTASelectPSM(line, psmHeaderPositions, runPath);
+							if (!searchEngines.isEmpty())
+								psm.setSearchEngine(searchEngines.iterator().next());
+							if (!spectraFileNames.contains(psm.getSpectraFileName())) {
+								spectraFileNames.add(psm.getSpectraFileName());
+								log.debug(psm.getSpectraFileName() + " added to a set of " + spectraFileNames.size()
+										+ " spectra file names in total");
+							}
+							String spectraFileFullPath = new File(runId).getParent() + File.separator
+									+ psm.getSpectraFileName() + ".ms2";
+							if (!spectraFileFullPaths.contains(spectraFileFullPath)) {
+								spectraFileFullPaths.add(spectraFileFullPath);
+								log.debug(spectraFileFullPath + " added to a set of " + spectraFileFullPaths.size()
+										+ " spectra paths in total");
+							}
+							psmTableByPSMID.put(psm.getPsmIdentifier(), psm);
+							addTopsmTable(psm);
+							// if there is an indexed Fasta, look into it to get
+							// the
+							// proteins
+							if (dbIndex != null) {
+								Set<IndexedProtein> indexedProteins = dbIndex
+										.getProteins(psm.getSequence().getSequence());
+								if (indexedProteins != null) {
+									log.debug(indexedProteins.size() + " proteins contains "
+											+ psm.getSequence().getSequence() + " on fasta file");
+									for (IndexedProtein indexedProtein : indexedProteins) {
+										final String indexedAccession = indexedProtein.getAccession();
+										// we should take into account that in
+										// the
+										// indexed database you may have decoy
+										// hits
+										// that you want to avoid
+										if (decoyPattern != null) {
+											final Matcher matcher = decoyPattern.matcher(indexedAccession);
+											if (matcher.find()) {
+												numDecoy++;
+												continue;
+											}
 										}
+										keys.add(indexedAccession);
+										DTASelectProtein protein = null;
+										if (proteinsTable.containsKey(indexedAccession)) {
+											protein = proteinsTable.get(indexedAccession);
+										} else {
+											protein = new DTASelectProtein(indexedProtein);
+											proteinsTable.put(indexedAccession, protein);
+										}
+										// add the psm to the protein and
+										// vice-versa
+										psm.addProtein(protein);
+										protein.addPSM(psm);
 									}
-									keys.add(indexedAccession);
-									DTASelectProtein protein = null;
-									if (proteinsTable.containsKey(indexedAccession)) {
-										protein = proteinsTable.get(indexedAccession);
-									} else {
-										protein = new DTASelectProtein(indexedProtein);
-										proteinsTable.put(indexedAccession, protein);
-									}
-									// add the psm to the protein and vice-versa
-									psm.addProtein(protein);
-									protein.addPSM(psm);
 								}
 							}
 						}
-					}
-					final String scanNumber = psm.getScan();
-					// add to the table by scan number
-					if (!psmTableByScanNumber.containsKey(scanNumber)) {
-						psmTableByScanNumber.put(scanNumber, psm);
-					}
+						final String scanNumber = psm.getScan();
+						// add to the table by scan number
+						if (!psmTableByScanNumber.containsKey(scanNumber)) {
+							psmTableByScanNumber.put(scanNumber, psm);
+						}
 
-					if (dbIndex == null) {
-						// add the PSM to all the proteins in the current group
-						// and all the proteins to the psm
-						for (DTASelectProtein prot : currentProteinGroup) {
-							prot.addPSM(psm);
-							psm.addProtein(prot);
+						if (dbIndex == null) {
+							// add the PSM to all the proteins in the current
+							// group
+							// and all the proteins to the psm
+							for (DTASelectProtein prot : currentProteinGroup) {
+								prot.addPSM(psm);
+								psm.addProtein(prot);
+							}
 						}
 					}
+
 				}
-
-			}
-			try {
-				f.close();
-			} catch (IOException e) {
-
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.error(e.getMessage());
+				throw e;
+			} finally {
+				try {
+					if (f != null) {
+						log.info("Closing input stream");
+						f.close();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+					log.error(e.getMessage());
+				}
 			}
 		}
-
 		processed = true;
 		log.info(proteinsTable.size() + " proteins readed in " + this.fs.size() + " DTASelect file(s).");
 		log.info(psmTableByPSMID.size() + " psms readed in " + this.fs.size() + " DTASelect file(s).");
@@ -360,8 +380,11 @@ public class DTASelectParser {
 		String[] elements = line.split("\t");
 
 		String psmIdentifier = elements[positions.get(DTASelectPSM.PSM_ID)];
+		// log.info("PSM id: " + psmIdentifier);
 		String scan = FastaParser.getScanFromPSMIdentifier(psmIdentifier);
+		// log.info("scan number: " + scan);
 		String fileName = FastaParser.getFileNameFromPSMIdentifier(psmIdentifier);
+		// log.info("file name: " + fileName);
 		return fileName + "-" + scan;
 	}
 
