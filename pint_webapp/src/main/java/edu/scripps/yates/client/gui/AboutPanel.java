@@ -97,12 +97,14 @@ public class AboutPanel extends InitializableComposite {
 		verticalPanel_1.add(horizontalPanelImages);
 
 		final MyClientBundle myClientBundle = MyClientBundle.INSTANCE;
-		Image tsriLogo = new Image(myClientBundle.tsrilogo());
-		tsriLogo.setStyleName("imagesHeader");
-		horizontalPanelImages.add(tsriLogo);
-		Image imageLogo = new Image(myClientBundle.yatesLabSmall());
-		imageLogo.setStyleName("imagesHeader");
-		horizontalPanelImages.add(imageLogo);
+		Image logo1 = new Image(myClientBundle.yateslablogo());
+		logo1.setTitle("YATES Laboratory");
+		logo1.setStyleName("imagesHeader");
+		horizontalPanelImages.add(logo1);
+		Image logo2 = new Image(myClientBundle.tsrilogo());
+		logo2.setTitle("TSRI: The Scripps Research Institute");
+		logo2.setStyleName("imagesHeader");
+		horizontalPanelImages.add(logo2);
 
 	}
 

@@ -23,8 +23,9 @@ import edu.scripps.yates.client.gui.components.HtmlList;
 import edu.scripps.yates.client.gui.components.HtmlList.ListType;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
+import edu.scripps.yates.client.interfaces.StatusReporter;
 
-public class MainPanel extends InitializableComposite {
+public class MainPanel extends InitializableComposite implements StatusReporter {
 
 	protected final edu.scripps.yates.client.ProteinRetrievalServiceAsync proteinRetrievingService = ProteinRetrievalServiceAsync.Util
 			.getInstance();
@@ -96,6 +97,7 @@ public class MainPanel extends InitializableComposite {
 		dataStatsVerticalPanel.add(nlnhtmlNewInlinehtml);
 
 		listItemPanel = new HtmlList(ListType.UNORDERED);
+		listItemPanel.setStyleName("mainPageDataStatistics-numbers");
 		dataStatsVerticalPanel.add(listItemPanel);
 		listItemPanel.addItem("Loading number of projects...", null);
 		listItemPanel.addItem("Loading number of exp. conditions...", null);
@@ -286,6 +288,18 @@ public class MainPanel extends InitializableComposite {
 
 	@Override
 	public void initialize() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void showMessage(String message) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void showErrorMessage(Throwable throwable) {
 		// TODO Auto-generated method stub
 
 	}

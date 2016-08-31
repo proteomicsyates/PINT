@@ -10,8 +10,11 @@ public interface MyClientBundle extends ClientBundle {
 	// @Source("edu/scripps/yates/public/Pint.css")
 	// public MyCss css();
 
-	@Source("tsrilogo.gif")
+	@Source("tsrilogo.jpg")
 	public ImageResource tsrilogo();
+
+	@Source("yateslogo.jpg")
+	public ImageResource yateslablogo();
 
 	@Source("yateslab_small.gif")
 	public ImageResource yatesLabSmall();
