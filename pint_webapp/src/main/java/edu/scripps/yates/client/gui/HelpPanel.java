@@ -1,5 +1,6 @@
 package edu.scripps.yates.client.gui;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -45,12 +46,15 @@ public class HelpPanel extends InitializableComposite {
 		horizontalPanel.setStyleName("verticalComponent");
 		verticalPanel.add(horizontalPanel);
 
+		int fontsize = 17;
 		InlineLabel nlnlblSourceCodeAnd = new InlineLabel(
-				"Source code and additional information is located in the following GitHub page:");
+				"Source code and additional information is located in the following GitHub page: ");
+		nlnlblSourceCodeAnd.getElement().getStyle().setFontSize(fontsize, Unit.PX);
 		horizontalPanel.add(nlnlblSourceCodeAnd);
 
 		InlineHTML nlnhtmlNewInlinehtml_1 = new InlineHTML(
-				"<a href=\"https://github.com/smdb21/proteomics-integrator-pint\" target=\"_blank\" class=\"linkPINT\">PINT on GitHub</a>");
+				"<a href=\"https://github.com/proteomicsyates/pint\" target=\"_blank\" class=\"linkPINT\">PINT on GitHub</a>");
+		nlnhtmlNewInlinehtml_1.getElement().getStyle().setFontSize(fontsize, Unit.PX);
 		horizontalPanel.add(nlnhtmlNewInlinehtml_1);
 
 		HorizontalPanel horizontalPanel_1 = new HorizontalPanel();
@@ -58,10 +62,12 @@ public class HelpPanel extends InitializableComposite {
 		verticalPanel.add(horizontalPanel_1);
 
 		InlineLabel nlnlblNewInlinelabel = new InlineLabel("Guide for quering and filtering the data in PINT: ");
+		nlnlblNewInlinelabel.getElement().getStyle().setFontSize(fontsize, Unit.PX);
 		horizontalPanel_1.add(nlnlblNewInlinelabel);
 
 		InlineHTML nlnhtmlhowToQuery = new InlineHTML(
 				"<a href=\"PINT_help_Query_Commands.pdf\" target=\"_blank\" class=\"linkPINT\">How to query data in PINT [PDF]</a>");
+		nlnhtmlhowToQuery.getElement().getStyle().setFontSize(fontsize, Unit.PX);
 		horizontalPanel_1.add(nlnhtmlhowToQuery);
 
 		FlowPanel flowPanel = new FlowPanel();

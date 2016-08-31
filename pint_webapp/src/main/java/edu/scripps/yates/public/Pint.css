@@ -1108,8 +1108,7 @@
 .helpExplanation {
 	color: Black;
 	margin: 20px 5% 5% 10%;
-	padding-top: 20px;
-	
+	font-size: 13px;
 }
 
 .helpMainPanel {
