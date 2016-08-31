@@ -24,27 +24,26 @@ public class HeaderPanel extends Composite {
 		FlowPanel scrippsLogoHorizontalPanel = new FlowPanel();
 		scrippsLogoHorizontalPanel.setStyleName("whiteBackground");
 
-		mainPanel.add(scrippsLogoHorizontalPanel);
+		// mainPanel.add(scrippsLogoHorizontalPanel);
 
 		Image image = new Image(myClientBundle.tsrilogo());
 		image.setStyleName("imagesHeader");
 		scrippsLogoHorizontalPanel.add(image);
 		// Image("images/tsrilogo.gif");
-		image.setAltText("The Scripps Research Institute");
+		image.setTitle("The Scripps Research Institute");
 		image.setSize("70px", "40px");
 
 		Image image_1 = new Image(myClientBundle.yatesLabSmall());
 		image_1.setStyleName("imagesHeader");
 		scrippsLogoHorizontalPanel.add(image_1);
-		image_1.setAltText("Yates Lab");
+		image_1.setTitle("Yates Laboratory");
 		image_1.setSize("120px", "40px");
 
 		DockPanel pintLogoHorizontalPanel = new DockPanel();
 		pintLogoHorizontalPanel.setBorderWidth(0);
 		pintLogoHorizontalPanel.setStyleName("header");
 		pintLogoHorizontalPanel.setSpacing(10);
-		pintLogoHorizontalPanel
-				.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		pintLogoHorizontalPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		mainPanel.add(pintLogoHorizontalPanel);
 
 		InlineHTML nlnhtmlPint = new InlineHTML("PINT");
@@ -52,13 +51,10 @@ public class HeaderPanel extends Composite {
 		nlnhtmlPint.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		pintLogoHorizontalPanel.add(nlnhtmlPint, DockPanel.WEST);
 
-		InlineHTML nlnhtmlProteomicsIntegrator = new InlineHTML(
-				"Proteomics INTegrator");
+		InlineHTML nlnhtmlProteomicsIntegrator = new InlineHTML("Proteomics INTegrator");
 		nlnhtmlProteomicsIntegrator.setStyleName("proteomics_integrator");
-		nlnhtmlProteomicsIntegrator
-				.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		pintLogoHorizontalPanel
-				.add(nlnhtmlProteomicsIntegrator, DockPanel.WEST);
+		nlnhtmlProteomicsIntegrator.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		pintLogoHorizontalPanel.add(nlnhtmlProteomicsIntegrator, DockPanel.WEST);
 		nlnhtmlProteomicsIntegrator.setWidth("95%");
 
 		// TODO
@@ -130,8 +126,7 @@ public class HeaderPanel extends Composite {
 		menuHorizontalPanel.add(emptyPanel);
 		emptyPanel.setSize("100px", "30px");
 
-		Hyperlink registerHyperlink = new Hyperlink("Register", false,
-				"register");
+		Hyperlink registerHyperlink = new Hyperlink("Register", false, "register");
 		registerHyperlink.setStyleName("menu2button");
 		menuHorizontalPanel.add(registerHyperlink);
 		registerHyperlink.setWidth("");

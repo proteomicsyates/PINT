@@ -1,5 +1,6 @@
 package edu.scripps.yates.client.gui;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -47,7 +48,7 @@ public class PopUpPanelYesNo extends VerticalPanel {
 		popup = new PopupPanel(autoHide, modal);
 		popup.setAutoHideOnHistoryEventsEnabled(true);
 		popup.setAnimationEnabled(true);
-
+		popup.getElement().getStyle().setProperty("borderRadius", 10, Unit.PX);
 		HTML message = new HTML(new SafeHtmlBuilder().appendEscapedLines(messageText).toSafeHtml());
 		message.setStyleName("checkLoginPopUp-message");
 		this.add(message);

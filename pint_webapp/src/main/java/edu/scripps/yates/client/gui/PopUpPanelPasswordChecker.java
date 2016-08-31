@@ -1,6 +1,7 @@
 package edu.scripps.yates.client.gui;
 
 import com.google.gwt.core.shared.GWT;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -55,6 +56,7 @@ public class PopUpPanelPasswordChecker extends VerticalPanel {
 		popup = new PopupPanel(autoHide, modal);
 		popup.setAutoHideOnHistoryEventsEnabled(true);
 		popup.setAnimationEnabled(true);
+		popup.getElement().getStyle().setProperty("borderRadius", 10, Unit.PX);
 
 		// popup.setStyleName("mypopUpPanel");
 		listenerToButton = new ClickHandler() {

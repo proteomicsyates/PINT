@@ -1,5 +1,6 @@
 package edu.scripps.yates.client.gui;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
@@ -34,6 +35,8 @@ public class PopUpPanelRedirector extends VerticalPanel {
 		popup = new PopupPanel(autoHide, modal);
 		popup.setAutoHideOnHistoryEventsEnabled(true);
 		popup.setAnimationEnabled(true);
+		popup.getElement().getStyle().setProperty("borderRadius", 10, Unit.PX);
+
 		if (titleText != null)
 			popup.setTitle(titleText);
 
