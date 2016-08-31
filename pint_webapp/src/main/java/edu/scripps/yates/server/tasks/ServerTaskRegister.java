@@ -83,7 +83,7 @@ public class ServerTaskRegister {
 		}
 	}
 
-	public static void endTask(Task task2) {
+	public static synchronized void endTask(Task task2) {
 		try {
 			if (task2 == null)
 				return;
