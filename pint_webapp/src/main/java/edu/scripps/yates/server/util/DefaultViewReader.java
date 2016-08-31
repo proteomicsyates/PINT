@@ -388,6 +388,11 @@ public class DefaultViewReader {
 			writer.write("If empty, all data will be loaded." + NEWLINE);
 			writer.write("If stated, it should be explained in the '" + ServerConstants.PROJECT_INSTRUCTIONS + "' line"
 					+ NEWLINE);
+			writer.write(
+					"For giving a description to the query, separate it with '###' as:  'MT      default query string=Core interactome ### THR[Xcscorefilter, true]'"
+							+ NEWLINE);
+			writer.write("Multiple " + ServerConstants.DEFAULT_VIEW_METADATA + " lines are allowed." + NEWLINE);
+
 			writer.write(ServerConstants.DEFAULT_VIEW_METADATA + "\t" + ServerConstants.DEFAULT_QUERY_STRING + "="
 					+ NEWLINE + NEWLINE);
 			// default tab
