@@ -206,7 +206,7 @@ public class IntegrationResultWrapper {
 			fis = new FileInputStream(file);
 			br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 			while ((line = br.readLine()) != null) {
-				if (line.trim().startsWith("#") || line.trim().startsWith("idsup")) {
+				if (line.trim().startsWith("#") || line.trim().startsWith("id")) {
 					continue;
 				}
 				if (line.contains("\t")) {
