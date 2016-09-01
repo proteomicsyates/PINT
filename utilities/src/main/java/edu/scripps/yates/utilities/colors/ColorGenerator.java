@@ -8,7 +8,7 @@ public class ColorGenerator {
 	/**
 	 * Scale a color by multiplying a factor. Values greater than 1 will add for
 	 * bright
-	 * 
+	 *
 	 * @param c
 	 * @param scale
 	 * @return
@@ -80,7 +80,7 @@ public class ColorGenerator {
 		// transform to an scale from 0 to maximum
 		float normalizedNumber = ((value - minimum) / (maximum - minimum)) * (maximum - 0) + 0;
 
-		System.out.println(value + " normalized to " + normalizedNumber);
+		// System.out.println(value + " normalized to " + normalizedNumber);
 		return getColor(normalizedNumber, maximum, minColor, maxColor);
 	}
 
