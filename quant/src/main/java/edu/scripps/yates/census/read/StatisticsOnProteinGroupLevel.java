@@ -17,9 +17,9 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.census.analysis.util.KeyUtils;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedPSM;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedProtein;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
-import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.util.CensusChroUtil;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.utilities.grouping.GroupablePSM;
@@ -218,13 +218,15 @@ public class StatisticsOnProteinGroupLevel {
 		Set<String> ret = new HashSet<String>();
 		for (GroupableProtein protein : proteinGroup) {
 			if (protein instanceof IsobaricQuantifiedProtein) {
-				final String taxonomy = ((IsobaricQuantifiedProtein) protein).getTaxonomy();
-				if (taxonomy != null) {
-					final UniprotOrganism uniprotOrganism = UniprotSpeciesCodeMap.getInstance().get(taxonomy);
-					if (uniprotOrganism != null) {
-						ret.add(uniprotOrganism.getScientificName());
-					} else {
-						ret.add(taxonomy);
+				final Set<String> taxonomies = ((IsobaricQuantifiedProtein) protein).getTaxonomies();
+				if (taxonomies != null) {
+					for (String taxonomy : taxonomies) {
+						final UniprotOrganism uniprotOrganism = UniprotSpeciesCodeMap.getInstance().get(taxonomy);
+						if (uniprotOrganism != null) {
+							ret.add(uniprotOrganism.getScientificName());
+						} else {
+							ret.add(taxonomy);
+						}
 					}
 				}
 			}

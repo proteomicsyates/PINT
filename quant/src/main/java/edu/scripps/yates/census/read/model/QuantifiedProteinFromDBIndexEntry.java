@@ -132,7 +132,7 @@ public class QuantifiedProteinFromDBIndexEntry extends AbstractContainsQuantifie
 	}
 
 	@Override
-	public String getTaxonomy() {
+	public Set<String> getTaxonomies() {
 		if (taxonomy == null) {
 			String fastaHeader = null;
 
@@ -144,7 +144,9 @@ public class QuantifiedProteinFromDBIndexEntry extends AbstractContainsQuantifie
 					accession);
 			taxonomy = organismNameFromFastaHeader;
 		}
-		return taxonomy;
+		Set<String> set = new HashSet<String>();
+		set.add(taxonomy);
+		return set;
 	}
 
 	@Override

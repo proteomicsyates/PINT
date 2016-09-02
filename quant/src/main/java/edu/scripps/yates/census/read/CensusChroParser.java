@@ -328,7 +328,7 @@ public class CensusChroParser extends AbstractIsobaricQuantParser {
 	private void registerProteins(QuantifiedProteinInterface protein, String experimentKey, QuantifiedPSMInterface psm,
 			IsobaricQuantifiedPeptide peptide, String remoteFilePath) {
 		// add protein to protein map
-		taxonomies.add(protein.getTaxonomy());
+		taxonomies.addAll(protein.getTaxonomies());
 		// add to protein-experiment map
 		addToMap(experimentKey, experimentToProteinsMap, protein.getAccession());
 		// add psm to the protein

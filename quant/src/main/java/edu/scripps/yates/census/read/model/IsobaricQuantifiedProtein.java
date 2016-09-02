@@ -252,7 +252,7 @@ public class IsobaricQuantifiedProtein extends AbstractContainsQuantifiedPSMs im
 	}
 
 	@Override
-	public String getTaxonomy() {
+	public Set<String> getTaxonomies() {
 		if (taxonomy == null) {
 			String fastaHeader = null;
 			final String accession = getAccession();
@@ -263,7 +263,9 @@ public class IsobaricQuantifiedProtein extends AbstractContainsQuantifiedPSMs im
 					accession);
 			taxonomy = organismNameFromFastaHeader;
 		}
-		return taxonomy;
+		Set<String> set = new HashSet<String>();
+		set.add(taxonomy);
+		return set;
 	}
 
 	@Override

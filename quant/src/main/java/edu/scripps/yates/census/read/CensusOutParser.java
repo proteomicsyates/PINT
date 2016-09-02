@@ -729,7 +729,7 @@ public class CensusOutParser extends AbstractQuantParser {
 				QuantStaticMaps.proteinMap.addItem(newQuantifiedProtein);
 				newQuantifiedProtein.addFileName(inputFileName);
 				// add protein to protein map
-				taxonomies.add(newQuantifiedProtein.getTaxonomy());
+				taxonomies.addAll(newQuantifiedProtein.getTaxonomies());
 				localProteinMap.put(proteinKey, newQuantifiedProtein);
 				// add to protein-experiment map
 				addToMap(experimentKey, experimentToProteinsMap, proteinKey);

@@ -278,7 +278,10 @@ public class ProteinImplFromQuantifiedProtein implements Protein {
 	@Override
 	public Organism getOrganism() {
 		if (!organismParsed) {
-			final String taxonomy = quantProtein.getTaxonomy();
+			String taxonomy = null;
+			if (quantProtein.getTaxonomies() != null && !quantProtein.getTaxonomies().isEmpty()) {
+				taxonomy = quantProtein.getTaxonomies().iterator().next();
+			}
 			if (taxonomy != null && !"".equals(taxonomy)) {
 				organism = new OrganismEx(taxonomy);
 			}

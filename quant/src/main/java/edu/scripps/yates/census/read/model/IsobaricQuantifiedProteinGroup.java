@@ -72,7 +72,7 @@ public class IsobaricQuantifiedProteinGroup extends QuantifiedProteinGroup imple
 	public List<String> getTaxonomies() {
 		List<String> ret = new ArrayList<String>();
 		for (IsobaricQuantifiedProtein quantifiedProtein : getProteins()) {
-			ret.add(quantifiedProtein.getTaxonomy());
+			ret.addAll(quantifiedProtein.getTaxonomies());
 		}
 		return ret;
 	}

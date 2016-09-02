@@ -585,22 +585,24 @@ public class RawQuantValuesExporter {
 		// description
 		bw.write(quantifiedProtein.getDescription() + TAB);
 		// Taxonomy
-		final String taxonomy = quantifiedProtein.getTaxonomy();
+		final Set<String> taxonomies = quantifiedProtein.getTaxonomies();
 
 		boolean drome = false;
 		boolean drovi = false;
 		String DROME = "DROME";
 		String DROVI = "DROVI";
 
-		if (taxonomy.contains(DROME) || taxonomy.equalsIgnoreCase("Drosophila melanogaster")) {
-			drome = true;
-		} else if (taxonomy.contains(DROVI) || taxonomy.equalsIgnoreCase("Drosophila virilis")) {
-			drovi = true;
-		} else {
-			throw new IllegalArgumentException("only drome or drovi are supported");
+		for (String taxonomy : taxonomies) {
 
+			if (taxonomy.contains(DROME) || taxonomy.equalsIgnoreCase("Drosophila melanogaster")) {
+				drome = true;
+			} else if (taxonomy.contains(DROVI) || taxonomy.equalsIgnoreCase("Drosophila virilis")) {
+				drovi = true;
+			} else {
+				throw new IllegalArgumentException("only drome or drovi are supported");
+
+			}
 		}
-
 		// DROME
 		bw.write(drome ? "1" : "0");
 		bw.write(TAB);
@@ -614,7 +616,7 @@ public class RawQuantValuesExporter {
 		// bw.write(quantifiedProtein.getGroupableProteins().size() + TAB);
 
 		// taxonomy name
-		bw.write(quantifiedProtein.getTaxonomy() + TAB);
+		bw.write(quantifiedProtein.getTaxonomies() + TAB);
 
 		// num psms
 		bw.write(quantifiedProtein.getQuantifiedPSMs().size() + TAB);

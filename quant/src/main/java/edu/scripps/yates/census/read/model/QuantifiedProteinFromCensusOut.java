@@ -118,13 +118,16 @@ public class QuantifiedProteinFromCensusOut extends AbstractContainsQuantifiedPS
 	}
 
 	@Override
-	public String getTaxonomy() {
+	public Set<String> getTaxonomies() {
 		if (taxonomy == null) {
 			String fastaHeader = getDescription();
 			final String accession = getAccession();
 			taxonomy = FastaParser.getOrganismNameFromFastaHeader(fastaHeader, accession);
 		}
-		return taxonomy;
+		Set<String> set = new HashSet<String>();
+		set.add(taxonomy);
+		return set;
+
 	}
 
 	@Override

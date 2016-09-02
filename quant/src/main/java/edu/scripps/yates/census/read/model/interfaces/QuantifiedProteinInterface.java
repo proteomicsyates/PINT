@@ -16,7 +16,7 @@ public interface QuantifiedProteinInterface extends GroupableProtein, HasRatios,
 
 	public String getDescription();
 
-	public String getTaxonomy();
+	public Set<String> getTaxonomies();
 
 	public Set<QuantifiedPeptideInterface> getQuantifiedPeptides();
 

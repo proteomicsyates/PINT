@@ -337,8 +337,8 @@ public class IsobaricQuantifiedPSM implements QuantifiedPSMInterface, HasIsoRati
 			quantifiedProteins.add(quantifiedProtein);
 
 		// get the taxonomy
-		final String taxonomy = quantifiedProtein.getTaxonomy();
-		taxonomies.add(taxonomy);
+		final Set<String> taxonomies = quantifiedProtein.getTaxonomies();
+		taxonomies.addAll(taxonomies);
 	}
 
 	/**
