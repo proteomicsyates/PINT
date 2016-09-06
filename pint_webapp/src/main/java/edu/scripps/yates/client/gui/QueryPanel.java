@@ -373,136 +373,134 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		conditionsPanel.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				if (false) {
-					// check the checkboxes to show the amounts and the ratios
-					boolean showProteinGroupAmounts = proteinGroupColumnNamesPanel
-							.isSelected(ColumnName.PROTEIN_AMOUNT);
-					boolean showProteinAmounts = proteinColumnNamesPanel.isSelected(ColumnName.PROTEIN_AMOUNT);
-					boolean showPeptideAmounts = peptideColumnNamesPanel.isSelected(ColumnName.PEPTIDE_AMOUNT);
-					boolean showPSMAmounts = psmColumnNamesPanel.isSelected(ColumnName.PSM_AMOUNT);
-					boolean showProteinGroupRatios = proteinGroupColumnNamesPanel.isSelected(ColumnName.PROTEIN_RATIO);
-					boolean showProteinRatios = proteinColumnNamesPanel.isSelected(ColumnName.PROTEIN_RATIO);
-					boolean showPeptideRatios = peptideColumnNamesPanel.isSelected(ColumnName.PEPTIDE_RATIO);
-					boolean showPsmRatios = psmColumnNamesPanel.isSelected(ColumnName.PSM_RATIO);
-					final ListBox listbox = (ListBox) event.getSource();
-					if (!(showProteinGroupAmounts || showProteinGroupRatios || showProteinAmounts || showProteinRatios
-							|| showPSMAmounts || showPsmRatios || showPeptideAmounts || showPeptideRatios))
-						return;
-					Set<String> selectedConditionNames = ClientGUIUtil.getSelectedItemsFromListBox(listbox);
-					// show columns related to selected conditions
-					if (selectedConditionNames != null && !selectedConditionNames.isEmpty()) {
 
-						Map<String, Set<String>> conditionNamesByProjectName = new HashMap<String, Set<String>>();
-						for (String selectedConditionName : selectedConditionNames) {
-							String conditionName = SharedDataUtils
-									.getConditionNameFromConditionSelection(selectedConditionName);
-							String projectSymbol = SharedDataUtils
-									.getProjectSymbolFromConditionSelection(selectedConditionName);
-							String projectName = SharedDataUtils.getProjectNameFromListBox(projectSymbol,
-									projectListPanel.getListBox());
-							if (conditionNamesByProjectName.containsKey(projectName)) {
-								conditionNamesByProjectName.get(projectName).add(conditionName);
-							} else {
-								Set<String> set = new HashSet<String>();
-								set.add(conditionName);
-								conditionNamesByProjectName.put(projectName, set);
-							}
-						}
-						// iterate over the map
-						for (String projectName : conditionNamesByProjectName.keySet()) {
-							final Set<String> conditionNames = conditionNamesByProjectName.get(projectName);
-							if (showProteinGroupAmounts)
-								proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
-										conditionNames, projectName, true);
-							if (showProteinGroupRatios)
-								proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
-										conditionNames, projectName, true);
-							if (showProteinAmounts)
-								proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
-										conditionNames, projectName, true);
-							if (showProteinRatios)
-								proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
-										conditionNames, projectName, true);
-							if (showPeptideAmounts)
-								peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
-										conditionNames, projectName, true);
-							if (showPeptideRatios)
-								peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO,
-										conditionNames, projectName, true);
-							if (showPSMAmounts) {
-								psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT,
-										conditionNames, projectName, true);
-								psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT,
-										conditionNames, projectName, true);
-							}
-							if (showPsmRatios) {
-								psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO,
-										conditionNames, projectName, true);
-								psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO,
-										conditionNames, projectName, true);
-							}
-						}
+				// check the checkboxes to show the amounts and the ratios
+				boolean showProteinGroupAmounts = proteinGroupColumnNamesPanel.isSelected(ColumnName.PROTEIN_AMOUNT);
+				boolean showProteinAmounts = proteinColumnNamesPanel.isSelected(ColumnName.PROTEIN_AMOUNT);
+				boolean showPeptideAmounts = peptideColumnNamesPanel.isSelected(ColumnName.PEPTIDE_AMOUNT);
+				boolean showPSMAmounts = psmColumnNamesPanel.isSelected(ColumnName.PSM_AMOUNT);
+				boolean showProteinGroupRatios = proteinGroupColumnNamesPanel.isSelected(ColumnName.PROTEIN_RATIO);
+				boolean showProteinRatios = proteinColumnNamesPanel.isSelected(ColumnName.PROTEIN_RATIO);
+				boolean showPeptideRatios = peptideColumnNamesPanel.isSelected(ColumnName.PEPTIDE_RATIO);
+				boolean showPsmRatios = psmColumnNamesPanel.isSelected(ColumnName.PSM_RATIO);
+				final ListBox listbox = (ListBox) event.getSource();
+				if (!(showProteinGroupAmounts || showProteinGroupRatios || showProteinAmounts || showProteinRatios
+						|| showPSMAmounts || showPsmRatios || showPeptideAmounts || showPeptideRatios))
+					return;
+				Set<String> selectedConditionNames = ClientGUIUtil.getSelectedItemsFromListBox(listbox);
+				// show columns related to selected conditions
+				if (selectedConditionNames != null && !selectedConditionNames.isEmpty()) {
 
+					Map<String, Set<String>> conditionNamesByProjectName = new HashMap<String, Set<String>>();
+					for (String selectedConditionName : selectedConditionNames) {
+						String conditionName = SharedDataUtils
+								.getConditionNameFromConditionSelection(selectedConditionName);
+						String projectSymbol = SharedDataUtils
+								.getProjectSymbolFromConditionSelection(selectedConditionName);
+						String projectName = SharedDataUtils.getProjectNameFromListBox(projectSymbol,
+								projectListPanel.getListBox());
+						if (conditionNamesByProjectName.containsKey(projectName)) {
+							conditionNamesByProjectName.get(projectName).add(conditionName);
+						} else {
+							Set<String> set = new HashSet<String>();
+							set.add(conditionName);
+							conditionNamesByProjectName.put(projectName, set);
+						}
+					}
+					// iterate over the map
+					for (String projectName : conditionNamesByProjectName.keySet()) {
+						final Set<String> conditionNames = conditionNamesByProjectName.get(projectName);
+						if (showProteinGroupAmounts)
+							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
+									conditionNames, projectName, true);
+						if (showProteinGroupRatios)
+							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
+									conditionNames, projectName, true);
+						if (showProteinAmounts)
+							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
+									conditionNames, projectName, true);
+						if (showProteinRatios)
+							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
+									conditionNames, projectName, true);
+						if (showPeptideAmounts)
+							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
+									conditionNames, projectName, true);
+						if (showPeptideRatios)
+							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO,
+									conditionNames, projectName, true);
+						if (showPSMAmounts) {
+							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT, conditionNames,
+									projectName, true);
+							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT,
+									conditionNames, projectName, true);
+						}
+						if (showPsmRatios) {
+							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO, conditionNames,
+									projectName, true);
+							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO,
+									conditionNames, projectName, true);
+						}
 					}
 
-					// Hide columns related to non selected conditions
-					Set<String> nonSelectedConditionNames = ClientGUIUtil.getNonSelectedItemsFromListBox(listbox);
-					if (nonSelectedConditionNames != null) {
+				}
 
-						Map<String, Set<String>> conditionNamesByProjectName = new HashMap<String, Set<String>>();
-						for (String nonSelectedConditionName : nonSelectedConditionNames) {
-							String conditionName = SharedDataUtils
-									.getConditionNameFromConditionSelection(nonSelectedConditionName);
-							String projectSymbol = SharedDataUtils
-									.getProjectSymbolFromConditionSelection(nonSelectedConditionName);
-							String projectName = SharedDataUtils.getProjectNameFromListBox(projectSymbol,
-									projectListPanel.getListBox());
-							if (conditionNamesByProjectName.containsKey(projectName)) {
-								conditionNamesByProjectName.get(projectName).add(conditionName);
-							} else {
-								Set<String> set = new HashSet<String>();
-								set.add(conditionName);
-								conditionNamesByProjectName.put(projectName, set);
-							}
+				// Hide columns related to non selected conditions
+				Set<String> nonSelectedConditionNames = ClientGUIUtil.getNonSelectedItemsFromListBox(listbox);
+				if (nonSelectedConditionNames != null) {
+
+					Map<String, Set<String>> conditionNamesByProjectName = new HashMap<String, Set<String>>();
+					for (String nonSelectedConditionName : nonSelectedConditionNames) {
+						String conditionName = SharedDataUtils
+								.getConditionNameFromConditionSelection(nonSelectedConditionName);
+						String projectSymbol = SharedDataUtils
+								.getProjectSymbolFromConditionSelection(nonSelectedConditionName);
+						String projectName = SharedDataUtils.getProjectNameFromListBox(projectSymbol,
+								projectListPanel.getListBox());
+						if (conditionNamesByProjectName.containsKey(projectName)) {
+							conditionNamesByProjectName.get(projectName).add(conditionName);
+						} else {
+							Set<String> set = new HashSet<String>();
+							set.add(conditionName);
+							conditionNamesByProjectName.put(projectName, set);
 						}
-						// iterate over the map
-						for (String projectName : conditionNamesByProjectName.keySet()) {
-							Set<String> conditionNames = conditionNamesByProjectName.get(projectName);
-							if (showProteinGroupAmounts)
-								proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
-										conditionNames, projectName, false);
-							if (showProteinGroupRatios)
-								proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
-										conditionNames, projectName, false);
-							if (showProteinAmounts)
-								proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
-										conditionNames, projectName, false);
-							if (showProteinRatios)
-								proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
-										conditionNames, projectName, false);
-							if (showPeptideAmounts)
-								peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
-										conditionNames, projectName, false);
-							if (showPeptideRatios)
-								peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO,
-										conditionNames, projectName, false);
-							if (showPSMAmounts) {
-								psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT,
-										conditionNames, projectName, false);
-								psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT,
-										conditionNames, projectName, false);
-							}
-							if (showPsmRatios) {
-								psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO,
-										conditionNames, projectName, false);
-								psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO,
-										conditionNames, projectName, false);
-							}
+					}
+					// iterate over the map
+					for (String projectName : conditionNamesByProjectName.keySet()) {
+						Set<String> conditionNames = conditionNamesByProjectName.get(projectName);
+						if (showProteinGroupAmounts)
+							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
+									conditionNames, projectName, false);
+						if (showProteinGroupRatios)
+							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
+									conditionNames, projectName, false);
+						if (showProteinAmounts)
+							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
+									conditionNames, projectName, false);
+						if (showProteinRatios)
+							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
+									conditionNames, projectName, false);
+						if (showPeptideAmounts)
+							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
+									conditionNames, projectName, false);
+						if (showPeptideRatios)
+							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO,
+									conditionNames, projectName, false);
+						if (showPSMAmounts) {
+							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT, conditionNames,
+									projectName, false);
+							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT,
+									conditionNames, projectName, false);
+						}
+						if (showPsmRatios) {
+							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO, conditionNames,
+									projectName, false);
+							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO,
+									conditionNames, projectName, false);
 						}
 					}
 				}
-
 			}
+
 		});
 		// COMMANDS PANEL
 		commandsPanel = new MyVerticalListBoxPanel(false);
