@@ -20,10 +20,10 @@
   	<module>pint.queries</module>
   	<module>quant</module>
   	<module>dbindex</module>
-  	<module>dtaselectparser</module>
+  	
   	<module>pint.annotations</module>
   	<module>pint.model</module>
-  	<module>utilities</module>
+  	
   </modules>
   <name>parent module</name>
   <organization>
