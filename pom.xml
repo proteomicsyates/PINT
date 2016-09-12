@@ -18,9 +18,7 @@
   	<module>pint.excel</module>
   	<module>pint.mysql</module>
   	<module>pint.queries</module>
-  	<module>quant</module>
   	<module>dbindex</module>
-  	
   	<module>pint.annotations</module>
   	<module>pint.model</module>
   	
