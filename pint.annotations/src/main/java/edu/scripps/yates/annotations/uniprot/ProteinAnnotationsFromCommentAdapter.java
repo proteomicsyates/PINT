@@ -15,11 +15,11 @@ import edu.scripps.yates.annotations.uniprot.xml.IsoformType;
 import edu.scripps.yates.annotations.uniprot.xml.IsoformType.Name;
 import edu.scripps.yates.annotations.uniprot.xml.SubcellularLocationType;
 import edu.scripps.yates.utilities.model.factories.ProteinAnnotationEx;
+import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 
-public class ProteinAnnotationsFromCommentAdapter
-		implements org.proteored.miapeapi.interfaces.Adapter<Set<ProteinAnnotation>> {
+public class ProteinAnnotationsFromCommentAdapter implements Adapter<Set<ProteinAnnotation>> {
 
 	private final CommentType comment;
 

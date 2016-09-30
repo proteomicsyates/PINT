@@ -526,4 +526,5 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 		}
 
 	}
+
 }

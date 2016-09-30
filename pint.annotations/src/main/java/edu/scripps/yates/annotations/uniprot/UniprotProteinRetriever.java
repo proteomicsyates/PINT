@@ -160,4 +160,11 @@ public class UniprotProteinRetriever {
 		// log.info(ret.size() + " proteins converted in the model");
 		return ret;
 	}
+
+	public Map<String, String> getAnnotatedProteinSequence(String accession) {
+		Set<String> accessions = new HashSet<String>();
+		accessions.add(accession);
+		return getAnnotatedProteinSequence(accessions);
+
+	}
 }

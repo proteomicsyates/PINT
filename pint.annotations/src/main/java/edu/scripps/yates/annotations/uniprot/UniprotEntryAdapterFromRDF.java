@@ -12,8 +12,9 @@ import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.EvidencedStringType;
 import edu.scripps.yates.annotations.uniprot.xml.ProteinType;
 import edu.scripps.yates.annotations.uniprot.xml.ProteinType.RecommendedName;
+import edu.scripps.yates.utilities.pattern.Adapter;
 
-public class UniprotEntryAdapterFromRDF implements edu.scripps.yates.annotations.util.Adapter<Entry> {
+public class UniprotEntryAdapterFromRDF implements Adapter<Entry> {
 	private final String accession;
 	private final boolean obsolete;
 	private final boolean reviewed;
