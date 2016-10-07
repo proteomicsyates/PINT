@@ -45,19 +45,19 @@ public class ExcelUtils {
 				for (StringPosition stringMassDiffNumber : massDiffsStrings) {
 					// get the PTM
 					String aa = "";
-					if (stringMassDiffNumber.position > -1)
-						aa = String
-								.valueOf(appendList(FastaParser.getOutside(seq)).charAt(stringMassDiffNumber.position));
+					if (stringMassDiffNumber.position > 0)
+						aa = String.valueOf(
+								appendList(FastaParser.getOutside(seq)).charAt(stringMassDiffNumber.position - 1));
 					try {
 						double massDiff = Double.valueOf(stringMassDiffNumber.string);
 						if (!map.containsKey(massDiff)) {
 
-							PTM ptm = new PTMAdapter(massDiff, aa, stringMassDiffNumber.position + 1).adapt();
+							PTM ptm = new PTMAdapter(massDiff, aa, stringMassDiffNumber.position).adapt();
 							map.put(massDiff, ptm);
 						} else {
 							// add a ptm site
 							final PTMEx ptm = (PTMEx) map.get(massDiff);
-							ptm.addPtmSite(new PTMSiteAdapter(aa, stringMassDiffNumber.position + 1).adapt());
+							ptm.addPtmSite(new PTMSiteAdapter(aa, stringMassDiffNumber.position).adapt());
 						}
 					} catch (NumberFormatException e) {
 						log.info(stringMassDiffNumber + " cannot be parsed as a number. " + e.getMessage());
