@@ -545,6 +545,8 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 				if (e instanceof ConnectException && e.getMessage().contains("Connection timed out: connect")) {
 					UniprotProteinRemoteRetriever.currentUniprotVersionRetrievedDate = new Date();
 					notTryUntilNextDay = true;
+				} else {
+					notTryUntilNextDay = false;
 				}
 			}
 		}

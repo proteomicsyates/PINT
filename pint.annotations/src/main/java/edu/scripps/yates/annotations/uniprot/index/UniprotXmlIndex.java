@@ -18,6 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.index.FileIndex;
 import edu.scripps.yates.utilities.index.TextFileIndex;
 import edu.scripps.yates.utilities.util.Pair;
@@ -68,8 +69,9 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		writePositionsInIndex(this, indexMap, false);
 		long t3 = System.currentTimeMillis();
 
-		log.info((t2 - t1) / 1000 + " sg to read the input file");
-		log.info((t3 - t2) / 1000 + " sg to write the index to " + indexFile.getAbsolutePath());
+		log.info(DatesUtil.getDescriptiveTimeFromMillisecs(t2 - t1) + " to read the input file");
+		log.info(DatesUtil.getDescriptiveTimeFromMillisecs(t3 - t2) + " to write the index to "
+				+ indexFile.getAbsolutePath());
 	}
 
 	private static synchronized void writePositionsInIndex(UniprotXmlIndex index,
