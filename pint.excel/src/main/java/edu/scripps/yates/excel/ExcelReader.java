@@ -42,6 +42,10 @@ public class ExcelReader {
 		DRUG_TREATMENT, EXPRESSION_ANALYSIS, FUNCTIONAL_ANNOTATION, ID, TEMPERATURE_SHIFT, WTF508_COMPARISON, ALL
 	}
 
+	public ExcelReader(File file, int minSheetIndex, int maxSheetIndex) throws IOException {
+		this(file.getAbsolutePath(), minSheetIndex, maxSheetIndex);
+	}
+
 	public ExcelReader(String filePath, int minSheetIndex, int maxSheetIndex) throws IOException {
 		this.minSheetIndex = minSheetIndex;
 		this.maxSheetIndex = maxSheetIndex;
