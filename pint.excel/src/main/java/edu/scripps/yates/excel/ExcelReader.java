@@ -31,7 +31,7 @@ public class ExcelReader {
 	private final String filePath;
 	private HashMap<Integer, List<String>> columnNames = new HashMap<Integer, List<String>>();
 	private Workbook wb;
-	private final ColumnIndexManager columnIndexManager;
+	private ColumnIndexManager columnIndexManager;
 	private final int minSheetIndex;
 	private final int maxSheetIndex;
 	private static Logger log = Logger.getLogger(ExcelReader.class);
@@ -60,7 +60,8 @@ public class ExcelReader {
 
 			}
 		}
-		columnIndexManager = new ColumnIndexManager(columnNames);
+		// ONLY FOR SANNI TABLE CFTR
+		// columnIndexManager = new ColumnIndexManager(columnNames);
 	}
 
 	public File saveAsTXT(String separator) throws IOException {
@@ -154,6 +155,9 @@ public class ExcelReader {
 		try {
 			final Sheet sheetAt = getWorkbook().getSheetAt(sheetNumber);
 			final Row row = sheetAt.getRow(numRow);
+			if (row == null) {
+				return null;
+			}
 			final Cell cell = row.getCell(numCol, Row.RETURN_BLANK_AS_NULL);
 			if (cell == null) {
 				return null;
@@ -215,6 +219,13 @@ public class ExcelReader {
 		return ret;
 	}
 
+	/**
+	 * Gets a list of the colum names (first row string values) mapped to the
+	 * index of each sheet of the workbook
+	 *
+	 * @return
+	 * @throws IOException
+	 */
 	public HashMap<Integer, List<String>> getColumnNames() throws IOException {
 		return getColumnNames(minSheetIndex, maxSheetIndex);
 	}
