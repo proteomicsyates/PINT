@@ -84,8 +84,12 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 			throws IOException {
 		Map<String, Protein> retMap = new HashMap<String, Protein>();
 		String fileRefString = "";
+
 		for (String fileReference : fileRefSet) {
-			fileRefString += fileReference + ",";
+			if (!"".equals(fileRefString)) {
+				fileRefString += ",";
+			}
+			fileRefString += fileReference;
 		}
 
 		// DTA Select PArser
