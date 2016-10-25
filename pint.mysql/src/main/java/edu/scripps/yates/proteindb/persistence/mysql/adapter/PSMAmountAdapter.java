@@ -1,8 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -17,7 +15,6 @@ public class PSMAmountAdapter
 	 */
 	private static final long serialVersionUID = 8212630940707841612L;
 	private final edu.scripps.yates.utilities.proteomicsmodel.Amount amount;
-	private final static Map<Integer, PsmAmount> map = new HashMap<Integer, PsmAmount>();
 	private final Psm psm;
 	private static final Logger log = Logger.getLogger(PSMAmountAdapter.class);
 	private final Project hibProject;
@@ -30,13 +27,8 @@ public class PSMAmountAdapter
 
 	@Override
 	public PsmAmount adapt() {
-		if (map.containsKey(amount.hashCode())) {
-			return map.get(amount.hashCode());
-
-		}
 		PsmAmount ret = new PsmAmount();
 
-		map.put(amount.hashCode(), ret);
 		ret.setAmountType(new AmountTypeAdapter(amount.getAmountType()).adapt());
 		if (amount.getCombinationType() != null)
 			ret.setCombinationType(new CombinationTypeAdapter(amount.getCombinationType(), ret).adapt());
@@ -55,7 +47,4 @@ public class PSMAmountAdapter
 		return ret;
 	}
 
-	protected static void clearStaticInformation() {
-		map.clear();
-	}
 }

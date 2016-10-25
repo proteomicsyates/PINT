@@ -149,6 +149,7 @@ public class MySQLDeleter {
 	private void deletePSM(Psm psm) {
 
 		final MsRun msRun = psm.getMsRun();
+		msRun.getPsms().remove(psm);
 		deleteMSRun(msRun);
 
 		final Set<Ptm> ptms = psm.getPtms();
@@ -210,28 +211,34 @@ public class MySQLDeleter {
 
 	private void deletePSMScore(PsmScore psmScore) {
 
-		final ConfidenceScoreType confidenceScoreType = psmScore.getConfidenceScoreType();
-		if (confidenceScoreType != null) {
-			deleteConfidenceScoreType(confidenceScoreType);
-		}
+		// final ConfidenceScoreType confidenceScoreType =
+		// psmScore.getConfidenceScoreType();
+		// if (confidenceScoreType != null) {
+		// confidenceScoreType.getPsmScores().remove(psmScore);
+		//
+		// deleteConfidenceScoreType(confidenceScoreType);
+		//
+		// }
 		ContextualSessionHandler.delete(psmScore);
 	}
 
 	private void deletePeptideScore(PeptideScore score) {
 
-		final ConfidenceScoreType confidenceScoreType = score.getConfidenceScoreType();
-		if (confidenceScoreType != null) {
-			deleteConfidenceScoreType(confidenceScoreType);
-		}
+		// final ConfidenceScoreType confidenceScoreType =
+		// score.getConfidenceScoreType();
+		// if (confidenceScoreType != null) {
+		// deleteConfidenceScoreType(confidenceScoreType);
+		// }
 		ContextualSessionHandler.delete(score);
 	}
 
 	private void deleteProteinScore(ProteinScore score) {
 
-		final ConfidenceScoreType confidenceScoreType = score.getConfidenceScoreType();
-		if (confidenceScoreType != null) {
-			deleteConfidenceScoreType(confidenceScoreType);
-		}
+		// final ConfidenceScoreType confidenceScoreType =
+		// score.getConfidenceScoreType();
+		// if (confidenceScoreType != null) {
+		// deleteConfidenceScoreType(confidenceScoreType);
+		// }
 		ContextualSessionHandler.delete(score);
 	}
 
@@ -239,10 +246,12 @@ public class MySQLDeleter {
 		final Set<PtmSite> ptmSites = ptm.getPtmSites();
 
 		for (PtmSite ptmSite : ptmSites) {
-			final ConfidenceScoreType confidenceScoreType = ptmSite.getConfidenceScoreType();
-			if (confidenceScoreType != null) {
-				deleteConfidenceScoreType(confidenceScoreType);
-			}
+			// final ConfidenceScoreType confidenceScoreType =
+			// ptmSite.getConfidenceScoreType();
+			// if (confidenceScoreType != null) {
+			// confidenceScoreType.getPtmSites().remove(ptmSite);
+			// deleteConfidenceScoreType(confidenceScoreType);
+			// }
 			ContextualSessionHandler.delete(ptmSite);
 		}
 
@@ -261,17 +270,19 @@ public class MySQLDeleter {
 
 		deleteProtein(proteinRatioValue.getProtein());
 
-		final ConfidenceScoreType scoreType = proteinRatioValue.getConfidenceScoreType();
-		if (scoreType != null) {
-			deleteConfidenceScoreType(scoreType);
-
-		}
+		// final ConfidenceScoreType scoreType =
+		// proteinRatioValue.getConfidenceScoreType();
+		// if (scoreType != null) {
+		// deleteConfidenceScoreType(scoreType);
+		//
+		// }
 
 		// combination type
-		CombinationType combinationType = proteinRatioValue.getCombinationType();
-		if (combinationType != null) {
-			deleteCombinationType(combinationType);
-		}
+		// CombinationType combinationType =
+		// proteinRatioValue.getCombinationType();
+		// if (combinationType != null) {
+		// deleteCombinationType(combinationType);
+		// }
 
 		ContextualSessionHandler.delete(proteinRatioValue);
 	}
@@ -280,34 +291,37 @@ public class MySQLDeleter {
 
 		deletePeptide(peptideRatioValue.getPeptide());
 
-		final ConfidenceScoreType scoreType = peptideRatioValue.getConfidenceScoreType();
-		if (scoreType != null) {
-			deleteConfidenceScoreType(scoreType);
-
-		}
+		// final ConfidenceScoreType scoreType =
+		// peptideRatioValue.getConfidenceScoreType();
+		// if (scoreType != null) {
+		// deleteConfidenceScoreType(scoreType);
+		//
+		// }
 
 		// combination type
-		CombinationType combinationType = peptideRatioValue.getCombinationType();
-		if (combinationType != null) {
-			deleteCombinationType(combinationType);
-		}
+		// CombinationType combinationType =
+		// peptideRatioValue.getCombinationType();
+		// if (combinationType != null) {
+		// deleteCombinationType(combinationType);
+		// }
 
 		ContextualSessionHandler.delete(peptideRatioValue);
 	}
 
 	private void deletePsmRatio(PsmRatioValue psmRatioValue) {
 
-		final ConfidenceScoreType scoreType = psmRatioValue.getConfidenceScoreType();
-		if (scoreType != null) {
-			deleteConfidenceScoreType(scoreType);
-
-		}
+		// final ConfidenceScoreType scoreType =
+		// psmRatioValue.getConfidenceScoreType();
+		// if (scoreType != null) {
+		// deleteConfidenceScoreType(scoreType);
+		//
+		// }
 
 		// combination type
-		CombinationType combinationType = psmRatioValue.getCombinationType();
-		if (combinationType != null) {
-			deleteCombinationType(combinationType);
-		}
+		// CombinationType combinationType = psmRatioValue.getCombinationType();
+		// if (combinationType != null) {
+		// deleteCombinationType(combinationType);
+		// }
 
 		ContextualSessionHandler.delete(psmRatioValue);
 	}
@@ -358,15 +372,15 @@ public class MySQLDeleter {
 
 		ContextualSessionHandler.delete(proteinAmount);
 		// amount type
-		final AmountType amountType = proteinAmount.getAmountType();
-		if (amountType != null)
-			deleteAmountType(amountType);
+		// final AmountType amountType = proteinAmount.getAmountType();
+		// if (amountType != null)
+		// deleteAmountType(amountType);
 
 		// combination type
-		CombinationType combinationType = proteinAmount.getCombinationType();
-		if (combinationType != null) {
-			deleteCombinationType(combinationType);
-		}
+		// CombinationType combinationType = proteinAmount.getCombinationType();
+		// if (combinationType != null) {
+		// deleteCombinationType(combinationType);
+		// }
 
 	}
 
@@ -374,31 +388,31 @@ public class MySQLDeleter {
 
 		ContextualSessionHandler.delete(peptideAmount);
 		// amount type
-		final AmountType amountType = peptideAmount.getAmountType();
-		if (amountType != null)
-			deleteAmountType(amountType);
+		// final AmountType amountType = peptideAmount.getAmountType();
+		// if (amountType != null)
+		// deleteAmountType(amountType);
 
 		// combination type
-		CombinationType combinationType = peptideAmount.getCombinationType();
-		if (combinationType != null) {
-			deleteCombinationType(combinationType);
-
-		}
+		// CombinationType combinationType = peptideAmount.getCombinationType();
+		// if (combinationType != null) {
+		// deleteCombinationType(combinationType);
+		//
+		// }
 	}
 
 	private void deletePsmAmount(PsmAmount psmAmount) {
 
 		ContextualSessionHandler.delete(psmAmount);
 		// amount type
-		final AmountType amountType = psmAmount.getAmountType();
-		if (amountType != null)
-			deleteAmountType(amountType);
+		// final AmountType amountType = psmAmount.getAmountType();
+		// if (amountType != null)
+		// deleteAmountType(amountType);
 
 		// combination type
-		CombinationType combinationType = psmAmount.getCombinationType();
-		if (combinationType != null) {
-			deleteCombinationType(combinationType);
-		}
+		// CombinationType combinationType = psmAmount.getCombinationType();
+		// if (combinationType != null) {
+		// deleteCombinationType(combinationType);
+		// }
 	}
 
 	private void deleteProteinAccession(ProteinAccession proteinAccession) {
@@ -436,8 +450,12 @@ public class MySQLDeleter {
 	}
 
 	private void deleteConfidenceScoreType(ConfidenceScoreType confidenceScoreType) {
-		ContextualSessionHandler.delete(confidenceScoreType);
-
+		if (confidenceScoreType.getPeptideRatioValues().isEmpty() && confidenceScoreType.getPeptideScores().isEmpty()
+				&& confidenceScoreType.getProteinRatioValues().isEmpty()
+				&& confidenceScoreType.getProteinScores().isEmpty() && confidenceScoreType.getPsmRatioValues().isEmpty()
+				&& confidenceScoreType.getPsmScores().isEmpty() && confidenceScoreType.getPtmSites().isEmpty()) {
+			ContextualSessionHandler.delete(confidenceScoreType);
+		}
 	}
 
 	private void deleteProteinAnnotation(ProteinAnnotation proteinAnnotation) {
@@ -472,8 +490,8 @@ public class MySQLDeleter {
 	private void deleteMSRun(MsRun msRun) {
 		if (msRun == null)
 			log.info("ms run is null!!!");
-		if (msRun.getId() != null)
-			return;
+		// if (msRun.getId() != null)
+		// return;
 		// final MsRun oldMsRun = ManagedSessionHandler.load(msRun.getId(),
 		// MsRun.class);
 		// if (oldMsRun != null) {
@@ -485,7 +503,9 @@ public class MySQLDeleter {
 		// } else {
 		// ManagedSessionHandler.delete(msRun);
 		// }
-		ContextualSessionHandler.delete(msRun);
+		if (msRun.getPeptides().isEmpty() && msRun.getProteins().isEmpty() && msRun.getPsms().isEmpty()) {
+			ContextualSessionHandler.delete(msRun);
+		}
 	}
 
 	public void deleteExperimentalCondition(Condition condition) {
@@ -551,12 +571,15 @@ public class MySQLDeleter {
 		}
 
 		final Label label = sample.getLabel();
-		if (label != null)
+		if (label != null) {
 			ContextualSessionHandler.delete(label);
-
+		}
 		final Set<Organism> organisms = sample.getOrganisms();
 		for (Organism organism : organisms) {
-			ContextualSessionHandler.delete(organism);
+			organism.getSamples().remove(sample);
+			if (organism.getSamples().isEmpty()) {
+				ContextualSessionHandler.delete(organism);
+			}
 		}
 		ContextualSessionHandler.delete(sample);
 	}

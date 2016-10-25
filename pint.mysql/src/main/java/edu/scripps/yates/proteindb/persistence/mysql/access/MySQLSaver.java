@@ -236,6 +236,11 @@ public class MySQLSaver {
 		if (confidenceScoreType != null) {
 			saveConfidenceScoreTypeForPsmScore(confidenceScoreType, psmScore);
 		}
+		if (psmScore.getPsm() == null) {
+			log.info(psmScore);
+		} else if (psmScore.getPsm().getId() == null) {
+			log.info(psmScore);
+		}
 		ContextualSessionHandler.save(psmScore);
 	}
 
@@ -490,7 +495,11 @@ public class MySQLSaver {
 
 		// // PSM
 		// savePSM(psmAmount.getPsm());
-
+		if (psmAmount.getPsm() == null) {
+			log.info(psmAmount);
+		} else if (psmAmount.getPsm().getId() == null) {
+			log.info(psmAmount);
+		}
 		ContextualSessionHandler.save(psmAmount);
 
 	}
