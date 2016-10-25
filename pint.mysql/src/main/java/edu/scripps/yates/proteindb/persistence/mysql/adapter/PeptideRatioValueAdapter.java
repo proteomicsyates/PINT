@@ -1,8 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
@@ -21,7 +19,6 @@ public class PeptideRatioValueAdapter
 	 */
 	private static final long serialVersionUID = -4685761045421513044L;
 	private final Ratio ratio;
-	private static final Map<Integer, PeptideRatioValue> map = new HashMap<Integer, PeptideRatioValue>();
 	private final Project hibProject;
 	private final Peptide peptide;
 
@@ -36,10 +33,6 @@ public class PeptideRatioValueAdapter
 	@Override
 	public PeptideRatioValue adapt() {
 		PeptideRatioValue ret = new PeptideRatioValue();
-		if (map.containsKey(ratio.hashCode())) {
-			return map.get(ratio.hashCode());
-		}
-		map.put(ratio.hashCode(), ret);
 
 		final RatioDescriptor peptideRatioDescriptor = new RatioDescriptorAdapter(ratio.getDescription(),
 				ratio.getCondition1(), ratio.getCondition2(), ret, hibProject).adapt();
@@ -73,7 +66,4 @@ public class PeptideRatioValueAdapter
 		return ratio;
 	}
 
-	protected static void clearStaticInformation() {
-		map.clear();
-	}
 }

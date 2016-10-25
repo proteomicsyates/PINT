@@ -1,8 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -26,7 +24,6 @@ public class PSMRatioValueAdapter
 	 *
 	 */
 	private final Ratio ratio;
-	private static final Map<Integer, PsmRatioValue> map = new HashMap<Integer, PsmRatioValue>();
 	private final Project hibProject;
 	private final Psm psm;
 	private final static Logger log = Logger.getLogger(PSMRatioValueAdapter.class);
@@ -42,11 +39,7 @@ public class PSMRatioValueAdapter
 	@Override
 	public PsmRatioValue adapt() {
 
-		if (map.containsKey(ratio.hashCode())) {
-			return map.get(ratio.hashCode());
-		}
 		PsmRatioValue ret = new PsmRatioValue();
-		map.put(ratio.hashCode(), ret);
 
 		final RatioDescriptor peptideRatioDescriptor = new RatioDescriptorAdapter(ratio.getDescription(),
 				ratio.getCondition1(), ratio.getCondition2(), ret, hibProject).adapt();
@@ -78,14 +71,4 @@ public class PSMRatioValueAdapter
 		return ret;
 	}
 
-	/**
-	 * @return the peptideRatioModel
-	 */
-	public Ratio getPeptideRatioModel() {
-		return ratio;
-	}
-
-	protected static void clearStaticInformation() {
-		map.clear();
-	}
 }
