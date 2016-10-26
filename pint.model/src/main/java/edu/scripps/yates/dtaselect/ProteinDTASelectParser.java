@@ -32,10 +32,6 @@ import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModel
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 import edu.scripps.yates.utilities.util.Pair;
 
-/**
- * @author diego
- *
- */
 public class ProteinDTASelectParser {
 	private static final Logger log = Logger.getLogger(ProteinDTASelectParser.class);
 	private final DTASelectParser parser;
