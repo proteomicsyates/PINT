@@ -29,9 +29,9 @@ import edu.scripps.yates.census.read.model.Ion;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedPSM;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedProtein;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
+import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
-import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.proteindb.importcfg.ExcelFileReader;
@@ -698,7 +698,8 @@ public class ImportCfgFileReader {
 											// get the ratios by its names, in
 											// order to average them if there is
 											// more than one of the same name
-											Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(safeRatios);
+											Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
+													safeRatios);
 											for (Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
 
 												if (safeRatiosSameName.size() > 1) {
@@ -937,7 +938,7 @@ public class ImportCfgFileReader {
 										String sample2 = getSamplesByLabel(label2,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
-
+										log.info("Sample1=" + sample1 + "\tSample2=" + sample2);
 										Pair<String, String> samplePair = new Pair<String, String>(sample1, sample2);
 										if (mapQuantRatios.containsKey(samplePair)) {
 											// take LOG 2 ratio
@@ -975,7 +976,8 @@ public class ImportCfgFileReader {
 											// get the ratios by its names, in
 											// order to average them if there is
 											// more than one of the same name
-											Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(safeRatios);
+											Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
+													safeRatios);
 											for (Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
 
 												if (safeRatiosSameName.size() > 1) {
@@ -1148,16 +1150,25 @@ public class ImportCfgFileReader {
 	}
 
 	private Condition getConditionBySampleAndRatio(String sample1, RemoteFilesRatioType remoteFilesRatioType) {
+		log.info("getConditionBySample: " + sample1);
+
 		Condition ret = null;
-		if (conditionsByConditionID.get(remoteFilesRatioType.getNumerator().getConditionRef()).getSample().getName()
-				.equals(sample1)) {
-			ret = conditionsByConditionID.get(remoteFilesRatioType.getNumerator().getConditionRef());
-		} else if (conditionsByConditionID.get(remoteFilesRatioType.getDenominator().getConditionRef()).getSample()
-				.getName().equals(sample1)) {
-			ret = conditionsByConditionID.get(remoteFilesRatioType.getDenominator().getConditionRef());
+		final String numeratorConditionRef = remoteFilesRatioType.getNumerator().getConditionRef();
+		log.info("Numerator condition ref: " + numeratorConditionRef);
+		if (conditionsByConditionID.get(numeratorConditionRef).getSample().getName().equals(sample1)) {
+			log.info("match with sample in numerator");
+			ret = conditionsByConditionID.get(numeratorConditionRef);
 		} else {
-			throw new IllegalArgumentException("incoherent experimental setup");
+			final String denominatorConditionRef = remoteFilesRatioType.getDenominator().getConditionRef();
+			log.info("Denominator condition ref: " + denominatorConditionRef);
+			if (conditionsByConditionID.get(denominatorConditionRef).getSample().getName().equals(sample1)) {
+				log.info("match with sample in denominator");
+				ret = conditionsByConditionID.get(denominatorConditionRef);
+			} else {
+				throw new IllegalArgumentException("incoherent experimental setup");
+			}
 		}
+		log.info("condition: " + ret.getName());
 		return ret;
 	}
 
