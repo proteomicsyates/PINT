@@ -81,7 +81,7 @@ public class ProteinDTASelectParser {
 					// take the MSRuns from psms
 					Set<String> msRunIDs = new HashSet<String>();
 					for (DTASelectPSM dtaPSM : psMs2) {
-						msRunIDs.add(dtaPSM.getSpectraFileName());
+						msRunIDs.add(dtaPSM.getRawFileName());
 					}
 					for (String msRunID : msRunIDs) {
 						Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msRunID);
