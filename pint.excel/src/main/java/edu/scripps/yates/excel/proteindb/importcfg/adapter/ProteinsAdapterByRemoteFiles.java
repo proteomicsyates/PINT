@@ -31,7 +31,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
-import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.util.Pair;
 
 public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pattern.Adapter<Map<String, Protein>> {
@@ -139,21 +139,21 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 			for (DTASelectProtein dtaSelectProtein : dtaSelectProteins) {
 
 				final Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun);
-				ProteomicsModelStaticStorage.addProtein(protein, msrun.getRunId(), condition.getName());
+				StaticProteomicsModelStorage.addProtein(protein, msrun.getRunId(), condition.getName());
 				protein.setMSRun(msrun);
 				protein.addCondition(condition);
 				retMap.put(protein.getAccession(), protein);
 				final Set<PSM> psMs = protein.getPSMs();
 				if (psMs != null) {
 					for (PSM psm : psMs) {
-						ProteomicsModelStaticStorage.addPSM(psm, msrun.getRunId(), condition.getName());
+						StaticProteomicsModelStorage.addPSM(psm, msrun.getRunId(), condition.getName());
 						psm.addCondition(condition);
 					}
 				}
 				final Set<Peptide> peptides = protein.getPeptides();
 				if (peptides != null) {
 					for (Peptide peptide : peptides) {
-						ProteomicsModelStaticStorage.addPeptide(peptide, msrun.getRunId(), condition.getName());
+						StaticProteomicsModelStorage.addPeptide(peptide, msrun.getRunId(), condition.getName());
 						peptide.addCondition(condition);
 					}
 				}
@@ -162,19 +162,19 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 			final Map<String, QuantifiedProteinInterface> proteinMap = quantParser.getProteinMap();
 			for (QuantifiedProteinInterface quantProtein : proteinMap.values()) {
 				final Protein protein = new ProteinImplFromQuantifiedProtein(quantProtein, msrun, condition);
-				ProteomicsModelStaticStorage.addProtein(protein, msrun, condition.getName());
+				StaticProteomicsModelStorage.addProtein(protein, msrun, condition.getName());
 				retMap.put(protein.getAccession(), protein);
 				final Set<PSM> psMs = protein.getPSMs();
 				if (psMs != null) {
 					for (PSM psm : psMs) {
-						ProteomicsModelStaticStorage.addPSM(psm, msrun, condition.getName());
+						StaticProteomicsModelStorage.addPSM(psm, msrun, condition.getName());
 						psm.addCondition(condition);
 					}
 				}
 				final Set<Peptide> peptides = protein.getPeptides();
 				if (peptides != null) {
 					for (Peptide peptide : peptides) {
-						ProteomicsModelStaticStorage.addPeptide(peptide, msrun, condition.getName());
+						StaticProteomicsModelStorage.addPeptide(peptide, msrun, condition.getName());
 						peptide.addCondition(condition);
 					}
 				}

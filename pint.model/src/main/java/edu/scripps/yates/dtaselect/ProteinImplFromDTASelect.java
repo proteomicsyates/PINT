@@ -38,7 +38,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
-import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
 
@@ -222,24 +222,24 @@ public class ProteinImplFromDTASelect implements Protein {
 					// if
 					// (PSMImplFromDTASelect.psmMap.containsKey(dtaSelectPSM)) {
 					// psm = PSMImplFromDTASelect.psmMap.get(dtaSelectPSM);
-					if (ProteomicsModelStaticStorage.containsPSM(msrun, null, dtaSelectPSM.getPsmIdentifier())) {
-						psm = ProteomicsModelStaticStorage.getSinglePSM(msrun, null, dtaSelectPSM.getPsmIdentifier());
+					if (StaticProteomicsModelStorage.containsPSM(msrun, null, dtaSelectPSM.getPsmIdentifier())) {
+						psm = StaticProteomicsModelStorage.getSinglePSM(msrun, null, dtaSelectPSM.getPsmIdentifier());
 						psm.addProtein(this);
 						psms.add(psm);
 					} else {
 						psm = new PSMImplFromDTASelect(dtaSelectPSM, msrun);
 						psm.addProtein(this);
 						psms.add(psm);
-						ProteomicsModelStaticStorage.addPSM(psm, msrun, null);
+						StaticProteomicsModelStorage.addPSM(psm, msrun, null);
 					}
 					// create or retrieve the corresponding Peptide
 					final String sequence = dtaSelectPSM.getSequence().getSequence();
 					Peptide peptide = null;
-					if (ProteomicsModelStaticStorage.containsPeptide(msrun, null, sequence)) {
-						peptide = ProteomicsModelStaticStorage.getSinglePeptide(msrun, null, sequence);
+					if (StaticProteomicsModelStorage.containsPeptide(msrun, null, sequence)) {
+						peptide = StaticProteomicsModelStorage.getSinglePeptide(msrun, null, sequence);
 					} else {
 						peptide = new PeptideEx(sequence, msrun);
-						ProteomicsModelStaticStorage.addPeptide(peptide, msrun, null);
+						StaticProteomicsModelStorage.addPeptide(peptide, msrun, null);
 					}
 					// Map<String, Peptide> peptideMap = null;
 					// if
@@ -281,13 +281,13 @@ public class ProteinImplFromDTASelect implements Protein {
 			for (PSM psm : getPSMs()) {
 				final String sequence = psm.getSequence();
 				Peptide peptide = null;
-				if (ProteomicsModelStaticStorage.containsPeptide(msrun, null, sequence)) {
-					peptide = ProteomicsModelStaticStorage.getSinglePeptide(msrun, null, sequence);
+				if (StaticProteomicsModelStorage.containsPeptide(msrun, null, sequence)) {
+					peptide = StaticProteomicsModelStorage.getSinglePeptide(msrun, null, sequence);
 				} else {
 					peptide = new PeptideEx(sequence, msrun);
 					peptide.addPSM(psm);
 					psm.setPeptide(peptide);
-					ProteomicsModelStaticStorage.addPeptide(peptide, msrun, null);
+					StaticProteomicsModelStorage.addPeptide(peptide, msrun, null);
 				}
 				peptides.add(peptide);
 			}

@@ -30,8 +30,8 @@ public class UniprotXmlIndexIO extends TextFileIndexIO {
 	private final static Logger log = Logger.getLogger(UniprotXmlIndexIO.class);
 	private final static String ENTRY_START_TOKEN = "<entry";
 	private final static String ENTRY_FINAL_TOKEN = "</entry>";
-	private static final String PREFIX = "<?xml version='1.0' encoding='UTF-8'?>\n<uniprot xmlns=\"http://uniprot.org/uniprot\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://uniprot.org/uniprot http://www.uniprot.org/support/docs/uniprot.xsd\">";
-	private static final String SUFFIX = "\n<copyright>\nCopyrighted by the UniProt Consortium, see http://www.uniprot.org/terms\nDistributed under the Creative Commons Attribution-NoDerivs License\n</copyright>\n</uniprot>";
+	protected static final String PREFIX = "<?xml version='1.0' encoding='UTF-8'?>\n<uniprot xmlns=\"http://uniprot.org/uniprot\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://uniprot.org/uniprot http://www.uniprot.org/support/docs/uniprot.xsd\">";
+	protected static final String SUFFIX = "\n<copyright>\nCopyrighted by the UniProt Consortium, see http://www.uniprot.org/terms\nDistributed under the Creative Commons Attribution-NoDerivs License\n</copyright>\n</uniprot>";
 
 	private final JAXBContext jaxbContext;
 

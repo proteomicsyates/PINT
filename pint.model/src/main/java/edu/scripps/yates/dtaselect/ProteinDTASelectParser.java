@@ -28,7 +28,7 @@ import edu.scripps.yates.utilities.model.factories.AccessionEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
-import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 import edu.scripps.yates.utilities.util.Pair;
 
@@ -81,11 +81,11 @@ public class ProteinDTASelectParser {
 					}
 					for (String msRunID : msRunIDs) {
 						Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msRunID);
-						if (ProteomicsModelStaticStorage.containsProtein(msRunID, null, protein.getAccession())) {
-							protein = ProteomicsModelStaticStorage.getSingleProtein(msRunID, null,
+						if (StaticProteomicsModelStorage.containsProtein(msRunID, null, protein.getAccession())) {
+							protein = StaticProteomicsModelStorage.getSingleProtein(msRunID, null,
 									protein.getAccession());
 						} else {
-							ProteomicsModelStaticStorage.addProtein(protein, msRunID, null);
+							StaticProteomicsModelStorage.addProtein(protein, msRunID, null);
 						}
 
 						if (!proteins.containsKey(protein.getAccession())) {

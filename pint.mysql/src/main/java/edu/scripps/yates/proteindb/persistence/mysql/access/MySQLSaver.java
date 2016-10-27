@@ -66,6 +66,9 @@ public class MySQLSaver {
 		saveMSRun(protein.getMsRun());
 
 		ContextualSessionHandler.save(protein);
+		if (protein.getId() == null) {
+			log.info("Protein with no ID after saving it");
+		}
 		// log.debug("Saving protein " + next.getAccession());
 		// protein accesssions
 
@@ -119,15 +122,30 @@ public class MySQLSaver {
 		// if (proteinPeptideRelation ==
 		// ProteinPeptideRelationship.PROTEINS_HAS_PEPTIDES) {
 		final Set<Peptide> peptides = protein.getPeptides();
-		int i = 0;
-		int size = peptides.size();
 		for (Peptide peptide : peptides) {
-			i++;
-			if (peptide.getId() != null)
-				continue;
-			// if (i % 5 == 0 || i == size)
-			// log.debug("Saving peptide " + i + "/" + size);
 			savePeptide(peptide);
+		}
+
+		final Set<Psm> psms = protein.getPsms();
+		for (Psm psm : psms) {
+			if (psm.getId() != null)
+				continue;
+
+			for (Peptide peptide : peptides) {
+				if (psm.getSequence().equals(peptide.getSequence())) {
+					Set<Psm> psms2 = peptide.getPsms();
+					boolean found = false;
+					for (Psm psm2 : psms2) {
+						if (psm2 == psm) {
+							found = true;
+						}
+					}
+					if (!found) {
+						log.info(psm.getPsmId() + " not found in peptide " + peptide.getSequence());
+					}
+				}
+			}
+			savePSM(psm);
 		}
 		// }
 
@@ -150,7 +168,9 @@ public class MySQLSaver {
 		savePeptide(psm.getPeptide());
 
 		ContextualSessionHandler.save(psm);
-
+		if (psm.getId() == null) {
+			log.info("PSM with no ID after saving it");
+		}
 		final Set<Ptm> ptms = psm.getPtms();
 		if (ptms != null) {
 			for (Ptm ptm : ptms) {
@@ -189,7 +209,9 @@ public class MySQLSaver {
 			System.out.println("Sequence is null");
 
 		ContextualSessionHandler.save(peptide);
-
+		if (peptide.getId() == null) {
+			log.info("Peptide with no ID after saving it");
+		}
 		// scores
 		final Set<PeptideScore> scores = peptide.getPeptideScores();
 		if (scores != null) {
@@ -216,8 +238,7 @@ public class MySQLSaver {
 		final Set<Psm> psms = peptide.getPsms();
 		if (psms != null) {
 			for (Psm psm : psms) {
-				if (psm.getId() == null)
-					savePSM(psm);
+				savePSM(psm);
 			}
 		}
 		// proteins
@@ -890,7 +911,7 @@ public class MySQLSaver {
 				}
 			}
 			if (!discardedProteins.isEmpty()) {
-				log.info("Removing " + discardedProteins.size() + " proteins from condition "
+				log.warn("Removing " + discardedProteins.size() + " proteins from condition "
 						+ hibExperimentalCondition.getName() + " condition without PSMs");
 				for (Protein protein : discardedProteins) {
 					final boolean removed = hibExperimentalCondition.getProteins().remove(protein);
@@ -916,6 +937,21 @@ public class MySQLSaver {
 				i++;
 			}
 		}
+		// save all PSMs
+		final Set<Psm> psms = hibExperimentalCondition.getPsms();
+		int size = psms.size();
+		int i = 1;
+		for (Psm psm : psms) {
+			if (psm.getId() != null) {
+				continue;
+			}
+			if (i % 1000 == 0 || i == size) {
+				log.debug("Saving psm " + i + "/" + size);
+			}
+			savePSM(psm);
+			i++;
+		}
+
 		// save all the protein ratios
 		Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition1Id = hibExperimentalCondition
 				.getRatioDescriptorsForExperimentalCondition1Id();

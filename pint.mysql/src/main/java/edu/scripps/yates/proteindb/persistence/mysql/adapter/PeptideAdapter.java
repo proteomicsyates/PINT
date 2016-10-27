@@ -18,19 +18,16 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 	private static final HashMap<Integer, Peptide> map = new HashMap<Integer, Peptide>();
 	private final edu.scripps.yates.utilities.proteomicsmodel.Peptide peptide;
 	private final Project hibProject;
-	private final boolean createPSMsAndProteins;
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 2009879379965783199L;
 
-	public PeptideAdapter(edu.scripps.yates.utilities.proteomicsmodel.Peptide peptide, Project hibProject,
-			boolean createPSMs) {
+	public PeptideAdapter(edu.scripps.yates.utilities.proteomicsmodel.Peptide peptide, Project hibProject) {
 		if (peptide == null)
 			throw new IllegalArgumentException("Peptide cannot be null");
 		this.peptide = peptide;
 		this.hibProject = hibProject;
-		createPSMsAndProteins = createPSMs;
 	}
 
 	@Override
@@ -70,33 +67,32 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 				ret.getPeptideScores().add(new PeptideScoreAdapter(score, ret).adapt());
 			}
 		}
-		if (createPSMsAndProteins) {
-			// psms
-			final Set<PSM> psMs = peptide.getPSMs();
-			if (psMs != null && !psMs.isEmpty()) {
-				for (PSM psm : psMs) {
-					final Psm hibPsm = new PSMAdapter(psm, hibProject, createPSMsAndProteins).adapt();
-					ret.getPsms().add(hibPsm);
-					hibPsm.setPeptide(ret);
-				}
-			} else {
-				// peptide has to have psms
-				throw new IllegalArgumentException("peptide has to have psms");
+		// psms
+		final Set<PSM> psMs = peptide.getPSMs();
+		if (psMs != null && !psMs.isEmpty()) {
+			for (PSM psm : psMs) {
+				final Psm hibPsm = new PSMAdapter(psm, hibProject).adapt();
+				ret.getPsms().add(hibPsm);
+				hibPsm.setPeptide(ret);
 			}
-
-			// proteins
-			final Set<edu.scripps.yates.utilities.proteomicsmodel.Protein> proteins = peptide.getProteins();
-			if (proteins != null && !proteins.isEmpty()) {
-				for (edu.scripps.yates.utilities.proteomicsmodel.Protein protein : proteins) {
-					final Protein hibProtein = new ProteinAdapter(protein, hibProject, createPSMsAndProteins).adapt();
-					ret.getProteins().add(hibProtein);
-					hibProtein.getPeptides().add(ret);
-				}
-			} else {
-				// peptide has to have proteins
-				throw new IllegalArgumentException("peptide has to have proteins");
-			}
+		} else {
+			// peptide has to have psms
+			throw new IllegalArgumentException("peptide has to have psms");
 		}
+
+		// proteins
+		final Set<edu.scripps.yates.utilities.proteomicsmodel.Protein> proteins = peptide.getProteins();
+		if (proteins != null && !proteins.isEmpty()) {
+			for (edu.scripps.yates.utilities.proteomicsmodel.Protein protein : proteins) {
+				final Protein hibProtein = new ProteinAdapter(protein, hibProject).adapt();
+				ret.getProteins().add(hibProtein);
+				hibProtein.getPeptides().add(ret);
+			}
+		} else {
+			// peptide has to have proteins
+			throw new IllegalArgumentException("peptide has to have proteins");
+		}
+
 		return ret;
 	}
 

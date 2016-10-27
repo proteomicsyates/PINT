@@ -34,7 +34,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
-import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 
 public class ProteinAdapter implements Adapter<Protein>, Serializable {
@@ -48,13 +48,10 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 	private static final HashMap<Integer, Protein> map = new HashMap<Integer, Protein>();
 	// private static final HashMap<MSRun, Map<String, Peptide>> peptidesByMSRun
 	// = new HashMap<MSRun, Map<String, Peptide>>();
-	private final boolean createPeptidesAndPSMs;
 
-	public ProteinAdapter(edu.scripps.yates.utilities.proteomicsmodel.Protein protein, Project hibProject,
-			boolean createPeptidesAndPSMs) {
+	public ProteinAdapter(edu.scripps.yates.utilities.proteomicsmodel.Protein protein, Project hibProject) {
 		this.protein = protein;
 		this.hibProject = hibProject;
-		this.createPeptidesAndPSMs = createPeptidesAndPSMs;
 	}
 
 	@Override
@@ -191,60 +188,58 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		final MSRun msRun = protein.getMSRun();
 		ret.setMsRun(new MSRunAdapter(msRun, hibProject).adapt());
 
-		if (createPeptidesAndPSMs) {
-			// PSMS
-			final Set<PSM> psms2 = protein.getPSMs();
-			if (psms2 != null) {
-				for (PSM psm : psms2) {
-					final Psm hibPsm = new PSMAdapter(psm, hibProject, createPeptidesAndPSMs).adapt();
-					ret.getPsms().add(hibPsm);
-					hibPsm.getProteins().add(ret);
-				}
+		// PSMS
+		final Set<PSM> psms2 = protein.getPSMs();
+		if (psms2 != null) {
+			for (PSM psm : psms2) {
+				final Psm hibPsm = new PSMAdapter(psm, hibProject).adapt();
+				ret.getPsms().add(hibPsm);
+				hibPsm.getProteins().add(ret);
 			}
+		}
 
-			// peptides
-			final Set<Peptide> peptides = protein.getPeptides();
-			if (peptides != null) {
-				for (Peptide peptide : peptides) {
+		// peptides
+		final Set<Peptide> peptides = protein.getPeptides();
+		if (peptides != null) {
+			for (Peptide peptide : peptides) {
+				final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(peptide,
+						hibProject).adapt();
+				ret.getPeptides().add(hibPeptide);
+				hibPeptide.getProteins().add(ret);
+			}
+		} else {
+			// if there is not peptides, try to construct the peptides from
+			// PSMs and Proteins
+			Set<PSM> psms = protein.getPSMs();
+			if (psms != null) {
+				Map<String, Set<PSM>> psmMapBySequence = ModelUtils.getPSMMapBySequence(psms);
+
+				for (String sequence : psmMapBySequence.keySet()) {
+					final Set<PSM> psmsWithThatSequence = psmMapBySequence.get(sequence);
+					Peptide peptide = null;
+					if (StaticProteomicsModelStorage.containsPeptide(msRun, null, sequence)) {
+						peptide = StaticProteomicsModelStorage.getSinglePeptide(msRun, null, sequence);
+					} else {
+						// create the peptide
+						peptide = new PeptideEx(sequence, msRun);
+						StaticProteomicsModelStorage.addPeptide(peptide, msRun, null);
+					}
+					peptide.addProtein(protein);
+					// add the relationships with the psms
+					for (PSM psmWithThatSequence : psmsWithThatSequence) {
+						peptide.addPSM(psmWithThatSequence);
+						psmWithThatSequence.setPeptide(peptide);
+					}
+					// add to this protein
 					final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(peptide,
-							hibProject, createPeptidesAndPSMs).adapt();
+							hibProject).adapt();
 					ret.getPeptides().add(hibPeptide);
 					hibPeptide.getProteins().add(ret);
-				}
-			} else {
-				// if there is not peptides, try to construct the peptides from
-				// PSMs and Proteins
-				Set<PSM> psms = protein.getPSMs();
-				if (psms != null) {
-					Map<String, Set<PSM>> psmMapBySequence = ModelUtils.getPSMMapBySequence(psms);
 
-					for (String sequence : psmMapBySequence.keySet()) {
-						final Set<PSM> psmsWithThatSequence = psmMapBySequence.get(sequence);
-						Peptide peptide = null;
-						if (ProteomicsModelStaticStorage.containsPeptide(msRun, null, sequence)) {
-							peptide = ProteomicsModelStaticStorage.getSinglePeptide(msRun, null, sequence);
-						} else {
-							// create the peptide
-							peptide = new PeptideEx(sequence, msRun);
-							ProteomicsModelStaticStorage.addPeptide(peptide, msRun, null);
-						}
-						peptide.addProtein(protein);
-						// add the relationships with the psms
-						for (PSM psmWithThatSequence : psmsWithThatSequence) {
-							peptide.addPSM(psmWithThatSequence);
-							psmWithThatSequence.setPeptide(peptide);
-						}
-						// add to this protein
-						final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(
-								peptide, hibProject, createPeptidesAndPSMs).adapt();
-						ret.getPeptides().add(hibPeptide);
-						hibPeptide.getProteins().add(ret);
-
-					}
 				}
 			}
-
 		}
+
 		return ret;
 	}
 

@@ -28,7 +28,7 @@ import edu.scripps.yates.census.analysis.QuantCondition;
 import edu.scripps.yates.census.read.model.Ion;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedPSM;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedProtein;
-import edu.scripps.yates.census.read.model.QuantStaticMaps;
+import edu.scripps.yates.census.read.model.StaticQuantMaps;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
@@ -79,7 +79,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
-import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
 
@@ -190,7 +190,7 @@ public class ImportCfgFileReader {
 	private synchronized Project getProjectFromCfgFile(PintImportCfgType cfg, File fastaIndexFolder)
 			throws IOException, URISyntaxException {
 		log.info("Clearing static Quant information");
-		QuantStaticMaps.clearInfo();
+		StaticQuantMaps.clearInfo();
 
 		projectCfg = cfg.getProject();
 		ProjectEx project = new ProjectEx(projectCfg.getName(), projectCfg.getDescription());
@@ -1281,14 +1281,14 @@ public class ImportCfgFileReader {
 
 							// get proteins in the same row and the same msRun
 							for (String msRunRef : msRunRefs) {
-								Set<Protein> proteins1 = ProteomicsModelStaticStorage.getProtein(msRunRef,
+								Set<Protein> proteins1 = StaticProteomicsModelStorage.getProtein(msRunRef,
 										condition1Ref, rowIndex, null);
 								if (proteins1.isEmpty()) {
 									throw new IllegalArgumentException("Protein in row " + rowIndex
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								Set<Protein> proteins2 = ProteomicsModelStaticStorage.getProtein(msRunRef,
+								Set<Protein> proteins2 = StaticProteomicsModelStorage.getProtein(msRunRef,
 										condition2Ref, rowIndex, null);
 								if (proteins2.isEmpty()) {
 									throw new IllegalArgumentException("Protein in row " + rowIndex
@@ -1372,7 +1372,7 @@ public class ImportCfgFileReader {
 											continue;
 										}
 									}
-									Set<Protein> proteins1 = ProteomicsModelStaticStorage.getProtein(msRunRefs,
+									Set<Protein> proteins1 = StaticProteomicsModelStorage.getProtein(msRunRefs,
 											condition1Ref, uniprotAcc);
 									if (proteins1.isEmpty()) {
 										throw new IllegalArgumentException("Protein in row " + rowIndex
@@ -1380,7 +1380,7 @@ public class ImportCfgFileReader {
 												+ condition1Ref + " and " + condition2Ref + " in msRuns "
 												+ getStringFromCollection(msRunRefs));
 									}
-									Set<Protein> proteins2 = ProteomicsModelStaticStorage.getProtein(msRunRefs,
+									Set<Protein> proteins2 = StaticProteomicsModelStorage.getProtein(msRunRefs,
 											condition2Ref, uniprotAcc);
 									if (proteins2.isEmpty()) {
 										throw new IllegalArgumentException("Protein in row " + rowIndex
@@ -1512,14 +1512,14 @@ public class ImportCfgFileReader {
 
 							// get psms in the same row and the same msRun
 							for (String msRunRef : msRunRefs) {
-								Set<PSM> psms1 = ProteomicsModelStaticStorage.getPSM(msRunRef, condition1Ref, rowIndex,
+								Set<PSM> psms1 = StaticProteomicsModelStorage.getPSM(msRunRef, condition1Ref, rowIndex,
 										null);
 								if (psms1.isEmpty()) {
 									throw new IllegalArgumentException("PSM in row " + rowIndex
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								Set<PSM> psms2 = ProteomicsModelStaticStorage.getPSM(msRunRef, condition2Ref, rowIndex,
+								Set<PSM> psms2 = StaticProteomicsModelStorage.getPSM(msRunRef, condition2Ref, rowIndex,
 										null);
 								if (psms2.isEmpty()) {
 									throw new IllegalArgumentException("PSM in row " + rowIndex
@@ -1563,14 +1563,14 @@ public class ImportCfgFileReader {
 							}
 
 							for (String msRunRef : msRunRefs) {
-								final Set<PSM> rowPSMCondition1 = ProteomicsModelStaticStorage.getPSM(msRunRef,
+								final Set<PSM> rowPSMCondition1 = StaticProteomicsModelStorage.getPSM(msRunRef,
 										condition1Ref, psmID);
 								if (rowPSMCondition1.isEmpty()) {
 									throw new IllegalArgumentException("PSM id " + psmID
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								final Set<PSM> rowPSMCondition2 = ProteomicsModelStaticStorage.getPSM(msRunRef,
+								final Set<PSM> rowPSMCondition2 = StaticProteomicsModelStorage.getPSM(msRunRef,
 										condition2Ref, psmID);
 								if (rowPSMCondition2.isEmpty()) {
 									throw new IllegalArgumentException("PSM id " + psmID
@@ -1649,14 +1649,14 @@ public class ImportCfgFileReader {
 							// get peptides in the same row and the same msRun
 							for (String msRunRef : msRunRefs) {
 
-								final Set<Peptide> rowPeptideCondition1 = ProteomicsModelStaticStorage
+								final Set<Peptide> rowPeptideCondition1 = StaticProteomicsModelStorage
 										.getPeptide(msRunRef, condition1Ref, rowIndex, null);
 								if (rowPeptideCondition1.isEmpty()) {
 									throw new IllegalArgumentException("Peptide in row " + rowIndex
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								final Set<Peptide> rowPeptideCondition2 = ProteomicsModelStaticStorage
+								final Set<Peptide> rowPeptideCondition2 = StaticProteomicsModelStorage
 										.getPeptide(msRunRef, condition2Ref, rowIndex, null);
 								if (rowPeptideCondition2.isEmpty()) {
 									throw new IllegalArgumentException("Peptide in row " + rowIndex
@@ -1704,7 +1704,7 @@ public class ImportCfgFileReader {
 							}
 
 							// get the Peptides in those msRuns
-							final Set<Peptide> rowPeptideCondition1 = ProteomicsModelStaticStorage.getPeptide(msRunRefs,
+							final Set<Peptide> rowPeptideCondition1 = StaticProteomicsModelStorage.getPeptide(msRunRefs,
 									condition1Ref, peptideSequence);
 							if (rowPeptideCondition1.isEmpty()) {
 								throw new IllegalArgumentException("Peptide " + peptideSequence
@@ -1712,7 +1712,7 @@ public class ImportCfgFileReader {
 										+ condition1Ref + " and " + condition2Ref + " in msRuns "
 										+ getStringFromCollection(msRunRefs));
 							}
-							final Set<Peptide> rowPeptideCondition2 = ProteomicsModelStaticStorage.getPeptide(msRunRefs,
+							final Set<Peptide> rowPeptideCondition2 = StaticProteomicsModelStorage.getPeptide(msRunRefs,
 									condition2Ref, peptideSequence);
 							if (rowPeptideCondition2.isEmpty()) {
 								throw new IllegalArgumentException("Peptide " + peptideSequence
@@ -1847,7 +1847,7 @@ public class ImportCfgFileReader {
 		// PSMAdapterByExcel.clearStaticInformationByRow();
 		// PeptideAdapterByExcel.clearStaticInformationByRow();
 
-		ProteomicsModelStaticStorage.clearData();
+		StaticProteomicsModelStorage.clearData();
 	}
 
 }

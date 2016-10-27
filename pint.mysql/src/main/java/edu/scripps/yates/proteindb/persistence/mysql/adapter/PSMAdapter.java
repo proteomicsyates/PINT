@@ -28,17 +28,15 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 	private final PSM psm;
 	private final Project hibProject;
 	private final static Map<Integer, Psm> map = new HashMap<Integer, Psm>();
-	private final boolean createPeptidesAndProteins;
 	private final Set<String> psmIds = new HashSet<String>();
 
-	public PSMAdapter(PSM psm, Project hibProject, boolean createPeptidesAndProteins) {
+	public PSMAdapter(PSM psm, Project hibProject) {
 		this.psm = psm;
 
 		if (!psmIds.contains(psm.getPSMIdentifier())) {
 			psmIds.add(psm.getPSMIdentifier());
 		}
 		this.hibProject = hibProject;
-		this.createPeptidesAndProteins = createPeptidesAndProteins;
 	}
 
 	@Override
@@ -51,10 +49,10 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 		MsRun msRun = new MSRunAdapter(psm.getMSRun(), hibProject).adapt();
 
 		Peptide parentPeptide = null;
-		if (createPeptidesAndProteins && psm.getPeptide() != null) {
-			parentPeptide = new PeptideAdapter(psm.getPeptide(), hibProject, createPeptidesAndProteins).adapt();
+		if (psm.getPeptide() != null) {
+			parentPeptide = new PeptideAdapter(psm.getPeptide(), hibProject).adapt();
 		} else {
-			// log.error("No peptide in this psm!");
+			log.error("No peptide in this psm!");
 		}
 		Psm ret = new Psm(msRun, parentPeptide, psm.getSequence(), psm.getFullSequence());
 		map.put(psm.hashCode(), ret);
@@ -109,11 +107,9 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 		// ret.getProteins().addAll(psm.getProteins());
 
 		// proteins
-		if (createPeptidesAndProteins) {
-			if (psm.getProteins() != null) {
-				for (edu.scripps.yates.utilities.proteomicsmodel.Protein protein : psm.getProteins()) {
-					ret.getProteins().add(new ProteinAdapter(protein, hibProject, createPeptidesAndProteins).adapt());
-				}
+		if (psm.getProteins() != null) {
+			for (edu.scripps.yates.utilities.proteomicsmodel.Protein protein : psm.getProteins()) {
+				ret.getProteins().add(new ProteinAdapter(protein, hibProject).adapt());
 			}
 		}
 

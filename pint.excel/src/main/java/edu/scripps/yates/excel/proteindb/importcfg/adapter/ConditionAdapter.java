@@ -48,7 +48,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
-import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 
 public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Adapter<Condition> {
@@ -444,7 +444,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					// final Set<Protein> rowProteins =
 					// ProteinsAdapterByExcel.getProteinsByMSRunAndRowIndex(msRunRef,
 					// rowIndex);
-					final Set<Protein> rowProteins = ProteomicsModelStaticStorage.getProtein(msRunRef,
+					final Set<Protein> rowProteins = StaticProteomicsModelStorage.getProtein(msRunRef,
 							condition.getName(), rowIndex, null);
 					for (Protein rowProtein : rowProteins) {
 						if (runProteins != null) {
@@ -471,7 +471,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					// PSMAdapterByExcel.getPSMsByMSRunAndRow(rowIndex,
 					// msRunRef);
 					String psmId = rowIndex + msRunRef;
-					final Set<PSM> rowPSMs = ProteomicsModelStaticStorage.getPSM(psmId, condition.getName(), rowIndex,
+					final Set<PSM> rowPSMs = StaticProteomicsModelStorage.getPSM(psmId, condition.getName(), rowIndex,
 							null);
 					for (PSM rowPSM : rowPSMs) {
 						if (runPSMs.contains(rowPSM)) {
@@ -495,7 +495,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					// assign just to the peptides in that rowIndex
 					// final Set<Peptide> rowPeptides =
 					// PeptideAdapterByExcel.peptideByRowIndex.get(rowIndex);
-					final Set<Peptide> rowPeptides = ProteomicsModelStaticStorage.getPeptide(msRunRef,
+					final Set<Peptide> rowPeptides = StaticProteomicsModelStorage.getPeptide(msRunRef,
 							condition.getName(), rowIndex, null);
 					for (Peptide rowPeptide : rowPeptides) {
 						if (runPeptides.contains(rowPeptide)) {

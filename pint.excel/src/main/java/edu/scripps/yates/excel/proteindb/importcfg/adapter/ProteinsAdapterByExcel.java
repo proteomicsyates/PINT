@@ -41,7 +41,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
-import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.util.Pair;
 
 public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.pattern.Adapter<Set<Protein>> {
@@ -208,7 +208,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 			for (Protein protein : proteinSet) {
 				// addProteinByMSRunIDAndRowIndex(msRun.getId(), rowIndex,
 				// protein);
-				ProteomicsModelStaticStorage.addProtein(protein, msRun.getId(), expCondition.getName());
+				StaticProteomicsModelStorage.addProtein(protein, msRun.getId(), expCondition.getName());
 			}
 
 			if (!proteinSet.isEmpty()) {
@@ -359,9 +359,9 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 			Protein protein = null;
 			// IMPORTANT: use accession.getAccession instead of proteinAcc just
 			// in case that in AccessionEx the accession changes
-			if (ProteomicsModelStaticStorage.containsProtein(msRun.getId(), expCondition.getName(), accession.getAccession())) {
+			if (StaticProteomicsModelStorage.containsProtein(msRun.getId(), expCondition.getName(), accession.getAccession())) {
 				// protein = proteinMap.get(accession.getAccession());
-				protein = ProteomicsModelStaticStorage.getProtein(msRun.getId(), expCondition.getName(), accession.getAccession())
+				protein = StaticProteomicsModelStorage.getProtein(msRun.getId(), expCondition.getName(), accession.getAccession())
 						.iterator().next();
 			} else {
 				protein = new ProteinExExtension(accession, sample.getOrganism());
@@ -374,9 +374,9 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 				// if the primary accession is not uniprot, check it remotely
 				// using the description of the protein if possible
 				addUniprotInformation((ProteinEx) protein);
-				if (ProteomicsModelStaticStorage.containsProtein(msRun.getId(), expCondition.getName(),
+				if (StaticProteomicsModelStorage.containsProtein(msRun.getId(), expCondition.getName(),
 						protein.getPrimaryAccession().getAccession())) {
-					Protein proteinOLD = ProteomicsModelStaticStorage.getProtein(msRun.getId(), expCondition.getName(),
+					Protein proteinOLD = StaticProteomicsModelStorage.getProtein(msRun.getId(), expCondition.getName(),
 							protein.getPrimaryAccession().getAccession()).iterator().next();
 					// add to map with also the secondary accession
 					if (protein.getSecondaryAccessions() != null) {
@@ -386,7 +386,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 							}
 							// add again in order to be indexed by the new
 							// accessions:
-							ProteomicsModelStaticStorage.addProtein(proteinOLD, msRun.getId(), expCondition.getName());
+							StaticProteomicsModelStorage.addProtein(proteinOLD, msRun.getId(), expCondition.getName());
 							// proteinMap.put(secondaryAcc.getAccession(),
 							// proteinOLD);
 						}
@@ -409,7 +409,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 
 				}
 			}
-			ProteomicsModelStaticStorage.addProtein(protein, msRun.getId(), expCondition.getName(), rowIndex);
+			StaticProteomicsModelStorage.addProtein(protein, msRun.getId(), expCondition.getName(), rowIndex);
 			// msrun
 			protein.setMSRun(new MSRunAdapter(msRun).adapt());
 			// condition

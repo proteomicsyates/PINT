@@ -38,7 +38,7 @@ public class AlzheimerProjectSaver extends PintServerDaemonTask {
 						mySQLSaver.saveProject(projectFromCfgFile);
 						log.info("Finishing transaction");
 						ContextualSessionHandler.finishGoodTransaction();
-
+						ContextualSessionHandler.closeSession();
 						log.info("transaction finished");
 						log.info(++numConditionsSaved + " conditions saved so far");
 					} catch (Exception e) {

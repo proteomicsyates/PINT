@@ -14,7 +14,7 @@ import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
-import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 
 public class PSMAdapterByExcel implements Adapter<PSM> {
 	// private final static Map<String, Map<String, PSMEx>> psmMapByMSRunID =
@@ -62,8 +62,8 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 			// psmMap = new HashMap<String, PSMEx>();
 			// psmMapByMSRunID.put(msRun.getId(), psmMap);
 			// }
-			if (ProteomicsModelStaticStorage.containsPSM(msRun.getId(), null, rowIndex, psmId)) {
-				psm = ProteomicsModelStaticStorage.getPSM(msRun.getId(), null, rowIndex, psmId).iterator().next();
+			if (StaticProteomicsModelStorage.containsPSM(msRun.getId(), null, rowIndex, psmId)) {
+				psm = StaticProteomicsModelStorage.getPSM(msRun.getId(), null, rowIndex, psmId).iterator().next();
 			} else {
 				psm = new PSMEx(psmId, cleanPsmSequence, rawPsmSequence);
 				psm.setMSRun(new MSRunAdapter(msRun).adapt());
@@ -72,7 +72,7 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 			}
 			psm.addCondition(condition);
 			// addPSMByMSRunIDAndRowIndex(msRun.getId(), rowIndex, psm);
-			ProteomicsModelStaticStorage.addPSM(psm, msRun.getId(), condition.getName(), rowIndex);
+			StaticProteomicsModelStorage.addPSM(psm, msRun.getId(), condition.getName(), rowIndex);
 
 			// modifications
 

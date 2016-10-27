@@ -33,7 +33,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
-import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
 
@@ -168,15 +168,18 @@ public class ProteinImplFromQuantifiedProtein implements Protein {
 		if (!psmsParsed) {
 			final Set<QuantifiedPSMInterface> quantPSMs = quantProtein.getQuantifiedPSMs();
 			for (QuantifiedPSMInterface quantPSM : quantPSMs) {
-				if (ProteomicsModelStaticStorage.containsPSM(msRun, null, quantPSM.getKey())) {
-					final PSM psm = ProteomicsModelStaticStorage.getSinglePSM(msRun, null, quantPSM.getKey());
-					psm.addProtein(this);
-					psms.add(psm);
-				} else {
-					final PSMImplFromQuantifiedPSM psm = new PSMImplFromQuantifiedPSM(quantPSM, msRun);
-					psm.addProtein(this);
-					psms.add(psm);
-					ProteomicsModelStaticStorage.addPSM(psm, msRun, null);
+				for (Condition condition : getConditions()) {
+					if (StaticProteomicsModelStorage.containsPSM(msRun, condition.getName(), quantPSM.getKey())) {
+						final PSM psm = StaticProteomicsModelStorage.getSinglePSM(msRun, condition.getName(),
+								quantPSM.getKey());
+						psm.addProtein(this);
+						psms.add(psm);
+					} else {
+						final PSMImplFromQuantifiedPSM psm = new PSMImplFromQuantifiedPSM(quantPSM, msRun);
+						psm.addProtein(this);
+						psms.add(psm);
+						StaticProteomicsModelStorage.addPSM(psm, msRun, condition.getName());
+					}
 				}
 			}
 			psmsParsed = true;
@@ -191,16 +194,18 @@ public class ProteinImplFromQuantifiedProtein implements Protein {
 
 			for (PSM psm : getPSMs()) {
 				final String sequence = psm.getSequence();
-				Peptide peptide = null;
-				if (ProteomicsModelStaticStorage.containsPeptide(msRun, null, sequence)) {
-					peptide = ProteomicsModelStaticStorage.getSinglePeptide(msRun, null, sequence);
-				} else {
-					peptide = new PeptideEx(sequence, msRun);
-					peptide.addPSM(psm);
-					psm.setPeptide(peptide);
-					ProteomicsModelStaticStorage.addPeptide(peptide, msRun, null);
+				for (Condition condition : getConditions()) {
+					Peptide peptide = null;
+					if (StaticProteomicsModelStorage.containsPeptide(msRun, condition.getName(), sequence)) {
+						peptide = StaticProteomicsModelStorage.getSinglePeptide(msRun, condition.getName(), sequence);
+					} else {
+						peptide = new PeptideEx(sequence, msRun);
+						peptide.addPSM(psm);
+						psm.setPeptide(peptide);
+						StaticProteomicsModelStorage.addPeptide(peptide, msRun, condition.getName());
+					}
+					peptides.add(peptide);
 				}
-				peptides.add(peptide);
 			}
 
 			peptidesParsed = true;

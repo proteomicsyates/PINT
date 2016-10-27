@@ -91,13 +91,13 @@ public class ConditionAdapter
 
 				for (Peptide peptide : peptides) {
 					final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(peptide,
-							hibProject, false).adapt();
+							hibProject).adapt();
 					ret.getPeptides().add(hibPeptide);
 				}
 
 				final Set<PSM> psMs = protein.getPSMs();
 				for (PSM psm : psMs) {
-					final Psm hibPSM = new PSMAdapter(psm, hibProject, false).adapt();
+					final Psm hibPSM = new PSMAdapter(psm, hibProject).adapt();
 					ret.getPsms().add(hibPSM);
 				}
 
@@ -105,7 +105,7 @@ public class ConditionAdapter
 				// false).adapt());
 
 				final edu.scripps.yates.proteindb.persistence.mysql.Protein hibProtein = new ProteinAdapter(protein,
-						hibProject, true).adapt();
+						hibProject).adapt();
 				ret.getProteins().add(hibProtein);
 			}
 
@@ -114,16 +114,16 @@ public class ConditionAdapter
 
 			for (Protein protein : proteins) {
 				final edu.scripps.yates.proteindb.persistence.mysql.Protein hibProtein = new ProteinAdapter(protein,
-						hibProject, false).adapt();
+						hibProject).adapt();
 				final Set<Peptide> peptides2 = protein.getPeptides();
 				for (Peptide peptide : peptides2) {
 					final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(peptide,
-							hibProject, false).adapt();
+							hibProject).adapt();
 					hibProtein.getPeptides().add(hibPeptide);
 					hibPeptide.getProteins().add(hibProtein);
 					final Set<PSM> psms = peptide.getPSMs();
 					for (PSM psm : psms) {
-						final Psm hibPSM = new PSMAdapter(psm, hibProject, false).adapt();
+						final Psm hibPSM = new PSMAdapter(psm, hibProject).adapt();
 						hibPSM.setPeptide(hibPeptide);
 						hibPSM.getProteins().add(hibProtein);
 						hibPeptide.getPsms().add(hibPSM);
@@ -132,12 +132,14 @@ public class ConditionAdapter
 				}
 				final Set<PSM> psms2 = protein.getPSMs();
 				for (PSM psm2 : psms2) {
-					final Psm hibPSM = new PSMAdapter(psm2, hibProject, false).adapt();
-					hibProtein.getPsms().add(hibPSM);
-					hibPSM.getProteins().add(hibProtein);
+					final Psm hibPSM = new PSMAdapter(psm2, hibProject).adapt();
+
 					final Peptide peptide = psm2.getPeptide();
 					final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(peptide,
-							hibProject, false).adapt();
+							hibProject).adapt();
+					hibProtein.getPsms().add(hibPSM);
+					hibProtein.getPeptides().add(hibPeptide);
+					hibPSM.getProteins().add(hibProtein);
 					hibPSM.setPeptide(hibPeptide);
 					hibPeptide.getProteins().add(hibProtein);
 					hibPeptide.getPsms().add(hibPSM);
@@ -151,9 +153,9 @@ public class ConditionAdapter
 			final Set<PSM> psMs = expConditionModel.getPSMs();
 			log.debug(psMs.size() + " psms in condition " + expConditionModel.getName());
 			for (PSM psm : psMs) {
-				final Psm hibPSM = new PSMAdapter(psm, hibProject, false).adapt();
+				final Psm hibPSM = new PSMAdapter(psm, hibProject).adapt();
 				final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(
-						psm.getPeptide(), hibProject, false).adapt();
+						psm.getPeptide(), hibProject).adapt();
 				hibPSM.setPeptide(hibPeptide);
 				ret.getPsms().add(hibPSM);
 				ret.getPeptides().add(hibPeptide);

@@ -21,7 +21,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteInfoType;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
-import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 
 public class PSMsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pattern.Adapter<Map<String, PSM>> {
 	private final static Logger log = Logger.getLogger(PSMsAdapterByRemoteFiles.class);
@@ -65,7 +65,7 @@ public class PSMsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pat
 					for (DTASelectPSM dtaSelectPSM : dtaSelectPSMs.values()) {
 						final PSMImplFromDTASelect psm = new PSMImplFromDTASelect(dtaSelectPSM, msrun);
 						psm.addCondition(expCondition);
-						ProteomicsModelStaticStorage.addPSM(psm, msrun, expCondition.getName());
+						StaticProteomicsModelStorage.addPSM(psm, msrun, expCondition.getName());
 						retMap.put(psm.getPSMIdentifier(), psm);
 					}
 				} else if (censusChroParser != null) {
@@ -75,7 +75,7 @@ public class PSMsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pat
 					for (QuantifiedPSMInterface quantifiedPSM : quantifiedPSMs.values()) {
 						final PSMImplFromQuantifiedPSM psm = new PSMImplFromQuantifiedPSM(quantifiedPSM, msrun);
 						psm.addCondition(expCondition);
-						ProteomicsModelStaticStorage.addPSM(psm, msrun, expCondition.getName());
+						StaticProteomicsModelStorage.addPSM(psm, msrun, expCondition.getName());
 						retMap.put(psm.getPSMIdentifier(), psm);
 					}
 				} else {
