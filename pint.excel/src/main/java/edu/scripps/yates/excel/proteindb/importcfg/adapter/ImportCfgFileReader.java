@@ -28,6 +28,7 @@ import edu.scripps.yates.census.analysis.QuantCondition;
 import edu.scripps.yates.census.read.model.Ion;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedPSM;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedProtein;
+import edu.scripps.yates.census.read.model.QuantStaticMaps;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
@@ -188,6 +189,9 @@ public class ImportCfgFileReader {
 	// static information
 	private synchronized Project getProjectFromCfgFile(PintImportCfgType cfg, File fastaIndexFolder)
 			throws IOException, URISyntaxException {
+		log.info("Clearing static Quant information");
+		QuantStaticMaps.clearInfo();
+
 		projectCfg = cfg.getProject();
 		ProjectEx project = new ProjectEx(projectCfg.getName(), projectCfg.getDescription());
 		if (projectCfg.getReleaseDate() != null) {
@@ -907,9 +911,6 @@ public class ImportCfgFileReader {
 								QuantifiedProteinInterface quantifiedProtein = quantProteinMap
 										.get(runProtein.getAccession());
 								if (quantifiedProtein == null) {
-									if (runProtein.getAccession().startsWith("P12023")) {
-										System.out.println(runProtein);
-									}
 									final List<Accession> secondaryAccessions = runProtein.getSecondaryAccessions();
 									for (Accession accession : secondaryAccessions) {
 										if (quantProteinMap.containsKey(accession.getAccession())) {
@@ -938,7 +939,8 @@ public class ImportCfgFileReader {
 										String sample2 = getSamplesByLabel(label2,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
-										log.info("Sample1=" + sample1 + "\tSample2=" + sample2);
+										// log.info("Sample1=" + sample1 +
+										// "\tSample2=" + sample2);
 										Pair<String, String> samplePair = new Pair<String, String>(sample1, sample2);
 										if (mapQuantRatios.containsKey(samplePair)) {
 											// take LOG 2 ratio
@@ -1150,25 +1152,26 @@ public class ImportCfgFileReader {
 	}
 
 	private Condition getConditionBySampleAndRatio(String sample1, RemoteFilesRatioType remoteFilesRatioType) {
-		log.info("getConditionBySample: " + sample1);
+		// log.info("getConditionBySample: " + sample1);
 
 		Condition ret = null;
 		final String numeratorConditionRef = remoteFilesRatioType.getNumerator().getConditionRef();
-		log.info("Numerator condition ref: " + numeratorConditionRef);
+		// log.info("Numerator condition ref: " + numeratorConditionRef);
 		if (conditionsByConditionID.get(numeratorConditionRef).getSample().getName().equals(sample1)) {
-			log.info("match with sample in numerator");
+			// log.info("match with sample in numerator");
 			ret = conditionsByConditionID.get(numeratorConditionRef);
 		} else {
 			final String denominatorConditionRef = remoteFilesRatioType.getDenominator().getConditionRef();
-			log.info("Denominator condition ref: " + denominatorConditionRef);
+			// log.info("Denominator condition ref: " +
+			// denominatorConditionRef);
 			if (conditionsByConditionID.get(denominatorConditionRef).getSample().getName().equals(sample1)) {
-				log.info("match with sample in denominator");
+				// log.info("match with sample in denominator");
 				ret = conditionsByConditionID.get(denominatorConditionRef);
 			} else {
 				throw new IllegalArgumentException("incoherent experimental setup");
 			}
 		}
-		log.info("condition: " + ret.getName());
+		// log.info("condition: " + ret.getName());
 		return ret;
 	}
 
