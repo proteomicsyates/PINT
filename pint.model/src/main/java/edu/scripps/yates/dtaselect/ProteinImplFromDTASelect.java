@@ -88,6 +88,7 @@ public class ProteinImplFromDTASelect implements Protein {
 			log.debug(getPrimaryAccession().getAccession() + " length=" + length2);
 			max = length2;
 		}
+
 	}
 
 	public ProteinImplFromDTASelect(DTASelectProtein dtaSelectProtein2, MSRun msrun2) {
@@ -376,8 +377,9 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public void addCondition(Condition condition) {
-		if (!conditions.contains(condition))
+		if (!conditions.contains(condition)) {
 			conditions.add(condition);
+		}
 		if (condition.getSample() != null && condition.getSample().getOrganism() != null)
 			setOrganism(condition.getSample().getOrganism());
 	}
@@ -488,4 +490,8 @@ public class ProteinImplFromDTASelect implements Protein {
 		return dtaSelectProtein.getNsaf();
 	}
 
+	@Override
+	public String toString() {
+		return getPrimaryAccession().getAccession() + " in MSRun " + getMSRun().getRunId();
+	}
 }
