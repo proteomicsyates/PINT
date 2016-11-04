@@ -23,8 +23,7 @@ public class ExcelFileImpl implements ExcelFile {
 	public ExcelFileImpl(File file) throws IOException {
 		if (!file.exists())
 			throw new IllegalArgumentException("File doesn't exist");
-		ExcelReader reader = new ExcelReader(file.getAbsolutePath(), 0,
-				Integer.MAX_VALUE);
+		ExcelReader reader = new ExcelReader(file.getAbsolutePath(), 0, Integer.MAX_VALUE);
 		final Workbook workbook = reader.getWorkbook();
 		final int numberOfSheets = workbook.getNumberOfSheets();
 		for (int numSheet = 0; numSheet < numberOfSheets; numSheet++) {
@@ -32,14 +31,13 @@ public class ExcelFileImpl implements ExcelFile {
 			final String sheetName = sheet.getSheetName();
 			sheetKeys.add(sheetName);
 			if (sheetMap.containsKey(sheetName))
-				throw new IllegalArgumentException("Excel file '"
-						+ file.getAbsolutePath()
-						+ "' contains duplicated sheet names");
+				throw new IllegalArgumentException(
+						"Excel file '" + file.getAbsolutePath() + "' contains duplicated sheet names");
 			ExcelSheet excelSheet = new ExcelSheetImpl(sheet, numSheet);
 			sheetMap.put(sheetName, excelSheet);
 		}
 		log.info("Excel file '" + file.getAbsolutePath() + "' processed.");
-		log.info("Number of sheets :" + sheetMap.size());
+		log.debug("Number of sheets :" + sheetMap.size());
 	}
 
 	@Override
