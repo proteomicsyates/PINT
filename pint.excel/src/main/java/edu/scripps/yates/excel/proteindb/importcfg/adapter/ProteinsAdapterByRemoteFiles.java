@@ -137,8 +137,14 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 			final Collection<DTASelectProtein> dtaSelectProteins = dtaSelectFilterParser.getDTASelectProteins()
 					.values();
 			for (DTASelectProtein dtaSelectProtein : dtaSelectProteins) {
-
-				final Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun);
+				Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun);
+				// look in the static model storage first
+				if (StaticProteomicsModelStorage.containsProtein(msrun.getRunId(), condition.getName(),
+						protein.getAccession())) {
+					protein = StaticProteomicsModelStorage
+							.getProtein(msrun.getRunId(), condition.getName(), protein.getAccession()).iterator()
+							.next();
+				}
 				StaticProteomicsModelStorage.addProtein(protein, msrun.getRunId(), condition.getName());
 				protein.setMSRun(msrun);
 				protein.addCondition(condition);
@@ -161,7 +167,13 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 		} else if (quantParser != null) {
 			final Map<String, QuantifiedProteinInterface> proteinMap = quantParser.getProteinMap();
 			for (QuantifiedProteinInterface quantProtein : proteinMap.values()) {
-				final Protein protein = new ProteinImplFromQuantifiedProtein(quantProtein, msrun, condition);
+				Protein protein = new ProteinImplFromQuantifiedProtein(quantProtein, msrun, condition);
+				if (StaticProteomicsModelStorage.containsProtein(msrun.getRunId(), condition.getName(),
+						protein.getAccession())) {
+					protein = StaticProteomicsModelStorage
+							.getProtein(msrun.getRunId(), condition.getName(), protein.getAccession()).iterator()
+							.next();
+				}
 				StaticProteomicsModelStorage.addProtein(protein, msrun, condition.getName());
 				retMap.put(protein.getAccession(), protein);
 				final Set<PSM> psMs = protein.getPSMs();
