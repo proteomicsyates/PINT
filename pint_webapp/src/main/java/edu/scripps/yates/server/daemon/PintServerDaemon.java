@@ -11,6 +11,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.server.daemon.tasks.AlzheimerProjectSaver;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
 import edu.scripps.yates.shared.util.SharedConstants;
 
@@ -32,8 +33,7 @@ public class PintServerDaemon implements ServletContextListener {
 			// pintServerDaemonTasks.add(new PrimaryAccSetter(servletContext));
 			// pintServerDaemonTasks.add(new
 			// ProteinAccessionsUpdater(servletContext));
-			// pintServerDaemonTasks.add(new
-			// AlzheimerProjectSaver(servletContext));
+			pintServerDaemonTasks.add(new AlzheimerProjectSaver(servletContext));
 			// pintServerDaemonTasks.add(new
 			// PreLoadPublicProjects("DAEMON_SESSION", servletContext));
 			// pintServerDaemonTasks.add(new
