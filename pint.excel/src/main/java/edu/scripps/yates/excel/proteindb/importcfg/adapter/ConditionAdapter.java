@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
@@ -312,7 +313,9 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 			dbIndex = remoteFileReader.getFastaDBIndex(remoteInfoType);
 
 			if (quantParser != null) {
-				log.info("Census quant parser is not null");
+				final String remoteFileName = FilenameUtils
+						.getName(quantParser.getRemoteFileRetrievers().get(0).getOutputFile().getAbsolutePath());
+				log.info("Census quant parser for file " + remoteFileName);
 				if (remoteInfoType.getDiscardDecoys() != null)
 					quantParser.setDecoyPattern(remoteInfoType.getDiscardDecoys());
 				if (dbIndex != null) {
@@ -324,6 +327,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					Set<PSM> runPSMs = getPSMsByRunID(project.getTag(), msRunRef);
 					for (PSM runPSM : runPSMs) {
 						final String psmIdentifier = runPSM.getPSMIdentifier();
+
 						final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap.get(psmIdentifier);
 						if (quantifiedPSM == null) {
 							// log.warn(runPSM.getPSMIdentifier()
@@ -664,6 +668,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	}
 
 	private static void addProteinsByRunID(String projectTag, String msrunID, Collection<Protein> proteins) {
+
 		// because sometimes the run
 		// id is the same in
 		// different experiments
