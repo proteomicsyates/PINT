@@ -237,7 +237,15 @@ public class ImportCfgFileReader {
 				addToMapWithPrimaryAndSecondaryAccs(protein, proteinMap);
 			}
 		}
+		final Set<Protein> proteinSet = proteinMap.get("IPI00649775.1");
+		for (Protein protein : proteinSet) {
 
+			final Set<Condition> conditions = protein.getConditions();
+			for (Condition condition : conditions) {
+				System.out.println(protein.getPrimaryAccession() + "\t" + protein.getMSRun().getRunId() + "\t"
+						+ condition.getName());
+			}
+		}
 		// get the ratios, iterate over them getting the corresponding
 		// proteins for each rowIndex and then creating an object for all
 		// the proteins in that row if they correspond with the conditions
@@ -687,10 +695,6 @@ public class ImportCfgFileReader {
 
 											final Double log2Ratio = ratioValue.getLog2Ratio(condition1.getName(),
 													condition2.getName());
-											if (Double.compare(log2Ratio, Double.NaN) == 0) {
-												log.info("asdf: " + ratioValue.getLog2Ratio(condition1.getName(),
-														condition2.getName()));
-											}
 											if (Maths.isMaxOrMinValue(log2Ratio)) {
 												maxOrMinValueRatioValues.add(ratioValue);
 											} else {
@@ -1375,18 +1379,20 @@ public class ImportCfgFileReader {
 									Set<Protein> proteins1 = StaticProteomicsModelStorage.getProtein(msRunRefs,
 											condition1Ref, uniprotAcc);
 									if (proteins1.isEmpty()) {
-										throw new IllegalArgumentException("Protein in row " + rowIndex
-												+ " from the Excel file is not found to assign a ratio to it between condition "
-												+ condition1Ref + " and " + condition2Ref + " in msRuns "
-												+ getStringFromCollection(msRunRefs));
+										throw new IllegalArgumentException(
+												"Protein  " + uniprotAcc + " in row " + rowIndex
+														+ " from the Excel file is not found to assign a ratio to it between condition "
+														+ condition1Ref + " and " + condition2Ref + " in msRuns "
+														+ getStringFromCollection(msRunRefs));
 									}
 									Set<Protein> proteins2 = StaticProteomicsModelStorage.getProtein(msRunRefs,
 											condition2Ref, uniprotAcc);
 									if (proteins2.isEmpty()) {
-										throw new IllegalArgumentException("Protein in row " + rowIndex
-												+ " from the Excel file is not found to assign a ratio to it between condition "
-												+ condition1Ref + " and " + condition2Ref + " in msRuns "
-												+ getStringFromCollection(msRunRefs));
+										throw new IllegalArgumentException(
+												"Protein " + uniprotAcc + " in row  " + rowIndex
+														+ " from the Excel file is not found to assign a ratio to it between condition "
+														+ condition1Ref + " and " + condition2Ref + " in msRuns "
+														+ getStringFromCollection(msRunRefs));
 									}
 
 									Set<Protein> rowProteins = ModelUtils.getProteinIntersection(proteins1, proteins2);
