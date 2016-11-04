@@ -201,7 +201,7 @@ public class ImportCfgFileReader {
 		project.setUploadedDate(new Date());
 		project.setPrivate(true);
 
-		excelReader = new ExcelFileReader(cfg.getFileSet());
+		excelReader = new ExcelFileReader(cfg.getFileSet(), cfg.getServers());
 
 		// TODO CHANGE THIS!!
 		Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditions = getLabelsByConditions(cfg);
@@ -237,15 +237,7 @@ public class ImportCfgFileReader {
 				addToMapWithPrimaryAndSecondaryAccs(protein, proteinMap);
 			}
 		}
-		final Set<Protein> proteinSet = proteinMap.get("IPI00649775.1");
-		for (Protein protein : proteinSet) {
 
-			final Set<Condition> conditions = protein.getConditions();
-			for (Condition condition : conditions) {
-				System.out.println(protein.getPrimaryAccession() + "\t" + protein.getMSRun().getRunId() + "\t"
-						+ condition.getName());
-			}
-		}
 		// get the ratios, iterate over them getting the corresponding
 		// proteins for each rowIndex and then creating an object for all
 		// the proteins in that row if they correspond with the conditions
