@@ -45,12 +45,10 @@ public class ExcelSheetImpl implements ExcelSheet {
 						final String headerName = cell.getStringCellValue();
 						columnIndexMap.put(colIx, headerName);
 						columnHeaders.add(headerName);
-						String columnKey = CellReference
-								.convertNumToColString(colIx);
+						String columnKey = CellReference.convertNumToColString(colIx);
 						columnKeys.add(columnKey);
 
-						ExcelColumn excelColumn = new ExcelColumnImpl(
-								columnKey, headerName);
+						ExcelColumn excelColumn = new ExcelColumnImpl(columnKey, headerName);
 
 						columnMap.put(columnKey, excelColumn);
 					}
@@ -66,21 +64,18 @@ public class ExcelSheetImpl implements ExcelSheet {
 						if (cell != null) {
 							cellValue = getCellValue(cell);
 						}
-						String columnKey = CellReference
-								.convertNumToColString(colIx);
-						final ExcelColumnImpl excelColumn = (ExcelColumnImpl) columnMap
-								.get(columnKey);
+						String columnKey = CellReference.convertNumToColString(colIx);
+						final ExcelColumnImpl excelColumn = (ExcelColumnImpl) columnMap.get(columnKey);
 
 						excelColumn.addData(rowIndex, cellValue);
 					}
 				}
 			}
 		}
-		log.info("Sheet '" + name + "' processed.");
-		log.info("Number of columns :" + columnMap.size());
+		log.debug("Sheet '" + name + "' processed.");
+		log.debug("Number of columns :" + columnMap.size());
 		for (String columnKey : columnKeys) {
-			log.info(columnKey + " "
-					+ columnMap.get(columnKey).getValues().size() + " values");
+			log.debug(columnKey + " " + columnMap.get(columnKey).getValues().size() + " values");
 		}
 	}
 
