@@ -356,15 +356,16 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 					AccessionType.fromValue(proteinAccession.getSecondElement()));
 			accession.setDescription(proteinDescription);
 
-			Protein protein = null;
+			Protein protein = new ProteinExExtension(accession, sample.getOrganism());
 			// IMPORTANT: use accession.getAccession instead of proteinAcc just
 			// in case that in AccessionEx the accession changes
-			if (StaticProteomicsModelStorage.containsProtein(msRun.getId(), expCondition.getName(), accession.getAccession())) {
+			if (StaticProteomicsModelStorage.containsProtein(msRun.getId(), expCondition.getName(),
+					protein.getAccession())) {
 				// protein = proteinMap.get(accession.getAccession());
-				protein = StaticProteomicsModelStorage.getProtein(msRun.getId(), expCondition.getName(), accession.getAccession())
-						.iterator().next();
+				protein = StaticProteomicsModelStorage
+						.getProtein(msRun.getId(), expCondition.getName(), protein.getAccession()).iterator().next();
 			} else {
-				protein = new ProteinExExtension(accession, sample.getOrganism());
+
 				// change on 11/14/2014... be careful
 				// not add to the proteinMap until get the Uniprot accession
 				// proteinMap.put(accession.getAccession(), protein);
@@ -375,7 +376,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 				// using the description of the protein if possible
 				addUniprotInformation((ProteinEx) protein);
 				if (StaticProteomicsModelStorage.containsProtein(msRun.getId(), expCondition.getName(),
-						protein.getPrimaryAccession().getAccession())) {
+						protein.getAccession())) {
 					Protein proteinOLD = StaticProteomicsModelStorage.getProtein(msRun.getId(), expCondition.getName(),
 							protein.getPrimaryAccession().getAccession()).iterator().next();
 					// add to map with also the secondary accession
