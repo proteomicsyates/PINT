@@ -18,6 +18,12 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 	private final String sessionID;
 	private final Set<String> projectsToLoad = new HashSet<String>();
 
+	/**
+	 * Preload projects tagged as 'public', in order to allow a faster loading
+	 * 
+	 * @param sessionID
+	 * @param servletContext
+	 */
 	public PreLoadPublicProjects(String sessionID, ServletContext servletContext) {
 		super(servletContext);
 		FileManager.getProjectFilesPath(servletContext);

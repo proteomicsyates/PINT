@@ -36,7 +36,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 import edu.scripps.yates.proteindb.persistence.mysql.Threshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 
 /**
  * This class provides the methods for the appropiate deletion of the data in
@@ -48,43 +47,21 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
  */
 public class MySQLDeleter {
 	private final static Logger log = Logger.getLogger(MySQLDeleter.class);
-	private int geneLength = 0;
 
 	private void deleteProtein(edu.scripps.yates.proteindb.persistence.mysql.Protein protein) {
-		if (PersistenceUtils.getPrimaryAccession(protein).getAccession().equals("P52907")) {
-			log.info("asdf");
-		}
-		final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
-		for (ProteinAccession proteinAccession : proteinAccessions) {
-			if (proteinAccession.getAccession().equals("IPI00000769")) {
-				log.info("asdf");
-			}
-		}
-		if (protein.getId() != null)
-			return;
-		// not delete protein without PSMs
-		if (protein.getPsms().isEmpty()) {
-			log.info("Not saving protein " + PersistenceUtils.getPrimaryAccession(protein).getAccession() + " in MSRun "
-					+ protein.getMsRun().getRunId() + " for not having PSMs");
-			return;
-		}
-		deleteMSRun(protein.getMsRun());
-		ContextualSessionHandler.delete(protein.getOrganism());
 
-		ContextualSessionHandler.delete(protein);
+		final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
+
+		// deleteMSRun(protein.getMsRun());
+		deleteOrganism(protein.getOrganism());
+
 		// log.debug("Saving protein " + next.getAccession());
 		// protein accesssions
 
-		if (proteinAccessions.isEmpty())
-			log.error("The protein has to have accessions");
-		boolean thereisPrimaryAcc = false;
 		for (ProteinAccession proteinAccession : proteinAccessions) {
-			if (proteinAccession.isIsPrimary())
-				thereisPrimaryAcc = true;
 			deleteProteinAccession(proteinAccession);
 		}
-		if (!thereisPrimaryAcc)
-			log.error("The protein has to have one primary acc");
+
 		// protein annotations
 		final Set<ProteinAnnotation> proteinAnnotations = protein.getProteinAnnotations();
 		for (ProteinAnnotation proteinAnnotation : proteinAnnotations) {
@@ -109,48 +86,31 @@ public class MySQLDeleter {
 			}
 		}
 
-		// organism
-		final Organism organism = protein.getOrganism();
-		if (organism != null) {
-			ContextualSessionHandler.delete(organism);
-
-		}
 		// // protein ratios
-		// final Set<ProteinRatioValue> proteinRatios = protein
-		// .getProteinRatioValues();
-		// for (ProteinRatioValue proteinRatio : proteinRatios) {
-		// deleteProteinRatio(proteinRatio);
-		// }
-		// peptide
-		// if (proteinPeptideRelation ==
-		// ProteinPeptideRelationship.PROTEINS_HAS_PEPTIDES) {
-		final Set<Peptide> peptides = protein.getPeptides();
-		int i = 0;
-		int size = peptides.size();
-		for (Peptide peptide : peptides) {
-			i++;
-			if (peptide.getId() != null)
-				continue;
-			// if (i % 5 == 0 || i == size)
-			// log.debug("Saving peptide " + i + "/" + size);
-			deletePeptide(peptide);
+		final Set<ProteinRatioValue> proteinRatios = protein.getProteinRatioValues();
+		for (ProteinRatioValue proteinRatio : proteinRatios) {
+			deleteProteinRatio(proteinRatio);
 		}
-		// }
 
 		// amounts
 		final Set<ProteinAmount> amounts = protein.getProteinAmounts();
-		if (amounts != null) {
-			for (ProteinAmount amount : amounts) {
-				deleteProteinAmount(amount);
-			}
+		for (ProteinAmount amount : amounts) {
+			deleteProteinAmount(amount);
+		}
+		ContextualSessionHandler.delete(protein);
+	}
+
+	private void deleteOrganism(Organism organism) {
+		if (organism.getProteins().isEmpty() && organism.getSamples().isEmpty()) {
+			ContextualSessionHandler.delete(organism);
 		}
 	}
 
 	private void deletePSM(Psm psm) {
 
-		final MsRun msRun = psm.getMsRun();
-		msRun.getPsms().remove(psm);
-		deleteMSRun(msRun);
+		// final MsRun msRun = psm.getMsRun();
+		// msRun.getPsms().remove(psm);
+		// deleteMSRun(msRun);
 
 		final Set<Ptm> ptms = psm.getPtms();
 		if (ptms != null) {
@@ -182,7 +142,7 @@ public class MySQLDeleter {
 
 	private void deletePeptide(Peptide peptide) {
 
-		deleteMSRun(peptide.getMsRun());
+		// deleteMSRun(peptide.getMsRun());
 
 		// scores
 		final Set<PeptideScore> scores = peptide.getPeptideScores();
@@ -260,16 +220,13 @@ public class MySQLDeleter {
 	}
 
 	private void deleteGene(Gene gene) {
-		if (geneLength < gene.getGeneId().length())
-			geneLength = gene.getGeneId().length();
+
 		ContextualSessionHandler.delete(gene);
 
 	}
 
 	private void deleteProteinRatio(ProteinRatioValue proteinRatioValue) {
-
-		deleteProtein(proteinRatioValue.getProtein());
-
+		// deleteRatioDescriptor(proteinRatioValue.getRatioDescriptor());
 		// final ConfidenceScoreType scoreType =
 		// proteinRatioValue.getConfidenceScoreType();
 		// if (scoreType != null) {
@@ -289,7 +246,7 @@ public class MySQLDeleter {
 
 	private void deletePeptideRatio(PeptideRatioValue peptideRatioValue) {
 
-		deletePeptide(peptideRatioValue.getPeptide());
+		// deletePeptide(peptideRatioValue.getPeptide());
 
 		// final ConfidenceScoreType scoreType =
 		// peptideRatioValue.getConfidenceScoreType();
@@ -361,11 +318,15 @@ public class MySQLDeleter {
 	}
 
 	private void deleteAppliedThreshold(ProteinThreshold appliedThreshold) {
-		final Threshold threshold = appliedThreshold.getThreshold();
+		// deleteThreshold(appliedThreshold.getThreshold());
+
+		ContextualSessionHandler.delete(appliedThreshold);
+	}
+
+	private void deleteThreshold(Threshold threshold) {
 
 		ContextualSessionHandler.delete(threshold);
 
-		ContextualSessionHandler.delete(appliedThreshold);
 	}
 
 	private void deleteProteinAmount(ProteinAmount proteinAmount) {
@@ -460,59 +421,27 @@ public class MySQLDeleter {
 
 	private void deleteProteinAnnotation(ProteinAnnotation proteinAnnotation) {
 
-		final AnnotationType annotationType = proteinAnnotation.getAnnotationType();
-		deleteAnnotationType(annotationType);
+		// deleteAnnotationType(proteinAnnotation.getAnnotationType());
 
-		if (proteinAnnotation.getProtein() == null || proteinAnnotation.getProtein().getId() == null)
-			log.debug("ASDF");
-		// log.debug("Saving proteinAnnotation");
 		ContextualSessionHandler.delete(proteinAnnotation);
-		// log.debug("proteinAnnotation deleted with id="
-		// + proteinAnnotation.getId());
 
 	}
 
 	private void deleteAnnotationType(AnnotationType annotationType) {
-		final AnnotationType annotationTypeDB = ContextualSessionHandler.load(annotationType.getName(),
-				AnnotationType.class);
-		if (annotationTypeDB != null) {
-			annotationTypeDB.getProteinAnnotations().addAll(annotationType.getProteinAnnotations());
-			ContextualSessionHandler.delete(annotationTypeDB);
-			annotationType = annotationTypeDB;
 
-		} else {
-			ContextualSessionHandler.delete(annotationType);
-
-		}
+		ContextualSessionHandler.delete(annotationType);
 
 	}
 
 	private void deleteMSRun(MsRun msRun) {
-		if (msRun == null)
-			log.info("ms run is null!!!");
-		// if (msRun.getId() != null)
-		// return;
-		// final MsRun oldMsRun = ManagedSessionHandler.load(msRun.getId(),
-		// MsRun.class);
-		// if (oldMsRun != null) {
-		// oldMsRun.setPath(msRun.getPath());
-		// oldMsRun.setDate(msRun.getDate());
-		// oldMsRun.getPsms().addAll(msRun.getPsms());
-		// ManagedSessionHandler.delete(oldMsRun);
-		// msRun = oldMsRun;
-		// } else {
-		// ManagedSessionHandler.delete(msRun);
-		// }
-		if (msRun.getPeptides().isEmpty() && msRun.getProteins().isEmpty() && msRun.getPsms().isEmpty()) {
-			ContextualSessionHandler.delete(msRun);
-		}
+
+		ContextualSessionHandler.delete(msRun);
+
 	}
 
 	public void deleteExperimentalCondition(Condition condition) {
 
 		log.info("Deleting condition: " + condition.getName() + " of project " + condition.getProject().getName());
-		final Sample sample = condition.getSample();
-		deleteSample(sample);
 
 		final Set<Psm> psms = condition.getPsms();
 		for (Psm psm : psms) {
@@ -541,6 +470,8 @@ public class MySQLDeleter {
 		}
 
 		ContextualSessionHandler.delete(condition);
+		final Sample sample = condition.getSample();
+		deleteSample(sample);
 	}
 
 	public boolean deleteProject(String projectTag) {
@@ -554,6 +485,10 @@ public class MySQLDeleter {
 			for (Condition condition : conditions) {
 				deleteExperimentalCondition(condition);
 			}
+			final Set<MsRun> msRuns = hibProject.getMsRuns();
+			for (MsRun msRun : msRuns) {
+				deleteMSRun(msRun);
+			}
 			ContextualSessionHandler.delete(hibProject);
 
 			return true;
@@ -566,20 +501,19 @@ public class MySQLDeleter {
 	private void deleteSample(Sample sample) {
 
 		final Tissue tissue = sample.getTissue();
-		if (tissue != null) {
+		if (tissue != null && tissue.getSamples().isEmpty()) {
 			ContextualSessionHandler.delete(tissue);
 		}
 
 		final Label label = sample.getLabel();
-		if (label != null) {
+		if (label != null && label.getSamples().isEmpty()) {
 			ContextualSessionHandler.delete(label);
 		}
 		final Set<Organism> organisms = sample.getOrganisms();
 		for (Organism organism : organisms) {
 			organism.getSamples().remove(sample);
-			if (organism.getSamples().isEmpty()) {
-				ContextualSessionHandler.delete(organism);
-			}
+			deleteOrganism(organism);
+
 		}
 		ContextualSessionHandler.delete(sample);
 	}

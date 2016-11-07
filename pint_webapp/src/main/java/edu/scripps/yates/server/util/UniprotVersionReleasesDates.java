@@ -64,6 +64,8 @@ public class UniprotVersionReleasesDates {
 
 		} finally {
 			bw.close();
+			log.info("Uniprot version " + currentUniprotVersion + " registered with date: "
+					+ df.format(getUniprotReleaseDatesByVersions().get(currentUniprotVersion)));
 		}
 	}
 

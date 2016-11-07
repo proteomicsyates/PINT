@@ -489,13 +489,23 @@ public class RemoteServicesTasks {
 		return ret;
 	}
 
+	/**
+	 * Gets the list of {@link ProjectBean} in the DB, NOT including the hidden
+	 * projects
+	 *
+	 * @return
+	 */
 	public static Set<ProjectBean> getProjectBeans() {
+		return getProjectBeans(false);
+	}
+
+	public static Set<ProjectBean> getProjectBeans(boolean includeHidden) {
 		Set<ProjectBean> ret = new HashSet<ProjectBean>();
 
 		List<edu.scripps.yates.proteindb.persistence.mysql.Project> retrieveList = ContextualSessionHandler
 				.retrieveList(edu.scripps.yates.proteindb.persistence.mysql.Project.class);
 		for (edu.scripps.yates.proteindb.persistence.mysql.Project project : retrieveList) {
-			if (project.isHidden())
+			if (!includeHidden && project.isHidden())
 				continue;
 			ProjectBean projectBean = new ProjectBeanAdapter(project).adapt();
 			ServerCacheProjectBeanByProjectTag.getInstance().addtoCache(projectBean, projectBean.getTag());

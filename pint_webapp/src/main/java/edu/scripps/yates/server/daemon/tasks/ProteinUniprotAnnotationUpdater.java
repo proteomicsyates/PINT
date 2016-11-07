@@ -23,10 +23,28 @@ import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 
+/**
+ * {@link PintServerDaemonTask} that checks all the accessions of the proteins
+ * in the DB and goes to Uniprot to check whether is still the primary accession
+ * of that protein. If not, it updates that accession as not primary and saves
+ * the new primary one in the DB linked to that protein
+ * 
+ * @author Salva
+ *
+ */
 public class ProteinUniprotAnnotationUpdater extends PintServerDaemonTask {
 
 	private final String projectFilesPath;
 
+	/**
+	 * {@link PintServerDaemonTask} that checks all the accessions of the
+	 * proteins in the DB and goes to Uniprot to check whether is still the
+	 * primary accession of that protein. If not, it updates that accession as
+	 * not primary and saves the new primary one in the DB linked to that
+	 * protein
+	 *
+	 * @param servletContext
+	 */
 	public ProteinUniprotAnnotationUpdater(ServletContext servletContext) {
 		super(servletContext);
 		projectFilesPath = FileManager.getProjectFilesPath(servletContext);

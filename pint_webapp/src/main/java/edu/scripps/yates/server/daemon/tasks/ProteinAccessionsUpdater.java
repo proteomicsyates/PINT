@@ -11,16 +11,39 @@ import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
-import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 
+/**
+ * {@link PintServerDaemonTask} that checks all proteins in the DB and checks
+ * whether they have more than one primary accession or not. In case of having
+ * it:<br>
+ * <ul>
+ * <li>in case of being IPI accessions, they are translated to the uniprot
+ * one.</li>
+ * <li>in case of being Uniprot Accessions, only the true primary accession is
+ * set as primary according to the lattest version of Uniprot</li>
+ * </ul>
+ *
+ * @author Salva
+ *
+ */
 public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 
-	private final String projectFilesPath;
-
+	/**
+	 * {@link PintServerDaemonTask} that checks all proteins in the DB and
+	 * checks whether they have more than one primary accession or not. In case
+	 * of having it:<br>
+	 * <ul>
+	 * <li>in case of being IPI accessions, they are translated to the uniprot
+	 * one.</li>
+	 * <li>in case of being Uniprot Accessions, only the true primary accession
+	 * is set as primary according to the lattest version of Uniprot</li>
+	 * </ul>
+	 * 
+	 * @param servletContext
+	 */
 	public ProteinAccessionsUpdater(ServletContext servletContext) {
 		super(servletContext);
-		projectFilesPath = FileManager.getProjectFilesPath(servletContext);
 	}
 
 	@Override

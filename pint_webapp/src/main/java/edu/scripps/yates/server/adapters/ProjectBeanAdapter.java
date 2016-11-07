@@ -28,6 +28,7 @@ public class ProjectBeanAdapter implements Adapter<ProjectBean> {
 		ret.setPubmedLink(project.getPubmedLink());
 		ret.setReleaseDate(project.getReleaseDate());
 		ret.setUploadedDate(project.getUploadedDate());
+		ret.setIsHidden(project.isHidden());
 		ret.setTag(project.getTag());
 		ret.setDbId(project.getId());
 		ret.setPublicAvailable(!project.isPrivate_());

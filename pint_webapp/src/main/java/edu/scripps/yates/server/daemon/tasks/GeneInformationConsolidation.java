@@ -16,8 +16,22 @@ import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Gene;
 
+/**
+ * 
+ * Updates the proteins in the DB with the latest information about the genes
+ * according to the latest version of Uniprot
+ *
+ * @author Salva
+ *
+ */
 public class GeneInformationConsolidation extends PintServerDaemonTask {
 
+	/**
+	 * Updates the proteins in the DB with the latest information about the
+	 * genes according to the latest version of Uniprot
+	 *
+	 * @param servletContext
+	 */
 	public GeneInformationConsolidation(ServletContext servletContext) {
 		super(servletContext);
 	}
