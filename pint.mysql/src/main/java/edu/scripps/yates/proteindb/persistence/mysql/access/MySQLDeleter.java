@@ -1,5 +1,7 @@
 package edu.scripps.yates.proteindb.persistence.mysql.access;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -47,13 +49,22 @@ import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
  */
 public class MySQLDeleter {
 	private final static Logger log = Logger.getLogger(MySQLDeleter.class);
+	private final HashSet<Psm> deletedPsms = new HashSet<Psm>();
+	private final HashSet<Peptide> deletedPeptides = new HashSet<Peptide>();
+	private final HashSet<Protein> deletedProteins = new HashSet<Protein>();
 
 	private void deleteProtein(edu.scripps.yates.proteindb.persistence.mysql.Protein protein) {
-
+		if (deletedProteins.contains(protein)) {
+			return;
+		}
+		deletedProteins.add(protein);
+		if (protein.getId() == null) {
+			return;
+		}
 		final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
 
 		// deleteMSRun(protein.getMsRun());
-		deleteOrganism(protein.getOrganism());
+		// deleteOrganism(protein.getOrganism());
 
 		// log.debug("Saving protein " + next.getAccession());
 		// protein accesssions
@@ -97,6 +108,24 @@ public class MySQLDeleter {
 		for (ProteinAmount amount : amounts) {
 			deleteProteinAmount(amount);
 		}
+
+		// peptides
+		final Iterator<Peptide> peptideIterator = protein.getPeptides().iterator();
+		while (peptideIterator.hasNext()) {
+			Peptide peptide = peptideIterator.next();
+			// peptide.getProteins().remove(peptide);
+			peptideIterator.remove();
+			deletePeptide(peptide);
+		}
+		// psms
+		final Iterator<Psm> psmsIterator = protein.getPsms().iterator();
+		while (psmsIterator.hasNext()) {
+			Psm psm = psmsIterator.next();
+			// psm.getProteins().remove(protein);
+			psmsIterator.remove();
+			deletePSM(psm);
+		}
+
 		ContextualSessionHandler.delete(protein);
 	}
 
@@ -107,7 +136,13 @@ public class MySQLDeleter {
 	}
 
 	private void deletePSM(Psm psm) {
-
+		if (deletedPsms.contains(psm)) {
+			return;
+		}
+		deletedPsms.add(psm);
+		if (psm.getId() == null) {
+			return;
+		}
 		// final MsRun msRun = psm.getMsRun();
 		// msRun.getPsms().remove(psm);
 		// deleteMSRun(msRun);
@@ -137,11 +172,33 @@ public class MySQLDeleter {
 				deletePsmRatio(psmRatioValue);
 			}
 		}
+
+		// proteins
+		final Iterator<Protein> proteinIterator = psm.getProteins().iterator();
+		while (proteinIterator.hasNext()) {
+			Protein protein = proteinIterator.next();
+			// protein.getPsms().remove(psm);
+			proteinIterator.remove();
+			deleteProtein(protein);
+		}
+
 		ContextualSessionHandler.delete(psm);
+
+		// peptide
+		if (psm.getPeptide() != null) {
+			// psm.getPeptide().getPsms().remove(psm);
+			deletePeptide(psm.getPeptide());
+		}
 	}
 
 	private void deletePeptide(Peptide peptide) {
-
+		if (deletedPeptides.contains(peptide)) {
+			return;
+		}
+		deletedPeptides.add(peptide);
+		if (peptide.getId() == null) {
+			return;
+		}
 		// deleteMSRun(peptide.getMsRun());
 
 		// scores
@@ -164,6 +221,22 @@ public class MySQLDeleter {
 			for (PeptideRatioValue peptideRatioValue : peptideRatioValues) {
 				deletePeptideRatio(peptideRatioValue);
 			}
+		}
+		// psms
+		final Iterator<Psm> psmsIterator = peptide.getPsms().iterator();
+		while (psmsIterator.hasNext()) {
+			Psm psm = psmsIterator.next();
+			// psm.getPeptide().getPsms().remove(peptide);
+			psmsIterator.remove();
+			deletePSM(psm);
+		}
+		// proteins
+		final Iterator<Protein> proteinIterator = peptide.getProteins().iterator();
+		while (proteinIterator.hasNext()) {
+			Protein protein = proteinIterator.next();
+			// protein.getPeptides().remove(peptide);
+			proteinIterator.remove();
+			deleteProtein(protein);
 		}
 
 		ContextualSessionHandler.delete(peptide);
@@ -242,6 +315,7 @@ public class MySQLDeleter {
 		// }
 
 		ContextualSessionHandler.delete(proteinRatioValue);
+
 	}
 
 	private void deletePeptideRatio(PeptideRatioValue peptideRatioValue) {
@@ -454,6 +528,7 @@ public class MySQLDeleter {
 		final Set<Peptide> peptides = condition.getPeptides();
 		percentage = 0;
 		for (Peptide peptide : peptides) {
+			num++;
 			int newPercentage = Double.valueOf(num * 100.0 / peptides.size()).intValue();
 			if (newPercentage != percentage) {
 				percentage = newPercentage;
@@ -465,6 +540,7 @@ public class MySQLDeleter {
 		final Set<Protein> proteins = condition.getProteins();
 		percentage = 0;
 		for (Protein protein : proteins) {
+			num++;
 			int newPercentage = Double.valueOf(num * 100.0 / proteins.size()).intValue();
 			if (newPercentage != percentage) {
 				percentage = newPercentage;
@@ -517,18 +593,22 @@ public class MySQLDeleter {
 	private void deleteSample(Sample sample) {
 
 		final Tissue tissue = sample.getTissue();
+		tissue.getSamples().remove(sample);
 		if (tissue != null && tissue.getSamples().isEmpty()) {
 			ContextualSessionHandler.delete(tissue);
 		}
 
 		final Label label = sample.getLabel();
+		label.getSamples().remove(sample);
 		if (label != null && label.getSamples().isEmpty()) {
 			ContextualSessionHandler.delete(label);
 		}
 		final Set<Organism> organisms = sample.getOrganisms();
 		for (Organism organism : organisms) {
 			organism.getSamples().remove(sample);
-			deleteOrganism(organism);
+			if (organism.getSamples().isEmpty()) {
+				deleteOrganism(organism);
+			}
 
 		}
 		ContextualSessionHandler.delete(sample);
