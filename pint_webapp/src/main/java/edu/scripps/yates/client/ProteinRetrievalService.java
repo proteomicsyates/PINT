@@ -52,10 +52,10 @@ public interface ProteinRetrievalService extends RemoteService {
 	ProjectBean getProjectBean(String projectTag) throws PintException;
 
 	QueryResultSubLists getProteinsFromProjects(String sessionID, Set<String> projectTags, String uniprotVersion,
-			boolean separateNonConclusiveProteins, Integer defaultQueryIndex) throws PintException;
+			boolean separateNonConclusiveProteins, Integer defaultQueryIndex, boolean testMode) throws PintException;
 
 	QueryResultSubLists getProteinsFromQuery(String sessionID, String queryText, Set<String> projectTags,
-			boolean separateNonConclusiveProteins, boolean lock) throws PintException;
+			boolean separateNonConclusiveProteins, boolean lock, boolean testMode) throws PintException;
 
 	Set<String> getExperimentalConditionsFromProject(String projectTag) throws PintException;
 
