@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
@@ -22,6 +23,8 @@ import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 public class QueriesUtil {
 	public static final Logger log = Logger.getLogger(QueriesUtil.class);
 	public static final boolean QUERY_CACHE_ENABLED = true;
+	public static final int TEST_MODE_NUM_PSMS = 500;
+	public static final int TEST_MODE_NUM_PROTEINS = 20;
 
 	public static List<LinkBetweenQueriableProteinSetAndPSM> createProteinPSMLinks(
 			Map<String, Set<Protein>> proteinMap) {
@@ -119,6 +122,18 @@ public class QueriesUtil {
 			primaryAcc = list.get(0);
 		}
 		return primaryAcc;
+	}
+
+	public static Map<String, Set<Protein>> getProteinSubList(Map<String, Set<Protein>> proteinsByProjectCondition,
+			int maxIndex) {
+		Map<String, Set<Protein>> ret = new HashMap<String, Set<Protein>>();
+		List<Protein> list = new ArrayList<Protein>();
+		for (Set<Protein> proteinSet : proteinsByProjectCondition.values()) {
+			list.addAll(proteinSet);
+		}
+		PersistenceUtils.addToMapByPrimaryAcc(ret,
+				list.subList(0, Math.min(proteinsByProjectCondition.size(), maxIndex)));
+		return ret;
 	}
 
 }

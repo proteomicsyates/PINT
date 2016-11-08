@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.psm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
+import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 
 public class PsmProviderFromPsmRatios implements ProteinProviderFromDB {
 
@@ -31,9 +33,10 @@ public class PsmProviderFromPsmRatios implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap() {
+	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
 		if (result == null) {
 			result = new HashMap<String, Set<Psm>>();
+			int numPSMs = 0;
 			// condition1 and condition2 only can contain one ConditionProject
 			if (condition1.getConditionProjects().size() != 1) {
 				throw new IllegalArgumentException("First condition con only be referring to one condition");
@@ -69,8 +72,15 @@ public class PsmProviderFromPsmRatios implements ProteinProviderFromDB {
 				final Collection<Psm> psmsWithRatios = PreparedQueries.getPSMWithRatios(
 						conditionProject1.getConditionName(), conditionProject2.getConditionName(),
 						conditionProject1.getProjectTag(), actualRatioName);
-
-				PersistenceUtils.addToPSMMapByPsmId(result, psmsWithRatios);
+				List<Psm> psmList = new ArrayList<Psm>();
+				psmList.addAll(psmsWithRatios);
+				if (testMode && numPSMs + psmList.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+					PersistenceUtils.addToPSMMapByPsmId(result,
+							psmList.subList(0, Math.min(psmList.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+				} else {
+					PersistenceUtils.addToPSMMapByPsmId(result, psmList);
+				}
+				numPSMs += psmList.size();
 			}
 		}
 		return result;
@@ -78,8 +88,8 @@ public class PsmProviderFromPsmRatios implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap() {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap(), true);
+	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+		return PersistenceUtils.getProteinsFromPsms(getPsmMap(testMode), true);
 	}
 
 	@Override

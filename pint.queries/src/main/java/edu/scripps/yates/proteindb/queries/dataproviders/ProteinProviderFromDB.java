@@ -18,10 +18,12 @@ public interface ProteinProviderFromDB {
 	/**
 	 * Gets a protein Map using the primary accession as key
 	 *
+	 * @param testMode
+	 *
 	 * @return
 	 */
 
-	public Map<String, Set<Protein>> getProteinMap();
+	public Map<String, Set<Protein>> getProteinMap(boolean testMode);
 
 	/**
 	 * Gets a psm Map using the peptide sequence as key
@@ -29,7 +31,7 @@ public interface ProteinProviderFromDB {
 	 * @return
 	 */
 
-	public Map<String, Set<Psm>> getPsmMap();
+	public Map<String, Set<Psm>> getPsmMap(boolean testMode);
 
 	/**
 	 * Set a constriction in the protein provider to only take proteins from the

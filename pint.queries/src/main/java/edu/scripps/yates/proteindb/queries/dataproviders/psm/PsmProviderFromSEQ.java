@@ -10,6 +10,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 
 public class PsmProviderFromSEQ implements ProteinProviderFromDB {
 
@@ -60,17 +61,31 @@ public class PsmProviderFromSEQ implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap() {
+	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
 		if (result == null) {
 			result = new HashMap<String, Set<Psm>>();
+			int numPSMs = 0;
 			if (projectTags == null || projectTags.isEmpty()) {
 				List<Psm> psms = PreparedCriteria.getCriteriaForPsmSequence(mySqlRegularExpression, null).list();
-				PersistenceUtils.addToPSMMapByPsmId(result, psms);
+				if (testMode && numPSMs + psms.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+					PersistenceUtils.addToPSMMapByPsmId(result,
+							psms.subList(0, Math.min(psms.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+				} else {
+					PersistenceUtils.addToPSMMapByPsmId(result, psms);
+				}
+				numPSMs += psms.size();
 			} else {
 				for (String projectTag : projectTags) {
 					List<Psm> psms = PreparedCriteria.getCriteriaForPsmSequence(mySqlRegularExpression, projectTag)
 							.list();
-					PersistenceUtils.addToPSMMapByPsmId(result, psms);
+					if (testMode && numPSMs + psms.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+						PersistenceUtils.addToPSMMapByPsmId(result,
+								psms.subList(0, Math.min(psms.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+						return result;
+					} else {
+						PersistenceUtils.addToPSMMapByPsmId(result, psms);
+					}
+					numPSMs += psms.size();
 				}
 			}
 		}
@@ -78,8 +93,8 @@ public class PsmProviderFromSEQ implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap() {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap(), true);
+	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+		return PersistenceUtils.getProteinsFromPsms(getPsmMap(testMode), true);
 	}
 
 	@Override

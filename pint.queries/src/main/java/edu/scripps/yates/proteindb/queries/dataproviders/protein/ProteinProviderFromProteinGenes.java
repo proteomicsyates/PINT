@@ -11,6 +11,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 
 public class ProteinProviderFromProteinGenes implements ProteinProviderFromDB {
 	// private final String projectName;
@@ -23,17 +24,36 @@ public class ProteinProviderFromProteinGenes implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap() {
+	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
 		if (proteins == null) {
 			proteins = new HashMap<String, Set<Protein>>();
+			int numProteins = 0;
 			if (projectTags == null || projectTags.isEmpty()) {
 				for (String geneName : geneNames) {
-					PersistenceUtils.addToMapByPrimaryAcc(proteins, PreparedQueries.getProteinsWithGene(null, geneName));
+					final Map<String, Set<Protein>> proteinsWithGene = PreparedQueries.getProteinsWithGene(null,
+							geneName);
+					if (testMode && numProteins + proteinsWithGene.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
+						PersistenceUtils.addToMapByPrimaryAcc(proteins, QueriesUtil.getProteinSubList(proteinsWithGene,
+								QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
+						return proteins;
+					} else {
+						PersistenceUtils.addToMapByPrimaryAcc(proteins, proteinsWithGene);
+					}
+					numProteins += proteinsWithGene.size();
 				}
 			} else {
 				for (String projectName : projectTags) {
 					for (String geneName : geneNames) {
-						PersistenceUtils.addToMapByPrimaryAcc(proteins, PreparedQueries.getProteinsWithGene(projectName, geneName));
+						final Map<String, Set<Protein>> proteinsWithGene = PreparedQueries
+								.getProteinsWithGene(projectName, geneName);
+						if (testMode && numProteins + proteinsWithGene.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
+							PersistenceUtils.addToMapByPrimaryAcc(proteins, QueriesUtil.getProteinSubList(
+									proteinsWithGene, QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
+							return proteins;
+						} else {
+							PersistenceUtils.addToMapByPrimaryAcc(proteins, proteinsWithGene);
+						}
+						numProteins += proteinsWithGene.size();
 					}
 				}
 			}
@@ -42,8 +62,8 @@ public class ProteinProviderFromProteinGenes implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap() {
-		return PersistenceUtils.getPsmsFromProteins(getProteinMap());
+	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
+		return PersistenceUtils.getPsmsFromProteins(getProteinMap(testMode));
 	}
 
 	@Override

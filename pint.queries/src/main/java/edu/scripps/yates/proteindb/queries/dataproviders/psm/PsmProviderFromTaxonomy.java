@@ -1,6 +1,7 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.psm;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 
 public class PsmProviderFromTaxonomy implements ProteinProviderFromDB {
 	private final String organismName;
@@ -22,16 +24,30 @@ public class PsmProviderFromTaxonomy implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap() {
+	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
 		if (psms == null) {
 			psms = new HashMap<String, Set<Psm>>();
+			int numPSMs = 0;
 			if (projectTags == null || projectTags.isEmpty()) {
-				PersistenceUtils.addToPSMMapByPsmId(psms,
-						PreparedQueries.getPsmsWithTaxonomy(null, organismName, ncbiTaxID));
+				final List<Psm> psmsWithTaxonomy = PreparedQueries.getPsmsWithTaxonomy(null, organismName, ncbiTaxID);
+				if (testMode && numPSMs + psms.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+					PersistenceUtils.addToPSMMapByPsmId(psms,
+							psmsWithTaxonomy.subList(0, Math.min(0, QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+				} else {
+					PersistenceUtils.addToPSMMapByPsmId(psms, psmsWithTaxonomy);
+				}
+				numPSMs += psmsWithTaxonomy.size();
 			} else {
 				for (String projectTag : projectTags) {
-					PersistenceUtils.addToPSMMapByPsmId(psms,
-							PreparedQueries.getPsmsWithTaxonomy(projectTag, organismName, ncbiTaxID));
+					final List<Psm> psmsWithTaxonomy = PreparedQueries.getPsmsWithTaxonomy(projectTag, organismName,
+							ncbiTaxID);
+					if (testMode && numPSMs + psms.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+						PersistenceUtils.addToPSMMapByPsmId(psms,
+								psmsWithTaxonomy.subList(0, Math.min(0, QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+					} else {
+						PersistenceUtils.addToPSMMapByPsmId(psms, psmsWithTaxonomy);
+					}
+					numPSMs += psmsWithTaxonomy.size();
 				}
 			}
 		}
@@ -39,8 +55,8 @@ public class PsmProviderFromTaxonomy implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap() {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap(), true);
+	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+		return PersistenceUtils.getProteinsFromPsms(getPsmMap(testMode), true);
 	}
 
 	@Override

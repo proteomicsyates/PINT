@@ -11,6 +11,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
+import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 
 public class ProteinProviderFromProjectCondition implements ProteinProviderFromDB {
 
@@ -23,9 +24,10 @@ public class ProteinProviderFromProjectCondition implements ProteinProviderFromD
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap() {
+	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
 		if (results == null) {
 			results = new HashMap<String, Set<Protein>>();
+			int numProteins = 0;
 			if (condition != null) {
 				final Set<ConditionProject> conditionProjects = condition.getConditionProjects();
 				for (ConditionProject conditionProject : conditionProjects) {
@@ -33,25 +35,64 @@ public class ProteinProviderFromProjectCondition implements ProteinProviderFromD
 					if (conditionProject.getProjectTag() == null) {
 						if (projectTags != null && !projectTags.isEmpty()) {
 							for (String projectTag : projectTags) {
-								PersistenceUtils.addToMapByPrimaryAcc(results, PreparedQueries.getProteinsByProjectCondition(
-										projectTag, conditionProject.getConditionName()));
+								final Map<String, Set<Protein>> proteinsByProjectCondition = PreparedQueries
+										.getProteinsByProjectCondition(projectTag, conditionProject.getConditionName());
+								if (testMode && numProteins
+										+ proteinsByProjectCondition.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
+									PersistenceUtils.addToMapByPrimaryAcc(results,
+											QueriesUtil.getProteinSubList(proteinsByProjectCondition,
+													QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
+									return results;
+								} else {
+									PersistenceUtils.addToMapByPrimaryAcc(results, proteinsByProjectCondition);
+								}
+								numProteins += proteinsByProjectCondition.size();
 							}
 						}
 					} else {
 						if (projectTags == null || projectTags.isEmpty()
 								|| projectTags.contains(conditionProject.getProjectTag())) {
-							PersistenceUtils.addToMapByPrimaryAcc(results, PreparedQueries.getProteinsByProjectCondition(
-									conditionProject.getProjectTag(), conditionProject.getConditionName()));
+							final Map<String, Set<Protein>> proteinsByProjectCondition = PreparedQueries
+									.getProteinsByProjectCondition(conditionProject.getProjectTag(),
+											conditionProject.getConditionName());
+							if (testMode && numProteins
+									+ proteinsByProjectCondition.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
+								PersistenceUtils.addToMapByPrimaryAcc(results, QueriesUtil.getProteinSubList(
+										proteinsByProjectCondition, QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
+								return results;
+							} else {
+								PersistenceUtils.addToMapByPrimaryAcc(results, proteinsByProjectCondition);
+							}
+							numProteins += proteinsByProjectCondition.size();
+
 						}
 					}
 				}
 			} else {
 				if (projectTags == null || projectTags.isEmpty()) {
-					PersistenceUtils.addToMapByPrimaryAcc(results, PreparedQueries.getProteinsByProjectCondition(null, null));
+					final Map<String, Set<Protein>> proteinsByProjectCondition = PreparedQueries
+							.getProteinsByProjectCondition(null, null);
+					if (testMode
+							&& numProteins + proteinsByProjectCondition.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
+						PersistenceUtils.addToMapByPrimaryAcc(results, QueriesUtil.getProteinSubList(
+								proteinsByProjectCondition, QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
+						return results;
+					} else {
+						PersistenceUtils.addToMapByPrimaryAcc(results, proteinsByProjectCondition);
+					}
 				} else {
 					for (String projectTag : projectTags) {
-						PersistenceUtils.addToMapByPrimaryAcc(results,
-								PreparedQueries.getProteinsByProjectCondition(projectTag, null));
+						final Map<String, Set<Protein>> proteinsByProjectCondition = PreparedQueries
+								.getProteinsByProjectCondition(projectTag, null);
+						if (testMode && numProteins
+								+ proteinsByProjectCondition.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
+							PersistenceUtils.addToMapByPrimaryAcc(results, QueriesUtil.getProteinSubList(
+									proteinsByProjectCondition, QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
+							return results;
+						} else {
+							PersistenceUtils.addToMapByPrimaryAcc(results, proteinsByProjectCondition);
+						}
+						numProteins += proteinsByProjectCondition.size();
 					}
 				}
 			}
@@ -61,8 +102,8 @@ public class ProteinProviderFromProjectCondition implements ProteinProviderFromD
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap() {
-		return PersistenceUtils.getPsmsFromProteins(getProteinMap());
+	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
+		return PersistenceUtils.getPsmsFromProteins(getProteinMap(testMode));
 	}
 
 	@Override

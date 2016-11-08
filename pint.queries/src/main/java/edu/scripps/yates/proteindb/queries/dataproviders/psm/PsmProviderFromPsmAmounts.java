@@ -12,6 +12,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
+import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import edu.scripps.yates.utilities.model.enums.AmountType;
 
 public class PsmProviderFromPsmAmounts implements ProteinProviderFromDB {
@@ -31,16 +32,24 @@ public class PsmProviderFromPsmAmounts implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap() {
+	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
 		if (psms == null) {
 			psms = new HashMap<String, Set<Psm>>();
 			final Set<ConditionProject> conditionProjects = condition.getConditionProjects();
+			int numPSMs = 0;
 			for (ConditionProject conditionProject : conditionProjects) {
 				if (projectNames == null || projectNames.isEmpty() || conditionProject.getProjectTag() == null
 						|| projectNames.contains(conditionProject.getProjectTag())) {
 					List<Psm> psmList = PreparedQueries.getPSMsWithPSMAmount(conditionProject.getProjectTag(),
 							conditionProject.getConditionName(), amountTypeString);
-					PersistenceUtils.addToPSMMapByPsmId(psms, psmList);
+					if (testMode && numPSMs + psmList.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+						PersistenceUtils.addToPSMMapByPsmId(psms,
+								psmList.subList(0, Math.min(psmList.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+						return psms;
+					} else {
+						PersistenceUtils.addToPSMMapByPsmId(psms, psmList);
+					}
+					numPSMs += psmList.size();
 				}
 			}
 		}
@@ -48,8 +57,8 @@ public class PsmProviderFromPsmAmounts implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap() {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap(), true);
+	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+		return PersistenceUtils.getProteinsFromPsms(getPsmMap(testMode), true);
 	}
 
 	@Override

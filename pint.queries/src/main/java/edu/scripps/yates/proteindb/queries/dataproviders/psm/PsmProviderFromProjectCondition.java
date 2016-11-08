@@ -1,6 +1,7 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.psm;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
+import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 
 public class PsmProviderFromProjectCondition implements ProteinProviderFromDB {
 
@@ -23,9 +25,10 @@ public class PsmProviderFromProjectCondition implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap() {
+	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
 		if (psms == null) {
 			psms = new HashMap<String, Set<Psm>>();
+			int numPSMs = 0;
 			if (condition != null) {
 				final Set<ConditionProject> conditionProjects = condition.getConditionProjects();
 				for (ConditionProject conditionProject : conditionProjects) {
@@ -33,25 +36,61 @@ public class PsmProviderFromProjectCondition implements ProteinProviderFromDB {
 					if (conditionProject.getProjectTag() == null) {
 						if (projectTags != null && !projectTags.isEmpty()) {
 							for (String projectTag : projectTags) {
-								PersistenceUtils.addToPSMMapByPsmId(psms, PreparedQueries
-										.getPSMsByProjectCondition(projectTag, conditionProject.getConditionName()));
+								final List<Psm> psMsByProjectCondition = PreparedQueries
+										.getPSMsByProjectCondition(projectTag, conditionProject.getConditionName());
+
+								if (testMode
+										&& numPSMs + psMsByProjectCondition.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+									PersistenceUtils.addToPSMMapByPsmId(psms,
+											psMsByProjectCondition.subList(0, Math.min(psMsByProjectCondition.size(),
+													QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+									return psms;
+								} else {
+									PersistenceUtils.addToPSMMapByPsmId(psms, psMsByProjectCondition);
+								}
+								numPSMs += psMsByProjectCondition.size();
 							}
 						}
 					} else {
 						if (projectTags == null || projectTags.isEmpty()
 								|| projectTags.contains(conditionProject.getProjectTag())) {
-							PersistenceUtils.addToPSMMapByPsmId(psms, PreparedQueries.getPSMsByProjectCondition(
-									conditionProject.getProjectTag(), conditionProject.getConditionName()));
+							final List<Psm> psMsByProjectCondition = PreparedQueries.getPSMsByProjectCondition(
+									conditionProject.getProjectTag(), conditionProject.getConditionName());
+							if (testMode && numPSMs + psMsByProjectCondition.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+								PersistenceUtils.addToPSMMapByPsmId(psms, psMsByProjectCondition.subList(0, Math
+										.min(psMsByProjectCondition.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+								return psms;
+							} else {
+								PersistenceUtils.addToPSMMapByPsmId(psms, psMsByProjectCondition);
+							}
+							numPSMs += psMsByProjectCondition.size();
 						}
 					}
 				}
 			} else {
 				if (projectTags == null || projectTags.isEmpty()) {
-					PersistenceUtils.addToPSMMapByPsmId(psms, PreparedQueries.getPSMsByProjectCondition(null, null));
+					final List<Psm> psMsByProjectCondition = PreparedQueries.getPSMsByProjectCondition(null, null);
+					if (testMode && numPSMs + psMsByProjectCondition.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+						PersistenceUtils.addToPSMMapByPsmId(psms, psMsByProjectCondition.subList(0,
+								Math.min(psMsByProjectCondition.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+					} else {
+						PersistenceUtils.addToPSMMapByPsmId(psms, psMsByProjectCondition);
+					}
+					numPSMs += psMsByProjectCondition.size();
+
 				} else {
 					for (String projectTag : projectTags) {
-						PersistenceUtils.addToPSMMapByPsmId(psms,
-								PreparedQueries.getPSMsByProjectCondition(projectTag, null));
+						final List<Psm> psMsByProjectCondition = PreparedQueries.getPSMsByProjectCondition(projectTag,
+								null);
+						if (testMode && numPSMs + psMsByProjectCondition.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+							PersistenceUtils.addToPSMMapByPsmId(psms, psMsByProjectCondition.subList(0,
+									Math.min(psMsByProjectCondition.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+							return psms;
+						} else {
+							PersistenceUtils.addToPSMMapByPsmId(psms, psMsByProjectCondition);
+						}
+						numPSMs += psMsByProjectCondition.size();
+
 					}
 				}
 			}
@@ -60,8 +99,8 @@ public class PsmProviderFromProjectCondition implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap() {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap(), true);
+	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+		return PersistenceUtils.getProteinsFromPsms(getPsmMap(testMode), true);
 	}
 
 	@Override

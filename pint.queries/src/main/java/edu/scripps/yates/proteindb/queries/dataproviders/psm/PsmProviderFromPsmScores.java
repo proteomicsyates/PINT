@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.psm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 
 public class PsmProviderFromPsmScores implements ProteinProviderFromDB {
 
@@ -25,21 +27,40 @@ public class PsmProviderFromPsmScores implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap() {
+	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
 		if (result == null) {
+			int numPSMs = 0;
 			result = new HashMap<String, Set<Psm>>();
 			if (projectTags == null || projectTags.isEmpty()) {
 				List<Psm> psms1 = PreparedQueries.getPsmsWithScores(scoreNameString, scoreTypeString, null);
 				List<Psm> psms2 = PreparedQueries.getPsmsWithPTMScores(scoreNameString, scoreTypeString, null);
 				final Collection<Psm> psmUnion = PersistenceUtils.psmUnion(psms1, psms2);
-				PersistenceUtils.addToPSMMapByPsmId(result, psmUnion);
+				List<Psm> psmList = new ArrayList<Psm>();
+				psmList.addAll(psmUnion);
+				if (testMode && numPSMs + psmList.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+					PersistenceUtils.addToPSMMapByPsmId(result,
+							psmList.subList(0, Math.min(psmList.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+				} else {
+					PersistenceUtils.addToPSMMapByPsmId(result, psmUnion);
+				}
+				numPSMs += psmList.size();
+
 			} else {
 				for (String projectTag : projectTags) {
 					List<Psm> psms1 = PreparedQueries.getPsmsWithScores(scoreNameString, scoreTypeString, projectTag);
 					List<Psm> psms2 = PreparedQueries.getPsmsWithPTMScores(scoreNameString, scoreTypeString,
 							projectTag);
 					final Collection<Psm> psmUnion = PersistenceUtils.psmUnion(psms1, psms2);
-					PersistenceUtils.addToPSMMapByPsmId(result, psmUnion);
+					List<Psm> psmList = new ArrayList<Psm>();
+					psmList.addAll(psmUnion);
+					if (testMode && numPSMs + psmList.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
+						PersistenceUtils.addToPSMMapByPsmId(result,
+								psmList.subList(0, Math.min(psmList.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
+						return result;
+					} else {
+						PersistenceUtils.addToPSMMapByPsmId(result, psmUnion);
+					}
+					numPSMs += psmList.size();
 				}
 			}
 		}
@@ -47,8 +68,8 @@ public class PsmProviderFromPsmScores implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap() {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap(), true);
+	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+		return PersistenceUtils.getProteinsFromPsms(getPsmMap(testMode), true);
 	}
 
 	@Override

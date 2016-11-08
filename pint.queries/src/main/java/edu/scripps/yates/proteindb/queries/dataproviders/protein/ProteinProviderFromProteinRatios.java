@@ -13,6 +13,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
+import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 
 public class ProteinProviderFromProteinRatios implements ProteinProviderFromDB {
 	private final static Logger log = Logger.getLogger(ProteinProviderFromProteinRatios.class);
@@ -31,8 +32,9 @@ public class ProteinProviderFromProteinRatios implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap() {
+	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
+			int numProteins = 0;
 			result = new HashMap<String, Set<Protein>>();
 			// condition1 and condition2 only can contain one ConditionProject
 			if (condition1.getConditionProjects().size() != 1) {
@@ -51,24 +53,46 @@ public class ProteinProviderFromProteinRatios implements ProteinProviderFromDB {
 			if (projectNames != null && !projectNames.isEmpty()) {
 				for (String projectName : projectNames) {
 					String projectTagFromQuery = conditionProject2.getProjectTag();
+					final Map<String, Set<Protein>> proteinsWithRatios = PreparedQueries.getProteinsWithRatios(
+							conditionProject1.getConditionName(), conditionProject2.getConditionName(), projectName,
+							ratioName);
 					if (projectTagFromQuery == null) {
-						PersistenceUtils.addToMapByPrimaryAcc(result,
-								PreparedQueries.getProteinsWithRatios(conditionProject1.getConditionName(),
-										conditionProject2.getConditionName(), projectName, ratioName));
+						if (testMode && numProteins + proteinsWithRatios.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
+							PersistenceUtils.addToMapByPrimaryAcc(result, QueriesUtil.getProteinSubList(
+									proteinsWithRatios, QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
+							return result;
+						} else {
+							PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithRatios);
+
+						}
 					} else {
 						if (projectName.equals(projectTagFromQuery)) {
-							PersistenceUtils.addToMapByPrimaryAcc(result,
-									PreparedQueries.getProteinsWithRatios(conditionProject1.getConditionName(),
-											conditionProject2.getConditionName(), projectName, ratioName));
+							if (testMode
+									&& numProteins + proteinsWithRatios.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
+								PersistenceUtils.addToMapByPrimaryAcc(result, QueriesUtil.getProteinSubList(
+										proteinsWithRatios, QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
+								return result;
+							} else {
+								PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithRatios);
+
+							}
 						}
 					}
+					numProteins += proteinsWithRatios.size();
 				}
 			} else {
 
-				PersistenceUtils.addToMapByPrimaryAcc(result,
-						PreparedQueries.getProteinsWithRatios(conditionProject1.getConditionName(),
-								conditionProject2.getConditionName(), conditionProject2.getProjectTag(), ratioName));
-
+				final Map<String, Set<Protein>> proteinsWithRatios = PreparedQueries.getProteinsWithRatios(
+						conditionProject1.getConditionName(), conditionProject2.getConditionName(),
+						conditionProject2.getProjectTag(), ratioName);
+				if (testMode && numProteins + proteinsWithRatios.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
+					PersistenceUtils.addToMapByPrimaryAcc(result, QueriesUtil.getProteinSubList(proteinsWithRatios,
+							QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
+					return result;
+				} else {
+					PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithRatios);
+				}
+				numProteins += proteinsWithRatios.size();
 			}
 		}
 		return result;
@@ -76,8 +100,8 @@ public class ProteinProviderFromProteinRatios implements ProteinProviderFromDB {
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap() {
-		return PersistenceUtils.getPsmsFromProteins(getProteinMap());
+	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
+		return PersistenceUtils.getPsmsFromProteins(getProteinMap(testMode));
 	}
 
 	@Override

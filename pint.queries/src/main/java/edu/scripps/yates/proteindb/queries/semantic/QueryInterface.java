@@ -45,13 +45,16 @@ public class QueryInterface {
 	private static final int MAX_NUMBER_PARALLEL_PROCESSES = 16;
 	private boolean needLinkEvaluation = true;
 	private final Set<String> projectTags;
+	private final boolean testMode;
 
-	public QueryInterface(Set<String> projectTags, String queryString) throws MalformedQueryException {
-		this(projectTags, new ProteinProviderFromProjects(projectTags), queryString);
+	public QueryInterface(Set<String> projectTags, String queryString, boolean testMode)
+			throws MalformedQueryException {
+		this(projectTags, new ProteinProviderFromProjects(projectTags), queryString, testMode);
 	}
 
-	public QueryInterface(Set<String> projectTags, ProteinProviderFromDB proteinProvider, String queryString)
-			throws MalformedQueryException {
+	public QueryInterface(Set<String> projectTags, ProteinProviderFromDB proteinProvider, String queryString,
+			boolean testMode) throws MalformedQueryException {
+		this.testMode = testMode;
 		this.projectTags = projectTags;
 		this.proteinProvider = proteinProvider;
 		this.proteinProvider.setProjectTags(projectTags);
@@ -109,14 +112,14 @@ public class QueryInterface {
 		for (AbstractQuery abstractQuery : abstractQueries) {
 			if (abstractQuery instanceof QueryFromComplexAnnotationCommand) {
 				ProteinAnnotator.getInstance(((QueryFromComplexAnnotationCommand) abstractQuery).getUniprotVersion())
-						.annotateProteins(this.proteinProvider.getProteinMap());
+						.annotateProteins(this.proteinProvider.getProteinMap(testMode));
 
-				annotateProteins(this.proteinProvider.getProteinMap(),
+				annotateProteins(this.proteinProvider.getProteinMap(testMode),
 						((QueryFromComplexAnnotationCommand) abstractQuery).getUniprotVersion());
 				break;
 			}
 			if (abstractQuery instanceof QueryFromSimpleAnnotationCommand) {
-				annotateProteins(this.proteinProvider.getProteinMap(),
+				annotateProteins(this.proteinProvider.getProteinMap(testMode),
 						((QueryFromSimpleAnnotationCommand) abstractQuery).getUniprotVersion());
 				break;
 			}
@@ -124,7 +127,7 @@ public class QueryInterface {
 				// annotate the proteins in this case because the protein
 				// sequence is going to be needed in the query
 				if (abstractQuery.getAggregationLevel() == AggregationLevel.PROTEIN) {
-					annotateProteins(this.proteinProvider.getProteinMap(), null);
+					annotateProteins(this.proteinProvider.getProteinMap(testMode), null);
 					break;
 				}
 			}
@@ -218,7 +221,7 @@ public class QueryInterface {
 		String uniprotKBVersion = null;
 
 		// get all the proteins
-		final Map<String, Set<Protein>> proteinMap = proteinProvider.getProteinMap();
+		final Map<String, Set<Protein>> proteinMap = proteinProvider.getProteinMap(testMode);
 		// annotate them
 		ProteinAnnotator.getInstance(uniprotKBVersion).annotateProteins(proteinMap);
 		// filter them and keep the valids
@@ -287,7 +290,7 @@ public class QueryInterface {
 		if (queryResult == null) {
 
 			List<LinkBetweenQueriableProteinSetAndPSM> links = QueriesUtil
-					.createProteinPSMLinks(proteinProvider.getProteinMap());
+					.createProteinPSMLinks(proteinProvider.getProteinMap(testMode));
 			List<LinkBetweenQueriableProteinSetAndPSM> invalidLinks = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
 			if (needLinkEvaluation) {
 
@@ -391,7 +394,7 @@ public class QueryInterface {
 	public QueryResult getQueryResultsParallel() {
 		if (queryResult == null) {
 			List<LinkBetweenQueriableProteinSetAndPSM> links = QueriesUtil
-					.createProteinPSMLinks(proteinProvider.getProteinMap());
+					.createProteinPSMLinks(proteinProvider.getProteinMap(testMode));
 
 			int numDiscardedLinks = 0;
 			int numRound = 1;
