@@ -43,6 +43,7 @@ public class Pint implements EntryPoint {
 	private MyDialogBox loadingDialog;
 
 	private ConfigurationPanel configurationPanel;
+	private boolean testMode = false;
 
 	@Override
 	public void onModuleLoad() {
@@ -176,6 +177,15 @@ public class Pint implements EntryPoint {
 		// createProjectPanel = new ProjectCreator();
 
 		final String projectParameter = com.google.gwt.user.client.Window.Location.getParameter("project");
+		final String testParameter = com.google.gwt.user.client.Window.Location.getParameter("test");
+
+		if (testParameter != null) {
+			try {
+				testMode = Boolean.parseBoolean(testParameter);
+			} catch (Exception e) {
+
+			}
+		}
 		parseEncryptedProjectValues(projectParameter);
 		if (!"".equals(History.getToken())) {
 			History.fireCurrentHistoryState();
@@ -208,7 +218,7 @@ public class Pint implements EntryPoint {
 			} else {
 				projectTags.add(decodedProjectTag);
 			}
-			queryPanel = new QueryPanel(sessionID, projectTags);
+			queryPanel = new QueryPanel(sessionID, projectTags, testMode);
 			History.newItem(TargetHistory.QUERY.getTargetHistory());
 		}
 
@@ -244,7 +254,7 @@ public class Pint implements EntryPoint {
 		if (!projectTags.isEmpty()) {
 			if (queryPanel != null && queryPanel.hasLoadedThisProjects(projectTags)) {
 			} else {
-				queryPanel = new QueryPanel(sessionID, projectTags);
+				queryPanel = new QueryPanel(sessionID, projectTags, testMode);
 			}
 			History.newItem(TargetHistory.QUERY.getTargetHistory());
 		} else {
