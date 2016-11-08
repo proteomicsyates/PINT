@@ -42,6 +42,7 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 	private final QueryPanel queryPanel;
 	private final CaptionPanel cptnpnlBigProject;
 	private final ProjectBean projectBean;
+	private final boolean testMode;
 
 	/**
 	 *
@@ -50,7 +51,9 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 	 *            provide it for call to loadProteins when clicking on the
 	 *            query.
 	 */
-	public MyWelcomeProjectPanel(ProjectBean projectBean, DefaultView defaultView, QueryPanel queryPanel) {
+	public MyWelcomeProjectPanel(ProjectBean projectBean, DefaultView defaultView, QueryPanel queryPanel,
+			boolean testMode) {
+		this.testMode = testMode;
 		this.queryPanel = queryPanel;
 		this.projectBean = projectBean;
 		setStyleName("WelcomeProjectPanel");
@@ -195,7 +198,7 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				queryPanel.loadProteinsFromProject(null, projectNamedQuery.getIndex());
+				queryPanel.loadProteinsFromProject(null, projectNamedQuery.getIndex(), testMode);
 			}
 		});
 		ret.add(nameLabel);
