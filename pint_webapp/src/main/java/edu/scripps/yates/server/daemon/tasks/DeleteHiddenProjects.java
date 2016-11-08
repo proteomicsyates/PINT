@@ -28,12 +28,13 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 
 	@Override
 	public void run() {
-		try {
-			ContextualSessionHandler.beginGoodTransaction();
-			final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans(true);
-			ContextualSessionHandler.finishGoodTransaction();
-			for (ProjectBean projectBean : projectBeans) {
-				if (projectBean.isHidden()) {
+
+		ContextualSessionHandler.beginGoodTransaction();
+		final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans(true);
+		ContextualSessionHandler.finishGoodTransaction();
+		for (ProjectBean projectBean : projectBeans) {
+			if (projectBean.isHidden()) {
+				try {
 					ContextualSessionHandler.beginGoodTransaction();
 
 					final MySQLDeleter mySQLDeleter = new MySQLDeleter();
@@ -43,11 +44,11 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 					ContextualSessionHandler.closeSession();
 					log.info("transaction finished");
 					log.info(projectBean.getTag() + " deleted from DB");
+				} catch (Exception e) {
+					e.printStackTrace();
+					ContextualSessionHandler.getSession().getTransaction().rollback();
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			ContextualSessionHandler.getSession().getTransaction().rollback();
 		}
 
 	}
