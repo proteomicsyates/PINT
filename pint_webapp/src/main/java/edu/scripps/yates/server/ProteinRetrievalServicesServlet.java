@@ -2007,6 +2007,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			// transform the results in ProteinProjections
 			cr.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class));
 			List<ProteinProjection> list = cr.list();
+
 			log.info(list.size() + " protein projections");
 			for (ProteinProjection proteinProjection : list) {
 				proteinProjection.setDescription(FastaParser.getDescription(proteinProjection.getDescription()));
