@@ -182,9 +182,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	private final ReactomePanel reactomePanel;
 	private Timer timer;
 
-	public QueryPanel(String sessionID, Set<String> projectTags) {
-		this(sessionID);
-		loadProjectListFromServer(projectTags);
+	public QueryPanel(String sessionID, Set<String> projectTags, boolean testMode) {
+		this(sessionID, testMode);
+		loadProjectListFromServer(projectTags, testMode);
 		// PSEA QUANT
 		PSEAQuantFormPanel pseaQuantFormPanel = new PSEAQuantFormPanel(loadedProjects);
 		ScrollPanel pseaQuantScrollPanel = new ScrollPanel(pseaQuantFormPanel);
@@ -196,7 +196,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	/**
 	 * @wbp.parser.constructor
 	 */
-	private QueryPanel(String sessionID) {
+	private QueryPanel(String sessionID, final boolean testMode) {
 		PendingTasksManager.registerPendingTaskController(this);
 		this.sessionID = sessionID;
 		reactomePanel = ReactomePanel.getInstance(sessionID);
@@ -610,7 +610,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 				String queryText = queryEditorPanel.getComplexQueryTextBox().getText();
 				queryText = queryText.replace("\n", " ");
-				sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion());
+				sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion(), testMode);
 
 			}
 		};
@@ -622,7 +622,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					// set the query into the regular query editor
 					queryEditorPanel.getComplexQueryTextBox().setText(queryText);
 					// send query to server
-					sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion());
+					sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion(), testMode);
 				} else {
 					updateStatus("The query is not valid. Only suggested values are allowed in a simple query.");
 				}
@@ -636,7 +636,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					// set the query into the regular query editor
 					queryEditorPanel.getComplexQueryTextBox().setText(queryText);
 					// send query to server
-					sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion());
+					sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion(), testMode);
 				} else {
 					updateStatus("The query is not valid. Only suggested values are allowed in a simple query.");
 				}
@@ -650,7 +650,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					// set the query into the regular query editor
 					queryEditorPanel.getComplexQueryTextBox().setText(queryText);
 					// send query to server
-					sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion());
+					sendQueryToServer(queryText, queryEditorPanel.getSelectedUniprotVersion(), testMode);
 				} else {
 					updateStatus("The query is not valid. Only suggested values are allowed in a simple query.");
 				}
@@ -1076,7 +1076,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		return ret;
 	}
 
-	protected void sendQueryToServer(final String queryText, String uniprotVersion) {
+	protected void sendQueryToServer(final String queryText, String uniprotVersion, final boolean testMode) {
 
 		// set empty table widget on PSM table
 		psmTablePanel.setEmptyTableWidget(PSMTablePanel.SELECT_PROTEIN_TO_LOAD_PSMS_TEXT);
@@ -1087,7 +1087,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// peptideTablePanel.clearTable();
 		if ("".equals(queryText)) {
 			updateStatus("Empty query. Loading whole project...");
-			loadProteinsFromProject(uniprotVersion, null);
+			loadProteinsFromProject(uniprotVersion, null, testMode);
 			return;
 		}
 
@@ -1107,7 +1107,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		updateStatus("Sending query '" + queryText + "' to server...");
 		// send query to server
 		proteinRetrievingService.getProteinsFromQuery(sessionID, queryText, loadedProjects,
-				proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), true,
+				proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), true, testMode,
 				new AsyncCallback<QueryResultSubLists>() {
 
 					@Override
@@ -1153,7 +1153,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 							// if (!defaultViewsApplied) {
 							requestDefaultViews(loadedProjectBeanSet.iterator().next(), true, false, true,
-									loadedProjectBeanSet.containsBigProject());
+									loadedProjectBeanSet.containsBigProject(), testMode);
 							proteinGroupTablePanel.reloadData();
 							proteinTablePanel.reloadData();
 							psmOnlyTablePanel.reloadData();
@@ -1543,8 +1543,11 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	 * information of the new ones.
 	 *
 	 * @param projectTags
+	 * @param test
+	 *            if true, it will only load a certain number of
+	 *            proteins/peptides/psms
 	 */
-	public void loadProjectListFromServer(final Set<String> projectTags) {
+	public void loadProjectListFromServer(final Set<String> projectTags, final boolean testMode) {
 
 		if (projectTags == null || projectTags.isEmpty()) {
 			final String msg = "There is not projects to load. Please, select projects from 'Browse' section";
@@ -1598,7 +1601,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						boolean modifyColumns = loadedProjectBeanSet.containsBigProject();
 						boolean changeToDataTab = false;
 						requestDefaultViews(projectBeanForDisplay, modifyColumns, showWelcome, changeToDataTab,
-								loadedProjectBeanSet.containsBigProject());
+								loadedProjectBeanSet.containsBigProject(), testMode);
 						// load the project
 						if (loadedProjectBeanSet.containsBigProject()) {
 							// disable queries for big projects. Only allow
@@ -1613,7 +1616,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							// change tab to query
 							selectQueryTab();
 						} else {
-							loadProteinsFromProject(null, null);
+							loadProteinsFromProject(null, null, testMode);
 						}
 					}
 				}
@@ -1749,7 +1752,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	 *            if not null, it will ask for the default query defined at that
 	 *            index in the array of default queries
 	 */
-	public void loadProteinsFromProject(final String uniprotVersion, Integer defaultQueryIndex) {
+	public void loadProteinsFromProject(final String uniprotVersion, Integer defaultQueryIndex,
+			final boolean testMode) {
 		// emtpy protein group panel
 		proteinGroupTablePanel.clearTable();
 		proteinGroupTablePanel.setVisible(false);
@@ -1814,7 +1818,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				String projectTagsString = sb.toString();
 				GWT.log("Getting proteins from project " + projectTagsString);
 				proteinRetrievingService.getProteinsFromProjects(sessionID, loadedProjects, uniprotVersion,
-						proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), defaultQueryIndex,
+						proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), defaultQueryIndex, testMode,
 						new AsyncCallback<QueryResultSubLists>() {
 
 							@Override
@@ -1854,7 +1858,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											final DefaultView defaultView = ClientCacheDefaultViewByProjectTag
 													.getInstance().getFromCache(projectTag);
 											applyDefaultViews(loadedProjectBeanSet.getByTag(projectTag), defaultView,
-													true, false, true, false);
+													true, false, true, false, testMode);
 										}
 
 										// load on the grid
@@ -1948,7 +1952,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	 * @param bigProject
 	 */
 	private void requestDefaultViews(final ProjectBean projectBean, final boolean modifyColumns,
-			final boolean showWelcomeWindowBox, final boolean changeToDataTab, final boolean bigProject) {
+			final boolean showWelcomeWindowBox, final boolean changeToDataTab, final boolean bigProject,
+			final boolean testMode) {
 		if (loadedProjects.isEmpty()) {
 			return;
 		}
@@ -1961,7 +1966,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 				applyDefaultViews(projectBean,
 						ClientCacheDefaultViewByProjectTag.getInstance().getFromCache(projectTag), modifyColumns,
-						showWelcomeWindowBox, changeToDataTab, bigProject);
+						showWelcomeWindowBox, changeToDataTab, bigProject, testMode);
 
 			} else {
 				GWT.log("Requesting default view of project " + projectTag + " ");
@@ -1980,10 +1985,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (defaultViews != null) {
 							if (projectBean.getTag().equals(projectTag)) {
 								applyDefaultViews(projectBean, defaultViews, modifyColumns, showWelcomeWindowBox,
-										changeToDataTab, bigProject);
+										changeToDataTab, bigProject, testMode);
 							}
 							ClientCacheDefaultViewByProjectTag.getInstance().addtoCache(defaultViews, projectTag);
-							projectInformationPanel.addProjectView(projectBean, defaultViews);
+							projectInformationPanel.addProjectView(projectBean, defaultViews, testMode);
 						}
 					}
 				});
@@ -1993,7 +1998,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	}
 
 	private void applyDefaultViews(ProjectBean projectBean, DefaultView defaultViews, boolean modifyColumns,
-			boolean showWelcomeWindowBox, boolean changeToDataTab, boolean bigProject) {
+			boolean showWelcomeWindowBox, boolean changeToDataTab, boolean bigProject, boolean testMode) {
 
 		if (changeToDataTab) {
 			// select default tab
@@ -2061,7 +2066,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 			welcomeToProjectWindowBox = new WindowBox(true, true, true, true, false);
 			welcomeToProjectWindowBox.setAnimationEnabled(true);
-			welcomeToProjectWindowBox.setWidget(new MyWelcomeProjectPanel(projectBean, defaultViews, this));
+			welcomeToProjectWindowBox.setWidget(new MyWelcomeProjectPanel(projectBean, defaultViews, this, testMode));
 			welcomeToProjectWindowBox.setText("Project '" + defaultViews.getProjectTag() + "'");
 			DoSomethingTask<Void> doSomething = new DoSomethingTask<Void>() {
 				@Override

@@ -20,7 +20,7 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 
 	/**
 	 * Preload projects tagged as 'public', in order to allow a faster loading
-	 * 
+	 *
 	 * @param sessionID
 	 * @param servletContext
 	 */
@@ -90,7 +90,7 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 						log.info("Pre loading project: " + projectBean.getTag());
 						Set<String> projectTagSet = new HashSet<String>();
 						projectTagSet.add(projectBean.getTag());
-						proteinRetrieval.getProteinsFromProjects(sessionID, projectTagSet, null, false, null);
+						proteinRetrieval.getProteinsFromProjects(sessionID, projectTagSet, null, false, null, false);
 						double t2 = (System.currentTimeMillis() * 1.0 - t1 * 1.0) / 1000;
 						log.info(projectBean.getTag() + " pre loaded in " + myFormatter.format(t2) + " seconds");
 					} catch (Exception e) {

@@ -31,7 +31,7 @@ public class BatchQueryExecutionTask extends PintServerDaemonTask {
 		}
 		Set<String> projects = new HashSet<String>();
 		projects.add("DmDshybrids2014");
-		Map<String, Pair<DataSet, String>> results = RemoteServicesTasks.batchQuery(queriesFile, projects);
+		Map<String, Pair<DataSet, String>> results = RemoteServicesTasks.batchQuery(queriesFile, projects, false);
 		FileWriter out = null;
 		try {
 			out = new FileWriter(outputFile);

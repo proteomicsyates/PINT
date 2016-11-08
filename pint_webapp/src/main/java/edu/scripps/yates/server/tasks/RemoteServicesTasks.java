@@ -908,7 +908,8 @@ public class RemoteServicesTasks {
 		}
 	}
 
-	public static Map<String, Pair<DataSet, String>> batchQuery(File batchQueryFile, Set<String> projectTags) {
+	public static Map<String, Pair<DataSet, String>> batchQuery(File batchQueryFile, Set<String> projectTags,
+			boolean testMode) {
 		Map<String, Pair<DataSet, String>> ret = new HashMap<String, Pair<DataSet, String>>();
 		String queryText;
 		BufferedReader br = null;
@@ -926,7 +927,7 @@ public class RemoteServicesTasks {
 				log.info("Query readed:" + queryText);
 				String sessionID = String.valueOf(queryNumber);
 
-				QueryInterface expressionTree = new QueryInterface(projectTags, queryText);
+				QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode);
 
 				QueryResult result = expressionTree.getQueryResults();
 

@@ -264,7 +264,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public QueryResultSubLists getProteinsFromProjects(String sessionID, Set<String> projectTags, String uniprotVersion,
-			boolean separateNonConclusiveProteins, Integer defaultQueryIndex) throws PintException {
+			boolean separateNonConclusiveProteins, Integer defaultQueryIndex, boolean testMode) throws PintException {
 		final String projectTagsString = getProjectTagString(projectTags);
 		log.info("GET PROTEINS FROM PROJECT '" + projectTagsString + "' IN SESSION: " + sessionID);
 		log.info(++times + " times getting proteins from project ");
@@ -335,7 +335,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					}
 				}
 				final QueryResultSubLists proteinsFromQuery = getProteinsFromQuery(sessionID, querySB.toString(),
-						projectTags, separateNonConclusiveProteins, false);
+						projectTags, separateNonConclusiveProteins, false, testMode);
 
 				if (defaultQueryIndex == null
 						&& !DataSetsManager.getDataSet(sessionID, projectTagsString).getProteins().isEmpty()) {
@@ -969,11 +969,11 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public QueryResultSubLists getProteinsFromQuery(String sessionID, String queryText, Set<String> projectTags,
-			boolean separateNonConclusiveProteins, boolean lock) throws PintException {
+			boolean separateNonConclusiveProteins, boolean lock, boolean testMode) throws PintException {
 		GetProteinsFromQuery task = null;
 
 		try {
-			QueryInterface expressionTree = new QueryInterface(projectTags, queryText);
+			QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode);
 			String queryInOrder = expressionTree.printInOrder();
 			// create task
 			task = new GetProteinsFromQuery(projectTags, queryInOrder);
@@ -1019,7 +1019,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
 				// end clearing cache
 
-				QueryResult result = getQueryResultFromQuery(expressionTree, projectTags);
+				QueryResult result = getQueryResultFromQuery(expressionTree, projectTags, testMode);
 
 				final Map<String, Set<QueriableProteinSet>> proteins = result.getProteins();
 				log.info(proteins.size() + " proteins comming from command  '" + queryText + "'");
@@ -1083,7 +1083,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}
 	}
 
-	public QueryResult getQueryResultFromQuery(QueryInterface expressionTree, Set<String> projectTags)
+	public QueryResult getQueryResultFromQuery(QueryInterface expressionTree, Set<String> projectTags, boolean testMode)
 			throws PintException {
 		try {
 
