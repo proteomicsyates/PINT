@@ -434,7 +434,18 @@ public class MySQLDeleter {
 	public void deleteExperimentalCondition(Condition condition) {
 
 		log.info("Deleting condition: " + condition.getName() + " of project " + condition.getProject().getName());
+		// delete all the protein ratios
+		Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition1Id = condition
+				.getRatioDescriptorsForExperimentalCondition1Id();
+		for (RatioDescriptor proteinRatioDescriptor : ratioDescriptorsForExperimentalCondition1Id) {
+			deleteRatioDescriptor(proteinRatioDescriptor);
+		}
 
+		Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition2Id = condition
+				.getRatioDescriptorsForExperimentalCondition2Id();
+		for (RatioDescriptor proteinRatioDescriptor : ratioDescriptorsForExperimentalCondition2Id) {
+			deleteRatioDescriptor(proteinRatioDescriptor);
+		}
 		final Set<Psm> psms = condition.getPsms();
 		int percentage = 0;
 		int num = 0;
@@ -468,19 +479,6 @@ public class MySQLDeleter {
 				log.info(num + "/" + proteins.size() + "(" + newPercentage + "%) proteins deleted ");
 			}
 			deleteProtein(protein);
-		}
-
-		// delete all the protein ratios
-		Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition1Id = condition
-				.getRatioDescriptorsForExperimentalCondition1Id();
-		for (RatioDescriptor proteinRatioDescriptor : ratioDescriptorsForExperimentalCondition1Id) {
-			deleteRatioDescriptor(proteinRatioDescriptor);
-		}
-
-		Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition2Id = condition
-				.getRatioDescriptorsForExperimentalCondition2Id();
-		for (RatioDescriptor proteinRatioDescriptor : ratioDescriptorsForExperimentalCondition2Id) {
-			deleteRatioDescriptor(proteinRatioDescriptor);
 		}
 
 		ContextualSessionHandler.delete(condition);
