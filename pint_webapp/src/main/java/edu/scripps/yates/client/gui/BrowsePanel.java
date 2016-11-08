@@ -418,7 +418,7 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 								"Deleting project '" + projectTag + "'. Please wait, this may take some minutes.",
 								false, true, true);
 						ProjectSaverServiceAsync.Util.getInstance().deleteProject(projectTag,
-								new AsyncCallback<Void>() {
+								new AsyncCallback<String>() {
 
 									@Override
 									public void onFailure(Throwable caught) {
@@ -427,9 +427,8 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 									}
 
 									@Override
-									public void onSuccess(Void result) {
-										StatusReportersRegister.getInstance()
-												.notifyStatusReporters("Project '" + projectTag + "' deleted");
+									public void onSuccess(String message) {
+										StatusReportersRegister.getInstance().notifyStatusReporters(message);
 										loadProjectList();
 									}
 								});
@@ -906,6 +905,7 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 			loadingDialog.setText(text);
 			loadingDialog.setAutoHideEnabled(autohide);
 			loadingDialog.setModal(modal);
+			loadingDialog.setShowLoadingBar(showLoaderBar);
 		}
 		loadingDialog.center();
 

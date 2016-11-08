@@ -37,11 +37,12 @@ import edu.scripps.yates.client.exceptions.PintException;
 import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.excel.proteindb.importcfg.adapter.ImportCfgFileReader;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
-import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLDeleter;
 import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLSaver;
+import edu.scripps.yates.server.daemon.PintServerDaemon;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerConstants;
 import edu.scripps.yates.server.util.ServletCommonInit;
+import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.xml.XMLSchemaValidatorErrorHandler;
 import edu.scripps.yates.utilities.xml.XmlSchemaValidator;
@@ -124,18 +125,41 @@ public class ProjectSaverServiceImpl extends RemoteServiceServlet implements Pro
 	}
 
 	@Override
-	public void deleteProject(String projectTag) throws PintException {
-		try {
-			final MySQLDeleter mySQLDeleter = new MySQLDeleter();
-			mySQLDeleter.deleteProject(projectTag);
-			log.info("Project " + projectTag + " is deleted");
-			ContextualSessionHandler.finishGoodTransaction();
-			log.info("Everything is OK!");
+	public String deleteProject(String projectTag) throws PintException {
 
-		} catch (Exception e) {
-			log.error(e);
-			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		// instead of actually delete the project, it will be set for deletion
+		// by the DeleteHiddenProjects daemon task
+		//
+		// final MySQLDeleter mySQLDeleter = new MySQLDeleter();
+		// mySQLDeleter.deleteProject(projectTag);
+		// log.info("Project " + projectTag + " is deleted");
+		// ContextualSessionHandler.finishGoodTransaction();
+		// log.info("Everything is OK!");
+		List<edu.scripps.yates.proteindb.persistence.mysql.Project> projectList = ContextualSessionHandler
+				.retrieveList(edu.scripps.yates.proteindb.persistence.mysql.Project.class);
+		for (edu.scripps.yates.proteindb.persistence.mysql.Project project : projectList) {
+			if (project.getTag().equals(projectTag)) {
+				try {
+					project.setHidden(true);
+					String newProjectTag = projectTag + "_HIDN";
+					if (newProjectTag.length() > 15) {
+						newProjectTag = newProjectTag.substring(newProjectTag.length() - 15, newProjectTag.length());
+					}
+					project.setTag(newProjectTag);
+					ContextualSessionHandler.save(project);
+					ContextualSessionHandler.finishGoodTransaction();
+					return "Project '" + projectTag
+							+ "' has been marked for deletion. It will be deleted during the next "
+							+ DatesUtil.getDescriptiveTimeFromMillisecs(PintServerDaemon.DELAY_IN_MINUTES * 60 * 1000)
+							+ ".";
+				} catch (Exception e) {
+					ContextualSessionHandler.rollbackTransaction();
+					log.error(e);
+					throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+				}
+			}
 		}
+		return "Project '" + projectTag + "' has not found in the DB.";
 
 	}
 

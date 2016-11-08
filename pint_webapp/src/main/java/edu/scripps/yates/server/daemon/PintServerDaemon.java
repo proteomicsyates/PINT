@@ -19,7 +19,7 @@ import edu.scripps.yates.shared.util.SharedConstants;
 
 public class PintServerDaemon implements ServletContextListener {
 	private static final Logger log = Logger.getLogger(PintServerDaemon.class);
-	private final int delayInMinutes = 30;
+	public static final int DELAY_IN_MINUTES = 30;
 
 	private final List<PintServerDaemonTask> pintServerDaemonTasks = new ArrayList<PintServerDaemonTask>();
 	private Timer timer;
@@ -75,12 +75,12 @@ public class PintServerDaemon implements ServletContextListener {
 
 				}
 				log.info("Scheduled run for registered tasks is finished");
-				log.info("Next run in " + delayInMinutes + " minutes");
+				log.info("Next run in " + DELAY_IN_MINUTES + " minutes");
 			}
 		};
 		timer = new Timer("PintServerDaemon", true);
 
-		timer.scheduleAtFixedRate(timerTask, 0, delayInMinutes * 60 * 1000);
+		timer.scheduleAtFixedRate(timerTask, 0, DELAY_IN_MINUTES * 60 * 1000);
 
 		// }
 		// };
