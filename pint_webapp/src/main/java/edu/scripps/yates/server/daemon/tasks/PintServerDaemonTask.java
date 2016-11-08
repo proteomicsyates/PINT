@@ -42,6 +42,11 @@ public abstract class PintServerDaemonTask extends Thread {
 	@Override
 	public abstract void run();
 
+	public void startRun() {
+		run();
+		numRuns++;
+	}
+
 	public abstract boolean justRunOnce();
 
 	public int getNumRuns() {

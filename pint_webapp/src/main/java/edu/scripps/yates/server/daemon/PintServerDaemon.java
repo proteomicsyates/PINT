@@ -59,7 +59,7 @@ public class PintServerDaemon implements ServletContextListener {
 					}
 					log.info("Launching " + task.getName());
 					// task.start();
-					task.run();
+					task.startRun();
 				}
 				log.info("All tasks launched");
 

@@ -32,7 +32,6 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 
 	@Override
 	public void run() {
-		numRuns++;
 		log.info("Starting " + getTaskName());
 		final String projectsToPreload = ServletContextProperty.getServletContextProperty(servletContext,
 				ServletContextProperty.PROJECTS_TO_PRELOAD);
