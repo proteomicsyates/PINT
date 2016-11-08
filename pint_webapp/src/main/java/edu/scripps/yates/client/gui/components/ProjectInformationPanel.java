@@ -43,7 +43,7 @@ public class ProjectInformationPanel extends Composite {
 
 	}
 
-	public void addProjectView(ProjectBean projectBean, DefaultView defaultView) {
+	public void addProjectView(ProjectBean projectBean, DefaultView defaultView, boolean testMode) {
 		FlowPanel panel = new FlowPanel();
 		Label label = new Label(projectBean.getTag());
 		label.setWordWrap(false);
@@ -51,20 +51,21 @@ public class ProjectInformationPanel extends Composite {
 		label.setWidth("100%");
 		panel.setStyleName("ProjectInformationProjectName");
 		flowPanelWest.setWidget(numRow++, 0, panel);
-		panel.addDomHandler(getMouseOverHandler(projectBean, defaultView), MouseOverEvent.getType());
+		panel.addDomHandler(getMouseOverHandler(projectBean, defaultView, testMode), MouseOverEvent.getType());
 
 		if (numRow == 1) {
-			loadDefaultView(projectBean, defaultView);
+			loadDefaultView(projectBean, defaultView, testMode);
 		}
 	}
 
-	private MouseOverHandler getMouseOverHandler(final ProjectBean projectBean, final DefaultView defaultView) {
+	private MouseOverHandler getMouseOverHandler(final ProjectBean projectBean, final DefaultView defaultView,
+			final boolean testMode) {
 
 		MouseOverHandler mouseOverHandler = new MouseOverHandler() {
 
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
-				loadDefaultView(projectBean, defaultView);
+				loadDefaultView(projectBean, defaultView, testMode);
 
 			}
 		};
@@ -72,9 +73,9 @@ public class ProjectInformationPanel extends Composite {
 		return mouseOverHandler;
 	}
 
-	private void loadDefaultView(ProjectBean projectBean, DefaultView defaultView) {
+	private void loadDefaultView(ProjectBean projectBean, DefaultView defaultView, boolean testMode) {
 		if (!defaultView.equals(currentDefaultViewShowed)) {
-			MyWelcomeProjectPanel panel = new MyWelcomeProjectPanel(projectBean, defaultView, queryPanel);
+			MyWelcomeProjectPanel panel = new MyWelcomeProjectPanel(projectBean, defaultView, queryPanel, testMode);
 			flowPanelCenter.clear();
 			flowPanelCenter.add(panel);
 			currentDefaultViewShowed = defaultView;
