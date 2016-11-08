@@ -284,14 +284,6 @@ public class MySQLDeleter {
 	}
 
 	private void deleteRatioDescriptor(RatioDescriptor ratioDescriptor) {
-		if (ratioDescriptor.getId() != null)
-			return;
-		final Condition expCondition1 = ratioDescriptor.getConditionByExperimentalCondition1Id();
-		final Condition expCondition2 = ratioDescriptor.getConditionByExperimentalCondition2Id();
-
-		deleteExperimentalCondition(expCondition1);
-
-		deleteExperimentalCondition(expCondition2);
 
 		ContextualSessionHandler.delete(ratioDescriptor);
 
@@ -444,15 +436,37 @@ public class MySQLDeleter {
 		log.info("Deleting condition: " + condition.getName() + " of project " + condition.getProject().getName());
 
 		final Set<Psm> psms = condition.getPsms();
+		int percentage = 0;
+		int num = 0;
 		for (Psm psm : psms) {
+			num++;
+			int newPercentage = Double.valueOf(num * 100.0 / psms.size()).intValue();
+			if (newPercentage != percentage) {
+				percentage = newPercentage;
+				log.info(num + "/" + psms.size() + "(" + newPercentage + "%) PSMs deleted ");
+			}
 			deletePSM(psm);
 		}
+		num = 0;
 		final Set<Peptide> peptides = condition.getPeptides();
+		percentage = 0;
 		for (Peptide peptide : peptides) {
+			int newPercentage = Double.valueOf(num * 100.0 / peptides.size()).intValue();
+			if (newPercentage != percentage) {
+				percentage = newPercentage;
+				log.info(num + "/" + peptides.size() + "(" + newPercentage + "%) peptides deleted ");
+			}
 			deletePeptide(peptide);
 		}
+		num = 0;
 		final Set<Protein> proteins = condition.getProteins();
+		percentage = 0;
 		for (Protein protein : proteins) {
+			int newPercentage = Double.valueOf(num * 100.0 / proteins.size()).intValue();
+			if (newPercentage != percentage) {
+				percentage = newPercentage;
+				log.info(num + "/" + proteins.size() + "(" + newPercentage + "%) proteins deleted ");
+			}
 			deleteProtein(protein);
 		}
 
@@ -489,6 +503,7 @@ public class MySQLDeleter {
 			for (MsRun msRun : msRuns) {
 				deleteMSRun(msRun);
 			}
+
 			ContextualSessionHandler.delete(hibProject);
 
 			return true;
