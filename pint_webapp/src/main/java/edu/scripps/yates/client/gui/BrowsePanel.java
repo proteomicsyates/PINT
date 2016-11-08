@@ -26,7 +26,6 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -93,6 +92,7 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 	private final String projectTagTitle = "Unique project tag serving as identifier";
 	private final String availabilityTag = "Availability of the project:\n\tprivate (only accessible by direct URL)\n\tpublic (accessible by selection).";
 	private final String publicationTag = "Link to publication in PUBMED, if available";
+	private MyDialogBox loadingDialog;
 
 	public BrowsePanel() {
 		StatusReportersRegister.getInstance().registerNewStatusReporter(this);
@@ -414,6 +414,9 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 				if (widget instanceof PopUpPanelPasswordChecker) {
 					PopUpPanelPasswordChecker loginPanel = (PopUpPanelPasswordChecker) widget;
 					if (loginPanel.isLoginOK()) {
+						showLoadingDialog(
+								"Deleting project '" + projectTag + "'. Please wait, this may take some minutes.",
+								false, true, true);
 						ProjectSaverServiceAsync.Util.getInstance().deleteProject(projectTag,
 								new AsyncCallback<Void>() {
 
@@ -427,7 +430,7 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 									public void onSuccess(Void result) {
 										StatusReportersRegister.getInstance()
 												.notifyStatusReporters("Project '" + projectTag + "' deleted");
-
+										loadProjectList();
 									}
 								});
 					}
@@ -882,8 +885,7 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 	@Override
 	public void showMessage(String message) {
 		GWT.log("Message: " + message);
-		Window.confirm(message);
-
+		showLoadingDialog(message, true, false, false);
 	}
 
 	@Override
@@ -897,4 +899,15 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 
 	}
 
+	private void showLoadingDialog(String text, boolean autohide, boolean modal, boolean showLoaderBar) {
+		if (loadingDialog == null) {
+			loadingDialog = new MyDialogBox(text, autohide, modal, showLoaderBar);
+		} else {
+			loadingDialog.setText(text);
+			loadingDialog.setAutoHideEnabled(autohide);
+			loadingDialog.setModal(modal);
+		}
+		loadingDialog.center();
+
+	}
 }
