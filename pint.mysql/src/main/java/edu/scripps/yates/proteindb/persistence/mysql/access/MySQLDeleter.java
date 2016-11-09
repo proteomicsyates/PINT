@@ -580,10 +580,12 @@ public class MySQLDeleter {
 					deleteRatioDescriptor(ratioDescriptor);
 				}
 				ContextualSessionHandler.delete(condition);
+
+			}
+			for (Condition condition : conditions) {
 				final Sample sample = condition.getSample();
 				deleteSample(sample);
 			}
-
 			final Set<MsRun> msRuns = hibProject.getMsRuns();
 			for (MsRun msRun : msRuns) {
 				deleteMSRun(msRun);
