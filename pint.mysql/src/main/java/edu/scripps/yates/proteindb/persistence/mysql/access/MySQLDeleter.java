@@ -507,16 +507,9 @@ public class MySQLDeleter {
 	}
 
 	private void deleteMSRun(MsRun msRun) {
+		log.info("Deleting MSRun: " + msRun.getRunId() + " of project " + msRun.getProject().getTag());
 
-		ContextualSessionHandler.delete(msRun);
-
-	}
-
-	public void deleteExperimentalConditionsItems(Condition condition) {
-
-		log.info("Deleting condition: " + condition.getName() + " of project " + condition.getProject().getTag());
-
-		final Set<Psm> psms = condition.getPsms();
+		final Set<Psm> psms = msRun.getPsms();
 		int percentage = 0;
 		int num = 0;
 		for (Psm psm : psms) {
@@ -529,7 +522,7 @@ public class MySQLDeleter {
 			deletePSM(psm);
 		}
 		num = 0;
-		final Set<Peptide> peptides = condition.getPeptides();
+		final Set<Peptide> peptides = msRun.getPeptides();
 		percentage = 0;
 		for (Peptide peptide : peptides) {
 			num++;
@@ -541,7 +534,7 @@ public class MySQLDeleter {
 			deletePeptide(peptide);
 		}
 		num = 0;
-		final Set<Protein> proteins = condition.getProteins();
+		final Set<Protein> proteins = msRun.getProteins();
 		percentage = 0;
 		for (Protein protein : proteins) {
 			num++;
@@ -552,6 +545,11 @@ public class MySQLDeleter {
 			}
 			deleteProtein(protein);
 		}
+		ContextualSessionHandler.delete(msRun);
+
+	}
+
+	public void deleteExperimentalConditionsItems(Condition condition) {
 
 	}
 
@@ -561,7 +559,10 @@ public class MySQLDeleter {
 		// created
 		Project hibProject = MySQLProteinDBInterface.getDBProjectByTag(projectTag);
 		if (hibProject != null) {
-
+			final Set<MsRun> msRuns = hibProject.getMsRuns();
+			for (MsRun msRun : msRuns) {
+				deleteMSRun(msRun);
+			}
 			final Set<Condition> conditions = hibProject.getConditions();
 			for (Condition condition : conditions) {
 				deleteExperimentalConditionsItems(condition);
@@ -585,10 +586,6 @@ public class MySQLDeleter {
 			for (Condition condition : conditions) {
 				final Sample sample = condition.getSample();
 				deleteSample(sample);
-			}
-			final Set<MsRun> msRuns = hibProject.getMsRuns();
-			for (MsRun msRun : msRuns) {
-				deleteMSRun(msRun);
 			}
 
 			ContextualSessionHandler.delete(hibProject);
