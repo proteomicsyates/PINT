@@ -190,7 +190,7 @@ public class MySQLDeleter {
 		}
 		// peptide
 		if (psm.getPeptide() != null) {
-			psm.getPeptide().getPsms().remove(psm);
+			// psm.getPeptide().getPsms().remove(psm);
 			// deletePeptide(psm.getPeptide());
 		}
 	}
