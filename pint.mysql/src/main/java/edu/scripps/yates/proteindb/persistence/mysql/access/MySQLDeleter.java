@@ -114,7 +114,7 @@ public class MySQLDeleter {
 		final Iterator<Peptide> peptideIterator = protein.getPeptides().iterator();
 		while (peptideIterator.hasNext()) {
 			Peptide peptide = peptideIterator.next();
-			peptide.getProteins().remove(peptide);
+			// peptide.getProteins().remove(peptide);
 			peptideIterator.remove();
 			// deletePeptide(peptide);
 		}
@@ -122,7 +122,7 @@ public class MySQLDeleter {
 		final Iterator<Psm> psmsIterator = protein.getPsms().iterator();
 		while (psmsIterator.hasNext()) {
 			Psm psm = psmsIterator.next();
-			psm.getProteins().remove(protein);
+			// psm.getProteins().remove(protein);
 			psmsIterator.remove();
 			// deletePSM(psm);
 		}
@@ -178,7 +178,7 @@ public class MySQLDeleter {
 		final Iterator<Protein> proteinIterator = psm.getProteins().iterator();
 		while (proteinIterator.hasNext()) {
 			Protein protein = proteinIterator.next();
-			protein.getPsms().remove(psm);
+			// protein.getPsms().remove(psm);
 			proteinIterator.remove();
 			// deleteProtein(protein);
 		}
@@ -230,7 +230,7 @@ public class MySQLDeleter {
 		final Iterator<Psm> psmsIterator = peptide.getPsms().iterator();
 		while (psmsIterator.hasNext()) {
 			Psm psm = psmsIterator.next();
-			psm.getPeptide().getPsms().remove(peptide);
+			// psm.getPeptide().getPsms().remove(peptide);
 			psmsIterator.remove();
 			// deletePSM(psm);
 		}
@@ -238,7 +238,7 @@ public class MySQLDeleter {
 		final Iterator<Protein> proteinIterator = peptide.getProteins().iterator();
 		while (proteinIterator.hasNext()) {
 			Protein protein = proteinIterator.next();
-			protein.getPeptides().remove(peptide);
+			// protein.getPeptides().remove(peptide);
 			proteinIterator.remove();
 			// deleteProtein(protein);
 		}
@@ -514,7 +514,7 @@ public class MySQLDeleter {
 
 	public void deleteExperimentalCondition(Condition condition) {
 
-		log.info("Deleting condition: " + condition.getName() + " of project " + condition.getProject().getName());
+		log.info("Deleting condition: " + condition.getName() + " of project " + condition.getProject().getTag());
 
 		final Set<Psm> psms = condition.getPsms();
 		int percentage = 0;
