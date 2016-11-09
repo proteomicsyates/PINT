@@ -512,7 +512,7 @@ public class MySQLDeleter {
 
 	}
 
-	public void deleteExperimentalCondition(Condition condition) {
+	public void deleteExperimentalConditionsItems(Condition condition) {
 
 		log.info("Deleting condition: " + condition.getName() + " of project " + condition.getProject().getTag());
 
@@ -553,10 +553,6 @@ public class MySQLDeleter {
 			deleteProtein(protein);
 		}
 
-		ContextualSessionHandler.delete(condition);
-
-		final Sample sample = condition.getSample();
-		deleteSample(sample);
 	}
 
 	public boolean deleteProject(String projectTag) {
@@ -568,7 +564,7 @@ public class MySQLDeleter {
 
 			final Set<Condition> conditions = hibProject.getConditions();
 			for (Condition condition : conditions) {
-				deleteExperimentalCondition(condition);
+				deleteExperimentalConditionsItems(condition);
 			}
 			for (Condition condition : conditions) {
 
@@ -583,6 +579,9 @@ public class MySQLDeleter {
 				for (RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition2Id) {
 					deleteRatioDescriptor(ratioDescriptor);
 				}
+				ContextualSessionHandler.delete(condition);
+				final Sample sample = condition.getSample();
+				deleteSample(sample);
 			}
 
 			final Set<MsRun> msRuns = hibProject.getMsRuns();
