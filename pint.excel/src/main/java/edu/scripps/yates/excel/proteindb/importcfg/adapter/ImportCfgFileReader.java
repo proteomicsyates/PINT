@@ -1,6 +1,7 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -115,7 +116,7 @@ public class ImportCfgFileReader {
 			return (PintImportCfg) ret;
 		}
 
-		return null;
+		throw new FileNotFoundException("File " + xmlFile.getAbsolutePath() + " not found");
 	}
 
 	private PintImportCfg readCfgFile(InputStream is) throws IOException, JAXBException {
@@ -126,7 +127,7 @@ public class ImportCfgFileReader {
 			return (PintImportCfg) ret;
 		}
 
-		return null;
+		throw new FileNotFoundException("Input stream is null ");
 	}
 
 	/**
