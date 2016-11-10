@@ -109,7 +109,11 @@ public class MySQLDeleter {
 		for (ProteinAmount amount : amounts) {
 			deleteProteinAmount(amount);
 		}
-
+		// conditions
+		final Set<Condition> conditions = protein.getConditions();
+		for (Condition condition : conditions) {
+			condition.getProteins().remove(protein);
+		}
 		// peptides
 		final Iterator<Peptide> peptideIterator = protein.getPeptides().iterator();
 		while (peptideIterator.hasNext()) {
@@ -173,7 +177,11 @@ public class MySQLDeleter {
 				deletePsmRatio(psmRatioValue);
 			}
 		}
-
+		// conditions
+		final Set<Condition> conditions = psm.getConditions();
+		for (Condition condition : conditions) {
+			condition.getPsms().remove(psm);
+		}
 		// proteins
 		final Iterator<Protein> proteinIterator = psm.getProteins().iterator();
 		while (proteinIterator.hasNext()) {
@@ -225,6 +233,11 @@ public class MySQLDeleter {
 			for (PeptideRatioValue peptideRatioValue : peptideRatioValues) {
 				deletePeptideRatio(peptideRatioValue);
 			}
+		}
+		// conditions
+		final Set<Condition> conditions = peptide.getConditions();
+		for (Condition condition : conditions) {
+			condition.getPeptides().remove(peptide);
 		}
 		// psms
 		final Iterator<Psm> psmsIterator = peptide.getPsms().iterator();
@@ -572,9 +585,7 @@ public class MySQLDeleter {
 
 			}
 			final Set<Condition> conditions = hibProject.getConditions();
-			for (Condition condition : conditions) {
-				deleteExperimentalConditionsItems(condition);
-			}
+
 			for (Condition condition : conditions) {
 
 				// ratio descriptors
