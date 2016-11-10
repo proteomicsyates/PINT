@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -300,13 +301,13 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 					// The server sends useful information to the client by
 					// default
 					UploadedInfo uploadedInfo = uploader.getServerInfo();
-					System.out.println("File name " + uploadedInfo.name);
-					System.out.println("File content-type " + uploadedInfo.ctype);
-					System.out.println("File size " + uploadedInfo.size);
+					GWT.log("File name " + uploadedInfo.name);
+					GWT.log("File content-type " + uploadedInfo.ctype);
+					GWT.log("File size " + uploadedInfo.size);
 
 					// You can send any customized message and parse it
 					final ServerMessage serverMessage = uploader.getServerMessage();
-					System.out.println("Server message " + serverMessage.getMessage());
+					GWT.log("Server from uploader message " + serverMessage.getMessage());
 					statusInLineHTML.setText("Using uploaded import configuration XML file: " + uploadedInfo.name);
 					showDialog("Wait while a new import process is registered...", true, false, true);
 					// create a new import job
@@ -517,7 +518,8 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 					for (ClosableWithTitlePanel disclosurePanel : disclosurePanels) {
 						if (disclosurePanel instanceof DataSourceDisclosurePanel) {
 							DataSourceDisclosurePanel dataSourcePanel = (DataSourceDisclosurePanel) disclosurePanel;
-							if (dataSourcePanel.getFileNameWithTypeBean().getId().equals(fileTypeBean.getId())) {
+							if (dataSourcePanel.getFileNameWithTypeBean() != null
+									&& dataSourcePanel.getFileNameWithTypeBean().getId().equals(fileTypeBean.getId())) {
 								SharedDataUtils.excelBeansByExcelFileWithFormatBeansMap
 										.put(dataSourcePanel.getFileNameWithTypeBean(), fileTypeBean);
 							}
