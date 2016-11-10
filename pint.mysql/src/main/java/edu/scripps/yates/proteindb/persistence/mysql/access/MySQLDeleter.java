@@ -563,8 +563,13 @@ public class MySQLDeleter {
 			for (MsRun msRun : msRuns) {
 
 				deleteMSRun(msRun);
+				log.info("Flushing session...");
 				ContextualSessionHandler.flush();
+				log.info("Clearing session...");
+
 				ContextualSessionHandler.clear();
+				log.info("Session clear.");
+
 			}
 			final Set<Condition> conditions = hibProject.getConditions();
 			for (Condition condition : conditions) {
