@@ -326,10 +326,10 @@ public class ExcelRatioPanel
 	public void updateRepresentedObject() {
 		final String columnRef = getExcelColumnRefPanel().getColumnRef();
 		representedObject.setColumnRef(columnRef);
-		if (ratioDescriptor.getCondition1() != null) {
+		if (ratioDescriptor != null && ratioDescriptor.getCondition1() != null) {
 			representedObject.setNumerator(ratioDescriptor.getCondition1().getId());
 		}
-		if (ratioDescriptor.getCondition2() != null) {
+		if (ratioDescriptor != null && ratioDescriptor.getCondition2() != null) {
 			representedObject.setDenominator(ratioDescriptor.getCondition2().getId());
 		}
 		ProteinAccessionTypeBean proteinAccession = null;
