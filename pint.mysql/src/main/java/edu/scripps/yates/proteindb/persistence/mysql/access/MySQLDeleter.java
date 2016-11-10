@@ -1,7 +1,13 @@
 package edu.scripps.yates.proteindb.persistence.mysql.access;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -245,7 +251,7 @@ public class MySQLDeleter {
 			Psm psm = psmsIterator.next();
 			// psm.getPeptide().getPsms().remove(peptide);
 			psmsIterator.remove();
-			// deletePSM(psm);
+			deletePSM(psm);
 		}
 		// proteins
 		final Iterator<Protein> proteinIterator = peptide.getProteins().iterator();
@@ -572,34 +578,66 @@ public class MySQLDeleter {
 		// created
 		Project hibProject = MySQLProteinDBInterface.getDBProjectByTag(projectTag);
 		if (hibProject != null) {
-			final Set<MsRun> msRuns = hibProject.getMsRuns();
-			for (MsRun msRun : msRuns) {
+			// get a map between MSRuns and Conditions
+			Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(hibProject);
+			Map<MsRun, Set<Condition>> conditionsByMSRun = getConditionsByMSRun(hibProject);
+			Set<MsRun> deletedMSRuns = new HashSet<MsRun>();
+			Set<Condition> deletedConditions = new HashSet<Condition>();
+			while (true) {
+				ContextualSessionHandler.beginGoodTransaction();
+				ContextualSessionHandler.refresh(hibProject);
+				final Set<MsRun> msRuns = hibProject.getMsRuns();
+				log.info(msRuns.size() + " MSRuns to delete in project " + hibProject.getTag());
+				List<MsRun> msrunlist = new ArrayList<MsRun>();
+				msrunlist.addAll(msRuns);
+				Collections.sort(msrunlist, new Comparator<MsRun>() {
 
-				deleteMSRun(msRun);
-				log.info("Flushing session...");
-				ContextualSessionHandler.flush();
-				log.info("Clearing session...");
-
-				ContextualSessionHandler.clear();
-				log.info("Session clear.");
-
+					@Override
+					public int compare(MsRun o1, MsRun o2) {
+						return o1.getId().compareTo(o2.getId());
+					}
+				});
+				for (MsRun msRun : msrunlist) {
+					if (deletedMSRuns.contains(msRun)) {
+						continue;
+					}
+					deleteMSRun(msRun);
+					deletedMSRuns.add(msRun);
+					Set<Condition> conditions = conditionsByMSRun.get(msRun);
+					// check if all msruns of all conditions have been deleted
+					boolean allDeleted = true;
+					if (conditions != null) {
+						for (Condition condition : conditions) {
+							final Set<MsRun> msRunSet = msRunsByCondition.get(condition);
+							for (MsRun msRun2 : msRunSet) {
+								if (!deletedMSRuns.contains(msRun2)) {
+									allDeleted = false;
+									break;
+								}
+							}
+						}
+					}
+					if (allDeleted) {
+						log.info("Flushing session...");
+						ContextualSessionHandler.flush();
+						log.info("Clearing session...");
+						ContextualSessionHandler.clear();
+						log.info("Session clear.");
+						ContextualSessionHandler.finishGoodTransaction();
+						break;
+					}
+				}
+				if (msRuns.size() == deletedMSRuns.size()) {
+					break;
+				}
 			}
+			ContextualSessionHandler.beginGoodTransaction();
+			ContextualSessionHandler.refresh(hibProject);
 			final Set<Condition> conditions = hibProject.getConditions();
 
 			for (Condition condition : conditions) {
 
-				// ratio descriptors
-				Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition1Id = condition
-						.getRatioDescriptorsForExperimentalCondition1Id();
-				for (RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition1Id) {
-					deleteRatioDescriptor(ratioDescriptor);
-				}
-				Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition2Id = condition
-						.getRatioDescriptorsForExperimentalCondition2Id();
-				for (RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition2Id) {
-					deleteRatioDescriptor(ratioDescriptor);
-				}
-				ContextualSessionHandler.delete(condition);
+				deleteCondition(condition);
 
 			}
 			for (Condition condition : conditions) {
@@ -614,6 +652,66 @@ public class MySQLDeleter {
 			throw new IllegalArgumentException(projectTag + " doesn't exist");
 		}
 
+	}
+
+	private Map<MsRun, Set<Condition>> getConditionsByMSRun(Project hibProject) {
+		Map<MsRun, Set<Condition>> conditionsByMSRun = new HashMap<MsRun, Set<Condition>>();
+		final Set<MsRun> msRuns = hibProject.getMsRuns();
+		for (MsRun msRun : msRuns) {
+			Set<Condition> conditions = new HashSet<Condition>();
+			final Set<Psm> psms = msRun.getPsms();
+			for (Psm psm : psms) {
+				conditions.addAll(psm.getConditions());
+			}
+			final Set<Protein> proteins = msRun.getProteins();
+			for (Protein protein : proteins) {
+				conditions.addAll(protein.getConditions());
+			}
+			final Set<Peptide> peptides = msRun.getPeptides();
+			for (Peptide peptide : peptides) {
+				conditions.addAll(peptide.getConditions());
+			}
+			conditionsByMSRun.put(msRun, conditions);
+		}
+		return conditionsByMSRun;
+	}
+
+	private void deleteCondition(Condition condition) {
+		// ratio descriptors
+		Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition1Id = condition
+				.getRatioDescriptorsForExperimentalCondition1Id();
+		for (RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition1Id) {
+			deleteRatioDescriptor(ratioDescriptor);
+		}
+		Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition2Id = condition
+				.getRatioDescriptorsForExperimentalCondition2Id();
+		for (RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition2Id) {
+			deleteRatioDescriptor(ratioDescriptor);
+		}
+		ContextualSessionHandler.delete(condition);
+	}
+
+	private Map<Condition, Set<MsRun>> getMSRunsByCondition(Project hibProject) {
+		Map<Condition, Set<MsRun>> msRunsByCondition = new HashMap<Condition, Set<MsRun>>();
+
+		final Set<Condition> conditions = hibProject.getConditions();
+		for (Condition condition : conditions) {
+			Set<MsRun> msruns = new HashSet<MsRun>();
+			Set<Psm> psms = condition.getPsms();
+			for (Psm psm : psms) {
+				msruns.add(psm.getMsRun());
+			}
+			Set<Peptide> peptides = condition.getPeptides();
+			for (Peptide peptide : peptides) {
+				msruns.add(peptide.getMsRun());
+			}
+			Set<Protein> proteins = condition.getProteins();
+			for (Protein protein : proteins) {
+				msruns.add(protein.getMsRun());
+			}
+			msRunsByCondition.put(condition, msruns);
+		}
+		return msRunsByCondition;
 	}
 
 	private void deleteSample(Sample sample) {
