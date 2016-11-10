@@ -561,7 +561,10 @@ public class MySQLDeleter {
 		if (hibProject != null) {
 			final Set<MsRun> msRuns = hibProject.getMsRuns();
 			for (MsRun msRun : msRuns) {
+
 				deleteMSRun(msRun);
+				ContextualSessionHandler.flush();
+				ContextualSessionHandler.clear();
 			}
 			final Set<Condition> conditions = hibProject.getConditions();
 			for (Condition condition : conditions) {
