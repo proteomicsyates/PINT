@@ -578,6 +578,7 @@ public class MySQLDeleter {
 		// created
 		Project hibProject = MySQLProteinDBInterface.getDBProjectByTag(projectTag);
 		if (hibProject != null) {
+			log.info("deleting project " + hibProject.getTag());
 			// get a map between MSRuns and Conditions
 			Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(hibProject);
 			Map<MsRun, Set<Condition>> conditionsByMSRun = getConditionsByMSRun(hibProject);
@@ -655,6 +656,7 @@ public class MySQLDeleter {
 	}
 
 	private Map<MsRun, Set<Condition>> getConditionsByMSRun(Project hibProject) {
+		log.info("Getting conditions mapped to MSRuns...");
 		Map<MsRun, Set<Condition>> conditionsByMSRun = new HashMap<MsRun, Set<Condition>>();
 		final Set<MsRun> msRuns = hibProject.getMsRuns();
 		for (MsRun msRun : msRuns) {
@@ -662,17 +664,22 @@ public class MySQLDeleter {
 			final Set<Psm> psms = msRun.getPsms();
 			for (Psm psm : psms) {
 				conditions.addAll(psm.getConditions());
+				break;
 			}
 			final Set<Protein> proteins = msRun.getProteins();
 			for (Protein protein : proteins) {
 				conditions.addAll(protein.getConditions());
+				break;
 			}
 			final Set<Peptide> peptides = msRun.getPeptides();
 			for (Peptide peptide : peptides) {
 				conditions.addAll(peptide.getConditions());
+				break;
 			}
 			conditionsByMSRun.put(msRun, conditions);
 		}
+		log.info(conditionsByMSRun.size() + " conditions mapped to MSRuns.");
+
 		return conditionsByMSRun;
 	}
 
@@ -693,7 +700,7 @@ public class MySQLDeleter {
 
 	private Map<Condition, Set<MsRun>> getMSRunsByCondition(Project hibProject) {
 		Map<Condition, Set<MsRun>> msRunsByCondition = new HashMap<Condition, Set<MsRun>>();
-
+		log.info("Getting MSRuns mapped to conditions...");
 		final Set<Condition> conditions = hibProject.getConditions();
 		for (Condition condition : conditions) {
 			Set<MsRun> msruns = new HashSet<MsRun>();
@@ -711,6 +718,8 @@ public class MySQLDeleter {
 			}
 			msRunsByCondition.put(condition, msruns);
 		}
+		log.info(msRunsByCondition.size() + " MSRuns mapped to conditions.");
+
 		return msRunsByCondition;
 	}
 
