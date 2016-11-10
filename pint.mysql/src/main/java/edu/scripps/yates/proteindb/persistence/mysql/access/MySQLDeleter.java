@@ -580,8 +580,9 @@ public class MySQLDeleter {
 		if (hibProject != null) {
 			log.info("deleting project " + hibProject.getTag());
 			// get a map between MSRuns and Conditions
-			Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(hibProject);
 			Map<MsRun, Set<Condition>> conditionsByMSRun = getConditionsByMSRun(hibProject);
+			Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(conditionsByMSRun);
+
 			Set<MsRun> deletedMSRuns = new HashSet<MsRun>();
 			Set<Condition> deletedConditions = new HashSet<Condition>();
 			while (true) {
@@ -666,16 +667,23 @@ public class MySQLDeleter {
 				conditions.addAll(psm.getConditions());
 				break;
 			}
+			psms.clear();
+			System.gc();
 			final Set<Protein> proteins = msRun.getProteins();
 			for (Protein protein : proteins) {
 				conditions.addAll(protein.getConditions());
 				break;
 			}
+			proteins.clear();
+			System.gc();
 			final Set<Peptide> peptides = msRun.getPeptides();
 			for (Peptide peptide : peptides) {
 				conditions.addAll(peptide.getConditions());
 				break;
 			}
+			peptides.clear();
+			System.gc();
+			log.info("MSRun " + msRun.getRunId() + " mapped to " + conditions.size() + " conditions");
 			conditionsByMSRun.put(msRun, conditions);
 		}
 		log.info(conditionsByMSRun.size() + " conditions mapped to MSRuns.");
@@ -698,25 +706,21 @@ public class MySQLDeleter {
 		ContextualSessionHandler.delete(condition);
 	}
 
-	private Map<Condition, Set<MsRun>> getMSRunsByCondition(Project hibProject) {
+	private Map<Condition, Set<MsRun>> getMSRunsByCondition(Map<MsRun, Set<Condition>> conditionsByMSRun) {
 		Map<Condition, Set<MsRun>> msRunsByCondition = new HashMap<Condition, Set<MsRun>>();
 		log.info("Getting MSRuns mapped to conditions...");
-		final Set<Condition> conditions = hibProject.getConditions();
-		for (Condition condition : conditions) {
-			Set<MsRun> msruns = new HashSet<MsRun>();
-			Set<Psm> psms = condition.getPsms();
-			for (Psm psm : psms) {
-				msruns.add(psm.getMsRun());
+		final Set<MsRun> msruns = conditionsByMSRun.keySet();
+		for (MsRun msrun : msruns) {
+			Set<Condition> conditions = conditionsByMSRun.get(msrun);
+			for (Condition condition2 : conditions) {
+				if (msRunsByCondition.containsKey(condition2)) {
+					msRunsByCondition.get(condition2).add(msrun);
+				} else {
+					Set<MsRun> msRunSet = new HashSet<MsRun>();
+					msRunSet.add(msrun);
+					msRunsByCondition.put(condition2, msRunSet);
+				}
 			}
-			Set<Peptide> peptides = condition.getPeptides();
-			for (Peptide peptide : peptides) {
-				msruns.add(peptide.getMsRun());
-			}
-			Set<Protein> proteins = condition.getProteins();
-			for (Protein protein : proteins) {
-				msruns.add(protein.getMsRun());
-			}
-			msRunsByCondition.put(condition, msruns);
 		}
 		log.info(msRunsByCondition.size() + " MSRuns mapped to conditions.");
 
