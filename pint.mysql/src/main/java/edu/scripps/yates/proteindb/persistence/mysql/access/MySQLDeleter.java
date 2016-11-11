@@ -585,13 +585,16 @@ public class MySQLDeleter {
 			// get a map between MSRuns and Conditions
 			Map<MsRun, Set<Condition>> conditionsByMSRun = getConditionsByMSRun(hibProject);
 			Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(conditionsByMSRun);
-
+			int initialMSRunNumber = 0;
 			Set<MsRun> deletedMSRuns = new HashSet<MsRun>();
 			Set<Condition> deletedConditions = new HashSet<Condition>();
 			while (true) {
 				ContextualSessionHandler.beginGoodTransaction();
 				ContextualSessionHandler.refresh(hibProject);
 				final Set<MsRun> msRuns = hibProject.getMsRuns();
+				if (initialMSRunNumber == 0) {
+					initialMSRunNumber = msRuns.size();
+				}
 				log.info(msRuns.size() + " MSRuns to delete in project " + hibProject.getTag());
 				List<MsRun> msrunlist = new ArrayList<MsRun>();
 				msrunlist.addAll(msRuns);
@@ -632,7 +635,7 @@ public class MySQLDeleter {
 						break;
 					}
 				}
-				if (msRuns.size() == deletedMSRuns.size()) {
+				if (initialMSRunNumber == deletedMSRuns.size()) {
 					break;
 				}
 			}
@@ -664,30 +667,33 @@ public class MySQLDeleter {
 		Map<MsRun, Set<Condition>> conditionsByMSRun = new HashMap<MsRun, Set<Condition>>();
 		final Set<MsRun> msRuns = hibProject.getMsRuns();
 		for (MsRun msRun : msRuns) {
-			Set<Condition> conditions = new HashSet<Condition>();
-			final Set<Psm> psms = msRun.getPsms();
-			for (Psm psm : psms) {
-				conditions.addAll(psm.getConditions());
-				break;
-			}
-			psms.clear();
-			System.gc();
-			final Set<Protein> proteins = msRun.getProteins();
-			for (Protein protein : proteins) {
-				conditions.addAll(protein.getConditions());
-				break;
-			}
-			proteins.clear();
-			System.gc();
-			final Set<Peptide> peptides = msRun.getPeptides();
-			for (Peptide peptide : peptides) {
-				conditions.addAll(peptide.getConditions());
-				break;
-			}
-			peptides.clear();
-			System.gc();
+			// Set<Condition> conditions = new HashSet<Condition>();
+			// final Set<Psm> psms = msRun.getPsms();
+			// for (Psm psm : psms) {
+			// conditions.addAll(psm.getConditions());
+			// break;
+			// }
+			// psms.clear();
+			// System.gc();
+			// final Set<Protein> proteins = msRun.getProteins();
+			// for (Protein protein : proteins) {
+			// conditions.addAll(protein.getConditions());
+			// break;
+			// }
+			// proteins.clear();
+			// System.gc();
+			// final Set<Peptide> peptides = msRun.getPeptides();
+			// for (Peptide peptide : peptides) {
+			// conditions.addAll(peptide.getConditions());
+			// break;
+			// }
+			// peptides.clear();
+			// System.gc();
+			List<Condition> conditions = PreparedCriteria.getConditionsByMSRunCriteria(msRun).list();
+			Set<Condition> set = new HashSet<Condition>();
+			set.addAll(conditions);
 			log.info("MSRun " + msRun.getRunId() + " mapped to " + conditions.size() + " conditions");
-			conditionsByMSRun.put(msRun, conditions);
+			conditionsByMSRun.put(msRun, set);
 		}
 		log.info(conditionsByMSRun.size() + " conditions mapped to MSRuns.");
 

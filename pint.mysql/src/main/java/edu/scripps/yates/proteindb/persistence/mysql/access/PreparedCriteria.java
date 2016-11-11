@@ -11,7 +11,9 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
+import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Gene;
+import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
@@ -375,6 +377,19 @@ public class PreparedCriteria {
 			cr.add(Restrictions.eq("project.tag", projectTag));
 		}
 		cr.add(Restrictions.like("psm.sequence", regexp));
+		return cr;
+	}
+
+	public static Criteria getConditionsByMSRunCriteria(MsRun msRun) {
+		if (msRun == null) {
+			return null;
+		}
+		log.info("Preparing criteria for conditions related to msRun " + msRun.getRunId());
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Condition.class, "condition");
+
+		cr.createAlias("condition.proteins", "protein");
+		cr.add(Restrictions.eq("protein.msRun", msRun));
+		cr.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		return cr;
 	}
 }
