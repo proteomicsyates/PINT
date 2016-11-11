@@ -249,9 +249,10 @@ public class MySQLDeleter {
 		final Iterator<Psm> psmsIterator = peptide.getPsms().iterator();
 		while (psmsIterator.hasNext()) {
 			Psm psm = psmsIterator.next();
+			// actually delete psm before peptide
+			deletePSM(psm);
 			// psm.getPeptide().getPsms().remove(peptide);
 			psmsIterator.remove();
-			deletePSM(psm);
 		}
 		// proteins
 		final Iterator<Protein> proteinIterator = peptide.getProteins().iterator();
@@ -526,19 +527,20 @@ public class MySQLDeleter {
 	}
 
 	private void deleteMSRun(MsRun msRun) {
-		log.info("Deleting MSRun: " + msRun.getRunId() + " of project " + msRun.getProject().getTag());
+		log.info("Deleting MSRun:  " + msRun.getRunId() + " of project " + msRun.getProject().getTag());
+		ContextualSessionHandler.refresh(msRun);
 
-		final Set<Psm> psms = msRun.getPsms();
-		int percentage = 0;
 		int num = 0;
-		for (Psm psm : psms) {
+		final Set<Protein> proteins = msRun.getProteins();
+		double percentage = 0;
+		for (Protein protein : proteins) {
 			num++;
-			int newPercentage = Double.valueOf(num * 100.0 / psms.size()).intValue();
+			int newPercentage = Double.valueOf(num * 100.0 / proteins.size()).intValue();
 			if (newPercentage != percentage) {
 				percentage = newPercentage;
-				log.info(num + "/" + psms.size() + "(" + newPercentage + "%) PSMs deleted ");
+				log.info(num + "/" + proteins.size() + "(" + newPercentage + "%) proteins deleted ");
 			}
-			deletePSM(psm);
+			deleteProtein(protein);
 		}
 		num = 0;
 		final Set<Peptide> peptides = msRun.getPeptides();
@@ -552,17 +554,18 @@ public class MySQLDeleter {
 			}
 			deletePeptide(peptide);
 		}
-		num = 0;
-		final Set<Protein> proteins = msRun.getProteins();
+
+		final Set<Psm> psms = msRun.getPsms();
 		percentage = 0;
-		for (Protein protein : proteins) {
+		num = 0;
+		for (Psm psm : psms) {
 			num++;
-			int newPercentage = Double.valueOf(num * 100.0 / proteins.size()).intValue();
+			int newPercentage = Double.valueOf(num * 100.0 / psms.size()).intValue();
 			if (newPercentage != percentage) {
 				percentage = newPercentage;
-				log.info(num + "/" + proteins.size() + "(" + newPercentage + "%) proteins deleted ");
+				log.info(num + "/" + psms.size() + "(" + newPercentage + "%) PSMs deleted ");
 			}
-			deleteProtein(protein);
+			deletePSM(psm);
 		}
 		ContextualSessionHandler.delete(msRun);
 
