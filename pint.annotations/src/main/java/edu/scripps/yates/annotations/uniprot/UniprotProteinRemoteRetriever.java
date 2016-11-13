@@ -510,12 +510,12 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 		}
 		if (notTryUntilNextDay
 				&& DateUtils.isSameDay(UniprotProteinRemoteRetriever.currentUniprotVersionRetrievedDate, new Date())) {
-			log.info("After a timeout today...I will try again tomorrow");
+			log.debug("After a timeout today...I will try again tomorrow");
 			return "";
 		}
 		final String releaseNotesURLString = PropertiesUtil.getInstance(PropertiesUtil.UNIPROT_PROPERTIES_FILE)
 				.getPropertyValue(PropertiesUtil.UNIPROT_RELEASES_NOTES_PROP);
-		log.debug("Getting uniprot current release from " + releaseNotesURLString);
+		log.info("Getting uniprot current release from " + releaseNotesURLString);
 		if (releaseNotesURLString != null) {
 			URL url;
 			try {
