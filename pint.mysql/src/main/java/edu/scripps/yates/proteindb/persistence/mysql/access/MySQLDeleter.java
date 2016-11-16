@@ -124,7 +124,7 @@ public class MySQLDeleter {
 		final Iterator<Peptide> peptideIterator = protein.getPeptides().iterator();
 		while (peptideIterator.hasNext()) {
 			Peptide peptide = peptideIterator.next();
-			// peptide.getProteins().remove(peptide);
+			peptide.getProteins().remove(peptide);
 			peptideIterator.remove();
 			// deletePeptide(peptide);
 		}
@@ -258,7 +258,7 @@ public class MySQLDeleter {
 		final Iterator<Protein> proteinIterator = peptide.getProteins().iterator();
 		while (proteinIterator.hasNext()) {
 			Protein protein = proteinIterator.next();
-			// protein.getPeptides().remove(peptide);
+			protein.getPeptides().remove(peptide);
 			proteinIterator.remove();
 			// deleteProtein(protein);
 		}
