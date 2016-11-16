@@ -192,7 +192,7 @@ public class MySQLDeleter {
 		final Iterator<Protein> proteinIterator = psm.getProteins().iterator();
 		while (proteinIterator.hasNext()) {
 			Protein protein = proteinIterator.next();
-			// protein.getPsms().remove(psm);
+			protein.getPsms().remove(psm);
 			proteinIterator.remove();
 			// deleteProtein(protein);
 		}
@@ -571,10 +571,6 @@ public class MySQLDeleter {
 
 	}
 
-	public void deleteExperimentalConditionsItems(Condition condition) {
-
-	}
-
 	public boolean deleteProject(String projectTag) {
 
 		// look into the database if a project with the same name is already
@@ -602,7 +598,7 @@ public class MySQLDeleter {
 
 					@Override
 					public int compare(MsRun o1, MsRun o2) {
-						return o1.getId().compareTo(o2.getId());
+						return Integer.compare(conditionsByMSRun.get(o1).size(), conditionsByMSRun.get(o2).size());
 					}
 				});
 				for (MsRun msRun : msrunlist) {
