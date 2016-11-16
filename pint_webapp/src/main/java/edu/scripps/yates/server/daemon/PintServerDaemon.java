@@ -13,8 +13,6 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.server.daemon.tasks.DeleteHiddenProjects;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
-import edu.scripps.yates.server.daemon.tasks.PreLoadPublicProjects;
-import edu.scripps.yates.server.daemon.tasks.ProteinUniprotAnnotationUpdater;
 import edu.scripps.yates.shared.util.SharedConstants;
 
 public class PintServerDaemon implements ServletContextListener {
@@ -35,8 +33,10 @@ public class PintServerDaemon implements ServletContextListener {
 			// pintServerDaemonTasks.add(new
 			// ProteinAccessionsUpdater(servletContext));
 			pintServerDaemonTasks.add(new DeleteHiddenProjects(servletContext));
-			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", servletContext));
-			pintServerDaemonTasks.add(new ProteinUniprotAnnotationUpdater(servletContext));
+			// pintServerDaemonTasks.add(new
+			// PreLoadPublicProjects("DAEMON_SESSION", servletContext));
+			// pintServerDaemonTasks.add(new
+			// ProteinUniprotAnnotationUpdater(servletContext));
 
 			// pintServerDaemonTasks.add(new GeneInformationConsolidation(
 			// servletContext));
@@ -96,7 +96,10 @@ public class PintServerDaemon implements ServletContextListener {
 		log.info("Interrupting all running tasks");
 		for (PintServerDaemonTask task : pintServerDaemonTasks) {
 			if (task.isAlive()) {
+				log.info("Interrupting " + task.getName());
 				task.interrupt();
+			} else {
+				log.info("Skipping task " + task.getName() + " because it was not alive");
 			}
 		}
 		log.info("All task were interrupted");
