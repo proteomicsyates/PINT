@@ -132,7 +132,7 @@ public class MySQLDeleter {
 		final Iterator<Psm> psmsIterator = protein.getPsms().iterator();
 		while (psmsIterator.hasNext()) {
 			Psm psm = psmsIterator.next();
-			// psm.getProteins().remove(protein);
+			psm.getProteins().remove(protein);
 			psmsIterator.remove();
 			// deletePSM(psm);
 		}
