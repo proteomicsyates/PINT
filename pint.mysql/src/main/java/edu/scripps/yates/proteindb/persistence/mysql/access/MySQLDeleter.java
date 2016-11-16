@@ -126,7 +126,7 @@ public class MySQLDeleter {
 			Peptide peptide = peptideIterator.next();
 			peptide.getProteins().remove(peptide);
 			peptideIterator.remove();
-			// deletePeptide(peptide);
+			deletePeptide(peptide);
 		}
 		// psms
 		final Iterator<Psm> psmsIterator = protein.getPsms().iterator();
