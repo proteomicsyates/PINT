@@ -526,7 +526,7 @@ public class MySQLDeleter {
 
 	}
 
-	private void deleteMSRun(MsRun msRun) {
+	private void deleteMSRun(MsRun msRun) throws InterruptedException {
 		log.info("Deleting MSRun:  " + msRun.getRunId() + " of project " + msRun.getProject().getTag());
 		ContextualSessionHandler.refresh(msRun);
 
@@ -541,6 +541,9 @@ public class MySQLDeleter {
 				log.info(num + "/" + proteins.size() + "(" + newPercentage + "%) proteins deleted ");
 			}
 			deleteProtein(protein);
+			if (Thread.interrupted()) {
+				throw new InterruptedException();
+			}
 		}
 		num = 0;
 		final Set<Peptide> peptides = msRun.getPeptides();
@@ -553,6 +556,9 @@ public class MySQLDeleter {
 				log.info(num + "/" + peptides.size() + "(" + newPercentage + "%) peptides deleted ");
 			}
 			deletePeptide(peptide);
+			if (Thread.interrupted()) {
+				throw new InterruptedException();
+			}
 		}
 
 		final Set<Psm> psms = msRun.getPsms();
@@ -566,12 +572,15 @@ public class MySQLDeleter {
 				log.info(num + "/" + psms.size() + "(" + newPercentage + "%) PSMs deleted ");
 			}
 			deletePSM(psm);
+			if (Thread.interrupted()) {
+				throw new InterruptedException();
+			}
 		}
 		ContextualSessionHandler.delete(msRun);
 
 	}
 
-	public boolean deleteProject(String projectTag) {
+	public boolean deleteProject(String projectTag) throws InterruptedException {
 
 		// look into the database if a project with the same name is already
 		// created
