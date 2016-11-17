@@ -121,21 +121,24 @@ public class MySQLDeleter {
 			condition.getProteins().remove(protein);
 		}
 		// peptides
+		protein.getPeptides().clear();
 		final Iterator<Peptide> peptideIterator = protein.getPeptides().iterator();
 		while (peptideIterator.hasNext()) {
 			Peptide peptide = peptideIterator.next();
-			peptide.getProteins().remove(peptide);
-			peptideIterator.remove();
+			// peptide.getProteins().remove(peptide);
+			// peptideIterator.remove();
 			deletePeptide(peptide);
 		}
+
 		// psms
-		final Iterator<Psm> psmsIterator = protein.getPsms().iterator();
-		while (psmsIterator.hasNext()) {
-			Psm psm = psmsIterator.next();
-			psm.getProteins().remove(protein);
-			psmsIterator.remove();
-			// deletePSM(psm);
-		}
+		// final Iterator<Psm> psmsIterator = protein.getPsms().iterator();
+		// while (psmsIterator.hasNext()) {
+		// Psm psm = psmsIterator.next();
+		// psm.getProteins().remove(protein);
+		// psmsIterator.remove();
+		// // deletePSM(psm);
+		// }
+		protein.getPsms().clear();
 
 		ContextualSessionHandler.delete(protein);
 	}
@@ -189,13 +192,16 @@ public class MySQLDeleter {
 			condition.getPsms().remove(psm);
 		}
 		// proteins
-		final Iterator<Protein> proteinIterator = psm.getProteins().iterator();
-		while (proteinIterator.hasNext()) {
-			Protein protein = proteinIterator.next();
-			protein.getPsms().remove(psm);
-			proteinIterator.remove();
-			// deleteProtein(protein);
-		}
+		// final Iterator<Protein> proteinIterator =
+		// psm.getProteins().iterator();
+		// while (proteinIterator.hasNext()) {
+		// Protein protein = proteinIterator.next();
+		// protein.getPsms().remove(psm);
+		// proteinIterator.remove();
+		// // deleteProtein(protein);
+		// }
+		psm.getProteins().clear();
+
 		try {
 			ContextualSessionHandler.delete(psm);
 		} catch (PropertyValueException e) {
@@ -203,10 +209,10 @@ public class MySQLDeleter {
 			log.info(psm.getPeptide());
 		}
 		// peptide
-		if (psm.getPeptide() != null) {
-			// psm.getPeptide().getPsms().remove(psm);
-			// deletePeptide(psm.getPeptide());
-		}
+		// if (psm.getPeptide() != null) {
+		// psm.getPeptide().getPsms().remove(psm);
+		// deletePeptide(psm.getPeptide());
+		// }
 	}
 
 	private void deletePeptide(Peptide peptide) {
@@ -246,22 +252,26 @@ public class MySQLDeleter {
 			condition.getPeptides().remove(peptide);
 		}
 		// psms
+		peptide.getPsms().clear();
 		final Iterator<Psm> psmsIterator = peptide.getPsms().iterator();
 		while (psmsIterator.hasNext()) {
 			Psm psm = psmsIterator.next();
 			// actually delete psm before peptide
 			deletePSM(psm);
 			// psm.getPeptide().getPsms().remove(peptide);
-			psmsIterator.remove();
+			// psmsIterator.remove();
 		}
+
 		// proteins
-		final Iterator<Protein> proteinIterator = peptide.getProteins().iterator();
-		while (proteinIterator.hasNext()) {
-			Protein protein = proteinIterator.next();
-			protein.getPeptides().remove(peptide);
-			proteinIterator.remove();
-			// deleteProtein(protein);
-		}
+		peptide.getProteins().clear();
+		// final Iterator<Protein> proteinIterator =
+		// peptide.getProteins().iterator();
+		// while (proteinIterator.hasNext()) {
+		// Protein protein = proteinIterator.next();
+		// protein.getPeptides().remove(peptide);
+		// proteinIterator.remove();
+		// // deleteProtein(protein);
+		// }
 
 		ContextualSessionHandler.delete(peptide);
 	}
