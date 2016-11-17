@@ -617,8 +617,13 @@ public class MySQLDeleter {
 
 					@Override
 					public int compare(MsRun o1, MsRun o2) {
-						return Integer.compare(conditionsByMSRun.get(o1).size(), conditionsByMSRun.get(o2).size());
+						final Set<Condition> conditions1 = conditionsByMSRun.get(o1);
+						String conditionString1 = getConditionString(conditions1);
+						final Set<Condition> conditions2 = conditionsByMSRun.get(o2);
+						String conditionString2 = getConditionString(conditions2);
+						return conditionString1.compareTo(conditionString2);
 					}
+
 				});
 				for (MsRun msRun : msrunlist) {
 					if (deletedMSRuns.contains(msRun)) {
@@ -627,6 +632,8 @@ public class MySQLDeleter {
 					deleteMSRun(msRun);
 					deletedMSRuns.add(msRun);
 					Set<Condition> conditions = conditionsByMSRun.get(msRun);
+					log.info(conditions.size() + " conditions associated with MSRun " + msRun.getRunId());
+					log.info("conditions associated: " + getConditionString(conditionsByMSRun.get(msRun)));
 					// check if all msruns of all conditions have been deleted
 					boolean allDeleted = true;
 					if (conditions != null) {
@@ -634,6 +641,7 @@ public class MySQLDeleter {
 							final Set<MsRun> msRunSet = msRunsByCondition.get(condition);
 							for (MsRun msRun2 : msRunSet) {
 								if (!deletedMSRuns.contains(msRun2)) {
+									log.info(msRun2.getRunId() + " is not yet deleted... continuing the loop.");
 									allDeleted = false;
 									break;
 								}
@@ -675,6 +683,21 @@ public class MySQLDeleter {
 			throw new IllegalArgumentException(projectTag + " doesn't exist");
 		}
 
+	}
+
+	private String getConditionString(Set<Condition> conditions) {
+		List<String> list = new ArrayList<String>();
+		for (Condition condition : conditions) {
+			if (!list.contains(condition.getName())) {
+				list.add(condition.getName());
+			}
+		}
+		StringBuilder sb = new StringBuilder();
+		Collections.sort(list);
+		for (String conditionName : list) {
+			sb.append(conditionName + ",");
+		}
+		return sb.toString();
 	}
 
 	private Map<MsRun, Set<Condition>> getConditionsByMSRun(Project hibProject) {
