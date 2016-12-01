@@ -167,7 +167,7 @@ public class RemoteServicesTasks {
 				+ uniprotVersion);
 		Collection<String> accessions = SharedDataUtils.getPrimaryAccessions(proteinBeans,
 				edu.scripps.yates.shared.model.AccessionType.UNIPROT);
-		log.info("Getting annotations from " + accessions.size() + " UniProt accessions");
+		log.info("Getting annotations from " + accessions.size() + " primary UniProt accessions");
 		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = uplr
 				.getAnnotatedProteins(accessions);
 		log.info("Received " + annotatedProteins.size() + " annotated proteins");
@@ -273,6 +273,8 @@ public class RemoteServicesTasks {
 				numSequences++;
 				String proteinSeq = annotatedProteinsSequences.get(accession).trim();
 				ServerDataUtils.calculateProteinCoverage(proteinBean, proteinSeq);
+			} else {
+				log.warn("There is no protein sequence for protein: " + accession);
 			}
 		}
 		log.info("Annotations retrieved for " + proteinBeans.size() + " proteins");

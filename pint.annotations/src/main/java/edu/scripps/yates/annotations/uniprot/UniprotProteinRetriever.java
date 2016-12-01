@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.SequenceType;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
@@ -16,6 +18,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 
 public class UniprotProteinRetriever {
+	private final static Logger log = Logger.getLogger(UniprotProteinRetriever.class);
 	private static final HashMap<String, Protein> cachedProteins = new HashMap<String, Protein>();
 	private static final HashSet<String> notAvailableProteins = new HashSet<String>();
 
@@ -61,9 +64,14 @@ public class UniprotProteinRetriever {
 		Map<String, String> ret = new HashMap<String, String>();
 		Set<String> missingAccessions = new HashSet<String>();
 		if (accessions != null && !accessions.isEmpty()) {
+			// discard the proteins that were retrieved before and there was no
+			// sequence
 			for (String accession : accessions) {
 				if (!notAvailableProteins.contains(accession)) {
 					missingAccessions.add(accession);
+				} else {
+					log.warn("Protein " + accession
+							+ " was already search for its sequence in Uniprot and it was not found");
 				}
 			}
 			if (!missingAccessions.isEmpty()) {
@@ -81,8 +89,12 @@ public class UniprotProteinRetriever {
 									actualSeq = actualSeq.replaceAll(" ", "");
 									ret.put(acc, actualSeq);
 								}
+							} else {
+								log.warn("There is entry in Uniprot, but no sequence for protein: " + acc);
+								notAvailableProteins.add(acc);
 							}
 						} else {
+							log.warn("There is no uniprot sequence for protein: " + acc);
 							notAvailableProteins.add(acc);
 						}
 					}
