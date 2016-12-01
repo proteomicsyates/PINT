@@ -24,6 +24,7 @@ import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;
+import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.ProteinBean;
 
 /**
@@ -193,7 +194,8 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 					String sequence = psm.getSequence();
 					proteinBean.getDifferentSequences().add(sequence);
 
-					proteinBean.addPSMtoProtein(new PSMBeanAdapter(link.getQueriablePsm(), hiddenPTMs).adapt());
+					final PSMBean psmBean = new PSMBeanAdapter(link.getQueriablePsm(), hiddenPTMs).adapt();
+					proteinBean.addPSMtoProtein(psmBean);
 
 					final Set<Condition> conditions = psm.getConditions();
 					for (Condition condition : conditions) {

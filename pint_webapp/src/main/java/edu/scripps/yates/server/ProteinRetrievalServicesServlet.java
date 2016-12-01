@@ -1027,6 +1027,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					log.info("Creating Protein beans in session '" + sessionID + "'");
 					RemoteServicesTasks.createProteinBeansFromQueriableProteins(sessionID, proteins,
 							getHiddenPTMs(projectTags));
+					// proteins have to be before creating peptides, because
+					// when peptides are created, the cache of the proteins is
+					// used.
 					log.info("Creating Peptide beans in session '" + sessionID + "'");
 					RemoteServicesTasks.createPeptideBeansFromPeptideMap(sessionID, result.getPeptides());
 					log.info("Setting dataset ready in session '" + sessionID + "'");

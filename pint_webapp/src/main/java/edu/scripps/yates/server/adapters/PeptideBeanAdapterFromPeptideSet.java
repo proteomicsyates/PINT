@@ -76,9 +76,10 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 					oneProteinIsGood = true;
 					ret.addProteinToPeptide(proteinBean);
 				}
+
 			}
 			if (!oneProteinIsGood) {
-				throw new IllegalArgumentException("Peptide id: " + peptide.getId()
+				log.warn("Peptide id: " + peptide.getId()
 						+ " has not valid associated protein. It should have been filtered out before");
 			}
 
