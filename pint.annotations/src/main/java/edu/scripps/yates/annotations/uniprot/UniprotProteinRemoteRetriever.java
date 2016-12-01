@@ -24,11 +24,13 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -38,6 +40,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.annotations.uniprot.xml.SequenceType;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.annotations.util.PropertiesUtil;
 
@@ -57,6 +60,8 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 	private Set<String> missingAccessions = new HashSet<String>();
 	private final File uniprotReleaseFolder;
 	private final boolean useIndex;
+	private Unmarshaller unmarshaller;
+	private Marshaller marshaller;
 	private static JAXBContext jaxbContext;
 	private static Date currentUniprotVersionRetrievedDate;
 	private static String currentUniprotVersion;
@@ -74,6 +79,8 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 		if (jaxbContext == null) {
 			try {
 				jaxbContext = JAXBContext.newInstance(Uniprot.class);
+				unmarshaller = jaxbContext.createUnmarshaller();
+				marshaller = jaxbContext.createMarshaller();
 			} catch (JAXBException e) {
 				e.printStackTrace();
 
@@ -85,27 +92,41 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 	}
 
 	public Uniprot getProteins(Collection<String> accessions, String uniprotVersion) {
-		Uniprot uniprot = new Uniprot();
 
-		List<String> list = new ArrayList<String>();
+		List<String> noIsoformList = new ArrayList<String>();
+		Set<String> isoformList = new HashSet<String>();
 		for (String acc : accessions) {
+			// skip reverse proteins
 			if (acc.toLowerCase().contains("reverse")) {
 				continue;
 			}
-			list.add(acc);
+			// convert isoform accessions to non isoforms but keep the isoforms
+			final String isoformVersion = UniprotProteinLocalRetriever.getIsoformVersion(acc);
+			final String noIsoformAccession = UniprotProteinLocalRetriever.getNoIsoformAccession(acc);
+			if (isoformVersion != null && !"1".equals(isoformVersion)) {
+				isoformList.add(acc);
+				if (!noIsoformList.contains(noIsoformAccession)) {
+					noIsoformList.add(noIsoformAccession);
+				}
+			} else {
+				if (!noIsoformList.contains(noIsoformAccession)) {
+					noIsoformList.add(noIsoformAccession);
+				}
+			}
 		}
-
+		Map<String, Entry> entryMap = new HashMap<String, Entry>();
 		Set<String> accessionsSent = new HashSet<String>();
 		try {
+
 			int totalNumAccs = 0;
-			while (totalNumAccs < list.size()) {
+			while (totalNumAccs < noIsoformList.size()) {
 				StringBuilder locationBuilder = new StringBuilder(UNIPROT_EBI_SERVER + "&format=xml&id=");
 				int numAccs = 0;
-				while (totalNumAccs < list.size()) {
+				while (totalNumAccs < noIsoformList.size()) {
 					if (numAccs > 0)
 						locationBuilder.append(',');
-					locationBuilder.append(list.get(totalNumAccs));
-					accessionsSent.add(list.get(totalNumAccs));
+					locationBuilder.append(noIsoformList.get(totalNumAccs));
+					accessionsSent.add(noIsoformList.get(totalNumAccs));
 					numAccs++;
 					totalNumAccs++;
 					if (numAccs == MAX_NUM_TO_RETRIEVE)
@@ -114,8 +135,8 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 
 				String location = locationBuilder.toString();
 				URL url = new URL(location).toURI().toURL();
-				log.info("Submitting " + numAccs + " (" + totalNumAccs + "/" + list.size() + ") at '" + location
-						+ "'...");
+				log.info("Submitting " + numAccs + " (" + totalNumAccs + "/" + noIsoformList.size() + ") at '"
+						+ location + "'...");
 				long t1 = System.currentTimeMillis();
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 				HttpURLConnection.setFollowRedirects(true);
@@ -144,7 +165,14 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 					InputStream is = conn.getInputStream();
 					URLConnection.guessContentTypeFromStream(is);
 					final List<Entry> entries = parseResponse(is, uniprotVersion, accessionsSent);
-					uniprot.getEntry().addAll(entries);
+					for (Entry entry : entries) {
+						final List<String> accession = entry.getAccession();
+						for (String acc : accession) {
+							if (accessionsSent.contains(acc)) {
+								entryMap.put(acc, entry);
+							}
+						}
+					}
 				} else
 					log.error("Failed, got " + conn.getResponseMessage() + " for " + location);
 				conn.disconnect();
@@ -162,7 +190,82 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 			e.printStackTrace();
 			log.warn(e.getMessage());
 		}
+
+		// now, if there are isoforms, look for the protein sequences of them
+
+		Map<String, Entry> fastaEntries = getFASTASequences(isoformList);
+		for (String isoformAcc : isoformList) {
+			String noIsoformAcc = UniprotProteinLocalRetriever.getNoIsoformAccession(isoformAcc);
+			if (entryMap.containsKey(noIsoformAcc)) {
+				Entry noIsoformEntry = entryMap.get(noIsoformAcc);
+
+				if (fastaEntries.containsKey(isoformAcc)) {
+					final Entry isoformEntry = fastaEntries.get(isoformAcc);
+					final SequenceType sequenceType = isoformEntry.getSequence();
+					if (sequenceType != null) {
+						final String proteinSequence = sequenceType.getValue();
+						if (proteinSequence != null) {
+							Entry clonedEntry = cloneEntry(noIsoformEntry);
+							// override the protein sequence
+							clonedEntry.getSequence().setValue(proteinSequence);
+							// override main accession
+							clonedEntry.getAccession().clear();
+							clonedEntry.getAccession().add(isoformAcc);
+							// override names
+							clonedEntry.getProtein().setRecommendedName(isoformEntry.getProtein().getRecommendedName());
+							clonedEntry.getProtein().getAlternativeName().clear();
+							clonedEntry.getProtein().getAlternativeName()
+									.addAll(isoformEntry.getProtein().getAlternativeName());
+							// store it with the isoform acc
+							entryMap.put(isoformAcc, clonedEntry);
+
+							// call to the UniprotLocalRetriever to save into
+							// the file
+							// system
+							try {
+								if (uniprotReleaseFolder != null) {
+									UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
+											uniprotReleaseFolder, useIndex);
+									Uniprot uniprot = new Uniprot();
+									uniprot.getEntry().add(clonedEntry);
+									uplr.saveUniprotToLocalFilesystem(uniprot, uniprotVersion, useIndex);
+								}
+							} catch (JAXBException e) {
+								e.printStackTrace();
+							}
+							log.debug("Response parsed succesfully");
+						}
+					}
+				}
+			}
+		}
+		Uniprot uniprot = new Uniprot();
+		uniprot.getEntry().addAll(entryMap.values());
 		return uniprot;
+	}
+
+	/**
+	 * Clone an {@link Entry} by marshalling to a file and unmarshalling it
+	 * again
+	 *
+	 * @param entry
+	 * @return
+	 */
+	private Entry cloneEntry(Entry entry) {
+		try {
+
+			Uniprot uniprot = new Uniprot();
+			uniprot.getEntry().add(entry);
+
+			final File tempFile = File.createTempFile(entry.getAccession().get(0), ".xml");
+			tempFile.deleteOnExit();
+			marshaller.marshal(uniprot, tempFile);
+			Uniprot newUniprotObj = (Uniprot) unmarshaller.unmarshal(tempFile);
+			return newUniprotObj.getEntry().get(0);
+		} catch (JAXBException | IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public Uniprot getProteins(String queryString) {
@@ -269,7 +372,6 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 			}
 
 			outputStream.close();
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			Uniprot uniprot = (Uniprot) unmarshaller.unmarshal(createTempFile);
 
 			log.debug("Response parsed succesfully");
@@ -366,6 +468,73 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 		return ret;
 	}
 
+	private Map<String, Entry> getFASTASequences(Set<String> accessions) {
+		Map<String, Entry> ret = new HashMap<String, Entry>();
+		int num = 0;
+		log.info("Trying to get the fasta sequences of " + accessions.size() + " proteins (probably isoforms)");
+		for (String accession : accessions) {
+			try {
+				StringBuilder locationBuilder = new StringBuilder(
+						"http://www.uniprot.org/uniprot/" + accession + ".fasta");
+				String location = locationBuilder.toString();
+				location = location.replace(" ", "%20");
+				URL url = new URL(location).toURI().toURL();
+				log.info("Submitting " + locationBuilder + "...");
+				long t1 = System.currentTimeMillis();
+				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+				HttpURLConnection.setFollowRedirects(true);
+				conn.setDoInput(true);
+				conn.connect();
+
+				int status = conn.getResponseCode();
+				while (true) {
+					int wait = 0;
+					String header = conn.getHeaderField("Retry-After");
+					if (header != null)
+						wait = Integer.valueOf(header);
+					if (wait == 0)
+						break;
+					log.info("Waiting (" + wait + ")...");
+					conn.disconnect();
+					Thread.sleep(wait * 1000);
+					conn = (HttpURLConnection) new URL(location).openConnection();
+					conn.setDoInput(true);
+					conn.connect();
+					status = conn.getResponseCode();
+				}
+				if (status == HttpURLConnection.HTTP_OK) {
+					long t2 = System.currentTimeMillis();
+					log.info("Got a OK reply in " + (t2 - t1) / 1000 + "sg (protein " + num++ + "/" + accessions.size()
+							+ ")");
+					InputStream is = conn.getInputStream();
+					URLConnection.guessContentTypeFromStream(is);
+					final Entry fastaEntry = parseFASTAResponse(is, accession);
+					if (fastaEntry != null) {
+						ret.put(accession, fastaEntry);
+					}
+				} else {
+					log.error("Failed, got " + conn.getResponseMessage() + " for " + location);
+				}
+				conn.disconnect();
+
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+				log.warn(e.getMessage());
+			} catch (IOException e) {
+				e.printStackTrace();
+				log.warn(e.getMessage());
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				log.warn(e.getMessage());
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+				log.warn(e.getMessage());
+			}
+		}
+
+		return ret;
+	}
+
 	private Entry parseRDFResponse(InputStream is, String accession) {
 
 		boolean obsolete = false;
@@ -410,6 +579,28 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 			e.printStackTrace();
 		} catch (SAXException e) {
 			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private Entry parseFASTAResponse(InputStream is, String accession) {
+
+		String myString;
+		try {
+			myString = IOUtils.toString(is, "UTF-8");
+
+			final String[] split = myString.split("\n");
+			StringBuilder sb = new StringBuilder();
+			String fastaHeader = split[0];
+			// skip the first line, the fasta header
+			for (int i = 1; i < split.length; i++) {
+				String sequence = split[i];
+				sb.append(sequence);
+			}
+			Entry ret = new UniprotEntryAdapterFromFASTA(accession, fastaHeader, sb.toString()).adapt();
+			return ret;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
