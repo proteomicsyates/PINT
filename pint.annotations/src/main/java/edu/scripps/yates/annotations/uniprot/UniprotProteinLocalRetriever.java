@@ -292,6 +292,7 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 			if ("1".equals(getIsoformVersion(acc))) {
 				String noIsoAcc = getNoIsoformAccession(acc);
 				if (noIsoAcc != null) {
+					log.info("Registered main isoform accession: " + acc);
 					accsToSearch.add(noIsoAcc);
 					mainIsoforms.add(acc);
 				}
@@ -429,6 +430,7 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 			for (String mainIsoform : mainIsoforms) {
 				final Entry entry = queryProteinsMap.get(getNoIsoformAccession(mainIsoform));
 				if (entry != null) {
+					log.info("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
 					queryProteinsMap.put(mainIsoform, entry);
 				}
 			}
