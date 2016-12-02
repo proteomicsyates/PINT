@@ -129,6 +129,8 @@ public class UniprotProteinRetriever {
 			if (!missingAccessions.isEmpty()) {
 				// add to missing accession in order to avoid to search for them
 				// again
+				log.info("Adding " + missingAccessions.size()
+						+ " missing accessions to the notAvailableProteins variable");
 				notAvailableProteins.addAll(missingAccessions);
 			}
 			return ret;

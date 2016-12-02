@@ -436,16 +436,25 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 			}
 
 			if (queryProteinsMap.size() > 1) {
-				log.debug("Returning " + queryProteinsMap.size() + " / " + accessions.size() + " proteins");
+				log.info("Returning " + queryProteinsMap.size() + " / " + accessions.size() + " proteins");
 			}
 			return queryProteinsMap;
 		} else {
 			try {
-				log.info("Local information not found");
+				log.info("Local information (local index folder) not found");
 				log.info("Trying to get it remotely from Uniprot repository");
 				UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever(uniprotReleasesFolder, useIndex);
-				final Map<String, Entry> annotatedProteins = uprr.getAnnotatedProteins(uniprotVersion, accessions);
-				return annotatedProteins;
+				final Map<String, Entry> queryProteinsMap = uprr.getAnnotatedProteins(uniprotVersion, accsToSearch);
+				// map main isoforms to the corresponding no isoform entries,
+				// that is an entry like P12345-1 to P12345
+				for (String mainIsoform : mainIsoforms) {
+					final Entry entry = queryProteinsMap.get(getNoIsoformAccession(mainIsoform));
+					if (entry != null) {
+						log.info("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
+						queryProteinsMap.put(mainIsoform, entry);
+					}
+				}
+				return queryProteinsMap;
 			} catch (IllegalArgumentException e) {
 				log.info(e.getMessage());
 				log.info("It is not possible to get information using the argument uniprot version: " + uniprotVersion);
