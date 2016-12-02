@@ -171,7 +171,7 @@ public class UniprotProteinRetriever {
 				}
 			}
 		}
-		// log.info(ret.size() + " proteins converted in the model");
+		log.info(ret.size() + " Uniprot entries converted to Proteins in the model");
 		return ret;
 	}
 

@@ -83,12 +83,27 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 		} else {
 
 			for (String accession : accessionsToQuery) {
+
 				// String nonIsoFormAcc = getNoIsoformAccession(accession);
 				// if (!proteinsRetrieved.containsKey(nonIsoFormAcc)) {
 				// missingAccessions.add(nonIsoFormAcc);
 				// }
 				if (!proteinsRetrieved.containsKey(accession)) {
-					missingAccessions.add(accession);
+					// check first if it is an accession like P12345-1
+					String acc = accession;
+					if ("1".equals(getIsoformVersion(accession))) {
+						acc = getNoIsoformAccession(accession);
+						if (!proteinsRetrieved.containsKey(acc)) {
+							log.info(accession
+									+ " is not in the set of proteins retrieved. It will be added to missing accessions");
+							missingAccessions.add(accession);
+						}
+					} else {
+
+						log.info(accession
+								+ " is not in the set of proteins retrieved. It will be added to missing accessions");
+						missingAccessions.add(accession);
+					}
 				}
 			}
 		}
@@ -353,7 +368,7 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 							numEntriesRetrievedFromIndex++;
 						}
 					}
-					if (accsToSearch.size() > 1) {
+					if (accsToSearch.size() > 0) {
 						log.debug(numEntriesRetrievedFromIndex + " entries retrieved from index");
 					}
 
