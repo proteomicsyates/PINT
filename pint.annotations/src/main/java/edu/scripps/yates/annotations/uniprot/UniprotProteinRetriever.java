@@ -88,6 +88,15 @@ public class UniprotProteinRetriever {
 									actualSeq = actualSeq.replaceAll("\n", "");
 									actualSeq = actualSeq.replaceAll(" ", "");
 									ret.put(acc, actualSeq);
+									// if it is an isoform like P12345-1, map it
+									// also to P12345
+									if ("1".equals(UniprotProteinLocalRetriever.getIsoformVersion(acc))) {
+										final String noIsoformAccession = UniprotProteinLocalRetriever
+												.getNoIsoformAccession(acc);
+										log.info("Protein sequence from principal isoform " + acc
+												+ " mapped also to accession " + noIsoformAccession);
+										ret.put(noIsoformAccession, actualSeq);
+									}
 								}
 							} else {
 								log.warn("There is entry in Uniprot, but no sequence for protein: " + acc);
