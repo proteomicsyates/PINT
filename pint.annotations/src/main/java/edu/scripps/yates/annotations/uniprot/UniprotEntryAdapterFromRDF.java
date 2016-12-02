@@ -54,9 +54,15 @@ public class UniprotEntryAdapterFromRDF implements Adapter<Entry> {
 		ret.setVersion(version);
 		String ENTRY_LEGEND = null;
 		if (reviewed) {
-			ENTRY_LEGEND = "This entry was modified from UniprotKB at '" + modified + "'";
+			ENTRY_LEGEND = "This entry was modified from UniprotKB";
+			if (modified != null) {
+				ENTRY_LEGEND += " at '" + modified + "'";
+			}
 		} else if (obsolete) {
-			ENTRY_LEGEND = "This entry was marked as obsolete from UniprotKB at '" + modified + "'";
+			ENTRY_LEGEND = "This entry was marked as obsolete from UniprotKB";
+			if (modified != null) {
+				ENTRY_LEGEND += " at '" + modified + "'";
+			}
 		}
 		ret.getName().add(ENTRY_LEGEND);
 		final ProteinType protein = new ProteinType();
