@@ -618,10 +618,13 @@ public class MySQLDeleter {
 					@Override
 					public int compare(MsRun o1, MsRun o2) {
 						final Set<Condition> conditions1 = conditionsByMSRun.get(o1);
-						String conditionString1 = getConditionString(conditions1);
+						// String conditionString1 =
+						// getConditionString(conditions1);
 						final Set<Condition> conditions2 = conditionsByMSRun.get(o2);
-						String conditionString2 = getConditionString(conditions2);
-						return conditionString1.compareTo(conditionString2);
+						// String conditionString2 =
+						// getConditionString(conditions2);
+						// return conditionString1.compareTo(conditionString2);
+						return Integer.compare(conditions1.size(), conditions2.size());
 					}
 
 				});
