@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -659,6 +660,17 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 		}
 		if (overrideAcc) {
 			this.primaryAccession = primaryAccession;
+			// check whether there are one secondary accession equal to the
+			// primary, and in that case, remove it
+			if (getSecondaryAccessions() != null) {
+				final Iterator<AccessionBean> secondaryAccessionsIterator = secondaryAccessions.iterator();
+				while (secondaryAccessionsIterator.hasNext()) {
+					final AccessionBean secondaryAccession = secondaryAccessionsIterator.next();
+					if (secondaryAccession.getAccession().equals(primaryAccession.getAccession())) {
+						secondaryAccessionsIterator.remove();
+					}
+				}
+			}
 		}
 	}
 

@@ -60,8 +60,8 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 	private Set<String> missingAccessions = new HashSet<String>();
 	private final File uniprotReleaseFolder;
 	private final boolean useIndex;
-	private Unmarshaller unmarshaller;
-	private Marshaller marshaller;
+	private static Unmarshaller unmarshaller;
+	private static Marshaller marshaller;
 	private static JAXBContext jaxbContext;
 	private static Date currentUniprotVersionRetrievedDate;
 	private static String currentUniprotVersion;
