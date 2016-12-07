@@ -120,7 +120,7 @@ public abstract class AbstractColumnManager<T> {
 	/**
 	 * Add a {@link HasColumns} lister which will be called (showOrHideColumn)
 	 * when notifyChange in the column manager is called.
-	 * 
+	 *
 	 * @param listener
 	 */
 	public void addChangeListener(HasColumns listener) {

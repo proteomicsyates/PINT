@@ -2,6 +2,9 @@ package edu.scripps.yates.client.gui.columns;
 
 import java.util.List;
 
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
@@ -9,6 +12,7 @@ import edu.scripps.yates.shared.columns.ProteinGroupColumns;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.util.DefaultView;
+import edu.scripps.yates.shared.util.SharedDataUtils;
 
 public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGroupBean> {
 
@@ -41,14 +45,20 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 
 	@Override
 	protected MyColumn<ProteinGroupBean> createColumn(ColumnName columnName, boolean visible) {
-		return new ProteinGroupTextColumn(columnName, visible, footerManager.getFooter(columnName));
+		MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+				SafeHtmlUtils.fromSafeConstant(columnName.getAbr()), columnName.getDescription());
+		return new ProteinGroupTextColumn(columnName, visible, header, footerManager.getFooter(columnName));
 	}
 
 	@Override
 	public ProteinGroupTextColumn addAmountColumn(ColumnName columnName, boolean visibleState, String conditionName,
 			AmountType amountType, String projectName) {
+		final SafeHtml headerName = SafeHtmlUtils
+				.fromSafeConstant(SharedDataUtils.getAmountHeader(amountType, conditionName));
+		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName, headerName,
+				SharedDataUtils.getAmountHeaderTooltip(amountType, conditionName, projectName));
 		final ProteinGroupTextColumn column = new ProteinGroupTextColumn(ColumnName.PROTEIN_AMOUNT, visibleState,
-				footerManager.getAmountFooterByCondition(conditionName, amountType, projectName), conditionName,
+				header, footerManager.getAmountFooterByCondition(conditionName, amountType, projectName), conditionName,
 				amountType, projectName);
 		super.addColumn(column);
 		return column;
@@ -57,7 +67,11 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 	@Override
 	public ProteinGroupTextColumn addRatioColumn(ColumnName columnName, boolean visibleState, String condition1Name,
 			String condition2Name, String projectTag, String ratioName) {
-		final ProteinGroupTextColumn column = new ProteinGroupTextColumn(ColumnName.PROTEIN_RATIO, visibleState,
+		String headerName = SharedDataUtils.getRatioHeader(columnName, ratioName, condition1Name, condition2Name);
+		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+				SafeHtmlUtils.fromSafeConstant(headerName),
+				SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
+		final ProteinGroupTextColumn column = new ProteinGroupTextColumn(ColumnName.PROTEIN_RATIO, visibleState, header,
 				footerManager.getRatioFooterByConditions(condition1Name, condition2Name, projectTag, ratioName),
 				condition1Name, condition2Name, projectTag, ratioName);
 		super.addColumn(column);

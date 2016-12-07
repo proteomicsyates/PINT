@@ -837,16 +837,21 @@ public class ClientSafeHtmlUtils {
 			}
 		}
 		SafeHtmlBuilder sb = new SafeHtmlBuilder();
-		for (String uniprotFeatureString : uniprotFeatures.keySet()) {
+		List<String> uniprotFeatureList = new ArrayList<String>();
+		uniprotFeatureList.addAll(uniprotFeatures.keySet());
+		Collections.sort(uniprotFeatureList);
+		for (String uniprotFeatureString : uniprotFeatureList) {
 			final Set<UniprotFeatureBean> set = uniprotFeatures.get(uniprotFeatureString);
 			if (set.isEmpty()) {
 				continue;
 			}
+			List<UniprotFeatureBean> list = new ArrayList<UniprotFeatureBean>();
+			Collections.sort(list);// because UniprotFeatureBean is comparable
 			sb.append(template.startToolTipWithClass(uniprotFeatureString, "featureType"));
 			sb.appendEscaped(uniprotFeatureString);
 			sb.append(template.endToolTip());
 
-			for (UniprotFeatureBean uniprotFeature : set) {
+			for (UniprotFeatureBean uniprotFeature : list) {
 				String toolTipText = getToolTipFromUniprotFeature(uniprotFeature);
 				sb.append(template.startToolTip(toolTipText));
 				if (uniprotFeature.getDescription() != null) {

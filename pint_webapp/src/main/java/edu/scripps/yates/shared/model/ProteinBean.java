@@ -1036,7 +1036,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 		if (secondaryAccessions2 != null) {
 			for (AccessionBean accessionBean : secondaryAccessions2) {
 				final String accession = accessionBean.getAccession();
-				if (!list.contains(accession))
+				if (!list.contains(accession) && !getPrimaryAccession().getAccession().equals(accession))
 					list.add(accession);
 			}
 		}

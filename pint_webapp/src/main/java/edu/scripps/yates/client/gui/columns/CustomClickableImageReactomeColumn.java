@@ -13,6 +13,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.Header;
+import com.google.gwt.user.cellview.client.TextHeader;
 
 import edu.scripps.yates.client.gui.reactome.ReactomePanel;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
@@ -24,6 +25,7 @@ public class CustomClickableImageReactomeColumn<T> extends Column<T, ImageResour
 	private final double defaultWidth;
 	private double width;
 	private final String sessionID;
+	private final Header<String> header = new TextHeader("ID");
 
 	public CustomClickableImageReactomeColumn(String sessionID, ColumnName columnName, boolean visibleState,
 			Header<String> footer) {
@@ -115,6 +117,11 @@ public class CustomClickableImageReactomeColumn<T> extends Column<T, ImageResour
 	@Override
 	public ImageResource getValue(T object) {
 		return MyClientBundle.INSTANCE.fireworksIcon();
+	}
+
+	@Override
+	public Header<?> getHeader() {
+		return header;
 	}
 
 }

@@ -10,8 +10,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.history.TargetHistory;
 
-public class NavigationHorizontalPanel extends FlowPanel implements
-		ProvidesResize, RequiresResize {
+public class NavigationHorizontalPanel extends FlowPanel implements ProvidesResize, RequiresResize {
 	private TargetHistory currentPage;
 	private final Hyperlink currentHyperlink;
 	private final InlineLabel inlineLabel;
@@ -68,7 +67,7 @@ public class NavigationHorizontalPanel extends FlowPanel implements
 		this.currentPage = currentPage;
 
 		updateLink();
-		setStyleName("navigationBar");
+
 	}
 
 	public void changePage(TargetHistory currentPage) {
@@ -87,20 +86,16 @@ public class NavigationHorizontalPanel extends FlowPanel implements
 			inlineLabel.setText("");
 		} else {
 			currentHyperlink.setText(currentPage.name());
-			currentHyperlink.setTargetHistoryToken(currentPage
-					.getTargetHistory());
+			currentHyperlink.setTargetHistoryToken(currentPage.getTargetHistory());
 			currentHyperlink.setTitle(currentPage.name());
 			inlineLabel.setText(ARROW);
 		}
 
 		if (reload) {
-			homeHyperlink.setTargetHistoryToken(TargetHistory.HOME
-					.getTargetHistory()
-					+ "-"
-					+ TargetHistory.RELOAD.getTargetHistory());
+			homeHyperlink.setTargetHistoryToken(
+					TargetHistory.HOME.getTargetHistory() + "-" + TargetHistory.RELOAD.getTargetHistory());
 		} else {
-			homeHyperlink.setTargetHistoryToken(TargetHistory.HOME
-					.getTargetHistory());
+			homeHyperlink.setTargetHistoryToken(TargetHistory.HOME.getTargetHistory());
 		}
 	}
 
@@ -112,8 +107,7 @@ public class NavigationHorizontalPanel extends FlowPanel implements
 			public void execute() {
 				int li_width = getOffsetWidth();
 				int li_height = getOffsetHeight();
-				System.out.println("ResizableFlowPanel:: width : " + li_width
-						+ "; height: " + li_height);
+				System.out.println("ResizableFlowPanel:: width : " + li_width + "; height: " + li_height);
 				for (Widget child : getChildren()) {
 					if (child instanceof RequiresResize) {
 						((RequiresResize) child).onResize();

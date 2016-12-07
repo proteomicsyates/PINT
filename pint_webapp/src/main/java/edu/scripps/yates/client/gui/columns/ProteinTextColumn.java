@@ -40,12 +40,13 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 	private final String condition2Name;
 	private final String projectTag;
 	private final Header<String> footer;
+	private final Header<?> header;
 	private boolean visibleState;
 	private Set<String> currentExperimentalConditions = new HashSet<String>();
 
 	private String ratioName;
 
-	public ProteinTextColumn(ColumnName columnName, boolean visibleState, Header<String> footer) {
+	public ProteinTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer) {
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
@@ -56,6 +57,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		amountType = null;
 		projectTag = null;
 		this.footer = footer;
+		this.header = header;
 		this.visibleState = visibleState;
 		if (visibleState)
 			width = defaultWidth;
@@ -63,8 +65,8 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			width = 0;
 	}
 
-	public ProteinTextColumn(ColumnName columnName, boolean visibleState, Header<String> footer, String conditionName,
-			AmountType amountType, String projectTag) {
+	public ProteinTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
+			String conditionName, AmountType amountType, String projectTag) {
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
@@ -75,6 +77,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		this.amountType = amountType;
 		this.projectTag = projectTag;
 		this.footer = footer;
+		this.header = header;
 		this.visibleState = visibleState;
 		if (visibleState)
 			width = defaultWidth;
@@ -82,8 +85,8 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			width = 0;
 	}
 
-	public ProteinTextColumn(ColumnName columnName, boolean visibleState, Header<String> footer, String condition1Name,
-			String condition2Name, String projectTag, String ratioName) {
+	public ProteinTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
+			String condition1Name, String condition2Name, String projectTag, String ratioName) {
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
@@ -95,6 +98,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		this.ratioName = ratioName;
 		this.projectTag = projectTag;
 		this.footer = footer;
+		this.header = header;
 		this.visibleState = visibleState;
 		if (visibleState)
 			width = defaultWidth;
@@ -175,14 +179,14 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 
 		final String value = ProteinColumns.getInstance().getValue(columnName, p, conditionName, condition2Name,
 				projectTag, amountType, null, ratioName, false);
-		if (width == 0) {
-			// if it is text, not a number, return ""
-			try {
-				Double.valueOf(value);
-			} catch (NumberFormatException e) {
-				return "";
-			}
-		}
+		// if (width == 0) {
+		// // if it is text, not a number, return ""
+		// try {
+		// Double.valueOf(value);
+		// } catch (NumberFormatException e) {
+		// return "";
+		// }
+		// }
 		return value;
 
 	}
@@ -197,7 +201,8 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 	@Override
 	public void render(Context context, ProteinBean p, SafeHtmlBuilder sb) {
 
-		if (width == 0 || p == null) {
+		// if (width == 0 || p == null) {
+		if (p == null) {
 			return;
 		}
 
@@ -507,6 +512,11 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 	@Override
 	public AmountType getAmountType() {
 		return amountType;
+	}
+
+	@Override
+	public Header<?> getHeader() {
+		return header;
 	}
 
 }

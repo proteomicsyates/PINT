@@ -6,6 +6,7 @@ import org.reactome.web.analysis.client.model.PathwaySummary;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Header;
 
 import edu.scripps.yates.client.gui.reactome.ReactomePanel;
@@ -52,7 +53,9 @@ public class PathWaysColumnManager extends AbstractColumnManager<PathwaySummary>
 		if (footerManager != null) {
 			footer = footerManager.getFooter(columnName);
 		}
-		return new PathWayTextColumn(columnName, visible, footer);
+		MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+				SafeHtmlUtils.fromSafeConstant(columnName.getAbr()), columnName.getDescription());
+		return new PathWayTextColumn(columnName, visible, header, footer);
 	}
 
 	@Override

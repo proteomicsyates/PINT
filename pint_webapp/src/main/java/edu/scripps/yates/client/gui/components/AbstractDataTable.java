@@ -4,11 +4,9 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
-import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.Composite;
@@ -17,7 +15,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ProvidesResize;
 import com.google.gwt.user.client.ui.RequiresResize;
-import com.google.gwt.user.client.ui.ResizeLayoutPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.AsyncDataProvider;
@@ -44,7 +42,6 @@ import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.DefaultView.ORDER;
 import edu.scripps.yates.shared.util.SharedConstants;
-import edu.scripps.yates.shared.util.SharedDataUtils;
 
 public abstract class AbstractDataTable<T> extends Composite
 		implements HasColumns, ContainsData, ProvidesResize, RequiresResize {
@@ -77,10 +74,20 @@ public abstract class AbstractDataTable<T> extends Composite
 		initWidget(mainPanel);
 		this.asyncDataListProvider = asyncDataListProvider;
 		this.dataGrid = makeDataGrid();
-		ResizeLayoutPanel resizeLayoutPanel = new ResizeLayoutPanel();
-		resizeLayoutPanel.setSize("100%", "92%");
-		resizeLayoutPanel.add(dataGrid);
-		mainPanel.add(resizeLayoutPanel);
+
+		// if datagrid is a DataGrid instead of a CellTable
+		// if (dataGrid instanceof DataGrid<T>) {
+		// ResizeLayoutPanel resizeLayoutPanel = new ResizeLayoutPanel();
+		// resizeLayoutPanel.setSize("100%", "92%");
+		// resizeLayoutPanel.add(dataGrid);
+		// mainPanel.add(resizeLayoutPanel);
+		// } else if (dataGrid instanceof CellTable) {
+		// include it in a scrollpanel with horizontal scroll
+		SimplePanel scroll = new SimplePanel(dataGrid);
+		scroll.setSize("100%", "92%");
+		scroll.setStyleName("HorizontalScroll");
+		mainPanel.add(scroll);
+		// }
 
 		// loading panel
 		Image imageLoading = new Image(myClientBundle.horizontalLoader());
@@ -193,16 +200,16 @@ public abstract class AbstractDataTable<T> extends Composite
 		// check first if the column is already present or not
 		if (!columnManager.containsScoreColumn(scoreName, columnName)) {
 			CustomTextColumn<T> column = columnManager.addScoreColumn(columnName, true, scoreName);
+			if (column.isVisible()) {
+				Header<String> footer = column.getFooter();
 
-			Header<String> footer = column.getFooter();
-			final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
-					SafeHtmlUtils.fromSafeConstant(scoreName), scoreName);
-			if (footer != null) {
-				dataGrid.addColumn(column, header, footer);
-			} else {
-				dataGrid.addColumn(column, header);
+				if (footer != null) {
+					dataGrid.addColumn(column, column.getHeader(), footer);
+				} else {
+					dataGrid.addColumn(column, column.getHeader());
+				}
+				dataGrid.setColumnWidth(column, column.getWidth(), column.getDefaultWidthUnit());
 			}
-			dataGrid.setColumnWidth(column, column.getWidth(), column.getDefaultWidthUnit());
 			// it is not necessary to draw because by default the column will be
 			// hidden (width=0)
 			// dataGrid.redraw();
@@ -215,18 +222,16 @@ public abstract class AbstractDataTable<T> extends Composite
 		if (!columnManager.containsColumn(columnName, conditionName, amountType, projectTag)) {
 			CustomTextColumn<T> column = columnManager.addAmountColumn(columnName, isVisible, conditionName, amountType,
 					projectTag);
+			if (column.isVisible()) {
+				Header<String> footer = column.getFooter();
 
-			Header<String> footer = column.getFooter();
-			final SafeHtml headerName = SafeHtmlUtils
-					.fromSafeConstant(SharedDataUtils.getAmountHeader(amountType, conditionID));
-			final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName, headerName,
-					SharedDataUtils.getAmountHeaderTooltip(amountType, conditionName, projectTag));
-			if (footer != null) {
-				dataGrid.addColumn(column, header, footer);
-			} else {
-				dataGrid.addColumn(column, header);
+				if (footer != null) {
+					dataGrid.addColumn(column, column.getHeader(), footer);
+				} else {
+					dataGrid.addColumn(column, column.getHeader());
+				}
+				dataGrid.setColumnWidth(column, column.getWidth(), column.getDefaultWidthUnit());
 			}
-			dataGrid.setColumnWidth(column, column.getWidth(), column.getDefaultWidthUnit());
 			// it is not necessary to draw because by default the column will be
 			// hidden (width=0)
 			// dataGrid.redraw();
@@ -239,18 +244,16 @@ public abstract class AbstractDataTable<T> extends Composite
 		if (!columnManager.containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName)) {
 			CustomTextColumn<T> column = columnManager.addRatioColumn(columnName, isVisible, condition1Name,
 					condition2Name, projectTag, ratioName);
+			if (column.isVisible()) {
+				Header<String> footer = column.getFooter();
 
-			Header<String> footer = column.getFooter();
-			String headerName = SharedDataUtils.getRatioHeader(columnName, ratioName, condition1ID, condition2ID);
-			final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
-					SafeHtmlUtils.fromSafeConstant(headerName),
-					SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
-			if (footer != null) {
-				dataGrid.addColumn(column, header, footer);
-			} else {
-				dataGrid.addColumn(column, header);
+				if (footer != null) {
+					dataGrid.addColumn(column, column.getHeader(), footer);
+				} else {
+					dataGrid.addColumn(column, column.getHeader());
+				}
+				dataGrid.setColumnWidth(column, column.getWidth(), column.getDefaultWidthUnit());
 			}
-			dataGrid.setColumnWidth(column, column.getWidth(), column.getDefaultWidthUnit());
 			// it is not necessary to draw because by default the column will be
 			// hidden (width=0)
 			// dataGrid.redraw();
@@ -263,19 +266,21 @@ public abstract class AbstractDataTable<T> extends Composite
 		if (!getColumnManager().containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName)) {
 			CustomTextColumn<T> column = getColumnManager().addRatioScoreColumn(columnName, isVisible, condition1Name,
 					condition2Name, projectTag, ratioName);
-			Header<String> footer = column.getFooter();
-			String headerName = columnName.getAbr();
-			String tooltipText = "Confident score associated to ratio: " + ratioName;
-			tooltipText += SharedConstants.SEPARATOR + "Ratio between conditions: " + condition1Name + " / "
-					+ condition2Name;
-			final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
-					SafeHtmlUtils.fromSafeConstant(headerName), tooltipText);
-			if (footer != null) {
-				dataGrid.addColumn(column, header, footer);
-			} else {
-				dataGrid.addColumn(column, header);
+			if (column.isVisible()) {
+				Header<String> footer = column.getFooter();
+				String headerName = columnName.getAbr();
+				String tooltipText = "Confident score associated to ratio: " + ratioName;
+				tooltipText += SharedConstants.SEPARATOR + "Ratio between conditions: " + condition1Name + " / "
+						+ condition2Name;
+				final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+						SafeHtmlUtils.fromSafeConstant(headerName), tooltipText);
+				if (footer != null) {
+					dataGrid.addColumn(column, header, footer);
+				} else {
+					dataGrid.addColumn(column, header);
+				}
+				dataGrid.setColumnWidth(column, column.getWidth(), column.getDefaultWidthUnit());
 			}
-			dataGrid.setColumnWidth(column, column.getWidth(), column.getDefaultWidthUnit());
 			// it is not necessary to draw because by default the column will be
 			// hidden (width=0)
 			// dataGrid.redraw();
@@ -336,7 +341,7 @@ public abstract class AbstractDataTable<T> extends Composite
 	/**
 	 * @return the dataGrid
 	 */
-	public DataGrid<T> getDataGrid() {
+	public MyDataGrid<T> getDataGrid() {
 		return dataGrid;
 	}
 

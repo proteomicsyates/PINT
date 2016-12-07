@@ -15,6 +15,8 @@ public interface MyColumn<T> {
 
 	public Header<String> getFooter();
 
+	public Header<?> getHeader();
+
 	public Unit getDefaultWidthUnit();
 
 	public double getDefaultWidth();

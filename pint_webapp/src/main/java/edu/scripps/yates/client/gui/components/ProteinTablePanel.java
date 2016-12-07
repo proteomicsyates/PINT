@@ -10,7 +10,6 @@ import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
@@ -21,7 +20,6 @@ import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
 import edu.scripps.yates.client.gui.columns.MyIdColumn;
-import edu.scripps.yates.client.gui.columns.MySafeHtmlHeaderWithTooltip;
 import edu.scripps.yates.client.gui.columns.ProteinColumnManager;
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.client.gui.columns.footers.ProteinFooterManager;
@@ -94,18 +92,17 @@ public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
 			if (columnName != ColumnName.PROTEIN_AMOUNT && columnName != ColumnName.PROTEIN_RATIO
 					&& columnName != ColumnName.PROTEIN_RATIO_SCORE && columnName != ColumnName.PROTEIN_RATIO_GRAPH) {
 				final boolean visible = getColumnManager().isVisible(columnName);
-				final Header<String> footer = getColumnManager().getFooter(columnName);
-
-				dataGrid.addColumn(columnName,
-						(Column<ProteinBean, ?>) myColumn, new MySafeHtmlHeaderWithTooltip(columnName,
-								SafeHtmlUtils.fromSafeConstant(columnName.getAbr()), columnName.getDescription()),
-						footer);
-
 				if (visible) {
-					dataGrid.setColumnWidth((Column<ProteinBean, ?>) myColumn, myColumn.getDefaultWidth(),
-							myColumn.getDefaultWidthUnit());
-				} else {
-					dataGrid.setColumnWidth((Column<ProteinBean, ?>) myColumn, 0, myColumn.getDefaultWidthUnit());
+					final Header<String> footer = getColumnManager().getFooter(columnName);
+
+					dataGrid.addColumn(columnName, (Column<ProteinBean, ?>) myColumn, myColumn.getHeader(), footer);
+
+					if (visible) {
+						dataGrid.setColumnWidth((Column<ProteinBean, ?>) myColumn, myColumn.getDefaultWidth(),
+								myColumn.getDefaultWidthUnit());
+					} else {
+						dataGrid.setColumnWidth((Column<ProteinBean, ?>) myColumn, 0, myColumn.getDefaultWidthUnit());
+					}
 				}
 			}
 		}
@@ -115,7 +112,7 @@ public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
 	 * @return the dataGrid
 	 */
 	@Override
-	public DataGrid<ProteinBean> getDataGrid() {
+	public MyDataGrid<ProteinBean> getDataGrid() {
 		return dataGrid;
 	}
 
@@ -126,24 +123,33 @@ public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
 
 			final Column<ProteinBean, ?> column = (Column<ProteinBean, ?>) mycolumn;
 			if (show) {
-				final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
-						+ mycolumn.getDefaultWidthUnit().getType();
-				final String columnWidth = dataGrid.getColumnWidth(column);
-				if (!columnWidth.equals(newWidth)) {
+				// new dec 7, 2016:
+				dataGrid.addColumnToTable(column, getColumnManager());
+				// dataGrid.redraw();
+				if (false) {
+					final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
+							+ mycolumn.getDefaultWidthUnit().getType();
+					final String columnWidth = dataGrid.getColumnWidth(column);
+					if (!columnWidth.equals(newWidth)) {
 
-					if (dataGrid.isEmptyColumn(column))
-						redraw = true;
-					dataGrid.setColumnWidth(column, newWidth);
-					mycolumn.setWidth(mycolumn.getDefaultWidth());
+						if (dataGrid.isEmptyColumn(column))
+							redraw = true;
+						dataGrid.setColumnWidth(column, newWidth);
+						mycolumn.setWidth(mycolumn.getDefaultWidth());
+					}
 				}
 			} else {
-				final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
-				final String columnWidth = dataGrid.getColumnWidth(column);
-				if (!newWidth.equals(columnWidth)) {
-					if (!dataGrid.isNumberColumn(column))
-						redraw = true;
-					dataGrid.setColumnWidth(column, newWidth);
-					mycolumn.setWidth(0);
+				// new dec 7, 2016:
+				dataGrid.removeColumn(column);
+				if (false) {
+					final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
+					final String columnWidth = dataGrid.getColumnWidth(column);
+					if (!newWidth.equals(columnWidth)) {
+						if (!dataGrid.isNumberColumn(column))
+							redraw = true;
+						dataGrid.setColumnWidth(column, newWidth);
+						mycolumn.setWidth(0);
+					}
 				}
 			}
 
@@ -173,23 +179,29 @@ public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
 					if (conditionNames == null || (conditionNames.contains(condition1ReferredByColumn)
 							&& conditionNames.contains(condition2ReferredByColumn))) {
 						if (show) {
-							final String columnWidth = dataGrid.getColumnWidth(column);
-							final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
-									+ mycolumn.getDefaultWidthUnit().getType();
-							if (!columnWidth.equals(newWidth)) {
-								if (dataGrid.isEmptyColumn(column))
-									redraw = true;
-								dataGrid.setColumnWidth(column, newWidth);
-								mycolumn.setWidth(mycolumn.getDefaultWidth());
+							dataGrid.addColumnToTable(column, getColumnManager());
+							if (false) {
+								final String columnWidth = dataGrid.getColumnWidth(column);
+								final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
+										+ mycolumn.getDefaultWidthUnit().getType();
+								if (!columnWidth.equals(newWidth)) {
+									if (dataGrid.isEmptyColumn(column))
+										redraw = true;
+									dataGrid.setColumnWidth(column, newWidth);
+									mycolumn.setWidth(mycolumn.getDefaultWidth());
+								}
 							}
 						} else {
-							final String columnWidth = dataGrid.getColumnWidth(column);
-							final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
-							if (!columnWidth.equals(newWidth)) {
-								if (!dataGrid.isNumberColumn(column))
-									redraw = true;
-								dataGrid.setColumnWidth(column, newWidth);
-								mycolumn.setWidth(0);
+							dataGrid.removeColumn(column);
+							if (false) {
+								final String columnWidth = dataGrid.getColumnWidth(column);
+								final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
+								if (!columnWidth.equals(newWidth)) {
+									if (!dataGrid.isNumberColumn(column))
+										redraw = true;
+									dataGrid.setColumnWidth(column, newWidth);
+									mycolumn.setWidth(0);
+								}
 							}
 						}
 					}

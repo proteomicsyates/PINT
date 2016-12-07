@@ -12,6 +12,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.Header;
+import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Window;
 
 import edu.scripps.yates.client.gui.templates.HtmlTemplates;
@@ -27,6 +28,7 @@ public class CustomClickableImageColumnOpenLinkToComplexPortal extends Column<Pr
 	private double width;
 	private final HtmlTemplates template = GWT.create(HtmlTemplates.class);
 	private final Header<String> footer;
+	private final Header<String> header = new TextHeader("Complex");
 
 	public CustomClickableImageColumnOpenLinkToComplexPortal(ColumnName columnName, boolean visibleState,
 			Header<String> footer) {
@@ -140,6 +142,11 @@ public class CustomClickableImageColumnOpenLinkToComplexPortal extends Column<Pr
 
 		super.render(context, object, sb);
 		sb.append(template.endToolTip());
+	}
+
+	@Override
+	public Header<?> getHeader() {
+		return header;
 	}
 
 }

@@ -7,9 +7,9 @@ import java.util.Set;
 
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.Header;
 
+import edu.scripps.yates.client.gui.columns.MyDataGrid;
 import edu.scripps.yates.client.util.ClientMaths;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AccessionBean;
@@ -21,7 +21,7 @@ import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 
 public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
-	public ProteinGroupFooterManager(DataGrid<ProteinGroupBean> datagrid) {
+	public ProteinGroupFooterManager(MyDataGrid<ProteinGroupBean> datagrid) {
 		super(datagrid);
 		final ColumnName[] columnNames = ColumnName.values();
 		for (ColumnName columnName : columnNames) {

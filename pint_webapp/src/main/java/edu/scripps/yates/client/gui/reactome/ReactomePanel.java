@@ -38,7 +38,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.Header;
@@ -64,7 +63,6 @@ import com.google.gwt.view.client.SingleSelectionModel;
 
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
-import edu.scripps.yates.client.gui.columns.MySafeHtmlHeaderWithTooltip;
 import edu.scripps.yates.client.gui.columns.PathWaysColumnManager;
 import edu.scripps.yates.client.gui.components.ScrolledTabLayoutPanel;
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncPathwaySummaryDataProvider;
@@ -288,18 +286,17 @@ public class ReactomePanel extends FlowPanel
 		for (MyColumn<PathwaySummary> column : columns) {
 			ColumnName columnName = column.getColumnName();
 			final boolean visible = pathwaysColumnManager.isVisible(columnName);
-			final Header<String> footer = pathwaysColumnManager.getFooter(columnName);
-
-			dataGrid.addColumn(columnName, (Column<PathwaySummary, ?>) column,
-					new MySafeHtmlHeaderWithTooltip(columnName, SafeHtmlUtils.fromSafeConstant(columnName.getAbr()),
-							columnName.getDescription()),
-					footer);
-
 			if (visible) {
-				dataGrid.setColumnWidth((Column<PathwaySummary, ?>) column, column.getDefaultWidth(),
-						column.getDefaultWidthUnit());
-			} else {
-				dataGrid.setColumnWidth((Column<PathwaySummary, ?>) column, 0, column.getDefaultWidthUnit());
+				final Header<String> footer = pathwaysColumnManager.getFooter(columnName);
+
+				dataGrid.addColumn((Column<PathwaySummary, ?>) column, column.getHeader(), footer);
+
+				if (visible) {
+					dataGrid.setColumnWidth((Column<PathwaySummary, ?>) column, column.getDefaultWidth(),
+							column.getDefaultWidthUnit());
+				} else {
+					dataGrid.setColumnWidth((Column<PathwaySummary, ?>) column, 0, column.getDefaultWidthUnit());
+				}
 			}
 		}
 		return dataGrid;

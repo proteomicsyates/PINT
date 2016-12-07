@@ -3,17 +3,17 @@ package edu.scripps.yates.client.gui.columns.footers;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.Header;
 
+import edu.scripps.yates.client.gui.columns.MyDataGrid;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountType;
 
 public abstract class FooterManager<T> {
-	protected final DataGrid<T> dataGrid;
+	protected final MyDataGrid<T> dataGrid;
 	protected final Map<ColumnName, Header<String>> footers = new HashMap<ColumnName, Header<String>>();
 
-	protected FooterManager(DataGrid<T> datagrid) {
+	protected FooterManager(MyDataGrid<T> datagrid) {
 		this.dataGrid = datagrid;
 	}
 

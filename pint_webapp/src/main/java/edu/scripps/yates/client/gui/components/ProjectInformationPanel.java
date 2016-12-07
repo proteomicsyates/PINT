@@ -51,7 +51,7 @@ public class ProjectInformationPanel extends Composite {
 		dockPanel.setSize("100%", "100%");
 
 		CaptionPanel captionPanelProjects = new CaptionPanel("Projects loaded");
-		captionPanelProjects.setStyleName("ProjectItemMainPanel");
+		captionPanelProjects.setStyleName("ProjectLoadedPanel");
 		flexTableInWest = new FlexTable();
 		flexTableInWest.setStyleName("ProjectInformationPanelLeft");
 		captionPanelProjects.add(flexTableInWest);

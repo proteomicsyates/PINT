@@ -271,6 +271,7 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 		verticalPanelRigth.add(cptnpnlNewPanel);
 
 		grid = new Grid(10, 2);
+		grid.setStyleName("browserExperimentInformationTable");
 		grid.setCellPadding(2);
 		grid.setCellSpacing(4);
 		grid.setBorderWidth(0);

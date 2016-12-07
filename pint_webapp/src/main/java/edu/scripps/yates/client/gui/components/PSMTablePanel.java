@@ -6,7 +6,6 @@ import java.util.Set;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.SimplePager;
@@ -17,7 +16,6 @@ import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
 import edu.scripps.yates.client.gui.columns.MyIdColumn;
-import edu.scripps.yates.client.gui.columns.MySafeHtmlHeaderWithTooltip;
 import edu.scripps.yates.client.gui.columns.PSMColumnManager;
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.client.gui.columns.footers.PSMFooterManager;
@@ -79,24 +77,23 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 	protected void initTableColumns(boolean addCheckBoxSelection) {
 
 		for (MyColumn<PSMBean> column : getColumnManager().getColumns()) {
-			ColumnName columnName = column.getColumnName();
-			// don't do anything with amount because the conditions
-			// are not loaded yet
-			if (columnName != ColumnName.PSM_AMOUNT && columnName != ColumnName.PSM_SCORE
-					&& columnName != ColumnName.PTM_SCORE && columnName != ColumnName.PSM_RATIO
-					&& columnName != ColumnName.PSM_RATIO_GRAPH) {
-				final Header<String> footer = getColumnManager().getFooter(columnName);
+			if (column.isVisible()) {
+				ColumnName columnName = column.getColumnName();
+				// don't do anything with amount because the conditions
+				// are not loaded yet
+				if (columnName != ColumnName.PSM_AMOUNT && columnName != ColumnName.PSM_SCORE
+						&& columnName != ColumnName.PTM_SCORE && columnName != ColumnName.PSM_RATIO
+						&& columnName != ColumnName.PSM_RATIO_GRAPH) {
+					final Header<String> footer = getColumnManager().getFooter(columnName);
 
-				dataGrid.addColumn(columnName,
-						(Column<PSMBean, ?>) column, new MySafeHtmlHeaderWithTooltip(columnName,
-								SafeHtmlUtils.fromSafeConstant(columnName.getAbr()), columnName.getDescription()),
-						footer);
+					dataGrid.addColumn(columnName, (Column<PSMBean, ?>) column, column.getHeader(), footer);
 
-				if (column.isVisible()) {
-					dataGrid.setColumnWidth((Column<PSMBean, ?>) column, column.getDefaultWidth(),
-							column.getDefaultWidthUnit());
-				} else {
-					dataGrid.setColumnWidth((Column<PSMBean, ?>) column, 0, column.getDefaultWidthUnit());
+					if (column.isVisible()) {
+						dataGrid.setColumnWidth((Column<PSMBean, ?>) column, column.getDefaultWidth(),
+								column.getDefaultWidthUnit());
+					} else {
+						dataGrid.setColumnWidth((Column<PSMBean, ?>) column, 0, column.getDefaultWidthUnit());
+					}
 				}
 			}
 		}
@@ -111,24 +108,29 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 			final Column<PSMBean, ?> column = (Column<PSMBean, ?>) mycolumn;
 
 			if (show) {
-				final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
-						+ mycolumn.getDefaultWidthUnit().getType();
-				final String columnWidth = dataGrid.getColumnWidth(column);
-				if (!newWidth.equals(columnWidth)) {
-					if (dataGrid.isEmptyColumn(column))
-						redraw = true;
-					dataGrid.setColumnWidth(column, newWidth);
-					mycolumn.setWidth(mycolumn.getDefaultWidth());
+				dataGrid.addColumnToTable(column, getColumnManager());
+				if (false) {
+					final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
+							+ mycolumn.getDefaultWidthUnit().getType();
+					final String columnWidth = dataGrid.getColumnWidth(column);
+					if (!newWidth.equals(columnWidth)) {
+						if (dataGrid.isEmptyColumn(column))
+							redraw = true;
+						dataGrid.setColumnWidth(column, newWidth);
+						mycolumn.setWidth(mycolumn.getDefaultWidth());
+					}
 				}
-
 			} else {
-				final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
-				final String columnWidth = dataGrid.getColumnWidth(column);
-				if (!newWidth.equals(columnWidth)) {
-					if (!dataGrid.isNumberColumn(column))
-						redraw = true;
-					dataGrid.setColumnWidth(column, newWidth);
-					mycolumn.setWidth(0);
+				dataGrid.removeColumn(column);
+				if (false) {
+					final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
+					final String columnWidth = dataGrid.getColumnWidth(column);
+					if (!newWidth.equals(columnWidth)) {
+						if (!dataGrid.isNumberColumn(column))
+							redraw = true;
+						dataGrid.setColumnWidth(column, newWidth);
+						mycolumn.setWidth(0);
+					}
 				}
 			}
 
@@ -160,23 +162,29 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 							&& conditionNames.contains(condition2ReferredByColumn))) {
 
 						if (show) {
-							final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
-									+ mycolumn.getDefaultWidthUnit().getType();
-							final String columnWidth = dataGrid.getColumnWidth(column);
-							if (!columnWidth.equals(newWidth)) {
-								if (dataGrid.isEmptyColumn(column))
-									redraw = true;
-								dataGrid.setColumnWidth(column, newWidth);
-								mycolumn.setWidth(mycolumn.getDefaultWidth());
+							dataGrid.addColumnToTable(column, getColumnManager());
+							if (false) {
+								final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
+										+ mycolumn.getDefaultWidthUnit().getType();
+								final String columnWidth = dataGrid.getColumnWidth(column);
+								if (!columnWidth.equals(newWidth)) {
+									if (dataGrid.isEmptyColumn(column))
+										redraw = true;
+									dataGrid.setColumnWidth(column, newWidth);
+									mycolumn.setWidth(mycolumn.getDefaultWidth());
+								}
 							}
 						} else {
-							final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
-							final String columnWidth = dataGrid.getColumnWidth(column);
-							if (!columnWidth.equals(newWidth)) {
-								if (!dataGrid.isNumberColumn(column))
-									redraw = true;
-								dataGrid.setColumnWidth(column, newWidth);
-								mycolumn.setWidth(0);
+							dataGrid.removeColumn(column);
+							if (false) {
+								final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
+								final String columnWidth = dataGrid.getColumnWidth(column);
+								if (!columnWidth.equals(newWidth)) {
+									if (!dataGrid.isNumberColumn(column))
+										redraw = true;
+									dataGrid.setColumnWidth(column, newWidth);
+									mycolumn.setWidth(0);
+								}
 							}
 						}
 					}

@@ -89,6 +89,7 @@ public class MyDialogBox extends DialogBox {
 
 		panel = new VerticalPanel();
 		panel.setSize("100%", "100%");
+		panel.setStyleName("DialogBox-content");
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		inlineHTML = new InlineHTML(text);
 		inlineHTML.setWidth("100%");

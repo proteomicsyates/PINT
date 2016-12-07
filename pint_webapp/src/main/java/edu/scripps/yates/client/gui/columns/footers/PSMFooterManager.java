@@ -7,9 +7,9 @@ import java.util.Set;
 
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.Header;
 
+import edu.scripps.yates.client.gui.columns.MyDataGrid;
 import edu.scripps.yates.client.util.ClientMaths;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountBean;
@@ -23,7 +23,7 @@ import edu.scripps.yates.shared.util.DataGridRenderValue;
 
 public class PSMFooterManager extends FooterManager<PSMBean> {
 
-	public PSMFooterManager(DataGrid<PSMBean> datagrid) {
+	public PSMFooterManager(MyDataGrid<PSMBean> datagrid) {
 		super(datagrid);
 		final ColumnName[] columnNames = ColumnName.values();
 		for (ColumnName columnName : columnNames) {

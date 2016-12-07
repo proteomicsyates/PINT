@@ -35,9 +35,11 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 	private boolean visibleState;
 	private Set<String> currentExperimentalConditions = new HashSet<String>();
 	private String ratioName;
+	private final Header<?> header;
 	private static HtmlTemplates template = GWT.create(HtmlTemplates.class);
 
-	public ProteinGroupTextColumn(ColumnName columnName, boolean visibleState, Header<String> footer) {
+	public ProteinGroupTextColumn(ColumnName columnName, boolean visibleState, Header<?> header,
+			Header<String> footer) {
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
@@ -48,6 +50,7 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 		amountType = null;
 		projectTag = null;
 		this.footer = footer;
+		this.header = header;
 		this.visibleState = visibleState;
 		if (visibleState)
 			width = defaultWidth;
@@ -55,7 +58,7 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 			width = 0;
 	}
 
-	public ProteinGroupTextColumn(ColumnName columnName, boolean visibleState, Header<String> footer,
+	public ProteinGroupTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
 			String conditionName, AmountType amountType, String projectTag) {
 		super(columnName);
 		setSortable(true);
@@ -67,6 +70,7 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 		this.amountType = amountType;
 		this.projectTag = projectTag;
 		this.footer = footer;
+		this.header = header;
 		this.visibleState = visibleState;
 		if (visibleState)
 			width = defaultWidth;
@@ -74,7 +78,7 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 			width = 0;
 	}
 
-	public ProteinGroupTextColumn(ColumnName columnName, boolean visibleState, Header<String> footer,
+	public ProteinGroupTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
 			String condition1Name, String condition2Name, String projectTag, String ratioName) {
 		super(columnName);
 		setSortable(true);
@@ -87,6 +91,7 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 		this.ratioName = ratioName;
 		this.projectTag = projectTag;
 		this.footer = footer;
+		this.header = header;
 		this.visibleState = visibleState;
 		if (visibleState)
 			width = defaultWidth;
@@ -134,14 +139,14 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 	public String getValue(ProteinGroupBean p) {
 		final String value = ProteinGroupColumns.getInstance().getValue(columnName, p, conditionName, condition2Name,
 				projectTag, amountType, null, ratioName, false);
-		if (width == 0) {
-			// if it is text, not a number, return ""
-			try {
-				Double.valueOf(value);
-			} catch (NumberFormatException e) {
-				return "";
-			}
-		}
+		// if (width == 0) {
+		// // if it is text, not a number, return ""
+		// try {
+		// Double.valueOf(value);
+		// } catch (NumberFormatException e) {
+		// return "";
+		// }
+		// }
 		return value;
 
 	}
@@ -308,6 +313,11 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 	@Override
 	public AmountType getAmountType() {
 		return amountType;
+	}
+
+	@Override
+	public Header<?> getHeader() {
+		return header;
 	}
 
 }

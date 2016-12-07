@@ -14,6 +14,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.Header;
+import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
@@ -39,6 +40,7 @@ public class CustomClickableImageColumnShowPeptideTable<T> extends Column<T, Ima
 	private static final ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 	private final HtmlTemplates template = GWT.create(HtmlTemplates.class);
 	private final Header<String> footer;
+	private final Header<String> header = new TextHeader("-");
 
 	public CustomClickableImageColumnShowPeptideTable(final String sessionID, ColumnName columnName,
 			boolean visibleState, Header<String> footer) {
@@ -194,5 +196,10 @@ public class CustomClickableImageColumnShowPeptideTable<T> extends Column<T, Ima
 
 		super.render(context, object, sb);
 		sb.append(template.endToolTip());
+	}
+
+	@Override
+	public Header<?> getHeader() {
+		return header;
 	}
 }

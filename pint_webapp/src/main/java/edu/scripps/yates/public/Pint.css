@@ -613,7 +613,9 @@
 	padding: 10px 10px 10px 20px;
 	height: 500px;
 }
-
+.browserExperimentInformationTable {
+	display:block;
+}
 .browserExperimentInformation legend {
 	color: darkolivegreen;
 	padding-bottom: 1px;
@@ -922,6 +924,11 @@
 }
 
 .gwt-DialogBox .dialogContent {
+    padding: 10px;
+}
+
+.DialogBox-content{
+	padding:10px;
 }
 
 .gwt-DialogBox .dialogMiddleCenter {
@@ -1207,9 +1214,9 @@ margin-left: 0px;
 .mainPageBoxes {
 	float:left;
 	width:18%;
-	height:200px;
-	margin: 10px;
-	padding: 18px 18px 28px 18px;
+	height:220px;
+	margin: 10px 0px 10px 10px;
+	padding: 0px 18px 18px 18px;
 	vertical-align: text-top;
 	background-color: bisque;
 	font-size:13px;
@@ -1225,7 +1232,7 @@ margin-left: 0px;
 .mainPageDataStatistics {
 	float:left;
 	width:25%;
-	height: 200px;
+	height: 220px;
 	margin: 10px;
 	padding: 18px;
 	background-color: lavender;
@@ -1269,14 +1276,10 @@ margin-left: 0px;
 	color: #FFFFFF;
 	margin: 10px;
 	padding: 0px;
-	border-top: 0px solid #99CC99;
-	border-right: 0px solid #003300;
-	border-bottom: 0px solid #003300;
-	border-left: 0px solid #99CC99;
+	 
 	font-size: 14px;
-	vertical-align: middle;
 	text-align: center;
-	background-color: #336633;
+	 
              }
 
 .menu1button a:VISITED {
@@ -1361,7 +1364,7 @@ margin-left: 0px;
 	width:100%;
 	height:21px;
 	padding: 5px 0px 5px 20px;
-	border: thin solid White;
+/* 	border: thin solid White; */
 	background-color: #E1EBEB;
 }
 
@@ -1464,21 +1467,29 @@ height:300px;
 .tableHeader {
 	font-size: 10px;
 	padding: 0px 0px !important;
+	white-space: nowrap;
+    padding-right: 10px !important;
 }
 .tableHeaderCenter {
 	font-size: 10px;
 	padding: 0px 0px !important;
 	text-align: center !important;
+	white-space: nowrap;
+    padding-right: 10px !important;
 }
 .tableHeaderRight {
 	font-size: 10px;
 	padding: 0px 0px !important;
 	text-align: right !important;
+	white-space: nowrap;
+    padding-right: 10px !important;
 }
 .tableHeaderLeft {
 	font-size: 10px;
 	padding: 0px 0px !important;
 	text-align: left !important;
+	white-space: nowrap;
+    padding-right: 10px !important;
 }
 
 .textButtonColumn{
@@ -1719,7 +1730,15 @@ table td{
 }
 .ProjectItemMainPanel{
 	border-radius: 10px ;
+	min-width: 450px;
 /* 	max-width: 400px; */
+}
+.ProjectLoadedPanel legend{
+	font-size: 14px;
+    font-weight: bold;
+}
+.ProjectLoadedPanel{
+	border-radius: 10px ;
 }
 .ProjectItemContentPanel{
 /* 	vertical-align: top; */
@@ -1733,10 +1752,14 @@ table td{
 	overflow-y: auto;
 	max-height: 150px;
 	display: block;
+	word-break: break-word;
 }
 .ProjectItemIndividualItemTitle{
 	font-size: 11px;
     font-weight: bold;
     color: #808040;
     white-space: nowrap;
+}
+.HorizontalScroll{
+	overflow-x: auto;
 }

@@ -22,10 +22,12 @@ public class CustomTextButtonColumn<T> extends Column<T, String> implements MyId
 	private boolean visibleState;
 	private final double defaultWidth;
 	private double width;
+	private final Header<?> header;
 
-	public CustomTextButtonColumn(final String sessionID, ColumnName columnName, boolean visibleState,
+	public CustomTextButtonColumn(final String sessionID, ColumnName columnName, boolean visibleState, Header<?> header,
 			Header<String> footer) {
 		super(new TextButtonCell());
+		this.header = header;
 		this.columnName = columnName;
 		this.visibleState = visibleState;
 		defaultWidth = 40;
@@ -144,6 +146,11 @@ public class CustomTextButtonColumn<T> extends Column<T, String> implements MyId
 	public AmountType getAmountType() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Header<?> getHeader() {
+		return header;
 	}
 
 }

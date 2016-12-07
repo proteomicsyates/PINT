@@ -42,8 +42,9 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 	private final String scoreName;
 	private final HtmlTemplates template = GWT.create(HtmlTemplates.class);
 	private String ratioName;
+	private final Header<?> header;
 
-	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<String> footer) {
+	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer) {
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
@@ -55,6 +56,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 		projectTag = null;
 		scoreName = null;
 		this.footer = footer;
+		this.header = header;
 		this.visibleState = visibleState;
 		if (visibleState)
 			width = defaultWidth;
@@ -62,8 +64,8 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 			width = 0;
 	}
 
-	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<String> footer, String conditionName,
-			AmountType amountType, String projectTag) {
+	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
+			String conditionName, AmountType amountType, String projectTag) {
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
@@ -75,6 +77,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 		this.projectTag = projectTag;
 		scoreName = null;
 		this.footer = footer;
+		this.header = header;
 		this.visibleState = visibleState;
 		if (visibleState)
 			width = defaultWidth;
@@ -82,8 +85,8 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 			width = 0;
 	}
 
-	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<String> footer, String condition1Name,
-			String condition2Name, String projectTag, String ratioName) {
+	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
+			String condition1Name, String condition2Name, String projectTag, String ratioName) {
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
@@ -96,6 +99,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 		this.projectTag = projectTag;
 		scoreName = null;
 		this.footer = footer;
+		this.header = header;
 		this.visibleState = visibleState;
 		if (visibleState)
 			width = defaultWidth;
@@ -103,7 +107,8 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 			width = 0;
 	}
 
-	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<String> footer, String scoreName) {
+	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
+			String scoreName) {
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
@@ -115,6 +120,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 		projectTag = null;
 		this.scoreName = scoreName;
 		this.footer = footer;
+		this.header = header;
 		this.visibleState = visibleState;
 		if (visibleState)
 			width = defaultWidth;
@@ -126,14 +132,14 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 	public String getValue(PSMBean p) {
 		final String value = PSMColumns.getInstance().getValue(columnName, p, conditionName, condition2Name, projectTag,
 				amountType, scoreName, ratioName, false);
-		if (width == 0) {
-			// if it is text, not a number, return ""
-			try {
-				Double.valueOf(value);
-			} catch (NumberFormatException e) {
-				return "";
-			}
-		}
+		// if (width == 0) {
+		// // if it is text, not a number, return ""
+		// try {
+		// Double.valueOf(value);
+		// } catch (NumberFormatException e) {
+		// return "";
+		// }
+		// }
 		return value;
 
 	}
@@ -147,7 +153,8 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 	 */
 	@Override
 	public void render(Context context, PSMBean psm, SafeHtmlBuilder sb) {
-		if (width == 0 || psm == null) {
+		// if (width == 0 || psm == null) {
+		if (psm == null) {
 			return;
 		}
 		DataGridRenderValue data;
@@ -481,5 +488,10 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 	@Override
 	public AmountType getAmountType() {
 		return amountType;
+	}
+
+	@Override
+	public Header<?> getHeader() {
+		return header;
 	}
 }

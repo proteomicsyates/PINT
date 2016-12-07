@@ -47,7 +47,6 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 
 		NavigationHorizontalPanel navigationHorizontalPanel = new NavigationHorizontalPanel(TargetHistory.HOME);
 		mainPanel.add(navigationHorizontalPanel);
-		navigationHorizontalPanel.setWidth("");
 
 		FlowPanel contentVerticalPanel = new FlowPanel();
 		contentVerticalPanel.setStyleName("verticalComponent");
@@ -57,7 +56,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 		FlowPanel horizontalPanel = new FlowPanel();
 		horizontalPanel.setStyleName("verticalComponent");
 		contentVerticalPanel.add(horizontalPanel);
-		horizontalPanel.setSize("100%", "");
+		horizontalPanel.setWidth("100%");
 
 		VerticalPanel pintPresentationVerticalPanel = new VerticalPanel();
 		pintPresentationVerticalPanel.setStyleName("mainPagePintExplanation");

@@ -22,18 +22,19 @@ public class PathWayTextColumn extends CustomTextColumn<PathwaySummary> implemen
 	private double width;
 	private final double defaultWidth;
 	private final Header<String> footer;
+	private final Header<?> header;
 	private boolean visibleState;
 	private Set<String> currentExperimentalConditions = new HashSet<String>();
 	private static final NumberFormat scientificFormat = com.google.gwt.i18n.client.NumberFormat.getScientificFormat();
 
-	public PathWayTextColumn(ColumnName columnName, boolean visibleState, Header<String> footer) {
+	public PathWayTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer) {
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
 		// comparator = new PSMComparator(columnName);
 		comparator = null;
 		defaultWidth = getDefaultWidth(columnName);
-
+		this.header = header;
 		this.footer = footer;
 		this.visibleState = visibleState;
 		if (visibleState)
@@ -66,7 +67,8 @@ public class PathWayTextColumn extends CustomTextColumn<PathwaySummary> implemen
 	 */
 	@Override
 	public void render(Context context, PathwaySummary pathWay, SafeHtmlBuilder sb) {
-		if (width == 0 || pathWay == null) {
+		// if (width == 0 || pathWay == null) {
+		if (pathWay == null) {
 			return;
 		}
 
@@ -233,6 +235,11 @@ public class PathWayTextColumn extends CustomTextColumn<PathwaySummary> implemen
 	public void setVisible(boolean visible) {
 		visibleState = visible;
 
+	}
+
+	@Override
+	public Header<?> getHeader() {
+		return header;
 	}
 
 }

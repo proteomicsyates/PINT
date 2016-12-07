@@ -2,7 +2,7 @@ package edu.scripps.yates.shared.model;
 
 import java.io.Serializable;
 
-public class UniprotFeatureBean implements Serializable {
+public class UniprotFeatureBean implements Serializable, Comparable<UniprotFeatureBean> {
 	/**
 	 *
 	 */
@@ -160,6 +160,28 @@ public class UniprotFeatureBean implements Serializable {
 		return "UniprotFeature [start=" + positionStart + ", End=" + positionEnd + ", description=" + description
 				+ ", status=" + status + ", ref=" + ref + ", original=" + original + ", featureType=" + featureType
 				+ "]";
+	}
+
+	@Override
+	public int compareTo(UniprotFeatureBean o2) {
+		if (o2 == null) {
+			return 1;
+		}
+		final int compareStart = Integer.compare(getPositionStart(), o2.getPositionStart());
+		if (compareStart != 0) {
+			return compareStart;
+		}
+		final int compareLength = Integer.compare(getLength(), o2.getLength());
+		if (compareLength != 0) {
+			return compareLength;
+		}
+		if (getDescription() != null) {
+			return getDescription().compareTo(o2.getDescription());
+		}
+		if (getFeatureType() != null) {
+			return getFeatureType().compareTo(o2.getFeatureType());
+		}
+		return 0;
 	}
 
 }

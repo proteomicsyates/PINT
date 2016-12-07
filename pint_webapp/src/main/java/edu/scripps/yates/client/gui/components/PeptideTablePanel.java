@@ -19,7 +19,6 @@ import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
 import edu.scripps.yates.client.gui.columns.MyIdColumn;
-import edu.scripps.yates.client.gui.columns.MySafeHtmlHeaderWithTooltip;
 import edu.scripps.yates.client.gui.columns.PeptideColumnManager;
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.client.gui.columns.footers.PeptideFooterManager;
@@ -109,23 +108,22 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 			dataGrid.setColumnWidth(checkColumn, 30, Unit.PX);
 		}
 		for (MyColumn<PeptideBean> column : getColumnManager().getColumns()) {
-			ColumnName columnName = column.getColumnName();
-			// don't do anything with amount because the conditions
-			// are not loaded yet
-			if (columnName != ColumnName.PEPTIDE_AMOUNT && columnName != ColumnName.PEPTIDE_SCORE
-					&& columnName != ColumnName.PEPTIDE_RATIO && columnName != ColumnName.PEPTIDE_RATIO_GRAPH) {
-				final Header<String> footer = getColumnManager().getFooter(columnName);
+			if (column.isVisible()) {
+				ColumnName columnName = column.getColumnName();
+				// don't do anything with amount because the conditions
+				// are not loaded yet
+				if (columnName != ColumnName.PEPTIDE_AMOUNT && columnName != ColumnName.PEPTIDE_SCORE
+						&& columnName != ColumnName.PEPTIDE_RATIO && columnName != ColumnName.PEPTIDE_RATIO_GRAPH) {
+					final Header<String> footer = getColumnManager().getFooter(columnName);
 
-				dataGrid.addColumn(columnName,
-						(Column<PeptideBean, ?>) column, new MySafeHtmlHeaderWithTooltip(columnName,
-								SafeHtmlUtils.fromSafeConstant(columnName.getAbr()), columnName.getDescription()),
-						footer);
+					dataGrid.addColumn(columnName, (Column<PeptideBean, ?>) column, column.getHeader(), footer);
 
-				if (column.isVisible()) {
-					dataGrid.setColumnWidth((Column<PeptideBean, ?>) column, column.getDefaultWidth(),
-							column.getDefaultWidthUnit());
-				} else {
-					dataGrid.setColumnWidth((Column<PeptideBean, ?>) column, 0, column.getDefaultWidthUnit());
+					if (column.isVisible()) {
+						dataGrid.setColumnWidth((Column<PeptideBean, ?>) column, column.getDefaultWidth(),
+								column.getDefaultWidthUnit());
+					} else {
+						dataGrid.setColumnWidth((Column<PeptideBean, ?>) column, 0, column.getDefaultWidthUnit());
+					}
 				}
 			}
 		}
@@ -140,24 +138,29 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 			final Column<PeptideBean, ?> column = (Column<PeptideBean, ?>) mycolumn;
 
 			if (show) {
-				final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
-						+ mycolumn.getDefaultWidthUnit().getType();
-				final String columnWidth = dataGrid.getColumnWidth(column);
-				if (!newWidth.equals(columnWidth)) {
-					if (dataGrid.isEmptyColumn(column))
-						redraw = true;
-					dataGrid.setColumnWidth(column, newWidth);
-					mycolumn.setWidth(mycolumn.getDefaultWidth());
+				dataGrid.addColumnToTable(column, getColumnManager());
+				if (false) {
+					final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
+							+ mycolumn.getDefaultWidthUnit().getType();
+					final String columnWidth = dataGrid.getColumnWidth(column);
+					if (!newWidth.equals(columnWidth)) {
+						if (dataGrid.isEmptyColumn(column))
+							redraw = true;
+						dataGrid.setColumnWidth(column, newWidth);
+						mycolumn.setWidth(mycolumn.getDefaultWidth());
+					}
 				}
-
 			} else {
-				final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
-				final String columnWidth = dataGrid.getColumnWidth(column);
-				if (!newWidth.equals(columnWidth)) {
-					if (!dataGrid.isNumberColumn(column))
-						redraw = true;
-					dataGrid.setColumnWidth(column, newWidth);
-					mycolumn.setWidth(0);
+				dataGrid.removeColumn(column);
+				if (false) {
+					final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
+					final String columnWidth = dataGrid.getColumnWidth(column);
+					if (!newWidth.equals(columnWidth)) {
+						if (!dataGrid.isNumberColumn(column))
+							redraw = true;
+						dataGrid.setColumnWidth(column, newWidth);
+						mycolumn.setWidth(0);
+					}
 				}
 			}
 
@@ -188,23 +191,29 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 							&& conditionNames.contains(condition2ReferredByColumn))) {
 
 						if (show) {
-							final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
-									+ mycolumn.getDefaultWidthUnit().getType();
-							final String columnWidth = dataGrid.getColumnWidth(column);
-							if (!columnWidth.equals(newWidth)) {
-								if (dataGrid.isEmptyColumn(column))
-									redraw = true;
-								dataGrid.setColumnWidth(column, newWidth);
-								mycolumn.setWidth(mycolumn.getDefaultWidth());
+							dataGrid.addColumnToTable(column, getColumnManager());
+							if (false) {
+								final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
+										+ mycolumn.getDefaultWidthUnit().getType();
+								final String columnWidth = dataGrid.getColumnWidth(column);
+								if (!columnWidth.equals(newWidth)) {
+									if (dataGrid.isEmptyColumn(column))
+										redraw = true;
+									dataGrid.setColumnWidth(column, newWidth);
+									mycolumn.setWidth(mycolumn.getDefaultWidth());
+								}
 							}
 						} else {
-							final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
-							final String columnWidth = dataGrid.getColumnWidth(column);
-							if (!columnWidth.equals(newWidth)) {
-								if (!dataGrid.isNumberColumn(column))
-									redraw = true;
-								dataGrid.setColumnWidth(column, newWidth);
-								mycolumn.setWidth(0);
+							dataGrid.removeColumn(column);
+							if (false) {
+								final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
+								final String columnWidth = dataGrid.getColumnWidth(column);
+								if (!columnWidth.equals(newWidth)) {
+									if (!dataGrid.isNumberColumn(column))
+										redraw = true;
+									dataGrid.setColumnWidth(column, newWidth);
+									mycolumn.setWidth(0);
+								}
 							}
 						}
 					}
