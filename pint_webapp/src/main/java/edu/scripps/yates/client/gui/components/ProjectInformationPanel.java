@@ -9,6 +9,7 @@ import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
+import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -48,11 +49,16 @@ public class ProjectInformationPanel extends Composite {
 		mainPanel.add(dockPanel);
 
 		dockPanel.setSize("100%", "100%");
+
+		CaptionPanel captionPanelProjects = new CaptionPanel("Projects loaded");
+		captionPanelProjects.setStyleName("ProjectItemMainPanel");
 		flexTableInWest = new FlexTable();
 		flexTableInWest.setStyleName("ProjectInformationPanelLeft");
-		dockPanel.add(flexTableInWest, DockPanel.WEST);
-		dockPanel.setCellWidth(flexTableInWest, "50px");
-		dockPanel.setCellHorizontalAlignment(flexTableInWest, HasHorizontalAlignment.ALIGN_CENTER);
+		captionPanelProjects.add(flexTableInWest);
+
+		dockPanel.add(captionPanelProjects, DockPanel.WEST);
+		dockPanel.setCellWidth(captionPanelProjects, "50px");
+		dockPanel.setCellHorizontalAlignment(captionPanelProjects, HasHorizontalAlignment.ALIGN_CENTER);
 		gridInCenter = new FlexTable();
 		// gridInCenter = new Grid(5, 2);
 		dockPanel.add(gridInCenter, DockPanel.CENTER);

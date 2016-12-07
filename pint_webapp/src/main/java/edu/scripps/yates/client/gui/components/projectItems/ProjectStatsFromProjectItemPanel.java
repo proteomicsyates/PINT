@@ -9,6 +9,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DateLabel;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
@@ -51,31 +53,55 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		label1.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectStatus, 0, label1);
 		table.setWidget(rowProjectStatus, 1, getProjectStatus(projectBean));
+		table.getCellFormatter().setAlignment(rowProjectStatus, 0, HasHorizontalAlignment.ALIGN_LEFT,
+				HasVerticalAlignment.ALIGN_TOP);
+		table.getCellFormatter().setAlignment(rowProjectStatus, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+				HasVerticalAlignment.ALIGN_TOP);
 		// title
 		final Label label2 = new Label("Title:");
 		label2.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectTitle, 0, label2);
 		table.setWidget(rowProjectTitle, 1, getEscapedString(projectBean.getId()));
+		table.getCellFormatter().setAlignment(rowProjectTitle, 0, HasHorizontalAlignment.ALIGN_LEFT,
+				HasVerticalAlignment.ALIGN_TOP);
+		table.getCellFormatter().setAlignment(rowProjectTitle, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+				HasVerticalAlignment.ALIGN_TOP);
 		// date
 		final Label label3 = new Label("Experiment date:");
 		label3.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectDate, 0, label3);
 		table.setWidget(rowProjectDate, 1, getProjectDate(projectBean.getReleaseDate()));
+		table.getCellFormatter().setAlignment(rowProjectDate, 0, HasHorizontalAlignment.ALIGN_LEFT,
+				HasVerticalAlignment.ALIGN_TOP);
+		table.getCellFormatter().setAlignment(rowProjectDate, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+				HasVerticalAlignment.ALIGN_TOP);
 		// upload date
 		final Label label4 = new Label("Uploaded date:");
 		label4.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectUploadDate, 0, label4);
 		table.setWidget(rowProjectUploadDate, 1, getProjectDate(projectBean.getReleaseDate()));
+		table.getCellFormatter().setAlignment(rowProjectUploadDate, 0, HasHorizontalAlignment.ALIGN_LEFT,
+				HasVerticalAlignment.ALIGN_TOP);
+		table.getCellFormatter().setAlignment(rowProjectUploadDate, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+				HasVerticalAlignment.ALIGN_TOP);
 		// description
 		final Label label5 = new Label("Description:");
 		label5.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectDescription, 0, label5);
 		table.setWidget(rowProjectDescription, 1, getEscapedString(projectBean.getDescription()));
+		table.getCellFormatter().setAlignment(rowProjectDescription, 0, HasHorizontalAlignment.ALIGN_LEFT,
+				HasVerticalAlignment.ALIGN_TOP);
+		table.getCellFormatter().setAlignment(rowProjectDescription, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+				HasVerticalAlignment.ALIGN_TOP);
 		// publication link
 		final Label label6 = new Label("Publication link:");
 		label6.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectPublicationLink, 0, label6);
 		table.setWidget(rowProjectPublicationLink, 1, getPublicationLink(projectBean));
+		table.getCellFormatter().setAlignment(rowProjectPublicationLink, 0, HasHorizontalAlignment.ALIGN_LEFT,
+				HasVerticalAlignment.ALIGN_TOP);
+		table.getCellFormatter().setAlignment(rowProjectPublicationLink, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+				HasVerticalAlignment.ALIGN_TOP);
 		return table;
 	}
 
