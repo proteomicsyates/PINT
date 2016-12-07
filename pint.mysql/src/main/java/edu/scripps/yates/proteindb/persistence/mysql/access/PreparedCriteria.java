@@ -22,6 +22,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue;
+import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 
 public class PreparedCriteria {
 	private static final Logger log = Logger.getLogger(PreparedCriteria.class);
@@ -166,6 +167,15 @@ public class PreparedCriteria {
 		return ret;
 	}
 
+	public static Criteria getCriteriaForGenes() {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Gene.class, "gene")
+				.createAlias("gene.proteins", "protein").createAlias("protein.conditions", "condition")
+				.createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("geneId")));
+		cr.addOrder(Order.asc("geneId").ignoreCase());
+		return cr;
+	}
+
 	public static Criteria getCriteriaForGenesInProject(String projectTag) {
 		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Gene.class, "gene")
 				.createAlias("gene.proteins", "protein").createAlias("protein.conditions", "condition")
@@ -183,13 +193,14 @@ public class PreparedCriteria {
 		return cr;
 	}
 
-	public static Criteria getCriteriaForProteinAccsInProject(String projectTag) {
+	public static Criteria getCriteriaForProteinPrimaryAccsInProject(String projectTag) {
 		final Criteria cr = ContextualSessionHandler.getSession()
 				.createCriteria(ProteinAccession.class, "proteinAccession")
 				.createAlias("proteinAccession.proteins", "protein").createAlias("protein.conditions", "condition")
 				.createAlias("condition.project", "project")
 				.setProjection(Projections.distinct(Projections.property("accession")));
-		cr.add(Restrictions.eq("project.tag", projectTag)).addOrder(Order.asc("accession").ignoreCase());
+		cr.add(Restrictions.eq("project.tag", projectTag)).add(Restrictions.eq("proteinAccession.isPrimary", true))
+				.addOrder(Order.asc("accession").ignoreCase());
 		return cr;
 	}
 
@@ -390,6 +401,193 @@ public class PreparedCriteria {
 		cr.createAlias("condition.proteins", "protein");
 		cr.add(Restrictions.eq("protein.msRun", msRun));
 		cr.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+		return cr;
+	}
+
+	public static Criteria getCriteriaForDifferentPeptidesInProject(String projectTag) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.conditions", "condition").createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("sequence")));
+		cr.add(Restrictions.eq("project.tag", projectTag)).addOrder(Order.asc("sequence").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForDifferentPSMsInProject(String projectTag) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.conditions", "condition").createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("psmId")));
+		cr.add(Restrictions.eq("project.tag", projectTag)).addOrder(Order.asc("psmId").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForProteinPrimaryAccsInProjectInMSRun(String projectTag, String runID) {
+		final Criteria cr = ContextualSessionHandler.getSession()
+				.createCriteria(ProteinAccession.class, "proteinAccession")
+				.createAlias("proteinAccession.proteins", "protein").createAlias("protein.conditions", "condition")
+				.createAlias("protein.msRun", "msRun").createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("accession")));
+		cr.add(Restrictions.eq("msRun.runId", runID)).add(Restrictions.eq("project.tag", projectTag))
+				.add(Restrictions.eq("proteinAccession.isPrimary", true)).addOrder(Order.asc("accession").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForDifferentPeptidesInProjectInMSRun(String projectTag, String runID) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.msRun", "msRun").createAlias("psm.conditions", "condition")
+				.createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("sequence")));
+		cr.add(Restrictions.eq("msRun.runId", runID)).add(Restrictions.eq("project.tag", projectTag))
+				.addOrder(Order.asc("sequence").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForDifferentPSMsInProjectInMSRun(String projectTag, String runID) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.msRun", "msRun").createAlias("psm.conditions", "condition")
+				.createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("psmId")));
+		cr.add(Restrictions.eq("msRun.runId", runID)).add(Restrictions.eq("project.tag", projectTag))
+				.addOrder(Order.asc("psmId").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForGenesInProjectInMSRun(String projectTag, String runID) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Gene.class, "gene")
+				.createAlias("gene.proteins", "protein").createAlias("protein.msRun", "msRun")
+				.createAlias("protein.conditions", "condition").createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("geneId")));
+		cr.add(Restrictions.eq("msRun.runId", runID)).add(Restrictions.eq("project.tag", projectTag))
+				.addOrder(Order.asc("geneId").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForProteinPrimaryAccsInProjectInCondition(String projectTag,
+			String conditionName) {
+		final Criteria cr = ContextualSessionHandler.getSession()
+				.createCriteria(ProteinAccession.class, "proteinAccession")
+				.createAlias("proteinAccession.proteins", "protein").createAlias("protein.conditions", "condition")
+				.createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("accession")));
+		cr.add(Restrictions.eq("condition.name", conditionName)).add(Restrictions.eq("project.tag", projectTag))
+				.add(Restrictions.eq("proteinAccession.isPrimary", true)).addOrder(Order.asc("accession").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForDifferentPeptidesInProjectInCondition(String projectTag,
+			String conditionName) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.conditions", "condition").createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("sequence")));
+		cr.add(Restrictions.eq("condition.name", conditionName)).add(Restrictions.eq("project.tag", projectTag))
+				.addOrder(Order.asc("sequence").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForDifferentPSMsInProjectInCondition(String projectTag, String conditionName) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.conditions", "condition").createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("psmId")));
+		cr.add(Restrictions.eq("condition.name", conditionName)).add(Restrictions.eq("project.tag", projectTag))
+				.addOrder(Order.asc("psmId").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForGenesInProjectInCondition(String projectTag, String conditionName) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Gene.class, "gene")
+				.createAlias("gene.proteins", "protein").createAlias("protein.conditions", "condition")
+				.createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("geneId")));
+		cr.add(Restrictions.eq("condition.name", conditionName)).add(Restrictions.eq("project.tag", projectTag))
+				.addOrder(Order.asc("geneId").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForMSRunsInProject(String projectTag) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(MsRun.class, "msRun")
+				.createAlias("msRun.proteins", "protein").createAlias("protein.conditions", "condition")
+				.createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("runId")));
+		cr.add(Restrictions.eq("project.tag", projectTag)).addOrder(Order.asc("runId").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForMSRunsInProjectInCondition(String projectTag, String conditionName) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(MsRun.class, "msRun")
+				.createAlias("msRun.proteins", "protein").createAlias("protein.conditions", "condition")
+				.createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("runId")));
+		cr.add(Restrictions.eq("condition.name", conditionName)).add(Restrictions.eq("project.tag", projectTag))
+				.addOrder(Order.asc("runId").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForProteinPrimaryAccsInProjectInSample(String projectTag, String sampleName) {
+		final Criteria cr = ContextualSessionHandler.getSession()
+				.createCriteria(ProteinAccession.class, "proteinAccession")
+				.createAlias("proteinAccession.proteins", "protein").createAlias("protein.conditions", "condition")
+				.createAlias("condition.project", "project").createAlias("condition.sample", "sample")
+				.setProjection(Projections.distinct(Projections.property("accession")));
+		cr.add(Restrictions.eq("sample.name", sampleName)).add(Restrictions.eq("project.tag", projectTag))
+				.add(Restrictions.eq("proteinAccession.isPrimary", true)).addOrder(Order.asc("accession").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForDifferentPeptidesInProjectInSample(String projectTag, String sampleName) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.conditions", "condition").createAlias("condition.project", "project")
+				.createAlias("condition.sample", "sample")
+				.setProjection(Projections.distinct(Projections.property("sequence")));
+		cr.add(Restrictions.eq("sample.name", sampleName)).add(Restrictions.eq("project.tag", projectTag))
+				.addOrder(Order.asc("sequence").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForDifferentPSMsInProjectInSample(String projectTag, String sampleName) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.conditions", "condition").createAlias("condition.project", "project")
+				.createAlias("condition.sample", "sample")
+				.setProjection(Projections.distinct(Projections.property("psmId")));
+		cr.add(Restrictions.eq("sample.name", sampleName)).add(Restrictions.eq("project.tag", projectTag))
+				.addOrder(Order.asc("psmId").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForGenesInProjectInSample(String projectTag, String sampleName) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Gene.class, "gene")
+				.createAlias("gene.proteins", "protein").createAlias("protein.conditions", "condition")
+				.createAlias("condition.sample", "sample").createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("geneId")));
+		cr.add(Restrictions.eq("sample.name", sampleName)).add(Restrictions.eq("project.tag", projectTag))
+				.addOrder(Order.asc("geneId").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForMSRunsInProjectInSample(String projectTag, String sampleName) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(MsRun.class, "msRun")
+				.createAlias("msRun.proteins", "protein").createAlias("protein.conditions", "condition")
+				.createAlias("condition.sample", "sample").createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("runId")));
+		cr.add(Restrictions.eq("sample.name", sampleName)).add(Restrictions.eq("project.tag", projectTag))
+				.addOrder(Order.asc("runId").ignoreCase());
+		return cr;
+	}
+
+	public static Criteria getCriteriaForConditionsInProjectInMSRun(String projectTag, String msRunID) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Condition.class, "condition")
+				.createAlias("condition.proteins", "protein").createAlias("protein.msRun", "msRun")
+				.createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("condition.id")));
+		cr.add(Restrictions.eq("msRun.runId", msRunID)).add(Restrictions.eq("project.tag", projectTag));
+		return cr;
+	}
+
+	public static Criteria getCriteriaForSamplesInProjectInMSRun(String projectTag, String msRunID) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Sample.class, "sample")
+				.createAlias("sample.conditions", "condition").createAlias("condition.proteins", "protein")
+				.createAlias("protein.msRun", "msRun").createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("sample.id")));
+
+		cr.add(Restrictions.eq("msRun.runId", msRunID)).add(Restrictions.eq("project.tag", projectTag));
 		return cr;
 	}
 }

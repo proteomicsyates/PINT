@@ -659,7 +659,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		queryEditorPanel = new MyQueryEditorPanel(sendQueryclickHandler, sendSimpleQueryByProteinNameClickHandler,
 				sendSimpleQueryByAccClickHandler, sendSimpleQueryByGeneNameClickHandler);
 
-		projectInformationPanel = new ProjectInformationPanel(this);
+		projectInformationPanel = new ProjectInformationPanel();
 		scrollProjectInformationPanel = new ScrollPanel(projectInformationPanel);
 		firstLevelTabPanel.add(scrollProjectInformationPanel, "Project information");
 		scrollQueryPanel = new ScrollPanel(queryEditorPanel);
@@ -1964,10 +1964,11 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			if (ClientCacheDefaultViewByProjectTag.getInstance().contains(projectTag)) {
 				GWT.log("Default default view of project " + projectTag + " found in client cache");
 
-				applyDefaultViews(projectBean,
-						ClientCacheDefaultViewByProjectTag.getInstance().getFromCache(projectTag), modifyColumns,
-						showWelcomeWindowBox, changeToDataTab, bigProject, testMode);
-
+				final DefaultView defaultViews = ClientCacheDefaultViewByProjectTag.getInstance()
+						.getFromCache(projectTag);
+				applyDefaultViews(projectBean, defaultViews, modifyColumns, showWelcomeWindowBox, changeToDataTab,
+						bigProject, testMode);
+				projectInformationPanel.addProjectView(projectBean, defaultViews);
 			} else {
 				GWT.log("Requesting default view of project " + projectTag + " ");
 				proteinRetrievingService.getDefaultViewByProject(projectTag, new AsyncCallback<DefaultView>() {
@@ -1983,12 +1984,15 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					public void onSuccess(DefaultView defaultViews) {
 						GWT.log("Default view of project " + projectTag + " received");
 						if (defaultViews != null) {
+							// only apply default views of the projectBean in
+							// the parameters
 							if (projectBean.getTag().equals(projectTag)) {
 								applyDefaultViews(projectBean, defaultViews, modifyColumns, showWelcomeWindowBox,
 										changeToDataTab, bigProject, testMode);
 							}
 							ClientCacheDefaultViewByProjectTag.getInstance().addtoCache(defaultViews, projectTag);
-							projectInformationPanel.addProjectView(projectBean, defaultViews, testMode);
+							ProjectBean projectBean2 = loadedProjectBeanSet.getByTag(projectTag);
+							projectInformationPanel.addProjectView(projectBean2, defaultViews);
 						}
 					}
 				});

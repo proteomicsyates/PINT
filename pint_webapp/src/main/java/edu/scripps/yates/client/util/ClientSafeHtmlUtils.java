@@ -14,6 +14,7 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.UriUtils;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -27,6 +28,7 @@ import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.PeptideRelation;
+import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ProteinEvidence;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
@@ -48,6 +50,23 @@ public class ClientSafeHtmlUtils {
 
 	// private static final MyClientBundle myClientBundle =
 	// MyClientBundle.INSTANCE;
+	public static Anchor getPubmedLink(ProjectBean projectBean) {
+		if (projectBean != null) {
+			String pubmedId = projectBean.getPubmedLink();
+
+			if (pubmedId != null) {
+				SafeHtmlBuilder sb = new SafeHtmlBuilder();
+				sb.appendEscaped("[ pubmed ]");
+				final Anchor link = new Anchor(sb.toSafeHtml(),
+						UriUtils.fromString("http://www.ncbi.nlm.nih.gov/pubmed/" + pubmedId));
+				link.setStyleName("linkPINT");
+				link.setTarget("_blank");
+				link.setTitle("Click here to go to the publication in PUBMED (id:" + pubmedId + ")");
+				return link;
+			}
+		}
+		return null;
+	}
 
 	public static SafeHtml getSafeHtmlFromGene(GeneBean gene, boolean includeTitle) {
 		final int hgncId = gene.getHgncNumber();

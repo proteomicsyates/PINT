@@ -22,8 +22,6 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.shared.DateTimeFormat;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -543,15 +541,8 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 		// publication
 		final String pubmedId = projectBean.getPubmedLink();
 		if (pubmedId != null) {
-			SafeHtmlBuilder sb = new SafeHtmlBuilder();
-			sb.appendEscaped("[ pubmed ]");
 
-			final Anchor link = new Anchor(sb.toSafeHtml(),
-					UriUtils.fromString("http://www.ncbi.nlm.nih.gov/pubmed/" + pubmedId));
-			link.setStyleName("linkPINT");
-			link.setTarget("_blank");
-			link.setTitle("Click here to go to the publication in PUBMED (id:" + pubmedId + ")");
-			projectsTable.setWidget(row, 4, link);
+			projectsTable.setWidget(row, 4, ClientSafeHtmlUtils.getPubmedLink(projectBean));
 		} else {
 			projectsTable.setWidget(row, 4, new Label("-"));
 		}

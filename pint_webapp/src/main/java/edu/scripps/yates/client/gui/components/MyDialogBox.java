@@ -12,7 +12,7 @@ import edu.scripps.yates.client.gui.templates.MyClientBundle;
 
 public class MyDialogBox extends DialogBox {
 	private final InlineHTML inlineHTML;
-	private Image loadingBar;
+	private final Image loadingBar;
 	private final VerticalPanel panel;
 	private Timer timerTaskOnCloseDialog;
 
@@ -93,9 +93,8 @@ public class MyDialogBox extends DialogBox {
 		inlineHTML = new InlineHTML(text);
 		inlineHTML.setWidth("100%");
 		panel.add(inlineHTML);
-
+		loadingBar = new Image(myClientBundle.horizontalLoader());
 		if (showLoaderBar) {
-			loadingBar = new Image(myClientBundle.horizontalLoader());
 			panel.add(loadingBar);
 		}
 		// panel.add(ok);
@@ -109,6 +108,7 @@ public class MyDialogBox extends DialogBox {
 	}
 
 	public void setShowLoadingBar(boolean showLoadingBar) {
+
 		loadingBar.removeFromParent();
 		if (showLoadingBar) {
 			panel.add(loadingBar);

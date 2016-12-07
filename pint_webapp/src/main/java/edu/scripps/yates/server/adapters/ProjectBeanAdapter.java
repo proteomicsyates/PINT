@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
+import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.ProjectBean;
@@ -37,6 +38,13 @@ public class ProjectBeanAdapter implements Adapter<ProjectBean> {
 		if (conditions != null) {
 			for (Condition condition : conditions) {
 				ret.getConditions().add(new ConditionBeanAdapter(condition).adapt());
+			}
+
+		}
+		final Set<MsRun> msRuns = project.getMsRuns();
+		if (msRuns != null) {
+			for (MsRun msRun : msRuns) {
+				ret.getMsRuns().add(new MSRunBeanAdapter(msRun).adapt());
 			}
 
 		}

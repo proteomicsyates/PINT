@@ -21,6 +21,7 @@ import javax.servlet.ServletException;
 import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.commons.io.FilenameUtils;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.transform.Transformers;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -81,6 +82,8 @@ import edu.scripps.yates.shared.columns.comparator.PSMComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinGroupComparator;
 import edu.scripps.yates.shared.model.AccessionBean;
+import edu.scripps.yates.shared.model.ExperimentalConditionBean;
+import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
@@ -90,6 +93,7 @@ import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.ProteinPeptideCluster;
 import edu.scripps.yates.shared.model.ProteinProjection;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
+import edu.scripps.yates.shared.model.SampleBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
 import edu.scripps.yates.shared.tasks.SharedTaskKeyGenerator;
@@ -2153,4 +2157,265 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}
 	}
 
+	@Override
+	public int getNumDifferentProteins(String projectTag) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForProteinPrimaryAccsInProject(projectTag).list().size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumDifferentPeptides(String projectTag) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForDifferentPeptidesInProject(projectTag).list().size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumPSMs(String projectTag) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForDifferentPSMsInProject(projectTag).list().size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumGenes() throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForGenes().list().size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumGenes(String projectTag) throws PintException {
+		try {
+			final List list = PreparedCriteria.getCriteriaForGenesInProject(projectTag).list();
+			return list.size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumDifferentProteins(String projectTag, MSRunBean msRun) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForProteinPrimaryAccsInProjectInMSRun(projectTag, msRun.getRunID())
+					.list().size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumDifferentPeptides(String projectTag, MSRunBean msRun) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForDifferentPeptidesInProjectInMSRun(projectTag, msRun.getRunID()).list()
+					.size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumPSMs(String projectTag, MSRunBean msRun) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForDifferentPSMsInProjectInMSRun(projectTag, msRun.getRunID()).list()
+					.size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumGenes(String projectTag, MSRunBean msRun) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForGenesInProjectInMSRun(projectTag, msRun.getRunID()).list().size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumDifferentProteins(String projectTag, ExperimentalConditionBean condition) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForProteinPrimaryAccsInProjectInCondition(projectTag, condition.getId())
+					.list().size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumDifferentPeptides(String projectTag, ExperimentalConditionBean condition) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForDifferentPeptidesInProjectInCondition(projectTag, condition.getId())
+					.list().size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumPSMs(String projectTag, ExperimentalConditionBean condition) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForDifferentPSMsInProjectInCondition(projectTag, condition.getId())
+					.list().size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumGenes(String projectTag, ExperimentalConditionBean condition) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForGenesInProjectInCondition(projectTag, condition.getId()).list()
+					.size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumMSRuns(String projectTag, ExperimentalConditionBean condition) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForMSRunsInProjectInCondition(projectTag, condition.getId()).list()
+					.size();
+
+		} catch (HibernateException e) {
+			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
+		} finally {
+		}
+	}
+
+	@Override
+	public int getNumDifferentProteins(String projectTag, SampleBean sample) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForProteinPrimaryAccsInProjectInSample(projectTag, sample.getId()).list()
+					.size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumDifferentPeptides(String projectTag, SampleBean sample) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForDifferentPeptidesInProjectInSample(projectTag, sample.getId()).list()
+					.size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumPSMs(String projectTag, SampleBean sample) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForDifferentPSMsInProjectInSample(projectTag, sample.getId()).list()
+					.size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumGenes(String projectTag, SampleBean sample) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForGenesInProjectInSample(projectTag, sample.getId()).list().size();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
+	public int getNumMSRuns(String projectTag, SampleBean sample) throws PintException {
+		try {
+			return PreparedCriteria.getCriteriaForMSRunsInProjectInSample(projectTag, sample.getId()).list().size();
+
+		} catch (HibernateException e) {
+			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
+		} finally {
+		}
+	}
+
+	@Override
+	public int getNumConditions(String projectTag, MSRunBean msRun) throws PintException {
+		try {
+			final List list = PreparedCriteria.getCriteriaForConditionsInProjectInMSRun(projectTag, msRun.getId()).list();
+			return list.size();
+
+		} catch (HibernateException e) {
+			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
+		} finally {
+		}
+	}
+
+	@Override
+	public int getNumSamples(String projectTag, MSRunBean msRun) throws PintException {
+		try {
+			final List list = PreparedCriteria.getCriteriaForSamplesInProjectInMSRun(projectTag, msRun.getId()).list();
+			return list.size();
+
+		} catch (HibernateException e) {
+			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
+		} finally {
+		}
+	}
 }

@@ -25,6 +25,7 @@ public class MSRunBeanAdapter implements Adapter<MSRunBean> {
 		ret.setPath(msRun.getPath());
 		ret.setRunID(msRun.getRunId());
 		ret.setDbID(msRun.getId());
+		ret.setProject(new ProjectBeanAdapter(msRun.getProject()).adapt());
 		return ret;
 	}
 

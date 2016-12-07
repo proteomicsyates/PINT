@@ -6,6 +6,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.LabelType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SampleType;
 import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
+import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.SampleBean;
 
 public class SampleBeanAdapter implements Adapter<SampleBean> {
@@ -14,14 +15,15 @@ public class SampleBeanAdapter implements Adapter<SampleBean> {
 	private final IdDescriptionType organismType;
 	private final IdDescriptionType tissueType;
 	private final ExperimentalDesignType experimentalDesign;
+	private final ProjectBean project;
 
-	public SampleBeanAdapter(SampleType sampleType,
-			IdDescriptionType organismType, IdDescriptionType tissueType,
-			ExperimentalDesignType experimentalDesign) {
+	public SampleBeanAdapter(SampleType sampleType, IdDescriptionType organismType, IdDescriptionType tissueType,
+			ExperimentalDesignType experimentalDesign, ProjectBean project) {
 		this.sampleType = sampleType;
 		this.organismType = organismType;
 		this.tissueType = tissueType;
 		this.experimentalDesign = experimentalDesign;
+		this.project = project;
 	}
 
 	@Override
@@ -30,17 +32,17 @@ public class SampleBeanAdapter implements Adapter<SampleBean> {
 		sampleBean.setName(sampleType.getId());
 		sampleBean.setDescription(sampleType.getDescription());
 		if (sampleType.getLabelRef() != null) {
-			final LabelType referencedLabel = ImportCfgUtil.getReferencedLabel(
-					sampleType.getLabelRef(), experimentalDesign);
+			final LabelType referencedLabel = ImportCfgUtil.getReferencedLabel(sampleType.getLabelRef(),
+					experimentalDesign);
 			sampleBean.setLabel(new LabelBeanAdapter(referencedLabel).adapt());
 		}
 		if (organismType != null) {
-			sampleBean.setOrganism(new OrganismBeanTypeAdapter(organismType)
-					.adapt());
+			sampleBean.setOrganism(new OrganismBeanTypeAdapter(organismType).adapt());
 		}
 		if (tissueType != null) {
 			sampleBean.setTissue(new TissueBeanAdapter(tissueType).adapt());
 		}
+		sampleBean.setProject(project);
 		return sampleBean;
 	}
 }

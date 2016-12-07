@@ -219,6 +219,21 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 				sb.append(ClientSafeHtmlUtils.getAccLinks(p, true));
 			}
 			break;
+		// this makes this cell to be a new line per secondary accession.
+		// I disabled it because sometimes there is too many
+		// case SECONDARY_ACCS:
+		// sb.append(template.startToolTip(p.getSecondaryAccessionsString()));
+		// sb.appendEscaped(p.getSecondaryAccessionsString());
+		//
+		// sb.append(template.endToolTip());
+		//
+		// break;
+		case ALTERNATIVE_NAMES:
+			sb.append(template.startToolTip(p.getAlternativeNamesString()));
+			sb.appendEscaped(p.getAlternativeNamesString());
+			sb.append(template.endToolTip());
+
+			break;
 		case PROTEIN_AMOUNT:
 			data = DataGridRenderValue.getAmountDataGridRenderValue(p, conditionName, amountType, projectTag);
 			sb.append(template.startToolTip(data.getTooltip()));

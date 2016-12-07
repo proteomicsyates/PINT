@@ -13,7 +13,7 @@ public class SampleBean implements Serializable, HasId {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5533795123670081466L;
 	private String name;
@@ -22,6 +22,7 @@ public class SampleBean implements Serializable, HasId {
 	private LabelBean label;
 	private TissueBean tissue;
 	private OrganismBean organism;
+	private ProjectBean project;
 
 	public SampleBean() {
 
@@ -127,9 +128,8 @@ public class SampleBean implements Serializable, HasId {
 
 	@Override
 	public String toString() {
-		return "SampleEx [name=" + name + ", description=" + description
-				+ ", wildType=" + wildType + ", label=" + label + ", tissue="
-				+ tissue + ", organism=" + organism + "]";
+		return "SampleEx [name=" + name + ", description=" + description + ", wildType=" + wildType + ", label=" + label
+				+ ", tissue=" + tissue + ", organism=" + organism + "]";
 	}
 
 	/*
@@ -154,6 +154,21 @@ public class SampleBean implements Serializable, HasId {
 			return false;
 		}
 		return super.equals(obj);
+	}
+
+	/**
+	 * @return the project
+	 */
+	public ProjectBean getProject() {
+		return project;
+	}
+
+	/**
+	 * @param project
+	 *            the project to set
+	 */
+	public void setProject(ProjectBean project) {
+		this.project = project;
 	}
 
 }

@@ -6,9 +6,9 @@ import java.util.Map;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
+import edu.scripps.yates.shared.model.ProjectBean;
 
-public class ConditionBeanAdapter implements
-		Adapter<ExperimentalConditionBean> {
+public class ConditionBeanAdapter implements Adapter<ExperimentalConditionBean> {
 	private final Condition experimentalCondition;
 	private static Map<Integer, ExperimentalConditionBean> map = new HashMap<Integer, ExperimentalConditionBean>();
 
@@ -24,10 +24,9 @@ public class ConditionBeanAdapter implements
 		map.put(experimentalCondition.getId(), ret);
 		ret.setDescription(experimentalCondition.getDescription());
 		ret.setName(experimentalCondition.getName());
-		ret.setProject(new ProjectBeanAdapter(experimentalCondition
-				.getProject()).adapt());
-		ret.setSample(new SampleBeanAdapter(experimentalCondition.getSample())
-				.adapt());
+		final ProjectBean project = new ProjectBeanAdapter(experimentalCondition.getProject()).adapt();
+		ret.setProject(project);
+		ret.setSample(new SampleBeanAdapter(experimentalCondition.getSample(), project).adapt());
 		ret.setUnit(experimentalCondition.getUnit());
 		ret.setValue(experimentalCondition.getValue());
 		return ret;

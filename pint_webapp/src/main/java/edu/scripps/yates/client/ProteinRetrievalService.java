@@ -10,6 +10,8 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 import edu.scripps.yates.client.exceptions.PintException;
 import edu.scripps.yates.shared.model.AmountType;
+import edu.scripps.yates.shared.model.ExperimentalConditionBean;
+import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
@@ -19,6 +21,7 @@ import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.ProteinPeptideCluster;
 import edu.scripps.yates.shared.model.ProteinProjection;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
+import edu.scripps.yates.shared.model.SampleBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantAnnotationDatabase;
@@ -96,11 +99,21 @@ public interface ProteinRetrievalService extends RemoteService {
 
 	int getNumDifferentProteins() throws PintException;
 
+	int getNumDifferentProteins(String projectTag) throws PintException;
+
 	int getNumDifferentPeptides() throws PintException;
+
+	int getNumDifferentPeptides(String projectTag) throws PintException;
 
 	int getNumPSMs() throws PintException;
 
+	int getNumPSMs(String projectTag) throws PintException;
+
 	int getNumConditions() throws PintException;
+
+	int getNumConditions(String projectTag, MSRunBean msRun) throws PintException;
+
+	int getNumSamples(String projectTag, MSRunBean msRun) throws PintException;
 
 	Set<OrganismBean> getOrganismsByProject(String projectTag) throws PintException;
 
@@ -163,6 +176,12 @@ public interface ProteinRetrievalService extends RemoteService {
 
 	int getNumMSRuns() throws PintException;
 
+	int getNumMSRuns(String projectTag, ExperimentalConditionBean condition) throws PintException;
+
+	int getNumGenes() throws PintException;
+
+	int getNumGenes(String projectTag) throws PintException;
+
 	Set<AmountType> getPSMAmountTypesByCondition(String sessionID, String projectTag, String conditionName)
 			throws PintException;
 
@@ -185,4 +204,29 @@ public interface ProteinRetrievalService extends RemoteService {
 	Map<String, Set<ProteinProjection>> getProteinProjectionsByGeneNameFromProject(String projectTag)
 			throws PintException;
 
+	int getNumDifferentProteins(String projectTag, MSRunBean msRun) throws PintException;
+
+	int getNumDifferentPeptides(String projectTag, MSRunBean msRun) throws PintException;
+
+	int getNumPSMs(String projectTag, MSRunBean msRun) throws PintException;
+
+	int getNumGenes(String projectTag, MSRunBean msRun) throws PintException;
+
+	int getNumDifferentProteins(String projectTag, ExperimentalConditionBean condition) throws PintException;
+
+	int getNumDifferentPeptides(String projectTag, ExperimentalConditionBean condition) throws PintException;
+
+	int getNumPSMs(String projectTag, ExperimentalConditionBean condition) throws PintException;
+
+	int getNumGenes(String projectTag, ExperimentalConditionBean condition) throws PintException;
+
+	int getNumDifferentProteins(String projectTag, SampleBean sample) throws PintException;
+
+	int getNumDifferentPeptides(String projectTag, SampleBean sample) throws PintException;
+
+	int getNumPSMs(String projectTag, SampleBean sample) throws PintException;
+
+	int getNumGenes(String projectTag, SampleBean sample) throws PintException;
+
+	int getNumMSRuns(String projectTag, SampleBean sample) throws PintException;
 }

@@ -7,7 +7,7 @@ import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasI
 
 public class MSRunBean implements Serializable, HasId {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -247769229381526464L;
 	private String runID;
@@ -17,6 +17,7 @@ public class MSRunBean implements Serializable, HasId {
 	private String fastaFileRef;
 	private String enzymeResidues;
 	private String enzymeNocutResidues;
+	private ProjectBean project;
 
 	public MSRunBean() {
 
@@ -162,6 +163,21 @@ public class MSRunBean implements Serializable, HasId {
 	 */
 	public String getEnzymeResidues() {
 		return enzymeResidues;
+	}
+
+	/**
+	 * @return the project
+	 */
+	public ProjectBean getProject() {
+		return project;
+	}
+
+	/**
+	 * @param project
+	 *            the project to set
+	 */
+	public void setProject(ProjectBean project) {
+		this.project = project;
 	}
 
 }

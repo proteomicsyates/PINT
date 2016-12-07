@@ -366,10 +366,27 @@
 	width:100%;
 }
 .ProjectInformationPanelLeft{
-	padding: 5px 20px 5px 20px;
+/* 	padding: 5px 20px 5px 20px; */
 }
 .ProjectInformationProjectName{
 	background-color: #dcdaa7;
+	display:block;
+	padding: 20px 20px;
+	margin: 10px 5px 20px 0px;
+	cursor: hand;
+	cursor:pointer;
+	border-radius:10px 10px 10px 10px;
+}
+.ProjectInformationProjectName div{
+	font-size: 18px;
+}
+.ProjectInformationProjectName:hover  {
+	background-color: #a7a243;
+	cursor: hand;
+	cursor:pointer;
+}
+.ProjectInformationProjectName-Selected {
+	background-color: #a7a243;
 	display:block;
 	padding: 20px 40px;
 	margin: 10px 10px 20px 30px;
@@ -377,12 +394,6 @@
 	cursor:pointer;
 	font-size:12px;
 	border-radius:10px 10px 10px 10px;
-}
-
-.ProjectInformationProjectName:hover {
-	background-color: #a7a243;
-	cursor: hand;
-	cursor:pointer;
 }
 
 .ProjectconfigurationHeaderPanelLeftComponents {
@@ -1655,4 +1666,77 @@ table td{
 	font-weight: bold;
 	font-size: 20px;
 	color: red;
+}
+.ProjectItemPanel{
+	display:block;
+	padding: 10px;
+	background-color: gainsboro;
+	border-radius:0px 0px 10px 10px;
+	max-width: 400px;
+}
+.ProjectItemListPanel{
+	overflow-y: auto;
+	display:block;
+	border-radius:10px;
+	max-height: 150px;
+	min-height: 150px;
+	min-width: 130px;
+	max-width: 800px;
+	vertical-align: top;
+}
+.ProjectItemListPanel-small{ 
+	overflow-y: auto;
+	display:block;
+	border-radius:10px;
+	max-height: 150px;
+	min-width: 130px;
+	max-width: 800px;
+	vertical-align: top;
+}
+.ProjectItemPanel{
+	display:block;
+	padding: 10px;
+    background-color: #dcdaa7;
+	border-radius: 10px ;
+	cursor: pointer;
+	margin: 5px 0px 0px 0px;
+}
+.ProjectItemPanel:hover{
+	background-color: #a7a243;
+}
+.ProjectItemPanel-selected{
+	display:block;
+	padding: 10px;
+    background-color: #a7a243;
+	border-radius: 10px ;
+	cursor: pointer;
+	margin: 5px 0px 0px 0px;
+	
+}
+.ProjectItemMainPanel legend{
+	font-size: 14px;
+    font-weight: bold;
+}
+.ProjectItemMainPanel{
+	border-radius: 10px ;
+/* 	max-width: 400px; */
+}
+.ProjectItemContentPanel{
+/* 	vertical-align: top; */
+/* 	padding: 2px; */
+}
+.ProjectItemContentTitle{
+	font-size: 12px;
+    font-weight: bold;
+}
+.ProjectItemRightPanel{
+	overflow-y: auto;
+	max-height: 150px;
+	display: block;
+}
+.ProjectItemIndividualItemTitle{
+	font-size: 11px;
+    font-weight: bold;
+    color: #808040;
+    white-space: nowrap;
 }

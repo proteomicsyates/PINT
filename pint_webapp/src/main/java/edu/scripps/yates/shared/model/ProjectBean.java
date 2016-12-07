@@ -23,6 +23,7 @@ public class ProjectBean implements Serializable, HasId {
 	private boolean publicAvailable;
 	private boolean big;
 	private List<ExperimentalConditionBean> conditions = new ArrayList<ExperimentalConditionBean>();
+	private List<MSRunBean> msRuns = new ArrayList<MSRunBean>();
 	private boolean hidden;
 
 	public void setName(String name) {
@@ -179,6 +180,21 @@ public class ProjectBean implements Serializable, HasId {
 	 */
 	public void setHidden(boolean hidden) {
 		this.hidden = hidden;
+	}
+
+	/**
+	 * @return the msRuns
+	 */
+	public List<MSRunBean> getMsRuns() {
+		return msRuns;
+	}
+
+	/**
+	 * @param msRuns
+	 *            the msRuns to set
+	 */
+	public void setMsRuns(List<MSRunBean> msRuns) {
+		this.msRuns = msRuns;
 	}
 
 }

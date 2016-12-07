@@ -7,25 +7,30 @@ import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
+import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.SampleBean;
 
 public class SampleBeanAdapter implements Adapter<SampleBean> {
 	private final Sample sample;
+	private final ProjectBean project;
 	private final static Map<Integer, SampleBean> map = new HashMap<Integer, SampleBean>();
 
-	public SampleBeanAdapter(Sample sample) {
+	public SampleBeanAdapter(Sample sample, ProjectBean project) {
 		this.sample = sample;
+		this.project = project;
 	}
 
 	@Override
 	public SampleBean adapt() {
-		if (map.containsKey(sample.getId()))
+		if (map.containsKey(sample.getId())) {
 			return map.get(sample.getId());
+		}
 		SampleBean ret = new SampleBean();
 		map.put(sample.getId(), ret);
 		ret.setDescription(sample.getDescription());
-		if (sample.getLabel() != null)
+		if (sample.getLabel() != null) {
 			ret.setLabel(new LabelBeanAdapter(sample.getLabel()).adapt());
+		}
 		ret.setName(sample.getName());
 		if (sample.getOrganisms() != null && !sample.getOrganisms().isEmpty()) {
 			for (Object obj : sample.getOrganisms()) {
@@ -38,10 +43,14 @@ public class SampleBeanAdapter implements Adapter<SampleBean> {
 		}
 
 		final Tissue tissue = sample.getTissue();
-		if (tissue != null)
+		if (tissue != null) {
 			ret.setTissue(new TissueBeanAdapter(tissue).adapt());
-		if (sample.getWildtype() != null)
+		}
+		if (sample.getWildtype() != null) {
 			ret.setWildType(sample.getWildtype());
+		}
+		ret.setProject(project);
+
 		return ret;
 	}
 
