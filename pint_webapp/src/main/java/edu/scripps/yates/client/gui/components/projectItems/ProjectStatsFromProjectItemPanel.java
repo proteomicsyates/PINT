@@ -3,7 +3,7 @@ package edu.scripps.yates.client.gui.components.projectItems;
 import java.util.Date;
 import java.util.Set;
 
-import com.google.gwt.i18n.shared.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
@@ -98,7 +98,8 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 
 	private Widget getProjectDate(Date date) {
 		if (date != null) {
-			DateLabel label = new DateLabel(DateTimeFormat.getFormat("YYYY-MM-DD"));
+			DateLabel label = new DateLabel(
+					com.google.gwt.i18n.client.DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG));
 			label.setValue(date);
 			return label;
 		} else {

@@ -2,7 +2,7 @@ package edu.scripps.yates.client.gui.components.projectItems;
 
 import java.util.List;
 
-import com.google.gwt.i18n.shared.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.ui.DateLabel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -55,7 +55,8 @@ public class MSRunsItemPanel extends AbstractItemPanel<MSRunBean, ProjectBean> {
 		rightFlexTable.setWidget(2, 0, label2);
 		rightFlexTable.getFlexCellFormatter().setAlignment(2, 0, HasHorizontalAlignment.ALIGN_RIGHT,
 				HasVerticalAlignment.ALIGN_TOP);
-		dateLabel = new DateLabel(DateTimeFormat.getFormat("YYYY-MM-DD"));
+
+		dateLabel = new DateLabel(com.google.gwt.i18n.client.DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG));
 		rightFlexTable.setWidget(2, 1, dateLabel);
 		rightFlexTable.getFlexCellFormatter().setAlignment(2, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
