@@ -30,7 +30,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 	public MyDataGrid(ProvidesKey<T> keyProvider) {
 		super(keyProvider);
 		setStyleName("MyDataGrid");
-		setSize("100%", "100%");
+		setWidth("100%");
 		// Set the width of the table and put the table in fixed width mode.
 		// datagrid:
 		// super.setTableWidth(100, Unit.PCT);
