@@ -40,10 +40,8 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	private static final int rowProjectPublicationLink = 5;
 
 	private ProjectStatsFromProjectItemPanel(ProjectBean projectBean) {
-		super("'" + projectBean.getTag() + "' stats", projectBean, true);
-		// add the general description panel to the left
-		FlexTable leftPanel = getProjectGeneralInformationPanel(projectBean);
-		setUniqueItemToList(leftPanel);
+		super("'" + projectBean.getTag() + "' summary", projectBean, true);
+
 	}
 
 	private FlexTable getProjectGeneralInformationPanel(ProjectBean projectBean) {
@@ -266,8 +264,11 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	}
 
 	@Override
-	public void afterUpdateParent(ProjectBean parent) {
-		setCaption("'" + parent.getTag() + "' stats");
+	public void afterUpdateParent(ProjectBean projectBean) {
+		// add the general description panel to the left
+		FlexTable leftPanel = getProjectGeneralInformationPanel(projectBean);
+		setUniqueItemToList(leftPanel);
+		setCaption("'" + projectBean.getTag() + "' summary");
 		selectFirstItem();
 	}
 
