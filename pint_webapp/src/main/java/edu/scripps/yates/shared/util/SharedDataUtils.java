@@ -17,6 +17,7 @@ import edu.scripps.yates.client.gui.components.projectCreatorWizard.ProjectCreat
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ObjectPanels.DataSourceDisclosurePanel;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ProjectCreatorRegister;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsDataObject;
+import edu.scripps.yates.client.util.ClientSafeHtmlUtils.SEQUENCE_OVERLAPPING;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.shared.columns.ColumnName;
@@ -1046,9 +1047,10 @@ public class SharedDataUtils {
 
 	public static int getMinStartingPosition(PSMBean o1) {
 		int min = Integer.MAX_VALUE;
-		final Map<String, List<Integer>> startingPositions = o1.getStartingPositions();
-		for (List<Integer> positions : startingPositions.values()) {
-			for (Integer position : positions) {
+		final Map<String, List<Pair<Integer, Integer>>> startingPositions = o1.getStartingPositions();
+		for (List<Pair<Integer, Integer>> positions : startingPositions.values()) {
+			for (Pair<Integer, Integer> startAndEnd : positions) {
+				int position = startAndEnd.getFirstElement();
 				if (min > position)
 					min = position;
 			}
@@ -1077,7 +1079,7 @@ public class SharedDataUtils {
 	}
 
 	public static String getUniprotFeatureString(PSMBean p, String... featureTypes) {
-		final Map<String, List<Integer>> startingPositions = p.getStartingPositions();
+		final Map<String, List<Pair<Integer, Integer>>> startingPositions = p.getStartingPositions();
 		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
 		final Set<ProteinBean> proteins = p.getProteins();
 		final Map<String, ProteinBean> proteinBeanByAccession = SharedDataUtils
@@ -1094,7 +1096,7 @@ public class SharedDataUtils {
 	}
 
 	public static String getUniprotFeatureString(PeptideBean p, String... featureTypes) {
-		final Map<String, List<Integer>> startingPositions = p.getStartingPositions();
+		final Map<String, List<Pair<Integer, Integer>>> startingPositions = p.getStartingPositions();
 		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
 		final Set<ProteinBean> proteins = p.getProteins();
 		final Map<String, ProteinBean> proteinBeanByAccession = SharedDataUtils
@@ -1135,7 +1137,7 @@ public class SharedDataUtils {
 		return sb.toString();
 	}
 
-	private static String getUniprotFeatureString(Map<String, List<Integer>> startingPositionsByProtein,
+	private static String getUniprotFeatureString(Map<String, List<Pair<Integer, Integer>>> startingPositionsByProtein,
 			List<ProteinBean> proteinBeans, String... featureTypes) {
 		StringBuilder sb = new StringBuilder();
 		for (ProteinBean p : proteinBeans) {
@@ -1150,11 +1152,11 @@ public class SharedDataUtils {
 					// only consider the ones with annotated start and end
 					// positions
 					if (uniprotFeature.getPositionStart() > -1 && uniprotFeature.getPositionEnd() > -1) {
-						final List<Integer> startingPositions = startingPositionsByProtein
+						final List<Pair<Integer, Integer>> startingPositions = startingPositionsByProtein
 								.get(p.getPrimaryAccession().getAccession());
-						boolean included = isPeptideIncludedInThatRange(startingPositions,
+						SEQUENCE_OVERLAPPING included = isPeptideIncludedInThatRange(startingPositions,
 								uniprotFeature.getPositionStart(), uniprotFeature.getPositionEnd());
-						if (included) {
+						if (included != SEQUENCE_OVERLAPPING.NOT_COVERED) {
 							if (uniprotFeature.getDescription() != null) {
 								sb.append(uniprotFeature.getDescription());
 							} else {
@@ -1167,6 +1169,7 @@ public class SharedDataUtils {
 								sb.append(" (").append(uniprotFeature.getPositionStart()).append("-")
 										.append(uniprotFeature.getPositionEnd()).append(")");
 							}
+							sb.append(" (" + included.getDescription() + ")");
 						}
 					}
 				}
@@ -1179,14 +1182,36 @@ public class SharedDataUtils {
 		return sb.toString();
 	}
 
-	private static boolean isPeptideIncludedInThatRange(List<Integer> startingPositions, int positionStart,
-			int positionEnd) {
-		for (Integer startingPosition : startingPositions) {
-			if (startingPosition >= positionStart && startingPosition <= positionEnd) {
-				return true;
+	// private static boolean isPeptideIncludedInThatRange(List<Integer>
+	// startingPositions, int positionStart,
+	// int positionEnd) {
+	// for (Integer startingPosition : startingPositions) {
+	// if (startingPosition >= positionStart && startingPosition <= positionEnd)
+	// {
+	// return true;
+	// }
+	// }
+	// return false;
+	// }
+
+	public static SEQUENCE_OVERLAPPING isPeptideIncludedInThatRange(
+			List<Pair<Integer, Integer>> startingEndingPositions, int positionStart, int positionEnd) {
+		SEQUENCE_OVERLAPPING ret = SEQUENCE_OVERLAPPING.NOT_COVERED;
+		for (Pair<Integer, Integer> startingEndingPosition : startingEndingPositions) {
+			int startingPosition = startingEndingPosition.getFirstElement();
+			int endingPosition = startingEndingPosition.getSecondElement();
+			if (
+			// it starts in the range
+			startingPosition >= positionStart && startingPosition <= positionEnd ||
+			// it ends in the range
+					endingPosition >= positionStart && endingPosition <= positionEnd) {
+				if (startingPosition >= positionStart && endingPosition <= positionEnd) {
+					return SEQUENCE_OVERLAPPING.TOTALLY_COVERED;
+				}
+				ret = SEQUENCE_OVERLAPPING.PARTIALLY_COVERED;
 			}
 		}
-		return false;
+		return ret;
 	}
 
 }

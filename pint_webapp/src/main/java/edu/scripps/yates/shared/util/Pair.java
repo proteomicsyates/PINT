@@ -1,6 +1,12 @@
 package edu.scripps.yates.shared.util;
 
-public class Pair<T, Y> {
+import java.io.Serializable;
+
+public class Pair<T, Y> implements Serializable {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -8060848097661870291L;
 	private T firstElement;
 	private Y secondElement;
 

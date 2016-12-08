@@ -48,7 +48,8 @@ public class ServerDataUtils {
 					List<Integer> positions = StringUtils.allPositionsOf(proteinSeq, pepSeq);
 					if (!positions.isEmpty()) {
 						for (Integer position : positions) {
-							psmBean.addPositionByProtein(accession, position);
+							psmBean.addPositionByProtein(accession,
+									new Pair<Integer, Integer>(position, position + pepSeq.length()));
 							// replace the peptide in the protein with
 							// an special string
 							proteinSeqTMP.replace(position - 1, position + pepSeq.length() - 1, specialString);
@@ -65,7 +66,8 @@ public class ServerDataUtils {
 					List<Integer> positions = StringUtils.allPositionsOf(proteinSeq, pepSeq);
 					if (!positions.isEmpty()) {
 						for (Integer position : positions) {
-							peptideBean.addPositionByProtein(accession, position);
+							peptideBean.addPositionByProtein(accession,
+									new Pair<Integer, Integer>(position, position + pepSeq.length()));
 							// replace the peptide in the protein with
 							// an special string
 							proteinSeqTMP.replace(position - 1, position + pepSeq.length() - 1, specialString);

@@ -17,6 +17,7 @@ import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
 import edu.scripps.yates.shared.model.interfaces.ContainsSequence;
 import edu.scripps.yates.shared.util.NumberFormat;
+import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 
@@ -51,7 +52,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	private String proteinAccessionString;
 	private String proteinDescriptionString;
 	private String chargeState;
-	private Map<String, List<Integer>> startingPositions = new HashMap<String, List<Integer>>();
+	private Map<String, List<Pair<Integer, Integer>>> startingPositions = new HashMap<String, List<Pair<Integer, Integer>>>();
 	private Set<OrganismBean> organisms = new HashSet<OrganismBean>();
 	private Set<Integer> proteinDBIds = new HashSet<Integer>();
 	private Set<ExperimentalConditionBean> conditions = new HashSet<ExperimentalConditionBean>();
@@ -694,11 +695,11 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		return getProteinsPrimaryAccessions();
 	}
 
-	public void addPositionByProtein(String accession, Integer position) {
+	public void addPositionByProtein(String accession, Pair<Integer, Integer> position) {
 		if (startingPositions.containsKey(accession)) {
 			startingPositions.get(accession).add(position);
 		} else {
-			List<Integer> list = new ArrayList<Integer>();
+			List<Pair<Integer, Integer>> list = new ArrayList<Pair<Integer, Integer>>();
 			list.add(position);
 			startingPositions.put(accession, list);
 		}
@@ -712,7 +713,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	 *         protein accession and the value is the positions in which the
 	 *         peptide can be in the protein
 	 */
-	public Map<String, List<Integer>> getStartingPositions() {
+	public Map<String, List<Pair<Integer, Integer>>> getStartingPositions() {
 		return startingPositions;
 	}
 
@@ -720,19 +721,20 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	 * @param startingPositions
 	 *            the startingPositions to set
 	 */
-	public void setStartingPositions(Map<String, List<Integer>> startingPositions) {
+	public void setStartingPositions(Map<String, List<Pair<Integer, Integer>>> startingPositions) {
 		this.startingPositions = startingPositions;
 	}
 
 	public String getStartingPositionsString() {
-		final Map<String, List<Integer>> startingPositions = getStartingPositions();
+		final Map<String, List<Pair<Integer, Integer>>> startingPositions = getStartingPositions();
 		StringBuilder sb = new StringBuilder();
 
 		if (startingPositions != null) {
 			int minPosition = Integer.MAX_VALUE;
 			List<Integer> list = new ArrayList<Integer>();
-			for (List<Integer> positions : startingPositions.values()) {
-				for (Integer position : positions) {
+			for (List<Pair<Integer, Integer>> positions : startingPositions.values()) {
+				for (Pair<Integer, Integer> startAndEnd : positions) {
+					int position = startAndEnd.getFirstElement();
 					if (!list.contains(position))
 						list.add(position);
 					if (position < minPosition)
@@ -750,15 +752,16 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	}
 
 	public String getExtendedStartingPositionsString() {
-		final Map<String, List<Integer>> startingPositions = getStartingPositions();
+		final Map<String, List<Pair<Integer, Integer>>> startingPositions = getStartingPositions();
 		final List<AccessionBean> primaryAccessions = getPrimaryAccessions();
 		StringBuilder sb = new StringBuilder();
 		for (AccessionBean accessionBean : primaryAccessions) {
 			if (startingPositions != null && startingPositions.containsKey(accessionBean.getAccession())) {
-				final List<Integer> listTmp = startingPositions.get(accessionBean.getAccession());
+				final List<Pair<Integer, Integer>> listTmp = startingPositions.get(accessionBean.getAccession());
 				// to avoid duplicates:
 				List<Integer> list = new ArrayList<Integer>();
-				for (Integer position : listTmp) {
+				for (Pair<Integer, Integer> startAndEnd : listTmp) {
+					int position = startAndEnd.getFirstElement();
 					if (!list.contains(position))
 						list.add(position);
 				}

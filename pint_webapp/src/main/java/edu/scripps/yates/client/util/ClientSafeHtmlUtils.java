@@ -40,6 +40,7 @@ import edu.scripps.yates.shared.model.UniprotProteinExistence;
 import edu.scripps.yates.shared.model.interfaces.ContainsGenes;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
+import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 
@@ -47,6 +48,19 @@ public class ClientSafeHtmlUtils {
 	private static final HtmlTemplates template = GWT.create(HtmlTemplates.class);
 	private static final int MAX_LENGTH_FUNCTION = 150;
 	private static final int MAX_LENGTH_OMIM = 150;
+
+	public enum SEQUENCE_OVERLAPPING {
+		TOTALLY_COVERED("fully covered"), PARTIALLY_COVERED("partially covered"), NOT_COVERED("not covered");
+		private final String description;
+
+		private SEQUENCE_OVERLAPPING(String description) {
+			this.description = description;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+	}
 
 	// private static final MyClientBundle myClientBundle =
 	// MyClientBundle.INSTANCE;
@@ -890,7 +904,7 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static SafeHtml getUniprotFeatureSafeHtml(PSMBean p, String... featureTypes) {
-		final Map<String, List<Integer>> startingPositions = p.getStartingPositions();
+		final Map<String, List<Pair<Integer, Integer>>> startingPositions = p.getStartingPositions();
 		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
 		final Set<ProteinBean> proteins = p.getProteins();
 		final Map<String, ProteinBean> proteinBeanByAccession = SharedDataUtils
@@ -905,7 +919,7 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static SafeHtml getUniprotFeatureSafeHtml(PeptideBean p, String... featureTypes) {
-		final Map<String, List<Integer>> startingPositions = p.getStartingPositions();
+		final Map<String, List<Pair<Integer, Integer>>> startingPositions = p.getStartingPositions();
 		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
 		final Set<ProteinBean> proteins = p.getProteins();
 		final Map<String, ProteinBean> proteinBeanByAccession = SharedDataUtils
@@ -919,8 +933,9 @@ public class ClientSafeHtmlUtils {
 		return getUniprotFeatureSafeHtml(startingPositions, proteinBeanList, featureTypes);
 	}
 
-	private static SafeHtml getUniprotFeatureSafeHtml(Map<String, List<Integer>> startingPositionsByProtein,
-			List<ProteinBean> proteinBeans, String... featureTypes) {
+	private static SafeHtml getUniprotFeatureSafeHtml(
+			Map<String, List<Pair<Integer, Integer>>> startingPositionsByProtein, List<ProteinBean> proteinBeans,
+			String... featureTypes) {
 		SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		for (ProteinBean p : proteinBeans) {
 			if (startingPositionsByProtein.containsKey(p.getPrimaryAccession().getAccession())) {
@@ -946,11 +961,12 @@ public class ClientSafeHtmlUtils {
 						// positions
 						if (uniprotFeature.getPositionStart() > -1 && uniprotFeature.getPositionEnd() > -1) {
 
-							final List<Integer> startingPositions = startingPositionsByProtein
+							final List<Pair<Integer, Integer>> startingPositions = startingPositionsByProtein
 									.get(p.getPrimaryAccession().getAccession());
-							boolean included = isPeptideIncludedInThatRange(startingPositions,
-									uniprotFeature.getPositionStart(), uniprotFeature.getPositionEnd());
-							if (included) {
+							SEQUENCE_OVERLAPPING sequenceOverlapping = SharedDataUtils.isPeptideIncludedInThatRange(
+									startingPositions, uniprotFeature.getPositionStart(),
+									uniprotFeature.getPositionEnd());
+							if (sequenceOverlapping != SEQUENCE_OVERLAPPING.NOT_COVERED) {
 								sb.append(template.startToolTipWithClass(uniprotFeatureString, "featureType"));
 								sb.appendEscaped(uniprotFeatureString);
 								sb.append(template.endToolTip());
@@ -968,6 +984,7 @@ public class ClientSafeHtmlUtils {
 									sb.appendEscaped(" (").append(uniprotFeature.getPositionStart()).appendEscaped("-")
 											.append(uniprotFeature.getPositionEnd()).appendEscaped(")");
 								}
+								sb.appendEscaped(" (" + sequenceOverlapping.getDescription() + ")");
 								sb.append(template.endToolTip());
 							}
 						}
@@ -980,16 +997,6 @@ public class ClientSafeHtmlUtils {
 			sb.appendEscaped(SharedConstants.NEW_LINE_JAVA);
 		}
 		return sb.toSafeHtml();
-	}
-
-	private static boolean isPeptideIncludedInThatRange(List<Integer> startingPositions, int positionStart,
-			int positionEnd) {
-		for (Integer startingPosition : startingPositions) {
-			if (startingPosition >= positionStart && startingPosition <= positionEnd) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private static String getToolTipFromUniprotFeature(UniprotFeatureBean uniprotFeature) {

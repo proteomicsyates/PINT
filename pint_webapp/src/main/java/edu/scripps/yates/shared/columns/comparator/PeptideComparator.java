@@ -8,6 +8,7 @@ import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
+import edu.scripps.yates.shared.util.Pair;
 
 public class PeptideComparator extends BeanComparator<PeptideBean> {
 
@@ -104,9 +105,10 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 
 	private int getMinPosition(PeptideBean o1) {
 		int min = Integer.MAX_VALUE;
-		final Map<String, List<Integer>> startingPositions = o1.getStartingPositions();
-		for (List<Integer> positions : startingPositions.values()) {
-			for (Integer position : positions) {
+		final Map<String, List<Pair<Integer, Integer>>> startingPositions = o1.getStartingPositions();
+		for (List<Pair<Integer, Integer>> positions : startingPositions.values()) {
+			for (Pair<Integer, Integer> startAndEnd : positions) {
+				int position = startAndEnd.getFirstElement();
 				if (min > position)
 					min = position;
 			}

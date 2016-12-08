@@ -1,6 +1,8 @@
 package edu.scripps.yates.client.gui.components.projectItems;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -75,11 +77,15 @@ public class SamplesItemPanel extends AbstractItemPanel<SampleBean, ProjectBean>
 			currentParent = projectBean;
 			int numSamples = 0;
 			final List<ExperimentalConditionBean> conditions = projectBean.getConditions();
+			Set<SampleBean> sampleSet = new HashSet<SampleBean>();
 			for (final ExperimentalConditionBean conditionBean : conditions) {
 				final SampleBean sample = conditionBean.getSample();
 				if (sample != null) {
-					addItemToList(sample.getId(), sample);
-					numSamples++;
+					if (!sampleSet.contains(sample)) {
+						sampleSet.add(sample);
+						addItemToList(sample.getId(), sample);
+						numSamples++;
+					}
 				}
 			}
 			String plural = numSamples > 1 ? "s" : "";
