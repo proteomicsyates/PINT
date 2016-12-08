@@ -4,6 +4,8 @@ import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
+import edu.scripps.yates.shared.util.SharedDataUtils;
+import edu.scripps.yates.shared.util.UniprotFeatures;
 
 public class ProteinComparator extends BeanComparator<ProteinBean> {
 
@@ -113,6 +115,21 @@ public class ProteinComparator extends BeanComparator<ProteinBean> {
 				name2 = o2.getUniprotProteinExistence().getName();
 			}
 			return compareStrings(name1, name2, true);
+		case PROTEIN_ACTIVE_SITE:
+		case PROTEIN_DOMAIN_FAMILIES:
+		case PROTEIN_NATURAL_VARIATIONS:
+		case PROTEIN_SECONDARY_STRUCTURE:
+		case PROTEIN_EXPERIMENTAL_INFO:
+		case PROTEIN_MOLECULAR_PROCESSING:
+		case PROTEIN_PTM:
+			final String[] uniprotFeatures = UniprotFeatures.getUniprotFeaturesByColumnName(columnName);
+			if (uniprotFeatures != null && uniprotFeatures.length > 0) {
+				return SharedDataUtils.getUniprotFeatureString(o1, uniprotFeatures)
+						.compareTo(SharedDataUtils.getUniprotFeatureString(o2, uniprotFeatures));
+			} else {
+				return 0;
+			}
+
 		default:
 			break;
 		}

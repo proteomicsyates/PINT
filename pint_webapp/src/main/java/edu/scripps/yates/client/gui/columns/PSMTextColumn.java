@@ -237,30 +237,11 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 			}
 			break;
 		case PEPTIDE_ACTIVE_SITE:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
-
 		case PEPTIDE_DOMAIN_FAMILIES:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
 		case PEPTIDE_NATURAL_VARIATIONS:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
 		case PEPTIDE_SECONDARY_STRUCTURE:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
 		case PEPTIDE_EXPERIMENTAL_INFO:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
 		case PEPTIDE_MOLECULAR_PROCESSING:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
 		case PEPTIDE_PTM:
 			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(psm,
 					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));

@@ -50,7 +50,7 @@ public class ClientSafeHtmlUtils {
 	private static final int MAX_LENGTH_OMIM = 150;
 
 	public enum SEQUENCE_OVERLAPPING {
-		TOTALLY_COVERED("fully covered", "fullyCoveredSequenceRegion"), PARTIALLY_COVERED("partially covered",
+		TOTALLY_COVERED("pep. fully covered", "fullyCoveredSequenceRegion"), PARTIALLY_COVERED("pep. partially covered",
 				"partiallyCoveredSequenceRegion"), NOT_COVERED("not covered", "");
 		private final String description;
 		private final String cssClassName;

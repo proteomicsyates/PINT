@@ -356,30 +356,11 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			break;
 
 		case PROTEIN_ACTIVE_SITE:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
-
 		case PROTEIN_DOMAIN_FAMILIES:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
 		case PROTEIN_NATURAL_VARIATIONS:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
 		case PROTEIN_SECONDARY_STRUCTURE:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
 		case PROTEIN_EXPERIMENTAL_INFO:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
 		case PROTEIN_MOLECULAR_PROCESSING:
-			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
-					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
-			break;
 		case PROTEIN_PTM:
 			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
 					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));

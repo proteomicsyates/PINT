@@ -9,6 +9,8 @@ import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.Pair;
+import edu.scripps.yates.shared.util.SharedDataUtils;
+import edu.scripps.yates.shared.util.UniprotFeatures;
 
 public class PeptideComparator extends BeanComparator<PeptideBean> {
 
@@ -93,6 +95,19 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 					return compareStrings(o1.getRelation().name(), o2.getRelation().name(), true);
 				case SPECTRUM_COUNT:
 					return Integer.compare(o1.getNumPSMs(), o2.getNumPSMs());
+				case PEPTIDE_DOMAIN_FAMILIES:
+				case PEPTIDE_NATURAL_VARIATIONS:
+				case PEPTIDE_SECONDARY_STRUCTURE:
+				case PEPTIDE_EXPERIMENTAL_INFO:
+				case PEPTIDE_MOLECULAR_PROCESSING:
+				case PEPTIDE_PTM:
+					final String[] uniprotFeatures = UniprotFeatures.getUniprotFeaturesByColumnName(columnName);
+					if (uniprotFeatures != null && uniprotFeatures.length > 0) {
+						return SharedDataUtils.getUniprotFeatureString(o1, uniprotFeatures)
+								.compareTo(SharedDataUtils.getUniprotFeatureString(o2, uniprotFeatures));
+					} else {
+						return 0;
+					}
 				default:
 					break;
 				}
