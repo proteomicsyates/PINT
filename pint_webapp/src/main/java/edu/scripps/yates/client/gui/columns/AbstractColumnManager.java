@@ -44,8 +44,9 @@ public abstract class AbstractColumnManager<T> {
 	public boolean isVisible(ColumnName columnName) {
 		if (this.columnsByColumnName.containsKey(columnName)) {
 			for (MyColumn<T> column : this.columnsByColumnName.get(columnName)) {
-				if (column.getColumnName().equals(columnName))
+				if (column.getColumnName().equals(columnName)) {
 					return column.isVisible();
+				}
 			}
 		}
 
@@ -108,11 +109,12 @@ public abstract class AbstractColumnManager<T> {
 
 	}
 
-	public List<ColumnName> getVisibleColumns() {
-		List<ColumnName> list = new ArrayList<ColumnName>();
+	public List<MyColumn<T>> getVisibleColumns() {
+		List<MyColumn<T>> list = new ArrayList<MyColumn<T>>();
 		for (MyColumn<T> column : this.myColumns) {
-			if (column.isVisible())
-				list.add(column.getColumnName());
+			if (column.isVisible()) {
+				list.add(column);
+			}
 		}
 		return list;
 	}
@@ -139,14 +141,15 @@ public abstract class AbstractColumnManager<T> {
 	/**
 	 * Gets the column index. The first is the 1 (not 0)
 	 *
-	 * @param columnName
+	 * @param column
 	 * @return the index if it is found. 0 if not.
 	 */
-	public int getColumnIndex(ColumnName columnName) {
+	public int getColumnIndex(MyColumn<T> column) {
 		int i = 1;
-		for (MyColumn<T> column : this.myColumns) {
-			if (column.getColumnName() == columnName)
+		for (MyColumn<T> column2 : this.myColumns) {
+			if (column.equals(column2)) {
 				return i;
+			}
 			i++;
 		}
 		return 0;
@@ -173,7 +176,7 @@ public abstract class AbstractColumnManager<T> {
 	 * @return
 	 */
 	public abstract CustomTextColumn<T> addAmountColumn(ColumnName columnName, boolean visibleState,
-			String conditionName, AmountType amountType, String projectName);
+			String conditionName, String conditionSymbol, AmountType amountType, String projectName);
 
 	/**
 	 * Add a column to the column manager with information about a ratio
@@ -209,13 +212,14 @@ public abstract class AbstractColumnManager<T> {
 	 * @param condition2Name
 	 * @param projectTag
 	 * @param ratioName
+	 * @param scoreName
 	 * @return
 	 */
 	public abstract CustomTextColumn<T> addRatioScoreColumn(ColumnName columnName, boolean visibleState,
 			String condition1Name, String condition1Symbol, String condition2Name, String condition2Symbol,
-			String projectTag, String ratioName);
+			String projectTag, String ratioName, String scoreName);
 
-	public void addColumn(MyColumn<T> column) {
+	protected void addColumn(MyColumn<T> column) {
 		myColumns.add(column);
 		if (this.columnsByColumnName.containsKey(column.getColumnName())) {
 			this.columnsByColumnName.get(column.getColumnName()).add(column);

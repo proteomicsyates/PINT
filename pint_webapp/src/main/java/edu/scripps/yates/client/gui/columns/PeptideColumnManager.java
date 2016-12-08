@@ -41,9 +41,9 @@ public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
 
 	@Override
 	public PeptideTextColumn addAmountColumn(ColumnName columnName, boolean visibleState, String conditionName,
-			AmountType amountType, String projectName) {
+			String conditionSymbol, AmountType amountType, String projectName) {
 		final SafeHtml headerName = SafeHtmlUtils
-				.fromSafeConstant(SharedDataUtils.getAmountHeader(amountType, conditionName));
+				.fromSafeConstant(SharedDataUtils.getAmountHeader(amountType, conditionSymbol));
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName, headerName,
 				SharedDataUtils.getAmountHeaderTooltip(amountType, conditionName, projectName));
 		final PeptideTextColumn column = new PeptideTextColumn(columnName, visibleState, header,
@@ -81,7 +81,7 @@ public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
 	@Override
 	public CustomTextColumn<PeptideBean> addRatioScoreColumn(ColumnName columnName, boolean visibleState,
 			String condition1Name, String condition1Symbol, String condition2Name, String condition2Symbol,
-			String projectTag, String ratioName) {
+			String projectTag, String ratioName, String ratioScore) {
 		// not implemented
 		return null;
 	}

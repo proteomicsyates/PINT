@@ -279,9 +279,9 @@ public class SharedDataUtils {
 
 	/**
 	 * This function builds a new name for the element of conditions.<br>
-	 * The name of the condition will be 1A-ConditionName if there are more than
-	 * one project in the project {@link ListBox} or just A-ConditionName if
-	 * there is only one project in the list box.<br>
+	 * The name of the condition will be 1AB-ConditionName if there are more
+	 * than one project in the project {@link ListBox} or just AB-ConditionName
+	 * if there is only one project in the list box.<br>
 	 * It will check which is the next symbol for the condition to be added.
 	 *
 	 * @param conditionName
@@ -320,6 +320,17 @@ public class SharedDataUtils {
 		return projectName;
 	}
 
+	/**
+	 * Given a project and a {@link ListBox} containing condition symbols (or
+	 * empty), it returns the next available condition symbol. The condition
+	 * symbols are like: 1AB-ConditionName where the 1 means that the condition
+	 * is from project 1 (if there are more projects, otherwise it would be no
+	 * number) and the AB is the code for the condition, starting by 'A'.
+	 *
+	 * @param conditionsListBox
+	 * @param projectSymbol
+	 * @return
+	 */
 	private static String getNextAvailableConditionSymbol(ListBox conditionsListBox, String projectSymbol) {
 		if (conditionsListBox.getItemCount() == 0) {
 			return String.valueOf((char) 65);
@@ -335,9 +346,10 @@ public class SharedDataUtils {
 				final char charAt = lastConditionSymbol.charAt(0);
 				if (charAt == 'Z') {
 					return "AA";
+				} else {
+					final String valueOf = String.valueOf((char) (charAt + 1));
+					return valueOf;
 				}
-				final String valueOf = String.valueOf((char) (charAt + 1));
-				return valueOf;
 			} else {
 				// if has already two characteres
 				final char charAt = lastConditionSymbol.charAt(1);
@@ -924,7 +936,12 @@ public class SharedDataUtils {
 
 	public static String getRatioHeader(String ratioName, String condition1ID, String condition2ID) {
 
-		return ratioName + "(" + condition1ID + " / " + condition2ID + ")";
+		return ratioName + " (" + condition1ID + " / " + condition2ID + ")";
+	}
+
+	public static String getRatioScoreHeader(String scoreName, String condition1ID, String condition2ID) {
+
+		return scoreName + " (" + condition1ID + " / " + condition2ID + ")";
 	}
 
 	public static String getRatioHeaderTooltip(ColumnName columnName, String condition1Name, String condition2Name,
@@ -937,6 +954,18 @@ public class SharedDataUtils {
 		}
 		return "Ratio between conditions: " + condition1Name + " / " + condition2Name + SharedConstants.SEPARATOR
 				+ "Ratio name: " + ratioName;
+	}
+
+	public static String getRatioScoreHeaderTooltip(ColumnName columnName, String condition1Name, String condition2Name,
+			String ratioName, String scoreName) {
+
+		if (columnName == ColumnName.PSM_RATIO_GRAPH || columnName == ColumnName.PROTEIN_RATIO_GRAPH
+				|| columnName == ColumnName.PEPTIDE_RATIO_GRAPH) {
+			return "Graphical representation of the ratio between conditions: " + condition1Name + " / "
+					+ condition2Name + SharedConstants.SEPARATOR + "Ratio name: " + ratioName;
+		}
+		return "Ratio score: " + scoreName + SharedConstants.SEPARATOR + "Ratio name: " + ratioName
+				+ SharedConstants.SEPARATOR + "Ratio between conditions: " + condition1Name + " / " + condition2Name;
 	}
 
 	public static List<PSMBean> getPSMBeansFromProteinBeans(List<ProteinBean> proteinBeans) {

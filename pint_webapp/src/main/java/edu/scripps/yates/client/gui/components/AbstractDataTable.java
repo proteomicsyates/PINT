@@ -1,9 +1,14 @@
 package edu.scripps.yates.client.gui.components;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
@@ -31,17 +36,16 @@ import edu.scripps.yates.client.gui.columns.CustomTextColumn;
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
 import edu.scripps.yates.client.gui.columns.MyIdColumn;
-import edu.scripps.yates.client.gui.columns.MySafeHtmlHeaderWithTooltip;
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.client.gui.components.dataprovider.AbstractAsyncDataProvider;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.interfaces.ContainsData;
 import edu.scripps.yates.client.interfaces.HasColumns;
 import edu.scripps.yates.shared.columns.ColumnName;
+import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.DefaultView.ORDER;
-import edu.scripps.yates.shared.util.SharedConstants;
 
 public abstract class AbstractDataTable<T> extends Composite
 		implements HasColumns, ContainsData, ProvidesResize, RequiresResize {
@@ -124,7 +128,47 @@ public abstract class AbstractDataTable<T> extends Composite
 
 	protected abstract FooterManager<T> createFooterManager(MyDataGrid<T> dataGrid);
 
-	protected abstract void initTableColumns(boolean addCheckBoxSelection);
+	public final void initTableColumns(boolean addCheckBoxSelection) {
+		if (addCheckBoxSelection) {
+			// first column, the checkboxex for selection
+			Column<T, Boolean> checkColumn = new Column<T, Boolean>(new CheckboxCell(true, false)) {
+				@Override
+				public Boolean getValue(T object) {
+					// Get the value from the selection model.
+					return selectionModel.isSelected(object);
+				}
+			};
+			dataGrid.addColumn(checkColumn, SafeHtmlUtils.fromSafeConstant("<br/>"));
+			dataGrid.setColumnWidth(checkColumn, 30, Unit.PX);
+		}
+		// rest of the columns
+		for (MyColumn<T> myColumn : getColumnManager().getVisibleColumns()) {
+			ColumnName columnName = myColumn.getColumnName();
+			// don't do anything with amount because the conditions
+			// are not loaded yet
+			if (columnName != ColumnName.PROTEIN_AMOUNT && columnName != ColumnName.PROTEIN_RATIO
+					&& columnName != ColumnName.PROTEIN_RATIO_SCORE && columnName != ColumnName.PROTEIN_RATIO_GRAPH
+					&& columnName != ColumnName.PSM_AMOUNT && columnName != ColumnName.PSM_SCORE
+					&& columnName != ColumnName.PTM_SCORE && columnName != ColumnName.PSM_RATIO
+					&& columnName != ColumnName.PSM_RATIO_GRAPH && columnName != ColumnName.PEPTIDE_AMOUNT
+					&& columnName != ColumnName.PEPTIDE_SCORE && columnName != ColumnName.PEPTIDE_RATIO
+					&& columnName != ColumnName.PEPTIDE_RATIO_GRAPH) {
+				final boolean visible = getColumnManager().isVisible(columnName);
+				if (visible) {
+					final Header<String> footer = getColumnManager().getFooter(columnName);
+
+					dataGrid.addColumn(columnName, (Column<T, ?>) myColumn, myColumn.getHeader(), footer);
+
+					if (visible) {
+						dataGrid.setColumnWidth((Column<T, ?>) myColumn, myColumn.getDefaultWidth(),
+								myColumn.getDefaultWidthUnit());
+					} else {
+						dataGrid.setColumnWidth((Column<T, ?>) myColumn, 0, myColumn.getDefaultWidthUnit());
+					}
+				}
+			}
+		}
+	}
 
 	protected abstract SimplePager makePager();
 
@@ -190,12 +234,6 @@ public abstract class AbstractDataTable<T> extends Composite
 		}
 	}
 
-	/**
-	 * Apply the {@link DefaultView} to the data table
-	 */
-	@Override
-	public abstract void setDefaultView(DefaultView defaultView);
-
 	public final void addColumnForScore(String scoreName, ColumnName columnName) {
 		// check first if the column is already present or not
 		if (!columnManager.containsScoreColumn(scoreName, columnName)) {
@@ -217,11 +255,11 @@ public abstract class AbstractDataTable<T> extends Composite
 	}
 
 	public final void addColumnForConditionAmount(ColumnName columnName, boolean isVisible, String conditionName,
-			AmountType amountType, String conditionID, String projectTag) {
+			String conditionSymbol, AmountType amountType, String projectTag) {
 		// check first if the column is already present or not
 		if (!columnManager.containsColumn(columnName, conditionName, amountType, projectTag)) {
-			CustomTextColumn<T> column = columnManager.addAmountColumn(columnName, isVisible, conditionName, amountType,
-					projectTag);
+			CustomTextColumn<T> column = columnManager.addAmountColumn(columnName, isVisible, conditionName,
+					conditionSymbol, amountType, projectTag);
 			if (column.isVisible()) {
 				Header<String> footer = column.getFooter();
 
@@ -263,25 +301,13 @@ public abstract class AbstractDataTable<T> extends Composite
 
 	public final void addColumnForConditionRatioScore(ColumnName columnName, boolean isVisible, String condition1Name,
 			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
-			String ratioName) {
+			String ratioName, String scoreName) {
 		// check first if the column is already present or not
 		if (!getColumnManager().containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName)) {
 			CustomTextColumn<T> column = getColumnManager().addRatioScoreColumn(columnName, isVisible, condition1Name,
-					condition1Symbol, condition2Name, condition2Symbol, projectTag, ratioName);
+					condition1Symbol, condition2Name, condition2Symbol, projectTag, ratioName, scoreName);
 			if (column.isVisible()) {
-				Header<String> footer = column.getFooter();
-				String headerName = columnName.getAbr();
-				String tooltipText = "Confident score associated to ratio: " + ratioName;
-				tooltipText += SharedConstants.SEPARATOR + "Ratio between conditions: " + condition1Name + " / "
-						+ condition2Name;
-				final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
-						SafeHtmlUtils.fromSafeConstant(headerName), tooltipText);
-				if (footer != null) {
-					dataGrid.addColumn(column, header, footer);
-				} else {
-					dataGrid.addColumn(column, header);
-				}
-				dataGrid.setColumnWidth(column, column.getWidth(), column.getDefaultWidthUnit());
+				dataGrid.addColumnToTable(column, getColumnManager());
 			}
 			// it is not necessary to draw because by default the column will be
 			// hidden (width=0)
@@ -347,4 +373,95 @@ public abstract class AbstractDataTable<T> extends Composite
 		return dataGrid;
 	}
 
+	@Override
+	public final void showOrHideColumn(ColumnName columnName, boolean show) {
+
+		for (MyColumn<T> mycolumn : getColumnManager().getColumnsByColumnName(columnName)) {
+
+			final Column<T, ?> column = (Column<T, ?>) mycolumn;
+			mycolumn.setVisible(show);
+			if (show) {
+				dataGrid.addColumnToTable(column, getColumnManager());
+			} else {
+				dataGrid.removeColumn(column);
+			}
+
+		}
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+				dataGrid.redrawVisibleItems();
+				// reloadData();
+			}
+		});
+
+	}
+
+	@Override
+	public final void showOrHideExperimentalConditionColumn(ColumnName columnName, Set<String> conditionNames,
+			String projectName, boolean show) {
+		for (MyColumn<T> mycolumn : getColumnManager().getColumnsByColumnName(columnName)) {
+			if (mycolumn instanceof MyIdColumn) {
+				MyIdColumn<T> idColumn = (MyIdColumn<T>) mycolumn;
+				final Column<T, String> column = (Column<T, String>) mycolumn;
+				String condition1ReferredByColumn = idColumn.getExperimentalConditionName();
+				String condition2ReferredByColumn = idColumn.getExperimentalCondition2Name() != null
+						? idColumn.getExperimentalCondition2Name() : condition1ReferredByColumn;
+
+				if (projectName == null || idColumn.getProjectTag().equalsIgnoreCase(projectName)) {
+					if (conditionNames == null || (conditionNames.contains(condition1ReferredByColumn)
+							&& conditionNames.contains(condition2ReferredByColumn))) {
+
+						if (show) {
+							dataGrid.addColumnToTable(column, getColumnManager());
+
+						} else {
+							dataGrid.removeColumn(column);
+						}
+					}
+				}
+			}
+		}
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+				dataGrid.redrawVisibleItems();
+				// reloadData();
+			}
+		});
+
+	}
+
+	public abstract List<ColumnWithVisibility> getItemDefaultView(DefaultView defaultview);
+
+	public abstract ORDER getItemOrder(DefaultView defaultView);
+
+	public abstract String getSortingScore(DefaultView defaultView);
+
+	public abstract ColumnName getSortedBy(DefaultView defaultView);
+
+	@Override
+	public final void setDefaultView(DefaultView defaultView) {
+		GWT.log("Setting default view in " + getClass().getSimpleName() + " table");
+		// apply page size
+		if (pager != null) {
+			pager.setPageSize(defaultView.getProteinPageSize());
+			pager.setPage(0);
+		}
+		// get default views on proteins
+		final List<ColumnWithVisibility> itemDefaultView = getItemDefaultView(defaultView);
+		for (ColumnWithVisibility columnWithVisibility : itemDefaultView) {
+			final ColumnName column = columnWithVisibility.getColumn();
+			final boolean visible = columnWithVisibility.isVisible();
+			showOrHideColumn(column, visible);
+			showOrHideExperimentalConditionColumn(column, null, null, visible);
+		}
+
+		// get sorting parameters for the proteins
+		final ORDER order = getItemOrder(defaultView);
+		final String sortingScore = getSortingScore(defaultView);
+		final ColumnName sortedBy = getSortedBy(defaultView);
+		pushSortingOrder(sortedBy, order, sortingScore);
+		GWT.log("Setting default view in " + getClass().getSimpleName() + " table END");
+	}
 }

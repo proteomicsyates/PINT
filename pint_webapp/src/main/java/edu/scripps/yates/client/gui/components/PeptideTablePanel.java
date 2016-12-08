@@ -1,24 +1,14 @@
 package edu.scripps.yates.client.gui.components;
 
 import java.util.List;
-import java.util.Set;
 
-import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.view.client.ProvidesKey;
 
 import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
-import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
-import edu.scripps.yates.client.gui.columns.MyIdColumn;
 import edu.scripps.yates.client.gui.columns.PeptideColumnManager;
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.client.gui.columns.footers.PeptideFooterManager;
@@ -90,146 +80,6 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 		return simplePager;
 	}
 
-	/**
-	 * Add the columns to the table.
-	 */
-	@Override
-	protected void initTableColumns(boolean addCheckBoxSelection) {
-		if (addCheckBoxSelection) {
-			// first column, the checkboxex for selection
-			Column<PeptideBean, Boolean> checkColumn = new Column<PeptideBean, Boolean>(new CheckboxCell(true, false)) {
-				@Override
-				public Boolean getValue(PeptideBean object) {
-					// Get the value from the selection model.
-					return selectionModel.isSelected(object);
-				}
-			};
-			dataGrid.addColumn(checkColumn, SafeHtmlUtils.fromSafeConstant("<br/>"));
-			dataGrid.setColumnWidth(checkColumn, 30, Unit.PX);
-		}
-		for (MyColumn<PeptideBean> column : getColumnManager().getColumns()) {
-			if (column.isVisible()) {
-				ColumnName columnName = column.getColumnName();
-				// don't do anything with amount because the conditions
-				// are not loaded yet
-				if (columnName != ColumnName.PEPTIDE_AMOUNT && columnName != ColumnName.PEPTIDE_SCORE
-						&& columnName != ColumnName.PEPTIDE_RATIO && columnName != ColumnName.PEPTIDE_RATIO_GRAPH) {
-					final Header<String> footer = getColumnManager().getFooter(columnName);
-
-					dataGrid.addColumn(columnName, (Column<PeptideBean, ?>) column, column.getHeader(), footer);
-
-					if (column.isVisible()) {
-						dataGrid.setColumnWidth((Column<PeptideBean, ?>) column, column.getDefaultWidth(),
-								column.getDefaultWidthUnit());
-					} else {
-						dataGrid.setColumnWidth((Column<PeptideBean, ?>) column, 0, column.getDefaultWidthUnit());
-					}
-				}
-			}
-		}
-	}
-
-	@Override
-	public void showOrHideColumn(ColumnName columnName, boolean show) {
-		boolean redraw = false;
-
-		for (MyColumn<PeptideBean> mycolumn : getColumnManager().getColumnsByColumnName(columnName)) {
-
-			final Column<PeptideBean, ?> column = (Column<PeptideBean, ?>) mycolumn;
-
-			if (show) {
-				dataGrid.addColumnToTable(column, getColumnManager());
-				if (false) {
-					final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
-							+ mycolumn.getDefaultWidthUnit().getType();
-					final String columnWidth = dataGrid.getColumnWidth(column);
-					if (!newWidth.equals(columnWidth)) {
-						if (dataGrid.isEmptyColumn(column))
-							redraw = true;
-						dataGrid.setColumnWidth(column, newWidth);
-						mycolumn.setWidth(mycolumn.getDefaultWidth());
-					}
-				}
-			} else {
-				dataGrid.removeColumn(column);
-				if (false) {
-					final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
-					final String columnWidth = dataGrid.getColumnWidth(column);
-					if (!newWidth.equals(columnWidth)) {
-						if (!dataGrid.isNumberColumn(column))
-							redraw = true;
-						dataGrid.setColumnWidth(column, newWidth);
-						mycolumn.setWidth(0);
-					}
-				}
-			}
-
-		}
-		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-			@Override
-			public void execute() {
-				dataGrid.redrawVisibleItems();
-				// reloadData();
-			}
-		});
-	}
-
-	@Override
-	public void showOrHideExperimentalConditionColumn(ColumnName columnName, Set<String> conditionNames,
-			String projectName, boolean show) {
-		boolean redraw = false;
-		for (MyColumn<PeptideBean> mycolumn : getColumnManager().getColumnsByColumnName(columnName)) {
-			if (mycolumn instanceof MyIdColumn) {
-				MyIdColumn<PeptideBean> idColumn = (MyIdColumn<PeptideBean>) mycolumn;
-				final Column<PeptideBean, String> column = (Column<PeptideBean, String>) mycolumn;
-				String condition1ReferredByColumn = idColumn.getExperimentalConditionName();
-				String condition2ReferredByColumn = idColumn.getExperimentalCondition2Name() != null
-						? idColumn.getExperimentalCondition2Name() : condition1ReferredByColumn;
-
-				if (projectName == null || idColumn.getProjectTag().equalsIgnoreCase(projectName)) {
-					if (conditionNames == null || (conditionNames.contains(condition1ReferredByColumn)
-							&& conditionNames.contains(condition2ReferredByColumn))) {
-
-						if (show) {
-							dataGrid.addColumnToTable(column, getColumnManager());
-							if (false) {
-								final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
-										+ mycolumn.getDefaultWidthUnit().getType();
-								final String columnWidth = dataGrid.getColumnWidth(column);
-								if (!columnWidth.equals(newWidth)) {
-									if (dataGrid.isEmptyColumn(column))
-										redraw = true;
-									dataGrid.setColumnWidth(column, newWidth);
-									mycolumn.setWidth(mycolumn.getDefaultWidth());
-								}
-							}
-						} else {
-							dataGrid.removeColumn(column);
-							if (false) {
-								final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
-								final String columnWidth = dataGrid.getColumnWidth(column);
-								if (!columnWidth.equals(newWidth)) {
-									if (!dataGrid.isNumberColumn(column))
-										redraw = true;
-									dataGrid.setColumnWidth(column, newWidth);
-									mycolumn.setWidth(0);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-			@Override
-			public void execute() {
-				dataGrid.redrawVisibleItems();
-				// reloadData();
-			}
-		});
-
-	}
-
 	public void hiddePeptidePanel() {
 		if (peptideLoaderFromProjects != null) {
 			peptideLoaderFromProjects.hiddePanel();
@@ -243,27 +93,22 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 	}
 
 	@Override
-	public void setDefaultView(DefaultView defaultView) {
-		GWT.log("Setting default view in Peptide table");
-		// apply page size
-		if (pager != null) {
-			pager.setPageSize(defaultView.getPeptidePageSize());
-			pager.setPage(0);
-		}
-		// get default views on peptides
-		final List<ColumnWithVisibility> peptideDefaultView = defaultView.getPeptideDefaultView();
-		for (ColumnWithVisibility columnWithVisibility : peptideDefaultView) {
-			final ColumnName column = columnWithVisibility.getColumn();
-			final boolean visible = columnWithVisibility.isVisible();
-			showOrHideColumn(column, visible);
-			showOrHideExperimentalConditionColumn(column, null, null, visible);
-		}
+	public List<ColumnWithVisibility> getItemDefaultView(DefaultView defaultview) {
+		return defaultview.getPeptideDefaultView();
+	}
 
-		// get sorting parameters for the peptides
-		final ORDER order = defaultView.getPeptideOrder();
-		final String sortingScore = defaultView.getPeptideSortingScore();
-		final ColumnName sortedBy = defaultView.getPeptidesSortedBy();
-		pushSortingOrder(sortedBy, order, sortingScore);
-		GWT.log("Setting default view in Peptide table END");
+	@Override
+	public ORDER getItemOrder(DefaultView defaultView) {
+		return defaultView.getPeptideOrder();
+	}
+
+	@Override
+	public String getSortingScore(DefaultView defaultView) {
+		return defaultView.getPeptideSortingScore();
+	}
+
+	@Override
+	public ColumnName getSortedBy(DefaultView defaultView) {
+		return defaultView.getPeptidesSortedBy();
 	}
 }

@@ -50,15 +50,22 @@ public class ClientSafeHtmlUtils {
 	private static final int MAX_LENGTH_OMIM = 150;
 
 	public enum SEQUENCE_OVERLAPPING {
-		TOTALLY_COVERED("fully covered"), PARTIALLY_COVERED("partially covered"), NOT_COVERED("not covered");
+		TOTALLY_COVERED("fully covered", "fullyCoveredSequenceRegion"), PARTIALLY_COVERED("partially covered",
+				"partiallyCoveredSequenceRegion"), NOT_COVERED("not covered", "");
 		private final String description;
+		private final String cssClassName;
 
-		private SEQUENCE_OVERLAPPING(String description) {
+		private SEQUENCE_OVERLAPPING(String description, String cssClassName) {
 			this.description = description;
+			this.cssClassName = cssClassName;
 		}
 
 		public String getDescription() {
 			return description;
+		}
+
+		public String getCSSClassName() {
+			return cssClassName;
 		}
 	}
 
@@ -984,7 +991,9 @@ public class ClientSafeHtmlUtils {
 									sb.appendEscaped(" (").append(uniprotFeature.getPositionStart()).appendEscaped("-")
 											.append(uniprotFeature.getPositionEnd()).appendEscaped(")");
 								}
+								sb.appendHtmlConstant("<div class='" + sequenceOverlapping.getCSSClassName() + "'>");
 								sb.appendEscaped(" (" + sequenceOverlapping.getDescription() + ")");
+								sb.appendHtmlConstant("</div>");
 								sb.append(template.endToolTip());
 							}
 						}

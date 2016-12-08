@@ -67,7 +67,7 @@ public class PathWaysColumnManager extends AbstractColumnManager<PathwaySummary>
 
 	@Override
 	public CustomTextColumn<PathwaySummary> addAmountColumn(ColumnName columnName, boolean visibleState,
-			String conditionName, AmountType amountType, String projectName) {
+			String conditionName, String conditionSymbol, AmountType amountType, String projectName) {
 		// not implemented
 		return null;
 	}
@@ -83,7 +83,7 @@ public class PathWaysColumnManager extends AbstractColumnManager<PathwaySummary>
 	@Override
 	public CustomTextColumn<PathwaySummary> addRatioScoreColumn(ColumnName columnName, boolean visibleState,
 			String condition1Name, String condition1Symbol, String condition2Name, String condition2Symbol,
-			String projectTag, String ratioName) {
+			String projectTag, String ratioName, String ratioScore) {
 		// not implemented
 		return null;
 	}

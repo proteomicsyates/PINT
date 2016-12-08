@@ -63,9 +63,9 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 
 	@Override
 	public ProteinTextColumn addAmountColumn(ColumnName columnName, boolean visibleState, String conditionName,
-			AmountType amountType, String projectName) {
+			String conditionSymbol, AmountType amountType, String projectName) {
 		final SafeHtml headerName = SafeHtmlUtils
-				.fromSafeConstant(SharedDataUtils.getAmountHeader(amountType, conditionName));
+				.fromSafeConstant(SharedDataUtils.getAmountHeader(amountType, conditionSymbol));
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName, headerName,
 				SharedDataUtils.getAmountHeaderTooltip(amountType, conditionName, projectName));
 
@@ -94,11 +94,11 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 	@Override
 	public ProteinTextColumn addRatioScoreColumn(ColumnName columnName, boolean visibleState, String condition1Name,
 			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
-			String scoreName) {
-		String headerName = SharedDataUtils.getRatioHeader(scoreName, condition1Symbol, condition2Symbol);
+			String ratioName, String scoreName) {
+		String headerName = SharedDataUtils.getRatioScoreHeader(scoreName, condition1Symbol, condition2Symbol);
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
-				SafeHtmlUtils.fromSafeConstant(headerName),
-				SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, scoreName));
+				SafeHtmlUtils.fromSafeConstant(headerName), SharedDataUtils.getRatioScoreHeaderTooltip(columnName,
+						condition1Name, condition2Name, ratioName, scoreName));
 		final ProteinTextColumn column = new ProteinTextColumn(columnName, visibleState, header,
 				footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name, projectTag, scoreName),
 				condition1Name, condition2Name, projectTag, scoreName);

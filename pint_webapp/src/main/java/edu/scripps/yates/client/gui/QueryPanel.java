@@ -1272,14 +1272,14 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 										// add to the experimeental
 										// condition panel
-										String letter = SharedDataUtils
+										String conditionSymbol = SharedDataUtils
 												.parseConditionSymbolFromConditionSelection(newElementName);
-										String number = SharedDataUtils
+										String projectSymbol = SharedDataUtils
 												.parseProjectSymbolFromConditionSelection(newElementName);
-										letter = number + letter;
+										conditionSymbol = projectSymbol + conditionSymbol;
 										conditionsPanel.addItem(newElementName, conditionName);
 
-										addAmountColumns(projectTag, conditionName, letter);
+										addAmountColumns(projectTag, conditionName, conditionSymbol);
 
 									}
 									updateStatus(result.size()
@@ -1295,13 +1295,14 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		}
 	}
 
-	private void addAmountColumns(final String projectTag, final String conditionName, final String letter) {
-		addPSMAmountColumns(projectTag, conditionName, letter);
-		addPeptideAmountColumns(projectTag, conditionName, letter);
-		addProteinAmountColumns(projectTag, conditionName, letter);
+	private void addAmountColumns(final String projectTag, final String conditionName, final String conditionSymbol) {
+		addPSMAmountColumns(projectTag, conditionName, conditionSymbol);
+		addPeptideAmountColumns(projectTag, conditionName, conditionSymbol);
+		addProteinAmountColumns(projectTag, conditionName, conditionSymbol);
 	}
 
-	private void addPSMAmountColumns(final String projectTag, final String conditionName, final String letter) {
+	private void addPSMAmountColumns(final String projectTag, final String conditionName,
+			final String conditionSymbol) {
 
 		// add PSM amounts
 		proteinRetrievingService.getPSMAmountTypesByCondition(sessionID, projectTag, conditionName,
@@ -1320,9 +1321,11 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 								final ColumnWithVisibility psmAmountColumn = PSMColumns.getInstance()
 										.getColumn(ColumnName.PSM_AMOUNT);
 								psmTablePanel.addColumnForConditionAmount(ColumnName.PSM_AMOUNT,
-										psmAmountColumn.isVisible(), conditionName, amountType, letter, projectTag);
+										psmAmountColumn.isVisible(), conditionName, conditionSymbol, amountType,
+										projectTag);
 								psmOnlyTablePanel.addColumnForConditionAmount(ColumnName.PSM_AMOUNT,
-										psmAmountColumn.isVisible(), conditionName, amountType, letter, projectTag);
+										psmAmountColumn.isVisible(), conditionName, conditionSymbol, amountType,
+										projectTag);
 
 							}
 							if (!result.isEmpty()) {
@@ -1339,7 +1342,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	}
 
-	private void addPeptideAmountColumns(final String projectTag, final String conditionName, final String letter) {
+	private void addPeptideAmountColumns(final String projectTag, final String conditionName,
+			final String conditionSymbol) {
 
 		// add PSM amounts
 		proteinRetrievingService.getPeptideAmountTypesByCondition(sessionID, projectTag, conditionName,
@@ -1358,7 +1362,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 								final ColumnWithVisibility peptideAmountColumn = PeptideColumns.getInstance()
 										.getColumn(ColumnName.PEPTIDE_AMOUNT);
 								peptideTablePanel.addColumnForConditionAmount(ColumnName.PEPTIDE_AMOUNT,
-										peptideAmountColumn.isVisible(), conditionName, amountType, letter, projectTag);
+										peptideAmountColumn.isVisible(), conditionName, conditionSymbol, amountType,
+										projectTag);
 							}
 							if (!result.isEmpty()) {
 								// add handlers related to that
@@ -1374,7 +1379,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	}
 
-	private void addProteinAmountColumns(final String projectTag, final String conditionName, final String letter) {
+	private void addProteinAmountColumns(final String projectTag, final String conditionName,
+			final String conditionSymbol) {
 
 		// add PSM amounts
 		proteinRetrievingService.getProteinAmountTypesByCondition(sessionID, projectTag, conditionName,
@@ -1393,9 +1399,11 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 								final ColumnWithVisibility proteinAmountColumn = ProteinColumns.getInstance()
 										.getColumn(ColumnName.PROTEIN_AMOUNT);
 								proteinTablePanel.addColumnForConditionAmount(ColumnName.PROTEIN_AMOUNT,
-										proteinAmountColumn.isVisible(), conditionName, amountType, letter, projectTag);
+										proteinAmountColumn.isVisible(), conditionName, conditionSymbol, amountType,
+										projectTag);
 								proteinGroupTablePanel.addColumnForConditionAmount(ColumnName.PROTEIN_AMOUNT,
-										proteinAmountColumn.isVisible(), conditionName, amountType, letter, projectTag);
+										proteinAmountColumn.isVisible(), conditionName, conditionSymbol, amountType,
+										projectTag);
 							}
 							if (!result.isEmpty()) {// add handlers related to
 													// that
@@ -2298,7 +2306,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 													ProteinColumns.getInstance()
 															.getColumn(ColumnName.PROTEIN_RATIO_SCORE).isVisible(),
 													condition1, letter1, condition2, letter2, projectTag,
-													ratioDescriptor.getRatioName());
+													ratioDescriptor.getRatioName(), "Ratio score");
 											proteinColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 													ColumnName.PROTEIN_RATIO, condition1, condition2, projectTag,
 													conditionsPanel);
@@ -2369,7 +2377,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	/**
 	 * Given a conditionName and a project name, goes to the conditionsPanel and
 	 * search for the symbol of the condition of that project
-	 * 
+	 *
 	 * @param conditionName
 	 * @param projectName
 	 * @return

@@ -1,21 +1,14 @@
 package edu.scripps.yates.client.gui.components;
 
 import java.util.List;
-import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.view.client.ProvidesKey;
 
 import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
-import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
-import edu.scripps.yates.client.gui.columns.MyIdColumn;
 import edu.scripps.yates.client.gui.columns.PSMColumnManager;
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.client.gui.columns.footers.PSMFooterManager;
@@ -70,137 +63,6 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 		return simplePager;
 	}
 
-	/**
-	 * Add the columns to the table.
-	 */
-	@Override
-	protected void initTableColumns(boolean addCheckBoxSelection) {
-
-		for (MyColumn<PSMBean> column : getColumnManager().getColumns()) {
-			if (column.isVisible()) {
-				ColumnName columnName = column.getColumnName();
-				// don't do anything with amount because the conditions
-				// are not loaded yet
-				if (columnName != ColumnName.PSM_AMOUNT && columnName != ColumnName.PSM_SCORE
-						&& columnName != ColumnName.PTM_SCORE && columnName != ColumnName.PSM_RATIO
-						&& columnName != ColumnName.PSM_RATIO_GRAPH) {
-					final Header<String> footer = getColumnManager().getFooter(columnName);
-
-					dataGrid.addColumn(columnName, (Column<PSMBean, ?>) column, column.getHeader(), footer);
-
-					if (column.isVisible()) {
-						dataGrid.setColumnWidth((Column<PSMBean, ?>) column, column.getDefaultWidth(),
-								column.getDefaultWidthUnit());
-					} else {
-						dataGrid.setColumnWidth((Column<PSMBean, ?>) column, 0, column.getDefaultWidthUnit());
-					}
-				}
-			}
-		}
-	}
-
-	@Override
-	public void showOrHideColumn(ColumnName columnName, boolean show) {
-		boolean redraw = false;
-
-		for (MyColumn<PSMBean> mycolumn : getColumnManager().getColumnsByColumnName(columnName)) {
-
-			final Column<PSMBean, ?> column = (Column<PSMBean, ?>) mycolumn;
-
-			if (show) {
-				dataGrid.addColumnToTable(column, getColumnManager());
-				if (false) {
-					final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
-							+ mycolumn.getDefaultWidthUnit().getType();
-					final String columnWidth = dataGrid.getColumnWidth(column);
-					if (!newWidth.equals(columnWidth)) {
-						if (dataGrid.isEmptyColumn(column))
-							redraw = true;
-						dataGrid.setColumnWidth(column, newWidth);
-						mycolumn.setWidth(mycolumn.getDefaultWidth());
-					}
-				}
-			} else {
-				dataGrid.removeColumn(column);
-				if (false) {
-					final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
-					final String columnWidth = dataGrid.getColumnWidth(column);
-					if (!newWidth.equals(columnWidth)) {
-						if (!dataGrid.isNumberColumn(column))
-							redraw = true;
-						dataGrid.setColumnWidth(column, newWidth);
-						mycolumn.setWidth(0);
-					}
-				}
-			}
-
-		}
-		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-			@Override
-			public void execute() {
-				dataGrid.redrawVisibleItems();
-				// reloadData();
-			}
-		});
-
-	}
-
-	@Override
-	public void showOrHideExperimentalConditionColumn(ColumnName columnName, Set<String> conditionNames,
-			String projectName, boolean show) {
-		boolean redraw = false;
-		for (MyColumn<PSMBean> mycolumn : getColumnManager().getColumnsByColumnName(columnName)) {
-			if (mycolumn instanceof MyIdColumn) {
-				MyIdColumn<PSMBean> idColumn = (MyIdColumn<PSMBean>) mycolumn;
-				final Column<PSMBean, String> column = (Column<PSMBean, String>) mycolumn;
-				String condition1ReferredByColumn = idColumn.getExperimentalConditionName();
-				String condition2ReferredByColumn = idColumn.getExperimentalCondition2Name() != null
-						? idColumn.getExperimentalCondition2Name() : condition1ReferredByColumn;
-
-				if (projectName == null || idColumn.getProjectTag().equalsIgnoreCase(projectName)) {
-					if (conditionNames == null || (conditionNames.contains(condition1ReferredByColumn)
-							&& conditionNames.contains(condition2ReferredByColumn))) {
-
-						if (show) {
-							dataGrid.addColumnToTable(column, getColumnManager());
-							if (false) {
-								final String newWidth = String.valueOf(mycolumn.getDefaultWidth())
-										+ mycolumn.getDefaultWidthUnit().getType();
-								final String columnWidth = dataGrid.getColumnWidth(column);
-								if (!columnWidth.equals(newWidth)) {
-									if (dataGrid.isEmptyColumn(column))
-										redraw = true;
-									dataGrid.setColumnWidth(column, newWidth);
-									mycolumn.setWidth(mycolumn.getDefaultWidth());
-								}
-							}
-						} else {
-							dataGrid.removeColumn(column);
-							if (false) {
-								final String newWidth = "0.0" + mycolumn.getDefaultWidthUnit().getType();
-								final String columnWidth = dataGrid.getColumnWidth(column);
-								if (!columnWidth.equals(newWidth)) {
-									if (!dataGrid.isNumberColumn(column))
-										redraw = true;
-									dataGrid.setColumnWidth(column, newWidth);
-									mycolumn.setWidth(0);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-			@Override
-			public void execute() {
-				dataGrid.redrawVisibleItems();
-				// reloadData();
-			}
-		});
-
-	}
-
 	public void hiddePSMPanel() {
 		if (psmLoaderFromProjects != null) {
 			psmLoaderFromProjects.hiddePanel();
@@ -224,28 +86,23 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 	}
 
 	@Override
-	public void setDefaultView(DefaultView defaultView) {
-		GWT.log("Setting default view in PSM table");
-		// apply page size
-		if (pager != null) {
-			pager.setPageSize(defaultView.getPsmPageSize());
-			pager.setPage(0);
-		} // get default views on proteins
-		final List<ColumnWithVisibility> psmDefaultView = defaultView.getPsmDefaultView();
-		for (ColumnWithVisibility columnWithVisibility : psmDefaultView) {
-			final ColumnName column = columnWithVisibility.getColumn();
-			final boolean visible = columnWithVisibility.isVisible();
-			showOrHideColumn(column, visible);
-			showOrHideExperimentalConditionColumn(column, null, null, visible);
-		}
+	public List<ColumnWithVisibility> getItemDefaultView(DefaultView defaultview) {
+		return defaultview.getPsmDefaultView();
+	}
 
-		// get sorting parameters for the psms
+	@Override
+	public ORDER getItemOrder(DefaultView defaultView) {
+		return defaultView.getPsmOrder();
+	}
 
-		final ORDER order = defaultView.getPsmOrder();
-		final String sortingScore = defaultView.getPsmSortingScore();
-		final ColumnName sortedBy = defaultView.getPsmsSortedBy();
-		pushSortingOrder(sortedBy, order, sortingScore);
-		GWT.log("Setting default view in PSM table END");
+	@Override
+	public String getSortingScore(DefaultView defaultView) {
+		return defaultView.getPsmSortingScore();
+	}
+
+	@Override
+	public ColumnName getSortedBy(DefaultView defaultView) {
+		return defaultView.getPsmsSortedBy();
 	}
 
 }

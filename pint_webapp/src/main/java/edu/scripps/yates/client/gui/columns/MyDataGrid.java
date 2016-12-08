@@ -164,8 +164,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 		int index = 0;
 		for (index = 0; index < getColumnCount(); index++) {
 			final MyColumn column = (MyColumn) getColumn(index);
-			if (columnManager.getColumnIndex(column.getColumnName()) >= columnManager
-					.getColumnIndex(myColumn.getColumnName())) {
+			if (columnManager.getColumnIndex(column) >= columnManager.getColumnIndex(myColumn)) {
 				break;
 			}
 		}
@@ -202,27 +201,6 @@ public class MyDataGrid<T> extends CellTable<T> {
 			}
 		}
 		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see com.google.gwt.user.cellview.client.AbstractCellTable#addColumn(com.
-	 * google .gwt.user.cellview.client.Column,
-	 * com.google.gwt.user.cellview.client.Header,
-	 * com.google.gwt.user.cellview.client.Header)
-	 */
-	@Override
-	public void addColumn(Column<T, ?> col, Header<?> header, Header<?> footer) {
-		if (containsColumn(col)) {
-			return;
-		}
-		addColumnToMap(col);
-		// set default width to column
-		final MyColumn myColumn = (MyColumn) col;
-		final String width = String.valueOf(myColumn.getDefaultWidth()) + Unit.PX;
-		setColumnWidth(col, width);
-
-		super.addColumn(col, header, footer);
 	}
 
 	/*
