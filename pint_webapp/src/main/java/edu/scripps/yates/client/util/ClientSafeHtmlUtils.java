@@ -846,6 +846,7 @@ public class ClientSafeHtmlUtils {
 				continue;
 			}
 			List<UniprotFeatureBean> list = new ArrayList<UniprotFeatureBean>();
+			list.addAll(set);
 			Collections.sort(list);// because UniprotFeatureBean is comparable
 			sb.append(template.startToolTipWithClass(uniprotFeatureString, "featureType"));
 			sb.appendEscaped(uniprotFeatureString);
