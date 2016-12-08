@@ -10,6 +10,10 @@ public class Pair<T, Y> implements Serializable {
 	private T firstElement;
 	private Y secondElement;
 
+	public Pair() {
+
+	}
+
 	public Pair(T firstElement, Y secondElement) {
 		this.firstElement = firstElement;
 		this.secondElement = secondElement;
