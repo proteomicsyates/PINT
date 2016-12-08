@@ -222,10 +222,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 		final String width = String.valueOf(myColumn.getDefaultWidth()) + Unit.PX;
 		setColumnWidth(col, width);
 
-		// get the index where to add the column
-		int index = 0;
-
-		super.insertColumn(index, col, header, footer);
+		super.addColumn(col, header, footer);
 	}
 
 	/*
@@ -288,9 +285,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 			return;
 		}
 		addColumnToMap(col);
-		// set default width to column
-		final String width = String.valueOf(((MyColumn) col).getDefaultWidth()) + Unit.PX;
-		setColumnWidth(col, width);
+
 		addColumn(col, new SafeHtmlHeader(headerHtml), new SafeHtmlHeader(footerHtml));
 	}
 
