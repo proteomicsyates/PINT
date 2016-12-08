@@ -154,50 +154,71 @@ public class SharedDataUtils {
 	/**
 	 * If element is 1C-ConditionName, then, <br>
 	 * the 1 is the project, <br>
-	 * and the C is the condition
+	 * and the C is the condition.<br>
+	 * if element is 1AC-ConditionName, then, the 1 is the project and the AC is
+	 * the condition.
 	 *
 	 * @param element
 	 * @return the C
 	 */
-	public static String getConditionSymbolFromConditionElement(String element) {
+	public static String parseConditionSymbolFromConditionSelection(String element) {
 		if (element.contains("-")) {
-			String prefix = element.substring(0, element.indexOf("-"));
-			if (prefix.length() == 1)
-				return prefix;
-			return prefix.substring(prefix.length() - 1);
+			String prefix = element.split("-")[0];
+			String firstCharacter = String.valueOf(prefix.charAt(0));
+			if (isNumber(firstCharacter)) {
+				prefix = prefix.substring(1);
+			}
+			return prefix;
 		}
 		return "";
 	}
 
-	/**
-	 * If element is 1C-ConditionName, then, <br>
-	 * the 1 is the project, <br>
-	 * and the C is the condition
-	 *
-	 * @param element
-	 * @return the ConditionName
-	 */
-	public static String getConditionNameFromConditionSelection(String element) {
-		if (element.contains("-")) {
-			return element.substring(element.indexOf("-") + 1);
+	private static boolean isNumber(String potentialNumber) {
+		try {
+			Double.valueOf(potentialNumber);
+			return true;
+		} catch (NumberFormatException e) {
+
 		}
-		return element;
+		return false;
 	}
 
 	/**
 	 * If element is 1C-ConditionName, then, <br>
-	 * the 1 is the project, <br>
-	 * and the C is the condition
+	 * the 1 is the project, and the C is the condition and ConditionName is the
+	 * condition name.<br>
+	 * if element is 1AC-ConditionName, then, the 1 is the project and the AC is
+	 * the condition and ConditionName is the condition name.
+	 *
+	 * @param conditionSelection
+	 * @return the ConditionName
+	 */
+	public static String parseConditionNameFromConditionSelection(String conditionSelection) {
+		if (conditionSelection.contains("-")) {
+			return conditionSelection.split("-")[1];
+		}
+		return conditionSelection;
+	}
+
+	/**
+	 * If element is 1C-ConditionName, then, <br>
+	 * the 1 is the project, and C is the condition.<br>
+	 * If element is 12AB-ConditionName, then,<br>
+	 * the 12 is the project and AB is the condition.
 	 *
 	 * @param element
 	 * @return the 1
 	 */
-	public static String getProjectSymbolFromConditionSelection(String element) {
+	public static String parseProjectSymbolFromConditionSelection(String element) {
 		if (element.contains("-")) {
-			String prefix = element.substring(0, element.indexOf("-"));
-			if (prefix.length() == 1)
-				return "";
-			return prefix.substring(0, prefix.length() - 1);
+			String prefix = element.split("-")[0];
+			int index = 0;
+			while (isNumber(String.valueOf(prefix.charAt(index)))) {
+				index++;
+			}
+			if (index > 0) {
+				return prefix.substring(0, index);
+			}
 		}
 		return "";
 	}
@@ -209,15 +230,15 @@ public class SharedDataUtils {
 	 * @param element
 	 * @return the projectSymbol
 	 */
-	public static String getProjectSymbolFromListBox(String projectName, ListBox listBox) {
-		if (listBox.getItemCount() <= 1)
+	public static String parseProjectSymbolFromListBox(String projectName, ListBox projectListBox) {
+		if (projectListBox.getItemCount() <= 1)
 			return "";
-		for (int i = 0; i < listBox.getItemCount(); i++) {
-			String element = listBox.getItemText(i);
+		for (int i = 0; i < projectListBox.getItemCount(); i++) {
+			String element = projectListBox.getItemText(i);
 			if (element.contains("-")) {
-				String name = element.substring(element.indexOf("-") + 1);
+				String name = element.split("-")[1];
 				if (name.equals(projectName)) {
-					String symbol = element.substring(0, element.indexOf("-"));
+					String symbol = element.split("-")[0];
 					return symbol;
 				}
 			} else {
@@ -238,7 +259,7 @@ public class SharedDataUtils {
 	 * @param listBox
 	 * @return the projectName
 	 */
-	public static String getProjectNameFromListBox(String projectSymbol, ListBox listBox) {
+	public static String parseProjectNameFromListBox(String projectSymbol, ListBox listBox) {
 		if (listBox.getItemCount() == 0)
 			return "";
 		if (projectSymbol == null || "".equals(projectSymbol))
@@ -246,9 +267,9 @@ public class SharedDataUtils {
 		for (int i = 0; i < listBox.getItemCount(); i++) {
 			String element = listBox.getItemText(i);
 			if (element.contains("-")) {
-				String symbol = element.substring(0, element.indexOf("-"));
+				String symbol = element.split("-")[0];
 				if (symbol.equals(projectSymbol))
-					return element.substring(element.indexOf("-") + 1);
+					return element.split("-")[1];
 			} else {
 				return element;
 			}
@@ -276,7 +297,7 @@ public class SharedDataUtils {
 		boolean moreThanOneProject = projectsListBox.getItemCount() > 1;
 		if (moreThanOneProject) {
 			// more than one project
-			projectSymbol = getProjectSymbolFromListBox(projectName, projectsListBox);
+			projectSymbol = parseProjectSymbolFromListBox(projectName, projectsListBox);
 		}
 		conditionSymbol = getNextAvailableConditionSymbol(conditionsListBox, projectSymbol);
 
@@ -303,14 +324,26 @@ public class SharedDataUtils {
 		if (conditionsListBox.getItemCount() == 0) {
 			return String.valueOf((char) 65);
 		} else {
-			String lastProjectSymbol = getProjectSymbolFromConditionSelection(
+			String lastProjectSymbol = parseProjectSymbolFromConditionSelection(
 					conditionsListBox.getItemText(conditionsListBox.getItemCount() - 1));
 			if (!lastProjectSymbol.equals(projectSymbol)) {
 				return String.valueOf((char) 65);
 			}
-			String lastConditionSymbol = getConditionSymbolFromConditionElement(
+			String lastConditionSymbol = parseConditionSymbolFromConditionSelection(
 					conditionsListBox.getItemText(conditionsListBox.getItemCount() - 1));
-			return String.valueOf((char) (lastConditionSymbol.charAt(0) + 1));
+			if (lastConditionSymbol.length() == 1) {
+				final char charAt = lastConditionSymbol.charAt(0);
+				if (charAt == 'Z') {
+					return "AA";
+				}
+				final String valueOf = String.valueOf((char) (charAt + 1));
+				return valueOf;
+			} else {
+				// if has already two characteres
+				final char charAt = lastConditionSymbol.charAt(1);
+				final String valueOf = lastConditionSymbol.charAt(0) + String.valueOf((char) (charAt + 1));
+				return valueOf;
+			}
 		}
 	}
 
@@ -319,23 +352,26 @@ public class SharedDataUtils {
 			return "1";
 		} else {
 			final String itemText = projectListBox.getItemText(projectListBox.getItemCount() - 1);
-			int lastProjectSymbol = Integer.valueOf(getProjectSymbolFromProjectSelection(itemText));
+			int lastProjectSymbol = Integer.valueOf(parseProjectSymbolFromProjectSelection(itemText));
 			return String.valueOf(lastProjectSymbol + 1);
 		}
 	}
 
 	/**
 	 * If element is 1-projectName, then, <br>
-	 * the 1 is the symbol. if there is not 1-. return empty string
+	 * the 1 is the symbol. if there is not 1-. return empty string. It could
+	 * have more than one number like 12-Project
 	 *
-	 * @param element
+	 * @param projectSelection
 	 * @return the projectSymbol
 	 */
-	private static String getProjectSymbolFromProjectSelection(String element) {
+	private static String parseProjectSymbolFromProjectSelection(String projectSelection) {
 
-		if (element.contains("-")) {
-			String prefix = element.substring(0, element.indexOf("-"));
-			return prefix;
+		if (projectSelection.contains("-")) {
+			String prefix = projectSelection.split("-")[0];
+			if (isNumber(prefix)) {
+				return prefix;
+			}
 		}
 		return "";
 
@@ -886,8 +922,7 @@ public class SharedDataUtils {
 				+ SharedConstants.SEPARATOR + "Project: " + projectTag;
 	}
 
-	public static String getRatioHeader(ColumnName columnName, String ratioName, String condition1ID,
-			String condition2ID) {
+	public static String getRatioHeader(String ratioName, String condition1ID, String condition2ID) {
 
 		return ratioName + "(" + condition1ID + " / " + condition2ID + ")";
 	}

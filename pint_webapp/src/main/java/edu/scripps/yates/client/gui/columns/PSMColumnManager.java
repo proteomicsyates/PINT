@@ -64,8 +64,9 @@ public class PSMColumnManager extends AbstractColumnManager<PSMBean> {
 
 	@Override
 	public PSMTextColumn addRatioColumn(ColumnName columnName, boolean visibleState, String condition1Name,
-			String condition2Name, String projectTag, String ratioName) {
-		String headerName = SharedDataUtils.getRatioHeader(columnName, ratioName, condition1Name, condition2Name);
+			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
+			String ratioName) {
+		String headerName = SharedDataUtils.getRatioHeader(ratioName, condition1Symbol, condition2Symbol);
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName),
 				SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
@@ -78,7 +79,8 @@ public class PSMColumnManager extends AbstractColumnManager<PSMBean> {
 
 	@Override
 	public CustomTextColumn<PSMBean> addRatioScoreColumn(ColumnName columnName, boolean visibleState,
-			String condition1Name, String condition2Name, String projectTag, String ratioName) {
+			String condition1Name, String condition1Symbol, String condition2Name, String condition2Symbol,
+			String projectTag, String ratioName) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -187,7 +187,8 @@ public abstract class AbstractColumnManager<T> {
 	 * @return
 	 */
 	public abstract CustomTextColumn<T> addRatioColumn(ColumnName columnName, boolean visibleState,
-			String condition1Name, String condition2Name, String projectTag, String ratioName);
+			String condition1Name, String condition1Symbol, String condition2Name, String condition2Symbol,
+			String projectTag, String ratioName);
 
 	/**
 	 * creates a simple {@link MyColumn}
@@ -211,7 +212,8 @@ public abstract class AbstractColumnManager<T> {
 	 * @return
 	 */
 	public abstract CustomTextColumn<T> addRatioScoreColumn(ColumnName columnName, boolean visibleState,
-			String condition1Name, String condition2Name, String projectTag, String ratioName);
+			String condition1Name, String condition1Symbol, String condition2Name, String condition2Symbol,
+			String projectTag, String ratioName);
 
 	public void addColumn(MyColumn<T> column) {
 		myColumns.add(column);

@@ -66,8 +66,9 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 
 	@Override
 	public ProteinGroupTextColumn addRatioColumn(ColumnName columnName, boolean visibleState, String condition1Name,
-			String condition2Name, String projectTag, String ratioName) {
-		String headerName = SharedDataUtils.getRatioHeader(columnName, ratioName, condition1Name, condition2Name);
+			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
+			String ratioName) {
+		String headerName = SharedDataUtils.getRatioHeader(ratioName, condition1Symbol, condition2Symbol);
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName),
 				SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
@@ -87,7 +88,8 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 
 	@Override
 	public CustomTextColumn<ProteinGroupBean> addRatioScoreColumn(ColumnName columnName, boolean visibleState,
-			String condition1Name, String condition2Name, String projectTag, String ratioName) {
+			String condition1Name, String condition1Symbol, String condition2Name, String condition2Symbol,
+			String projectTag, String ratioName) {
 		// not implemented
 		return null;
 	}

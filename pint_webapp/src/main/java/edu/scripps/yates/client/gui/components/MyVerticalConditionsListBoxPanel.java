@@ -16,11 +16,11 @@ public class MyVerticalConditionsListBoxPanel extends MyVerticalListBoxPanel {
 			if (listBox.isItemSelected(i)) {
 				String itemText = listBox.getItemText(i);
 				final String conditionName = SharedDataUtils
-						.getConditionNameFromConditionSelection(itemText);
+						.parseConditionNameFromConditionSelection(itemText);
 				if (condition.equals(conditionName)) {
 					final String projectSymbol = SharedDataUtils
-							.getProjectSymbolFromConditionSelection(conditionName);
-					final String projectName = SharedDataUtils.getProjectNameFromListBox(
+							.parseProjectSymbolFromConditionSelection(conditionName);
+					final String projectName = SharedDataUtils.parseProjectNameFromListBox(
 							projectSymbol, projectPanel.getListBox());
 					if (project.equalsIgnoreCase(projectName)) {
 						return true;

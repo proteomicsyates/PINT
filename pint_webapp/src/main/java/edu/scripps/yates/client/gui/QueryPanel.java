@@ -394,10 +394,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					Map<String, Set<String>> conditionNamesByProjectName = new HashMap<String, Set<String>>();
 					for (String selectedConditionName : selectedConditionNames) {
 						String conditionName = SharedDataUtils
-								.getConditionNameFromConditionSelection(selectedConditionName);
+								.parseConditionNameFromConditionSelection(selectedConditionName);
 						String projectSymbol = SharedDataUtils
-								.getProjectSymbolFromConditionSelection(selectedConditionName);
-						String projectName = SharedDataUtils.getProjectNameFromListBox(projectSymbol,
+								.parseProjectSymbolFromConditionSelection(selectedConditionName);
+						String projectName = SharedDataUtils.parseProjectNameFromListBox(projectSymbol,
 								projectListPanel.getListBox());
 						if (conditionNamesByProjectName.containsKey(projectName)) {
 							conditionNamesByProjectName.get(projectName).add(conditionName);
@@ -410,24 +410,42 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					// iterate over the map
 					for (String projectName : conditionNamesByProjectName.keySet()) {
 						final Set<String> conditionNames = conditionNamesByProjectName.get(projectName);
-						if (showProteinGroupAmounts)
+						if (showProteinGroupAmounts) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
 									conditionNames, projectName, true);
-						if (showProteinGroupRatios)
+						}
+						if (showProteinGroupRatios) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
 									conditionNames, projectName, true);
-						if (showProteinAmounts)
+							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_GRAPH,
+									conditionNames, projectName, true);
+							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
+									conditionNames, projectName, true);
+						}
+						if (showProteinAmounts) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
 									conditionNames, projectName, true);
-						if (showProteinRatios)
+						}
+						if (showProteinRatios) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
 									conditionNames, projectName, true);
-						if (showPeptideAmounts)
+							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_GRAPH,
+									conditionNames, projectName, true);
+							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
+									conditionNames, projectName, true);
+						}
+						if (showPeptideAmounts) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
 									conditionNames, projectName, true);
-						if (showPeptideRatios)
+						}
+						if (showPeptideRatios) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO,
 									conditionNames, projectName, true);
+							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_GRAPH,
+									conditionNames, projectName, true);
+							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_SCORE,
+									conditionNames, projectName, true);
+						}
 						if (showPSMAmounts) {
 							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT, conditionNames,
 									projectName, true);
@@ -438,6 +456,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO, conditionNames,
 									projectName, true);
 							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO,
+									conditionNames, projectName, true);
+							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_GRAPH,
+									conditionNames, projectName, true);
+							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_SCORE,
 									conditionNames, projectName, true);
 						}
 					}
@@ -451,10 +473,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					Map<String, Set<String>> conditionNamesByProjectName = new HashMap<String, Set<String>>();
 					for (String nonSelectedConditionName : nonSelectedConditionNames) {
 						String conditionName = SharedDataUtils
-								.getConditionNameFromConditionSelection(nonSelectedConditionName);
+								.parseConditionNameFromConditionSelection(nonSelectedConditionName);
 						String projectSymbol = SharedDataUtils
-								.getProjectSymbolFromConditionSelection(nonSelectedConditionName);
-						String projectName = SharedDataUtils.getProjectNameFromListBox(projectSymbol,
+								.parseProjectSymbolFromConditionSelection(nonSelectedConditionName);
+						String projectName = SharedDataUtils.parseProjectNameFromListBox(projectSymbol,
 								projectListPanel.getListBox());
 						if (conditionNamesByProjectName.containsKey(projectName)) {
 							conditionNamesByProjectName.get(projectName).add(conditionName);
@@ -467,24 +489,42 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					// iterate over the map
 					for (String projectName : conditionNamesByProjectName.keySet()) {
 						Set<String> conditionNames = conditionNamesByProjectName.get(projectName);
-						if (showProteinGroupAmounts)
+						if (showProteinGroupAmounts) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
 									conditionNames, projectName, false);
-						if (showProteinGroupRatios)
+						}
+						if (showProteinGroupRatios) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
 									conditionNames, projectName, false);
-						if (showProteinAmounts)
+							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_GRAPH,
+									conditionNames, projectName, false);
+							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
+									conditionNames, projectName, false);
+						}
+						if (showProteinAmounts) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
 									conditionNames, projectName, false);
-						if (showProteinRatios)
+						}
+						if (showProteinRatios) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
 									conditionNames, projectName, false);
-						if (showPeptideAmounts)
+							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_GRAPH,
+									conditionNames, projectName, false);
+							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
+									conditionNames, projectName, false);
+						}
+						if (showPeptideAmounts) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
 									conditionNames, projectName, false);
-						if (showPeptideRatios)
+						}
+						if (showPeptideRatios) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO,
 									conditionNames, projectName, false);
+							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_GRAPH,
+									conditionNames, projectName, false);
+							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_SCORE,
+									conditionNames, projectName, false);
+						}
 						if (showPSMAmounts) {
 							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT, conditionNames,
 									projectName, false);
@@ -494,7 +534,15 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showPsmRatios) {
 							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO, conditionNames,
 									projectName, false);
+							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_GRAPH,
+									conditionNames, projectName, false);
+							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_SCORE,
+									conditionNames, projectName, false);
 							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO,
+									conditionNames, projectName, false);
+							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_GRAPH,
+									conditionNames, projectName, false);
+							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_SCORE,
 									conditionNames, projectName, false);
 						}
 					}
@@ -1225,9 +1273,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 										// add to the experimeental
 										// condition panel
 										String letter = SharedDataUtils
-												.getConditionSymbolFromConditionElement(newElementName);
+												.parseConditionSymbolFromConditionSelection(newElementName);
 										String number = SharedDataUtils
-												.getProjectSymbolFromConditionSelection(newElementName);
+												.parseProjectSymbolFromConditionSelection(newElementName);
 										letter = number + letter;
 										conditionsPanel.addItem(newElementName, conditionName);
 
@@ -2218,8 +2266,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									String projectNameFromRatio = ratioDescriptor.getProjectTag();
 									if (projectTag.equals(projectNameFromRatio)) {
 										String condition2 = ratioDescriptor.getCondition2Name();
-										String letter1 = getLetterFromCondition(condition1, projectTag);
-										String letter2 = getLetterFromCondition(condition2, projectTag);
+										String letter1 = getProjectConditionSymbolOfCondition(condition1, projectTag);
+										String letter2 = getProjectConditionSymbolOfCondition(condition2, projectTag);
 
 										final ColumnWithVisibility proteinRatioColumn = ProteinColumns.getInstance()
 												.getColumn(ColumnName.PROTEIN_RATIO);
@@ -2318,9 +2366,17 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	}
 
-	private String getLetterFromCondition(String conditionName, String projectName) {
+	/**
+	 * Given a conditionName and a project name, goes to the conditionsPanel and
+	 * search for the symbol of the condition of that project
+	 * 
+	 * @param conditionName
+	 * @param projectName
+	 * @return
+	 */
+	private String getProjectConditionSymbolOfCondition(String conditionName, String projectName) {
 
-		final String projectSymbol = SharedDataUtils.getProjectSymbolFromListBox(projectName,
+		final String projectSymbol = SharedDataUtils.parseProjectSymbolFromListBox(projectName,
 				projectListPanel.getListBox());
 
 		final ListBox listBox = conditionsPanel.getListBox();
@@ -2329,13 +2385,13 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			String conditionName2 = listBox.getValue(i);
 			if (conditionName2.equals(conditionName)) {
 				final String projectSymbolFromCondition = SharedDataUtils
-						.getProjectSymbolFromConditionSelection(conditionString);
+						.parseProjectSymbolFromConditionSelection(conditionString);
 				if (projectSymbolFromCondition == null || "".equals(projectSymbolFromCondition)) {
 					// just one project in the list
-					return SharedDataUtils.getConditionSymbolFromConditionElement(conditionString);
+					return SharedDataUtils.parseConditionSymbolFromConditionSelection(conditionString);
 				} else if (projectSymbolFromCondition.equals(projectSymbol)) {
 					return projectSymbolFromCondition
-							+ SharedDataUtils.getConditionSymbolFromConditionElement(conditionString);
+							+ SharedDataUtils.parseConditionSymbolFromConditionSelection(conditionString);
 				}
 			}
 		}

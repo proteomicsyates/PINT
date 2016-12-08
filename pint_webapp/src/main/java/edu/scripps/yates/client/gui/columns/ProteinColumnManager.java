@@ -78,8 +78,9 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 
 	@Override
 	public ProteinTextColumn addRatioColumn(ColumnName columnName, boolean visibleState, String condition1Name,
-			String condition2Name, String projectTag, String ratioName) {
-		String headerName = SharedDataUtils.getRatioHeader(columnName, ratioName, condition1Name, condition2Name);
+			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
+			String ratioName) {
+		String headerName = SharedDataUtils.getRatioHeader(ratioName, condition1Symbol, condition2Symbol);
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName),
 				SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
@@ -92,14 +93,15 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 
 	@Override
 	public ProteinTextColumn addRatioScoreColumn(ColumnName columnName, boolean visibleState, String condition1Name,
-			String condition2Name, String projectTag, String ratioName) {
-		String headerName = SharedDataUtils.getRatioHeader(columnName, ratioName, condition1Name, condition2Name);
+			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
+			String scoreName) {
+		String headerName = SharedDataUtils.getRatioHeader(scoreName, condition1Symbol, condition2Symbol);
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName),
-				SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
+				SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, scoreName));
 		final ProteinTextColumn column = new ProteinTextColumn(columnName, visibleState, header,
-				footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name, projectTag, ratioName),
-				condition1Name, condition2Name, projectTag, ratioName);
+				footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name, projectTag, scoreName),
+				condition1Name, condition2Name, projectTag, scoreName);
 		addColumn(column);
 		return column;
 	}

@@ -239,11 +239,12 @@ public abstract class AbstractDataTable<T> extends Composite
 	}
 
 	public final void addColumnForConditionRatio(ColumnName columnName, boolean isVisible, String condition1Name,
-			String condition1ID, String condition2Name, String condition2ID, String projectTag, String ratioName) {
+			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
+			String ratioName) {
 		// check first if the column is already present or not
 		if (!columnManager.containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName)) {
 			CustomTextColumn<T> column = columnManager.addRatioColumn(columnName, isVisible, condition1Name,
-					condition2Name, projectTag, ratioName);
+					condition1Symbol, condition2Name, condition2Symbol, projectTag, ratioName);
 			if (column.isVisible()) {
 				Header<String> footer = column.getFooter();
 
@@ -261,11 +262,12 @@ public abstract class AbstractDataTable<T> extends Composite
 	}
 
 	public final void addColumnForConditionRatioScore(ColumnName columnName, boolean isVisible, String condition1Name,
-			String condition1ID, String condition2Name, String condition2ID, String projectTag, String ratioName) {
+			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
+			String ratioName) {
 		// check first if the column is already present or not
 		if (!getColumnManager().containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName)) {
 			CustomTextColumn<T> column = getColumnManager().addRatioScoreColumn(columnName, isVisible, condition1Name,
-					condition2Name, projectTag, ratioName);
+					condition1Symbol, condition2Name, condition2Symbol, projectTag, ratioName);
 			if (column.isVisible()) {
 				Header<String> footer = column.getFooter();
 				String headerName = columnName.getAbr();
