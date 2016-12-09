@@ -653,7 +653,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	 */
 	public void setPrimaryAccession(AccessionBean primaryAccession) {
 		boolean overrideAcc = true;
-		if (this.primaryAccession != null) {
+		if (primaryAccession != null && primaryAccession.getDescription() != null) {
 			if (primaryAccession.getDescription().startsWith("This entry was marked as obsolete")) {
 				overrideAcc = false;
 			}
