@@ -13,6 +13,7 @@ public class UniprotFeatureBean implements Serializable, Comparable<UniprotFeatu
 	private String status;
 	private String ref;
 	private String original;
+	private String variation;
 	private String featureType;
 
 	public UniprotFeatureBean() {
@@ -182,6 +183,21 @@ public class UniprotFeatureBean implements Serializable, Comparable<UniprotFeatu
 			return getFeatureType().compareTo(o2.getFeatureType());
 		}
 		return 0;
+	}
+
+	/**
+	 * @return the variation
+	 */
+	public String getVariation() {
+		return variation;
+	}
+
+	/**
+	 * @param variation
+	 *            the variation to set
+	 */
+	public void setVariation(String variation) {
+		this.variation = variation;
 	}
 
 }

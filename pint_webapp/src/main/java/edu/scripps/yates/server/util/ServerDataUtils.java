@@ -149,6 +149,8 @@ public class ServerDataUtils {
 						}
 					} else if (type.equals("original")) {
 						ret.setOriginal(tmp);
+					} else if (type.equals("variation")) {
+						ret.setVariation(tmp);
 					} else if (type.equals("id")) {
 						ret.setDescription(tmp);
 					} else if (type.equals("position")) {
