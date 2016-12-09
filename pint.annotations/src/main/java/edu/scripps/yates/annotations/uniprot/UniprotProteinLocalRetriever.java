@@ -29,6 +29,7 @@ import edu.scripps.yates.annotations.uniprot.index.UniprotXmlIndex;
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.ObjectFactory;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 
 public class UniprotProteinLocalRetriever implements UniprotRetriever {
 	private static final Logger log = Logger.getLogger(UniprotProteinLocalRetriever.class);
@@ -38,7 +39,6 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 	private final boolean useIndex;
 	private final static Map<File, UniprotXmlIndex> loadedIndexes = new HashMap<File, UniprotXmlIndex>();
 	private static JAXBContext jaxbContext;
-	private final static Pattern isoformPattern = Pattern.compile("\\w+\\-\\w*");
 
 	// private static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
 
@@ -91,8 +91,8 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 				if (!proteinsRetrieved.containsKey(accession)) {
 					// check first if it is an accession like P12345-1
 					String acc = accession;
-					if ("1".equals(getIsoformVersion(accession))) {
-						acc = getNoIsoformAccession(accession);
+					if ("1".equals(FastaParser.getIsoformVersion(accession))) {
+						acc = FastaParser.getNoIsoformAccession(accession);
 						if (!proteinsRetrieved.containsKey(acc)) {
 							log.info(accession
 									+ " is not in the set of proteins retrieved. It will be added to missing accessions");
@@ -304,8 +304,8 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 		Set<String> accsToSearch = new HashSet<String>();
 		Set<String> mainIsoforms = new HashSet<String>();
 		for (String acc : accessions) {
-			if ("1".equals(getIsoformVersion(acc))) {
-				String noIsoAcc = getNoIsoformAccession(acc);
+			if ("1".equals(FastaParser.getIsoformVersion(acc))) {
+				String noIsoAcc = FastaParser.getNoIsoformAccession(acc);
 				if (noIsoAcc != null) {
 					log.info("Registered main isoform accession: " + acc);
 					accsToSearch.add(noIsoAcc);
@@ -443,7 +443,7 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 			// map main isoforms to the corresponding no isoform entries,
 			// that is an entry like P12345-1 to P12345
 			for (String mainIsoform : mainIsoforms) {
-				final Entry entry = queryProteinsMap.get(getNoIsoformAccession(mainIsoform));
+				final Entry entry = queryProteinsMap.get(FastaParser.getNoIsoformAccession(mainIsoform));
 				if (entry != null) {
 					log.info("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
 					queryProteinsMap.put(mainIsoform, entry);
@@ -463,7 +463,7 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 				// map main isoforms to the corresponding no isoform entries,
 				// that is an entry like P12345-1 to P12345
 				for (String mainIsoform : mainIsoforms) {
-					final Entry entry = queryProteinsMap.get(getNoIsoformAccession(mainIsoform));
+					final Entry entry = queryProteinsMap.get(FastaParser.getNoIsoformAccession(mainIsoform));
 					if (entry != null) {
 						log.info("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
 						queryProteinsMap.put(mainIsoform, entry);
@@ -489,38 +489,6 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 			}
 		}
 		return ret;
-	}
-
-	/**
-	 * If an accession like P12334-1 is found, P12334 is returned.<br>
-	 * If an accession like P12334-4 is found, P12334 is returned.<br>
-	 * If an accession like P12345 is found, the same P12345 is returned
-	 *
-	 * @param uniprotAcc
-	 * @return
-	 */
-	public static String getNoIsoformAccession(String uniprotAcc) {
-
-		if (uniprotAcc.indexOf("-") >= 0 && isoformPattern.matcher(uniprotAcc).matches()) {
-			return uniprotAcc.substring(0, uniprotAcc.indexOf("-"));
-		}
-		return uniprotAcc;
-	}
-
-	/**
-	 * If an accession like P12334-1 is found, 1 is returned.<br>
-	 * If an accession like P12334-4 is found, 4 is returned.<br>
-	 * If an accession like P12345 is found, null
-	 *
-	 * @param uniprotAcc
-	 * @return
-	 */
-	public static String getIsoformVersion(String uniprotAcc) {
-
-		if (uniprotAcc.indexOf("-") >= 0 && isoformPattern.matcher(uniprotAcc).matches()) {
-			return uniprotAcc.substring(uniprotAcc.indexOf("-") + 1);
-		}
-		return null;
 	}
 
 	public String getLatestUniprotVersionFolderName() {

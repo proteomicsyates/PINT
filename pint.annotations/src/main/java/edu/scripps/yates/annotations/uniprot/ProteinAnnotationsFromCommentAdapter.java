@@ -131,9 +131,11 @@ public class ProteinAnnotationsFromCommentAdapter implements Adapter<Set<Protein
 		// general comment
 		if (comment.getText() != null) {
 			final AnnotationType annotationType = AnnotationType.translateStringToAnnotationType(comment.getType());
+
 			String value = comment.getText() == null ? null : getStringFromText(comment.getText());
 			ProteinAnnotationEx proteinAnnotationEx = new ProteinAnnotationEx(annotationType, comment.getType(), value);
 			ret.add(proteinAnnotationEx);
+
 		}
 		return ret;
 	}

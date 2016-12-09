@@ -2,12 +2,17 @@ package edu.scripps.yates.annotations.uniprot;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+
+import com.compomics.util.protein.AASequenceImpl;
 
 import edu.scripps.yates.annotations.uniprot.xml.CommentType;
 import edu.scripps.yates.annotations.uniprot.xml.DbReferenceType;
@@ -17,6 +22,8 @@ import edu.scripps.yates.annotations.uniprot.xml.EvidencedStringType;
 import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.annotations.uniprot.xml.GeneNameType;
 import edu.scripps.yates.annotations.uniprot.xml.GeneType;
+import edu.scripps.yates.annotations.uniprot.xml.IsoformType;
+import edu.scripps.yates.annotations.uniprot.xml.IsoformType.Name;
 import edu.scripps.yates.annotations.uniprot.xml.KeywordType;
 import edu.scripps.yates.annotations.uniprot.xml.LocationType;
 import edu.scripps.yates.annotations.uniprot.xml.OrganismNameType;
@@ -31,6 +38,7 @@ import edu.scripps.yates.annotations.uniprot.xml.ReferenceType;
 import edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Plasmid;
 import edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Strain;
 import edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Transposon;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupablePSM;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
@@ -92,6 +100,17 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		entry = proteinEntry;
 		primaryAccession = getPrimaryAccession();
 
+	}
+
+	private boolean isIsoform() {
+		if (primaryAccession.getAccessionType() == AccessionType.UNIPROT) {
+			final String accession = primaryAccession.getAccession();
+			String version = FastaParser.getIsoformVersion(accession);
+			if (version != null && !"1".equals(version)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -186,7 +205,58 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		final List<CommentType> comments = entry.getComment();
 		if (comments != null) {
 			for (CommentType comment : comments) {
-				ret.addAll(new ProteinAnnotationsFromCommentAdapter(comment).adapt());
+				final AnnotationType annotationType = AnnotationType.translateStringToAnnotationType(comment.getType());
+				if ("tissue specificity".equals(annotationType.getKey()) && comment.getText() != null) {
+					// in this case, the text can contains different phrases,
+					// each of them can start by "isoform 4 is expressed..."
+					// in that case, only include the ones for the appropiate
+					// isoform
+					for (EvidencedStringType text : comment.getText()) {
+						if (text.getValue() != null) {
+							List<String> phrases = new ArrayList<String>();
+							if (text.getValue().contains(".")) {
+								final String[] split = text.getValue().split("\\.");
+								final List<String> asList = Arrays.asList(split);
+								phrases.addAll(asList);
+							} else {
+								phrases.add(text.getValue());
+							}
+							final Pattern isoformPattern = Pattern.compile("isoform (\\d+)");
+							StringBuilder sb = new StringBuilder();
+							for (String phrase : phrases) {
+								final Matcher matcher = isoformPattern.matcher(phrase.toLowerCase());
+								if (matcher.find()) {
+									// if found, only get if when the isoform
+									// number is correct
+									if (isIsoform()) {
+										if (FastaParser.getIsoformVersion(getAccession()).equals(matcher.group(1))) {
+											if (!"".equals(sb.toString())) {
+												sb.append(" ");
+											}
+											sb.append(phrase.trim()).append(".");
+										}
+									}
+								} else {
+									// not found, only get it if we are in the
+									// canonical entry
+									if (!isIsoform()) {
+										if (!"".equals(sb.toString())) {
+											sb.append(" ");
+										}
+										sb.append(phrase.trim()).append(".");
+									}
+								}
+							}
+							ProteinAnnotationEx proteinAnnotationEx = new ProteinAnnotationEx(annotationType,
+									comment.getType(), sb.toString());
+							ret.add(proteinAnnotationEx);
+						}
+					}
+				} else {
+					final Set<ProteinAnnotation> annotations = new ProteinAnnotationsFromCommentAdapter(comment)
+							.adapt();
+					ret.addAll(annotations);
+				}
 			}
 		}
 
@@ -194,13 +264,18 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		final List<FeatureType> features = entry.getFeature();
 		if (features != null) {
 			for (FeatureType feature : features) {
+				final AnnotationType annotationType = AnnotationType.translateStringToAnnotationType(feature.getType());
+				if (skipFeature(feature)) {
+					continue;
+				}
+
 				// the the description as the annotation name if available.
 				// Otherwise, take the type
 				String annotName = feature.getDescription();
-				if (annotName == null)
+				if (annotName == null) {
 					annotName = feature.getType();
-				ProteinAnnotation annotation = new ProteinAnnotationEx(
-						AnnotationType.translateStringToAnnotationType(feature.getType()), annotName,
+				}
+				ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType, annotName,
 						getValueFromFeature(feature));
 				ret.add(annotation);
 			}
@@ -379,6 +454,48 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		return ret;
 	}
 
+	/**
+	 * Decides if the feature is valid for this protein or not because sometimes
+	 * the entry is coming from the canonical Uniprot protein and this is
+	 * actually an isoform. So we want to skip all annotations regarding the
+	 * isoforms.
+	 *
+	 * @param feature
+	 * @return
+	 */
+	private boolean skipFeature(FeatureType feature) {
+		// if it is an isoform, look for "splice variant" features, and
+		// look to see a description like: "In isoform 7, isoform 8 and
+		// isoform 9." Then, if is is not the correct isoform, skip the
+		// annotation.
+		final String description = feature.getDescription();
+		if ("splice variant".equalsIgnoreCase(feature.getType())) {
+			final String isoformVersion = FastaParser.getIsoformVersion(getPrimaryAccession().getAccession());
+			if (description != null) {
+				if (description.contains("isoform")) {
+					final String[] split = description.split("isoform");
+
+					for (int index = 1; index < split.length; index++) {
+						String string = split[index];
+						try {
+							int isoformNumber = Integer.valueOf(string.trim().charAt(0));
+							// isoformVersion can be null iof it is the
+							// canonical protein
+							if (String.valueOf(isoformNumber).equals(isoformVersion)) {
+								return false;
+							}
+						} catch (NumberFormatException e) {
+
+						}
+					}
+					// skip it because it was not found
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	private String getValueFromKeyword(KeywordType keyword) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("id:" + keyword.getId());
@@ -543,6 +660,33 @@ public class ProteinImplFromUniprotEntry implements Protein {
 								((AccessionEx) primaryAccession).addAlternativeName(descriptions.get(j));
 							}
 						}
+						// if it is an isoform, go to <isoform> in the Entry and
+						// look for alternative names
+						if (isIsoform()) {
+							final String isoformVersion = FastaParser.getIsoformVersion(accession);
+							IsoformType isoformType = getIsoformType(primaryAccession.getAccession());
+							if (isoformType != null && isoformType.getName() != null) {
+								for (Name name : isoformType.getName()) {
+									// skip when:
+									// <id>P04637-8</id>
+									// <name>8</name>
+									if (!name.getValue().equals(isoformVersion)) {
+										((AccessionEx) primaryAccession).addAlternativeName(name.getValue());
+									}
+								}
+								// add the <text> as an alternativeName:
+								// <text>Produced by alternative promoter usage
+								// and alternative splicing.</text>
+								if (isoformType.getText() != null) {
+									for (EvidencedStringType evidencedString : isoformType.getText()) {
+										if (evidencedString.getValue() != null) {
+											((AccessionEx) primaryAccession)
+													.addAlternativeName(evidencedString.getValue());
+										}
+									}
+								}
+							}
+						}
 					} else {
 						AccessionEx secondaryAccession = new AccessionEx(accession, AccessionType.UNIPROT);
 						final List<String> descriptions = getDescriptions();
@@ -563,6 +707,32 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		return primaryAccession;
 	}
 
+	/**
+	 * Look for a particular {@link IsoformType} into the
+	 * entry/comment/isoform/id XPath
+	 *
+	 * @param isoformID
+	 * @return
+	 */
+	private IsoformType getIsoformType(String isoformID) {
+		if (isoformID != null) {
+			if (entry.getComment() != null) {
+				for (CommentType commentType : entry.getComment()) {
+					if (commentType.getIsoform() != null) {
+						for (IsoformType isoformType : commentType.getIsoform()) {
+							if (isoformType.getId() != null) {
+								if (isoformType.getId().contains(isoformID)) {
+									return isoformType;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public String getAccession() {
 		return getPrimaryAccession().getAccession();
@@ -570,6 +740,10 @@ public class ProteinImplFromUniprotEntry implements Protein {
 
 	@Override
 	public int getLength() {
+		if (getSequence() != null && !"".equals(getSequence())) {
+			return getSequence().length();
+		}
+
 		if (!lengthParsed) {
 			if (entry.getSequence() != null)
 				length = entry.getSequence().getLength();
@@ -587,8 +761,14 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	@Override
 	public double getMW() {
 		if (!mwParsed) {
-			if (entry.getSequence() != null)
+			final String sequence = getSequence();
+			if (sequence != null && !"".equals(sequence)) {
+				return new AASequenceImpl(sequence).getMass();
+			}
+
+			if (entry.getSequence() != null) {
 				mw = entry.getSequence().getMass();
+			}
 			mwParsed = true;
 		}
 		return mw;

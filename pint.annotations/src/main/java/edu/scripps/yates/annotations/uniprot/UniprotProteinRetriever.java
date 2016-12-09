@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.SequenceType;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
@@ -90,9 +91,8 @@ public class UniprotProteinRetriever {
 									ret.put(acc, actualSeq);
 									// if it is an isoform like P12345-1, map it
 									// also to P12345
-									if ("1".equals(UniprotProteinLocalRetriever.getIsoformVersion(acc))) {
-										final String noIsoformAccession = UniprotProteinLocalRetriever
-												.getNoIsoformAccession(acc);
+									if ("1".equals(FastaParser.getIsoformVersion(acc))) {
+										final String noIsoformAccession = FastaParser.getNoIsoformAccession(acc);
 										log.info("Protein sequence from principal isoform " + acc
 												+ " mapped also to accession " + noIsoformAccession);
 										ret.put(noIsoformAccession, actualSeq);

@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
@@ -19,6 +18,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.model.enums.AmountType;
 import edu.scripps.yates.utilities.model.factories.PeptideEx;
@@ -276,7 +276,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProtein = upr
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
-			final String nonIsoFormaAcc = UniprotProteinLocalRetriever.getNoIsoformAccession(accession);
+			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
 			if (annotatedProtein.containsKey(accession))
 				return annotatedProtein.get(accession).getOrganism();
 			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
@@ -298,7 +298,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProtein = upr
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
-			final String nonIsoFormaAcc = UniprotProteinLocalRetriever.getNoIsoformAccession(accession);
+			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
 			if (annotatedProtein.containsKey(accession))
 				return annotatedProtein.get(accession).getGenes();
 			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
@@ -320,7 +320,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProtein = upr
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
-			final String nonIsoFormaAcc = UniprotProteinLocalRetriever.getNoIsoformAccession(accession);
+			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
 			if (annotatedProtein.containsKey(accession))
 				return annotatedProtein.get(accession).getLength();
 			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
@@ -342,7 +342,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProtein = upr
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
-			final String nonIsoFormaAcc = UniprotProteinLocalRetriever.getNoIsoformAccession(accession);
+			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
 			if (annotatedProtein.containsKey(accession))
 				return annotatedProtein.get(accession).getMW();
 			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {

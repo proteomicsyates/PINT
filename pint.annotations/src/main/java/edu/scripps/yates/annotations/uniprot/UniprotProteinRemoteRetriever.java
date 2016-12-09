@@ -43,6 +43,7 @@ import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.SequenceType;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.annotations.util.PropertiesUtil;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 
 /**
  * This class retrieves the protein information from uniprot
@@ -101,8 +102,8 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 				continue;
 			}
 			// convert isoform accessions to non isoforms but keep the isoforms
-			final String isoformVersion = UniprotProteinLocalRetriever.getIsoformVersion(acc);
-			final String noIsoformAccession = UniprotProteinLocalRetriever.getNoIsoformAccession(acc);
+			final String isoformVersion = FastaParser.getIsoformVersion(acc);
+			final String noIsoformAccession = FastaParser.getNoIsoformAccession(acc);
 			if (isoformVersion != null && !"1".equals(isoformVersion)) {
 				isoformList.add(acc);
 				if (!noIsoformList.contains(noIsoformAccession)) {
@@ -195,7 +196,7 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 
 		Map<String, Entry> fastaEntries = getFASTASequences(isoformList);
 		for (String isoformAcc : isoformList) {
-			String noIsoformAcc = UniprotProteinLocalRetriever.getNoIsoformAccession(isoformAcc);
+			String noIsoformAcc = FastaParser.getNoIsoformAccession(isoformAcc);
 			if (entryMap.containsKey(noIsoformAcc)) {
 				Entry noIsoformEntry = entryMap.get(noIsoformAcc);
 
