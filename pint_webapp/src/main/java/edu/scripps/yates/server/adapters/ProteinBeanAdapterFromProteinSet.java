@@ -104,7 +104,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		ProteinAccession primaryProteinAccession = queriableProtein.getPrimaryProteinAccession();
 		proteinBean.setPrimaryAccession(new AccessionBeanAdapter(primaryProteinAccession).adapt());
 		for (ProteinAccession proteinAccession : queriableProtein.getProteinAccessions()) {
-			if (!proteinAccession.equals(primaryProteinAccession)) {
+			if (!proteinAccession.getAccession().equals(primaryProteinAccession.getAccession())) {
 				proteinBean.addSecondaryAccession(new AccessionBeanAdapter(proteinAccession).adapt());
 			}
 		}

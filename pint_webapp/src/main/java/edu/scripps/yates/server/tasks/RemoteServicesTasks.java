@@ -182,10 +182,10 @@ public class RemoteServicesTasks {
 		while (iterator.hasNext()) {
 			ProteinBean proteinBean = iterator.next();
 			String accession = proteinBean.getPrimaryAccession().getAccession();
-			if (accession.contains("-")) {
-				// annotate the isoform with the same entry
-				accession = accession.substring(0, accession.indexOf("-"));
-			}
+			// if (accession.contains("-")) {
+			// // annotate the isoform with the same entry
+			// accession = accession.substring(0, accession.indexOf("-"));
+			// }
 			final edu.scripps.yates.utilities.proteomicsmodel.Protein annotatedProtein = annotatedProteins
 					.get(accession);
 			if (annotatedProtein != null) {
