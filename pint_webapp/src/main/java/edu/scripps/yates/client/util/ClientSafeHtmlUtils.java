@@ -1019,6 +1019,12 @@ public class ClientSafeHtmlUtils {
 			} else {
 				sb.append("Position: ").append(uniprotFeature.getPositionStart()).append("\n");
 			}
+			if (uniprotFeature.getOriginal() != null && !"".equals(uniprotFeature.getOriginal())) {
+				sb.append("Original: ").append(uniprotFeature.getOriginal()).append("\n");
+			}
+			if (uniprotFeature.getVariation() != null && !"".equals(uniprotFeature.getVariation())) {
+				sb.append("Variation: ").append(uniprotFeature.getVariation()).append("\n");
+			}
 			sb.append("Length: ").append(uniprotFeature.getLength());
 		}
 		return sb.toString();
