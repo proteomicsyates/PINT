@@ -478,7 +478,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 					for (int index = 1; index < split.length; index++) {
 						String string = split[index];
 						try {
-							int isoformNumber = Integer.valueOf(string.trim().charAt(0));
+							int isoformNumber = Integer.valueOf(String.valueOf(string.trim().charAt(0)));
 							// isoformVersion can be null iof it is the
 							// canonical protein
 							if (String.valueOf(isoformNumber).equals(isoformVersion)) {

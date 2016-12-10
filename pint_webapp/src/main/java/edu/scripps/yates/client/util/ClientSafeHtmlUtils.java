@@ -2,6 +2,7 @@ package edu.scripps.yates.client.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -844,22 +845,23 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static SafeHtml getUniprotFeatureSafeHtml(ProteinBean p, String... featureTypes) {
-		final Map<String, List<UniprotFeatureBean>> uniprotFeatures = p.getUniprotFeatures();
 		SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		List<String> uniprotFeatureList = new ArrayList<String>();
-		uniprotFeatureList.addAll(uniprotFeatures.keySet());
+		uniprotFeatureList.addAll(java.util.Arrays.asList(featureTypes));
 		Collections.sort(uniprotFeatureList);
-		for (String uniprotFeatureString : uniprotFeatureList) {
-			final List<UniprotFeatureBean> list = uniprotFeatures.get(uniprotFeatureString);
-			if (list.isEmpty()) {
+		for (String featureType : uniprotFeatureList) {
+
+			final List<UniprotFeatureBean> uniprotFeatures = p.getUniprotFeaturesByFeatureType(featureType);
+
+			if (uniprotFeatures.isEmpty()) {
 				continue;
 			}
 
-			sb.append(template.startToolTipWithClass(uniprotFeatureString, "featureType"));
-			sb.appendEscaped(uniprotFeatureString);
+			sb.append(template.startToolTipWithClass(featureType, "featureType"));
+			sb.appendEscaped(featureType);
 			sb.append(template.endToolTip());
 
-			for (UniprotFeatureBean uniprotFeature : list) {
+			for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {
 				String toolTipText = getToolTipFromUniprotFeature(uniprotFeature);
 				sb.append(template.startToolTip(toolTipText));
 				if (uniprotFeature.getDescription() != null) {
@@ -877,6 +879,7 @@ public class ClientSafeHtmlUtils {
 				}
 				sb.append(template.endToolTip());
 			}
+
 		}
 		return sb.toSafeHtml();
 	}
@@ -930,18 +933,16 @@ public class ClientSafeHtmlUtils {
 			Map<String, List<Pair<Integer, Integer>>> startingPositionsByProtein, List<ProteinBean> proteinBeans,
 			String... featureTypes) {
 		SafeHtmlBuilder sb = new SafeHtmlBuilder();
-		for (ProteinBean p : proteinBeans) {
-			if (startingPositionsByProtein.containsKey(p.getPrimaryAccession().getAccession())) {
-				final Map<String, List<UniprotFeatureBean>> uniprotFeatures = p.getUniprotFeatures();
-				List<String> uniprotFeatureList = new ArrayList<String>();
-				uniprotFeatureList.addAll(uniprotFeatures.keySet());
-				Collections.sort(uniprotFeatureList);
-				for (String uniprotFeatureString : uniprotFeatureList) {
-					final List<UniprotFeatureBean> list = uniprotFeatures.get(uniprotFeatureString);
-					if (list.isEmpty()) {
+		for (String featureType : featureTypes) {
+			Map<UniprotFeatureBean, Set<ProteinBean>> proteinBeansByUniprotFeatureBean = new HashMap<UniprotFeatureBean, Set<ProteinBean>>();
+			for (ProteinBean p : proteinBeans) {
+
+				if (startingPositionsByProtein.containsKey(p.getPrimaryAccession().getAccession())) {
+					final List<UniprotFeatureBean> uniprotFeatureList = p.getUniprotFeaturesByFeatureType(featureType);
+					if (uniprotFeatureList.isEmpty()) {
 						continue;
 					}
-					for (UniprotFeatureBean uniprotFeature : list) {
+					for (UniprotFeatureBean uniprotFeature : uniprotFeatureList) {
 						// only consider the ones with annotated start and end
 						// positions
 						if (uniprotFeature.getPositionStart() > -1 && uniprotFeature.getPositionEnd() > -1) {
@@ -952,38 +953,94 @@ public class ClientSafeHtmlUtils {
 									startingPositions, uniprotFeature.getPositionStart(),
 									uniprotFeature.getPositionEnd());
 							if (sequenceOverlapping != SEQUENCE_OVERLAPPING.NOT_COVERED) {
-								sb.append(template.startToolTipWithClass(uniprotFeatureString, "featureType"));
-								sb.appendEscaped(uniprotFeatureString);
-								sb.append(template.endToolTip());
-								String toolTipText = getToolTipFromUniprotFeature(uniprotFeature);
-								sb.append(template.startToolTip(toolTipText));
-								if (uniprotFeature.getDescription() != null) {
-									sb.appendEscaped(uniprotFeature.getDescription());
+								if (proteinBeansByUniprotFeatureBean.containsKey(uniprotFeature)) {
+									proteinBeansByUniprotFeatureBean.get(uniprotFeature).add(p);
 								} else {
-									sb.appendEscaped(uniprotFeature.getFeatureType());
+									Set<ProteinBean> proteinSet = new HashSet<ProteinBean>();
+									proteinSet.add(p);
+									proteinBeansByUniprotFeatureBean.put(uniprotFeature, proteinSet);
 								}
-
-								if (uniprotFeature.getPositionStart() == uniprotFeature.getPositionEnd()) {
-									sb.appendEscaped(" (").append(uniprotFeature.getPositionStart()).appendEscaped(")");
-								} else {
-									sb.appendEscaped(" (").append(uniprotFeature.getPositionStart()).appendEscaped("-")
-											.append(uniprotFeature.getPositionEnd()).appendEscaped(")");
-								}
-								sb.appendHtmlConstant("<div class='" + sequenceOverlapping.getCSSClassName() + "'>");
-								sb.appendEscaped(" (" + sequenceOverlapping.getDescription() + ")");
-								sb.appendHtmlConstant("</div>");
-								sb.append(template.endToolTip());
 							}
 						}
 					}
 				}
-			} else {
-				// there is not starting positions for this peptide in this
-				// protein
 			}
-			sb.appendEscaped(SharedConstants.NEW_LINE_JAVA);
+			boolean featureTypeHeaderPrinted = false;
+			List<UniprotFeatureBean> uniprotFeatureList = new ArrayList<UniprotFeatureBean>();
+			uniprotFeatureList.addAll(proteinBeansByUniprotFeatureBean.keySet());
+			Collections.sort(uniprotFeatureList);
+			for (UniprotFeatureBean uniprotFeature : uniprotFeatureList) {
+				if (!featureTypeHeaderPrinted) {
+					sb.append(template.startToolTipWithClass(featureType, "featureType"));
+					sb.appendEscaped(featureType);
+					sb.append(template.endToolTip());
+					featureTypeHeaderPrinted = true;
+				}
+				String toolTipText = getToolTipFromUniprotFeature(uniprotFeature);
+				sb.append(template.startToolTip(toolTipText));
+				if (uniprotFeature.getDescription() != null) {
+					sb.appendEscaped(uniprotFeature.getDescription());
+				} else {
+					sb.appendEscaped(uniprotFeature.getFeatureType());
+				}
+
+				if (uniprotFeature.getPositionStart() == uniprotFeature.getPositionEnd()) {
+					sb.appendEscaped(" (").append(uniprotFeature.getPositionStart()).appendEscaped(")");
+				} else {
+					sb.appendEscaped(" (").append(uniprotFeature.getPositionStart()).appendEscaped("-")
+							.append(uniprotFeature.getPositionEnd()).appendEscaped(")");
+				}
+
+				final Set<ProteinBean> proteinSet = proteinBeansByUniprotFeatureBean.get(uniprotFeature);
+				Map<SEQUENCE_OVERLAPPING, List<ProteinBean>> proteinsBySequenceOverlapping = new HashMap<SEQUENCE_OVERLAPPING, List<ProteinBean>>();
+				for (ProteinBean proteinBean : proteinSet) {
+
+					final List<Pair<Integer, Integer>> startingPositions = startingPositionsByProtein
+							.get(proteinBean.getPrimaryAccession().getAccession());
+					SEQUENCE_OVERLAPPING sequenceOverlapping = SharedDataUtils.isPeptideIncludedInThatRange(
+							startingPositions, uniprotFeature.getPositionStart(), uniprotFeature.getPositionEnd());
+					if (proteinsBySequenceOverlapping.containsKey(sequenceOverlapping)) {
+						proteinsBySequenceOverlapping.get(sequenceOverlapping).add(proteinBean);
+					} else {
+						List<ProteinBean> list = new ArrayList<ProteinBean>();
+						list.add(proteinBean);
+						proteinsBySequenceOverlapping.put(sequenceOverlapping, list);
+					}
+				}
+
+				for (SEQUENCE_OVERLAPPING overlapping : SEQUENCE_OVERLAPPING.values()) {
+					if (proteinsBySequenceOverlapping.containsKey(overlapping)) {
+						final List<ProteinBean> proteinList = proteinsBySequenceOverlapping.get(overlapping);
+						if (!proteinList.isEmpty()) {
+							Collections.sort(proteinList);// because is
+															// comparable
+							sb.appendHtmlConstant("<div class='" + overlapping.getCSSClassName() + "'>");
+							String plural = "";
+							if (proteinList.size() > 0) {
+								plural = "s";
+							}
+							sb.appendEscaped(" (" + overlapping.getDescription() + " in protein" + plural + " ");
+							boolean first = true;
+							for (ProteinBean proteinBean : proteinList) {
+								if (!first) {
+									sb.appendEscaped(",");
+								}
+								sb.appendEscaped(proteinBean.getPrimaryAccession().getAccession());
+								first = false;
+							}
+							sb.appendEscaped(")");
+							sb.appendHtmlConstant("</div>");
+						}
+					}
+				}
+				sb.append(template.endToolTip());
+
+				sb.appendEscaped(SharedConstants.NEW_LINE_JAVA);
+			}
 		}
+
 		return sb.toSafeHtml();
+
 	}
 
 	private static String getToolTipFromUniprotFeature(UniprotFeatureBean uniprotFeature) {

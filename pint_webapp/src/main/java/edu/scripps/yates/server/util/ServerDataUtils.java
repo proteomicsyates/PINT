@@ -3,6 +3,8 @@ package edu.scripps.yates.server.util;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import edu.scripps.yates.annotations.uniprot.ProteinImplFromUniprotEntry;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
@@ -14,6 +16,7 @@ import edu.scripps.yates.utilities.strings.StringUtils;
 public class ServerDataUtils {
 	// for calculating the protein coverage
 	private static final String SPECIAL_CHARACTER = "$";
+	private final static Logger log = Logger.getLogger(ServerDataUtils.class);
 
 	public static void calculateProteinCoverage(ProteinBean proteinBean, String proteinSeq) {
 		final Pair<Double, char[]> pair = calculateProteinCoverage(proteinBean.getPsms(), proteinBean.getPeptides(),
@@ -119,7 +122,9 @@ public class ServerDataUtils {
 	public static UniprotFeatureBean getFromValue(String featureType, String name, String value) {
 		final String annotationSeparator = ProteinImplFromUniprotEntry.ANNOTATION_SEPARATOR;
 		UniprotFeatureBean ret = new UniprotFeatureBean();
-
+		if (featureType.contains("splice")) {
+			log.info(featureType);
+		}
 		ret.setFeatureType(featureType);
 		if (name != null) {
 			ret.setDescription(name);
@@ -131,29 +136,29 @@ public class ServerDataUtils {
 					final String[] split2 = string.split(":");
 					String type = split2[0].trim();
 					String tmp = split2[1].trim();
-					if (type.equals("status")) {
+					if (type.equals(ProteinImplFromUniprotEntry.STATUS)) {
 						ret.setStatus(tmp);
-					} else if (type.equals("ref")) {
+					} else if (type.equals(ProteinImplFromUniprotEntry.REF)) {
 						ret.setRef(tmp);
-					} else if (type.equals("begin")) {
+					} else if (type.equals(ProteinImplFromUniprotEntry.BEGIN)) {
 						try {
 							ret.setPositionStart(Integer.valueOf(tmp));
 						} catch (NumberFormatException e) {
 
 						}
-					} else if (type.equals("end")) {
+					} else if (type.equals(ProteinImplFromUniprotEntry.END)) {
 						try {
 							ret.setPositionEnd(Integer.valueOf(tmp));
 						} catch (NumberFormatException e) {
 
 						}
-					} else if (type.equals("original")) {
+					} else if (type.equals(ProteinImplFromUniprotEntry.ORIGINAL)) {
 						ret.setOriginal(tmp);
 					} else if (type.equals("variation")) {
 						ret.setVariation(tmp);
-					} else if (type.equals("id")) {
+					} else if (type.equals(ProteinImplFromUniprotEntry.ID)) {
 						ret.setDescription(tmp);
-					} else if (type.equals("position")) {
+					} else if (type.equals(ProteinImplFromUniprotEntry.POSITION)) {
 						try {
 							ret.setPositionStart(Integer.valueOf(tmp));
 							ret.setPositionEnd(Integer.valueOf(tmp));

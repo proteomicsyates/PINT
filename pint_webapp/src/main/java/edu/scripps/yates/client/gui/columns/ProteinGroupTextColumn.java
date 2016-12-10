@@ -160,9 +160,9 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 	 */
 	@Override
 	public void render(Context context, ProteinGroupBean p, SafeHtmlBuilder sb) {
-		if (width == 0) {
-			return;
-		}
+		// if (width == 0) {
+		// return;
+		// }
 		DataGridRenderValue data;
 		switch (columnName) {
 		case ACC:
@@ -210,6 +210,9 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 
 			sb.append(ClientSafeHtmlUtils.getProteinCoverageGraphic(p));
 
+			break;
+		case CONDITION:
+			sb.append(new SafeHtmlBuilder().appendEscapedLines(p.getConditionsString()).toSafeHtml());
 			break;
 		default:
 			super.render(context, p, sb);
