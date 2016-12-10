@@ -860,9 +860,12 @@ public class SharedDataUtils {
 			proteinBeanReceiver.addFunction(function);
 		}
 
-		final Set<UniprotFeatureBean> uniprotFeatures = proteinBeanDonor.getUniprotFeatures();
-		for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {
-			proteinBeanReceiver.addUniprotFeature(uniprotFeature);
+		final Collection<List<UniprotFeatureBean>> uniprotFeatures = proteinBeanDonor.getUniprotFeatures().values();
+		for (List<UniprotFeatureBean> uniprotFeatureSet : uniprotFeatures) {
+			for (UniprotFeatureBean uniprotFeature : uniprotFeatureSet) {
+				proteinBeanReceiver.addUniprotFeature(uniprotFeature);
+			}
+
 		}
 
 		// reset geneString in order to be rebuilt after adding new genes
@@ -1123,17 +1126,6 @@ public class SharedDataUtils {
 		return min;
 	}
 
-	public static Set<UniprotFeatureBean> getUniprotFeaturesByFeatureType(
-			Collection<UniprotFeatureBean> uniprotFeatures, String featureType) {
-		Set<UniprotFeatureBean> set = new HashSet<UniprotFeatureBean>();
-		for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {
-			if (uniprotFeature.getFeatureType().equalsIgnoreCase(featureType)) {
-				set.add(uniprotFeature);
-			}
-		}
-		return set;
-	}
-
 	public static Map<String, ProteinBean> getProteinBeansByPrimaryAccession(Set<ProteinBean> proteins) {
 		Map<String, ProteinBean> ret = new HashMap<String, ProteinBean>();
 		for (ProteinBean proteinBean : proteins) {
@@ -1179,8 +1171,7 @@ public class SharedDataUtils {
 	public static String getUniprotFeatureString(ProteinBean p, String... featureTypes) {
 		final Set<UniprotFeatureBean> uniprotFeatures = new HashSet<UniprotFeatureBean>();
 		for (String featureType : featureTypes) {
-			uniprotFeatures
-					.addAll(SharedDataUtils.getUniprotFeaturesByFeatureType(p.getUniprotFeatures(), featureType));
+			uniprotFeatures.addAll(p.getUniprotFeaturesByFeatureType(featureType));
 		}
 		StringBuilder sb = new StringBuilder();
 		for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {
@@ -1208,8 +1199,7 @@ public class SharedDataUtils {
 			if (startingPositionsByProtein.containsKey(p.getPrimaryAccession().getAccession())) {
 				final Set<UniprotFeatureBean> uniprotFeatures = new HashSet<UniprotFeatureBean>();
 				for (String featureType : featureTypes) {
-					uniprotFeatures.addAll(
-							SharedDataUtils.getUniprotFeaturesByFeatureType(p.getUniprotFeatures(), featureType));
+					uniprotFeatures.addAll(p.getUniprotFeaturesByFeatureType(featureType));
 				}
 
 				for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {

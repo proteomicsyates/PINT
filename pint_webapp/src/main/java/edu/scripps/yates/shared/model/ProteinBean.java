@@ -73,7 +73,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	private char[] coverageArrayString;
 	private String ensemblID;
 	private Map<String, RatioDistribution> ratioDistributions;
-	private Set<UniprotFeatureBean> uniprotFeatures = new HashSet<UniprotFeatureBean>();
+	private Map<String, List<UniprotFeatureBean>> uniprotFeatures = new HashMap<String, List<UniprotFeatureBean>>();
 
 	public ProteinBean() {
 		proteinBeanUniqueIdentifier = hashCode();
@@ -1025,8 +1025,18 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 
 	public void addUniprotFeature(UniprotFeatureBean uniprotFeature) {
 		if (uniprotFeatures == null)
-			uniprotFeatures = new HashSet<UniprotFeatureBean>();
-		uniprotFeatures.add(uniprotFeature);
+			uniprotFeatures = new HashMap<String, List<UniprotFeatureBean>>();
+		if (uniprotFeatures.containsKey(uniprotFeature.getFeatureType())) {
+			final List<UniprotFeatureBean> list = uniprotFeatures.get(uniprotFeature.getFeatureType());
+			if (!list.contains(uniprotFeature)) {
+				list.add(uniprotFeature);
+				Collections.sort(list);
+			}
+		} else {
+			List<UniprotFeatureBean> list = new ArrayList<UniprotFeatureBean>();
+			list.add(uniprotFeature);
+			uniprotFeatures.put(uniprotFeature.getFeatureType(), list);
+		}
 	}
 
 	public String getSecondaryAccessionsString() {
@@ -1185,7 +1195,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 			lightVersion.thresholds.addAll(getThresholds());
 			lightVersion.conditions.addAll(conditions);
 			lightVersion.omimEntries.putAll(getOmimEntries());
-			lightVersion.uniprotFeatures.addAll(getUniprotFeatures());
+			lightVersion.uniprotFeatures.putAll(getUniprotFeatures());
 			lightVersion.setUniprotProteinExistence(getUniprotProteinExistence());
 			// allow peptides in proteins.
 			// IMPORTANT: do it after cloning all the other features of the
@@ -1391,18 +1401,25 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	/**
 	 * @return the uniprotFeatures
 	 */
-	public Set<UniprotFeatureBean> getUniprotFeatures() {
+	public Map<String, List<UniprotFeatureBean>> getUniprotFeatures() {
 		if (uniprotFeatures == null) {
-			uniprotFeatures = new HashSet<UniprotFeatureBean>();
+			uniprotFeatures = new HashMap<String, List<UniprotFeatureBean>>();
 		}
 		return uniprotFeatures;
+	}
+
+	public List<UniprotFeatureBean> getUniprotFeaturesByFeatureType(String featureType) {
+		if (uniprotFeatures.containsKey(featureType)) {
+			return uniprotFeatures.get(featureType);
+		}
+		return Collections.emptyList();
 	}
 
 	/**
 	 * @param uniprotFeatures
 	 *            the uniprotFeatures to set
 	 */
-	public void setUniprotFeatures(Set<UniprotFeatureBean> uniprotFeatures) {
+	public void setUniprotFeatures(HashMap<String, List<UniprotFeatureBean>> uniprotFeatures) {
 		this.uniprotFeatures = uniprotFeatures;
 	}
 }

@@ -257,6 +257,13 @@ public class RemoteServicesTasks {
 						proteinBean.addGene(geneBean);
 					}
 				}
+				// length
+				if (annotatedProtein.getLength() > 0) {
+					proteinBean.setLength(annotatedProtein.getLength());
+				}
+				if (annotatedProtein.getMW() > 0.0) {
+					proteinBean.setMw(annotatedProtein.getMW());
+				}
 			}
 			// just add it to the map
 			boolean merged = addToMapAndMergeIfNecessary(proteinMap, proteinBean);

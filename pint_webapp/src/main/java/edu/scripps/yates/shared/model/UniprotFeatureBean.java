@@ -15,6 +15,7 @@ public class UniprotFeatureBean implements Serializable, Comparable<UniprotFeatu
 	private String original;
 	private String variation;
 	private String featureType;
+	private String string;
 
 	public UniprotFeatureBean() {
 
@@ -158,9 +159,7 @@ public class UniprotFeatureBean implements Serializable, Comparable<UniprotFeatu
 	 */
 	@Override
 	public String toString() {
-		return "UniprotFeature [start=" + positionStart + ", End=" + positionEnd + ", description=" + description
-				+ ", status=" + status + ", ref=" + ref + ", original=" + original + ", featureType=" + featureType
-				+ "]";
+		return getString();
 	}
 
 	@Override
@@ -200,4 +199,23 @@ public class UniprotFeatureBean implements Serializable, Comparable<UniprotFeatu
 		this.variation = variation;
 	}
 
+	public String getString() {
+		if (string == null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("UniprotFeature [start=").append(positionStart).append(", End=").append(positionEnd)
+					.append(", description=").append(description).append(", status=").append(status).append(", ref=")
+					.append(ref).append(", original=").append(original).append(", featureType=").append(featureType)
+					.append("]");
+			string = sb.toString();
+		}
+		return string;
+	}
+
+	/**
+	 * @param string
+	 *            the string to set
+	 */
+	public void setString(String string) {
+		this.string = string;
+	}
 }

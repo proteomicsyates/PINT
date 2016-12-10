@@ -2,7 +2,6 @@ package edu.scripps.yates.client.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -845,30 +844,17 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static SafeHtml getUniprotFeatureSafeHtml(ProteinBean p, String... featureTypes) {
-		final Map<String, Set<UniprotFeatureBean>> uniprotFeatures = new HashMap<String, Set<UniprotFeatureBean>>();
-		for (String featureType : featureTypes) {
-			final Set<UniprotFeatureBean> uniprotFeaturesByFeatureType = SharedDataUtils
-					.getUniprotFeaturesByFeatureType(p.getUniprotFeatures(), featureType);
-			if (uniprotFeatures.containsKey(featureType)) {
-				uniprotFeatures.get(featureType).addAll(uniprotFeaturesByFeatureType);
-			} else {
-				Set<UniprotFeatureBean> set = new HashSet<UniprotFeatureBean>();
-				set.addAll(uniprotFeaturesByFeatureType);
-				uniprotFeatures.put(featureType, set);
-			}
-		}
+		final Map<String, List<UniprotFeatureBean>> uniprotFeatures = p.getUniprotFeatures();
 		SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		List<String> uniprotFeatureList = new ArrayList<String>();
 		uniprotFeatureList.addAll(uniprotFeatures.keySet());
 		Collections.sort(uniprotFeatureList);
 		for (String uniprotFeatureString : uniprotFeatureList) {
-			final Set<UniprotFeatureBean> set = uniprotFeatures.get(uniprotFeatureString);
-			if (set.isEmpty()) {
+			final List<UniprotFeatureBean> list = uniprotFeatures.get(uniprotFeatureString);
+			if (list.isEmpty()) {
 				continue;
 			}
-			List<UniprotFeatureBean> list = new ArrayList<UniprotFeatureBean>();
-			list.addAll(set);
-			Collections.sort(list);// because UniprotFeatureBean is comparable
+
 			sb.append(template.startToolTipWithClass(uniprotFeatureString, "featureType"));
 			sb.appendEscaped(uniprotFeatureString);
 			sb.append(template.endToolTip());
@@ -946,24 +932,16 @@ public class ClientSafeHtmlUtils {
 		SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		for (ProteinBean p : proteinBeans) {
 			if (startingPositionsByProtein.containsKey(p.getPrimaryAccession().getAccession())) {
-				final Map<String, Set<UniprotFeatureBean>> uniprotFeatures = new HashMap<String, Set<UniprotFeatureBean>>();
-				for (String featureType : featureTypes) {
-					Set<UniprotFeatureBean> uniprotFeaturesByFeatureType = SharedDataUtils
-							.getUniprotFeaturesByFeatureType(p.getUniprotFeatures(), featureType);
-					if (uniprotFeatures.containsKey(featureType)) {
-						uniprotFeatures.get(featureType).addAll(uniprotFeaturesByFeatureType);
-					} else {
-						Set<UniprotFeatureBean> set = new HashSet<UniprotFeatureBean>();
-						set.addAll(uniprotFeaturesByFeatureType);
-						uniprotFeatures.put(featureType, set);
-					}
-				}
-				for (String uniprotFeatureString : uniprotFeatures.keySet()) {
-					final Set<UniprotFeatureBean> set = uniprotFeatures.get(uniprotFeatureString);
-					if (set.isEmpty()) {
+				final Map<String, List<UniprotFeatureBean>> uniprotFeatures = p.getUniprotFeatures();
+				List<String> uniprotFeatureList = new ArrayList<String>();
+				uniprotFeatureList.addAll(uniprotFeatures.keySet());
+				Collections.sort(uniprotFeatureList);
+				for (String uniprotFeatureString : uniprotFeatureList) {
+					final List<UniprotFeatureBean> list = uniprotFeatures.get(uniprotFeatureString);
+					if (list.isEmpty()) {
 						continue;
 					}
-					for (UniprotFeatureBean uniprotFeature : set) {
+					for (UniprotFeatureBean uniprotFeature : list) {
 						// only consider the ones with annotated start and end
 						// positions
 						if (uniprotFeature.getPositionStart() > -1 && uniprotFeature.getPositionEnd() > -1) {

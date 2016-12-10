@@ -763,7 +763,12 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		if (!mwParsed) {
 			final String sequence = getSequence();
 			if (sequence != null && !"".equals(sequence)) {
-				return new AASequenceImpl(sequence).getMass();
+
+				final double mass = new AASequenceImpl(sequence).getMass();
+				if (mass > 0.0) {
+					return mass;
+				}
+
 			}
 
 			if (entry.getSequence() != null) {
@@ -777,7 +782,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	@Override
 	public String getSequence() {
 		if (entry.getSequence() != null)
-			return entry.getSequence().getValue().trim().replace(" ", "");
+			return entry.getSequence().getValue().trim().replace(" ", "").replace("\n", "");
 		return null;
 	}
 

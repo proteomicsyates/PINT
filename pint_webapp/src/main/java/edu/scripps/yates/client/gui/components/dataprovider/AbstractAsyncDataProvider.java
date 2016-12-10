@@ -145,7 +145,7 @@ public abstract class AbstractAsyncDataProvider<T> extends AsyncDataProvider<T> 
 	 * boolean)
 	 */
 	@Override
-	public void updateRowCount(int size, boolean exact) {
+	public void updateRowCount(final int size, final boolean exact) {
 		if (size == 0) {
 			containsData = false;
 		} else {
@@ -153,7 +153,18 @@ public abstract class AbstractAsyncDataProvider<T> extends AsyncDataProvider<T> 
 		}
 		this.size = size;
 		this.exact = exact;
-		super.updateRowCount(size, exact);
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				updateRowCountInSuper(size, exact);
+			}
+		});
+	}
+
+	protected void updateRowCountInSuper(int size2, boolean exact2) {
+		super.updateRowCount(size2, exact2);
+
 	}
 
 	/**

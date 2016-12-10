@@ -118,12 +118,12 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 				proteinBean.addGene(new GeneBeanAdapter(gene).adapt());
 			}
 		}
-		if (queriableProtein.getLength() != null)
+		if (queriableProtein.getLength() != null) {
 			proteinBean.setLength(queriableProtein.getLength());
-
-		if (queriableProtein.getMw() != null)
+		}
+		if (queriableProtein.getMw() != null) {
 			proteinBean.setMw(queriableProtein.getMw());
-
+		}
 		if (queriableProtein.getPi() != null)
 			proteinBean.setPi(queriableProtein.getPi());
 		// log.debug("Adapting msRun for protein DbID: " + protein.getId());
