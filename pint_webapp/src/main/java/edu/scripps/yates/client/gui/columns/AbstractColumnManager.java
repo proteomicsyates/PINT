@@ -8,22 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.client.interfaces.HasColumns;
-import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountType;
-import edu.scripps.yates.shared.model.ProteinPeptideCluster;
-import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
 
 public abstract class AbstractColumnManager<T> {
-	private static final ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
+	protected static final ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 
 	private final List<MyColumn<T>> myColumns = new ArrayList<MyColumn<T>>();
 	// protected List<ColumnName> columns;
@@ -288,32 +282,6 @@ public abstract class AbstractColumnManager<T> {
 			}
 		}
 		return false;
-	}
-
-	protected FieldUpdater<T, ImageResource> getMyFieldUpdater(
-			final CustomClickableImageColumnShowPeptideTable<T> customTextButtonColumn, final String sessionID) {
-		FieldUpdater<T, ImageResource> ret = new FieldUpdater<T, ImageResource>() {
-
-			@Override
-			public void update(int index, final T proteinBean, ImageResource image) {
-				if (proteinBean instanceof ContainsPeptides) {
-					service.getProteinsByPeptide(sessionID, (ContainsPeptides) proteinBean,
-							new AsyncCallback<ProteinPeptideCluster>() {
-
-								@Override
-								public void onSuccess(ProteinPeptideCluster result) {
-									customTextButtonColumn.showSharingPeptidesTablePanel(proteinBean, result);
-								}
-
-								@Override
-								public void onFailure(Throwable caught) {
-									StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-								}
-							});
-				}
-			}
-		};
-		return ret;
 	}
 
 	public final boolean containsScoreColumn(String scoreName, ColumnName columnName) {

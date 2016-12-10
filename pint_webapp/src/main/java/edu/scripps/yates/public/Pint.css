@@ -886,85 +886,85 @@
   -background: url(circles_ie6.png) no-repeat -3px 0px;
 }
 
-.gwt-DialogBox .Caption {
-  background: #F1F1F1;
-  padding: 4px 8px 4px 4px;
-  cursor: default;
-  font-family: Arial Unicode MS, Arial, sans-serif;
-  font-weight: bold;
-  border-bottom: 1px solid #bbbbbb;
-  border-top: 1px solid #D2D2D2;
-}
+/* .gwt-DialogBox .Caption { */
+/*   background: #F1F1F1; */
+/*   padding: 4px 8px 4px 4px; */
+/*   cursor: default; */
+/*   font-family: Arial Unicode MS, Arial, sans-serif; */
+/*   font-weight: bold; */
+/*   border-bottom: 1px solid #bbbbbb; */
+/*   border-top: 1px solid #D2D2D2; */
+/* } */
 
-.gwt-DialogBox .dialogBottomCenter {
-  background: url(hborder.png) repeat-x 0px -2945px;
-  -background: url(hborder_ie6.png) repeat-x 0px -2144px;
-}
+/* .gwt-DialogBox .dialogBottomCenter { */
+/*   background: url(hborder.png) repeat-x 0px -2945px; */
+/*   -background: url(hborder_ie6.png) repeat-x 0px -2144px; */
+/* } */
 
-.gwt-DialogBox .dialogBottomLeft {
-  background: url(circles.png) no-repeat 0px -36px;
-  -background: url(circles_ie6.png) no-repeat 0px -36px;
-}
+/* .gwt-DialogBox .dialogBottomLeft { */
+/*   background: url(circles.png) no-repeat 0px -36px; */
+/*   -background: url(circles_ie6.png) no-repeat 0px -36px; */
+/* } */
 
-.gwt-DialogBox .dialogBottomLeftInner {
-  width: 10px;
-  height: 12px;
-  zoom: 1;
-}
+/* .gwt-DialogBox .dialogBottomLeftInner { */
+/*   width: 10px; */
+/*   height: 12px; */
+/*   zoom: 1; */
+/* } */
 
-.gwt-DialogBox .dialogBottomRight {
-  background: url(circles.png) no-repeat -8px -36px;
-  -background: url(circles_ie6.png) no-repeat -8px -36px;
-}
+/* .gwt-DialogBox .dialogBottomRight { */
+/*   background: url(circles.png) no-repeat -8px -36px; */
+/*   -background: url(circles_ie6.png) no-repeat -8px -36px; */
+/* } */
 
-.gwt-DialogBox .dialogBottomRightInner {
-  width: 12px;
-  height: 12px;
-  zoom: 1;
-}
+/* .gwt-DialogBox .dialogBottomRightInner { */
+/*   width: 12px; */
+/*   height: 12px; */
+/*   zoom: 1; */
+/* } */
 
-.gwt-DialogBox .dialogContent {
-    padding: 10px;
-}
+/* .gwt-DialogBox .dialogContent { */
+/*     padding: 10px; */
+/* } */
 
-.DialogBox-content{
-	padding:10px;
-}
+/* .DialogBox-content{ */
+/* 	padding:10px; */
+/* } */
 
-.gwt-DialogBox .dialogMiddleCenter {
-  padding: 3px;
-  background: white;
-}
+/* .gwt-DialogBox .dialogMiddleCenter { */
+/*   padding: 3px; */
+/*   background: white; */
+/* } */
 
-.gwt-DialogBox .dialogMiddleLeft {
-  background: url(vborder.png) repeat-y -31px 0px;
-}
+/* .gwt-DialogBox .dialogMiddleLeft { */
+/*   background: url(vborder.png) repeat-y -31px 0px; */
+/* } */
 
-.gwt-DialogBox .dialogMiddleRight {
-  background: url(vborder.png) repeat-y -32px 0px;
-  -background: url(vborder_ie6.png) repeat-y -32px 0px;
-}
+/* .gwt-DialogBox .dialogMiddleRight { */
+/*   background: url(vborder.png) repeat-y -32px 0px; */
+/*   -background: url(vborder_ie6.png) repeat-y -32px 0px; */
+/* } */
 
-.gwt-DialogBox .dialogTopLeft {
-  background: url(circles.png) no-repeat -20px 0px;
-  -background: url(circles_ie6.png) no-repeat -20px 0px;
-}
+/* .gwt-DialogBox .dialogTopLeft { */
+/*   background: url(circles.png) no-repeat -20px 0px; */
+/*   -background: url(circles_ie6.png) no-repeat -20px 0px; */
+/* } */
 
-.gwt-DialogBox .dialogTopLeftInner {
-  width: 10px;
-  height: 8px;
-  zoom: 1;
-}
+/* .gwt-DialogBox .dialogTopLeftInner { */
+/*   width: 10px; */
+/*   height: 8px; */
+/*   zoom: 1; */
+/* } */
 
-.gwt-DialogBox .dialogTopRight {
-  background: url(circles.png) no-repeat -28px 0px;
-  -background: url(circles_ie6.png) no-repeat -28px 0px;
-}
+/* .gwt-DialogBox .dialogTopRight { */
+/*   background: url(circles.png) no-repeat -28px 0px; */
+/*   -background: url(circles_ie6.png) no-repeat -28px 0px; */
+/* } */
 
-.gwt-DialogBox .dialogTopRightInner {
-  width: 12px;
-  zoom: 1;
-}
+/* .gwt-DialogBox .dialogTopRightInner { */
+/*   width: 12px; */
+/*   zoom: 1; */
+/* } */
 
 .gwt-DisclosurePanel .header {
 	color: Black;
@@ -1466,27 +1466,27 @@ height:300px;
 
 .tableHeader {
 	font-size: 10px;
-	padding: 0px 0px !important;
+	padding: 0px 10px 0px 0px !important;
 	white-space: nowrap;
     padding-right: 10px !important;
 }
 .tableHeaderCenter {
 	font-size: 10px;
-	padding: 0px 0px !important;
+	padding: 0px 10px 0px 0px !important;
 	text-align: center !important;
 	white-space: nowrap;
     padding-right: 10px !important;
 }
 .tableHeaderRight {
 	font-size: 10px;
-	padding: 0px 0px !important;
+	padding: 0px 10px 0px 0px !important;
 	text-align: right !important;
 	white-space: nowrap;
     padding-right: 10px !important;
 }
 .tableHeaderLeft {
 	font-size: 10px;
-	padding: 0px 0px !important;
+	padding: 0px 10px 0px 0px !important;
 	text-align: left !important;
 	white-space: nowrap;
     padding-right: 10px !important;
@@ -1498,7 +1498,8 @@ height:300px;
 }
 
 .textColumn{
-	padding: 0px !important;
+	padding: 0px 10px 0px 0px !important;
+	white-space: nowrap;
 }
 
 .clickableImageColumn { 

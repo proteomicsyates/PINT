@@ -25,7 +25,7 @@ public class PathWaysColumnManager extends AbstractColumnManager<PathwaySummary>
 		List<ColumnWithVisibility> columns = PathwaysColumns.getInstance().getColumns();
 		for (ColumnWithVisibility columnWithVisibility : columns) {
 			if (columnWithVisibility.getColumn() == ColumnName.PATHWAY_ID) {
-				final CustomClickableImageReactomeColumn<PathwaySummary> customTextButtonColumn = new CustomClickableImageReactomeColumn<PathwaySummary>(
+				final CustomClickableImageReactomeColumn customTextButtonColumn = new CustomClickableImageReactomeColumn(
 						sessionID, columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
 				customTextButtonColumn.setFieldUpdater(getMyFieldUpdater());
 				super.addColumn(customTextButtonColumn);

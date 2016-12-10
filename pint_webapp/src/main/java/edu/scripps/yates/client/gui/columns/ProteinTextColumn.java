@@ -235,7 +235,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		// break;
 		case ALTERNATIVE_NAMES:
 			sb.append(template.startToolTip(p.getAlternativeNamesString()));
-			sb.appendEscaped(p.getAlternativeNamesString());
+			sb.appendEscapedLines(p.getAlternativeNamesString());
 			sb.append(template.endToolTip());
 
 			break;

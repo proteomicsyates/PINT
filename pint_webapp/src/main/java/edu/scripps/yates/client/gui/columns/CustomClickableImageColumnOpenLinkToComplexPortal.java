@@ -17,6 +17,7 @@ import com.google.gwt.user.client.Window;
 
 import edu.scripps.yates.client.gui.templates.HtmlTemplates;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
+import edu.scripps.yates.client.util.HorizontalAlignmentUtil;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.ProteinBean;
 
@@ -42,6 +43,8 @@ public class CustomClickableImageColumnOpenLinkToComplexPortal extends Column<Pr
 			width = 0;
 		}
 		this.footer = footer;
+		setHorizontalAlignment(
+				HorizontalAlignmentUtil.getHorizontalAlignmentConstant(columnName.getHorizontalAlignment()));
 		setCellStyleNames("clickableImageColumn");
 
 	}
@@ -64,7 +67,6 @@ public class CustomClickableImageColumnOpenLinkToComplexPortal extends Column<Pr
 
 		}
 
-		super.onBrowserEvent(context, elem, object, event);
 	}
 
 	@Override

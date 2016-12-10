@@ -2,15 +2,20 @@ package edu.scripps.yates.client.gui.columns;
 
 import java.util.List;
 
+import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
+import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.ProteinColumns;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinBean;
+import edu.scripps.yates.shared.model.ProteinPeptideCluster;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 
@@ -112,4 +117,30 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 		return null;
 	}
 
+	private FieldUpdater<ProteinBean, ImageResource> getMyFieldUpdater(
+			final CustomClickableImageColumnShowPeptideTable<ProteinBean> customTextButtonColumn,
+			final String sessionID) {
+		FieldUpdater<ProteinBean, ImageResource> ret = new FieldUpdater<ProteinBean, ImageResource>() {
+
+			@Override
+			public void update(int index, final ProteinBean proteinBean, ImageResource image) {
+
+				service.getProteinsByPeptide(sessionID, proteinBean, new AsyncCallback<ProteinPeptideCluster>() {
+
+					@Override
+					public void onSuccess(ProteinPeptideCluster result) {
+						customTextButtonColumn.showSharingPeptidesTablePanel(proteinBean, result);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+					}
+				});
+
+			}
+
+		};
+		return ret;
+	}
 }

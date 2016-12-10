@@ -300,7 +300,21 @@ public class ClientSafeHtmlUtils {
 			shortFunction = shortFunction.substring(0, MAX_LENGTH_FUNCTION) + "...";
 		}
 		sb.append(template.startToolTip(function));
-		sb.append(new SafeHtmlBuilder().appendEscaped(shortFunction).toSafeHtml());
+		String[] split = new String[1];
+		if (shortFunction.contains(". ")) {
+			split = shortFunction.split("\\. ");
+		} else {
+			split[0] = shortFunction;
+		}
+		boolean first = true;
+		for (String string : split) {
+			if (!first) {
+				sb.appendEscapedLines(SharedConstants.SEPARATOR);
+			}
+			sb.appendEscapedLines(string).appendEscaped(".");
+			first = false;
+		}
+
 		sb.append(template.endToolTip());
 		return sb.toSafeHtml();
 	}
