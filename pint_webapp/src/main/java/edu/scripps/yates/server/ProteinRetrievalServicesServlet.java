@@ -1214,7 +1214,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumExperiments() throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumProjects();
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+
+			return ProjectStatsManager.getInstance(method).getNumProjects();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -1226,7 +1229,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentProteins() throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumDifferentProteins();
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+
+			return ProjectStatsManager.getInstance(method).getNumDifferentProteins();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -1238,7 +1244,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentPeptides() throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumDifferentPeptides();
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+
+			return ProjectStatsManager.getInstance(method).getNumDifferentPeptides();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -1250,7 +1259,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumPSMs() throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumPSMs();
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+
+			return ProjectStatsManager.getInstance(method).getNumPSMs();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -1262,7 +1274,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumConditions() throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumConditions();
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+
+			return ProjectStatsManager.getInstance(method).getNumConditions();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -1673,7 +1688,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		log.info("Getting MsRuns from project " + projectTag);
 
 		try {
-			return ProjectStatsManager.getInstance().getNumMSRuns(projectTag);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumMSRuns(projectTag);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2175,7 +2192,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentProteins(String projectTag) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumDifferentProteins(projectTag);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumDifferentProteins(projectTag);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2187,7 +2207,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentPeptides(String projectTag) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumDifferentPeptides(projectTag);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumDifferentPeptides(projectTag);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2199,7 +2221,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumPSMs(String projectTag) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumPSMs(projectTag);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumPSMs(projectTag);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2211,7 +2235,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumGenes() throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumGenes();
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumGenes();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2223,7 +2249,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumGenes(String projectTag) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumGenes(projectTag);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumGenes(projectTag);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2235,7 +2263,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentProteins(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumDifferentProteins(projectTag, msRun);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumDifferentProteins(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2247,7 +2277,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentPeptides(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumDifferentPeptides(projectTag, msRun);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumDifferentPeptides(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2259,7 +2291,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumPSMs(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumPSMs(projectTag, msRun);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumPSMs(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2271,7 +2305,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumGenes(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumGenes(projectTag, msRun);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumGenes(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2283,7 +2319,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentProteins(String projectTag, ExperimentalConditionBean condition) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumDifferentProteins(projectTag, condition);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumDifferentProteins(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2295,7 +2333,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentPeptides(String projectTag, ExperimentalConditionBean condition) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumDifferentPeptides(projectTag, condition);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumDifferentPeptides(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2307,7 +2347,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumPSMs(String projectTag, ExperimentalConditionBean condition) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumPSMs(projectTag, condition);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumPSMs(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2319,7 +2361,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumGenes(String projectTag, ExperimentalConditionBean condition) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumGenes(projectTag, condition);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumGenes(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2331,7 +2375,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumMSRuns(String projectTag, ExperimentalConditionBean condition) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumMSRuns(projectTag, condition);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumMSRuns(projectTag, condition);
 
 		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
@@ -2342,7 +2388,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentProteins(String projectTag, SampleBean sample) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumDifferentProteins(projectTag, sample);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumDifferentProteins(projectTag, sample);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2354,7 +2402,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentPeptides(String projectTag, SampleBean sample) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumDifferentPeptides(projectTag, sample);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumDifferentPeptides(projectTag, sample);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2367,7 +2417,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumPSMs(String projectTag, SampleBean sample) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumPSMs(projectTag, sample);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumPSMs(projectTag, sample);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2380,7 +2432,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumGenes(String projectTag, SampleBean sample) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumGenes(projectTag, sample);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumGenes(projectTag, sample);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2393,7 +2447,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumMSRuns(String projectTag, SampleBean sample) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumMSRuns(projectTag, sample);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumMSRuns(projectTag, sample);
 
 		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
@@ -2404,7 +2460,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumConditions(String projectTag) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumConditions(projectTag);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumConditions(projectTag);
 
 		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
@@ -2415,7 +2473,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumConditions(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumConditions(projectTag, msRun);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumConditions(projectTag, msRun);
 
 		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
@@ -2426,7 +2486,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumSamples(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			return ProjectStatsManager.getInstance().getNumSamples(projectTag, msRun);
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			return ProjectStatsManager.getInstance(method).getNumSamples(projectTag, msRun);
 
 		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);

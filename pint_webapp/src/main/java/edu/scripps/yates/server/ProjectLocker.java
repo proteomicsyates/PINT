@@ -29,11 +29,12 @@ public class ProjectLocker {
 	 */
 
 	public static void lock(String projectTag, Method method) {
-		log.info("Locking " + projectTag + " from Method: " + method.getName());
 		final ReentrantLock lock = getLock(projectTag);
-		log.info(projectTag + " locked from Method: " + method.getName());
+		log.info("Trying to acquire locker for " + projectTag + " from Method: " + method.getName() + " with "
+				+ lock.getQueueLength() + " threads in the queue");
+
 		lock.lock();
-		log.info("Lock acquired by thread " + Thread.currentThread().getId() + " from method " + method.getName());
+		log.info("Lock acquired by thread " + Thread.currentThread().getId() + " from Method " + method.getName());
 	}
 
 	/**

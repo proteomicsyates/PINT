@@ -38,17 +38,18 @@ public class ProjectStatsManager {
 	private boolean loaded = false;
 	private final Map<String, ProjectStatsParent> map = new HashMap<String, ProjectStatsParent>();
 	private ProjectStats generalProjectsStats;
+	private final HashMap<Thread, Method> methodsByThread = new HashMap<Thread, Method>();
 
-	private ProjectStatsManager(File file) {
+	private ProjectStatsManager(File file, Method method) {
 		this.file = file;
+		putMethodFromThread(method);
 		loadFile();
 	}
 
 	private void loadFile() {
 		// wait if someone is trying to access the file
-		final Method method = new Object() {
-		}.getClass().getEnclosingMethod();
-		ProjectLocker.lock(PROJECT_STATS_LOCK, method);
+
+		ProjectLocker.lock(PROJECT_STATS_LOCK, methodsByThread.get(Thread.currentThread()));
 		try {
 			if (!file.exists()) {
 				return;
@@ -98,7 +99,7 @@ public class ProjectStatsManager {
 			e.printStackTrace();
 			log.info("Error while reading stats file: " + e.getMessage());
 		} finally {
-			ProjectLocker.unlock(PROJECT_STATS_LOCK, method);
+			ProjectLocker.unlock(PROJECT_STATS_LOCK, methodsByThread.get(Thread.currentThread()));
 		}
 	}
 
@@ -113,13 +114,19 @@ public class ProjectStatsManager {
 		return null;
 	}
 
-	public static ProjectStatsManager getInstance() {
+	public synchronized static ProjectStatsManager getInstance(Method method) {
 		if (instance == null) {
 			File file = FileManager.getProjectStatsFile();
-			instance = new ProjectStatsManager(file);
+			instance = new ProjectStatsManager(file, method);
+		} else {
+			instance.putMethodFromThread(method);
 		}
-		instance.loadFile();
 		return instance;
+	}
+
+	private void putMethodFromThread(Method method) {
+		methodsByThread.put(Thread.currentThread(), method);
+
 	}
 
 	public Integer getNumSamples(String projectTag, MSRunBean msRun) throws HibernateException, IOException {
@@ -127,6 +134,7 @@ public class ProjectStatsManager {
 		if (stats.getNumSamples() == null) {
 			final List list = PreparedCriteria.getCriteriaForSamplesInProjectInMSRun(projectTag, msRun.getId()).list();
 			stats.setNumSamples(list.size());
+
 			updateFile();
 		}
 		return stats.getNumSamples();
@@ -134,9 +142,8 @@ public class ProjectStatsManager {
 
 	private void updateFile() {
 		// wait until someone release the lock
-		final Method method = new Object() {
-		}.getClass().getEnclosingMethod();
-		ProjectLocker.lock(PROJECT_STATS_LOCK, method);
+
+		ProjectLocker.lock(PROJECT_STATS_LOCK, methodsByThread.get(Thread.currentThread()));
 		try {
 			List<String> projectList = new ArrayList<String>();
 			projectList.addAll(map.keySet());
@@ -167,7 +174,7 @@ public class ProjectStatsManager {
 				}
 			}
 		} finally {
-			ProjectLocker.unlock(PROJECT_STATS_LOCK, method);
+			ProjectLocker.unlock(PROJECT_STATS_LOCK, methodsByThread.get(Thread.currentThread()));
 		}
 	}
 
@@ -205,6 +212,7 @@ public class ProjectStatsManager {
 			final List list = PreparedCriteria.getCriteriaForConditionsInProjectInMSRun(projectTag, msRun.getId())
 					.list();
 			projectStatsFromMSRun.setNumConditions(list.size());
+
 			updateFile();
 		}
 
@@ -217,6 +225,7 @@ public class ProjectStatsManager {
 			Integer numMSRuns = PreparedCriteria.getCriteriaForMSRunsInProjectInSample(projectTag, sample.getId())
 					.list().size();
 			projectStatsFromSample.setNumMSRuns(numMSRuns);
+
 			updateFile();
 		}
 		return projectStatsFromSample.getNumMSRuns();
@@ -228,6 +237,7 @@ public class ProjectStatsManager {
 			Integer numGenes = PreparedCriteria.getCriteriaForGenesInProjectInSample(projectTag, sample.getId()).list()
 					.size();
 			projectStatsFromSample.setNumGenes(numGenes);
+
 			updateFile();
 		}
 		return projectStatsFromSample.getNumGenes();
@@ -240,6 +250,7 @@ public class ProjectStatsManager {
 			Integer numPSMs = PreparedCriteria.getCriteriaForDifferentPSMsInProjectInSample(projectTag, sample.getId())
 					.list().size();
 			projectStatsFromSample.setNumPSMs(numPSMs);
+
 			updateFile();
 		}
 		return projectStatsFromSample.getNumPSMs();
@@ -251,6 +262,7 @@ public class ProjectStatsManager {
 			Integer numPeptides = PreparedCriteria
 					.getCriteriaForDifferentPeptidesInProjectInSample(projectTag, sample.getId()).list().size();
 			projectStatsFromSample.setNumPeptides(numPeptides);
+
 			updateFile();
 		}
 		return projectStatsFromSample.getNumPeptides();
@@ -262,6 +274,7 @@ public class ProjectStatsManager {
 			Integer numProteins = PreparedCriteria
 					.getCriteriaForProteinPrimaryAccsInProjectInSample(projectTag, sample.getId()).list().size();
 			projectStatsFromSample.setNumProteins(numProteins);
+
 			updateFile();
 		}
 		return projectStatsFromSample.getNumProteins();
@@ -274,6 +287,7 @@ public class ProjectStatsManager {
 			Integer numMSRuns = PreparedCriteria.getCriteriaForMSRunsInProjectInCondition(projectTag, condition.getId())
 					.list().size();
 			projectStatsFromCondition.setNumMSRuns(numMSRuns);
+
 			updateFile();
 		}
 		return projectStatsFromCondition.getNumMSRuns();
@@ -285,6 +299,7 @@ public class ProjectStatsManager {
 			Integer numGenes = PreparedCriteria.getCriteriaForGenesInProjectInCondition(projectTag, condition.getId())
 					.list().size();
 			projectStatsFromCondition.setNumGenes(numGenes);
+
 			updateFile();
 		}
 		return projectStatsFromCondition.getNumGenes();
@@ -297,6 +312,7 @@ public class ProjectStatsManager {
 			Integer numPSMs = PreparedCriteria
 					.getCriteriaForDifferentPSMsInProjectInCondition(projectTag, condition.getId()).list().size();
 			projectStatsFromCondition.setNumPSMs(numPSMs);
+
 			updateFile();
 		}
 		return projectStatsFromCondition.getNumPSMs();
@@ -308,6 +324,7 @@ public class ProjectStatsManager {
 			Integer numPeptides = PreparedCriteria
 					.getCriteriaForDifferentPeptidesInProjectInCondition(projectTag, condition.getId()).list().size();
 			projectStatsFromCondition.setNumPeptides(numPeptides);
+
 			updateFile();
 		}
 		return projectStatsFromCondition.getNumPeptides();
@@ -319,6 +336,7 @@ public class ProjectStatsManager {
 			Integer numProteins = PreparedCriteria
 					.getCriteriaForProteinPrimaryAccsInProjectInCondition(projectTag, condition.getId()).list().size();
 			projectStatsFromCondition.setNumProteins(numProteins);
+
 			updateFile();
 		}
 		return projectStatsFromCondition.getNumProteins();
@@ -330,6 +348,7 @@ public class ProjectStatsManager {
 			Integer numProteins = PreparedCriteria.getCriteriaForGenesInProjectInMSRun(projectTag, msRun.getRunID())
 					.list().size();
 			projectStatsFromMSRun.setNumGenes(numProteins);
+
 			updateFile();
 		}
 		return projectStatsFromMSRun.getNumGenes();
@@ -341,6 +360,7 @@ public class ProjectStatsManager {
 			Integer numPSMs = PreparedCriteria.getCriteriaForDifferentPSMsInProjectInMSRun(projectTag, msRun.getRunID())
 					.list().size();
 			projectStatsFromMSRun.setNumPSMs(numPSMs);
+
 			updateFile();
 		}
 		return projectStatsFromMSRun.getNumPSMs();
@@ -352,6 +372,7 @@ public class ProjectStatsManager {
 			Integer numPeptides = PreparedCriteria
 					.getCriteriaForDifferentPeptidesInProjectInMSRun(projectTag, msRun.getRunID()).list().size();
 			projectStatsFromMSRun.setNumPeptides(numPeptides);
+
 			updateFile();
 		}
 		return projectStatsFromMSRun.getNumPeptides();
@@ -363,6 +384,7 @@ public class ProjectStatsManager {
 			Integer numProteins = PreparedCriteria
 					.getCriteriaForProteinPrimaryAccsInProjectInMSRun(projectTag, msRun.getRunID()).list().size();
 			projectStatsFromMSRun.setNumProteins(numProteins);
+
 			updateFile();
 		}
 		return projectStatsFromMSRun.getNumProteins();
@@ -375,6 +397,7 @@ public class ProjectStatsManager {
 			final List list = PreparedCriteria.getCriteriaForGenesInProject(projectTag).list();
 			Integer numGenes = list.size();
 			projectStatsFromProject.setNumGenes(numGenes);
+
 			updateFile();
 		}
 		return projectStatsFromProject.getNumGenes();
@@ -385,6 +408,7 @@ public class ProjectStatsManager {
 		if (projectStatsFromProject.getNumPSMs() == null) {
 			Integer numPSMs = PreparedCriteria.getCriteriaForDifferentPSMsInProject(projectTag).list().size();
 			projectStatsFromProject.setNumPSMs(numPSMs);
+
 			updateFile();
 		}
 		return projectStatsFromProject.getNumPSMs();
@@ -395,6 +419,7 @@ public class ProjectStatsManager {
 		if (projectStatsFromProject.getNumPeptides() == null) {
 			Integer numPeptides = PreparedCriteria.getCriteriaForDifferentPeptidesInProject(projectTag).list().size();
 			projectStatsFromProject.setNumPeptides(numPeptides);
+
 			updateFile();
 		}
 		return projectStatsFromProject.getNumPeptides();
@@ -405,6 +430,7 @@ public class ProjectStatsManager {
 		if (projectStatsFromProject.getNumProteins() == null) {
 			Integer numProteins = PreparedCriteria.getCriteriaForProteinPrimaryAccsInProject(projectTag).list().size();
 			projectStatsFromProject.setNumProteins(numProteins);
+
 			updateFile();
 		}
 		return projectStatsFromProject.getNumProteins();
@@ -414,6 +440,7 @@ public class ProjectStatsManager {
 		if (generalProjectsStats.getNumProteins() == null) {
 			Integer numProteins = PreparedQueries.getNumDifferentProteins();
 			generalProjectsStats.setNumProteins(numProteins);
+
 			updateFile();
 		}
 		return generalProjectsStats.getNumProteins();
@@ -423,6 +450,7 @@ public class ProjectStatsManager {
 		if (generalProjectsStats.getNumGenes() == null) {
 			Integer numGenes = PreparedCriteria.getCriteriaForGenes().list().size();
 			generalProjectsStats.setNumGenes(numGenes);
+
 			updateFile();
 		}
 		return generalProjectsStats.getNumGenes();
@@ -432,6 +460,7 @@ public class ProjectStatsManager {
 		if (generalProjectsStats.getNumPeptides() == null) {
 			Integer numPeptides = PreparedQueries.getNumDifferentPeptides();
 			generalProjectsStats.setNumPeptides(numPeptides);
+
 			updateFile();
 		}
 		return generalProjectsStats.getNumPeptides();
@@ -442,6 +471,7 @@ public class ProjectStatsManager {
 		if (generalProjectsStats.getNumConditions() == null) {
 			Integer numConditions = PreparedQueries.getNumConditions();
 			generalProjectsStats.setNumConditions(numConditions);
+
 			updateFile();
 		}
 		return generalProjectsStats.getNumConditions();
@@ -452,6 +482,7 @@ public class ProjectStatsManager {
 		if (generalProjectsStats.getNumPSMs() == null) {
 			Integer numPSMs = PreparedQueries.getNumPSMs();
 			generalProjectsStats.setNumPSMs(numPSMs);
+
 			updateFile();
 		}
 
@@ -467,6 +498,7 @@ public class ProjectStatsManager {
 		if (projectStatsFromProject.getNumMSRuns() == null) {
 			Integer numMSRuns = PreparedQueries.getMSRunsByProject(projectTag).size();
 			projectStatsFromProject.setNumMSRuns(numMSRuns);
+
 			updateFile();
 		}
 		return projectStatsFromProject.getNumMSRuns();
@@ -478,6 +510,7 @@ public class ProjectStatsManager {
 		if (projectStatsFromProject.getNumConditions() == null) {
 			Integer numConditions = PreparedCriteria.getCriteriaForConditionsInProject(projectTag).list().size();
 			projectStatsFromProject.setNumConditions(numConditions);
+
 			updateFile();
 		}
 		return projectStatsFromProject.getNumConditions();
