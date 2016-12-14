@@ -725,28 +725,38 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		this.startingPositions = startingPositions;
 	}
 
+	/**
+	 * Gets the position of the peptide in the first protein sorted
+	 * alphabetically
+	 *
+	 * @return
+	 */
 	public String getStartingPositionsString() {
 		final Map<String, List<Pair<Integer, Integer>>> startingPositions = getStartingPositions();
 		StringBuilder sb = new StringBuilder();
-
+		List<String> proteinAccs = new ArrayList<String>();
+		proteinAccs.addAll(startingPositions.keySet());
+		Collections.sort(proteinAccs);
 		if (startingPositions != null) {
 			int minPosition = Integer.MAX_VALUE;
 			List<Integer> list = new ArrayList<Integer>();
-			for (List<Pair<Integer, Integer>> positions : startingPositions.values()) {
-				for (Pair<Integer, Integer> startAndEnd : positions) {
-					int position = startAndEnd.getFirstElement();
-					if (!list.contains(position))
-						list.add(position);
-					if (position < minPosition)
-						minPosition = position;
-				}
+
+			List<Pair<Integer, Integer>> positions = startingPositions.get(proteinAccs.get(0));
+			for (Pair<Integer, Integer> startAndEnd : positions) {
+				int position = startAndEnd.getFirstElement();
+				if (!list.contains(position))
+					list.add(position);
+				if (position < minPosition)
+					minPosition = position;
 			}
-			if (list.size() == 1) {
-				sb.append(list.get(0));
-			} else {
-				if (minPosition != Integer.MAX_VALUE)
-					sb.append(minPosition + "*");
+
+			if (minPosition != Integer.MAX_VALUE) {
+				sb.append(minPosition);
 			}
+			if (startingPositions.size() > 1) {
+				sb.append("*");
+			}
+
 		}
 		return sb.toString();
 	}
@@ -755,6 +765,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		final Map<String, List<Pair<Integer, Integer>>> startingPositions = getStartingPositions();
 		final List<AccessionBean> primaryAccessions = getPrimaryAccessions();
 		StringBuilder sb = new StringBuilder();
+		Collections.sort(primaryAccessions);
 		for (AccessionBean accessionBean : primaryAccessions) {
 			if (startingPositions != null && startingPositions.containsKey(accessionBean.getAccession())) {
 				final List<Pair<Integer, Integer>> listTmp = startingPositions.get(accessionBean.getAccession());

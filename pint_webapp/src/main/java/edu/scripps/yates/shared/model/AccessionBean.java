@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AccessionBean implements Serializable {
+public class AccessionBean implements Serializable, Comparable<AccessionBean> {
 
 	private static final long serialVersionUID = 285204540497978045L;
 	private AccessionType accessionType;
@@ -117,6 +117,14 @@ public class AccessionBean implements Serializable {
 	 */
 	public void setAccession(String accession) {
 		this.accession = accession;
+	}
+
+	@Override
+	public int compareTo(AccessionBean o) {
+		if (o != null) {
+			return accession.compareTo(o.getAccession());
+		}
+		return 0;
 	}
 
 }
