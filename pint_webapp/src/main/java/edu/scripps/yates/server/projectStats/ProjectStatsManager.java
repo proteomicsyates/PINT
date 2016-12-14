@@ -114,7 +114,7 @@ public class ProjectStatsManager {
 		return null;
 	}
 
-	public synchronized static ProjectStatsManager getInstance(Method method) {
+	public static ProjectStatsManager getInstance(Method method) {
 		if (instance == null) {
 			File file = FileManager.getProjectStatsFile();
 			instance = new ProjectStatsManager(file, method);
