@@ -461,4 +461,26 @@ public class ProjectStatsManager {
 	public int getNumProjects() {
 		return PreparedQueries.getNumProjects();
 	}
+
+	public int getNumMSRuns(String projectTag) {
+		final ProjectStats projectStatsFromProject = getProjectStatsFromProject(projectTag);
+		if (projectStatsFromProject.getNumMSRuns() == null) {
+			Integer numMSRuns = PreparedQueries.getMSRunsByProject(projectTag).size();
+			projectStatsFromProject.setNumMSRuns(numMSRuns);
+			updateFile();
+		}
+		return projectStatsFromProject.getNumMSRuns();
+
+	}
+
+	public int getNumConditions(String projectTag) {
+		final ProjectStats projectStatsFromProject = getProjectStatsFromProject(projectTag);
+		if (projectStatsFromProject.getNumConditions() == null) {
+			Integer numConditions = PreparedCriteria.getCriteriaForConditionsInProject(projectTag).list().size();
+			projectStatsFromProject.setNumConditions(numConditions);
+			updateFile();
+		}
+		return projectStatsFromProject.getNumConditions();
+	}
+
 }

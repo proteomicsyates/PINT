@@ -1669,6 +1669,21 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	@Override
+	public int getNumMSRuns(String projectTag) throws PintException {
+		log.info("Getting MsRuns from project " + projectTag);
+
+		try {
+			return ProjectStatsManager.getInstance().getNumMSRuns(projectTag);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
 	public PSEAQuantResult sendPSEAQuantQuery(String email, PSEAQuantSupportedOrganism organism,
 			List<PSEAQuantReplicate> replicates, RatioDescriptorBean ratioDescriptor, long numberOfSamplings,
 			PSEAQuantQuantType quantType, PSEAQuantAnnotationDatabase annotationDatabase, PSEAQuantCVTol cvTol,
@@ -2379,6 +2394,17 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public int getNumMSRuns(String projectTag, SampleBean sample) throws PintException {
 		try {
 			return ProjectStatsManager.getInstance().getNumMSRuns(projectTag, sample);
+
+		} catch (Exception e) {
+			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
+		} finally {
+		}
+	}
+
+	@Override
+	public int getNumConditions(String projectTag) throws PintException {
+		try {
+			return ProjectStatsManager.getInstance().getNumConditions(projectTag);
 
 		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);

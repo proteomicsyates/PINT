@@ -111,6 +111,8 @@ public interface ProteinRetrievalService extends RemoteService {
 
 	int getNumConditions() throws PintException;
 
+	int getNumConditions(String projectTag) throws PintException;
+
 	int getNumConditions(String projectTag, MSRunBean msRun) throws PintException;
 
 	int getNumSamples(String projectTag, MSRunBean msRun) throws PintException;
@@ -175,6 +177,8 @@ public interface ProteinRetrievalService extends RemoteService {
 			int start, int end) throws PintException;
 
 	int getNumMSRuns() throws PintException;
+
+	int getNumMSRuns(String projectTag) throws PintException;
 
 	int getNumMSRuns(String projectTag, ExperimentalConditionBean condition) throws PintException;
 

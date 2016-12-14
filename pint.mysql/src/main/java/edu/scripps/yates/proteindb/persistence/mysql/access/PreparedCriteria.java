@@ -591,4 +591,12 @@ public class PreparedCriteria {
 		cr.add(Restrictions.eq("msRun.runId", msRunID)).add(Restrictions.eq("project.tag", projectTag));
 		return cr;
 	}
+
+	public static Criteria getCriteriaForConditionsInProject(String projectTag) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Condition.class, "condition")
+				.createAlias("condition.proteins", "protein").createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("condition.id")));
+		cr.add(Restrictions.eq("project.tag", projectTag));
+		return cr;
+	}
 }
