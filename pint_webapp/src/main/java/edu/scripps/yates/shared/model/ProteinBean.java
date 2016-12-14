@@ -74,6 +74,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	private String ensemblID;
 	private Map<String, RatioDistribution> ratioDistributions;
 	private Map<String, List<UniprotFeatureBean>> uniprotFeatures = new HashMap<String, List<UniprotFeatureBean>>();
+	private List<ReactomePathwayRef> reactomePathways = new ArrayList<ReactomePathwayRef>();
 
 	public ProteinBean() {
 		proteinBeanUniqueIdentifier = hashCode();
@@ -1206,6 +1207,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 			}
 			lightVersion.coverageArrayString = coverageArrayString;
 			lightVersion.ratioDistributions = getRatioDistributions();
+			lightVersion.reactomePathways.addAll(getReactomePathways());
 		}
 		return lightVersion;
 	}
@@ -1421,5 +1423,28 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	 */
 	public void setUniprotFeatures(HashMap<String, List<UniprotFeatureBean>> uniprotFeatures) {
 		this.uniprotFeatures = uniprotFeatures;
+	}
+
+	/**
+	 * @return the reactomePathways
+	 */
+	public List<ReactomePathwayRef> getReactomePathways() {
+		return reactomePathways;
+	}
+
+	/**
+	 * @param reactomePathways
+	 *            the reactomePathways to set
+	 */
+	public void setReactomePathways(List<ReactomePathwayRef> reactomePathways) {
+		this.reactomePathways = reactomePathways;
+	}
+
+	public void addReactomePathwayRef(ReactomePathwayRef reactomePathwayRef) {
+		if (reactomePathways == null) {
+			reactomePathways = new ArrayList<ReactomePathwayRef>();
+		}
+		reactomePathways.add(reactomePathwayRef);
+
 	}
 }

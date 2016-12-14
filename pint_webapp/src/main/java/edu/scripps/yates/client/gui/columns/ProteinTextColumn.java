@@ -170,7 +170,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			return 150;
 
 		default:
-			throw new IllegalArgumentException("Default width not defined for column: " + columnName.getName());
+			return 100;
 		}
 	}
 
@@ -364,6 +364,9 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		case PROTEIN_PTM:
 			sb.append(ClientSafeHtmlUtils.getUniprotFeatureSafeHtml(p,
 					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+			break;
+		case REACTOME_ID_LINK:
+			sb.append(ClientSafeHtmlUtils.getReactomeSafeHtml(p));
 			break;
 		default:
 			sb.append(template.startToolTip(ProteinColumns.getInstance().getValue(columnName, p, conditionName,

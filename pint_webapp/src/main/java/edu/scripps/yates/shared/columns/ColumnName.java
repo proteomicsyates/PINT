@@ -170,8 +170,10 @@ public enum ColumnName {
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	// link to Complex portal
 	LINK_TO_COMPLEX_PORTAL("Link to Complex Portal (EBI)", "Complex",
-			"Link to information in Complex Portal Database (EBI)", HorizontalAlignmentSharedConstant.ALIGN_CENTER);
-
+			"Link to information in Complex Portal Database (EBI)", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
+	// link to Reactome
+	REACTOME_ID_LINK("Link to Reactome Pathways", "Pathways", "Link to Reactome Pathways",
+			HorizontalAlignmentSharedConstant.ALIGN_LEFT);
 	private final String name;
 	private final String abr;
 	private final String description;

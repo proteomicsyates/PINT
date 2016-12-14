@@ -11,6 +11,7 @@ public class SharedConstants {
 	public static final String FILE_FORMAT = "format";
 	public static final String TAXONOMY_LINK_BY_ID = "http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=";
 	public static final String OMIM_ENTRY_LINK = "http://omim.org/entry/";
+	public static final String REACTOME_ENTRY_LINK = "http://www.reactome.org/content/detail/";
 
 	public static final String FILE_TYPE = "fileType";
 	public static final String ID_DATA_FILE_TYPE = "idDataFile";

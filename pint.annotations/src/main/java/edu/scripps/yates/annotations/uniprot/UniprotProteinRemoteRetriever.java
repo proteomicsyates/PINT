@@ -44,6 +44,7 @@ import edu.scripps.yates.annotations.uniprot.xml.SequenceType;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.annotations.util.PropertiesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
+import edu.scripps.yates.utilities.util.Pair;
 
 /**
  * This class retrieves the protein information from uniprot
@@ -593,15 +594,34 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 			myString = IOUtils.toString(is, "UTF-8");
 
 			final String[] split = myString.split("\n");
-			StringBuilder sb = new StringBuilder();
-			String fastaHeader = split[0];
-			// skip the first line, the fasta header
-			for (int i = 1; i < split.length; i++) {
-				String sequence = split[i];
-				sb.append(sequence);
+			StringBuilder sequence = new StringBuilder();
+			String fastaHeader = null;
+
+			// it may return more than one fasta header, so get the one for the
+			// accession
+			boolean takeSequence = false;
+			for (int i = 0; i < split.length; i++) {
+				if (split[i].startsWith(">")) {
+
+					// check if there was a sequence before and it was the
+					// correct one (takeSequence=true)
+					if (takeSequence && !"".equals(sequence.toString())) {
+						return new UniprotEntryAdapterFromFASTA(accession, fastaHeader, sequence.toString()).adapt();
+					}
+					fastaHeader = split[i];
+					Pair<String, String> accession2 = FastaParser.getACC(fastaHeader);
+					sequence = new StringBuilder();
+					if (accession2.getFirstelement().equals(accession)) {
+						takeSequence = true;
+					}
+				} else {
+					sequence.append(split[i]);
+				}
 			}
-			Entry ret = new UniprotEntryAdapterFromFASTA(accession, fastaHeader, sb.toString()).adapt();
-			return ret;
+
+			if (takeSequence && !"".equals(sequence.toString())) {
+				return new UniprotEntryAdapterFromFASTA(accession, fastaHeader, sequence.toString()).adapt();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

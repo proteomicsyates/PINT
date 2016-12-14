@@ -756,6 +756,17 @@
     text-decoration: none
  }
 
+.reactomeLink{
+    font-weight: bold;
+    color: blue;
+    text-decoration: none
+ }
+ .reactomeLink:hover{
+    font-weight: bold;
+    color: red;
+    text-decoration: none
+ }
+ 
 .geneNameLink{
     font-weight: bold;
  }

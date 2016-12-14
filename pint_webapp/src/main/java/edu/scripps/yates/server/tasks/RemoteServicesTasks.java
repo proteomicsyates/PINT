@@ -24,6 +24,7 @@ import org.hibernate.HibernateException;
 
 import edu.scripps.yates.annotations.omim.OmimEntry;
 import edu.scripps.yates.annotations.omim.OmimRetriever;
+import edu.scripps.yates.annotations.uniprot.ProteinImplFromUniprotEntry;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.census.analysis.QuantCondition;
@@ -85,6 +86,7 @@ import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ProteinEvidence;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
+import edu.scripps.yates.shared.model.ReactomePathwayRef;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
 import edu.scripps.yates.shared.model.UniprotFeatureBean;
 import edu.scripps.yates.shared.model.UniprotProteinExistence;
@@ -212,6 +214,26 @@ public class RemoteServicesTasks {
 						if (uniprotFeature != null) {
 							proteinBean.addUniprotFeature(uniprotFeature);
 						}
+					} else if (proteinAnnotation.getAnnotationType() == AnnotationType.reactome) {
+						String id = proteinAnnotation.getName();
+						List<String> propertyTypeValues = new ArrayList<String>();
+						if (proteinAnnotation.getValue().contains(ProteinImplFromUniprotEntry.ANNOTATION_SEPARATOR)) {
+							String[] split = proteinAnnotation.getValue()
+									.split(ProteinImplFromUniprotEntry.ANNOTATION_SEPARATOR);
+							for (String string : split) {
+								propertyTypeValues.add(string);
+							}
+						} else {
+							propertyTypeValues.add(proteinAnnotation.getValue());
+						}
+						// take the first one only
+						if (!propertyTypeValues.isEmpty()) {
+							if (propertyTypeValues.get(0).contains(":")) {
+								String description = propertyTypeValues.get(0).split(":")[1];
+								final ReactomePathwayRef reactomePathwayRef = new ReactomePathwayRef(id, description);
+								proteinBean.addReactomePathwayRef(reactomePathwayRef);
+							}
+						}
 					} else {
 						// log.info("protein ann: " +
 						// proteinAnnotation.getAnnotationType());
@@ -261,6 +283,7 @@ public class RemoteServicesTasks {
 				if (annotatedProtein.getLength() > 0) {
 					proteinBean.setLength(annotatedProtein.getLength());
 				}
+				// MW
 				if (annotatedProtein.getMW() > 0.0) {
 					proteinBean.setMw(annotatedProtein.getMW());
 				}

@@ -82,6 +82,8 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_FUNCTION, true);
 			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.REACTOME_ID_LINK, false);
+			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_DOMAIN_FAMILIES, false);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_SECONDARY_STRUCTURE, false);

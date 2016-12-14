@@ -345,13 +345,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 		case PEPTIDE_SECONDARY_STRUCTURE:
 			return 150;
 		default:
-			try {
-				// look if it is a column defined in the protein column, like
-				// accession
-				return ProteinTextColumn.getDefaultWidth(columnName);
-			} catch (IllegalArgumentException e) {
-				throw new IllegalArgumentException("Default width not defined for PSM column: " + columnName.getName());
-			}
+			return 100;
 		}
 
 	}

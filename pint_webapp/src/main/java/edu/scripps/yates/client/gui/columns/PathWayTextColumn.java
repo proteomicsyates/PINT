@@ -146,8 +146,7 @@ public class PathWayTextColumn extends CustomTextColumn<PathwaySummary> implemen
 		case PATHWAY_RESOURCE:
 			return 120;
 		default:
-			throw new IllegalArgumentException(
-					"Default width not defined for PathwayText column: " + columnName.getName());
+			return 100;
 
 		}
 

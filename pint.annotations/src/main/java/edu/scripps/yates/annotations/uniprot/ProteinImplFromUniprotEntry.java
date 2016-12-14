@@ -763,12 +763,14 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		if (!mwParsed) {
 			final String sequence = getSequence();
 			if (sequence != null && !"".equals(sequence)) {
-
-				final double mass = new AASequenceImpl(sequence).getMass();
-				if (mass > 0.0) {
-					return mass;
+				try {
+					final double mass = new AASequenceImpl(sequence).getMass();
+					if (mass > 0.0) {
+						return mass;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-
 			}
 
 			if (entry.getSequence() != null) {

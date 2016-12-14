@@ -34,6 +34,7 @@ import edu.scripps.yates.shared.model.ProteinEvidence;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDistribution;
+import edu.scripps.yates.shared.model.ReactomePathwayRef;
 import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.model.UniprotFeatureBean;
 import edu.scripps.yates.shared.model.UniprotProteinExistence;
@@ -1077,5 +1078,35 @@ public class ClientSafeHtmlUtils {
 			sb.append("Length: ").append(uniprotFeature.getLength());
 		}
 		return sb.toString();
+	}
+
+	public static SafeHtml getReactomeSafeHtml(ProteinBean p) {
+		SafeHtmlBuilder sb = new SafeHtmlBuilder();
+
+		Set<String> ids = new HashSet<String>();
+		Collections.sort(p.getReactomePathways());
+		for (ReactomePathwayRef reactome : p.getReactomePathways()) {
+			if (ids.contains(reactome.getId())) {
+				continue;
+			}
+			ids.add(reactome.getId());
+			if (!"".equals(sb.toSafeHtml().asString())) {
+				sb.appendEscapedLines(SharedConstants.SEPARATOR);
+			}
+			final SafeHtml geneLink = getReactomeEntryLink(reactome);
+			sb.append(geneLink);
+		}
+
+		return sb.toSafeHtml();
+	}
+
+	private static SafeHtml getReactomeEntryLink(ReactomePathwayRef reactome) {
+		final String urlString = SharedConstants.REACTOME_ENTRY_LINK + reactome.getId();
+
+		String title = "Go to reactome.org to see " + reactome.getId() + " entry";
+
+		final SafeHtml link = template.link(UriUtils.fromString(urlString), "reactomeLink", title, title,
+				reactome.getDescription());
+		return link;
 	}
 }

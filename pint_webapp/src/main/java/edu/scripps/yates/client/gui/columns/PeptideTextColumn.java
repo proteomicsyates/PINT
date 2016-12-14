@@ -314,14 +314,8 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 		case PEPTIDE_SECONDARY_STRUCTURE:
 			return 150;
 		default:
-			try {
-				// look if it is a column defined in the protein column, like
-				// accession
-				return ProteinTextColumn.getDefaultWidth(columnName);
-			} catch (IllegalArgumentException e) {
-				throw new IllegalArgumentException(
-						"Default width not defined for Peptide column: " + columnName.getName());
-			}
+			return 100;
+
 		}
 
 	}
