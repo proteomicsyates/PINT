@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class ExperimentalConditionBean implements Serializable, HasId {
+public class ExperimentalConditionBean extends HasId implements Serializable {
 
 	/**
 	 *
@@ -125,4 +125,5 @@ public class ExperimentalConditionBean implements Serializable, HasId {
 		}
 		return super.equals(obj);
 	}
+
 }

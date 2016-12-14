@@ -4,10 +4,10 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class LabelBean implements Serializable, HasId {
+public class LabelBean extends HasId implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -3332466199547735735L;
 	private String name;

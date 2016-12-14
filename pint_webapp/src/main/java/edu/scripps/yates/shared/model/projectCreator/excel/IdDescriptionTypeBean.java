@@ -13,10 +13,10 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class IdDescriptionTypeBean implements Serializable, HasId {
+public class IdDescriptionTypeBean extends HasId implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -238439276517019127L;
 	protected String description;
@@ -24,9 +24,9 @@ public class IdDescriptionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the description property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getDescription() {
 		return description;
@@ -34,10 +34,10 @@ public class IdDescriptionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the description property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setDescription(String value) {
 		description = value;
@@ -45,9 +45,9 @@ public class IdDescriptionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the id property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getId() {
@@ -56,10 +56,10 @@ public class IdDescriptionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the id property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setId(String value) {
 		id = value;

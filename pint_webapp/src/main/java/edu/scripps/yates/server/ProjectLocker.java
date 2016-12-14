@@ -4,18 +4,17 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
 public class ProjectLocker {
-	private static final Map<String, Lock> projectLocked = new HashMap<String, Lock>();
+	private static final Map<String, ReentrantLock> projectLocked = new HashMap<String, ReentrantLock>();
 	private static final Logger log = Logger.getLogger(ProjectLocker.class);
 
-	private static Lock getLock(String projectTag) {
+	private static ReentrantLock getLock(String projectTag) {
 		if (!projectLocked.containsKey(projectTag)) {
-			Lock lock = new ReentrantLock(true);
+			ReentrantLock lock = new ReentrantLock(true);
 			projectLocked.put(projectTag, lock);
 		}
 		return projectLocked.get(projectTag);
@@ -31,10 +30,10 @@ public class ProjectLocker {
 
 	public static void lock(String projectTag, Method method) {
 		log.info("Locking " + projectTag + " from Method: " + method.getName());
-		final Lock lock = getLock(projectTag);
+		final ReentrantLock lock = getLock(projectTag);
 		log.info(projectTag + " locked from Method: " + method.getName());
-
 		lock.lock();
+		log.info("Lock acquired by thread " + Thread.currentThread().getId() + " from method " + method.getName());
 	}
 
 	/**
@@ -44,9 +43,11 @@ public class ProjectLocker {
 	 */
 	public static void unlock(String projectTag, Method method) {
 		log.info("Unlocking " + projectTag + " from Method: " + method.getName());
-		final Lock lock = getLock(projectTag);
-		log.info(projectTag + " unlocked from Method: " + method.getName());
+		final ReentrantLock lock = getLock(projectTag);
+		log.info(lock.getQueueLength() + " threads are waiting for this thread to unlock the lock");
 		lock.unlock();
+		log.info(projectTag + " unlocked from Method: " + method.getName());
+
 	}
 
 	/**

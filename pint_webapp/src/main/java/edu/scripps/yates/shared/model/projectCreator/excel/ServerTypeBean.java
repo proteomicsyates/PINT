@@ -14,7 +14,7 @@ import java.io.Serializable;
 import edu.scripps.yates.shared.model.interfaces.HasId;
 import edu.scripps.yates.shared.util.CryptoUtil;
 
-public class ServerTypeBean implements Serializable, HasId {
+public class ServerTypeBean extends HasId implements Serializable {
 
 	/**
 	 *

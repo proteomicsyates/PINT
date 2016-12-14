@@ -6,9 +6,9 @@ import edu.scripps.yates.shared.model.interfaces.HasId;
 import edu.scripps.yates.shared.model.projectCreator.excel.FastaDigestionBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ServerTypeBean;
 
-public class DataSourceBean implements Serializable, HasId {
+public class DataSourceBean extends HasId implements Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -6836950993637266393L;
 	private String id;

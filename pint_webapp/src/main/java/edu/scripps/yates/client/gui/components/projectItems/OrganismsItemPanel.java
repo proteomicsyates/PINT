@@ -1,6 +1,9 @@
 package edu.scripps.yates.client.gui.components.projectItems;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -102,7 +105,10 @@ public class OrganismsItemPanel extends AbstractItemPanel<ProjectBean, OrganismB
 	}
 
 	private void updateOrganisms(Set<OrganismBean> organisms) {
-		for (final OrganismBean organismBean : organisms) {
+		List<OrganismBean> list = new ArrayList<OrganismBean>();
+		list.addAll(organisms);
+		Collections.sort(list);
+		for (final OrganismBean organismBean : list) {
 
 			addItemToList(organismBean.getId(), organismBean, "Click here to go to NCBI taxonomy browser");
 			// mouseclickhandler to open ncbi

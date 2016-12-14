@@ -1,5 +1,6 @@
 package edu.scripps.yates.client.gui.components.projectItems;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
@@ -74,6 +75,7 @@ public class MSRunsItemPanel extends AbstractItemPanel<ProjectBean, MSRunBean> {
 			currentParent = projectBean;
 
 			final List<MSRunBean> msRuns = projectBean.getMsRuns();
+			Collections.sort(msRuns);
 			for (final MSRunBean msrunBean : msRuns) {
 				addItemToList(msrunBean.getId(), msrunBean);
 			}

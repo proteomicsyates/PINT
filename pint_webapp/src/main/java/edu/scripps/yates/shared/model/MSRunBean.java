@@ -5,7 +5,7 @@ import java.util.Date;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class MSRunBean implements Serializable, HasId {
+public class MSRunBean extends HasId implements Serializable {
 	/**
 	 *
 	 */

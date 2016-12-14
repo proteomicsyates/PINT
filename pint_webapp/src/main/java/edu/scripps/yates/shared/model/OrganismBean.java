@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class OrganismBean implements Serializable, HasId {
+public class OrganismBean extends HasId implements Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -7168070517312701585L;
 	private String ncbiTaxID;

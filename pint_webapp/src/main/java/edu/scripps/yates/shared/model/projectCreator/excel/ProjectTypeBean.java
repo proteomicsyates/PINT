@@ -14,10 +14,10 @@ import java.util.Date;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class ProjectTypeBean implements Serializable, HasId {
+public class ProjectTypeBean extends HasId implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -2906960563135631178L;
 	protected String description;
@@ -32,9 +32,9 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the description property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getDescription() {
 		return description;
@@ -42,10 +42,10 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the description property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setDescription(String value) {
 		description = value;
@@ -53,9 +53,9 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the experimentalConditions property.
-	 * 
+	 *
 	 * @return possible object is {@link ExperimentalConditionsTypeBean }
-	 * 
+	 *
 	 */
 	public ExperimentalConditionsTypeBean getExperimentalConditions() {
 		return experimentalConditions;
@@ -63,10 +63,10 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the experimentalConditions property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link ExperimentalConditionsTypeBean }
-	 * 
+	 *
 	 */
 	public void setExperimentalConditions(ExperimentalConditionsTypeBean value) {
 		experimentalConditions = value;
@@ -74,9 +74,9 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the ratios property.
-	 * 
+	 *
 	 * @return possible object is {@link RatiosTypeBean }
-	 * 
+	 *
 	 */
 	public RatiosTypeBean getRatios() {
 		return ratios;
@@ -84,10 +84,10 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the ratios property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link RatiosTypeBean }
-	 * 
+	 *
 	 */
 	public void setRatios(RatiosTypeBean value) {
 		ratios = value;
@@ -95,9 +95,9 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the msRuns property.
-	 * 
+	 *
 	 * @return possible object is {@link MsRunsTypeBean }
-	 * 
+	 *
 	 */
 	public MsRunsTypeBean getMsRuns() {
 		return msRuns;
@@ -105,10 +105,10 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the msRuns property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link MsRunsTypeBean }
-	 * 
+	 *
 	 */
 	public void setMsRuns(MsRunsTypeBean value) {
 		msRuns = value;
@@ -116,9 +116,9 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the experimentalDesign property.
-	 * 
+	 *
 	 * @return possible object is {@link ExperimentalDesignTypeBean }
-	 * 
+	 *
 	 */
 	public ExperimentalDesignTypeBean getExperimentalDesign() {
 		return experimentalDesign;
@@ -126,10 +126,10 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the experimentalDesign property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link ExperimentalDesignTypeBean }
-	 * 
+	 *
 	 */
 	public void setExperimentalDesign(ExperimentalDesignTypeBean value) {
 		experimentalDesign = value;
@@ -137,9 +137,9 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the name property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getName() {
 		return name;
@@ -147,10 +147,10 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the name property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setName(String value) {
 		name = value;
@@ -158,9 +158,9 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the quantitative property.
-	 * 
+	 *
 	 * @return possible object is {@link Boolean }
-	 * 
+	 *
 	 */
 	public Boolean isQuantitative() {
 		return quantitative;
@@ -168,10 +168,10 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the quantitative property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Boolean }
-	 * 
+	 *
 	 */
 	public void setQuantitative(Boolean value) {
 		quantitative = value;
@@ -179,9 +179,9 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the releaseDate property.
-	 * 
+	 *
 	 * @return possible object is {@link Date }
-	 * 
+	 *
 	 */
 	public Date getReleaseDate() {
 		return releaseDate;
@@ -189,10 +189,10 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the releaseDate property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Date }
-	 * 
+	 *
 	 */
 	public void setReleaseDate(Date value) {
 		releaseDate = value;
@@ -200,9 +200,9 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the tag property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getTag() {
 		return tag;
@@ -210,10 +210,10 @@ public class ProjectTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the tag property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setTag(String value) {
 		tag = value;

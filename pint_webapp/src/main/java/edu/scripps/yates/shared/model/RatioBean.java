@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class RatioBean implements Serializable, HasId {
+public class RatioBean extends HasId implements Serializable {
 
 	/**
 	 *

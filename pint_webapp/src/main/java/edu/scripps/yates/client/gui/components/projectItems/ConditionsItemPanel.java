@@ -1,5 +1,6 @@
 package edu.scripps.yates.client.gui.components.projectItems;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.FlexTable;
@@ -71,6 +72,7 @@ public class ConditionsItemPanel extends AbstractItemPanel<ProjectBean, Experime
 			currentParent = projectBean;
 
 			final List<ExperimentalConditionBean> conditions = projectBean.getConditions();
+			Collections.sort(conditions);
 			for (final ExperimentalConditionBean conditionBean : conditions) {
 				addItemToList(conditionBean.getId(), conditionBean);
 			}

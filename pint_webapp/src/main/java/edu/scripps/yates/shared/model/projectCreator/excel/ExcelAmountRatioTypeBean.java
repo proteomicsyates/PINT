@@ -13,7 +13,7 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class ExcelAmountRatioTypeBean implements Serializable, HasId {
+public class ExcelAmountRatioTypeBean extends HasId implements Serializable {
 
 	/**
 	 *

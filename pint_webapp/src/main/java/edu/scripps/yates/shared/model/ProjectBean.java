@@ -7,7 +7,7 @@ import java.util.List;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class ProjectBean implements Serializable, HasId {
+public class ProjectBean extends HasId implements Serializable {
 
 	/**
 	 *

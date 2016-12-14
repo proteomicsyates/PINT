@@ -2,7 +2,7 @@ package edu.scripps.yates.shared.model.projectStats;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class HasIdImpl implements HasId {
+public class HasIdImpl extends HasId {
 	private final String id;
 
 	public HasIdImpl(String id) {

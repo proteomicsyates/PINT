@@ -13,10 +13,9 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class ExperimentalConditionTypeBean implements Serializable, HasId {
-
+public class ExperimentalConditionTypeBean extends HasId implements Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -8733798005933824628L;
 	protected String description;
@@ -27,9 +26,9 @@ public class ExperimentalConditionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the description property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getDescription() {
 		return description;
@@ -37,10 +36,10 @@ public class ExperimentalConditionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the description property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setDescription(String value) {
 		description = value;
@@ -48,9 +47,9 @@ public class ExperimentalConditionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the identificationInfo property.
-	 * 
+	 *
 	 * @return possible object is {@link IdentificationInfoTypeBean }
-	 * 
+	 *
 	 */
 	public IdentificationInfoTypeBean getIdentificationInfo() {
 		return identificationInfo;
@@ -58,10 +57,10 @@ public class ExperimentalConditionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the identificationInfo property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link IdentificationInfoTypeBean }
-	 * 
+	 *
 	 */
 	public void setIdentificationInfo(IdentificationInfoTypeBean value) {
 		identificationInfo = value;
@@ -69,9 +68,9 @@ public class ExperimentalConditionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the quantificationInfo property.
-	 * 
+	 *
 	 * @return possible object is {@link QuantificationInfoTypeBean }
-	 * 
+	 *
 	 */
 	public QuantificationInfoTypeBean getQuantificationInfo() {
 		return quantificationInfo;
@@ -79,10 +78,10 @@ public class ExperimentalConditionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the quantificationInfo property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link QuantificationInfoTypeBean }
-	 * 
+	 *
 	 */
 	public void setQuantificationInfo(QuantificationInfoTypeBean value) {
 		quantificationInfo = value;
@@ -90,9 +89,9 @@ public class ExperimentalConditionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the id property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getId() {
@@ -101,10 +100,10 @@ public class ExperimentalConditionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the id property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setId(String value) {
 		id = value;
@@ -112,9 +111,9 @@ public class ExperimentalConditionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the sampleRef property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getSampleRef() {
 		return sampleRef;
@@ -122,10 +121,10 @@ public class ExperimentalConditionTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the sampleRef property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setSampleRef(String value) {
 		sampleRef = value;

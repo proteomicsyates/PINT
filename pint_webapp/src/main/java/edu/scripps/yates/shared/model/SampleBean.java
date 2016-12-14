@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class SampleBean implements Serializable, HasId {
+public class SampleBean extends HasId implements Serializable {
 	/**
 	 * @return the serialversionuid
 	 */

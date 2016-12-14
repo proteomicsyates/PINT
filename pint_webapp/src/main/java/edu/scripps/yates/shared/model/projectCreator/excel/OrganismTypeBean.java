@@ -3,7 +3,7 @@ package edu.scripps.yates.shared.model.projectCreator.excel;
 public class OrganismTypeBean extends IdDescriptionTypeBean {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1106758327525465394L;
 
@@ -11,7 +11,7 @@ public class OrganismTypeBean extends IdDescriptionTypeBean {
 	public boolean equals(Object obj) {
 		if (obj instanceof OrganismTypeBean) {
 			OrganismTypeBean organism = (OrganismTypeBean) obj;
-			if (organism.getId().equals(id))
+			if (organism.getId().equals(getId()))
 				return true;
 		}
 		return super.equals(obj);
@@ -25,4 +25,5 @@ public class OrganismTypeBean extends IdDescriptionTypeBean {
 	public int hashCode() {
 		return -1;
 	}
+
 }

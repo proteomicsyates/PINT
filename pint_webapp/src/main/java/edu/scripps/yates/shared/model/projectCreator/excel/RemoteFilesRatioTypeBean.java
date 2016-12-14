@@ -13,10 +13,10 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class RemoteFilesRatioTypeBean implements Serializable, HasId {
+public class RemoteFilesRatioTypeBean extends HasId implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 8643810017609452096L;
 	protected String numerator;
@@ -28,9 +28,9 @@ public class RemoteFilesRatioTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the numerator property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getNumerator() {
 		return numerator;
@@ -38,10 +38,10 @@ public class RemoteFilesRatioTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the numerator property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setNumerator(String value) {
 		numerator = value;
@@ -49,9 +49,9 @@ public class RemoteFilesRatioTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the denominator property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getDenominator() {
 		return denominator;
@@ -59,10 +59,10 @@ public class RemoteFilesRatioTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the denominator property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setDenominator(String value) {
 		denominator = value;
@@ -70,9 +70,9 @@ public class RemoteFilesRatioTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the discardDecoys property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getDiscardDecoys() {
 		return discardDecoys;
@@ -80,10 +80,10 @@ public class RemoteFilesRatioTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the discardDecoys property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setDiscardDecoys(String value) {
 		discardDecoys = value;
@@ -91,9 +91,9 @@ public class RemoteFilesRatioTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the fileRef property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getFileRef() {
 		return fileRef;
@@ -101,10 +101,10 @@ public class RemoteFilesRatioTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the fileRef property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setFileRef(String value) {
 		fileRef = value;
@@ -112,9 +112,9 @@ public class RemoteFilesRatioTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the msRunRef property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getMsRunRef() {
 		return msRunRef;
@@ -122,10 +122,10 @@ public class RemoteFilesRatioTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the msRunRef property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setMsRunRef(String value) {
 		msRunRef = value;

@@ -4,14 +4,14 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class RatioDescriptorTypeBean implements Serializable, HasId {
+public class RatioDescriptorTypeBean extends HasId implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 4133915123931895557L;
 	/**
-	 * 
+	 *
 	 */
 	private String description;
 	private ExperimentalConditionTypeBean condition2;
@@ -61,22 +61,17 @@ public class RatioDescriptorTypeBean implements Serializable, HasId {
 	public boolean equals(Object obj) {
 		if (obj instanceof RatioDescriptorTypeBean) {
 			final RatioDescriptorTypeBean ratioBean = (RatioDescriptorTypeBean) obj;
-			if (getCondition1() != null
-					&& getCondition1().equals(ratioBean.getCondition1())) {
-				if (getCondition2() != null
-						&& getCondition2().equals(ratioBean.getCondition2())) {
+			if (getCondition1() != null && getCondition1().equals(ratioBean.getCondition1())) {
+				if (getCondition2() != null && getCondition2().equals(ratioBean.getCondition2())) {
 					if (getDescription() == null
-							|| (getDescription() != null && getDescription()
-									.equals(ratioBean.getDescription())))
+							|| (getDescription() != null && getDescription().equals(ratioBean.getDescription())))
 						return true;
 				}
 			} else {
-				if (getCondition1() == null && getCondition2() == null
-						&& ratioBean.getCondition1() == null
+				if (getCondition1() == null && getCondition2() == null && ratioBean.getCondition1() == null
 						&& ratioBean.getCondition2() == null) {
 					if (getDescription() == null
-							|| (getDescription() != null && getDescription()
-									.equals(ratioBean.getDescription())))
+							|| (getDescription() != null && getDescription().equals(ratioBean.getDescription())))
 						return true;
 				}
 			}

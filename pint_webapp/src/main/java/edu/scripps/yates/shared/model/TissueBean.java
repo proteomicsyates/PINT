@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class TissueBean implements Serializable, HasId {
+public class TissueBean extends HasId implements Serializable {
 	/**
 	 * @return the serialversionuid
 	 */
@@ -13,7 +13,7 @@ public class TissueBean implements Serializable, HasId {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -8230799076830462784L;
 	private String tissueID;
@@ -63,8 +63,7 @@ public class TissueBean implements Serializable, HasId {
 
 	@Override
 	public String toString() {
-		return "TissueEx [tissueID=" + tissueID + ", description="
-				+ description + "]";
+		return "TissueEx [tissueID=" + tissueID + ", description=" + description + "]";
 	}
 
 	/*

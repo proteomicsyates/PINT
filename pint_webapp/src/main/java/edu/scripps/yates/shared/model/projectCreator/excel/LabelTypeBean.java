@@ -13,10 +13,10 @@ import java.io.Serializable;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class LabelTypeBean implements Serializable, HasId {
+public class LabelTypeBean extends HasId implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1199534826603598296L;
 	protected String id;
@@ -24,9 +24,9 @@ public class LabelTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the id property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getId() {
@@ -35,10 +35,10 @@ public class LabelTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the id property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setId(String value) {
 		id = value;
@@ -46,9 +46,9 @@ public class LabelTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the massDiff property.
-	 * 
+	 *
 	 * @return possible object is {@link Double }
-	 * 
+	 *
 	 */
 	public Double getMassDiff() {
 		return massDiff;
@@ -56,10 +56,10 @@ public class LabelTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the massDiff property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link Double }
-	 * 
+	 *
 	 */
 	public void setMassDiff(Double value) {
 		massDiff = value;

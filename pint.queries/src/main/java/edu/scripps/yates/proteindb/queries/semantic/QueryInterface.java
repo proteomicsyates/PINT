@@ -232,15 +232,21 @@ public class QueryInterface {
 			Protein protein = proteinMap.get(proteinAcc).iterator().next();
 			boolean valid = true;
 			for (AbstractQuery abstractQuery : annotationQueries) {
-				QueryFromSimpleAnnotationCommand query = (QueryFromSimpleAnnotationCommand) abstractQuery;
-				final boolean evaluate = query.evaluate(protein.getProteinAnnotations());
+				boolean evaluationResult = true;
+				if (abstractQuery instanceof QueryFromSimpleAnnotationCommand) {
+					QueryFromSimpleAnnotationCommand query = (QueryFromSimpleAnnotationCommand) abstractQuery;
+					evaluationResult = query.evaluate(protein.getProteinAnnotations());
+				} else if (abstractQuery instanceof QueryFromComplexAnnotationCommand) {
+					QueryFromComplexAnnotationCommand query = (QueryFromComplexAnnotationCommand) abstractQuery;
+					evaluationResult = query.evaluate(protein.getProteinAnnotations());
+				}
 				if (!abstractQuery.isNegative()) {
-					if (!evaluate) {
+					if (!evaluationResult) {
 						valid = false;
 						break;
 					}
 				} else {
-					if (evaluate) {
+					if (evaluationResult) {
 						valid = false;
 						break;
 					}

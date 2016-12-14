@@ -44,7 +44,7 @@ public class ProjectStatsManager {
 		loadFile();
 	}
 
-	private synchronized void loadFile() {
+	private void loadFile() {
 		// wait if someone is trying to access the file
 		final Method method = new Object() {
 		}.getClass().getEnclosingMethod();
@@ -91,7 +91,7 @@ public class ProjectStatsManager {
 				}
 			}
 			loaded = true;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			log.info("Error while reading stats file: " + e.getMessage());
 		} finally {
@@ -129,7 +129,7 @@ public class ProjectStatsManager {
 		return stats.getNumSamples();
 	}
 
-	private synchronized void updateFile() {
+	private void updateFile() {
 		// wait until someone release the lock
 		final Method method = new Object() {
 		}.getClass().getEnclosingMethod();
@@ -150,7 +150,7 @@ public class ProjectStatsManager {
 					fw.write(map.get(projectTag).toString());
 					fw.write("\n");
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				log.error("Some error happened while updating stats file: " + e.getMessage());
 			} finally {

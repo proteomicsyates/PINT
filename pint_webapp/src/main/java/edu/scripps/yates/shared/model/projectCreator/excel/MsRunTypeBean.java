@@ -16,10 +16,10 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public class MsRunTypeBean implements Serializable, HasId {
+public class MsRunTypeBean extends HasId implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -503201634978626005L;
 	protected String id;
@@ -31,9 +31,9 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the id property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	@Override
 	public String getId() {
@@ -42,10 +42,10 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the id property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setId(String value) {
 		id = value;
@@ -53,9 +53,9 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the path property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getPath() {
 		return path;
@@ -63,10 +63,10 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the path property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setPath(String value) {
 		path = value;
@@ -74,9 +74,9 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the date property.
-	 * 
+	 *
 	 * @return possible object is {@link XMLGregorianCalendar }
-	 * 
+	 *
 	 */
 	public Date getDate() {
 		return date;
@@ -84,10 +84,10 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the date property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link XMLGregorianCalendar }
-	 * 
+	 *
 	 */
 	public void setDate(Date value) {
 		date = value;
@@ -95,9 +95,9 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the fastaFileRef property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getFastaFileRef() {
 		return fastaFileRef;
@@ -105,10 +105,10 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the fastaFileRef property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setFastaFileRef(String value) {
 		fastaFileRef = value;
@@ -116,9 +116,9 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the enzymeResidues property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getEnzymeResidues() {
 		return enzymeResidues;
@@ -126,10 +126,10 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the enzymeResidues property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setEnzymeResidues(String value) {
 		enzymeResidues = value;
@@ -137,9 +137,9 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Gets the value of the enzymeNocutResidues property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getEnzymeNocutResidues() {
 		return enzymeNocutResidues;
@@ -147,10 +147,10 @@ public class MsRunTypeBean implements Serializable, HasId {
 
 	/**
 	 * Sets the value of the enzymeNocutResidues property.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setEnzymeNocutResidues(String value) {
 		enzymeNocutResidues = value;
