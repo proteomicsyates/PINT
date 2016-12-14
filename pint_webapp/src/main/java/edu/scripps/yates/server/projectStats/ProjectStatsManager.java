@@ -50,6 +50,9 @@ public class ProjectStatsManager {
 		}.getClass().getEnclosingMethod();
 		ProjectLocker.lock(PROJECT_STATS_LOCK, method);
 		try {
+			if (!file.exists()) {
+				return;
+			}
 			List<String> readAllLines = Files.readAllLines(Paths.get(file.getAbsolutePath()), Charset.defaultCharset());
 			String projectTag = null;
 			for (String line : readAllLines) {
