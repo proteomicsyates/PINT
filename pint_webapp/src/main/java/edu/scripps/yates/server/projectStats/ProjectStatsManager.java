@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.formula.functions.T;
@@ -19,7 +20,6 @@ import org.hibernate.HibernateException;
 
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
-import edu.scripps.yates.server.ProjectLocker;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;
@@ -39,6 +39,7 @@ public class ProjectStatsManager {
 	private final Map<String, ProjectStatsParent> map = new HashMap<String, ProjectStatsParent>();
 	private ProjectStats generalProjectsStats;
 	private final HashMap<Thread, Method> methodsByThread = new HashMap<Thread, Method>();
+	private final static ReentrantLock lock = new ReentrantLock(true);
 
 	private ProjectStatsManager(File file, Method method) {
 		this.file = file;
@@ -49,7 +50,15 @@ public class ProjectStatsManager {
 	private void loadFile() {
 		// wait if someone is trying to access the file
 
-		ProjectLocker.lock(PROJECT_STATS_LOCK, methodsByThread.get(Thread.currentThread()));
+		try {
+			log.info("Trying to get the lock from Thread " + Thread.currentThread().getId() + " from method "
+					+ methodsByThread.get(Thread.currentThread()));
+			lock.lockInterruptibly();
+			log.info("Lock acquired from Thread " + Thread.currentThread().getId() + " from method "
+					+ methodsByThread.get(Thread.currentThread()));
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
 		try {
 			if (!file.exists()) {
 				return;
@@ -99,7 +108,9 @@ public class ProjectStatsManager {
 			e.printStackTrace();
 			log.info("Error while reading stats file: " + e.getMessage());
 		} finally {
-			ProjectLocker.unlock(PROJECT_STATS_LOCK, methodsByThread.get(Thread.currentThread()));
+			lock.unlock();
+			log.info("Lock released from Thread " + Thread.currentThread().getId() + " from method "
+					+ methodsByThread.get(Thread.currentThread()));
 		}
 	}
 
@@ -143,7 +154,15 @@ public class ProjectStatsManager {
 	private void updateFile() {
 		// wait until someone release the lock
 
-		ProjectLocker.lock(PROJECT_STATS_LOCK, methodsByThread.get(Thread.currentThread()));
+		log.info("Trying to get the lock from Thread " + Thread.currentThread().getId() + " from method "
+				+ methodsByThread.get(Thread.currentThread()));
+		try {
+			lock.lockInterruptibly();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		log.info("Lock acquired from Thread " + Thread.currentThread().getId() + " from method "
+				+ methodsByThread.get(Thread.currentThread()));
 		try {
 			List<String> projectList = new ArrayList<String>();
 			projectList.addAll(map.keySet());
@@ -174,7 +193,9 @@ public class ProjectStatsManager {
 				}
 			}
 		} finally {
-			ProjectLocker.unlock(PROJECT_STATS_LOCK, methodsByThread.get(Thread.currentThread()));
+			lock.unlock();
+			log.info("Lock released from Thread " + Thread.currentThread().getId() + " from method "
+					+ methodsByThread.get(Thread.currentThread()));
 		}
 	}
 
