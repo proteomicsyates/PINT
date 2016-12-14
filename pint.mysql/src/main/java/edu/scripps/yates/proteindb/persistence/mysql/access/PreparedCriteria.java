@@ -181,7 +181,8 @@ public class PreparedCriteria {
 				.createAlias("gene.proteins", "protein").createAlias("protein.conditions", "condition")
 				.createAlias("condition.project", "project")
 				.setProjection(Projections.distinct(Projections.property("geneId")));
-		cr.add(Restrictions.eq("project.tag", projectTag)).addOrder(Order.asc("geneId").ignoreCase());
+		cr.add(Restrictions.eq("project.tag", projectTag)).add(Restrictions.eq("gene.geneType", "primary"))
+				.addOrder(Order.asc("geneId").ignoreCase());
 		return cr;
 	}
 
