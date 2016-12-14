@@ -62,7 +62,7 @@
 	<!-- set to true if you want to pre load the public projects when server starts -->
 	<context-param>
 		<param-name>preLoadPublicProjects</param-name>
-		<param-value>false</param-value>
+		<param-value>true</param-value>
 		<!--  true or false -->
 	</context-param>
 
