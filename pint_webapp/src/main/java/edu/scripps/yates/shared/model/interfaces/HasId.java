@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.gui.components.projectCreatorWizard.manager;
+package edu.scripps.yates.shared.model.interfaces;
 
 public interface HasId {
 	public String getId();

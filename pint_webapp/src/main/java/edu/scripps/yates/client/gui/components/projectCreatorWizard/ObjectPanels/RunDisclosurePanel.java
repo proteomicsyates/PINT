@@ -12,7 +12,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.datepicker.client.DateBox.Format;
 
-import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasId;
+import edu.scripps.yates.shared.model.interfaces.HasId;
 import edu.scripps.yates.shared.model.projectCreator.excel.MsRunTypeBean;
 
 public class RunDisclosurePanel extends ClosableWithTitlePanel {

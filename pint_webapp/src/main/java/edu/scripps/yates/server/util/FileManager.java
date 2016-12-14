@@ -41,6 +41,7 @@ public class FileManager {
 	private static boolean ready = false;
 	private static boolean loading;
 	private static final String PINT_PROPERTIES_FILE_NAME = "pint.properties";
+	private static final String PROJECT_STATS_FILE_NAME = "stats.properties";
 
 	private static File getXmlFolder() {
 
@@ -475,5 +476,9 @@ public class FileManager {
 
 	public static File getPintPropertiesFile() {
 		return new File(getProjectFilesPath() + File.separator + PINT_PROPERTIES_FILE_NAME);
+	}
+
+	public static File getProjectStatsFile() {
+		return new File(getProjectFilesPath() + File.separator + PROJECT_STATS_FILE_NAME);
 	}
 }

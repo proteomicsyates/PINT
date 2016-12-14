@@ -30,36 +30,38 @@ public enum ColumnName {
 	//
 	GENE("Gene name", "Gene", "Associated gene name", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PROTEIN_AMOUNT("Protein amounts", "Prot. Am.", "Protein amounts"),
+	PROTEIN_AMOUNT("Protein amounts", "Prot. Am.", "Protein amounts", false),
 	//
-	PROTEIN_RATIO("Protein ratios", "Prot. Ratios.", "Protein amount ratios",
+	PROTEIN_RATIO("Protein ratios", "Prot. Ratios.", "Protein amount ratios", false,
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PROTEIN_RATIO_SCORE("Ratio score", "Ratio sc.", "Score or confident value associated to the protein ratio",
+	PROTEIN_RATIO_SCORE("Ratio score", "Ratio sc.", "Score or confident value associated to the protein ratio", false,
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PSM_AMOUNT("Psm amounts", "Psm. Am.", "Psm amounts", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
+	PSM_AMOUNT("Psm amounts", "Psm. Am.", "Psm amounts", false, HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PSM_RATIO("Psm ratios", "Psm. Ratios.", "Psm amount ratios", HorizontalAlignmentSharedConstant.ALIGN_CENTER), // /
+	PSM_RATIO("Psm ratios", "Psm. Ratios.", "Psm amount ratios", false, HorizontalAlignmentSharedConstant.ALIGN_CENTER), // /
 	//
-	PSM_RATIO_SCORE("Ratio score", "Ratio sc.", "Score or confident value associated to the psm ratio",
+	PSM_RATIO_SCORE("Ratio score", "Ratio sc.", "Score or confident value associated to the psm ratio", false,
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PSM_SCORE("PSM scores", "PSM sc.", "PSM scores", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
+	PSM_SCORE("PSM scores", "PSM sc.", "PSM scores", false, HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PEPTIDE_AMOUNT("Peptide amounts", "Pepm. Am.", "Peptide amounts", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
+	PEPTIDE_AMOUNT("Peptide amounts", "Pepm. Am.", "Peptide amounts", false,
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PEPTIDE_RATIO("Peptide ratios", "Pep. Ratios.", "Peptide amount ratios",
+	PEPTIDE_RATIO("Peptide ratios", "Pep. Ratios.", "Peptide amount ratios", false,
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
 	//
-	PEPTIDE_RATIO_SCORE("Ratio score", "Ratio sc.", "Score or confident value associated to the peptide ratio",
+	PEPTIDE_RATIO_SCORE("Ratio score", "Ratio sc.", "Score or confident value associated to the peptide ratio", false,
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
-	PEPTIDE_SCORE("Peptide scores", "Pep sc.", "Peptide scores", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
+	PEPTIDE_SCORE("Peptide scores", "Pep sc.", "Peptide scores", false, HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
 	PEPTIDE_SEQUENCE("Peptide sequence", "Seq.", "Peptide sequence"),
 	//
-	PEPTIDE_LENGTH("Peptide length", "Len.", "Length of the peptide sequence"),
+	PEPTIDE_LENGTH("Peptide length", "Len.", "Length of the peptide sequence",
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
 	NUM_PTMS("# Different modifications", "# Modif.", "Number of different modifications",
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
@@ -69,7 +71,8 @@ public enum ColumnName {
 	//
 	PTMS("PTMs", "PTMs", "Peptide Modifications"),
 	//
-	PTM_SCORE("PTM score", "PTM Sc.", "Modification confidence score", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
+	PTM_SCORE("PTM score", "PTM Sc.", "Modification confidence score", false,
+			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	//
 	PEPTIDE_PI("Isoelectric Point", "PI", "Isoelectric point of the peptide sequence",
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
@@ -112,11 +115,11 @@ public enum ColumnName {
 	//
 	UNIPROT_PROTEIN_EXISTENCE("Protein Existence", "PE", "UniProtKB protein existence",
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
-	PSM_RATIO_GRAPH("Ratio Graph", "R", "Graphical representation of the ratio",
+	PSM_RATIO_GRAPH("Ratio Graph", "R", "Graphical representation of the ratio", false,
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
-	PEPTIDE_RATIO_GRAPH("Ratio Graph", "R", "Graphical representation of the ratio",
+	PEPTIDE_RATIO_GRAPH("Ratio Graph", "R", "Graphical representation of the ratio", false,
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
-	PROTEIN_RATIO_GRAPH("Ratio Graph", "R", "Graphical representation of the ratio",
+	PROTEIN_RATIO_GRAPH("Ratio Graph", "R", "Graphical representation of the ratio", false,
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
 
 	// REACTOME TABLE COLUMNS
@@ -173,20 +176,28 @@ public enum ColumnName {
 	private final String abr;
 	private final String description;
 	private HorizontalAlignmentSharedConstant horizontalAlignment;
+	private boolean addColumnByDefault;
 
 	private ColumnName(String name, String abr, String description) {
-		this.abr = abr;
-		this.description = description;
-		this.name = name;
-		horizontalAlignment = HorizontalAlignmentSharedConstant.ALIGN_LEFT;
+		this(name, abr, description, true);
+	}
+
+	private ColumnName(String name, String abr, String description, boolean addColumnByDefault) {
+		this(name, abr, description, addColumnByDefault, HorizontalAlignmentSharedConstant.ALIGN_LEFT);
 	}
 
 	private ColumnName(String name, String abr, String description,
+			HorizontalAlignmentSharedConstant horizontalAlignment) {
+		this(name, abr, description, true, horizontalAlignment);
+	}
+
+	private ColumnName(String name, String abr, String description, boolean addColumnByDefault,
 			HorizontalAlignmentSharedConstant horizontalAlignment) {
 		this.abr = abr;
 		this.description = description;
 		this.name = name;
 		this.horizontalAlignment = horizontalAlignment;
+		setAddColumnByDefault(addColumnByDefault);
 	}
 
 	/**
@@ -283,5 +294,20 @@ public enum ColumnName {
 			return null;
 		}
 
+	}
+
+	/**
+	 * @return the addColumnByDefault
+	 */
+	public boolean isAddColumnByDefault() {
+		return addColumnByDefault;
+	}
+
+	/**
+	 * @param addColumnByDefault
+	 *            the addColumnByDefault to set
+	 */
+	public void setAddColumnByDefault(boolean addColumnByDefault) {
+		this.addColumnByDefault = addColumnByDefault;
 	}
 }

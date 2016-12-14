@@ -288,7 +288,9 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 	}
 
 	public static double getDefaultWidth(ColumnName columnName) {
-
+		if (true) {
+			return 0.0;
+		}
 		switch (columnName) {
 		case PEPTIDE_PI:
 			return 50;
@@ -313,9 +315,9 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 		case NUM_PTM_SITES:
 			return 120;
 		case PSM_ID:
-			return 300;
+			return 50;
 		case PSM_RUN_ID:
-			return 150;
+			return 50;
 		case PEPTIDE_LENGTH:
 			return 50;
 		case POSITION_IN_PROTEIN:
@@ -356,7 +358,8 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 
 	@Override
 	public double getDefaultWidth() {
-		return defaultWidth;
+		return 0.0;
+		// return defaultWidth;
 	}
 
 	@Override
@@ -437,7 +440,8 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 
 	@Override
 	public double getWidth() {
-		return width;
+		return 0.0;
+		// return width;
 	}
 
 	@Override

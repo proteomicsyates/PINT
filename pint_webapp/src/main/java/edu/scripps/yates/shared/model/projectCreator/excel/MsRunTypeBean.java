@@ -14,7 +14,7 @@ import java.util.Date;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasId;
+import edu.scripps.yates.shared.model.interfaces.HasId;
 
 public class MsRunTypeBean implements Serializable, HasId {
 

@@ -16,7 +16,6 @@ import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
@@ -24,33 +23,35 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask2;
+import edu.scripps.yates.shared.model.interfaces.HasId;
 
 /**
  * Class that represents a panel with a left panel with a list of items of type
- * Y and that in the right has a right panel that is updated when an item in the
+ * T and that in the right has a right panel that is updated when an item in the
  * list is selected.<br>
  * Items in the list are depending on a parent object that can be updated and
- * that is of type T
+ * that is of type Y
  *
  * @author Salva
  *
  * @param <Y>
  * @param <T>
+ *            extends {@link HasId}
  */
 public abstract class AbstractItemPanel<Y, T> extends Composite {
-	private final List<Y> items = new ArrayList<Y>();
-	private final Map<Y, FlowPanel> panelsByItem = new HashMap<Y, FlowPanel>();
+	private final List<T> items = new ArrayList<T>();
+	private final Map<T, FlowPanel> panelsByItem = new HashMap<T, FlowPanel>();
 	private final FlowPanel listPanel;
 	private final FlexTable flexTable;
 	protected final edu.scripps.yates.client.ProteinRetrievalServiceAsync proteinRetrievingService = ProteinRetrievalServiceAsync.Util
 			.getInstance();
-	protected T currentParent;
+	protected Y currentParent;
 	private final boolean includeList;
-	protected final List<DoSomethingTask2<Y>> doSomethingTaskAfterSelection = new ArrayList<DoSomethingTask2<Y>>();
+	protected final List<DoSomethingTask2<T>> doSomethingTaskAfterSelection = new ArrayList<DoSomethingTask2<T>>();
 	private CaptionPanel captionPanel;
-	protected AbstractProjectStatsItemPanel<Y> selectedItemStatsPanel;
-	private Y selectedItem;
-	private Y clickedItem;
+	protected AbstractProjectStatsItemPanel<T> selectedItemStatsPanel;
+	private T selectedItem;
+	private T clickedItem;
 
 	/**
 	 * Default {@link AbstractItemPanel} that includes an item list in the left
@@ -59,7 +60,7 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 	 * @param title
 	 * @param projectBean
 	 */
-	public AbstractItemPanel(String title, T parent) {
+	public AbstractItemPanel(String title, Y parent) {
 		this(title, parent, true, false);
 	}
 
@@ -76,7 +77,7 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 	 *            rule ProjectItemListPanel-small
 	 *
 	 */
-	public AbstractItemPanel(String title, T parent, boolean includeList, boolean smallList) {
+	public AbstractItemPanel(String title, Y parent, boolean includeList, boolean smallList) {
 		this.includeList = includeList;
 		currentParent = parent;
 		captionPanel = new CaptionPanel(title);
@@ -125,7 +126,7 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 	 * @param itemName
 	 * @param item
 	 */
-	protected void addItemToList(String itemName, final Y item) {
+	protected void addItemToList(String itemName, final T item) {
 		addItemToList(itemName, item, null);
 	}
 
@@ -138,7 +139,7 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 	 * @param titleOnItem
 	 *            a title to add to the item
 	 */
-	protected void addItemToList(String itemName, final Y item, String titleOnItem) {
+	protected void addItemToList(String itemName, final T item, String titleOnItem) {
 		FlowPanel panel = new FlowPanel();
 		panel.setTitle(titleOnItem);
 		Label label = new Label(itemName);
@@ -221,19 +222,19 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 
 	}
 
-	public void addMouseOverHandlerToItem(Y item, MouseOverHandler handler, Type<MouseOverHandler> type) {
+	public void addMouseOverHandlerToItem(T item, MouseOverHandler handler, Type<MouseOverHandler> type) {
 		if (panelsByItem.containsKey(item)) {
 			panelsByItem.get(item).addDomHandler(handler, type);
 		}
 	}
 
-	public void addMouseOutHandlerToItem(Y item, MouseOutHandler handler, Type<MouseOutHandler> type) {
+	public void addMouseOutHandlerToItem(T item, MouseOutHandler handler, Type<MouseOutHandler> type) {
 		if (panelsByItem.containsKey(item)) {
 			panelsByItem.get(item).addDomHandler(handler, type);
 		}
 	}
 
-	public void addMouseClickHandlerToItem(Y item, ClickHandler handler, Type<ClickHandler> type) {
+	public void addMouseClickHandlerToItem(T item, ClickHandler handler, Type<ClickHandler> type) {
 		if (panelsByItem.containsKey(item)) {
 			panelsByItem.get(item).addDomHandler(handler, type);
 		}
@@ -273,7 +274,7 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 	 *
 	 * @param item
 	 */
-	public void performSelection(Y item) {
+	public void performSelection(T item) {
 		selectItem(item);
 		panelsByItem.get(item).setStyleName("ProjectItemPanel-selected");
 		selectedItem = item;
@@ -284,21 +285,21 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 		performSelection(null);
 	}
 
-	public abstract void selectItem(Y item);
+	public abstract void selectItem(T item);
 
-	public abstract void updateParent(T parent);
+	public abstract void updateParent(Y parent);
 
-	private void doAfterSelection(Y item) {
-		for (DoSomethingTask2<Y> doSomethingTask : doSomethingTaskAfterSelection) {
+	private void doAfterSelection(T item) {
+		for (DoSomethingTask2<T> doSomethingTask : doSomethingTaskAfterSelection) {
 			doSomethingTask.doSomething(item);
 		}
 	}
 
-	protected List<Y> getItems() {
+	protected List<T> getItems() {
 		return items;
 	}
 
-	public void addOnItemSelectedEvent(DoSomethingTask2<Y> doSomethingTask) {
+	public void addOnItemSelectedEvent(DoSomethingTask2<T> doSomethingTask) {
 		doSomethingTaskAfterSelection.add(doSomethingTask);
 	}
 
@@ -306,7 +307,7 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 		captionPanel.setCaptionText(captionTitle);
 	}
 
-	public final AbstractProjectStatsItemPanel<Y> getSelectedItemStatsPanel() {
+	public final AbstractProjectStatsItemPanel<T> getSelectedItemStatsPanel() {
 
 		return selectedItemStatsPanel;
 	}

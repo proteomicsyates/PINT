@@ -6,9 +6,9 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.NumberLabel;
 
-import edu.scripps.yates.client.gui.components.projectItems.util.ProjectStats;
-import edu.scripps.yates.client.gui.components.projectItems.util.ProjectStatsFromMSRun;
 import edu.scripps.yates.shared.model.MSRunBean;
+import edu.scripps.yates.shared.model.projectStats.ProjectStats;
+import edu.scripps.yates.shared.model.projectStats.ProjectStatsFromMSRun;
 
 public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPanel<MSRunBean> {
 	private static ProjectStatsFromMSRunItemPanel instance;

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasId;
+import edu.scripps.yates.shared.model.interfaces.HasId;
 
 public class ProjectBean implements Serializable, HasId {
 

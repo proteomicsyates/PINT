@@ -17,7 +17,7 @@ import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class OrganismsItemPanel extends AbstractItemPanel<OrganismBean, ProjectBean> {
+public class OrganismsItemPanel extends AbstractItemPanel<ProjectBean, OrganismBean> {
 	private static OrganismsItemPanel instance;
 
 	public static OrganismsItemPanel getInstance(ProjectBean projectBean) {

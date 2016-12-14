@@ -1,5 +1,7 @@
 package edu.scripps.yates.client.gui.components.projectCreatorWizard.manager;
 
+import edu.scripps.yates.shared.model.interfaces.HasId;
+
 /**
  * This interfaze represents an object in the project hierarchy
  * 

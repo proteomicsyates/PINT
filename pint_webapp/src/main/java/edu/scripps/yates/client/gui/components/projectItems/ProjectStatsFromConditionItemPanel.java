@@ -5,9 +5,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 
-import edu.scripps.yates.client.gui.components.projectItems.util.ProjectStats;
-import edu.scripps.yates.client.gui.components.projectItems.util.ProjectStatsFromExperimentalCondition;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
+import edu.scripps.yates.shared.model.projectStats.ProjectStats;
+import edu.scripps.yates.shared.model.projectStats.ProjectStatsFromExperimentalCondition;
 
 public class ProjectStatsFromConditionItemPanel extends AbstractProjectStatsItemPanel<ExperimentalConditionBean> {
 	private static ProjectStatsFromConditionItemPanel instance;

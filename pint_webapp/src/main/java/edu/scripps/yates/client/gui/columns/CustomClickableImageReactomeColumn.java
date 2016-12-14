@@ -11,7 +11,6 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.cellview.client.TextHeader;
 
 import edu.scripps.yates.client.gui.reactome.ReactomePanel;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
@@ -22,7 +21,7 @@ public class CustomClickableImageReactomeColumn extends AbsctractCustomClickable
 
 	public CustomClickableImageReactomeColumn(String sessionID, ColumnName columnName, boolean visibleState,
 			Header<String> footer) {
-		super(columnName, visibleState, footer, new TextHeader("ID"), 30);
+		super(columnName, visibleState, footer, new MyTextHeader(columnName, "ID"), 30);
 		this.sessionID = sessionID;
 	}
 

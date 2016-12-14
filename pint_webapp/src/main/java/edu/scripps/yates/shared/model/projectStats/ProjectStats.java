@@ -1,22 +1,34 @@
-package edu.scripps.yates.client.gui.components.projectItems.util;
+package edu.scripps.yates.shared.model.projectStats;
 
-public abstract class ProjectStats<T> {
+import java.io.Serializable;
+
+import edu.scripps.yates.shared.model.interfaces.HasId;
+
+public abstract class ProjectStats<T> implements Serializable {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 5653081043642031314L;
 	private Integer numConditions;
 	private Integer numMSRuns;
-	protected Integer numSamples;
+	private Integer numSamples;
 	private Integer numProteins;
 	private Integer numPeptides;
 	private Integer numPSMs;
 	private Integer numGenes;
-	protected final T t;
+	protected T t;
 
 	public ProjectStats(T t) {
 		this.t = t;
 	}
 
+	public ProjectStats() {
+	}
+
 	/**
 	 * @return the numConditions
 	 */
+
 	public Integer getNumConditions() {
 		return numConditions;
 	}
@@ -24,6 +36,7 @@ public abstract class ProjectStats<T> {
 	/**
 	 * @return the numMSRuns
 	 */
+
 	public Integer getNumMSRuns() {
 		return numMSRuns;
 	}
@@ -39,6 +52,7 @@ public abstract class ProjectStats<T> {
 	/**
 	 * @return the numSamples
 	 */
+
 	public Integer getNumSamples() {
 		return numSamples;
 	}
@@ -46,6 +60,7 @@ public abstract class ProjectStats<T> {
 	/**
 	 * @return the numProteins
 	 */
+
 	public Integer getNumProteins() {
 		return numProteins;
 	}
@@ -61,6 +76,7 @@ public abstract class ProjectStats<T> {
 	/**
 	 * @return the numPeptides
 	 */
+
 	public Integer getNumPeptides() {
 		return numPeptides;
 	}
@@ -76,6 +92,7 @@ public abstract class ProjectStats<T> {
 	/**
 	 * @return the numPSMs
 	 */
+
 	public Integer getNumPSMs() {
 		return numPSMs;
 	}
@@ -95,6 +112,7 @@ public abstract class ProjectStats<T> {
 	/**
 	 * @return the numGenes
 	 */
+
 	public Integer getNumGenes() {
 		return numGenes;
 	}
@@ -114,4 +132,32 @@ public abstract class ProjectStats<T> {
 	public void setNumSamples(Integer numSamples) {
 		this.numSamples = numSamples;
 	}
+
+	/**
+	 * @param t
+	 *            the t to set
+	 */
+	public void setT(T t) {
+		this.t = t;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		String id = "";
+		if (t != null) {
+			id = t.toString();
+			if (t instanceof HasId) {
+				id = ((HasId) t).getId();
+			}
+		}
+		return getType() + "\t" + id + "\t" + numConditions + "\t" + numMSRuns + "\t" + numSamples + "\t" + numProteins
+				+ "\t" + numGenes + "\t" + numPeptides + "\t" + numPSMs;
+	}
+
+	protected abstract ProjectStatsType getType();
+
 }

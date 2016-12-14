@@ -5,9 +5,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 
-import edu.scripps.yates.client.gui.components.projectItems.util.ProjectStats;
-import edu.scripps.yates.client.gui.components.projectItems.util.ProjectStatsFromSample;
 import edu.scripps.yates.shared.model.SampleBean;
+import edu.scripps.yates.shared.model.projectStats.ProjectStats;
+import edu.scripps.yates.shared.model.projectStats.ProjectStatsFromSample;
 
 public class ProjectStatsFromSampleItemPanel extends AbstractProjectStatsItemPanel<SampleBean> {
 	private static ProjectStatsFromSampleItemPanel instance;

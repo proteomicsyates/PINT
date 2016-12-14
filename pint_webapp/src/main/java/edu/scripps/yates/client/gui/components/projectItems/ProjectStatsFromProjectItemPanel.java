@@ -15,10 +15,10 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
-import edu.scripps.yates.client.gui.components.projectItems.util.ProjectStats;
-import edu.scripps.yates.client.gui.components.projectItems.util.ProjectStatsFromProjectBean;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.shared.model.ProjectBean;
+import edu.scripps.yates.shared.model.projectStats.ProjectStats;
+import edu.scripps.yates.shared.model.projectStats.ProjectStatsFromProjectBean;
 
 public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPanel<ProjectBean> {
 	private static ProjectStatsFromProjectItemPanel instance;

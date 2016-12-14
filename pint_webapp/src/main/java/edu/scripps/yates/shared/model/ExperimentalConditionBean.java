@@ -2,12 +2,12 @@ package edu.scripps.yates.shared.model;
 
 import java.io.Serializable;
 
-import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasId;
+import edu.scripps.yates.shared.model.interfaces.HasId;
 
 public class ExperimentalConditionBean implements Serializable, HasId {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 5756109096565698753L;
 	private String name;
@@ -59,6 +59,11 @@ public class ExperimentalConditionBean implements Serializable, HasId {
 	@Override
 	public String getId() {
 		return name;
+	}
+
+	@Override
+	public String toString() {
+		return getId();
 	}
 
 	/**

@@ -122,9 +122,7 @@ public class ServerDataUtils {
 	public static UniprotFeatureBean getFromValue(String featureType, String name, String value) {
 		final String annotationSeparator = ProteinImplFromUniprotEntry.ANNOTATION_SEPARATOR;
 		UniprotFeatureBean ret = new UniprotFeatureBean();
-		if (featureType.contains("splice")) {
-			log.info(featureType);
-		}
+
 		ret.setFeatureType(featureType);
 		if (name != null) {
 			ret.setDescription(name);

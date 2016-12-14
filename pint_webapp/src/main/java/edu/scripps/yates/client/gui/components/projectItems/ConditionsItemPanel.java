@@ -10,7 +10,7 @@ import com.google.gwt.user.client.ui.Label;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.ProjectBean;
 
-public class ConditionsItemPanel extends AbstractItemPanel<ExperimentalConditionBean, ProjectBean> {
+public class ConditionsItemPanel extends AbstractItemPanel<ProjectBean, ExperimentalConditionBean> {
 	private static ConditionsItemPanel instance;
 
 	public static ConditionsItemPanel getInstance(ProjectBean projectBean) {

@@ -9,7 +9,6 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Window;
 
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
@@ -22,7 +21,7 @@ public class CustomClickableImageColumnOpenLinkToIntAct extends AbsctractCustomC
 
 	public CustomClickableImageColumnOpenLinkToIntAct(ColumnName columnName, boolean visibleState,
 			Header<String> footer) {
-		super(columnName, visibleState, footer, new TextHeader("IntAct"), 40);
+		super(columnName, visibleState, footer, new MyTextHeader(columnName, "IntAct"), 40);
 
 	}
 

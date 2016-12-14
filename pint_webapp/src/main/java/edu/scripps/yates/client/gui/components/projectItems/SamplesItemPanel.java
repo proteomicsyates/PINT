@@ -15,7 +15,7 @@ import edu.scripps.yates.shared.model.LabelBean;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.SampleBean;
 
-public class SamplesItemPanel extends AbstractItemPanel<SampleBean, ProjectBean> {
+public class SamplesItemPanel extends AbstractItemPanel<ProjectBean, SampleBean> {
 	private static SamplesItemPanel instance;
 
 	public static SamplesItemPanel getInstance(ProjectBean projectBean) {

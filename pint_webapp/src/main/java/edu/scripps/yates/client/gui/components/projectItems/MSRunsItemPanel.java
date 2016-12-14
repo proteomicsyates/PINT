@@ -12,7 +12,7 @@ import com.google.gwt.user.client.ui.Label;
 import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.ProjectBean;
 
-public class MSRunsItemPanel extends AbstractItemPanel<MSRunBean, ProjectBean> {
+public class MSRunsItemPanel extends AbstractItemPanel<ProjectBean, MSRunBean> {
 	private static MSRunsItemPanel instance;
 
 	public static MSRunsItemPanel getInstance(ProjectBean projectBean) {

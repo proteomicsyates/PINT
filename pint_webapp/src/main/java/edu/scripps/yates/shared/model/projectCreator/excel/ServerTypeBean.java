@@ -11,7 +11,7 @@ package edu.scripps.yates.shared.model.projectCreator.excel;
 
 import java.io.Serializable;
 
-import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasId;
+import edu.scripps.yates.shared.model.interfaces.HasId;
 import edu.scripps.yates.shared.util.CryptoUtil;
 
 public class ServerTypeBean implements Serializable, HasId {

@@ -102,6 +102,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 		listItemPanel.addItem("Loading number of exp. conditions...", null);
 		listItemPanel.addItem("Loading number of MS runs...", null);
 		listItemPanel.addItem("Loading number of proteins...", null);
+		listItemPanel.addItem("Loading number of genes...", null);
 		listItemPanel.addItem("Loading number of peptides...", null);
 		listItemPanel.addItem("Loading number of PSMs...", null);
 		listItemPanel.unsinkEvents(Event.ONMOUSEOVER | Event.ONMOUSEOUT | Event.ONCLICK);
@@ -259,11 +260,23 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 				Window.alert(caught.getMessage());
 			}
 		});
+		proteinRetrievingService.getNumGenes(new AsyncCallback<Integer>() {
+
+			@Override
+			public void onSuccess(Integer result) {
+				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " genes.", 4);
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert(caught.getMessage());
+			}
+		});
 		proteinRetrievingService.getNumDifferentPeptides(new AsyncCallback<Integer>() {
 
 			@Override
 			public void onSuccess(Integer result) {
-				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " peptide sequences.", 4);
+				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " peptide sequences.", 5);
 			}
 
 			@Override
@@ -275,7 +288,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 
 			@Override
 			public void onSuccess(Integer result) {
-				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " PSMs.", 5);
+				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " PSMs.", 6);
 			}
 
 			@Override

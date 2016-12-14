@@ -16,8 +16,8 @@ import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 
 import edu.scripps.yates.client.ImportWizardServiceAsync;
-import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasId;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
+import edu.scripps.yates.shared.model.interfaces.HasId;
 import edu.scripps.yates.shared.model.projectCreator.excel.ServerTypeBean;
 
 public class ServerDisclosurePanel extends ClosableWithTitlePanel {

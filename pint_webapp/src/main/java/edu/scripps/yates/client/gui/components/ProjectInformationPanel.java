@@ -67,23 +67,25 @@ public class ProjectInformationPanel extends Composite {
 	}
 
 	public void addProjectView(ProjectBean projectBean, DefaultView defaultView) {
-		defaultViewsByProjectBean.put(projectBean, defaultView);
-		// small rounded panel with the name of the project
-		FlowPanel panel = new FlowPanel();
-		Label label = new Label(projectBean.getTag());
-		label.setWordWrap(false);
-		panel.add(label);
-		label.setWidth("100%");
-		panel.setStyleName("ProjectInformationProjectName");
-		panel.addDomHandler(getMouseOverHandler(projectBean, defaultView), MouseOverEvent.getType());
-		panel.addDomHandler(getClickHandler(projectBean), ClickEvent.getType());
-		panel.addDomHandler(getMouseOutHandler(projectBean), MouseOutEvent.getType());
-		panelsByProject.put(projectBean, panel);
-		projectsByPanels.put(panel, projectBean);
-		flexTableInWest.setWidget(numRow++, 0, panel);
+		if (!defaultViewsByProjectBean.containsKey(projectBean)) {
+			defaultViewsByProjectBean.put(projectBean, defaultView);
+			// small rounded panel with the name of the project
+			FlowPanel panel = new FlowPanel();
+			Label label = new Label(projectBean.getTag());
+			label.setWordWrap(false);
+			panel.add(label);
+			label.setWidth("100%");
+			panel.setStyleName("ProjectInformationProjectName");
+			panel.addDomHandler(getMouseOverHandler(projectBean, defaultView), MouseOverEvent.getType());
+			panel.addDomHandler(getClickHandler(projectBean), ClickEvent.getType());
+			panel.addDomHandler(getMouseOutHandler(projectBean), MouseOutEvent.getType());
+			panelsByProject.put(projectBean, panel);
+			projectsByPanels.put(panel, projectBean);
+			flexTableInWest.setWidget(numRow++, 0, panel);
 
-		if (numRow == 1) {
-			loadDefaultView(projectBean, defaultView);
+			if (numRow == 1) {
+				loadDefaultView(projectBean, defaultView);
+			}
 		}
 	}
 

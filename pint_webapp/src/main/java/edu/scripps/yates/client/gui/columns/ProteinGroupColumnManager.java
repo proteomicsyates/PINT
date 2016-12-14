@@ -36,13 +36,15 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 			columns = ProteinGroupColumns.getInstance().getColumns();
 		}
 		for (ColumnWithVisibility columnWithVisibility : columns) {
-			if (columnWithVisibility.getColumn() == ColumnName.PEPTIDES_TABLE_BUTTON) {
-				final CustomClickableImageColumnShowPeptideTable<ProteinGroupBean> column = new CustomClickableImageColumnShowPeptideTable<ProteinGroupBean>(
-						sessionID, columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
-				column.setFieldUpdater(getMyFieldUpdater(column, sessionID));
-				super.addColumn(column);
-			} else {
-				super.addColumn(createColumn(columnWithVisibility.getColumn(), columnWithVisibility.isVisible()));
+			if (columnWithVisibility.getColumn().isAddColumnByDefault()) {
+				if (columnWithVisibility.getColumn() == ColumnName.PEPTIDES_TABLE_BUTTON) {
+					final CustomClickableImageColumnShowPeptideTable<ProteinGroupBean> column = new CustomClickableImageColumnShowPeptideTable<ProteinGroupBean>(
+							sessionID, columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
+					column.setFieldUpdater(getMyFieldUpdater(column, sessionID));
+					super.addColumn(column);
+				} else {
+					super.addColumn(createColumn(columnWithVisibility.getColumn(), columnWithVisibility.isVisible()));
+				}
 			}
 		}
 

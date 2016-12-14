@@ -31,7 +31,6 @@ import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.datepicker.client.DateBox.Format;
 import com.google.gwt.widgetideas.client.CollapsiblePanel;
 
-import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasId;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsDataObject;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
@@ -41,6 +40,7 @@ import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.SampleBean;
 import edu.scripps.yates.shared.model.TissueBean;
+import edu.scripps.yates.shared.model.interfaces.HasId;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.RemoteFileWithTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExcelAmountRatioTypeBean;

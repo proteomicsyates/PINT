@@ -9,7 +9,6 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Window;
 
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
@@ -22,7 +21,7 @@ public class CustomClickableImageColumnOpenLinkToPRIDECluster<T> extends Absctra
 
 	public CustomClickableImageColumnOpenLinkToPRIDECluster(ColumnName columnName, boolean visibleState,
 			Header<String> footer) {
-		super(columnName, visibleState, footer, new TextHeader("PRIDE"), 50);
+		super(columnName, visibleState, footer, new MyTextHeader(columnName, "PRIDE"), 50);
 	}
 
 	@Override

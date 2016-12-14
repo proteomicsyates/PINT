@@ -21,7 +21,6 @@ import javax.servlet.ServletException;
 import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.commons.io.FilenameUtils;
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
 import org.hibernate.transform.Transformers;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -64,6 +63,7 @@ import edu.scripps.yates.server.cache.ServerCacheProteinGroupFileDescriptorByPro
 import edu.scripps.yates.server.cache.ServerCacheProteinNameProteinProjectionsByProjectTag;
 import edu.scripps.yates.server.configuration.ConfigurationPropertiesIO;
 import edu.scripps.yates.server.export.DataExporter;
+import edu.scripps.yates.server.projectStats.ProjectStatsManager;
 import edu.scripps.yates.server.pseaquant.PSEAQuantSender;
 import edu.scripps.yates.server.pseaquant.PSEAQuantSender.RATIO_AVERAGING;
 import edu.scripps.yates.server.tasks.GetDownloadLinkFromProteinGroupsFromQueryTask;
@@ -1214,7 +1214,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumExperiments() throws PintException {
 		try {
-			return PreparedQueries.getNumProjects();
+			return ProjectStatsManager.getInstance().getNumProjects();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -1226,7 +1226,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentProteins() throws PintException {
 		try {
-			return PreparedQueries.getNumDifferentProteins();
+			return ProjectStatsManager.getInstance().getNumDifferentProteins();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -1238,7 +1238,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentPeptides() throws PintException {
 		try {
-			return PreparedQueries.getNumDifferentPeptides();
+			return ProjectStatsManager.getInstance().getNumDifferentPeptides();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -1250,7 +1250,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumPSMs() throws PintException {
 		try {
-			return PreparedQueries.getNumPSMs();
+			return ProjectStatsManager.getInstance().getNumPSMs();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -1262,7 +1262,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumConditions() throws PintException {
 		try {
-			return PreparedQueries.getNumConditions();
+			return ProjectStatsManager.getInstance().getNumConditions();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2160,7 +2160,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentProteins(String projectTag) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForProteinPrimaryAccsInProject(projectTag).list().size();
+			return ProjectStatsManager.getInstance().getNumDifferentProteins(projectTag);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2172,7 +2172,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentPeptides(String projectTag) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForDifferentPeptidesInProject(projectTag).list().size();
+			return ProjectStatsManager.getInstance().getNumDifferentPeptides(projectTag);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2184,7 +2184,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumPSMs(String projectTag) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForDifferentPSMsInProject(projectTag).list().size();
+			return ProjectStatsManager.getInstance().getNumPSMs(projectTag);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2196,7 +2196,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumGenes() throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForGenes().list().size();
+			return ProjectStatsManager.getInstance().getNumGenes();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2208,8 +2208,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumGenes(String projectTag) throws PintException {
 		try {
-			final List list = PreparedCriteria.getCriteriaForGenesInProject(projectTag).list();
-			return list.size();
+			return ProjectStatsManager.getInstance().getNumGenes(projectTag);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2221,8 +2220,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentProteins(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForProteinPrimaryAccsInProjectInMSRun(projectTag, msRun.getRunID())
-					.list().size();
+			return ProjectStatsManager.getInstance().getNumDifferentProteins(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2234,8 +2232,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentPeptides(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForDifferentPeptidesInProjectInMSRun(projectTag, msRun.getRunID()).list()
-					.size();
+			return ProjectStatsManager.getInstance().getNumDifferentPeptides(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2247,8 +2244,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumPSMs(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForDifferentPSMsInProjectInMSRun(projectTag, msRun.getRunID()).list()
-					.size();
+			return ProjectStatsManager.getInstance().getNumPSMs(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2260,7 +2256,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumGenes(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForGenesInProjectInMSRun(projectTag, msRun.getRunID()).list().size();
+			return ProjectStatsManager.getInstance().getNumGenes(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2272,8 +2268,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentProteins(String projectTag, ExperimentalConditionBean condition) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForProteinPrimaryAccsInProjectInCondition(projectTag, condition.getId())
-					.list().size();
+			return ProjectStatsManager.getInstance().getNumDifferentProteins(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2285,8 +2280,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentPeptides(String projectTag, ExperimentalConditionBean condition) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForDifferentPeptidesInProjectInCondition(projectTag, condition.getId())
-					.list().size();
+			return ProjectStatsManager.getInstance().getNumDifferentPeptides(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2298,8 +2292,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumPSMs(String projectTag, ExperimentalConditionBean condition) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForDifferentPSMsInProjectInCondition(projectTag, condition.getId())
-					.list().size();
+			return ProjectStatsManager.getInstance().getNumPSMs(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2311,8 +2304,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumGenes(String projectTag, ExperimentalConditionBean condition) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForGenesInProjectInCondition(projectTag, condition.getId()).list()
-					.size();
+			return ProjectStatsManager.getInstance().getNumGenes(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2324,10 +2316,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumMSRuns(String projectTag, ExperimentalConditionBean condition) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForMSRunsInProjectInCondition(projectTag, condition.getId()).list()
-					.size();
+			return ProjectStatsManager.getInstance().getNumMSRuns(projectTag, condition);
 
-		} catch (HibernateException e) {
+		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
 		} finally {
 		}
@@ -2336,8 +2327,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentProteins(String projectTag, SampleBean sample) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForProteinPrimaryAccsInProjectInSample(projectTag, sample.getId()).list()
-					.size();
+			return ProjectStatsManager.getInstance().getNumDifferentProteins(projectTag, sample);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2349,8 +2339,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentPeptides(String projectTag, SampleBean sample) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForDifferentPeptidesInProjectInSample(projectTag, sample.getId()).list()
-					.size();
+			return ProjectStatsManager.getInstance().getNumDifferentPeptides(projectTag, sample);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2362,8 +2352,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumPSMs(String projectTag, SampleBean sample) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForDifferentPSMsInProjectInSample(projectTag, sample.getId()).list()
-					.size();
+			return ProjectStatsManager.getInstance().getNumPSMs(projectTag, sample);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2375,7 +2365,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumGenes(String projectTag, SampleBean sample) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForGenesInProjectInSample(projectTag, sample.getId()).list().size();
+			return ProjectStatsManager.getInstance().getNumGenes(projectTag, sample);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -2387,9 +2378,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumMSRuns(String projectTag, SampleBean sample) throws PintException {
 		try {
-			return PreparedCriteria.getCriteriaForMSRunsInProjectInSample(projectTag, sample.getId()).list().size();
+			return ProjectStatsManager.getInstance().getNumMSRuns(projectTag, sample);
 
-		} catch (HibernateException e) {
+		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
 		} finally {
 		}
@@ -2398,10 +2389,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumConditions(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			final List list = PreparedCriteria.getCriteriaForConditionsInProjectInMSRun(projectTag, msRun.getId()).list();
-			return list.size();
+			return ProjectStatsManager.getInstance().getNumConditions(projectTag, msRun);
 
-		} catch (HibernateException e) {
+		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
 		} finally {
 		}
@@ -2410,10 +2400,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumSamples(String projectTag, MSRunBean msRun) throws PintException {
 		try {
-			final List list = PreparedCriteria.getCriteriaForSamplesInProjectInMSRun(projectTag, msRun.getId()).list();
-			return list.size();
+			return ProjectStatsManager.getInstance().getNumSamples(projectTag, msRun);
 
-		} catch (HibernateException e) {
+		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
 		} finally {
 		}

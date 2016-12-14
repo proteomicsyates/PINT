@@ -20,12 +20,14 @@ public class PSMColumnManager extends AbstractColumnManager<PSMBean> {
 
 		final List<ColumnWithVisibility> columns = PSMColumns.getInstance().getColumns();
 		for (ColumnWithVisibility columnWithOrder : columns) {
-			if (columnWithOrder.getColumn() == ColumnName.LINK_TO_PRIDE_CLUSTER) {
-				final CustomClickableImageColumnOpenLinkToPRIDECluster<PSMBean> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<PSMBean>(
-						columnWithOrder.getColumn(), columnWithOrder.isVisible(), null);
-				super.addColumn(customTextButtonColumn);
-			} else {
-				super.addColumn(createColumn(columnWithOrder.getColumn(), columnWithOrder.isVisible()));
+			if (columnWithOrder.getColumn().isAddColumnByDefault()) {
+				if (columnWithOrder.getColumn() == ColumnName.LINK_TO_PRIDE_CLUSTER) {
+					final CustomClickableImageColumnOpenLinkToPRIDECluster<PSMBean> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<PSMBean>(
+							columnWithOrder.getColumn(), columnWithOrder.isVisible(), null);
+					super.addColumn(customTextButtonColumn);
+				} else {
+					super.addColumn(createColumn(columnWithOrder.getColumn(), columnWithOrder.isVisible()));
+				}
 			}
 		}
 

@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.gui.components.projectItems.util;
+package edu.scripps.yates.shared.model.projectStats;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -8,6 +8,15 @@ import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.SampleBean;
 
 public class ProjectStatsFromProjectBean extends ProjectStats<ProjectBean> {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -4589953089543296124L;
+
+	public ProjectStatsFromProjectBean() {
+		super();
+	}
 
 	public ProjectStatsFromProjectBean(ProjectBean t) {
 		super(t);
@@ -34,6 +43,11 @@ public class ProjectStatsFromProjectBean extends ProjectStats<ProjectBean> {
 			conditions.addAll(t.getConditions());
 		}
 		return conditions.size();
+	}
+
+	@Override
+	protected ProjectStatsType getType() {
+		return ProjectStatsType.PROJECT;
 	}
 
 }

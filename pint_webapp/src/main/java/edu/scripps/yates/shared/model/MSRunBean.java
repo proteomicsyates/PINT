@@ -3,7 +3,7 @@ package edu.scripps.yates.shared.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasId;
+import edu.scripps.yates.shared.model.interfaces.HasId;
 
 public class MSRunBean implements Serializable, HasId {
 	/**

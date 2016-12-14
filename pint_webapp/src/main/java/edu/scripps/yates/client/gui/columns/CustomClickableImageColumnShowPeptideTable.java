@@ -11,7 +11,6 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
@@ -34,7 +33,7 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsPeptid
 
 	public CustomClickableImageColumnShowPeptideTable(final String sessionID, ColumnName columnName,
 			boolean visibleState, Header<String> footer) {
-		super(columnName, visibleState, footer, new TextHeader("-"), 30);
+		super(columnName, visibleState, footer, new MyTextHeader(columnName, "-"), 30);
 		this.sessionID = sessionID;
 	}
 

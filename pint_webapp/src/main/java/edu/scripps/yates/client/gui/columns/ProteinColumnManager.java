@@ -35,25 +35,27 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 			columns = ProteinColumns.getInstance().getColumns();
 		}
 		for (ColumnWithVisibility columnWithVisibility : columns) {
-			if (columnWithVisibility.getColumn() == ColumnName.LINK_TO_PRIDE_CLUSTER) {
-				final CustomClickableImageColumnOpenLinkToPRIDECluster<ProteinBean> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<ProteinBean>(
-						columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
-				super.addColumn(customTextButtonColumn);
-			} else if (columnWithVisibility.getColumn() == ColumnName.PEPTIDES_TABLE_BUTTON) {
-				final CustomClickableImageColumnShowPeptideTable<ProteinBean> customTextButtonColumn = new CustomClickableImageColumnShowPeptideTable<ProteinBean>(
-						sessionID, columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
-				customTextButtonColumn.setFieldUpdater(getMyFieldUpdater(customTextButtonColumn, sessionID));
-				super.addColumn(customTextButtonColumn);
-			} else if (columnWithVisibility.getColumn() == ColumnName.LINK_TO_INTACT) {
-				final CustomClickableImageColumnOpenLinkToIntAct customTextButtonColumn = new CustomClickableImageColumnOpenLinkToIntAct(
-						columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
-				super.addColumn(customTextButtonColumn);
-			} else if (columnWithVisibility.getColumn() == ColumnName.LINK_TO_COMPLEX_PORTAL) {
-				final CustomClickableImageColumnOpenLinkToComplexPortal customTextButtonColumn = new CustomClickableImageColumnOpenLinkToComplexPortal(
-						columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
-				super.addColumn(customTextButtonColumn);
-			} else {
-				super.addColumn(createColumn(columnWithVisibility.getColumn(), columnWithVisibility.isVisible()));
+			if (columnWithVisibility.getColumn().isAddColumnByDefault()) {
+				if (columnWithVisibility.getColumn() == ColumnName.LINK_TO_PRIDE_CLUSTER) {
+					final CustomClickableImageColumnOpenLinkToPRIDECluster<ProteinBean> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<ProteinBean>(
+							columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
+					super.addColumn(customTextButtonColumn);
+				} else if (columnWithVisibility.getColumn() == ColumnName.PEPTIDES_TABLE_BUTTON) {
+					final CustomClickableImageColumnShowPeptideTable<ProteinBean> customTextButtonColumn = new CustomClickableImageColumnShowPeptideTable<ProteinBean>(
+							sessionID, columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
+					customTextButtonColumn.setFieldUpdater(getMyFieldUpdater(customTextButtonColumn, sessionID));
+					super.addColumn(customTextButtonColumn);
+				} else if (columnWithVisibility.getColumn() == ColumnName.LINK_TO_INTACT) {
+					final CustomClickableImageColumnOpenLinkToIntAct customTextButtonColumn = new CustomClickableImageColumnOpenLinkToIntAct(
+							columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
+					super.addColumn(customTextButtonColumn);
+				} else if (columnWithVisibility.getColumn() == ColumnName.LINK_TO_COMPLEX_PORTAL) {
+					final CustomClickableImageColumnOpenLinkToComplexPortal customTextButtonColumn = new CustomClickableImageColumnOpenLinkToComplexPortal(
+							columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
+					super.addColumn(customTextButtonColumn);
+				} else {
+					super.addColumn(createColumn(columnWithVisibility.getColumn(), columnWithVisibility.isVisible()));
+				}
 			}
 		}
 

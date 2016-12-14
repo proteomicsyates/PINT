@@ -9,10 +9,10 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
 
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ProjectCreatorWizardUtil;
-import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasId;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ProjectCreatorRegister;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ReferencesDataObject;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsDataObject;
+import edu.scripps.yates.shared.model.interfaces.HasId;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExperimentalConditionTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SampleTypeBean;
 

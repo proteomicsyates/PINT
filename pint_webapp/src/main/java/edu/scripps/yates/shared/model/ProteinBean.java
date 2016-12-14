@@ -1012,7 +1012,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 		for (String function : functions) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
-			sb.append(function);
+			sb.append(function.replace("\n", ""));
 		}
 		return sb.toString();
 	}

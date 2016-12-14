@@ -1,8 +1,17 @@
-package edu.scripps.yates.client.gui.components.projectItems.util;
+package edu.scripps.yates.shared.model.projectStats;
 
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 
 public class ProjectStatsFromExperimentalCondition extends ProjectStats<ExperimentalConditionBean> {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1918926996245029304L;
+
+	public ProjectStatsFromExperimentalCondition() {
+		super();
+	}
 
 	public ProjectStatsFromExperimentalCondition(ExperimentalConditionBean t) {
 		super(t);
@@ -17,6 +26,11 @@ public class ProjectStatsFromExperimentalCondition extends ProjectStats<Experime
 	public Integer getNumConditions() {
 
 		return 1;
+	}
+
+	@Override
+	protected ProjectStatsType getType() {
+		return ProjectStatsType.CONDITION;
 	}
 
 }

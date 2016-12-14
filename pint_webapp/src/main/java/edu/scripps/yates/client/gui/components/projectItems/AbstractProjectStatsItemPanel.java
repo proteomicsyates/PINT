@@ -9,12 +9,12 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
 
-import edu.scripps.yates.client.gui.components.projectItems.util.ProjectStats;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
+import edu.scripps.yates.shared.model.projectStats.ProjectStats;
 
 /**
- * Class that represents the stats of a project (num proteins, peptides, psms,
- * etc) and that is presented in a panel.<br>
+ * Class that represents the stats of a single project (num proteins, peptides,
+ * psms, etc) and that is presented in a panel.<br>
  * It is an extension of {@link AbstractItemPanel}
  *
  * @author Salva
@@ -22,7 +22,7 @@ import edu.scripps.yates.client.gui.templates.MyClientBundle;
  * @param <T>
  *            parent class from which the items are depending
  */
-public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel<ProjectStats<T>, T> {
+public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel<T, ProjectStats<T>> {
 	protected final Map<T, ProjectStats<T>> projectStatsMap = new HashMap<T, ProjectStats<T>>();
 
 	protected final MyClientBundle clientBundle = MyClientBundle.INSTANCE;
@@ -135,7 +135,7 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 			clearItemList();
 			if (parent != null) {
 				if (parent.equals(currentParent)) {
-					return;
+					// return;
 				}
 				currentParent = parent;
 				final ProjectStats<T> projectStats = getProjectStats(parent);

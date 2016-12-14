@@ -20,14 +20,16 @@ public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
 
 		final List<ColumnWithVisibility> columns = PeptideColumns.getInstance().getColumns();
 		for (ColumnWithVisibility columnWithOrder : columns) {
-			final ColumnName columnName = columnWithOrder.getColumn();
-			if (columnName == ColumnName.LINK_TO_PRIDE_CLUSTER) {
-				final CustomClickableImageColumnOpenLinkToPRIDECluster<PeptideBean> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<PeptideBean>(
-						columnName, columnWithOrder.isVisible(), null);
-				super.addColumn(customTextButtonColumn);
-			} else {
+			if (columnWithOrder.getColumn().isAddColumnByDefault()) {
+				final ColumnName columnName = columnWithOrder.getColumn();
+				if (columnName == ColumnName.LINK_TO_PRIDE_CLUSTER) {
+					final CustomClickableImageColumnOpenLinkToPRIDECluster<PeptideBean> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<PeptideBean>(
+							columnName, columnWithOrder.isVisible(), null);
+					super.addColumn(customTextButtonColumn);
+				} else {
 
-				super.addColumn(createColumn(columnName, columnWithOrder.isVisible()));
+					super.addColumn(createColumn(columnName, columnWithOrder.isVisible()));
+				}
 			}
 		}
 	}

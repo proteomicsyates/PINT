@@ -12,7 +12,7 @@ package edu.scripps.yates.shared.model.projectCreator.excel;
 import java.io.Serializable;
 import java.util.Date;
 
-import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.HasId;
+import edu.scripps.yates.shared.model.interfaces.HasId;
 
 public class ProjectTypeBean implements Serializable, HasId {
 
