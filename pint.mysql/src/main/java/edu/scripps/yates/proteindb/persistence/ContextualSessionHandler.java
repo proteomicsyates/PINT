@@ -280,15 +280,17 @@ public class ContextualSessionHandler {
 
 	public static Session getSession() {
 		final Session currentSession = sessionFactory.getCurrentSession();
-		ManagedSessionContext.bind(currentSession);
 		return currentSession;
 	}
 
 	public static void closeSession() {
-		ManagedSessionContext.unbind(sessionFactory);
+
 		// log.info("Closing the session " + contador + " (closing)" +
 		// " from Thread: " + Thread.currentThread().getId());
-		getSession().close();
+		final Session session = getSession();
+		ManagedSessionContext.unbind(sessionFactory);
+		session.close();
+
 	}
 
 	public static void beginGoodTransaction() {
@@ -391,6 +393,13 @@ public class ContextualSessionHandler {
 	 */
 	public static void clear() {
 		getSession().clear();
+	}
+
+	public static Session openSession() {
+		final Session currentSession = sessionFactory.openSession();
+		ManagedSessionContext.bind(currentSession);
+		return currentSession;
+
 	}
 
 }

@@ -42,7 +42,8 @@
         <!--  This allow to take the session with: HibernateUtil.getInstance().getSessionFactory().getCurrentSession(); -->
         <!--  The session has to be 'managed' in a servlet filter like: ManagedSessionContext.bind(currentSession); -->
         <!--  To unbind the session : currentSession = ManagedSessionContext.unbind(sf); -->
-        <property name="hibernate.current_session_context_class">thread</property>
+        <property name="hibernate.current_session_context_class">managed</property>
+<!--         <property name="hibernate.current_session_context_class">thread</property> -->
         
         
         <!-- additional configuration March-25-2015 -->
