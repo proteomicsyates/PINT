@@ -32,14 +32,12 @@ import edu.scripps.yates.shared.model.projectStats.ProjectStatsType;
 
 public class ProjectStatsManager {
 	private final static Logger log = Logger.getLogger(ProjectStatsManager.class);
-	private static final String PROJECT_STATS_LOCK = "PROJECT_STATS_LOCKS";
 	private static ProjectStatsManager instance;
 	private final File file;
-	private boolean loaded = false;
 	private final Map<String, ProjectStatsParent> map = new HashMap<String, ProjectStatsParent>();
 	private ProjectStats generalProjectsStats;
 	private final HashMap<Thread, Method> methodsByThread = new HashMap<Thread, Method>();
-	private final static ReentrantLock lock = new ReentrantLock(true);
+	private final static ReentrantLock lock = new ReentrantLock();
 
 	private ProjectStatsManager(File file, Method method) {
 		this.file = file;
@@ -103,7 +101,6 @@ public class ProjectStatsManager {
 					}
 				}
 			}
-			loaded = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.info("Error while reading stats file: " + e.getMessage());
