@@ -141,12 +141,7 @@ public abstract class ProjectStats<T> implements Serializable {
 		this.t = t;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
+	private String getId() {
 		String id = "";
 		if (t != null) {
 			id = t.toString();
@@ -154,8 +149,70 @@ public abstract class ProjectStats<T> implements Serializable {
 				id = ((HasId) t).getId();
 			}
 		}
-		return getType() + "\t" + id + "\t" + numConditions + "\t" + numMSRuns + "\t" + numSamples + "\t" + numProteins
-				+ "\t" + numGenes + "\t" + numPeptides + "\t" + numPSMs;
+		return id;
+	}
+
+	public String getNumConditionsString(String projectTag) {
+		if (numConditions != null) {
+			return projectTag + "\t" + getType() + "\t" + getId() + "\t" + ProjectStatNumberType.NUM_CONDITIONS + "\t"
+					+ numConditions;
+		} else {
+			return "";
+		}
+	}
+
+	public String getNumMSRunsString(String projectTag) {
+		if (numMSRuns != null) {
+			return projectTag + "\t" + getType() + "\t" + getId() + "\t" + ProjectStatNumberType.NUM_MSRUNS + "\t"
+					+ numMSRuns;
+		} else {
+			return "";
+		}
+	}
+
+	public String getNumSamplesString(String projectTag) {
+		if (numSamples != null) {
+			return projectTag + "\t" + getType() + "\t" + getId() + "\t" + ProjectStatNumberType.NUM_SAMPLE + "\t"
+					+ numSamples;
+		} else {
+			return "";
+		}
+	}
+
+	public String getNumProteinsString(String projectTag) {
+		if (numProteins != null) {
+			return projectTag + "\t" + getType() + "\t" + getId() + "\t" + ProjectStatNumberType.NUM_PROTEINS + "\t"
+					+ numProteins;
+		} else {
+			return "";
+		}
+	}
+
+	public String getNumGenesString(String projectTag) {
+		if (numGenes != null) {
+			return projectTag + "\t" + getType() + "\t" + getId() + "\t" + ProjectStatNumberType.NUM_GENES + "\t"
+					+ numGenes;
+		} else {
+			return "";
+		}
+	}
+
+	public String getNumPeptidesString(String projectTag) {
+		if (numPeptides != null) {
+			return projectTag + "\t" + getType() + "\t" + getId() + "\t" + ProjectStatNumberType.NUM_PEPTIDES + "\t"
+					+ numPeptides;
+		} else {
+			return "";
+		}
+	}
+
+	public String getNumPSMsString(String projectTag) {
+		if (numPSMs != null) {
+			return projectTag + "\t" + getType() + "\t" + getId() + "\t" + ProjectStatNumberType.NUM_PSMS + "\t"
+					+ numPSMs;
+		} else {
+			return "";
+		}
 	}
 
 	protected abstract ProjectStatsType getType();

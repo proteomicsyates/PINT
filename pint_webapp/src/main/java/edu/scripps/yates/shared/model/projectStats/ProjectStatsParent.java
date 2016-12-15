@@ -1,7 +1,6 @@
 package edu.scripps.yates.shared.model.projectStats;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -81,33 +80,6 @@ public class ProjectStatsParent {
 		return projectStatsFromCondition;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-
-		sb.append(BEGIN_PROJECT).append("\t").append(projectTag).append("\n");
-		sb.append(statsFromProject).append("\n");
-
-		final Collection<ProjectStats> statsFromConditionsCollection = statsFromConditions.values();
-		for (ProjectStats projectStats : statsFromConditionsCollection) {
-			sb.append(projectStats).append("\n");
-		}
-		final Collection<ProjectStats> statsFromMSRunsCollection = statsFromMSRuns.values();
-		for (ProjectStats projectStats : statsFromMSRunsCollection) {
-			sb.append(projectStats).append("\n");
-		}
-		final Collection<ProjectStats> statsFromSamplesCollection = statsFromSamples.values();
-		for (ProjectStats projectStats : statsFromSamplesCollection) {
-			sb.append(projectStats).append("\n");
-		}
-
-		return sb.toString();
-	}
-
 	public void addProjectStat(ProjectStats<HasId> stats) {
 		switch (stats.getType()) {
 		case CONDITION:
@@ -122,6 +94,7 @@ public class ProjectStatsParent {
 		case SAMPLE:
 			statsFromSamples.put(stats.getT().getId(), stats);
 			break;
+		case PINT:
 		default:
 			break;
 		}
