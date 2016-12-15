@@ -24,14 +24,18 @@ public class HibernateFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		final long numCall = numRPCCalls++;
+
+		final long numCall = ++numRPCCalls;
 		log.info("Entering in the Hibernate filter in " + numCall + " call");
+		ContextualSessionHandler.printStatistics();
 		String errorMessage = null;
 		try {
+
 			// /////
 			// log.info("Creating a new session from Hibernate filter");
 			// final Session session = ContextualSessionHandler.getSession();
 			// log.info("Session id: " + session.hashCode());
+			ContextualSessionHandler.openSession();
 			ContextualSessionHandler.beginGoodTransaction();
 			// pass the request along the filter chain
 			chain.doFilter(request, response);
@@ -49,18 +53,19 @@ public class HibernateFilter implements Filter {
 				throw new ServletException(ex);
 			}
 		} finally {
+			numRPCCalls--;
 			if (errorMessage == null) {
-				log.info("Closing session from filter in Hibernate filter in call " + numCall);
+				log.info("Closing session from filter in Hibernate filter in call " + numCall + "/" + numRPCCalls);
 			} else {
-				log.warn("Closing session from filter in Hibernate filter in call " + numCall + " WITH ERROR: "
-						+ errorMessage);
+				log.warn("Closing session from filter in Hibernate filter in call " + numCall + "/" + numRPCCalls
+						+ " WITH ERROR: " + errorMessage);
 			}
 			// Close the Session
 			ContextualSessionHandler.closeSession();
 
 			ContextualSessionHandler.printStatistics();
 			// SessionPerKeyHandler.printStatistics();
-			// log.info("Session closed from filter in Hibernate filter");
+			log.info("Session closed from filter in Hibernate filter in call " + numCall + "/" + numRPCCalls);
 			// //////
 		}
 	}

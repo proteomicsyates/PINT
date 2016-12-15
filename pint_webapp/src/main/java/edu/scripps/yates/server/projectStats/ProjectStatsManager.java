@@ -174,15 +174,15 @@ public class ProjectStatsManager {
 	private void updateFile(String line) {
 		// wait until someone release the lock
 
-		log.info("Trying to get the lock from Thread " + Thread.currentThread().getId() + " from method "
-				+ methodsByThread.get(Thread.currentThread()));
+		log.info("Trying to get the lock for update the file from Thread " + Thread.currentThread().getId()
+				+ " from method " + methodsByThread.get(Thread.currentThread()).getName());
 		try {
 			lock.lockInterruptibly();
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
 		log.info("Lock acquired from Thread " + Thread.currentThread().getId() + " from method "
-				+ methodsByThread.get(Thread.currentThread()));
+				+ methodsByThread.get(Thread.currentThread()).getName());
 		try {
 			List<String> projectList = new ArrayList<String>();
 			projectList.addAll(map.keySet());
@@ -210,7 +210,7 @@ public class ProjectStatsManager {
 		} finally {
 			lock.unlock();
 			log.info("Lock released from Thread " + Thread.currentThread().getId() + " from method "
-					+ methodsByThread.get(Thread.currentThread()));
+					+ methodsByThread.get(Thread.currentThread()).getName());
 		}
 	}
 
