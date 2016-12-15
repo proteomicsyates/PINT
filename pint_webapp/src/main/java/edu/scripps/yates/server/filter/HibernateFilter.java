@@ -15,6 +15,7 @@ import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 
 public class HibernateFilter implements Filter {
 	private static Logger log = Logger.getLogger(HibernateFilter.class);
+	private static long numRPCCalls = 0;
 
 	@Override
 	public void destroy() {
@@ -23,7 +24,7 @@ public class HibernateFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		log.info("Entering in the Hibernate filter");
+		log.info("Entering in the Hibernate filter in " + numRPCCalls++ + " call");
 		String errorMessage = null;
 		try {
 			// /////
