@@ -1,7 +1,9 @@
 package edu.scripps.yates.client.gui.components.projectItems;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -36,6 +38,7 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 	protected final int rowPSMs = 6;
 
 	protected final NumberFormat format = NumberFormat.getFormat("###,###");
+	private final Set<ProjectStats<T>> selectedItems = new HashSet<ProjectStats<T>>();
 
 	protected AbstractProjectStatsItemPanel(T parent, boolean keepLeftPanel) {
 		this("Project stats", parent, keepLeftPanel);
@@ -171,41 +174,60 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 		if (projectStats == null) {
 			return;
 		}
+
 		if (projectStats.getNumConditions() != null) {
 			rightPanel.setWidget(rowConditions, 1, new Label(format.format(projectStats.getNumConditions())));
 		} else {
-			requestNumConditions(projectStats.getT());
+			if (!selectedItems.contains(selectedItem)) {
+				requestNumConditions(projectStats.getT());
+			}
 		}
 		if (projectStats.getNumSamples() != null) {
 			rightPanel.setWidget(rowSamples, 1, new Label(format.format(projectStats.getNumSamples())));
 		} else {
-			requestNumSamples(projectStats.getT());
+			if (!selectedItems.contains(selectedItem)) {
+				requestNumSamples(projectStats.getT());
+			}
 		}
 		if (projectStats.getNumMSRuns() != null) {
 			rightPanel.setWidget(rowMSRuns, 1, new Label(format.format(projectStats.getNumMSRuns())));
 		} else {
-			requestNumMSRuns(projectStats.getT());
+			if (!selectedItems.contains(selectedItem)) {
+				requestNumMSRuns(projectStats.getT());
+			}
 		}
 		if (projectStats.getNumProteins() != null) {
 			rightPanel.setWidget(rowProteins, 1, new Label(format.format(projectStats.getNumProteins())));
 		} else {
-			requestNumProteins(projectStats.getT());
+			if (!selectedItems.contains(selectedItem)) {
+				requestNumProteins(projectStats.getT());
+			}
 		}
 		if (projectStats.getNumGenes() != null) {
 			rightPanel.setWidget(rowGenes, 1, new Label(format.format(projectStats.getNumGenes())));
 		} else {
-			requestNumGenes(projectStats.getT());
+			if (!selectedItems.contains(selectedItem)) {
+				requestNumGenes(projectStats.getT());
+			}
 		}
 		if (projectStats.getNumPeptides() != null) {
 			rightPanel.setWidget(rowPeptides, 1, new Label(format.format(projectStats.getNumPeptides())));
 		} else {
-			requestNumPeptides(projectStats.getT());
+			if (!selectedItems.contains(selectedItem)) {
+				requestNumPeptides(projectStats.getT());
+			}
 		}
 		if (projectStats.getNumPSMs() != null) {
 			rightPanel.setWidget(rowPSMs, 1, new Label(String.valueOf(format.format(projectStats.getNumPSMs()))));
 		} else {
-			requestNumPSMs(projectStats.getT());
+			if (!selectedItems.contains(selectedItem)) {
+				requestNumPSMs(projectStats.getT());
+			}
 		}
+		// store the selected item in the set of selectedItems. Doing this, if
+		// an item was previously selected, it will not request again the values
+		// to the server
+		selectedItems.add(selectedItem);
 	}
 
 	private ProjectStats<T> getProjectStats(T t) {
