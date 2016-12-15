@@ -37,7 +37,9 @@ public class ProjectStatsFromSampleItemPanel extends AbstractProjectStatsItemPan
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(sampleBean).setNumGenes(result);
 						Label numGenesLabel = new Label(format.format(result));
-						rightPanel.setWidget(rowGenes, 1, numGenesLabel);
+						if (sampleBean.equals(selectedItem.getT())) {
+							rightPanel.setWidget(rowGenes, 1, numGenesLabel);
+						}
 					}
 
 					@Override
@@ -62,7 +64,9 @@ public class ProjectStatsFromSampleItemPanel extends AbstractProjectStatsItemPan
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(sampleBean).setNumPSMs(result);
 						Label numPSMsLabel = new Label(format.format(result));
-						rightPanel.setWidget(rowPSMs, 1, numPSMsLabel);
+						if (sampleBean.equals(selectedItem.getT())) {
+							rightPanel.setWidget(rowPSMs, 1, numPSMsLabel);
+						}
 					}
 
 					@Override
@@ -86,7 +90,9 @@ public class ProjectStatsFromSampleItemPanel extends AbstractProjectStatsItemPan
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(sampleBean).setNumPeptides(result);
 						Label numPeptidesLabel = new Label(format.format(result));
-						rightPanel.setWidget(rowPeptides, 1, numPeptidesLabel);
+						if (sampleBean.equals(selectedItem.getT())) {
+							rightPanel.setWidget(rowPeptides, 1, numPeptidesLabel);
+						}
 					}
 
 					@Override
@@ -111,7 +117,9 @@ public class ProjectStatsFromSampleItemPanel extends AbstractProjectStatsItemPan
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(sampleBean).setNumProteins(result);
 						Label numProteinsLabel = new Label(format.format(result));
-						rightPanel.setWidget(rowProteins, 1, numProteinsLabel);
+						if (sampleBean.equals(selectedItem.getT())) {
+							rightPanel.setWidget(rowProteins, 1, numProteinsLabel);
+						}
 					}
 
 					@Override
@@ -136,7 +144,9 @@ public class ProjectStatsFromSampleItemPanel extends AbstractProjectStatsItemPan
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(sampleBean).setNumMSRuns(result);
 						Label numMSRunsLabel = new Label(format.format(result));
-						rightPanel.setWidget(rowMSRuns, 1, numMSRunsLabel);
+						if (sampleBean.equals(selectedItem.getT())) {
+							rightPanel.setWidget(rowMSRuns, 1, numMSRunsLabel);
+						}
 					}
 
 					@Override

@@ -155,7 +155,9 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumGenes(result);
 				Label numGenesLabel = new Label(format.format(result));
-				rightPanel.setWidget(rowGenes, 1, numGenesLabel);
+				if (projectBean.equals(selectedItem.getT())) {
+					rightPanel.setWidget(rowGenes, 1, numGenesLabel);
+				}
 			}
 
 			@Override
@@ -179,7 +181,9 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumPSMs(result);
 				Label numPSMsLabel = new Label(format.format(result));
-				rightPanel.setWidget(rowPSMs, 1, numPSMsLabel);
+				if (projectBean.equals(selectedItem.getT())) {
+					rightPanel.setWidget(rowPSMs, 1, numPSMsLabel);
+				}
 			}
 
 			@Override
@@ -202,7 +206,9 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumPeptides(result);
 				Label numPeptidesLabel = new Label(format.format(result));
-				rightPanel.setWidget(rowPeptides, 1, numPeptidesLabel);
+				if (projectBean.equals(selectedItem.getT())) {
+					rightPanel.setWidget(rowPeptides, 1, numPeptidesLabel);
+				}
 			}
 
 			@Override
@@ -226,7 +232,9 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumProteins(result);
 				Label numProteinsLabel = new Label(format.format(result));
-				rightPanel.setWidget(rowProteins, 1, numProteinsLabel);
+				if (projectBean.equals(selectedItem.getT())) {
+					rightPanel.setWidget(rowProteins, 1, numProteinsLabel);
+				}
 			}
 
 			@Override
@@ -250,7 +258,9 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			public void onSuccess(Set<String> result) {
 				projectStatsMap.get(projectBean).setNumMSRuns(result.size());
 				Label numMSRunsLabel = new Label(format.format(result.size()));
-				rightPanel.setWidget(rowMSRuns, 1, numMSRunsLabel);
+				if (projectBean.equals(selectedItem.getT())) {
+					rightPanel.setWidget(rowMSRuns, 1, numMSRunsLabel);
+				}
 			}
 
 			@Override

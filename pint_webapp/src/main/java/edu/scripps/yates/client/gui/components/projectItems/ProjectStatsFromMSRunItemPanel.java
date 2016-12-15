@@ -27,17 +27,19 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 	}
 
 	@Override
-	public void requestNumGenes(final MSRunBean msRun) {
+	public void requestNumGenes(final MSRunBean msRunBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
 		Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowGenes, 1, imageLoader);
-		super.proteinRetrievingService.getNumGenes(msRun.getProject().getTag(), msRun, new AsyncCallback<Integer>() {
+		super.proteinRetrievingService.getNumGenes(msRunBean.getProject().getTag(), msRunBean, new AsyncCallback<Integer>() {
 
 			@Override
 			public void onSuccess(Integer result) {
-				projectStatsMap.get(msRun).setNumGenes(result);
+				projectStatsMap.get(msRunBean).setNumGenes(result);
 				Label numGenesLabel = new Label(format.format(result));
-				rightPanel.setWidget(rowGenes, 1, numGenesLabel);
+				if (msRunBean.equals(selectedItem.getT())) {
+					rightPanel.setWidget(rowGenes, 1, numGenesLabel);
+				}
 			}
 
 			@Override
@@ -62,7 +64,9 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(msRunBean).setNumPSMs(result);
 						Label numPSMsLabel = new Label(format.format(result));
-						rightPanel.setWidget(rowPSMs, 1, numPSMsLabel);
+						if (msRunBean.equals(selectedItem.getT())) {
+							rightPanel.setWidget(rowPSMs, 1, numPSMsLabel);
+						}
 					}
 
 					@Override
@@ -86,7 +90,9 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(msRunBean).setNumPeptides(result);
 						Label numPeptidesLabel = new Label(format.format(result));
-						rightPanel.setWidget(rowPeptides, 1, numPeptidesLabel);
+						if (msRunBean.equals(selectedItem.getT())) {
+							rightPanel.setWidget(rowPeptides, 1, numPeptidesLabel);
+						}
 					}
 
 					@Override
@@ -111,7 +117,9 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(msRunBean).setNumProteins(result);
 						Label numProteinsLabel = new Label(format.format(result));
-						rightPanel.setWidget(rowProteins, 1, numProteinsLabel);
+						if (msRunBean.equals(selectedItem.getT())) {
+							rightPanel.setWidget(rowProteins, 1, numProteinsLabel);
+						}
 					}
 
 					@Override
@@ -150,7 +158,9 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(msRunBean).setNumConditions(result);
 						Label numConditionsLabel = new Label(format.format(result));
-						rightPanel.setWidget(rowConditions, 1, numConditionsLabel);
+						if (msRunBean.equals(selectedItem.getT())) {
+							rightPanel.setWidget(rowConditions, 1, numConditionsLabel);
+						}
 					}
 
 					@Override
@@ -175,7 +185,9 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(msRunBean).setNumSamples(result);
 						Label numSamplesLabel = new Label(format.format(result));
-						rightPanel.setWidget(rowSamples, 1, numSamplesLabel);
+						if (msRunBean.equals(selectedItem.getT())) {
+							rightPanel.setWidget(rowSamples, 1, numSamplesLabel);
+						}
 					}
 
 					@Override

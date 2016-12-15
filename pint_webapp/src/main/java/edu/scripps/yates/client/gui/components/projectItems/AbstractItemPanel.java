@@ -50,7 +50,7 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 	protected final List<DoSomethingTask2<T>> doSomethingTaskAfterSelection = new ArrayList<DoSomethingTask2<T>>();
 	private CaptionPanel captionPanel;
 	protected AbstractProjectStatsItemPanel<T> selectedItemStatsPanel;
-	private T selectedItem;
+	protected T selectedItem;
 	private T clickedItem;
 
 	/**
