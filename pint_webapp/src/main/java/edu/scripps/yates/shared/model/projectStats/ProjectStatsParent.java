@@ -70,6 +70,24 @@ public class ProjectStatsParent {
 		return projectStatsFromSample;
 	}
 
+	public ProjectStats getProjectStats(String id, ProjectStatsType type) {
+		switch (type) {
+		case CONDITION:
+			return statsFromConditions.get(id);
+		case MSRUN:
+			return statsFromMSRuns.get(id);
+		case SAMPLE:
+			return statsFromSamples.get(id);
+		case PROJECT:
+			return statsFromProject;
+		case PINT:
+
+		default:
+			break;
+		}
+		return null;
+	}
+
 	public ProjectStats getProjectStatsByCondition(ExperimentalConditionBean condition) {
 		if (statsFromConditions.containsKey(condition.getId())) {
 			return statsFromConditions.get(condition.getId());

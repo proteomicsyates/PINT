@@ -11,6 +11,7 @@ import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.context.internal.ManagedSessionContext;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.stat.Statistics;
 
@@ -278,27 +279,30 @@ public class ContextualSessionHandler {
 	// }
 
 	public static Session getSession() {
-		return sessionFactory.getCurrentSession();
+		final Session currentSession = sessionFactory.getCurrentSession();
+		ManagedSessionContext.bind(currentSession);
+		return currentSession;
 	}
 
 	public static void closeSession() {
+		ManagedSessionContext.unbind(sessionFactory);
 		// log.info("Closing the session " + contador + " (closing)" +
 		// " from Thread: " + Thread.currentThread().getId());
-		sessionFactory.getCurrentSession().close();
+		getSession().close();
 	}
 
 	public static void beginGoodTransaction() {
-		sessionFactory.getCurrentSession().beginTransaction();
+		getSession().beginTransaction();
 
 	}
 
 	private static void commitTransaction() {
-		sessionFactory.getCurrentSession().getTransaction().commit();
+		getSession().getTransaction().commit();
 	}
 
 	public static void rollbackTransaction() {
 
-		sessionFactory.getCurrentSession().getTransaction().rollback();
+		getSession().getTransaction().rollback();
 	}
 
 	// /////////////////////////////////////////
@@ -336,7 +340,8 @@ public class ContextualSessionHandler {
 			ContextualSessionHandler.statistics = sessionFactory.getStatistics();
 			if (statistics != null) {
 				log.info("Sessions: CLOSED=" + statistics.getSessionCloseCount() + ", Sessions OPENED="
-						+ statistics.getSessionOpenCount() + ", Transactions=" + statistics.getTransactionCount());
+						+ statistics.getSessionOpenCount() + ", Transactions=" + statistics.getTransactionCount()
+						+ ", Connections=" + statistics.getConnectCount());
 
 				// log.info(statistics);
 			}

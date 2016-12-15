@@ -68,7 +68,7 @@ public class ProjectStatsManager {
 				if ("".equals(line)) {
 					continue;
 				}
-
+				boolean isGeneralPintStats = false;
 				final String[] split = line.split("\t");
 				projectTag = split[0];
 				if (!"".equals(projectTag)) {
@@ -78,34 +78,51 @@ public class ProjectStatsManager {
 					}
 				} else {
 					// if projectTag is "" then it is general PINT stats
+					isGeneralPintStats = true;
 				}
 
 				// first comes the type, then the id, and then the stats
 
 				final ProjectStatsType projectStatsType = ProjectStatsType.valueOf(split[1]);
 				String id = split[2];
-				ProjectStatNumberType projectStatsNumberType = ProjectStatNumberType.valueOf(split[3]);
-				Integer numConditions = getNumber(split[4]);
-				Integer numMSRuns = getNumber(split[5]);
-				Integer numSamples = getNumber(split[6]);
-				Integer numProteins = getNumber(split[7]);
-				Integer numGenes = getNumber(split[8]);
-				Integer numPeptides = getNumber(split[9]);
-				Integer numPSMs = getNumber(split[10]);
-
-				ProjectStats stats = new ProjectStatsImpl(new HasIdImpl(id), projectStatsType);
-				stats.setNumConditions(numConditions);
-				stats.setNumGenes(numGenes);
-				stats.setNumMSRuns(numMSRuns);
-				stats.setNumPeptides(numPeptides);
-				stats.setNumProteins(numProteins);
-				stats.setNumPSMs(numPSMs);
-				stats.setNumSamples(numSamples);
-				if (!"".equals(projectTag)) {
-					map.get(projectTag).addProjectStat(stats);
+				Integer num = getNumber(split[4]);
+				ProjectStats projectStats = null;
+				if (!isGeneralPintStats) {
+					projectStats = map.get(projectTag).getProjectStats(id, projectStatsType);
+					if (projectStats == null) {
+						projectStats = new ProjectStatsImpl(new HasIdImpl(id), projectStatsType);
+						map.get(projectTag).addProjectStat(projectStats);
+					}
 				} else {
-					generalProjectsStats = stats;
+					projectStats = generalProjectsStats;
 				}
+				ProjectStatNumberType projectStatsNumberType = ProjectStatNumberType.valueOf(split[3]);
+				switch (projectStatsNumberType) {
+				case NUM_CONDITIONS:
+					projectStats.setNumConditions(num);
+					break;
+				case NUM_GENES:
+					projectStats.setNumGenes(num);
+					break;
+				case NUM_MSRUNS:
+					projectStats.setNumMSRuns(num);
+					break;
+				case NUM_PEPTIDES:
+					projectStats.setNumPeptides(num);
+					break;
+				case NUM_PROTEINS:
+					projectStats.setNumProteins(num);
+					break;
+				case NUM_PSMS:
+					projectStats.setNumPSMs(num);
+					break;
+				case NUM_SAMPLE:
+					projectStats.setNumSamples(num);
+					break;
+				default:
+					break;
+				}
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -128,7 +145,7 @@ public class ProjectStatsManager {
 		return null;
 	}
 
-	public static ProjectStatsManager getInstance(Method method) {
+	public static synchronized ProjectStatsManager getInstance(Method method) {
 		if (instance == null) {
 			File file = FileManager.getProjectStatsFile();
 			instance = new ProjectStatsManager(file, method);
