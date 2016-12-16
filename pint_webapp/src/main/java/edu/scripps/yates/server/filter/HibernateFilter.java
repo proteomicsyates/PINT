@@ -26,7 +26,7 @@ public class HibernateFilter implements Filter {
 			throws IOException, ServletException {
 
 		final long numCall = ++numRPCCalls;
-		log.info("Entering in the Hibernate filter in " + numCall + " call");
+		log.info("Entering in the Hibernate filter in " + numCall + "/" + numRPCCalls);
 		ContextualSessionHandler.printStatistics();
 		String errorMessage = null;
 		try {
