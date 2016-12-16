@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 
@@ -64,8 +65,8 @@ public class ProjectStatsManager {
 			List<String> readAllLines = Files.readAllLines(Paths.get(file.getAbsolutePath()), Charset.defaultCharset());
 			String projectTag = null;
 			for (String line : readAllLines) {
-				line = line.trim();
-				if ("".equals(line)) {
+
+				if ("".equals(line.trim())) {
 					continue;
 				}
 				boolean isGeneralPintStats = false;
@@ -124,6 +125,7 @@ public class ProjectStatsManager {
 				}
 
 			}
+			log.info(FilenameUtils.getName(file.getAbsolutePath()) + " loaded correctly");
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.info("Error while reading stats file: " + e.getMessage());
