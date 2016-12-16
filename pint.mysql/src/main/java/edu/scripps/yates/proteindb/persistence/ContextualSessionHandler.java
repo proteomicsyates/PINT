@@ -341,9 +341,9 @@ public class ContextualSessionHandler {
 		if (sessionFactory != null) {
 			ContextualSessionHandler.statistics = sessionFactory.getStatistics();
 			if (statistics != null) {
-				log.info("Sessions: CLOSED=" + statistics.getSessionCloseCount() + ", Sessions OPENED="
-						+ statistics.getSessionOpenCount() + ", Transactions=" + statistics.getTransactionCount()
-						+ ", Connections=" + statistics.getConnectCount());
+				log.info("Sessions: " + statistics.getSessionOpenCount() + ", OPEN="
+						+ (statistics.getSessionOpenCount() - statistics.getSessionCloseCount()) + ", Transactions="
+						+ statistics.getTransactionCount() + ", Connections=" + statistics.getConnectCount());
 
 				// log.info(statistics);
 			}

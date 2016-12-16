@@ -26,7 +26,7 @@ public class HibernateFilter implements Filter {
 			throws IOException, ServletException {
 
 		final long numCall = ++numRPCCalls;
-		log.info("Entering in the Hibernate filter in " + numCall + "/" + numRPCCalls);
+		log.info("Entering in the Hibernate filter in " + numCall + ". Num calls that are ongoing: " + numRPCCalls);
 		ContextualSessionHandler.printStatistics();
 		String errorMessage = null;
 		try {
@@ -55,17 +55,19 @@ public class HibernateFilter implements Filter {
 		} finally {
 			numRPCCalls--;
 			if (errorMessage == null) {
-				log.info("Closing session from filter in Hibernate filter in call " + numCall + "/" + numRPCCalls);
+				log.info("Closing session from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
+						+ numRPCCalls);
 			} else {
-				log.warn("Closing session from filter in Hibernate filter in call " + numCall + "/" + numRPCCalls
-						+ " WITH ERROR: " + errorMessage);
+				log.warn("Closing session from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
+						+ numRPCCalls + " WITH ERROR: " + errorMessage);
 			}
 			// Close the Session
 			ContextualSessionHandler.closeSession();
 
 			ContextualSessionHandler.printStatistics();
 			// SessionPerKeyHandler.printStatistics();
-			log.info("Session closed from filter in Hibernate filter in call " + numCall + "/" + numRPCCalls);
+			log.info("Session closed from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
+					+ numRPCCalls);
 			// //////
 		}
 	}
