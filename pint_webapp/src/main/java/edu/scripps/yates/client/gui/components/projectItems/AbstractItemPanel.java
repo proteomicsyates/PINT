@@ -157,9 +157,10 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
-				if (!item.equals(selectedItem) && selectedItem != null) {
+				T previousSelectedItem = selectedItem;
+				if (!item.equals(previousSelectedItem) && previousSelectedItem != null) {
 					// deselect the previous one
-					panelsByItem.get(selectedItem).setStyleName("ProjectItemPanel");
+					panelsByItem.get(previousSelectedItem).setStyleName("ProjectItemPanel");
 				}
 				performSelection(item);
 			}
@@ -275,9 +276,9 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 	 * @param item
 	 */
 	public void performSelection(T item) {
-		selectItem(item);
 		panelsByItem.get(item).setStyleName("ProjectItemPanel-selected");
 		selectedItem = item;
+		selectItem(item);
 		doAfterSelection(item);
 	}
 
