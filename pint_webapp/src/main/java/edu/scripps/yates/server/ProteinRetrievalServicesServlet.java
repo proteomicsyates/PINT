@@ -1100,8 +1100,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			sendTrackingEmail(getProjectTagString(projectTags) + "\t" + queryInOrder);
 			// SEND TRACKING EMAIL
 
-			// QueryResult result = expressionTree.getQueryResults();
-			QueryResult result = expressionTree.getQueryResultsParallel();
+			QueryResult result = expressionTree.getQueryResults();
+			// QueryResult result = expressionTree.getQueryResultsParallel();
 			return result;
 
 		} catch (Exception e) {
