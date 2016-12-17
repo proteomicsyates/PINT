@@ -1,7 +1,9 @@
 package edu.scripps.yates.proteindb.persistence.mysql.access;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -15,6 +17,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Gene;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
+import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
@@ -598,5 +601,48 @@ public class PreparedCriteria {
 				.setProjection(Projections.distinct(Projections.property("condition.id")));
 		cr.add(Restrictions.eq("project.tag", projectTag));
 		return cr;
+	}
+
+	public static List<Peptide> getPeptidesByIds(Collection<Integer> peptideIds) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Peptide.class, "peptide")
+				.add(Restrictions.in("peptide.id", peptideIds));
+		return cr.list();
+	}
+
+	public static List<Protein> getProteinsByIds(Collection<Integer> proteinIds) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Protein.class, "protein")
+				.add(Restrictions.in("protein.id", proteinIds));
+		return cr.list();
+	}
+
+	public static List<Psm> getPsmsByIds(Collection<Integer> psmIds) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.add(Restrictions.in("psm.id", psmIds));
+		return cr.list();
+	}
+
+	public static List<Integer> getPeptideIdsFromProteins(Collection<Integer> proteinIds) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Peptide.class, "peptide")
+				.createAlias("peptide.proteins", "protein").add(Restrictions.in("protein.id", proteinIds))
+				.setProjection(
+						Projections.projectionList().add(Projections.distinct(Projections.property("peptide.id"))));
+		return cr.list();
+
+	}
+
+	public static List<Integer> getPsmIdsFromProteins(Set<Integer> proteinIds) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.proteins", "protein").add(Restrictions.in("protein.id", proteinIds))
+				.setProjection(Projections.projectionList().add(Projections.distinct(Projections.property("psm.id"))));
+		return cr.list();
+
+	}
+
+	public static List<Integer> getPsmIdsFromPeptides(Set<Integer> peptideIds) {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.peptides", "peptide").add(Restrictions.in("peptide.id", peptideIds))
+				.setProjection(Projections.projectionList().add(Projections.distinct(Projections.property("psm.id"))));
+		return cr.list();
+
 	}
 }

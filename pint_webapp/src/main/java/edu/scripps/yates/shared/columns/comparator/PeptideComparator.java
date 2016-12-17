@@ -74,8 +74,6 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 				switch (columnName) {
 				case ACC:
 					return compareStrings(o1.getProteinAccessionString(), o2.getProteinAccessionString(), false);
-				case DESCRIPTION:
-					return compareStrings(o1.getProteinDescriptionString(), o2.getProteinDescriptionString(), true);
 				case PEPTIDE_SEQUENCE:
 					return o1.getSequence().compareTo(o2.getSequence());
 				case PEPTIDE_LENGTH:

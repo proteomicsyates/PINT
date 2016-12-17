@@ -241,4 +241,5 @@ public class QueryResult {
 		}
 		return individualPSMs;
 	}
+
 }

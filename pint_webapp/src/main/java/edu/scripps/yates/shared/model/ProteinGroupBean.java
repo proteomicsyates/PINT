@@ -39,7 +39,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	private int numPSMs;
 
 	private List<PeptideBean> peptides = new ArrayList<PeptideBean>();
-
+	private final Set<Integer> peptideDBIds = new HashSet<Integer>();
 	private ProteinGroupBean lightVersion;
 
 	// used only for the SPCs:
@@ -761,5 +761,10 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 			ret.addAll(protein.getRatios());
 		}
 		return ret;
+	}
+
+	@Override
+	public Set<Integer> getPeptideDBIds() {
+		return peptideDBIds;
 	}
 }

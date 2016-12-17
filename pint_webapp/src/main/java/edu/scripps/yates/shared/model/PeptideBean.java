@@ -41,8 +41,8 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	private Set<AmountBean> amounts = new HashSet<AmountBean>();
 	private HashMap<String, Set<AmountBean>> amountsByExperimentalCondition = new HashMap<String, Set<AmountBean>>();
 	private HashMap<String, List<RatioBean>> ratiosByExperimentalcondition = new HashMap<String, List<RatioBean>>();
-	private Set<ProteinBean> proteins = new HashSet<ProteinBean>();
-	private List<PSMBean> psms = new ArrayList<PSMBean>();
+	private  Set<ProteinBean> proteins = new HashSet<ProteinBean>();
+	private  List<PSMBean> psms = new ArrayList<PSMBean>();
 
 	private Set<RatioBean> ratios = new HashSet<RatioBean>();
 	private List<AccessionBean> proteinsPrimaryAccessions = new ArrayList<AccessionBean>();
@@ -108,10 +108,13 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	}
 
 	public void addPSMToPeptide(PSMBean psm) {
-		if (psm == null || psms.contains(psm)) {
+		if (psm == null || psmIds.contains(psm.getDbID())
+		 || psms.contains(psm)
+		) {
 			return;
 		}
-		psms.add(psm);
+		 psms.add(psm);
+		psmIds.add(psm.getDbID());
 		rawSequences.add(psm.getFullSequence());
 		// peptide
 		psm.setPeptideBeanToPSM(this);
@@ -141,7 +144,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 
 	@Override
 	public List<PSMBean> getPsms() {
-		return psms;
+		 return psms;
 	}
 
 	public Double getCalcMH() {
@@ -297,47 +300,48 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 
 	public void addProteinToPeptide(ProteinBean protein) {
 
-		if (protein == null || proteins.contains(protein)) {
+		if (protein == null || proteins.contains(protein) || proteinDBIds.containsAll(protein.getDbIds())) {
 			return;
 		}
 		proteins.add(protein);
-
+		proteinDBIds.addAll(protein.getDbIds());
 		if (!proteinsPrimaryAccessions.contains(protein.getPrimaryAccession())) {
 			proteinsPrimaryAccessions.add(protein.getPrimaryAccession());
 		}
 		protein.addPeptideToProtein(this);
 
-		// final List<PSMBean> psms2 = protein.getPsms();
-		// for (PSMBean psmBean : psms2) {
-		// addPSMToPeptide(psmBean);
-		// }
-		// final List<PSMBean> psms3 = getPsms();
-		// for (PSMBean psmBean : psms3) {
-		// protein.addPSMtoProtein(psmBean);
-		// }
+//		final List<PSMBean> psms2 = protein.getPsms();
+//		for (PSMBean psmBean : psms2) {
+//			addPSMToPeptide(psmBean);
+//		}
+//		final List<PSMBean> psms3 = getPsms();
+//		for (PSMBean psmBean : psms3) {
+//			protein.addPSMtoProtein(psmBean);
+//		}
 
 	}
 
 	public void setProteins(Set<ProteinBean> proteins) {
-		this.proteins = proteins;
+		 this.proteins = proteins;
 	}
 
 	public Set<ProteinBean> getProteins() {
-		return proteins;
+		 return proteins;
+//		return Collections.emptySet();
 	}
 
-	public String getProteinDescriptionString() {
-		if (proteinDescriptionString == null) {
-			StringBuilder sb = new StringBuilder();
-			for (ProteinBean proteinBean : proteins) {
-				if (!"".equals(sb.toString()))
-					sb.append(SharedConstants.SEPARATOR);
-				sb.append(proteinBean.getDescriptionString());
-			}
-			proteinDescriptionString = sb.toString();
-		}
-		return proteinDescriptionString;
-	}
+	 public String getProteinDescriptionString() {
+	 if (proteinDescriptionString == null) {
+	 StringBuilder sb = new StringBuilder();
+	 for (ProteinBean proteinBean : proteins) {
+	 if (!"".equals(sb.toString()))
+	 sb.append(SharedConstants.SEPARATOR);
+	 sb.append(proteinBean.getDescriptionString());
+	 }
+	 proteinDescriptionString = sb.toString();
+	 }
+	 return proteinDescriptionString;
+	 } 
 
 	public ScoreBean getScoreByName(String scoreName) {
 		return scores.get(scoreName);
@@ -866,7 +870,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	 *            the psms to set
 	 */
 	public void setPsms(List<PSMBean> psms) {
-		this.psms = psms;
+		 this.psms = psms;
 	}
 
 	/**

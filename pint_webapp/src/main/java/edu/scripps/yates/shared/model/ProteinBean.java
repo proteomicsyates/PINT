@@ -32,8 +32,8 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	 */
 	private static final long serialVersionUID = -1435542806814270031L;
 	private Set<Integer> dbIds = new HashSet<Integer>();
-	private List<PSMBean> psms = new ArrayList<PSMBean>();
-	private List<PeptideBean> peptides = new ArrayList<PeptideBean>();
+	private  List<PSMBean> psms = new ArrayList<PSMBean>();
+	private  List<PeptideBean> peptides = new ArrayList<PeptideBean>();
 
 	private Set<AccessionBean> secondaryAccessions = new HashSet<AccessionBean>();
 
@@ -75,6 +75,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	private Map<String, RatioDistribution> ratioDistributions;
 	private Map<String, List<UniprotFeatureBean>> uniprotFeatures = new HashMap<String, List<UniprotFeatureBean>>();
 	private List<ReactomePathwayRef> reactomePathways = new ArrayList<ReactomePathwayRef>();
+	private Set<Integer> peptideDBIds = new HashSet<Integer>();
 
 	public ProteinBean() {
 		proteinBeanUniqueIdentifier = hashCode();
@@ -240,7 +241,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	 *            the psms to set
 	 */
 	public void setPsms(List<PSMBean> psms) {
-		this.psms = psms;
+		 this.psms = psms;
 	}
 
 	/**
@@ -284,7 +285,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	}
 
 	public void addPSMtoProtein(PSMBean psmBean) {
-		if (psmBean == null || psms.contains(psmBean)) {
+		if (psmBean == null || psms.contains(psmBean) || psmIds.contains(psmBean.getDbID())) {
 			return;
 		}
 		psms.add(psmBean);
@@ -325,8 +326,9 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	}
 
 	public void addPeptideToProtein(PeptideBean peptideBean) {
-		if (peptideBean == null || peptides.contains(peptideBean))
+		if (peptideBean == null || peptides.contains(peptideBean) || peptideDBIds.containsAll(peptideBean.getDbIds()))
 			return;
+		peptideDBIds.addAll(peptideBean.getDbIds());
 		peptides.add(peptideBean);
 		peptideBean.addProteinToPeptide(this);
 		final List<PSMBean> psms2 = peptideBean.getPsms();
@@ -1109,13 +1111,13 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 					}
 				}
 			}
-			if (psms != null) {
-				for (PSMBean psmBean : psms) {
-					if (psmBean.isFromThisProject(projectTag)) {
-						return true;
-					}
-				}
-			}
+			 if (psms != null) {
+			 for (PSMBean psmBean : psms) {
+			 if (psmBean.isFromThisProject(projectTag)) {
+			 return true;
+			 }
+			 }
+			 }
 		}
 		return false;
 	}
@@ -1201,10 +1203,13 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 			// allow peptides in proteins.
 			// IMPORTANT: do it after cloning all the other features of the
 			// protein
-			for (PeptideBean peptideBean : getPeptides()) {
-				final PeptideBean lightPeptide = peptideBean.cloneToLightPeptideBean();
-				lightVersion.addPeptideToProtein(lightPeptide);
-			}
+			 for (PeptideBean peptideBean : getPeptides()) {
+			 final PeptideBean lightPeptide =
+			 peptideBean.cloneToLightPeptideBean();
+			 lightVersion.addPeptideToProtein(lightPeptide);
+			 }
+			 lightVersion.getPSMDBIds().addAll(getPSMDBIds());
+			lightVersion.getPeptideDBIds().addAll(getPeptideDBIds());
 			lightVersion.coverageArrayString = coverageArrayString;
 			lightVersion.ratioDistributions = getRatioDistributions();
 			lightVersion.reactomePathways.addAll(getReactomePathways());
@@ -1297,13 +1302,13 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 		return sortedIds;
 	}
 
-	/**
+	 /**
 	 * @param peptides
-	 *            the peptides to set
+	 * the peptides to set
 	 */
-	public void setPeptides(List<PeptideBean> peptides) {
-		this.peptides = peptides;
-	}
+	 public void setPeptides(List<PeptideBean> peptides) {
+	 this.peptides = peptides;
+	 }
 
 	/*
 	 * (non-Javadoc)
@@ -1446,5 +1451,18 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 		}
 		reactomePathways.add(reactomePathwayRef);
 
+	}
+
+	@Override
+	public Set<Integer> getPeptideDBIds() {
+		return peptideDBIds;
+	}
+
+	/**
+	 * @param peptideDBIds
+	 *            the peptideDBIds to set
+	 */
+	public void setPeptideDBIds(Set<Integer> peptideDBIds) {
+		this.peptideDBIds = peptideDBIds;
 	}
 }

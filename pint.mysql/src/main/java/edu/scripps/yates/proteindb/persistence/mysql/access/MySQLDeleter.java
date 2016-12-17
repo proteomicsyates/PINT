@@ -611,54 +611,58 @@ public class MySQLDeleter {
 					initialMSRunNumber = msRuns.size();
 				}
 				log.info(msRuns.size() + " MSRuns to delete in project " + hibProject.getTag());
-				List<MsRun> msrunlist = new ArrayList<MsRun>();
-				msrunlist.addAll(msRuns);
-				Collections.sort(msrunlist, new Comparator<MsRun>() {
+				List<Condition> conditionList = new ArrayList<Condition>();
+				conditionList.addAll(msRunsByCondition.keySet());
+				Collections.sort(conditionList, new Comparator<Condition>() {
 
 					@Override
-					public int compare(MsRun o1, MsRun o2) {
-						final Set<Condition> conditions1 = conditionsByMSRun.get(o1);
+					public int compare(Condition o1, Condition o2) {
+						final Set<MsRun> msRuns1 = msRunsByCondition.get(o1);
 						// String conditionString1 =
 						// getConditionString(conditions1);
-						final Set<Condition> conditions2 = conditionsByMSRun.get(o2);
+						final Set<MsRun> msRuns2 = msRunsByCondition.get(o2);
 						// String conditionString2 =
 						// getConditionString(conditions2);
 						// return conditionString1.compareTo(conditionString2);
-						return Integer.compare(conditions1.size(), conditions2.size());
+						return Integer.compare(msRuns1.size(), msRuns2.size());
 					}
 
 				});
-				for (MsRun msRun : msrunlist) {
-					if (deletedMSRuns.contains(msRun)) {
-						continue;
-					}
-					deleteMSRun(msRun);
-					deletedMSRuns.add(msRun);
-					Set<Condition> conditions = conditionsByMSRun.get(msRun);
-					log.info(conditions.size() + " conditions associated with MSRun " + msRun.getRunId());
-					log.info("conditions associated: " + getConditionString(conditionsByMSRun.get(msRun)));
-					// check if all msruns of all conditions have been deleted
-					boolean allDeleted = true;
-					if (conditions != null) {
-						for (Condition condition : conditions) {
-							final Set<MsRun> msRunSet = msRunsByCondition.get(condition);
-							for (MsRun msRun2 : msRunSet) {
-								if (!deletedMSRuns.contains(msRun2)) {
-									log.info(msRun2.getRunId() + " is not yet deleted... continuing the loop.");
-									allDeleted = false;
-									break;
+				for (Condition condition : conditionList) {
+					Set<MsRun> msRunList = msRunsByCondition.get(condition);
+					for (MsRun msRun : msRunList) {
+						if (deletedMSRuns.contains(msRun)) {
+							continue;
+						}
+						deleteMSRun(msRun);
+						deletedMSRuns.add(msRun);
+						Set<Condition> conditions = conditionsByMSRun.get(msRun);
+						log.info(conditions.size() + " conditions associated with MSRun " + msRun.getRunId());
+						log.info("conditions associated: " + getConditionString(conditionsByMSRun.get(msRun)));
+						// check if all msruns of all conditions have been
+						// deleted
+						boolean allDeleted = true;
+						if (conditions != null) {
+							for (Condition condition2 : conditions) {
+								final Set<MsRun> msRunSet = msRunsByCondition.get(condition2);
+								for (MsRun msRun2 : msRunSet) {
+									if (!deletedMSRuns.contains(msRun2)) {
+										log.info(msRun2.getRunId() + " is not yet deleted... continuing the loop.");
+										allDeleted = false;
+										break;
+									}
 								}
 							}
 						}
-					}
-					if (allDeleted) {
-						log.info("Flushing session...");
-						ContextualSessionHandler.flush();
-						log.info("Clearing session...");
-						ContextualSessionHandler.clear();
-						log.info("Session clear.");
-						ContextualSessionHandler.finishGoodTransaction();
-						break;
+						if (allDeleted) {
+							log.info("Flushing session...");
+							ContextualSessionHandler.flush();
+							log.info("Clearing session...");
+							ContextualSessionHandler.clear();
+							log.info("Session clear.");
+							ContextualSessionHandler.finishGoodTransaction();
+							break;
+						}
 					}
 				}
 				if (initialMSRunNumber == deletedMSRuns.size()) {

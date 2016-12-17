@@ -97,8 +97,6 @@ public class PeptideColumns implements ColumnProvider<PeptideBean> {
 			return parseEmptyString(p.getSequence());
 		case ACC:
 			return parseEmptyString(p.getProteinAccessionString());
-		case DESCRIPTION:
-			return parseEmptyString(p.getProteinDescriptionString());
 		case PEPTIDE_AMOUNT:
 			return parseEmptyString(DataGridRenderValue
 					.getAmountDataGridRenderValue(p, conditionName, amountType, projectTag).getValue());

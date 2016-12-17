@@ -37,7 +37,7 @@ public class DataSet {
 	private final List<PeptideBean> peptides = new ArrayList<PeptideBean>();
 	private final List<PSMBean> psms = new ArrayList<PSMBean>();
 
-	private final HashMap<Integer, ProteinBean> proteinsByProteinbeanUniqueIdentifier = new HashMap<Integer, ProteinBean>();
+	private final HashMap<Integer, ProteinBean> proteinsByProteinBeanUniqueIdentifier = new HashMap<Integer, ProteinBean>();
 	private final HashMap<String, ProteinBean> proteinsByAccession = new HashMap<String, ProteinBean>();
 	private final HashMap<Integer, PSMBean> psmsByPSMDBId = new HashMap<Integer, PSMBean>();
 	private final HashMap<Integer, PeptideBean> peptidesByPeptideBeanUniqueIdentifier = new HashMap<Integer, PeptideBean>();
@@ -151,7 +151,7 @@ public class DataSet {
 		proteins.clear();
 		psms.clear();
 		proteinGroups.clear();
-		proteinsByProteinbeanUniqueIdentifier.clear();
+		proteinsByProteinBeanUniqueIdentifier.clear();
 		proteinsByAccession.clear();
 		psmsByRawSequence.clear();
 		psmsBySequence.clear();
@@ -169,7 +169,7 @@ public class DataSet {
 	 * @param proteinBean
 	 */
 	public void addProtein(ProteinBean proteinBean) {
-		if (proteinsByProteinbeanUniqueIdentifier.containsKey(proteinBean.getProteinBeanUniqueIdentifier())) {
+		if (proteinsByProteinBeanUniqueIdentifier.containsKey(proteinBean.getProteinBeanUniqueIdentifier())) {
 			return;
 		}
 		if (proteinsByAccession.containsKey(proteinBean.getPrimaryAccession().getAccession())) {
@@ -179,7 +179,7 @@ public class DataSet {
 		}
 
 		proteins.add(proteinBean);
-		proteinsByProteinbeanUniqueIdentifier.put(proteinBean.getProteinBeanUniqueIdentifier(), proteinBean);
+		proteinsByProteinBeanUniqueIdentifier.put(proteinBean.getProteinBeanUniqueIdentifier(), proteinBean);
 		if (proteinBean.getPsms() != null) {
 			for (PSMBean psmBean : proteinBean.getPsms()) {
 				addPsm(psmBean);
@@ -426,8 +426,8 @@ public class DataSet {
 			log.info("Getting PSMs from protein " + protein.getPrimaryAccession().getAccession());
 			// search for the proteinbean with the same unique identifier
 			final int uniqueId = protein.getProteinBeanUniqueIdentifier();
-			if (proteinsByProteinbeanUniqueIdentifier.containsKey(uniqueId)) {
-				final List<PSMBean> psms2 = proteinsByProteinbeanUniqueIdentifier.get(uniqueId).getPsms();
+			if (proteinsByProteinBeanUniqueIdentifier.containsKey(uniqueId)) {
+				final List<PSMBean> psms2 = proteinsByProteinBeanUniqueIdentifier.get(uniqueId).getPsms();
 				if (psms2 != null && !psms2.isEmpty()) {
 					log.info("Protein " + protein.getPrimaryAccession().getAccession() + " contains " + psms2.size()
 							+ " PSMs");
@@ -463,8 +463,8 @@ public class DataSet {
 			log.info("Getting Peptides from protein " + protein.getPrimaryAccession().getAccession());
 			// search for the proteinbean with the same unique identifier
 			final int uniqueId = protein.getProteinBeanUniqueIdentifier();
-			if (proteinsByProteinbeanUniqueIdentifier.containsKey(uniqueId)) {
-				final List<PeptideBean> peptides2 = proteinsByProteinbeanUniqueIdentifier.get(uniqueId).getPeptides();
+			if (proteinsByProteinBeanUniqueIdentifier.containsKey(uniqueId)) {
+				final List<PeptideBean> peptides2 = proteinsByProteinBeanUniqueIdentifier.get(uniqueId).getPeptides();
 				if (peptides2 != null && !peptides2.isEmpty()) {
 					log.info("Protein " + protein.getPrimaryAccession().getAccession() + " contains " + peptides2.size()
 							+ " peptides");
@@ -509,7 +509,7 @@ public class DataSet {
 	}
 
 	public HashMap<Integer, ProteinBean> getProteinBeansByUniqueIdentifier() {
-		return proteinsByProteinbeanUniqueIdentifier;
+		return proteinsByProteinBeanUniqueIdentifier;
 	}
 
 	public HashMap<Integer, PeptideBean> getPeptideBeansByUniqueIdentifier() {
@@ -543,7 +543,7 @@ public class DataSet {
 				// remove proteinBean from list
 				iterator.remove();
 				// remove from map by unique identifier
-				proteinsByProteinbeanUniqueIdentifier.remove(proteinBean.getProteinBeanUniqueIdentifier());
+				proteinsByProteinBeanUniqueIdentifier.remove(proteinBean.getProteinBeanUniqueIdentifier());
 				// override in proteinsByAccession inserting the one in the map
 				proteinsByAccession.put(proteinBean.getPrimaryAccession().getAccession(),
 						map.get(proteinBean.getPrimaryAccession().getAccession()));
