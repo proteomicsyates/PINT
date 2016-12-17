@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import edu.scripps.yates.dbindex.util.PropertiesReader;
+import edu.scripps.yates.server.util.FileManager;
 
 public class ConfigurationPropertiesIO {
 
@@ -19,7 +20,7 @@ public class ConfigurationPropertiesIO {
 
 	public static PintConfigurationProperties readProperties(File setupPropertiesFile) {
 		if (setupPropertiesFile == null) {
-			throw new IllegalArgumentException("setup properties file not valid or null");
+			setupPropertiesFile = FileManager.getPintPropertiesFile();
 		}
 		if (!setupPropertiesFile.exists()) {
 			return new PintConfigurationProperties();
