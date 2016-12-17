@@ -28,29 +28,33 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 
 	@Override
 	public void run() {
+		ContextualSessionHandler.openSession();
+		try {
+			ContextualSessionHandler.beginGoodTransaction();
+			final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans(true);
+			ContextualSessionHandler.finishGoodTransaction();
+			for (ProjectBean projectBean : projectBeans) {
+				if (projectBean.isHidden()) {
+					try {
+						ContextualSessionHandler.beginGoodTransaction();
 
-		ContextualSessionHandler.beginGoodTransaction();
-		final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans(true);
-		ContextualSessionHandler.finishGoodTransaction();
-		for (ProjectBean projectBean : projectBeans) {
-			if (projectBean.isHidden()) {
-				try {
-					ContextualSessionHandler.beginGoodTransaction();
-
-					final MySQLDeleter mySQLDeleter = new MySQLDeleter();
-					mySQLDeleter.deleteProject(projectBean.getTag());
-					log.info("Finishing transaction");
-					ContextualSessionHandler.finishGoodTransaction();
-					ContextualSessionHandler.closeSession();
-					log.info("transaction finished");
-					log.info(projectBean.getTag() + " deleted from DB");
-				} catch (Exception e) {
-					e.printStackTrace();
-					ContextualSessionHandler.getSession().getTransaction().rollback();
+						final MySQLDeleter mySQLDeleter = new MySQLDeleter();
+						mySQLDeleter.deleteProject(projectBean.getTag());
+						log.info("Finishing transaction");
+						ContextualSessionHandler.finishGoodTransaction();
+						ContextualSessionHandler.closeSession();
+						log.info("transaction finished");
+						log.info(projectBean.getTag() + " deleted from DB");
+					} catch (Exception e) {
+						e.printStackTrace();
+						ContextualSessionHandler.rollbackTransaction();
+					}
 				}
 			}
+		} finally {
+			// Close the Session
+			ContextualSessionHandler.closeSession();
 		}
-
 	}
 
 	@Override

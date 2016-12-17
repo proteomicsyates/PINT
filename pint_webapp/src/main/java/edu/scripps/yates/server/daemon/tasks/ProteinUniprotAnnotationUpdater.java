@@ -28,7 +28,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Protein;
  * in the DB and goes to Uniprot to check whether is still the primary accession
  * of that protein. If not, it updates that accession as not primary and saves
  * the new primary one in the DB linked to that protein
- * 
+ *
  * @author Salva
  *
  */
@@ -53,7 +53,9 @@ public class ProteinUniprotAnnotationUpdater extends PintServerDaemonTask {
 	@Override
 	public void run() {
 		try {
-			ContextualSessionHandler.getSession().beginTransaction();
+			// Close the Session
+			ContextualSessionHandler.openSession();
+			ContextualSessionHandler.beginGoodTransaction();
 			log.info("Starting " + getTaskName());
 			// get the uniprot accessions
 			final List<ProteinAccession> proteinAccessions = PreparedQueries
@@ -150,7 +152,7 @@ public class ProteinUniprotAnnotationUpdater extends PintServerDaemonTask {
 			e.printStackTrace();
 			ContextualSessionHandler.getSession().getTransaction().rollback();
 		} finally {
-			ContextualSessionHandler.getSession().close();
+			ContextualSessionHandler.closeSession();
 		}
 	}
 
