@@ -404,6 +404,8 @@ public class QueryInterface {
 
 			int numDiscardedLinks = 0;
 			int numRound = 1;
+			List<LinkBetweenQueriableProteinSetAndPSM> invalidLinks = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
+
 			do {
 				int threadCount = SystemCoreManager.getAvailableNumSystemCores(MAX_NUMBER_PARALLEL_PROCESSES);
 				log.info("Evaluating " + links.size() + " links in round " + numRound + " using " + threadCount
@@ -431,7 +433,6 @@ public class QueryInterface {
 						e.printStackTrace();
 					}
 				}
-
 				Reduction<List<LinkBetweenQueriableProteinSetAndPSM>> linkReduction = new Reduction<List<LinkBetweenQueriableProteinSetAndPSM>>() {
 					@Override
 					public List<LinkBetweenQueriableProteinSetAndPSM> reduce(
@@ -447,6 +448,7 @@ public class QueryInterface {
 				long time = 0;
 				for (int k = 0; k < threadCount; k++) {
 					numDiscardedLinks = +runners.get(k).getNumDiscardedLinks();
+					invalidLinks.addAll(runners.get(k).getDiscardedLinks());
 					time = +runners.get(k).getRunningTime();
 				}
 				log.info(links.size() + " Protein-PSM links remain after " + numRound + " round. " + numDiscardedLinks
@@ -454,7 +456,7 @@ public class QueryInterface {
 				numRound++;
 			} while (numDiscardedLinks > 0);
 
-			queryResult = new QueryResult(links, null);
+			queryResult = new QueryResult(links, invalidLinks);
 
 		}
 		return queryResult;

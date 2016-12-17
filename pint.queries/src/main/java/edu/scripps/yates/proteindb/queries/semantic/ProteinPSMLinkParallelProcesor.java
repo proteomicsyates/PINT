@@ -17,6 +17,7 @@ public class ProteinPSMLinkParallelProcesor extends Thread {
 	private int numDiscardedLinks = 0;
 	private long runningTime;
 	private int numValidLinks = 0;
+	private final List<LinkBetweenQueriableProteinSetAndPSM> discardedLinks = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
 
 	public ProteinPSMLinkParallelProcesor(ParIterator<LinkBetweenQueriableProteinSetAndPSM> iterator,
 			Reducible<List<LinkBetweenQueriableProteinSetAndPSM>> reducibleLinkMap2, QueryBinaryTree queryBinaryTree) {
@@ -28,6 +29,7 @@ public class ProteinPSMLinkParallelProcesor extends Thread {
 	@Override
 	public void run() {
 		try {
+			ContextualSessionHandler.openSession();
 			ContextualSessionHandler.beginGoodTransaction();
 			long t1 = System.currentTimeMillis();
 			log.info("Processing links from thread: " + Thread.currentThread().getId());
@@ -41,7 +43,8 @@ public class ProteinPSMLinkParallelProcesor extends Thread {
 					if (!valid) {
 						numDiscardedLinks++;
 						link.detachFromProteinAndPSM();
-
+						iterator.remove();
+						discardedLinks.add(link);
 					} else {
 						numValidLinks++;
 						linkList.add(link);
@@ -57,8 +60,11 @@ public class ProteinPSMLinkParallelProcesor extends Thread {
 					+ runningTime + " msg");
 			log.info(numValidLinks + " valid. " + numDiscardedLinks + " invalid");
 		} catch (Exception e) {
+			e.printStackTrace();
 			ContextualSessionHandler.rollbackTransaction();
 		} finally {
+			ContextualSessionHandler.finishGoodTransaction();
+			ContextualSessionHandler.closeSession();
 		}
 		// ContextualSessionHandler.finishGoodTransaction();
 	}
@@ -72,6 +78,10 @@ public class ProteinPSMLinkParallelProcesor extends Thread {
 
 	public long getRunningTime() {
 		return runningTime;
+	}
+
+	public List<LinkBetweenQueriableProteinSetAndPSM> getDiscardedLinks() {
+		return discardedLinks;
 	}
 
 }
