@@ -630,6 +630,7 @@ public class MySQLDeleter {
 				});
 				for (Condition condition : conditionList) {
 					Set<MsRun> msRunList = msRunsByCondition.get(condition);
+					ContextualSessionHandler.beginGoodTransaction();
 					for (MsRun msRun : msRunList) {
 						if (deletedMSRuns.contains(msRun)) {
 							continue;
