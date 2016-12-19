@@ -190,7 +190,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 				final Psm psm = link.getQueriablePsm().getPsm();
 
 				if (!proteinBean.getPSMDBIds().contains(psm.getId())) {
-					proteinBean.getPSMDBIds().add(psm.getId());
+
 					String sequence = psm.getSequence();
 					proteinBean.getDifferentSequences().add(sequence);
 
