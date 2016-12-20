@@ -13,7 +13,6 @@ import edu.scripps.yates.client.gui.columns.PSMColumnManager;
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.client.gui.columns.footers.PSMFooterManager;
 import edu.scripps.yates.client.gui.components.dataprovider.AbstractAsyncDataProvider;
-import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.interfaces.ShowHiddePanel;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
@@ -48,7 +47,6 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 			}
 		};
 		MyDataGrid<PSMBean> dataGrid = new MyDataGrid<PSMBean>(KEY_PROVIDER);
-		final MyClientBundle myClientBundle = MyClientBundle.INSTANCE;
 
 		return dataGrid;
 	}
