@@ -1,10 +1,7 @@
 package edu.scripps.yates.client.gui.reactome;
 
-import java.util.List;
-
 import org.reactome.web.analysis.client.AnalysisClient;
 import org.reactome.web.analysis.client.model.AnalysisResult;
-import org.reactome.web.analysis.client.model.PathwaySummary;
 import org.reactome.web.diagram.client.DiagramFactory;
 import org.reactome.web.diagram.client.DiagramViewer;
 import org.reactome.web.diagram.events.FireworksOpenedEvent;
@@ -38,37 +35,24 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
-import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.cellview.client.SimplePager;
-import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ResizeLayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimpleCheckBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.RangeChangeEvent;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 
-import edu.scripps.yates.client.gui.columns.MyColumn;
-import edu.scripps.yates.client.gui.columns.MyDataGrid;
-import edu.scripps.yates.client.gui.columns.PathWaysColumnManager;
 import edu.scripps.yates.client.gui.components.ScrolledTabLayoutPanel;
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncPathwaySummaryDataProvider;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.util.StatusReportersRegister;
-import edu.scripps.yates.shared.columns.ColumnName;
 
 public class ReactomePanel extends FlowPanel
 		implements NodeSelectedHandler, FireworksLoadedHandler, AnalysisResetHandler, NodeHoverHandler,
@@ -78,19 +62,18 @@ public class ReactomePanel extends FlowPanel
 	private FireworksViewer fireworks;
 	private static ReactomePanel instance;
 
-	private final MyDataGrid<PathwaySummary> pathWayDataGrid;
 	private final String sessionID;
 	private final ScrolledTabLayoutPanel tabPanel;
 	private final DiagramLoader diagramLoader;
 	private final DiagramViewer diagram;
 	private boolean fireWorksLoaded;
 	private final SimpleCheckBox includeInteractorsCheckBox;
-	private final SingleSelectionModel<PathwaySummary> selectionModel;
 	private final AsyncPathwaySummaryDataProvider asyncDataListProvider = new AsyncPathwaySummaryDataProvider();
 
 	private Pathway toHighlight;
 	private Pathway toSelect;
 	private Pathway toOpen;
+	private final ReactomePathwaysTablePanel reactomeTable;
 	static {
 		// RESTFulClient
 		RESTFulClient.SERVER = "./reactome";
@@ -158,13 +141,16 @@ public class ReactomePanel extends FlowPanel
 			public void onClick(ClickEvent event) {
 				requestFireworks("Homo_sapiens.json");
 				reactomeSubmitButton.setEnabled(false);
+				reactomeTable.setVisible(false);
 				AnalysisSubmiter.analysisExternalURL(sessionID, includeInteractorsCheckBox.getValue(),
 						new AnalysisPerformedHandler() {
 
 							@Override
 							public void onAnalysisPerformed(AnalysisResult result) {
+								reactomeTable.setVisible(true);
 								reactomeSubmitButton.setEnabled(true);
 								final String token = result.getSummary().getToken();
+								fireworks.showAll();
 								fireworks.setAnalysisToken(token, "TOTAL");
 								// set the token to the asyncDataListProvider
 								asyncDataListProvider.setToken(token);
@@ -179,27 +165,12 @@ public class ReactomePanel extends FlowPanel
 			}
 		});
 		//
-		FlowPanel flowPanelTable = new FlowPanel();
-		mainPanelAnalysis.add(flowPanelTable);
-		flowPanelTable.setSize("100%", "80%");
-		ResizeLayoutPanel resizePanel = new ResizeLayoutPanel();
-		resizePanel.setSize("100%", "90%");
-		flowPanelTable.add(resizePanel);
-
-		pathWayDataGrid = createDataGrid();
-		pathWayDataGrid.setVisible(false);
-		asyncDataListProvider.addDataDisplay(pathWayDataGrid);
-		AsyncHandler asyncHandler = new AsyncHandler(pathWayDataGrid);
-		pathWayDataGrid.addColumnSortHandler(asyncHandler);
-		pathWayDataGrid.setAutoHeaderRefreshDisabled(true);
-
-		resizePanel.add(pathWayDataGrid);
-		// add the pager
-		SimplePager pager = makePager();
-		flowPanelTable.add(pager);
-		// add the selection manager
-		selectionModel = new SingleSelectionModel<PathwaySummary>();
-		pathWayDataGrid.setSelectionModel(selectionModel);
+		// FlowPanel flowPanelTable = new FlowPanel();
+		reactomeTable = new ReactomePathwaysTablePanel(sessionID, asyncDataListProvider);
+		reactomeTable.setVisible(false);
+		Grid grid = new Grid(1, 1);
+		grid.setWidget(0, 0, reactomeTable);
+		mainPanelAnalysis.add(grid);
 
 		// panelAnalysis.setWidgetTopHeight(flowPanel, 20, Unit.PCT, 70,
 		// Unit.PCT);
@@ -214,7 +185,7 @@ public class ReactomePanel extends FlowPanel
 					requestFireworks("Homo_sapiens.json");
 				} else if (event.getSelectedItem() == 0) {
 					// refresh table
-					refreshTable();
+					reactomeTable.refreshData();
 				}
 
 			}
@@ -249,57 +220,6 @@ public class ReactomePanel extends FlowPanel
 		flowPanelGraphical.add(diagramContainer);
 		diagram.setVisible(false);
 
-	}
-
-	protected void refreshTable() {
-		pathWayDataGrid.redraw();
-	}
-
-	/**
-	 * Adds the selectionHandler to the pathway table.
-	 *
-	 * @param selectionHandler
-	 */
-	public void addPeptideSelectionHandler(SelectionChangeEvent.Handler selectionHandler) {
-		selectionModel.addSelectionChangeHandler(selectionHandler);
-	}
-
-	private SimplePager makePager() {
-		SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
-		SimplePager simplePager = new SimplePager(TextLocation.CENTER, pagerResources, true, 25 * 5, true);
-		simplePager.setPageSize(25);
-		simplePager.setDisplay(pathWayDataGrid);
-		return simplePager;
-	}
-
-	private MyDataGrid<PathwaySummary> createDataGrid() {
-		final ProvidesKey<PathwaySummary> KEY_PROVIDER = new ProvidesKey<PathwaySummary>() {
-			@Override
-			public Object getKey(PathwaySummary item) {
-				return item == null ? null : item.getDbId();
-			}
-		};
-		final MyDataGrid<PathwaySummary> dataGrid = new MyDataGrid<PathwaySummary>(KEY_PROVIDER);
-		PathWaysColumnManager pathwaysColumnManager = new PathWaysColumnManager(sessionID);
-
-		final List<MyColumn<PathwaySummary>> columns = pathwaysColumnManager.getColumns();
-		for (MyColumn<PathwaySummary> column : columns) {
-			ColumnName columnName = column.getColumnName();
-			final boolean visible = pathwaysColumnManager.isVisible(columnName);
-			if (visible) {
-				final Header<String> footer = pathwaysColumnManager.getFooter(columnName);
-
-				dataGrid.addColumn((Column<PathwaySummary, ?>) column, column.getHeader(), footer);
-
-				if (visible) {
-					dataGrid.setColumnWidth((Column<PathwaySummary, ?>) column, column.getDefaultWidth(),
-							column.getDefaultWidthUnit());
-				} else {
-					dataGrid.setColumnWidth((Column<PathwaySummary, ?>) column, 0, column.getDefaultWidthUnit());
-				}
-			}
-		}
-		return dataGrid;
 	}
 
 	private void loadFireworks(String species) {
@@ -381,11 +301,12 @@ public class ReactomePanel extends FlowPanel
 	}
 
 	protected void loadAnalysisOnTable(AnalysisResult result) {
-		pathWayDataGrid.setVisible(true);
+		reactomeTable.setVisible(true);
 		asyncDataListProvider.updateRowCount(result.getPathwaysFound(), true);
 		asyncDataListProvider.updateRowData(0, result.getPathways());
-		pathWayDataGrid.setForceToRefresh(true);
-		RangeChangeEvent.fire(pathWayDataGrid, pathWayDataGrid.getVisibleRange());
+		reactomeTable.refreshData();
+		// RangeChangeEvent.fire(pathWayDataGrid,
+		// pathWayDataGrid.getVisibleRange());
 	}
 
 	public void selectPathWay(String stId, Long dbId) {

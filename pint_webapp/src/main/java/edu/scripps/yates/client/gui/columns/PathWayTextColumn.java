@@ -26,6 +26,7 @@ public class PathWayTextColumn extends CustomTextColumn<PathwaySummary> implemen
 	private boolean visibleState;
 	private Set<String> currentExperimentalConditions = new HashSet<String>();
 	private static final NumberFormat scientificFormat = com.google.gwt.i18n.client.NumberFormat.getScientificFormat();
+	private static final NumberFormat decimalFormat = com.google.gwt.i18n.client.NumberFormat.getFormat("#.###");
 
 	public PathWayTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer) {
 		super(columnName);
@@ -80,13 +81,13 @@ public class PathWayTextColumn extends CustomTextColumn<PathwaySummary> implemen
 			sb.append(safeHtmlBuilder.toSafeHtml());
 			break;
 		case PATHWAY_FDR:
-			sb.appendEscaped(scientificFormat.format(pathWay.getEntities().getFdr()));
+			sb.appendEscaped(formatNumber(pathWay.getEntities().getFdr()));
 			break;
 		case PATHWAY_PVALUE:
-			sb.appendEscaped(scientificFormat.format(pathWay.getEntities().getpValue()));
+			sb.appendEscaped(formatNumber(pathWay.getEntities().getpValue()));
 			break;
 		case PATHWAY_ENTITIES_RATIO:
-			sb.appendEscaped(scientificFormat.format(pathWay.getEntities().getRatio()));
+			sb.appendEscaped(formatNumber(pathWay.getEntities().getRatio()));
 			break;
 		case PATHWAY_RESOURCE:
 			final SafeHtmlBuilder safeHtmlBuilder2 = new SafeHtmlBuilder();
@@ -112,6 +113,17 @@ public class PathWayTextColumn extends CustomTextColumn<PathwaySummary> implemen
 		default:
 
 			break;
+		}
+	}
+
+	private String formatNumber(Double number) {
+		if (number == null) {
+			return null;
+		}
+		if (number < 0.001) {
+			return scientificFormat.format(number);
+		} else {
+			return decimalFormat.format(number);
 		}
 	}
 

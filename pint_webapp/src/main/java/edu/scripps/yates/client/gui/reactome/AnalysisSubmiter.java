@@ -22,8 +22,10 @@ import edu.scripps.yates.shared.util.FileDescriptor;
 import edu.scripps.yates.shared.util.SharedConstants;
 
 public class AnalysisSubmiter {
-	private static final String POST_ANALYSIS = "./reactome/AnalysisService/identifiers/?page=1";
-	private static final String POST_ANALYSIS_EXTERNAL_URL = "./reactome/AnalysisService/identifiers/url/?page=1";
+	private static final String POST_ANALYSIS = "./reactome/AnalysisService/identifiers/?page=1&pageSize="
+			+ SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE;
+	private static final String POST_ANALYSIS_EXTERNAL_URL = "./reactome/AnalysisService/identifiers/url/?page=1&pageSize="
+			+ SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE;
 
 	private static final ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 
@@ -101,8 +103,10 @@ public class AnalysisSubmiter {
 		// TODO for tests purposes
 		// dataURL =
 		// "http://sealion.scripps.edu/pint/pint/download?filetodownload=Reactome.txt&fileType=reactomeAnalysisResultFile";
-		String postURL = POST_ANALYSIS_EXTERNAL_URL + "&interactors=" + includeInteractors;
-
+		String postURL = POST_ANALYSIS_EXTERNAL_URL;
+		if (includeInteractors != null) {
+			postURL += "&interactors=" + includeInteractors;
+		}
 		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, postURL);
 		requestBuilder.setHeader("Content-Type", "text/plain");
 		requestBuilder.setHeader("Accept", "application/json");
@@ -111,7 +115,7 @@ public class AnalysisSubmiter {
 			// + Window.Location.getHost() + dataURL;
 			String externalURL = dataURL;
 			StatusReportersRegister.getInstance()
-					.notifyStatusReporters("Submitting analysis to Reactome as '" + externalURL + "'");
+					.notifyStatusReporters("Submitting analysis to Reactome as '" + postURL + "'");
 
 			// externalURL =
 			// "http://sealion.scripps.edu/pint/Reactome.txt";
@@ -148,7 +152,7 @@ public class AnalysisSubmiter {
 
 	public static void getSubmittedReactomeAnalysis(String token, int page, int pageSize, ColumnSortInfo columnSortInfo,
 			final AnalysisPerformedHandler handler) {
-		// TODO for tests purposes
+
 		String getURL = getAnalysisPagedResultByToken(token, page, pageSize, columnSortInfo);
 		GWT.log("URL for reactome: " + getURL);
 		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, getURL);

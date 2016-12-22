@@ -9,6 +9,7 @@ import com.google.gwt.view.client.Range;
 
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.gui.reactome.AnalysisSubmiter;
+import edu.scripps.yates.shared.util.SharedConstants;
 
 public class AsyncPathwaySummaryDataProvider extends AbstractAsyncDataProvider<PathwaySummary> {
 
@@ -27,8 +28,11 @@ public class AsyncPathwaySummaryDataProvider extends AbstractAsyncDataProvider<P
 			ColumnSortInfo columnSortInfo, final Range range) {
 		if (token != null) {
 			GWT.log("submitting reactome analysis");
-			updateRowCount(0, true);
-			AnalysisSubmiter.getSubmittedReactomeAnalysis(token, start, end, columnSortInfo,
+			// updateRowCount(0, true);
+
+			int page = getPageNumber(start);
+			AnalysisSubmiter.getSubmittedReactomeAnalysis(token, page,
+					SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE, columnSortInfo,
 					new edu.scripps.yates.client.gui.reactome.AnalysisPerformedHandler() {
 
 						@Override
@@ -37,11 +41,12 @@ public class AsyncPathwaySummaryDataProvider extends AbstractAsyncDataProvider<P
 							try {
 								if (result == null) {
 									updateRowCount(0, true);
-									AsyncPathwaySummaryDataProvider.this.setRange(null);
+									setRange(null);
 									return;
 								}
 								updateRowData(start, result.getPathways());
-								AsyncPathwaySummaryDataProvider.this.setRange(range);
+								updateRowCount(result.getPathwaysFound(), true);
+								setRange(range);
 							} finally {
 								retrievingDataFinished();
 							}
@@ -50,5 +55,10 @@ public class AsyncPathwaySummaryDataProvider extends AbstractAsyncDataProvider<P
 		} else {
 			retrievingDataFinished();
 		}
+	}
+
+	private int getPageNumber(int start) {
+		int numPage = start / SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE + 1;
+		return numPage;
 	}
 }

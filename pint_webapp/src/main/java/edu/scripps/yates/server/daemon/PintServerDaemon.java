@@ -11,6 +11,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.daemon.tasks.DeleteHiddenProjects;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
 import edu.scripps.yates.server.daemon.tasks.ProteinUniprotAnnotationUpdater;
@@ -25,6 +26,20 @@ public class PintServerDaemon implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(final ServletContextEvent sce) {
+		// check database connection
+		try {
+			ContextualSessionHandler.openSession();
+			ContextualSessionHandler.beginGoodTransaction();
+			ContextualSessionHandler.finishGoodTransaction();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.error("Some error happened trying to initiate the database connection: " + e.getMessage());
+			System.exit(-1);
+		} finally {
+			ContextualSessionHandler.closeSession();
+		}
+		//
 		log.info("Starting PintServerDaemon...");
 		final ServletContext servletContext = sce.getServletContext();
 

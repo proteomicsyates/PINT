@@ -40,6 +40,7 @@ import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.client.gui.components.dataprovider.AbstractAsyncDataProvider;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.interfaces.ContainsData;
+import edu.scripps.yates.client.interfaces.ContainsDefaultView;
 import edu.scripps.yates.client.interfaces.HasColumns;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
@@ -48,7 +49,7 @@ import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.DefaultView.ORDER;
 
 public abstract class AbstractDataTable<T> extends Composite
-		implements HasColumns, ContainsData, ProvidesResize, RequiresResize {
+		implements ContainsDefaultView, HasColumns, ContainsData, ProvidesResize, RequiresResize {
 
 	private final AsyncDataProvider<T> asyncDataListProvider;
 	protected final MyDataGrid<T> dataGrid;
@@ -431,14 +432,6 @@ public abstract class AbstractDataTable<T> extends Composite
 		});
 
 	}
-
-	public abstract List<ColumnWithVisibility> getItemDefaultView(DefaultView defaultview);
-
-	public abstract ORDER getItemOrder(DefaultView defaultView);
-
-	public abstract String getSortingScore(DefaultView defaultView);
-
-	public abstract ColumnName getSortedBy(DefaultView defaultView);
 
 	@Override
 	public final void setDefaultView(DefaultView defaultView) {

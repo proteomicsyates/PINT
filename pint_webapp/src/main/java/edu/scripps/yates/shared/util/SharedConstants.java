@@ -29,6 +29,8 @@ public class SharedConstants {
 	public static final int PEPTIDE_DEFAULT_PAGE_SIZE = 200;
 	public static final int PROTEIN_DEFAULT_PAGE_SIZE = 50;
 	public static final int PROTEINGROUP_DEFAULT_PAGE_SIZE = 50;
+	public static final int REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE = 15;
+
 	public static final String PSEA_QUANT_DATA_FILE_TYPE = "psea_quant_input";
 	// footers of the data view tables. to enable set to true
 	public static final boolean FOOTERS_ENABLED = false;

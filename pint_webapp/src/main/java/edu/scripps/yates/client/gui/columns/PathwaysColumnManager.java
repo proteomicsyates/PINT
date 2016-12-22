@@ -15,10 +15,10 @@ import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.PathwaysColumns;
 import edu.scripps.yates.shared.model.AmountType;
 
-public class PathWaysColumnManager extends AbstractColumnManager<PathwaySummary> {
+public class PathwaysColumnManager extends AbstractColumnManager<PathwaySummary> {
 	private final String sessionID;
 
-	public PathWaysColumnManager(String sessionID) {
+	public PathwaysColumnManager(String sessionID) {
 
 		super(null);
 		this.sessionID = sessionID;
