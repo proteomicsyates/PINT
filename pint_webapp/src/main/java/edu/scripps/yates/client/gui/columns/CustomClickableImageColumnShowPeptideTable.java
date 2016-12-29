@@ -125,4 +125,9 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsPeptid
 		sb.append(template.endToolTip());
 	}
 
+	@Override
+	public String getTitle(T object) {
+		return null;
+	}
+
 }

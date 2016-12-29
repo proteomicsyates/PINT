@@ -48,12 +48,18 @@ public class CustomClickableImageReactomeColumn extends AbsctractCustomClickable
 
 	@Override
 	public ImageResource getValue(PathwaySummary object) {
-		return MyClientBundle.INSTANCE.fireworksIcon();
+		final ImageResource fireworksIcon = MyClientBundle.INSTANCE.fireworksIcon();
+		return fireworksIcon;
 	}
 
 	@Override
 	public Comparator<PathwaySummary> getComparator() {
 		return null;
+	}
+
+	@Override
+	public String getTitle(PathwaySummary object) {
+		return "Click here to open the pathway " + object.getName() + " on the pathway browser";
 	}
 
 }

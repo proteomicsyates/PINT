@@ -31,6 +31,9 @@ public interface HtmlTemplates extends SafeHtmlTemplates {
 	@Template("<div style=\"text-align:center;\">{img}</div>")
 	SafeHtml render(SafeHtml img);
 
+	@Template("<img src=\"{0}\" title=\"{1}\" class=\"{2}\">")
+	SafeHtml imageWithTitle(SafeUri imgSrc, String title, String className);
+
 	@Template("<img style=\"width:{0}%\" src=\"{1}\" title=\"{2}\" class=\"Domain graphicalview\">")
 	SafeHtml domainImage(double widthPercentaje, SafeUri imgSrc, String title);
 

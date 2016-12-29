@@ -7,7 +7,6 @@ import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.client.Window;
 
@@ -69,14 +68,15 @@ public class CustomClickableImageColumnOpenLinkToPRIDECluster<T> extends Absctra
 	 * client.Cell.Context, java.lang.Object,
 	 * com.google.gwt.safehtml.shared.SafeHtmlBuilder)
 	 */
-	@Override
-	public void render(Context context, T object, SafeHtmlBuilder sb) {
-		sb.append(template.startToolTip(
-				"Search " + getSearchTypeTerm(object) + "'" + getSearchTerm(object) + "' in PRIDE CLUSTER (EBI)"));
-
-		super.render(context, object, sb);
-		sb.append(template.endToolTip());
-	}
+	// @Override
+	// public void render(Context context, T object, SafeHtmlBuilder sb) {
+	// sb.append(template.startToolTip(
+	// "Search " + getSearchTypeTerm(object) + "'" + getSearchTerm(object) + "'
+	// in PRIDE CLUSTER (EBI)"));
+	//
+	// super.render(context, object, sb);
+	// sb.append(template.endToolTip());
+	// }
 
 	private String getSearchTerm(T object) {
 		if (object instanceof ContainsSequence) {
@@ -96,6 +96,11 @@ public class CustomClickableImageColumnOpenLinkToPRIDECluster<T> extends Absctra
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	public String getTitle(T object) {
+		return "Search " + getSearchTypeTerm(object) + "'" + getSearchTerm(object) + "' in PRIDE CLUSTER (EBI)";
 	}
 
 }

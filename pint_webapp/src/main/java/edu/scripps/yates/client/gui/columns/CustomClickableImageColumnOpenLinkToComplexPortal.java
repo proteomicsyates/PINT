@@ -7,7 +7,6 @@ import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.client.Window;
 
@@ -72,13 +71,20 @@ public class CustomClickableImageColumnOpenLinkToComplexPortal extends Absctract
 	 * client.Cell.Context, java.lang.Object,
 	 * com.google.gwt.safehtml.shared.SafeHtmlBuilder)
 	 */
-	@Override
-	public void render(Context context, ProteinBean object, SafeHtmlBuilder sb) {
-		sb.append(template.startToolTip(
-				"Search protein '" + object.getPrimaryAccession().getAccession() + "' in Complex Portal (EBI)"));
+	// @Override
+	// public void render(Context context, ProteinBean object, SafeHtmlBuilder
+	// sb) {
+	// sb.append(template.startToolTip(
+	// "Search protein '" + object.getPrimaryAccession().getAccession() + "' in
+	// Complex Portal (EBI)"));
+	//
+	// super.render(context, object, sb);
+	// sb.append(template.endToolTip());
+	// }
 
-		super.render(context, object, sb);
-		sb.append(template.endToolTip());
+	@Override
+	public String getTitle(ProteinBean object) {
+		return "Search protein '" + object.getPrimaryAccession().getAccession() + "' in Complex Portal (EBI)";
 	}
 
 }

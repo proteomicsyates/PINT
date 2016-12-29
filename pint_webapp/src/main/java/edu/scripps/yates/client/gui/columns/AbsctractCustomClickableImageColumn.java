@@ -1,11 +1,14 @@
 package edu.scripps.yates.client.gui.columns;
 
+import java.util.Comparator;
+
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.Header;
 
@@ -14,6 +17,38 @@ import edu.scripps.yates.client.util.HorizontalAlignmentUtil;
 import edu.scripps.yates.shared.columns.ColumnName;
 
 public abstract class AbsctractCustomClickableImageColumn<T> extends Column<T, ImageResource> implements MyColumn<T> {
+
+	/*
+	 * (non-Javadoc)
+	 * @see edu.scripps.yates.client.gui.columns.MyColumn#getComparator()
+	 */
+	@Override
+	public Comparator<T> getComparator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see
+	 * com.google.gwt.user.cellview.client.Column#render(com.google.gwt.cell.
+	 * client.Cell.Context, java.lang.Object,
+	 * com.google.gwt.safehtml.shared.SafeHtmlBuilder)
+	 */
+	@Override
+	public void render(Context context, T object, SafeHtmlBuilder sb) {
+		sb.append(template.imageWithTitle(getValue(object).getSafeUri(), getTitle(object), "clickableImageColumn"));
+		// super.render(context, object, sb);
+	}
+
+	/**
+	 * The title of the image
+	 *
+	 * @param object
+	 * @return
+	 */
+	public abstract String getTitle(T object);
+
 	private final ColumnName columnName;
 	private boolean visibleState;
 	private final double defaultWidth;

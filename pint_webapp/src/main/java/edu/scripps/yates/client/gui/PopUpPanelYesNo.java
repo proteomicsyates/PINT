@@ -56,11 +56,14 @@ public class PopUpPanelYesNo extends VerticalPanel {
 		Grid holder = new Grid(1, 2);
 		holder.setStyleName("checkLoginPopUp-grid");
 
-		button1 = new Button(button1Text);
-		holder.setWidget(0, 0, button1);
-		button2 = new Button(button2Text);
-		holder.setWidget(0, 1, button2);
-
+		button1 = new Button(button1Text != null ? button1Text : "");
+		if (button1Text != null) {
+			holder.setWidget(0, 0, button1);
+		}
+		button2 = new Button(button2Text != null ? button2Text : "");
+		if (button2Text != null) {
+			holder.setWidget(0, 1, button2);
+		}
 		this.add(holder);
 		this.add(statusLabel);
 		statusLabel.setStyleName("checkLoginPopUp-status");

@@ -54,6 +54,7 @@ import com.google.gwt.user.client.ui.SimpleLayoutPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import edu.scripps.yates.client.gui.PopUpPanelYesNo;
 import edu.scripps.yates.client.gui.components.ScrolledTabLayoutPanel;
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncPathwaySummaryDataProvider;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
@@ -84,6 +85,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 	private boolean requestingFireworks;
 	private final ListBox speciesComboBox;
 	private ReactomeSupportedSpecies dataSpecies;
+	private final Button reactomeSubmitButton;
 	static {
 		// RESTFulClient
 		RESTFulClient.SERVER = "./reactome";
@@ -131,7 +133,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		final Label label = new Label(
 				"Click to submit in order to search for enriched pathways in the current dataset");
 		label.getElement().getStyle().setMargin(10, Unit.PX);
-		final Button reactomeSubmitButton = new Button("Submit");
+		reactomeSubmitButton = new Button("Submit");
 		reactomeSubmitButton.getElement().getStyle().setMargin(10, Unit.PX);
 		submissionButtonPanel.add(label);
 		final Label labelIncludeInteractors = new Label(
@@ -152,26 +154,30 @@ public class ReactomePanel extends ResizeLayoutPanel
 				requestFireworks(getSelectedSpecies(), false);
 				reactomeSubmitButton.setEnabled(false);
 				reactomeTable.setVisible(false);
-				AnalysisSubmiter.analysisExternalURL(sessionID, includeInteractorsCheckBox.getValue(),
-						new AnalysisPerformedHandler() {
+				// if taxonomy of the data is different from selected, change to
+				// the selected
+				if (dataSpecies != null && dataSpecies != getSelectedSpecies()) {
+					PopUpPanelYesNo yesNo = new PopUpPanelYesNo(false, true, true, "Pathway browser taxonomy",
+							"The taxonomy of the proteins that are going to be analyzed ('"
+									+ dataSpecies.getScientificName()
+									+ "') is different from the selected species in the Reactome fireworks view. The view will be changed now to show pathways for '"
+									+ dataSpecies.getScientificName() + "'",
+							"OK", null);
+					yesNo.addButton1ClickHandler(new ClickHandler() {
 
-							@Override
-							public void onAnalysisPerformed(AnalysisResult result) {
-								reactomeTable.setVisible(true);
-								reactomeSubmitButton.setEnabled(true);
-								final String token = result.getSummary().getToken();
-								fireworks.showAll();
-								fireworks.setAnalysisToken(token, "TOTAL");
-								// set the token to the asyncDataListProvider
-								asyncDataListProvider.setToken(token);
-								loadAnalysisOnTable(result);
-								StatusReportersRegister.getInstance()
-										.notifyStatusReporters("Reactome analysis received with "
-												+ result.getPathwaysFound() + " pathways found.");
+						@Override
+						public void onClick(ClickEvent event) {
+							selectSpecies(dataSpecies);
+							requestFireworks(dataSpecies, true);
+							submitReactomeAnalysis();
+							yesNo.hide();
+						}
+					});
+					yesNo.show();
+				} else {
+					submitReactomeAnalysis();
 
-							}
-						});
-
+				}
 			}
 		});
 		//
@@ -240,6 +246,28 @@ public class ReactomePanel extends ResizeLayoutPanel
 		tabPanel.selectTab(flowPanelGraphical);
 	}
 
+	private void submitReactomeAnalysis() {
+		AnalysisSubmiter.analysisExternalURL(sessionID, includeInteractorsCheckBox.getValue(),
+				new AnalysisPerformedHandler() {
+
+					@Override
+					public void onAnalysisPerformed(AnalysisResult result) {
+						reactomeTable.setVisible(true);
+						reactomeSubmitButton.setEnabled(true);
+						final String token = result.getSummary().getToken();
+						fireworks.showAll();
+						fireworks.setAnalysisToken(token, "TOTAL");
+						// set the token to the asyncDataListProvider
+						asyncDataListProvider.setToken(token);
+						loadAnalysisOnTable(result);
+						StatusReportersRegister.getInstance().notifyStatusReporters(
+								"Reactome analysis received with " + result.getPathwaysFound() + " pathways found.");
+
+					}
+				});
+
+	}
+
 	private ListBox createSpeciesComboBox() {
 		ListBox ret = new ListBox();
 		int index = 0;
@@ -268,12 +296,27 @@ public class ReactomePanel extends ResizeLayoutPanel
 	}
 
 	public void setDataSpecies(String speciesName) {
+		final ReactomeSupportedSpecies selectedSpecies = getSelectedSpecies();
 		dataSpecies = ReactomeSupportedSpecies.getByScientificName(speciesName);
 		if (dataSpecies == null) {
 			GWT.log("Species from the data is not supported: " + speciesName);
 		} else {
 			GWT.log("Species from the data supported: " + speciesName);
+			if (dataSpecies != selectedSpecies) {
+				selectSpecies(dataSpecies);
+			}
 		}
+	}
+
+	private void selectSpecies(ReactomeSupportedSpecies dataSpecies2) {
+		for (int index = 0; index < speciesComboBox.getItemCount(); index++) {
+			if (speciesComboBox.getValue(index).equals(dataSpecies2.getScientificName())) {
+				speciesComboBox.setItemSelected(index, true);
+			} else {
+				speciesComboBox.setItemSelected(index, false);
+			}
+		}
+
 	}
 
 	private ReactomeSupportedSpecies getSelectedSpecies() {
