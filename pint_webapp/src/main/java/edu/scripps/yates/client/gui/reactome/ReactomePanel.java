@@ -2,6 +2,7 @@ package edu.scripps.yates.client.gui.reactome;
 
 import org.reactome.web.analysis.client.AnalysisClient;
 import org.reactome.web.analysis.client.model.AnalysisResult;
+import org.reactome.web.analysis.client.model.PathwaySummary;
 import org.reactome.web.diagram.client.DiagramFactory;
 import org.reactome.web.diagram.client.DiagramViewer;
 import org.reactome.web.diagram.events.FireworksOpenedEvent;
@@ -21,11 +22,13 @@ import org.reactome.web.fireworks.handlers.NodeOpenedHandler;
 import org.reactome.web.fireworks.handlers.NodeSelectedHandler;
 import org.reactome.web.fireworks.handlers.NodeSelectedResetHandler;
 import org.reactome.web.fireworks.handlers.ProfileChangedHandler;
-import org.reactome.web.pwp.model.classes.Pathway;
+import org.reactome.web.fireworks.model.Node;
 import org.reactome.web.pwp.model.client.RESTFulClient;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -37,15 +40,17 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CaptionPanel;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.ResizeLayoutPanel;
 import com.google.gwt.user.client.ui.SimpleCheckBox;
+import com.google.gwt.user.client.ui.SimpleLayoutPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -54,11 +59,12 @@ import edu.scripps.yates.client.gui.components.dataprovider.AsyncPathwaySummaryD
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 
-public class ReactomePanel extends FlowPanel
+public class ReactomePanel extends ResizeLayoutPanel
 		implements NodeSelectedHandler, FireworksLoadedHandler, AnalysisResetHandler, NodeHoverHandler,
 		NodeSelectedResetHandler, NodeHoverResetHandler, NodeOpenedHandler, ProfileChangedHandler {
 
-	private final SimplePanel fireWorksContainer = new SimplePanel();
+	private final SimpleLayoutPanel fireworksContainer = new SimpleLayoutPanel();
+	private final SimplePanel diagramContainer = new SimplePanel();
 	private FireworksViewer fireworks;
 	private static ReactomePanel instance;
 
@@ -70,10 +76,14 @@ public class ReactomePanel extends FlowPanel
 	private final SimpleCheckBox includeInteractorsCheckBox;
 	private final AsyncPathwaySummaryDataProvider asyncDataListProvider = new AsyncPathwaySummaryDataProvider();
 
-	private Pathway toHighlight;
-	private Pathway toSelect;
-	private Pathway toOpen;
+	private PathwaySummary toHighlight;
+	private PathwaySummary toSelect;
+	private PathwaySummary toOpen;
 	private final ReactomePathwaysTablePanel reactomeTable;
+	private Node selectedNodeInFireWorks;
+	private boolean requestingFireworks;
+	private final ListBox speciesComboBox;
+	private ReactomeSupportedSpecies dataSpecies;
 	static {
 		// RESTFulClient
 		RESTFulClient.SERVER = "./reactome";
@@ -92,7 +102,7 @@ public class ReactomePanel extends FlowPanel
 	}
 
 	public static ReactomePanel getInstance(String sessionID) {
-		if (instance == null || !instance.sessionID.equals(sessionID)) {
+		if (instance == null || (sessionID != null && !instance.sessionID.equals(sessionID))) {
 			instance = new ReactomePanel(sessionID);
 		}
 		return instance;
@@ -106,12 +116,12 @@ public class ReactomePanel extends FlowPanel
 		tabPanel.setHeight("100%");
 		add(tabPanel);
 
-		FlowPanel mainPanelAnalysis = new FlowPanel();
+		DockLayoutPanel mainPanelAnalysis = new DockLayoutPanel(Unit.PX);
 		mainPanelAnalysis.setSize("100%", "100%");
 		tabPanel.add(mainPanelAnalysis, "Data Analysis");
 		CaptionPanel captionPanel = new CaptionPanel("Reactome data analysis service client");
-		mainPanelAnalysis.add(captionPanel);
-		captionPanel.setHeight("20%");
+		mainPanelAnalysis.addNorth(captionPanel, 200);
+		// captionPanel.setHeight("20%");
 		// panelAnalysis.setWidgetTopHeight(captionPanel, 0, Unit.PCT, 20,
 		// Unit.PCT);
 
@@ -139,7 +149,7 @@ public class ReactomePanel extends FlowPanel
 
 			@Override
 			public void onClick(ClickEvent event) {
-				requestFireworks("Homo_sapiens.json");
+				requestFireworks(getSelectedSpecies(), false);
 				reactomeSubmitButton.setEnabled(false);
 				reactomeTable.setVisible(false);
 				AnalysisSubmiter.analysisExternalURL(sessionID, includeInteractorsCheckBox.getValue(),
@@ -168,21 +178,21 @@ public class ReactomePanel extends FlowPanel
 		// FlowPanel flowPanelTable = new FlowPanel();
 		reactomeTable = new ReactomePathwaysTablePanel(sessionID, asyncDataListProvider);
 		reactomeTable.setVisible(false);
-		Grid grid = new Grid(1, 1);
-		grid.setWidget(0, 0, reactomeTable);
-		mainPanelAnalysis.add(grid);
-
+		// Grid grid = new Grid(1, 1);
+		// grid.setWidget(0, 0, reactomeTable);
+		// mainPanelAnalysis.add(grid);
+		mainPanelAnalysis.add(reactomeTable);
 		// panelAnalysis.setWidgetTopHeight(flowPanel, 20, Unit.PCT, 70,
 		// Unit.PCT);
 
-		ScrollPanel scroll2 = new ScrollPanel();
-		tabPanel.add(scroll2, "Reactome view");
+		FlowPanel flowPanelGraphical = new FlowPanel();
+		tabPanel.add(flowPanelGraphical, "Reactome view");
 		tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
 
 			@Override
 			public void onSelection(SelectionEvent<Integer> event) {
 				if (event.getSelectedItem() == 1) {
-					requestFireworks("Homo_sapiens.json");
+					requestFireworks(getSelectedSpecies(), false);
 				} else if (event.getSelectedItem() == 0) {
 					// refresh table
 					reactomeTable.refreshData();
@@ -190,12 +200,19 @@ public class ReactomePanel extends FlowPanel
 
 			}
 		});
-		FlowPanel flowPanelGraphical = new FlowPanel();
-		scroll2.add(flowPanelGraphical);
-		flowPanelGraphical.add(fireWorksContainer);
 
-		fireWorksContainer.setStyleName("reactome_fireworks_container");
-		fireWorksContainer.add(getLoadingMessage());
+		flowPanelGraphical.setSize("100%", "100%");
+		flowPanelGraphical.setStyleName("flowPanelGraphical");
+		FlexTable tableSpecies = new FlexTable();
+		tableSpecies.setStyleName("reactomeTableSpecies");
+		tableSpecies.setWidget(0, 0, new Label("Pathways for:"));
+		speciesComboBox = createSpeciesComboBox();
+		tableSpecies.setWidget(0, 1, speciesComboBox);
+		flowPanelGraphical.add(tableSpecies);
+		flowPanelGraphical.add(fireworksContainer);
+
+		fireworksContainer.setStyleName("reactome_fireworks_container");
+
 		diagram = DiagramFactory.createDiagramViewer();
 		// diagram.asWidget().getElement().getStyle().setMarginTop(20, Unit.PX);
 		// diagram.asWidget().setHeight("600px");
@@ -206,25 +223,66 @@ public class ReactomePanel extends FlowPanel
 
 			@Override
 			public void onFireworksOpened(FireworksOpenedEvent event) {
-				diagram.setVisible(false);
-				fireWorksContainer.setVisible(true);
+				fireworksContainer.setVisible(true);
 				fireworks.onResize();
 				fireworks.selectNode(fireworks.getSelected().getDbId());
+				diagramContainer.setVisible(false);
 			}
 		};
 		diagramLoader.addFireworksOpenedHandler(handler);
-		SimplePanel diagramContainer = new SimplePanel();
 		diagramContainer.setStyleName("reactome_diagram_container");
+		diagramContainer.setVisible(false);
 		diagramContainer.add(diagram);
 
 		flowPanelGraphical.add(diagramContainer);
-		diagram.setVisible(false);
 
+		requestFireworks(getSelectedSpecies(), false);
+		tabPanel.selectTab(flowPanelGraphical);
 	}
 
-	private void loadFireworks(String species) {
+	private ListBox createSpeciesComboBox() {
+		ListBox ret = new ListBox();
+		int index = 0;
+		int selectedIndex = 0;
+		for (ReactomeSupportedSpecies species : ReactomeSupportedSpecies.values()) {
+			if (dataSpecies != null && species == dataSpecies) {
+				selectedIndex = index;
+			}
+			ret.addItem(species.getScientificName(), species.getScientificName());
+			index++;
+		}
+		ret.addChangeHandler(new ChangeHandler() {
 
-		fireworks = FireworksFactory.createFireworksViewer(species);
+			@Override
+			public void onChange(ChangeEvent event) {
+				final ReactomeSupportedSpecies selectedSpecies = getSelectedSpecies();
+				if (selectedSpecies != null) {
+					requestFireworks(selectedSpecies, true);
+				}
+
+			}
+		});
+		// select the selectedIndex
+		ret.setItemSelected(selectedIndex, true);
+		return ret;
+	}
+
+	public void setDataSpecies(String speciesName) {
+		dataSpecies = ReactomeSupportedSpecies.getByScientificName(speciesName);
+		if (dataSpecies == null) {
+			GWT.log("Species from the data is not supported: " + speciesName);
+		} else {
+			GWT.log("Species from the data supported: " + speciesName);
+		}
+	}
+
+	private ReactomeSupportedSpecies getSelectedSpecies() {
+		return ReactomeSupportedSpecies.getByScientificName(speciesComboBox.getSelectedValue());
+	}
+
+	private void loadFireworks(String json) {
+
+		fireworks = FireworksFactory.createFireworksViewer(json);
 		fireworks.asWidget().setStyleName("reactome_fireworks");
 		fireworks.addAnalysisResetHandler(this);
 		fireworks.addFireworksLoaded(this);
@@ -237,9 +295,10 @@ public class ReactomePanel extends FlowPanel
 		// fireworks.asWidget().setHeight("600px");
 		// fireworks.asWidget().setWidth("1000px");
 		fireworks.addNodeSelectedHandler(this);
-		fireWorksContainer.clear();
-		fireWorksContainer.add(fireworks);
+		fireworksContainer.clear();
+		fireworksContainer.add(fireworks);
 
+		fireworks.showAll();
 		fireWorksLoaded = true;
 		// diagram.setVisible(false);
 	}
@@ -248,38 +307,52 @@ public class ReactomePanel extends FlowPanel
 		StatusReportersRegister.getInstance().notifyStatusReporters(error);
 	}
 
-	private void requestFireworks(String speciesJSonName) {
-		if (fireWorksLoaded) {
+	private void requestFireworks(ReactomeSupportedSpecies species, boolean forceRequest) {
+		if (requestingFireworks) {
+			return;
+		}
+		if (!forceRequest && fireWorksLoaded) {
 			// fireworks.setVisible(true);
 			// fireworks.onResize();
 			fireworks.showAll();
 
 			return;
 		}
-		String url = "./reactome/download/current/fireworks/" + speciesJSonName;
+		fireworksContainer.clear();
+		fireworksContainer.add(getLoadingMessage(species));
+		String url = "./reactome/download/current/fireworks/" + species.toJSonString();
 		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		requestBuilder.setHeader("Accept", "application/json");
 		try {
+			requestingFireworks = true;
 			requestBuilder.sendRequest(null, new RequestCallback() {
 				@Override
 				public void onResponseReceived(Request request, Response response) {
-					switch (response.getStatusCode()) {
-					case Response.SC_OK:
-						String json = response.getText();
-						loadFireworks(json);
-						break;
-					default:
-						String errorMsg = "A problem has occurred while loading the pathways overview data. "
-								+ response.getStatusText();
-						onFireworksLoadError(errorMsg);
+					try {
+						switch (response.getStatusCode()) {
+						case Response.SC_OK:
+							String json = response.getText();
+							loadFireworks(json);
+							break;
+						default:
+							String errorMsg = "A problem has occurred while loading the pathways overview data. "
+									+ response.getStatusText();
+							onFireworksLoadError(errorMsg);
+						}
+					} finally {
+						requestingFireworks = false;
 					}
 				}
 
 				@Override
 				public void onError(Request request, Throwable exception) {
-					String errorMsg = "A problem has occurred while loading the pathways overview data. "
-							+ exception.getMessage();
-					onFireworksLoadError(errorMsg);
+					try {
+						String errorMsg = "A problem has occurred while loading the pathways overview data. "
+								+ exception.getMessage();
+						onFireworksLoadError(errorMsg);
+					} finally {
+						requestingFireworks = false;
+					}
 				}
 			});
 		} catch (RequestException ex) {
@@ -290,14 +363,25 @@ public class ReactomePanel extends FlowPanel
 
 	@Override
 	public void onNodeSelected(NodeSelectedEvent event) {
-		// if (event.getNode() != null) {
-		// diagram.setVisible(true);
-		// diagram.onResize();
-		// diagramLoader.load(event.getNode().getStId());
-		//
-		// } else {
-		// diagram.setVisible(false);
-		// }
+		if (event.getNode() != null) {
+			if (event.getNode().equals(selectedNodeInFireWorks)) {
+				return;
+			}
+			GWT.log("Selected node: " + event.getNode().getStId());
+			// we want to make a zoom to the pathway node in the fireworks
+			// fireworks.openPathway(event.getNode().getStId());
+			fireworks.selectNode(event.getNode().getDbId());
+			selectedNodeInFireWorks = event.getNode();
+			// fireworks.setVisible(false);
+			// diagram.setVisible(true);
+			// diagram.onResize();
+			// diagramLoader.load(event.getNode().getStId());
+			//
+		} else {
+			GWT.log("Selected null node");
+			// diagram.setVisible(false);
+			// fireworks.setVisible(true);
+		}
 	}
 
 	protected void loadAnalysisOnTable(AnalysisResult result) {
@@ -309,22 +393,30 @@ public class ReactomePanel extends FlowPanel
 		// pathWayDataGrid.getVisibleRange());
 	}
 
-	public void selectPathWay(String stId, Long dbId) {
-		GWT.log("Selecting pathway: " + stId + "\t" + dbId);
+	public void selectPathWay(PathwaySummary pathway) {
+		GWT.log("Selecting pathway: " + pathway.getStId() + "\t" + pathway.getDbId());
 		// select tab for graphics
 		selectGraphicTab();
 		// reset selections and highlights
 		fireworks.resetHighlight();
 		fireworks.resetSelection();
 		// highlight and select node
-		StatusReportersRegister.getInstance().notifyStatusReporters("Selecting stId" + stId);
-		fireworks.highlightNode(stId);
-		fireworks.selectNode(stId);
-		fireworks.openPathway(stId);
-		StatusReportersRegister.getInstance().notifyStatusReporters("Selecting dbId" + dbId);
-		fireworks.highlightNode(dbId);
-		fireworks.selectNode(dbId);
-		fireworks.openPathway(dbId);
+		StatusReportersRegister.getInstance()
+				.notifyStatusReporters("Selecting Pathway stId:" + pathway.getStId() + " dbId:" + pathway.getDbId());
+		toSelect = pathway;
+		toHighlight = pathway;
+
+		applyCarriedActions();
+		// fireworks.highlightNode(stId);
+		// fireworks.selectNode(stId);
+		// fireworks.openPathway(stId);
+		// fireworks.highlightNode(dbId);
+		// fireworks.selectNode(dbId);
+		// fireworks.openPathway(dbId);
+		if (fireworks.getSelected() == null) {
+			StatusReportersRegister.getInstance().notifyStatusReporters(
+					"Pathway stId:" + pathway.getStId() + " dbId:" + pathway.getDbId() + " not found");
+		}
 
 	}
 
@@ -342,7 +434,8 @@ public class ReactomePanel extends FlowPanel
 			toHighlight = null;
 		}
 		if (toSelect != null) {
-			fireworks.selectNode(toSelect.getDbId());
+			final Long dbId = toSelect.getDbId();
+			fireworks.selectNode(dbId);
 			toSelect = null;
 		}
 		if (toHighlight != null) {
@@ -360,25 +453,30 @@ public class ReactomePanel extends FlowPanel
 	@Override
 	public void onFireworksLoaded(FireworksLoadedEvent event) {
 		GWT.log("on fireworks loaded");
+		fireworks.onResize();
+		fireworks.showAll();
+
 	}
 
 	@Override
 	public void onNodeHover(NodeHoverEvent event) {
 		GWT.log("on node hover");
-		// fireworks.highlightPathway(event.getNode().getDbId());
+		if (fireWorksLoaded) {
+			// fireworks.highlightNode(event.getNode().getDbId());
+		}
 	}
 
 	@Override
 	public void onNodeOpened(NodeOpenedEvent event) {
 		if (event.getNode() != null) {
-			fireWorksContainer.setVisible(false);
-			diagram.setVisible(true);
+			fireworksContainer.setVisible(false);
+			diagramContainer.setVisible(true);
 			diagram.onResize();
 			diagramLoader.load(event.getNode().getStId());
 
 		} else {
-			diagram.setVisible(false);
-			fireWorksContainer.setVisible(true);
+			fireworksContainer.setVisible(true);
+			diagramContainer.setVisible(false);
 		}
 		// // presenter.showPathwayDiagram(event.getNode().getDbId());
 		// // hide the fireworks container
@@ -390,6 +488,7 @@ public class ReactomePanel extends FlowPanel
 	public void onNodeSelectionReset() {
 		// presenter.resetPathwaySelection();
 		GWT.log("onNodeSelectionReset");
+		selectedNodeInFireWorks = null;
 	}
 
 	@Override
@@ -409,6 +508,7 @@ public class ReactomePanel extends FlowPanel
 		super.setVisible(visible);
 		if (visible && fireworks != null) {
 			fireworks.onResize();
+			fireworks.showAll();
 		}
 	}
 
@@ -417,10 +517,10 @@ public class ReactomePanel extends FlowPanel
 	 *
 	 * @return Widget
 	 */
-	private Widget getLoadingMessage() {
+	private Widget getLoadingMessage(ReactomeSupportedSpecies specie) {
 		HorizontalPanel hp = new HorizontalPanel();
 		hp.add(new Image(MyClientBundle.INSTANCE.horizontalLoader()));
-		hp.add(new HTMLPanel("Loading pathways overview graph..."));
+		hp.add(new HTMLPanel("Loading pathways overview graph for '" + specie.getScientificName() + "'..."));
 		hp.setSpacing(5);
 
 		return hp;

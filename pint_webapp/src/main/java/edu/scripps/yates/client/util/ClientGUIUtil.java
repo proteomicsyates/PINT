@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ListBox;
 
 import edu.scripps.yates.shared.model.ProteinBean;
@@ -52,15 +51,6 @@ public class ClientGUIUtil {
 			}
 		}
 		return ret;
-	}
-
-	public static void scrollToBottom(Element element) {
-		try {
-			// element.setScrollTop(element.getScrollHeight()
-			// - element.getClientHeight());
-		} catch (Exception e) {
-
-		}
 	}
 
 	public static void sortProteinsBySPC(List<ProteinBean> sortedProteins) {

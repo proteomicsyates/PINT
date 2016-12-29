@@ -41,7 +41,7 @@ public class PathwaysColumnManager extends AbstractColumnManager<PathwaySummary>
 
 			@Override
 			public void update(int index, final PathwaySummary pathway, ImageResource image) {
-				ReactomePanel.getInstance(sessionID).selectPathWay(pathway.getStId(), pathway.getDbId());
+				ReactomePanel.getInstance(sessionID).selectPathWay(pathway);
 			}
 		};
 		return ret;

@@ -190,6 +190,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		ScrollPanel pseaQuantScrollPanel = new ScrollPanel(pseaQuantFormPanel);
 		firstLevelTabPanel.add(pseaQuantScrollPanel, "PSEA-Quant");
 		firstLevelTabPanel.add(reactomePanel, "Reactome");
+		firstLevelTabPanel.selectTab(reactomePanel);
 
 	}
 
@@ -737,6 +738,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 		// select data tab
 		firstLevelTabPanel.selectTab(layoutPanel);
+
 	}
 
 	private MouseOverHandler getSelectProteinGroupingMenuHandler() {
@@ -993,14 +995,6 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			}
 		}
 
-		// in case of text area, scroll down
-		if (textElement instanceof TextArea) {
-			final TextArea textAreaToScroll = (TextArea) textElement;
-			ClientGUIUtil.scrollToBottom(textAreaToScroll.getElement());
-			// textAreaToScroll.getElement().setScrollTop(
-			// textAreaToScroll.getElement().getScrollHeight());
-
-		}
 	}
 
 	private String insertTextInCursorPosition(String oldText, String toInsert, int cursorPos, String selectedText) {

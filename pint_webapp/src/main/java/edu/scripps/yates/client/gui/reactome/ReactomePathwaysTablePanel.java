@@ -32,6 +32,7 @@ public class ReactomePathwaysTablePanel extends AbstractDataTable<PathwaySummary
 		// resizePanel.setSize("100%", "90%");
 		// flowPanelTable.add(resizePanel);
 		super.pushSortingOrder(ColumnName.PATHWAY_FDR, ORDER.ASCENDING, null);
+		addStyleName("ReactomePathwaysTablePanel");
 	}
 
 	@Override

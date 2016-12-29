@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
 
+import edu.scripps.yates.client.gui.reactome.ReactomePanel;
 import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.util.SharedConstants;
@@ -93,6 +94,12 @@ public class OrganismsItemPanel extends AbstractItemPanel<ProjectBean, OrganismB
 					}
 					String plural = result.size() > 1 ? "s" : "";
 					setCaption(result.size() + " Organism" + plural);
+
+					// set the species in the reactome panel
+					if (!result.isEmpty()) {
+						String speciesName = result.iterator().next().getId();
+						ReactomePanel.getInstance(null).setDataSpecies(speciesName);
+					}
 				}
 
 				@Override

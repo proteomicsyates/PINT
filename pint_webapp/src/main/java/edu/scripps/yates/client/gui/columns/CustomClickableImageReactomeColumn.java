@@ -40,9 +40,7 @@ public class CustomClickableImageReactomeColumn extends AbsctractCustomClickable
 		if (type.equals(BrowserEvents.CLICK)) {
 
 			PathwaySummary pathWay = object;
-			final String stId = pathWay.getStId();
-			final Long dbId = pathWay.getDbId();
-			ReactomePanel.getInstance(sessionID).selectPathWay(stId, dbId);
+			ReactomePanel.getInstance(sessionID).selectPathWay(pathWay);
 
 		}
 

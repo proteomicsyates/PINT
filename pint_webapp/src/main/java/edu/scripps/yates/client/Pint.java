@@ -167,11 +167,10 @@ public class Pint implements EntryPoint {
 		scroll = new MyWindowScrollPanel();
 		rootPanel.add(scroll);
 
-		// loading dialog
-		// showLoadingDialog("Loading PINT components...");
 		// MAIN PANEL
 		mainPanel = new MainPanel(this);
 		scroll.add(mainPanel);
+		// scroll.add(ReactomePanel.getInstance("asdfsdfasdf"));
 
 		// / PROJECT CREATOR #projectCreator
 		// createProjectPanel = new ProjectCreator();

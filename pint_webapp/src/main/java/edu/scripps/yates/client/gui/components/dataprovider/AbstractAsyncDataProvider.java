@@ -187,9 +187,11 @@ public abstract class AbstractAsyncDataProvider<T> extends AsyncDataProvider<T> 
 		try {
 			boolean rangeChanged = rangeChanged(display);
 			if (needsUpdate(display)) {
-				GWT.log("forceToReload: " + forceToReload + "\tforceToRefresh: " + forceToRefresh + "\tnewProvider: "
-						+ newProvider + "\tsortingChanged: " + sortingChanged + "\trangeChanged:" + rangeChanged
-						+ "\tcontainsData:" + containsData);
+				// GWT.log("forceToReload: " + forceToReload +
+				// "\tforceToRefresh: " + forceToRefresh + "\tnewProvider: "
+				// + newProvider + "\tsortingChanged: " + sortingChanged +
+				// "\trangeChanged:" + rangeChanged
+				// + "\tcontainsData:" + containsData);
 				final Range range = display.getVisibleRange();
 				final int start = range.getStart();
 				int end = start + range.getLength();

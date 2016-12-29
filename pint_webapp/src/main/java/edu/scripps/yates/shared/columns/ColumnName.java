@@ -123,17 +123,22 @@ public enum ColumnName {
 			HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
 
 	// REACTOME TABLE COLUMNS
-	PATHWAY_NAME("PathWay", "Pathway", "PathWay name"), //
+	PATHWAY_NAME("PathWay name", "Pathway name", "PathWay name"), //
 	PATHWAY_FDR("Pathway FDR", "FDR", "FDR of the enrichment of the pathway"), //
 	PATHWAY_PVALUE("Pathway p-value", "p-value", "p-value of the enrichment of the pathway"), //
-	PATHWAY_ENTITIES_RATIO("Ratio of found entities", "E.Ratio", "Ratio of found entities"), //
-	PATHWAY_REACTIONS_RATIO("Ratio of found reactions", "R.Ratio", "Ratio of found reactions"), //
-	PATHWAY_RESOURCE("Pathway resource", "Resource", "Pathway resource"), //
-	PATHWAY_ENTITIES_FOUND("Entities found", "E.Found", "Number of entities found"), //
-	PATHWAY_REACTIONS_FOUND("Reactions found", "R.Found", "Number of reactions found"), //
-	PATHWAY_ENTITIES_TOTAL("Total entities", "E.Total", "Number of total entities"), //
-	PATHWAY_REACTIONS_TOTAL("Total reactions", "R.Total", "Number of total reactions"), //
-	PATHWAY_ID("Pathway ID", "ID", "Pathway ID"),
+	PATHWAY_ENTITIES_RATIO("Ratio of found entities", "E. Ratio", "Ratio of found entities"), //
+	PATHWAY_REACTIONS_RATIO("Ratio of found reactions", "R. Ratio", "Ratio of found reactions"), //
+	PATHWAY_ENTITIES_RESOURCE("Pathway resource", "Pathway resource", "Pathway resource"), //
+	PATHWAY_REACTIONS_RESOURCE("Reactions resource", "Reactions resource", "Reactions resource"), //
+	PATHWAY_ENTITIES_FOUND("Entities found", "Foung entities", "Number of entities found"), //
+	PATHWAY_REACTIONS_FOUND("Reactions found", "Found reactions", "Number of reactions found"), //
+	PATHWAY_ENTITIES_TOTAL("Total entities", "Total entities", "Number of total entities"), //
+	PATHWAY_REACTIONS_TOTAL("Total reactions", "Total reactions", "Number of total reactions"), //
+	PATHWAY_ENTITIES_CURATED_FOUND("Curated entities found", "Curated entities found",
+			"Number of curated entities found"), //
+	PATHWAY_ENTITIES_CURATED_TOTAL("Total curated entities", "Total curated entities",
+			"Total number of curated entities"), //
+	PATHWAY_ID("Pathway ID", "Pathway ID", "Pathway ID", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
 	// , SPC_BY_RUN("SPC by run",
 	// "SPC by run", "Spectral counts per run");
 	// UNIPROT FEATURES FOR PROTEINS

@@ -42,7 +42,7 @@ public class PathwaysColumns implements ColumnProvider<PathwaySummary> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PATHWAY_NAME, true);
 			columns.add(col);
-			col = new ColumnWithVisibility(ColumnName.PATHWAY_RESOURCE, true);
+			col = new ColumnWithVisibility(ColumnName.PATHWAY_ENTITIES_RESOURCE, true);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PATHWAY_ENTITIES_FOUND, true);
 			columns.add(col);
@@ -50,9 +50,15 @@ public class PathwaysColumns implements ColumnProvider<PathwaySummary> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PATHWAY_ENTITIES_RATIO, true);
 			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PATHWAY_ENTITIES_CURATED_FOUND, true);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PATHWAY_ENTITIES_CURATED_TOTAL, true);
+			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PATHWAY_PVALUE, true);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PATHWAY_FDR, true);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PATHWAY_REACTIONS_RESOURCE, true);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PATHWAY_REACTIONS_FOUND, true);
 			columns.add(col);

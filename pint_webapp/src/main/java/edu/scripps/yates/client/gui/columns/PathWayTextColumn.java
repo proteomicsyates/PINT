@@ -86,10 +86,7 @@ public class PathWayTextColumn extends CustomTextColumn<PathwaySummary> implemen
 		case PATHWAY_PVALUE:
 			sb.appendEscaped(formatNumber(pathWay.getEntities().getpValue()));
 			break;
-		case PATHWAY_ENTITIES_RATIO:
-			sb.appendEscaped(formatNumber(pathWay.getEntities().getRatio()));
-			break;
-		case PATHWAY_RESOURCE:
+		case PATHWAY_ENTITIES_RESOURCE:
 			final SafeHtmlBuilder safeHtmlBuilder2 = new SafeHtmlBuilder();
 			safeHtmlBuilder2.appendEscaped(pathWay.getEntities().getResource());
 			sb.append(safeHtmlBuilder2.toSafeHtml());
@@ -97,14 +94,36 @@ public class PathWayTextColumn extends CustomTextColumn<PathwaySummary> implemen
 		case PATHWAY_ENTITIES_FOUND:
 			sb.append(pathWay.getEntities().getFound());
 			break;
-		case PATHWAY_REACTIONS_FOUND:
-			sb.append(pathWay.getReactions().getFound());
-			break;
 		case PATHWAY_ENTITIES_TOTAL:
 			sb.append(pathWay.getEntities().getTotal());
 			break;
+		case PATHWAY_ENTITIES_RATIO:
+			sb.appendEscaped(formatNumber(pathWay.getEntities().getRatio()));
+			break;
+
+		case PATHWAY_REACTIONS_FOUND:
+			sb.append(pathWay.getReactions().getFound());
+			break;
 		case PATHWAY_REACTIONS_TOTAL:
 			sb.append(pathWay.getReactions().getTotal());
+			break;
+		case PATHWAY_REACTIONS_RATIO:
+			sb.appendEscaped(formatNumber(pathWay.getReactions().getRatio()));
+			break;
+		case PATHWAY_ENTITIES_CURATED_FOUND:
+			if (pathWay.getEntities().getCuratedFound() != null) {
+				sb.append(pathWay.getEntities().getCuratedFound());
+			}
+			break;
+		case PATHWAY_ENTITIES_CURATED_TOTAL:
+			if (pathWay.getEntities().getCuratedTotal() != null) {
+				sb.append(pathWay.getEntities().getCuratedTotal());
+			}
+			break;
+		case PATHWAY_REACTIONS_RESOURCE:
+			final SafeHtmlBuilder safeHtmlBuilder3 = new SafeHtmlBuilder();
+			safeHtmlBuilder3.appendEscaped(pathWay.getReactions().getResource());
+			sb.append(safeHtmlBuilder3.toSafeHtml());
 			break;
 		// case PATHWAY_ID:
 		//
@@ -155,7 +174,7 @@ public class PathWayTextColumn extends CustomTextColumn<PathwaySummary> implemen
 			return 50;
 		case PATHWAY_REACTIONS_TOTAL:
 			return 50;
-		case PATHWAY_RESOURCE:
+		case PATHWAY_ENTITIES_RESOURCE:
 			return 120;
 		default:
 			return 100;
