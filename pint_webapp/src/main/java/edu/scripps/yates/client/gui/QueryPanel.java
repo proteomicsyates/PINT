@@ -190,7 +190,6 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		ScrollPanel pseaQuantScrollPanel = new ScrollPanel(pseaQuantFormPanel);
 		firstLevelTabPanel.add(pseaQuantScrollPanel, "PSEA-Quant");
 		firstLevelTabPanel.add(reactomePanel, "Reactome");
-		firstLevelTabPanel.selectTab(reactomePanel);
 
 	}
 
