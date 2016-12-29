@@ -28,7 +28,6 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 
 	@Override
 	public void run() {
-		ContextualSessionHandler.openSession();
 		try {
 			ContextualSessionHandler.beginGoodTransaction();
 			final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans(true);

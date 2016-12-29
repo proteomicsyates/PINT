@@ -7,6 +7,7 @@ import javax.servlet.ServletContext;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
+import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServletContextProperty;
 
@@ -43,6 +44,7 @@ public abstract class PintServerDaemonTask extends Thread {
 	public abstract void run();
 
 	public void startRun() {
+		ContextualSessionHandler.openSession();
 		run();
 		numRuns++;
 	}

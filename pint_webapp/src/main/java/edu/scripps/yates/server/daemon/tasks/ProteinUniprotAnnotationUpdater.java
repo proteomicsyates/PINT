@@ -53,8 +53,6 @@ public class ProteinUniprotAnnotationUpdater extends PintServerDaemonTask {
 	@Override
 	public void run() {
 		try {
-			// Close the Session
-			ContextualSessionHandler.openSession();
 			ContextualSessionHandler.beginGoodTransaction();
 			log.info("Starting " + getTaskName());
 			// get the uniprot accessions

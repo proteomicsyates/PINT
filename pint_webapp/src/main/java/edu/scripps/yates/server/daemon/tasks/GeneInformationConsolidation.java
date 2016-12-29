@@ -17,7 +17,7 @@ import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Gene;
 
 /**
- * 
+ *
  * Updates the proteins in the DB with the latest information about the genes
  * according to the latest version of Uniprot
  *
@@ -43,7 +43,7 @@ public class GeneInformationConsolidation extends PintServerDaemonTask {
 	@Override
 	public void run() {
 		log.info("Starting " + getTaskName());
-
+		ContextualSessionHandler.openSession();
 		try {
 			ContextualSessionHandler.getSession().beginTransaction();
 			final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans();

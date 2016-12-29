@@ -179,7 +179,7 @@
               <goal>generateAsync</goal>
             </goals>
             <configuration>
-            	<extraJvmArgs>-Xmx6024M -Xss1024k -XX:MaxPermSize=1024M</extraJvmArgs>
+            	<extraJvmArgs>-Xmx6024M -Xss1024k</extraJvmArgs>
             </configuration>
           </execution>
         </executions>
