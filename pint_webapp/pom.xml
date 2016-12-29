@@ -178,6 +178,9 @@
               <goal>test</goal>
               <goal>generateAsync</goal>
             </goals>
+            <configuration>
+            	<extraJvmArgs>-Xmx6024M -Xss1024k -XX:MaxPermSize=1024M</extraJvmArgs>
+            </configuration>
           </execution>
         </executions>
         <!-- Plugin configuration. There are many available options, see 
