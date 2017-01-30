@@ -267,7 +267,7 @@ public class RemoteFileReader {
 			final RemoteSSHFileReference remoteSSHServer = remoteFiles.get(fileId);
 			if (types.get(fileId) == FormatType.DTA_SELECT_FILTER_TXT) {
 				try {
-					DTASelectParser parser = new DTASelectParser(remoteSSHServer);
+					DTASelectParser parser = new DTASelectParser(fileId, remoteSSHServer);
 					return parser;
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
