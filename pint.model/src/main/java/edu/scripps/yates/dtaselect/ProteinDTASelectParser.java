@@ -47,7 +47,7 @@ public class ProteinDTASelectParser {
 		this(s.getRemoteFileName(), new FileInputStream(s.getRemoteFile()));
 	}
 
-	public ProteinDTASelectParser(Collection<RemoteSSHFileReference> s) throws IOException {
+	public ProteinDTASelectParser(Map<String, RemoteSSHFileReference> s) throws IOException {
 		parser = new DTASelectParser(s);
 	}
 
