@@ -304,15 +304,19 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 		Set<String> accsToSearch = new HashSet<String>();
 		Set<String> mainIsoforms = new HashSet<String>();
 		for (String acc : accessions) {
-			if ("1".equals(FastaParser.getIsoformVersion(acc))) {
-				String noIsoAcc = FastaParser.getNoIsoformAccession(acc);
-				if (noIsoAcc != null) {
-					log.info("Registered main isoform accession: " + acc);
-					accsToSearch.add(noIsoAcc);
-					mainIsoforms.add(acc);
+			// only search for the uniprot ones
+			if (!FastaParser.isContaminant(acc) && !FastaParser.isReverse(acc)
+					&& FastaParser.getUniProtACC(acc) != null) {
+				if ("1".equals(FastaParser.getIsoformVersion(acc))) {
+					String noIsoAcc = FastaParser.getNoIsoformAccession(acc);
+					if (noIsoAcc != null) {
+						log.debug("Registered main isoform accession: " + acc);
+						accsToSearch.add(noIsoAcc);
+						mainIsoforms.add(acc);
+					}
+				} else {
+					accsToSearch.add(acc);
 				}
-			} else {
-				accsToSearch.add(acc);
 			}
 		}
 
@@ -423,7 +427,7 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 				try {
 					UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever(uniprotReleasesFolder,
 							useIndex);
-					log.info("Trying to retrieve  " + missingProteinsAccs.size()
+					log.debug("Trying to retrieve  " + missingProteinsAccs.size()
 							+ " proteins that were not present in the local system");
 					queryProteinsMap.putAll(uprr.getAnnotatedProteins(uniprotVersion, missingProteinsAccs));
 					missingAccessions = uprr.getMissingAccessions();
@@ -445,13 +449,13 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 			for (String mainIsoform : mainIsoforms) {
 				final Entry entry = queryProteinsMap.get(FastaParser.getNoIsoformAccession(mainIsoform));
 				if (entry != null) {
-					log.info("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
+					log.debug("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
 					queryProteinsMap.put(mainIsoform, entry);
 				}
 			}
 
 			if (queryProteinsMap.size() > 1) {
-				log.info("Returning " + queryProteinsMap.size() + " / " + accessions.size() + " proteins");
+				log.debug("Returning " + queryProteinsMap.size() + " / " + accessions.size() + " proteins");
 			}
 			return queryProteinsMap;
 		} else {
