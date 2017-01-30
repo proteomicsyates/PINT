@@ -136,14 +136,17 @@ public class ExcelReader {
 		try {
 			final Sheet sheetAt = getWorkbook().getSheetAt(sheetNumber);
 			final Row row = sheetAt.getRow(numRow);
-			final Cell cell = row.getCell(numCol, Row.RETURN_BLANK_AS_NULL);
-			if (cell == null) {
-				return null;
-			}
-			try {
-				return cell.getStringCellValue();
-			} catch (IllegalStateException e) {
-				return String.valueOf(cell.getNumericCellValue());
+			if (row != null) {
+				final Cell cell = row.getCell(numCol, Row.RETURN_BLANK_AS_NULL);
+				if (cell == null) {
+					return null;
+				}
+
+				try {
+					return cell.getStringCellValue();
+				} catch (IllegalStateException e) {
+					return String.valueOf(cell.getNumericCellValue());
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
