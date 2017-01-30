@@ -20,12 +20,13 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.go.index.FlatFileCache;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 
 public class GORetriever {
 	private static final Logger log = Logger.getLogger(GORetriever.class);
 	public static Map<String, Integer> indexByColumnName = new HashMap<String, Integer>();
 	private static FlatFileCache cache;
-	private static int CHUNK = 100;
+	private static int CHUNK_SIZE = 100;
 	private static final DecimalFormat df = new DecimalFormat("#.#");
 
 	public GORetriever(File indexFolder) {
@@ -40,9 +41,7 @@ public class GORetriever {
 		final Set<GoEntry> goEntries = retrieveGOEntries(proteinID);
 		if (goEntries != null) {
 			for (GoEntry goEntry : goEntries) {
-
-				if (goEntry.getGoID().equals(goID)) {
-
+				if (goEntry.getGoID() != null && goEntry.getGoID().equals(goID)) {
 					return true;
 				}
 			}
@@ -54,7 +53,8 @@ public class GORetriever {
 		final Set<GoEntry> goEntries = retrieveGOEntries(proteinID);
 		if (goEntries != null) {
 			for (GoEntry goEntry : goEntries) {
-				if (goEntry.getGoName().toLowerCase().contains(termNamePart.toLowerCase())) {
+				if (goEntry.getGoName() != null
+						&& goEntry.getGoName().toLowerCase().contains(termNamePart.toLowerCase())) {
 					return true;
 				}
 			}
@@ -67,7 +67,9 @@ public class GORetriever {
 		list.add(acc);
 		final Map<String, Set<GoEntry>> retrieveGOEntries = retrieveGOEntries(list);
 		if (retrieveGOEntries != null) {
-			return retrieveGOEntries.get(acc);
+			if (retrieveGOEntries.containsKey(acc)) {
+				return retrieveGOEntries.get(acc);
+			}
 		}
 		return Collections.emptySet();
 
@@ -84,18 +86,22 @@ public class GORetriever {
 		Set<String> missingEntries = new HashSet<String>();
 		if (accs.size() != entriesByID.size()) {
 			for (String acc : accs) {
-				if (!entriesByID.containsKey(acc)) {
+				if (!entriesByID.containsKey(acc) && !FastaParser.isContaminant(acc) && !FastaParser.isReverse(acc)) {
 					missingEntries.add(acc);
 				}
 			}
-			log.info(missingEntries.size() + " proteins not found in the index");
+			if (missingEntries.size() > 0) {
+				log.info(missingEntries.size() + " proteins not found in the index");
+			}
 		}
 
 		Set<String> toSend = new HashSet<String>();
 		for (String acc : missingEntries) {
-
+			if (FastaParser.isContaminant(acc) || FastaParser.isReverse(acc)) {
+				continue;
+			}
 			toSend.add(acc);
-			if (toSend.size() == CHUNK) {
+			if (toSend.size() == CHUNK_SIZE) {
 				final Set<GoEntry> entries = retrieve(toSend);
 				addToMapByProteinID(entries, ret);
 
@@ -113,8 +119,8 @@ public class GORetriever {
 			final Set<GoEntry> entries = retrieve(toSend);
 			addToMapByProteinID(entries, ret);
 		}
-		if (ret.size() != accs.size()) {
-			log.info("Still there are " + (accs.size() - ret.size()) + " proteins missing");
+		if (!missingEntries.isEmpty()) {
+			log.info("Still there are " + (missingEntries.size()) + " proteins missing");
 		}
 		return ret;
 	}
