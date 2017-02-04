@@ -26,9 +26,12 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.census.analysis.QuantCondition;
+import edu.scripps.yates.census.read.model.CensusRatio;
 import edu.scripps.yates.census.read.model.Ion;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedPSM;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedProtein;
+import edu.scripps.yates.census.read.model.QuantAmount;
+import edu.scripps.yates.census.read.model.RatioDescriptor;
 import edu.scripps.yates.census.read.model.StaticQuantMaps;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
@@ -68,16 +71,21 @@ import edu.scripps.yates.utilities.ipi.UniprotEntry;
 import edu.scripps.yates.utilities.maths.Maths;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.model.enums.CombinationType;
+import edu.scripps.yates.utilities.model.factories.AmountEx;
 import edu.scripps.yates.utilities.model.factories.ProjectEx;
 import edu.scripps.yates.utilities.model.factories.RatioEx;
 import edu.scripps.yates.utilities.model.factories.ScoreEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
+import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
+import edu.scripps.yates.utilities.proteomicsmodel.HasAmounts;
+import edu.scripps.yates.utilities.proteomicsmodel.HasRatios;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
@@ -205,11 +213,15 @@ public class ImportCfgFileReader {
 		excelReader = new ExcelFileReader(cfg.getFileSet(), cfg.getServers());
 
 		// TODO CHANGE THIS!!
-		Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditions = getLabelsByConditions(cfg);
-		Map<String, QuantificationLabel> numeratorLabelsByFile = getNumeratorLabelsByFile(cfg, labelsByConditions);
-		Map<String, QuantificationLabel> denominatorLabelsByFile = getDenominatorLabelsByFile(cfg, labelsByConditions);
+		Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile = getLabelsByConditions(cfg);
+		Map<String, QuantificationLabel> numeratorLabelsByFile = getNumeratorLabelsByFile(cfg,
+				labelsByConditionsByFile);
+		Map<String, QuantificationLabel> denominatorLabelsByFile = getDenominatorLabelsByFile(cfg,
+				labelsByConditionsByFile);
+		Map<String, List<RatioDescriptor>> ratioDescriptorsByFile = getRatioDescriptorsByFile(cfg,
+				labelsByConditionsByFile);
 		remoteFileReader = new RemoteFileReader(cfg.getFileSet(), cfg.getServers(), fastaIndexFolder,
-				labelsByConditions, numeratorLabelsByFile, denominatorLabelsByFile);
+				labelsByConditionsByFile, ratioDescriptorsByFile);
 
 		if (remoteFileReader.getRemoteFiles().isEmpty())
 			remoteFileReader = null;
@@ -247,10 +259,149 @@ public class ImportCfgFileReader {
 		if (ratiosCfg != null) {
 			createRatios(ratiosCfg, project);
 		}
-
+		// loop over all items that contains conditions and if they contains
+		// Quantconditions, change it by the Conditions in the
+		// conditionsByConditionID map
+		updateConditions(project);
 		// clear static information
 		clearStaticInformation();
 		return project;
+	}
+
+	/**
+	 * loop over all items that contains conditions and if they contains
+	 * {@link QuantCondition}, change it by the {@link Condition} in the
+	 * conditionsByConditionID map
+	 *
+	 * @param conditionsByConditionID2
+	 * @param project
+	 */
+	private void updateConditions(Project project) {
+
+		final Set<Condition> conditions = project.getConditions();
+		for (Condition condition : conditions) {
+			// proteins
+			final Set<Protein> proteins = condition.getProteins();
+			for (Protein protein : proteins) {
+				updateConditionsInHasAmounts(protein);
+				updateConditionsInHasRatios(protein);
+			}
+			// peptides
+			final Set<Peptide> peptides = condition.getPeptides();
+			for (Peptide peptide : peptides) {
+				updateConditionsInHasAmounts(peptide);
+				updateConditionsInHasRatios(peptide);
+			}
+			// psms
+			final Set<PSM> psMs = condition.getPSMs();
+			for (PSM psm : psMs) {
+				updateConditionsInHasAmounts(psm);
+				updateConditionsInHasRatios(psm);
+			}
+		}
+	}
+
+	private void updateConditionsInHasAmounts(HasAmounts hasAmounts) {
+		if (hasAmounts.getAmounts() != null) {
+			for (Amount amount : hasAmounts.getAmounts()) {
+				if (amount.getCondition() instanceof QuantCondition) {
+					if (amount instanceof AmountEx) {
+						((AmountEx) amount).setCondition(conditionsByConditionID.get(amount.getCondition().getName()));
+					} else if (amount instanceof QuantAmount) {
+						((QuantAmount) amount)
+								.setCondition(conditionsByConditionID.get(amount.getCondition().getName()));
+					}
+				}
+			}
+		}
+	}
+
+	private void updateConditionsInHasRatios(HasRatios hasAmounts) {
+		if (hasAmounts.getRatios() != null) {
+			for (Ratio ratio : hasAmounts.getRatios()) {
+				if (ratio.getCondition1() instanceof QuantCondition) {
+					if (ratio instanceof RatioEx) {
+						((RatioEx) ratio).setCondition1(conditionsByConditionID.get(ratio.getCondition1().getName()));
+					} else if (ratio instanceof CensusRatio) {
+						((CensusRatio) ratio)
+								.setCondition1(conditionsByConditionID.get(ratio.getCondition1().getName()));
+					}
+				}
+				if (ratio.getCondition2() instanceof QuantCondition) {
+					if (ratio instanceof RatioEx) {
+						((RatioEx) ratio).setCondition2(conditionsByConditionID.get(ratio.getCondition2().getName()));
+					} else if (ratio instanceof CensusRatio) {
+						((CensusRatio) ratio)
+								.setCondition2(conditionsByConditionID.get(ratio.getCondition2().getName()));
+					}
+				}
+			}
+		}
+	}
+
+	private Map<String, List<RatioDescriptor>> getRatioDescriptorsByFile(PintImportCfgType cfg,
+			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile) {
+		Map<String, List<RatioDescriptor>> ret = new HashMap<String, List<RatioDescriptor>>();
+
+		if (cfg != null && cfg.getProject() != null && cfg.getProject().getRatios() != null) {
+			if (cfg.getProject().getRatios().getPsmAmountRatios() != null
+					&& cfg.getProject().getRatios().getPsmAmountRatios().getRemoteFilesRatio() != null) {
+				for (RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPsmAmountRatios()
+						.getRemoteFilesRatio()) {
+
+					final String fileRef = remoteFileRatio.getFileRef();
+					RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
+							labelsByConditionsByFile.get(fileRef));
+					if (ret.containsKey(fileRef)) {
+						ret.get(fileRef).add(ratioDescriptor);
+					} else {
+						List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
+						list.add(ratioDescriptor);
+						ret.put(fileRef, list);
+					}
+				}
+			}
+			if (cfg.getProject().getRatios().getProteinAmountRatios() != null
+					&& cfg.getProject().getRatios().getProteinAmountRatios().getRemoteFilesRatio() != null) {
+				for (RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getProteinAmountRatios()
+						.getRemoteFilesRatio()) {
+					final String fileRef = remoteFileRatio.getFileRef();
+					RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
+							labelsByConditionsByFile.get(fileRef));
+					if (ret.containsKey(fileRef)) {
+						ret.get(fileRef).add(ratioDescriptor);
+					} else {
+						List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
+						list.add(ratioDescriptor);
+						ret.put(fileRef, list);
+					}
+				}
+			}
+		}
+
+		return ret;
+	}
+
+	private RatioDescriptor getRatioDescriptor(RemoteFilesRatioType remoteFileRatio,
+			Map<QuantCondition, QuantificationLabel> labelsByConditions) {
+		QuantCondition condition1 = null;
+		QuantificationLabel label1 = null;
+		QuantCondition condition2 = null;
+		QuantificationLabel label2 = null;
+		for (QuantCondition condition : labelsByConditions.keySet()) {
+			final QuantificationLabel label = labelsByConditions.get(condition);
+			if (remoteFileRatio.getNumerator().getConditionRef().equals(condition.getName())) {
+				label1 = label;
+				condition1 = condition;
+			}
+			if (remoteFileRatio.getDenominator().getConditionRef().equals(condition.getName())) {
+				label2 = label;
+				condition2 = condition;
+			}
+		}
+
+		RatioDescriptor ret = new RatioDescriptor(label1, label2, condition1, condition2);
+		return ret;
 	}
 
 	private Map<String, QuantificationLabel> getNumeratorLabelsByFile(PintImportCfgType cfg,
@@ -649,7 +800,9 @@ public class ImportCfgFileReader {
 										String sample2 = getSamplesByLabel(label2,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
-
+										if (sample1 == null || sample2 == null) {
+											continue;
+										}
 										Pair<String, String> samplePair = new Pair<String, String>(sample1, sample2);
 										if (mapQuantRatios.containsKey(samplePair)) {
 											// take LOG 2 ratio
@@ -803,7 +956,9 @@ public class ImportCfgFileReader {
 										String sample1 = getSamplesByLabel(quantificationLabel1,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
-
+										if (sample1 == null) {
+											continue;
+										}
 										final Condition condition1 = getConditionBySampleAndRatio(sample1,
 												remoteFilesRatioType);
 										Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
@@ -812,7 +967,9 @@ public class ImportCfgFileReader {
 											String sample2 = getSamplesByLabel(quantificationLabel2,
 													remoteFilesRatioType.getNumerator().getConditionRef(),
 													remoteFilesRatioType.getDenominator().getConditionRef());
-
+											if (sample2 == null) {
+												continue;
+											}
 											final Condition condition2 = getConditionBySampleAndRatio(sample2,
 													remoteFilesRatioType);
 											Set<Ion> ions2 = singletonIonsByLabelMap.get(quantificationLabel2);
@@ -933,9 +1090,15 @@ public class ImportCfgFileReader {
 										String sample1 = getSamplesByLabel(label1,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
+										if (sample1 == null) {
+											continue;
+										}
 										String sample2 = getSamplesByLabel(label2,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
+										if (sample2 == null) {
+											continue;
+										}
 										// log.info("Sample1=" + sample1 +
 										// "\tSample2=" + sample2);
 										Pair<String, String> samplePair = new Pair<String, String>(sample1, sample2);
@@ -1080,7 +1243,9 @@ public class ImportCfgFileReader {
 										String sample1 = getSamplesByLabel(quantificationLabel1,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
-
+										if (sample1 == null) {
+											continue;
+										}
 										final Condition condition1 = getConditionBySampleAndRatio(sample1,
 												remoteFilesRatioType);
 										Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
@@ -1089,7 +1254,9 @@ public class ImportCfgFileReader {
 											String sample2 = getSamplesByLabel(quantificationLabel2,
 													remoteFilesRatioType.getNumerator().getConditionRef(),
 													remoteFilesRatioType.getDenominator().getConditionRef());
-
+											if (sample2 == null) {
+												continue;
+											}
 											final Condition condition2 = getConditionBySampleAndRatio(sample2,
 													remoteFilesRatioType);
 											Set<Ion> ions2 = singletonIonsByLabelMap.get(quantificationLabel2);
@@ -1207,9 +1374,9 @@ public class ImportCfgFileReader {
 				}
 			}
 		}
-		if (ret.isEmpty())
-			throw new IllegalArgumentException("Sample with label '" + label
-					+ "' is not found in between samples from conditions: " + condition1ID + " and " + condition2ID);
+		if (ret.isEmpty()) {
+			return null;
+		}
 		if (ret.size() > 1)
 			throw new IllegalArgumentException("It is not possible that more than one sample has the same label "
 					+ label + " in between samples from conditions: " + condition1ID + " and " + condition2ID);
