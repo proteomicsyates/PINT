@@ -106,28 +106,32 @@
   	</dependency>
   	<dependency>
   		<groupId>org.apache.httpcomponents</groupId>
-  		<artifactId>httpclient</artifactId>
-  		<version>4.5.1</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.apache.httpcomponents</groupId>
   		<artifactId>httpmime</artifactId>
   		<version>4.5.1</version>
   	</dependency>
   	
   	<!-- Reactome -->
+<!--   	<dependency> -->
+<!-- 	    <groupId>uk.ac.ebi.pride.web</groupId> -->
+<!-- 	    <artifactId>pride-web-utils</artifactId> -->
+<!-- 	    <version>1.3.11</version> -->
+<!--     </dependency> -->
   	<dependency>
-	    <groupId>uk.ac.ebi.pride.web</groupId>
-	    <artifactId>pride-web-utils</artifactId>
-	    <version>1.3.11</version>
-    </dependency>
-  	
-  	 <dependency>
+       <groupId>org.reactome.server.utils</groupId>
+       <artifactId>reactome-utils</artifactId>
+       <version>1.0.3</version>
+    </dependency> 
+
+  	<dependency>
         <groupId>org.reactome.web</groupId>
         <artifactId>fireworks</artifactId>
+        <version>1.3.3</version>
+  	</dependency>
+    <dependency>
+    	<groupId>org.reactome.web.pwp</groupId>
+        <artifactId>model</artifactId>
         <version>1.2.0</version>
     </dependency>
-    
     <dependency>
         <groupId>org.reactome.web</groupId>
         <artifactId>diagram</artifactId>
@@ -212,6 +216,22 @@
 						<name>The EBI internal snapshot repository</name>
 						<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
 						
+					</repository>
+					<!--  EBI repo  -->
+					<repository>
+						<id>pst-release</id>
+						<name>EBI Nexus Repository</name>
+						<url>
+						http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release
+						</url>
+					</repository>
+					<!--  EBI SNAPSHOT repo  -->
+					<repository>
+						<id>pst-snapshots</id>
+						<name>EBI Nexus Snapshots Repository</name>
+						<url>
+						http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots
+						</url>
 					</repository>
 				
 	</repositories>
