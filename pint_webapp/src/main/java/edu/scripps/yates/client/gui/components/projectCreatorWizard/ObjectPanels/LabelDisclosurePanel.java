@@ -33,7 +33,16 @@ public class LabelDisclosurePanel extends ClosableWithTitlePanel {
 		// suggest the labels
 		List<String> suggestionsforName = new ArrayList<String>();
 		suggestionsforName.add("LIGHT");
+		suggestionsforName.add("MEDIUM");
 		suggestionsforName.add("HEAVY");
+		suggestionsforName.add("TMT_6PLEX_126");
+		suggestionsforName.add("TMT_6PLEX_127");
+		suggestionsforName.add("TMT_6PLEX_128");
+		suggestionsforName.add("TMT_6PLEX_129");
+		suggestionsforName.add("TMT_6PLEX_130");
+		suggestionsforName.add("TMT_6PLEX_131");
+		suggestionsforName.add("N14");
+		suggestionsforName.add("N15");
 		addSuggestions(suggestionsforName);
 
 		updateRepresentedObject();

@@ -386,21 +386,21 @@ public class IdentificationInfoEditorPanel extends Composite implements Referenc
 	}
 
 	public RemoteInfoTypeBean getRemoteInfoTypeBean() {
-		if (otherFilesListBox.getSelectedIndex() > 0) {
-			if (identificationInfoRemoteFilePanel != null) {
-				final RemoteInfoTypeBean remoteInfoTypeBean = identificationInfoRemoteFilePanel.getRemoteInfoTypeBean();
-				if (fastaFilelistBox.getSelectedIndex() > 0) {
-					final String fastaFileID = fastaFilelistBox.getItemText(fastaFilelistBox.getSelectedIndex());
-					remoteInfoTypeBean.getFileRefs().add(fastaFileID);
+		// if (otherFilesListBox.getSelectedIndex() > 0) {
+		if (identificationInfoRemoteFilePanel != null) {
+			final RemoteInfoTypeBean remoteInfoTypeBean = identificationInfoRemoteFilePanel.getRemoteInfoTypeBean();
+			if (fastaFilelistBox.getSelectedIndex() > 0) {
+				final String fastaFileID = fastaFilelistBox.getItemText(fastaFilelistBox.getSelectedIndex());
+				remoteInfoTypeBean.getFileRefs().add(fastaFileID);
 
-				}
-				if (otherFilesListBox.getSelectedIndex() > 0) {
-					final String otherFileID = otherFilesListBox.getItemText(otherFilesListBox.getSelectedIndex());
-					remoteInfoTypeBean.getFileRefs().add(otherFileID);
-				}
-				return remoteInfoTypeBean;
 			}
+			if (otherFilesListBox.getSelectedIndex() > 0) {
+				final String otherFileID = otherFilesListBox.getItemText(otherFilesListBox.getSelectedIndex());
+				remoteInfoTypeBean.getFileRefs().add(otherFileID);
+			}
+			return remoteInfoTypeBean;
 		}
+		// }
 		return null;
 	}
 

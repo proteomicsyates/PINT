@@ -86,7 +86,8 @@ public class ProjectSaverServiceImpl extends RemoteServiceServlet implements Pro
 						FileManager.getFastaIndexFolder());
 				log.info(projectFromCfgFile.getName() + " file readed");
 				final MySQLSaver mySQLSaver = new MySQLSaver();
-				mySQLSaver.saveProject(projectFromCfgFile);
+				final Integer projectId = mySQLSaver.saveProject(projectFromCfgFile);
+				log.info("Saved with ID: " + projectId);
 				ContextualSessionHandler.finishGoodTransaction();
 				log.info("Project saved in db");
 			}

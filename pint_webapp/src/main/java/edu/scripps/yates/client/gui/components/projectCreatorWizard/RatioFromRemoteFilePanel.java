@@ -393,8 +393,12 @@ public class RatioFromRemoteFilePanel extends Composite
 		if (decoyRegexpSuggestBox.getCurrentRegularExpressionText() != null
 				&& !"".equals(decoyRegexpSuggestBox.getCurrentRegularExpressionText()))
 			remoteFilesRatioTypeBean.setDiscardDecoys(decoyRegexpSuggestBox.getCurrentRegularExpressionText());
-		if (msRunComboBox.getSelectedIndex() > 0) {
-			remoteFilesRatioTypeBean.setMsRunRef(msRunComboBox.getItemText(msRunComboBox.getSelectedIndex()));
+		final int selectedIndex = msRunComboBox.getSelectedIndex();
+		if (selectedIndex > 0) {
+			final String itemText = msRunComboBox.getItemText(selectedIndex);
+			remoteFilesRatioTypeBean.setMsRunRef(itemText);
+		} else {
+			remoteFilesRatioTypeBean.setMsRunRef(null);
 		}
 		if (ratioDescriptorTypeBean.getCondition1() != null) {
 			remoteFilesRatioTypeBean.setNumerator(ratioDescriptorTypeBean.getCondition1().getId());

@@ -447,6 +447,16 @@ public class SharedDataUtils {
 
 	public static List<RatioBean> getRatiosByConditions(Collection<RatioBean> ratios, String condition1Name,
 			String condition2Name, String projectTag, String ratioName, boolean skipInfinities) {
+		// sometimes, for the render of the ratio graphs, the ratioName comes
+		// with the name of the column and then the ratio name between
+		// parenthesis.
+		// so in that case, we want it to parse it
+		if (ratioName.contains(ColumnName.PROTEIN_RATIO_GRAPH.getName() + " (")) {
+			ratioName = ratioName.replace(ColumnName.PROTEIN_RATIO_GRAPH.getName() + " (", "");
+			if (ratioName.endsWith(")")) {
+				ratioName = ratioName.substring(0, ratioName.length() - 1);
+			}
+		}
 		Set<Integer> ratioIDs = new HashSet<Integer>();
 		List<RatioBean> ret = new ArrayList<RatioBean>();
 		if (ratios != null) {

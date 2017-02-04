@@ -16,4 +16,6 @@ public interface MyIdColumn<T> extends MyColumn<T> {
 
 	public String getScoreName();
 
+	public String getKeyName();
+
 }

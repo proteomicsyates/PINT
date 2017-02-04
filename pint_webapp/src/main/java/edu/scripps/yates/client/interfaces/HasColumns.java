@@ -30,6 +30,14 @@ public interface HasColumns {
 			boolean visible);
 
 	/**
+	 * Show or hide a certain column identified by a keyName
+	 *
+	 * @param keyName
+	 * @param visible
+	 */
+	void showOrHideExperimentalConditionColumn(String keyName, boolean visible);
+
+	/**
 	 * Removes the columns that are of the {@link ColumnName} specified by the
 	 * parameter
 	 *

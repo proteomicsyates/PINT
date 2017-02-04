@@ -434,6 +434,37 @@ public abstract class AbstractDataTable<T> extends Composite
 	}
 
 	@Override
+	public final void showOrHideExperimentalConditionColumn(String keyName, boolean show) {
+		boolean found = false;
+		for (MyColumn<T> mycolumn : getColumnManager().getColumns()) {
+			if (mycolumn instanceof MyIdColumn) {
+				MyIdColumn<T> idColumn = (MyIdColumn<T>) mycolumn;
+				final Column<T, String> column = (Column<T, String>) mycolumn;
+				GWT.log(idColumn.getColumnName().name() + " " + idColumn.getKeyName() + " <-> " + keyName);
+				if (idColumn.getKeyName() != null && idColumn.getKeyName().equals(keyName)) {
+					found = true;
+					if (show) {
+						dataGrid.addColumnToTable(column, getColumnManager());
+
+					} else {
+						dataGrid.removeColumn(column);
+					}
+				}
+
+			}
+		}
+		if (found) {
+			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+				@Override
+				public void execute() {
+					dataGrid.redrawVisibleItems();
+					// reloadData();
+				}
+			});
+		}
+	}
+
+	@Override
 	public final void setDefaultView(DefaultView defaultView) {
 		GWT.log("Setting default view in " + getClass().getSimpleName() + " table");
 		// apply page size

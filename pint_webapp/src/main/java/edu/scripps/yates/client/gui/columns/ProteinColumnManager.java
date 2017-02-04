@@ -3,12 +3,14 @@ package edu.scripps.yates.client.gui.columns;
 import java.util.List;
 
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
+import edu.scripps.yates.client.gui.components.MyVerticalCheckBoxListPanel;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
@@ -35,6 +37,7 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 			columns = ProteinColumns.getInstance().getColumns();
 		}
 		for (ColumnWithVisibility columnWithVisibility : columns) {
+			GWT.log(columnWithVisibility.getColumn().getName() + " column");
 			if (columnWithVisibility.getColumn().isAddColumnByDefault()) {
 				if (columnWithVisibility.getColumn() == ColumnName.LINK_TO_PRIDE_CLUSTER) {
 					final CustomClickableImageColumnOpenLinkToPRIDECluster<ProteinBean> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<ProteinBean>(
@@ -79,6 +82,7 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 		final ProteinTextColumn column = new ProteinTextColumn(columnName, visibleState, header,
 				footerManager.getAmountFooterByCondition(conditionName, amountType, projectName), conditionName,
 				amountType, projectName);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, amountType.name()));
 		addColumn(column);
 		return column;
 	}
@@ -94,6 +98,7 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 		final ProteinTextColumn column = new ProteinTextColumn(columnName, visibleState, header,
 				footerManager.getRatioFooterByConditions(condition1Name, condition2Name, projectTag, ratioName),
 				condition1Name, condition2Name, projectTag, ratioName);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, ratioName));
 		addColumn(column);
 		return column;
 	}
@@ -109,6 +114,7 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 		final ProteinTextColumn column = new ProteinTextColumn(columnName, visibleState, header,
 				footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name, projectTag, scoreName),
 				condition1Name, condition2Name, projectTag, scoreName);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, scoreName));
 		addColumn(column);
 		return column;
 	}

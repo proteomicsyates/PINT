@@ -740,7 +740,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		if (startingPositions != null) {
 			int minPosition = Integer.MAX_VALUE;
 			List<Integer> list = new ArrayList<Integer>();
-			if (startingPositions.containsKey(proteinAccs.get(0))) {
+			if (!proteinAccs.isEmpty() && startingPositions.containsKey(proteinAccs.get(0))) {
 				List<Pair<Integer, Integer>> positions = startingPositions.get(proteinAccs.get(0));
 				for (Pair<Integer, Integer> startAndEnd : positions) {
 					int position = startAndEnd.getFirstElement();

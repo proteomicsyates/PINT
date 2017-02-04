@@ -153,4 +153,10 @@ public class CustomTextButtonColumn<T> extends Column<T, String> implements MyId
 		return header;
 	}
 
+	@Override
+	public String getKeyName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

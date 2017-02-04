@@ -1,6 +1,7 @@
 package edu.scripps.yates.client.gui.components.projectCreatorWizard;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -334,6 +335,7 @@ public class ExperimentalConditionEditorPanel extends Composite
 
 			for (IdentificationExcelTypeBean identificationExcelTypeBean : conditionBean.getIdentificationInfo()
 					.getExcelIdentInfo()) {
+
 				// search in the already created objects
 				boolean found = false;
 				for (IdentificationInfoEditorPanel identificationInfoEditorPanel : identificationInfoEditors) {
@@ -351,6 +353,17 @@ public class ExperimentalConditionEditorPanel extends Composite
 
 			for (RemoteInfoTypeBean remoteInfoTypeBean : conditionBean.getIdentificationInfo()
 					.getRemoteFilesIdentInfo()) {
+				// look the file refs if they exists, otherwise, set them to
+				// null in order to match with the remoteInfoType objects
+				// returned by the editors
+				final Iterator<String> fileRefsIterator = remoteInfoTypeBean.getFileRefs().iterator();
+				while (fileRefsIterator.hasNext()) {
+					final String fileRef = fileRefsIterator.next();
+					if (!ProjectCreatorRegister.containsAnyObjectRepresenterWithId(fileRef)) {
+						fileRefsIterator.remove();
+					}
+				}
+
 				// search in the already created objects
 				boolean found = false;
 				for (IdentificationInfoEditorPanel identificationInfoEditorPanel : identificationInfoEditors) {
@@ -372,6 +385,7 @@ public class ExperimentalConditionEditorPanel extends Composite
 
 			for (QuantificationExcelTypeBean quantificationExcelTypeBean : conditionBean.getQuantificationInfo()
 					.getExcelQuantInfo()) {
+
 				// search in the already created objects
 				boolean found = false;
 				for (QuantificationInfoEditorPanel quantificationInfoEditorPanel : quantificationInfoEditors) {
@@ -389,6 +403,16 @@ public class ExperimentalConditionEditorPanel extends Composite
 
 			for (RemoteInfoTypeBean remoteInfoTypeBean : conditionBean.getQuantificationInfo()
 					.getRemoteFilesQuantInfo()) {
+				// look the file refs if they exists, otherwise, set them to
+				// null in order to match with the remoteInfoType objects
+				// returned by the editors
+				final Iterator<String> fileRefsIterator = remoteInfoTypeBean.getFileRefs().iterator();
+				while (fileRefsIterator.hasNext()) {
+					final String fileRef = fileRefsIterator.next();
+					if (!ProjectCreatorRegister.containsAnyObjectRepresenterWithId(fileRef)) {
+						fileRefsIterator.remove();
+					}
+				}
 				// search in the already created objects
 				boolean found = false;
 				for (QuantificationInfoEditorPanel quantificationInfoEditorPanel : quantificationInfoEditors) {

@@ -94,7 +94,7 @@ public class ProjectCreatorWizardUtil {
 	 * @return true if the item has been found and selected.
 	 */
 	public static boolean selectInCombo(ListBox combo, String text) {
-		if (combo != null) {
+		if (combo != null && text != null) {
 			for (int i = 0; i < combo.getItemCount(); i++) {
 				// check the text in the checkbox
 				if (combo.getItemText(i).equals(text)) {
@@ -121,7 +121,7 @@ public class ProjectCreatorWizardUtil {
 	 * @return true if the item has been found and selected.
 	 */
 	public static boolean selectInCombo(ListBox combo, String text, String separator) {
-		if (combo != null) {
+		if (combo != null && text != null) {
 			List<String> list = new ArrayList<String>();
 			if (text.contains(separator)) {
 				list.addAll(Arrays.asList(text.split(separator)));
@@ -153,7 +153,7 @@ public class ProjectCreatorWizardUtil {
 	 * @return true if the item has been found and selected.
 	 */
 	public static boolean selectInComboByValue(ListBox combo, String value) {
-		if (combo != null) {
+		if (combo != null && value != null) {
 			for (int i = 0; i < combo.getItemCount(); i++) {
 				if (combo.getValue(i).equals(value)) {
 					combo.setSelectedIndex(i);
@@ -165,7 +165,7 @@ public class ProjectCreatorWizardUtil {
 	}
 
 	public static String getValueInCombo(ListBox combo, String itemText) {
-		if (combo != null) {
+		if (combo != null && itemText != null) {
 			for (int i = 0; i < combo.getItemCount(); i++) {
 				if (combo.getItemText(i).equals(itemText)) {
 					return combo.getValue(i);

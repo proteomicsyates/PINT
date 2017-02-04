@@ -67,6 +67,10 @@ public abstract class AbstractColumnManager<T> {
 		notifyChange(columnName, condition1Name, condition2Name, projectTag, visible);
 	}
 
+	public void setVisible(String keyName, boolean visible) {
+		notifyChange(keyName, visible);
+	}
+
 	private void notifyChange(ColumnName column, boolean visible) {
 		for (HasColumns columnSizeChanger : this.listeners) {
 			columnSizeChanger.showOrHideColumn(column, visible);
@@ -90,6 +94,14 @@ public abstract class AbstractColumnManager<T> {
 		set.add(condition2Name);
 		for (HasColumns columnSizeChanger : this.listeners) {
 			columnSizeChanger.showOrHideExperimentalConditionColumn(columnName, set, projectTag, visible);
+		}
+
+	}
+
+	private void notifyChange(String keyName, boolean visible) {
+
+		for (HasColumns columnSizeChanger : this.listeners) {
+			columnSizeChanger.showOrHideExperimentalConditionColumn(keyName, visible);
 		}
 
 	}

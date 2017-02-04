@@ -473,4 +473,5 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 	public Header<?> getHeader() {
 		return header;
 	}
+
 }

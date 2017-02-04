@@ -9,6 +9,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
+import edu.scripps.yates.client.gui.components.MyVerticalCheckBoxListPanel;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
@@ -67,6 +68,7 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 		final ProteinGroupTextColumn column = new ProteinGroupTextColumn(ColumnName.PROTEIN_AMOUNT, visibleState,
 				header, footerManager.getAmountFooterByCondition(conditionName, amountType, projectName), conditionName,
 				amountType, projectName);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, amountType.name()));
 		super.addColumn(column);
 		return column;
 	}
@@ -82,6 +84,7 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 		final ProteinGroupTextColumn column = new ProteinGroupTextColumn(ColumnName.PROTEIN_RATIO, visibleState, header,
 				footerManager.getRatioFooterByConditions(condition1Name, condition2Name, projectTag, ratioName),
 				condition1Name, condition2Name, projectTag, ratioName);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, ratioName));
 		super.addColumn(column);
 		return column;
 	}

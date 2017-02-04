@@ -6,6 +6,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
+import edu.scripps.yates.client.gui.components.MyVerticalCheckBoxListPanel;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.PeptideColumns;
@@ -51,6 +52,7 @@ public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
 		final PeptideTextColumn column = new PeptideTextColumn(columnName, visibleState, header,
 				footerManager.getAmountFooterByCondition(conditionName, amountType, projectName), conditionName,
 				amountType, projectName);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, amountType.name()));
 		super.addColumn(column);
 		return column;
 	}
@@ -61,6 +63,7 @@ public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
 				SafeHtmlUtils.fromSafeConstant(scoreName), scoreName);
 		final PeptideTextColumn column = new PeptideTextColumn(columnName, visibleState, header,
 				footerManager.getScoreFooterByScore(scoreName), scoreName);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, scoreName));
 		super.addColumn(column);
 		return column;
 	}
@@ -76,6 +79,7 @@ public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
 		final PeptideTextColumn column = new PeptideTextColumn(columnName, visibleState, header,
 				footerManager.getRatioFooterByConditions(condition1Name, condition2Name, projectTag, ratioName),
 				condition1Name, condition2Name, projectTag, ratioName);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, ratioName));
 		super.addColumn(column);
 		return column;
 	}
