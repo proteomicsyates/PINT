@@ -196,6 +196,7 @@ public class PSMImplFromQuantifiedPSM implements PSM {
 				peptide = new PeptideEx(getSequence(), msRun);
 				StaticProteomicsModelStorage.addPeptide(peptide, msRun, null);
 			}
+			peptide.addPSM(this);
 		}
 		return peptide;
 	}
@@ -223,13 +224,17 @@ public class PSMImplFromQuantifiedPSM implements PSM {
 
 	@Override
 	public String getAfterSeq() {
-		return FastaParser.getAfterSeq(getFullSequence());
+		final String fullSequence = getFullSequence();
+		final String afterSeq = FastaParser.getAfterSeq(fullSequence);
+		return afterSeq;
 
 	}
 
 	@Override
 	public String getBeforeSeq() {
-		return FastaParser.getBeforeSeq(getFullSequence());
+		final String fullSequence = getFullSequence();
+		final String beforeSeq = FastaParser.getBeforeSeq(fullSequence);
+		return beforeSeq;
 
 	}
 
