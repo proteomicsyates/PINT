@@ -200,10 +200,12 @@ public class ProteinImplFromQuantifiedProtein implements Protein {
 						peptide = StaticProteomicsModelStorage.getSinglePeptide(msRun, condition.getName(), sequence);
 					} else {
 						peptide = new PeptideEx(sequence, msRun);
-						peptide.addPSM(psm);
-						psm.setPeptide(peptide);
+
 						StaticProteomicsModelStorage.addPeptide(peptide, msRun, condition.getName());
 					}
+					peptide.addPSM(psm);
+					peptide.addProtein(this);
+					psm.setPeptide(peptide);
 					peptides.add(peptide);
 				}
 			}
