@@ -20,6 +20,7 @@ import edu.scripps.yates.census.analysis.QuantCondition;
 import edu.scripps.yates.census.read.CensusChroParser;
 import edu.scripps.yates.census.read.CensusOutParser;
 import edu.scripps.yates.census.read.model.IonSerie.IonSerieType;
+import edu.scripps.yates.census.read.model.RatioDescriptor;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
 import edu.scripps.yates.census.read.util.IonExclusion;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
@@ -50,8 +51,7 @@ public class RemoteFileReader {
 
 	private final List<IonExclusion> censusIonExlusions = new ArrayList<IonExclusion>();
 	private final Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFileID;
-	private final Map<String, QuantificationLabel> numeratorLabelsByFile;
-	private final Map<String, QuantificationLabel> denominatorLabelsByFile;
+	private final Map<String, List<RatioDescriptor>> ratioDescriptorsByFile;
 
 	/**
 	 *
@@ -65,17 +65,15 @@ public class RemoteFileReader {
 	 */
 	public RemoteFileReader(FileSetType fileSet, ServersType servers, File fastaIndexFolder,
 			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFileID,
-			Map<String, QuantificationLabel> numeratorLabelsByFile,
-			Map<String, QuantificationLabel> denominatorLabelsByFile) throws IOException {
+			Map<String, List<RatioDescriptor>> ratioDescriptorsByFile) throws IOException {
 
 		// TODO change this by a configurable thing in fileSetType
 		censusIonExlusions.add(new IonExclusion(IonSerieType.B, 1));
 		censusIonExlusions.add(new IonExclusion(IonSerieType.Y, 1));
 		this.labelsByConditionsByFileID = labelsByConditionsByFileID;
-		this.numeratorLabelsByFile = numeratorLabelsByFile;
-		this.denominatorLabelsByFile = denominatorLabelsByFile;
+		this.ratioDescriptorsByFile = ratioDescriptorsByFile;
 		final List<FileType> files = fileSet.getFile();
-		int index = 0;
+
 		for (FileType fileType : files) {
 			RemoteSSHFileReference remoteFile = null;
 			// if it is not an excel file
@@ -146,7 +144,6 @@ public class RemoteFileReader {
 				}
 			}
 
-			index++;
 		}
 
 	}
@@ -192,8 +189,40 @@ public class RemoteFileReader {
 					CensusChroParser parser = new CensusChroParser();
 					for (File file : fileIDByFiles.keySet()) {
 						final String fileID = fileIDByFiles.get(file);
-						parser.addFile(file, labelsByConditionsByFileID.get(fileID), numeratorLabelsByFile.get(fileID),
-								denominatorLabelsByFile.get(fileID));
+						final List<RatioDescriptor> ratioDescriptors = ratioDescriptorsByFile.get(fileID);
+						if (ratioDescriptors.size() == 1) {
+							final RatioDescriptor ratioDescriptor = ratioDescriptors.get(0);
+							parser.addFile(file, labelsByConditionsByFileID.get(fileID), ratioDescriptor.getLabel1(),
+									ratioDescriptor.getLabel2());
+						} else {
+							QuantificationLabel labelL = null;
+							QuantificationLabel labelM = null;
+							QuantificationLabel labelH = null;
+							for (RatioDescriptor ratioDescriptor : ratioDescriptors) {
+								final QuantificationLabel label1 = ratioDescriptor.getLabel1();
+								if (label1.isLight()) {
+									labelL = label1;
+								}
+								if (label1.isHeavy()) {
+									labelH = label1;
+								}
+								if (!label1.isHeavy() && label1.isHeavy()) {
+									labelM = label1;
+								}
+								final QuantificationLabel label2 = ratioDescriptor.getLabel2();
+								if (label2.isLight()) {
+									labelL = label2;
+								}
+								if (label2.isHeavy()) {
+									labelH = label2;
+								}
+								if (!label2.isHeavy() && label2.isHeavy()) {
+									labelM = label2;
+								}
+							}
+							parser.addFile(file, labelsByConditionsByFileID.get(fileID), labelL, labelM, labelH);
+
+						}
 					}
 
 					parser.addIonExclusions(censusIonExlusions);
@@ -206,6 +235,7 @@ public class RemoteFileReader {
 			}
 		}
 		return null;
+
 	}
 
 	public CensusOutParser getCensusOutParser(Collection<String> fileIds) {
@@ -230,8 +260,39 @@ public class RemoteFileReader {
 					CensusOutParser parser = new CensusOutParser();
 					for (File file : fileIDByFiles.keySet()) {
 						final String fileID = fileIDByFiles.get(file);
-						parser.addFile(file, labelsByConditionsByFileID.get(fileID), numeratorLabelsByFile.get(fileID),
-								denominatorLabelsByFile.get(fileID));
+						final List<RatioDescriptor> ratioDescriptors = ratioDescriptorsByFile.get(fileID);
+						if (ratioDescriptors.size() == 1) {
+							final RatioDescriptor ratioDescriptor = ratioDescriptors.get(0);
+							parser.addFile(file, labelsByConditionsByFileID.get(fileID), ratioDescriptor.getLabel1(),
+									ratioDescriptor.getLabel2());
+						} else {
+							QuantificationLabel labelL = null;
+							QuantificationLabel labelM = null;
+							QuantificationLabel labelH = null;
+							for (RatioDescriptor ratioDescriptor : ratioDescriptors) {
+								final QuantificationLabel label1 = ratioDescriptor.getLabel1();
+								if (label1.isLight()) {
+									labelL = label1;
+								}
+								if (label1.isHeavy()) {
+									labelH = label1;
+								}
+								if (!label1.isHeavy() && !label1.isLight()) {
+									labelM = label1;
+								}
+								final QuantificationLabel label2 = ratioDescriptor.getLabel2();
+								if (label2.isLight()) {
+									labelL = label2;
+								}
+								if (label2.isHeavy()) {
+									labelH = label2;
+								}
+								if (!label2.isHeavy() && !label2.isLight()) {
+									labelM = label2;
+								}
+							}
+							parser.addFile(file, labelsByConditionsByFileID.get(fileID), labelL, labelM, labelH);
+						}
 					}
 					censusOutParsers.put(key, parser);
 					return parser;
