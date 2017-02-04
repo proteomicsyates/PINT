@@ -10,6 +10,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
+import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
@@ -92,7 +93,11 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 			// peptide has to have proteins
 			throw new IllegalArgumentException("peptide has to have proteins");
 		}
-
+		// conditions
+		final Set<Condition> conditions = peptide.getConditions();
+		for (Condition condition : conditions) {
+			ret.getConditions().add(new ConditionAdapter(condition, hibProject).adapt());
+		}
 		return ret;
 	}
 

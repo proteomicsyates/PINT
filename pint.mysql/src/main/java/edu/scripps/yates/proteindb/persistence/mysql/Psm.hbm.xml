@@ -72,7 +72,7 @@
             </key>
             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Ptm" />
         </set>
-        <set name="conditions" table="psm_has_condition" inverse="false" lazy="true" fetch="select" >
+        <set name="conditions" table="psm_has_condition" inverse="true" lazy="true" fetch="select" >
             <key>
                 <column name="PSM_id" not-null="true" />
             </key>

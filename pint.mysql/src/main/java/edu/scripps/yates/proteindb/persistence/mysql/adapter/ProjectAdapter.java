@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 
 public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.Project>, Serializable {
 	/**
@@ -28,6 +29,7 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 
 	@Override
 	public synchronized Project adapt() {
+		clearStaticInformation();
 		Project ret = new Project();
 		if (map.containsKey(project.hashCode()))
 			return map.get(project.hashCode());
@@ -87,7 +89,7 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 		return ret;
 	}
 
-	private void clearStaticInformation() {
+	public static void clearStaticInformation() {
 		log.info("Clearing static information");
 		AmountTypeAdapter.clearStaticInformation();
 		AnnotationTypeAdapter.clearStaticInformation();
@@ -119,6 +121,7 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 		SampleAdapter.clearStaticInformation();
 		ThresholdAdapter.clearStaticInformation();
 		TissueAdapter.clearStaticInformation();
+		StaticProteomicsModelStorage.clearData();
 	}
 
 }

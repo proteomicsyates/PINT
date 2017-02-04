@@ -2,7 +2,6 @@ package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +13,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
+import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
@@ -28,14 +28,9 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 	private final PSM psm;
 	private final Project hibProject;
 	private final static Map<Integer, Psm> map = new HashMap<Integer, Psm>();
-	private final Set<String> psmIds = new HashSet<String>();
 
 	public PSMAdapter(PSM psm, Project hibProject) {
 		this.psm = psm;
-
-		if (!psmIds.contains(psm.getPSMIdentifier())) {
-			psmIds.add(psm.getPSMIdentifier());
-		}
 		this.hibProject = hibProject;
 	}
 
@@ -48,14 +43,16 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 		}
 		MsRun msRun = new MSRunAdapter(psm.getMSRun(), hibProject).adapt();
 
+		Psm ret = new Psm(msRun, null, psm.getSequence(), psm.getFullSequence());
+		map.put(psm.hashCode(), ret);
 		Peptide parentPeptide = null;
 		if (psm.getPeptide() != null) {
 			parentPeptide = new PeptideAdapter(psm.getPeptide(), hibProject).adapt();
 		} else {
 			log.error("No peptide in this psm!");
 		}
-		Psm ret = new Psm(msRun, parentPeptide, psm.getSequence(), psm.getFullSequence());
-		map.put(psm.hashCode(), ret);
+		ret.setPeptide(parentPeptide);
+
 		ret.setPsmId(psm.getPSMIdentifier());
 		ret.setCalMh(psm.getCalcMH());
 		ret.setIonProportion(psm.getIonProportion());
@@ -66,6 +63,7 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 		ret.setSpr(psm.getSPR());
 		ret.setTotalIntensity(psm.getTotalIntensity());
 		ret.setAfterSeq(psm.getAfterSeq());
+
 		ret.setBeforeSeq(psm.getBeforeSeq());
 		ret.setChargeState(psm.getChargeState());
 		// ptms
@@ -113,6 +111,12 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 			}
 		}
 
+		// conditions
+		if (psm.getConditions() != null) {
+			for (Condition condition : psm.getConditions()) {
+				ret.getConditions().add(new ConditionAdapter(condition, hibProject).adapt());
+			}
+		}
 		return ret;
 	}
 

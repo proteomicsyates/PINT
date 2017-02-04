@@ -11,12 +11,11 @@ import edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 
-public class RatioDescriptorAdapter implements
-		Adapter<edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor>,
-		Serializable {
+public class RatioDescriptorAdapter
+		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor>, Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5973374111298264539L;
 	private final String description;
@@ -28,9 +27,8 @@ public class RatioDescriptorAdapter implements
 	private final PsmRatioValue hibPsmRatioValue;
 	private final static Map<String, RatioDescriptor> map = new HashMap<String, RatioDescriptor>();
 
-	public RatioDescriptorAdapter(String description, Condition condition1,
-			Condition condition2, ProteinRatioValue hibProteinRatioValue,
-			Project hibProject) {
+	public RatioDescriptorAdapter(String description, Condition condition1, Condition condition2,
+			ProteinRatioValue hibProteinRatioValue, Project hibProject) {
 		this.description = description;
 		this.condition1 = condition1;
 		this.condition2 = condition2;
@@ -40,9 +38,8 @@ public class RatioDescriptorAdapter implements
 		this.hibProject = hibProject;
 	}
 
-	public RatioDescriptorAdapter(String description, Condition condition1,
-			Condition condition2, PeptideRatioValue hibPeptideRatioValue,
-			Project hibProject) {
+	public RatioDescriptorAdapter(String description, Condition condition1, Condition condition2,
+			PeptideRatioValue hibPeptideRatioValue, Project hibProject) {
 		this.description = description;
 		this.condition1 = condition1;
 		this.condition2 = condition2;
@@ -52,9 +49,8 @@ public class RatioDescriptorAdapter implements
 		this.hibProject = hibProject;
 	}
 
-	public RatioDescriptorAdapter(String description, Condition condition1,
-			Condition condition2, PsmRatioValue hibPsmRatioValue,
-			Project hibProject) {
+	public RatioDescriptorAdapter(String description, Condition condition1, Condition condition2,
+			PsmRatioValue hibPsmRatioValue, Project hibProject) {
 		this.description = description;
 		this.condition1 = condition1;
 		this.condition2 = condition2;
@@ -71,11 +67,9 @@ public class RatioDescriptorAdapter implements
 		if (map.containsKey(key)) {
 			final RatioDescriptor ratioDescriptor = map.get(key);
 			if (hibProteinRatioValue != null)
-				ratioDescriptor.getProteinRatioValues().add(
-						hibProteinRatioValue);
+				ratioDescriptor.getProteinRatioValues().add(hibProteinRatioValue);
 			if (hibPeptideRatioValue != null)
-				ratioDescriptor.getPeptideRatioValues().add(
-						hibPeptideRatioValue);
+				ratioDescriptor.getPeptideRatioValues().add(hibPeptideRatioValue);
 			if (hibPsmRatioValue != null)
 				ratioDescriptor.getPsmRatioValues().add(hibPsmRatioValue);
 			return ratioDescriptor;
@@ -87,16 +81,14 @@ public class RatioDescriptorAdapter implements
 		edu.scripps.yates.proteindb.persistence.mysql.Condition hibCondition1 = ConditionAdapter.map
 				.get(condition1.hashCode());
 		if (hibCondition1 == null) {
-			hibCondition1 = new ConditionAdapter(condition1, hibProject)
-					.adapt();
+			hibCondition1 = new ConditionAdapter(condition1, hibProject).adapt();
 			ConditionAdapter.map.put(condition1.hashCode(), hibCondition1);
 		}
 		// condition 2
 		edu.scripps.yates.proteindb.persistence.mysql.Condition hibCondition2 = ConditionAdapter.map
 				.get(condition2.hashCode());
 		if (hibCondition2 == null) {
-			hibCondition2 = new ConditionAdapter(condition2, hibProject)
-					.adapt();
+			hibCondition2 = new ConditionAdapter(condition2, hibProject).adapt();
 			ConditionAdapter.map.put(condition2.hashCode(), hibCondition2);
 		}
 		ret.setConditionByExperimentalCondition1Id(hibCondition1);
@@ -114,8 +106,7 @@ public class RatioDescriptorAdapter implements
 		return ret;
 	}
 
-	private String getKey(String description, Condition condition1,
-			Condition condition2) {
+	private String getKey(String description, Condition condition1, Condition condition2) {
 		return description + condition1.getName() + condition2.getName();
 	}
 

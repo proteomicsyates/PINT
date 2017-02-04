@@ -216,5 +216,6 @@ public class ConditionAdapter
 
 	protected static void clearStaticInformation() {
 		map.clear();
+		conditionsByNameAndProject.clear();
 	}
 }

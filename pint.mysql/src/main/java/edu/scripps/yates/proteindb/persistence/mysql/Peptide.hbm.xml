@@ -33,7 +33,7 @@
             </key>
             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Psm" />
         </set>
-        <set name="conditions" table="peptide_has_condition" inverse="false" lazy="true" fetch="select" >
+        <set name="conditions" table="peptide_has_condition" inverse="true" lazy="true" fetch="select" >
             <key>
                 <column name="Peptide_id" not-null="true" />
             </key>

@@ -7,11 +7,9 @@ import java.util.Map;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Organism;
 
-public class SampleAdapter implements
-		Adapter<edu.scripps.yates.proteindb.persistence.mysql.Sample>,
-		Serializable {
+public class SampleAdapter implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.Sample>, Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 6490277510126371539L;
 	private final edu.scripps.yates.utilities.proteomicsmodel.Sample sample;
@@ -19,6 +17,9 @@ public class SampleAdapter implements
 
 	public SampleAdapter(edu.scripps.yates.utilities.proteomicsmodel.Sample sample2) {
 		sample = sample2;
+		if (sample == null) {
+			System.out.println(sample);
+		}
 	}
 
 	@Override
@@ -40,8 +41,8 @@ public class SampleAdapter implements
 		// organism
 		final Organism organism = sample.getOrganism();
 		if (organism != null) {
-			final edu.scripps.yates.proteindb.persistence.mysql.Organism hibOrganism = new OrganismAdapter(
-					organism).adapt();
+			final edu.scripps.yates.proteindb.persistence.mysql.Organism hibOrganism = new OrganismAdapter(organism)
+					.adapt();
 			ret.getOrganisms().add(hibOrganism);
 		}
 		return ret;

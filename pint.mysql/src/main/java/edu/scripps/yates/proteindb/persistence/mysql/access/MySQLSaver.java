@@ -967,7 +967,7 @@ public class MySQLSaver {
 
 	}
 
-	public void saveProject(edu.scripps.yates.utilities.proteomicsmodel.Project project) {
+	public Integer saveProject(edu.scripps.yates.utilities.proteomicsmodel.Project project) {
 
 		// check if there is already a project with that name
 		String projectTag = project.getTag();
@@ -976,6 +976,7 @@ public class MySQLSaver {
 		// created
 		Project hibProject = MySQLProteinDBInterface.getDBProjectByTag(projectTag);
 		if (hibProject == null) {
+			ProjectAdapter.clearStaticInformation();
 			hibProject = new ProjectAdapter(project).adapt();
 			ContextualSessionHandler.save(hibProject);
 			// experiments
@@ -1006,6 +1007,7 @@ public class MySQLSaver {
 		log.info("Clearing session");
 		ContextualSessionHandler.clear();
 		log.info("Session cleared");
+		return hibProject.getId();
 	}
 
 	private void saveSample(Sample sample) {
