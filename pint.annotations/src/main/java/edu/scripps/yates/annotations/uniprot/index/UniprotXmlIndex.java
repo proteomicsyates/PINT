@@ -111,7 +111,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			e.printStackTrace();
 			log.error(e.getMessage());
 		}
-		log.info("Item with key '" + key + "' is not in the index");
+		log.debug("Item with key '" + key + "' is not in the index");
 		return null;
 	}
 
