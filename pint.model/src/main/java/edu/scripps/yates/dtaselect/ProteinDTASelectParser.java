@@ -43,6 +43,10 @@ public class ProteinDTASelectParser {
 		this(FilenameUtils.getBaseName(u.getFile()), u.openStream());
 	}
 
+	public ProteinDTASelectParser(String runId, RemoteSSHFileReference s) throws IOException {
+		this(runId, s.getRemoteInputStream().getInputStream());
+	}
+
 	public ProteinDTASelectParser(RemoteSSHFileReference s) throws IOException {
 		this(s.getRemoteFileName(), new FileInputStream(s.getRemoteFile()));
 	}
