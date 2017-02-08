@@ -22,7 +22,7 @@ public class UniprotProteinRetriever {
 	private final static Logger log = Logger.getLogger(UniprotProteinRetriever.class);
 	private static final HashMap<String, Protein> cachedProteins = new HashMap<String, Protein>();
 	private static final HashSet<String> notAvailableProteins = new HashSet<String>();
-
+	public static boolean enableCache = true;
 	private final UniprotProteinLocalRetriever uniprotLocalRetriever;
 	private final String uniprotVersion;
 
@@ -46,8 +46,9 @@ public class UniprotProteinRetriever {
 	private HashMap<String, Protein> getFromCache(String accession) {
 		HashMap<String, Protein> ret = new HashMap<String, Protein>();
 
-		if (cachedProteins.containsKey(accession)) {
+		if (enableCache && cachedProteins.containsKey(accession)) {
 			ret.put(accession, cachedProteins.get(accession));
+
 		}
 		if (notAvailableProteins.contains(accession)) {
 			ret.put(accession, null);
@@ -57,8 +58,9 @@ public class UniprotProteinRetriever {
 	}
 
 	private void addToCache(Map<String, Protein> queryProteins) {
-		cachedProteins.putAll(queryProteins);
-
+		if (enableCache) {
+			cachedProteins.putAll(queryProteins);
+		}
 	}
 
 	public Map<String, String> getAnnotatedProteinSequence(Collection<String> accessions) {
@@ -115,7 +117,10 @@ public class UniprotProteinRetriever {
 
 	public Map<String, Protein> getAnnotatedProteins(Collection<String> accessions) {
 		final Map<String, Protein> ret = getFromCache(accessions);
-
+		if (accessions.size() > 1) {
+			// do not print this if only one
+			log.info("Looking for " + accessions.size() + " proteins in Uniprot");
+		}
 		Set<String> missingAccessions = UniprotProteinLocalRetriever.getMissingAccessions(accessions, ret);
 		if (!missingAccessions.isEmpty()) {
 			final Map<String, Entry> annotatedProteins = uniprotLocalRetriever.getAnnotatedProteins(uniprotVersion,
@@ -150,6 +155,18 @@ public class UniprotProteinRetriever {
 
 	}
 
+	public Map<String, Entry> getAnnotatedUniprotEntries(Collection<String> accessions) {
+
+		return uniprotLocalRetriever.getAnnotatedProteins(uniprotVersion, accessions);
+	}
+
+	/**
+	 * Returns a map by accession. Note that even if the entry by the accession
+	 * is there, the value may be null if has not been found
+	 *
+	 * @param accession
+	 * @return
+	 */
 	public Map<String, Protein> getAnnotatedProtein(String accession) {
 		Set<String> set = new HashSet<String>();
 		set.add(accession);
@@ -180,7 +197,7 @@ public class UniprotProteinRetriever {
 				}
 			}
 		}
-		log.info(ret.size() + " Uniprot entries converted to Proteins in the model");
+		log.debug(ret.size() + " Uniprot entries converted to Proteins in the model");
 		return ret;
 	}
 
