@@ -256,7 +256,9 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 				for (Entry entry : entries) {
 					uniprotIndex.addItem(entry);
 				}
-				log.info(entries.size() + " entries added to index of uniprot version " + uniprotVersion);
+				if (entries.size() > 1) {
+					log.info(entries.size() + " entries added to index of uniprot version " + uniprotVersion);
+				}
 				return uniprotIndex.getIndexedFile();
 			} catch (IOException e) {
 				e.printStackTrace();
