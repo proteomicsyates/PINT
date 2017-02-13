@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -118,6 +119,16 @@ public class GORetriever {
 		if (!toSend.isEmpty()) {
 			final Set<GoEntry> entries = retrieve(toSend);
 			addToMapByProteinID(entries, ret);
+			Iterator<String> iterator = missingEntries.iterator();
+			while (iterator.hasNext()) {
+				String missingEntry = iterator.next();
+				for (GoEntry goEntry : entries) {
+					if (goEntry.getId().equals(missingEntry)) {
+						iterator.remove();
+						break;
+					}
+				}
+			}
 		}
 		if (!missingEntries.isEmpty()) {
 			log.info("Still there are " + (missingEntries.size()) + " proteins missing");
