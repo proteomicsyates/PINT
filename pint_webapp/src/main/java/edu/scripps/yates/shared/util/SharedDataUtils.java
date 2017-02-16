@@ -451,7 +451,7 @@ public class SharedDataUtils {
 		// with the name of the column and then the ratio name between
 		// parenthesis.
 		// so in that case, we want it to parse it
-		if (ratioName.contains(ColumnName.PROTEIN_RATIO_GRAPH.getName() + " (")) {
+		if (ratioName != null && ratioName.contains(ColumnName.PROTEIN_RATIO_GRAPH.getName() + " (")) {
 			ratioName = ratioName.replace(ColumnName.PROTEIN_RATIO_GRAPH.getName() + " (", "");
 			if (ratioName.endsWith(")")) {
 				ratioName = ratioName.substring(0, ratioName.length() - 1);
