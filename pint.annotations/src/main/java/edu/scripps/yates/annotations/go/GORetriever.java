@@ -3,6 +3,7 @@ package edu.scripps.yates.annotations.go;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -19,9 +20,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.springframework.core.io.ClassPathResource;
 
 import edu.scripps.yates.annotations.go.index.FlatFileCache;
 import edu.scripps.yates.utilities.fasta.FastaParser;
+import psidev.psi.tools.ontology_manager.OntologyManager;
+import psidev.psi.tools.ontology_manager.impl.local.OntologyLoaderException;
+import psidev.psi.tools.ontology_manager.interfaces.OntologyAccess;
+import psidev.psi.tools.ontology_manager.interfaces.OntologyTermI;
 
 public class GORetriever {
 	private static final Logger log = Logger.getLogger(GORetriever.class);
@@ -29,6 +35,7 @@ public class GORetriever {
 	private static FlatFileCache cache;
 	private static int CHUNK_SIZE = 100;
 	private static final DecimalFormat df = new DecimalFormat("#.#");
+	private OntologyAccess goOntology;
 
 	public GORetriever(File indexFolder) {
 		if (!indexFolder.exists()) {
@@ -210,4 +217,26 @@ public class GORetriever {
 		}
 	}
 
+	private OntologyAccess getGOOntology() {
+		if (goOntology == null) {
+			try {
+				InputStream oboFile = new ClassPathResource("go.xml").getInputStream();
+
+				OntologyManager om = new OntologyManager(oboFile);
+				goOntology = om.getOntologyAccess("GO");
+			} catch (OntologyLoaderException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return goOntology;
+	}
+
+	public OntologyTermI getGOTermByID(String goID) {
+
+		OntologyAccess goOntology = getGOOntology();
+		final OntologyTermI termForAccession = goOntology.getTermForAccession(goID);
+		return termForAccession;
+	}
 }

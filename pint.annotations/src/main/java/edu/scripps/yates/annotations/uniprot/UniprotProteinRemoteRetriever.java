@@ -175,8 +175,9 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 							}
 						}
 					}
-				} else
+				} else {
 					log.error("Failed, got " + conn.getResponseMessage() + " for " + location);
+				}
 				conn.disconnect();
 			}
 		} catch (MalformedURLException e) {

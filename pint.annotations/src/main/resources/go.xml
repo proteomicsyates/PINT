@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cvSourceList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="FILE">
+  <!--  To load a local obo file it is neccessary to add the prefix "classpath:" before to the name of the obo file -->
+   
+ 
+              
+  <cvSource source="psidev.psi.tools.ontology_manager.impl.local.LocalOntology"
+              uri="classpath:go.obo"
+              format="OBO" name="GO ontology" identifier="GO" version="1.0"/>
+</cvSourceList>
