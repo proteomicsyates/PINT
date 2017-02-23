@@ -36,7 +36,7 @@
 	<context-param>
 		<param-name>projectFilesPath</param-name>
 		<!-- DO NOT CHANGE -->
-		<param-value>C:\Users\Salva\Desktop\tmp\PInt</param-value>
+		<param-value>Z:\share\Salva\data\PInt</param-value>
 		<!-- change to your testing server path -->
 	</context-param>
 	
