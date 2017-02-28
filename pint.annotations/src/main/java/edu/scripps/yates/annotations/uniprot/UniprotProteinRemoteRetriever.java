@@ -516,7 +516,7 @@ public class UniprotProteinRemoteRetriever implements UniprotRetriever {
 						ret.put(accession, fastaEntry);
 					}
 				} else {
-					log.error("Failed, got " + conn.getResponseMessage() + " for " + location);
+					log.warn("Failed, got " + conn.getResponseMessage() + " for " + location);
 				}
 				conn.disconnect();
 
