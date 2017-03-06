@@ -31,7 +31,7 @@ import edu.scripps.yates.annotations.uniprot.xml.ObjectFactory;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 
-public class UniprotProteinLocalRetriever implements UniprotRetriever {
+public class UniprotProteinLocalRetriever {
 	private static final Logger log = Logger.getLogger(UniprotProteinLocalRetriever.class);
 	private static String defaultUniprotVersion;
 	private final File uniprotReleasesFolder;
@@ -94,14 +94,10 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 					if ("1".equals(FastaParser.getIsoformVersion(accession))) {
 						acc = FastaParser.getNoIsoformAccession(accession);
 						if (!proteinsRetrieved.containsKey(acc)) {
-							log.info(accession
-									+ " is not in the set of proteins retrieved. It will be added to missing accessions");
 							missingAccessions.add(accession);
 						}
 					} else {
 
-						log.info(accession
-								+ " is not in the set of proteins retrieved. It will be added to missing accessions");
 						missingAccessions.add(accession);
 					}
 				}
@@ -256,7 +252,12 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 				for (Entry entry : entries) {
 					uniprotIndex.addItem(entry);
 				}
-				log.info(entries.size() + " entries added to index of uniprot version " + uniprotVersion);
+				if (entries.size() > 1) {
+					log.info(entries.size() + " entries added to index of uniprot version " + uniprotVersion);
+				} else {
+					log.info(entries.get(0).getAccession().get(0) + " entry added to index of uniprot version "
+							+ uniprotVersion);
+				}
 				return uniprotIndex.getIndexedFile();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -287,19 +288,16 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 
 	}
 
-	@Override
 	public Collection<String> getMissingAccessions() {
 		return missingAccessions;
 	}
 
-	@Override
 	public Map<String, Entry> getAnnotatedProtein(String uniprotVersion, String accession) {
 		Set<String> accessions = new HashSet<String>();
 		accessions.add(accession);
 		return getAnnotatedProteins(uniprotVersion, accessions);
 	}
 
-	@Override
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions) {
 		Set<String> accsToSearch = new HashSet<String>();
 		Set<String> mainIsoforms = new HashSet<String>();
@@ -322,20 +320,6 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 
 		List<Entry> entries = new ArrayList<Entry>();
 
-		// Dec 2016 removed, because all isoforms are going to be searched as no
-		// isoform, and then added the isoform sequence to the Entry
-		//
-		// if the passed accessions are isoforms, we will convert it to the non
-		// isoform, and we will keep the relationship with the isoform in a map
-
-		// Map<String, String> isoformMap = new HashMap<String, String>();
-		// Set<String> noIsoformAccs = new HashSet<String>();
-		// for (String acc : accessions) {
-		// String noIsoformAcc = getNoIsoformAccession(acc);
-		// isoformMap.put(noIsoformAcc, acc);
-		// noIsoformAccs.add(noIsoformAcc);
-		// }
-
 		if (uniprotVersion == null || "".equals(uniprotVersion)) {
 
 			defaultUniprotVersion = UniprotProteinRemoteRetriever.getCurrentUniprotRemoteVersion();
@@ -349,6 +333,7 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 		if (uniprotVersion == null) {
 			uniprotVersion = new Date().toString();
 		}
+		UniprotXmlIndex uniprotIndex = null;
 		Set<String> missingProteinsAccs = new HashSet<String>();
 		File projectFolder = getUniprotAnnotationsFolder(uniprotVersion);
 		if (projectFolder != null && projectFolder.exists() && projectFolder.isDirectory()) {
@@ -356,7 +341,7 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 			if (useIndex) {
 				File uniprotXmlFile = getUniprotAnnotationsFile(uniprotVersion);
 				try {
-					UniprotXmlIndex uniprotIndex = null;
+
 					if (loadedIndexes.containsKey(uniprotXmlFile)) {
 						uniprotIndex = loadedIndexes.get(uniprotXmlFile);
 					} else {
@@ -364,7 +349,7 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 						loadedIndexes.put(uniprotXmlFile, uniprotIndex);
 					}
 					int numEntriesRetrievedFromIndex = 0;
-					for (String acc : accsToSearch) {// noIsoformAccs) {
+					for (String acc : accsToSearch) {
 
 						final Entry item = uniprotIndex.getItem(acc);
 						if (item != null) {
@@ -415,9 +400,9 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 				}
 			}
 			HashMap<String, Entry> queryProteinsMap = new HashMap<String, Entry>();
-			addEntriesToMap(accsToSearch, queryProteinsMap, entries);// noIsoformAccs,
-																		// queryProteinsMap,
-																		// entries);
+			addEntriesToMap(queryProteinsMap, entries);// noIsoformAccs,
+														// queryProteinsMap,
+														// entries);
 
 			// look for some protein missing in the local system
 			missingProteinsAccs = getMissingAccessions(accsToSearch, queryProteinsMap);// noIsoformAccs,
@@ -429,7 +414,8 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 							useIndex);
 					log.debug("Trying to retrieve  " + missingProteinsAccs.size()
 							+ " proteins that were not present in the local system");
-					queryProteinsMap.putAll(uprr.getAnnotatedProteins(uniprotVersion, missingProteinsAccs));
+					queryProteinsMap
+							.putAll(uprr.getAnnotatedProteins(uniprotVersion, missingProteinsAccs, uniprotIndex));
 					missingAccessions = uprr.getMissingAccessions();
 				} catch (IllegalArgumentException e) {
 					log.warn(e.getMessage());
@@ -463,7 +449,8 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 				log.info("Local information (local index folder) not found");
 				log.info("Trying to get it remotely from Uniprot repository");
 				UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever(uniprotReleasesFolder, useIndex);
-				final Map<String, Entry> queryProteinsMap = uprr.getAnnotatedProteins(uniprotVersion, accsToSearch);
+				final Map<String, Entry> queryProteinsMap = uprr.getAnnotatedProteins(uniprotVersion, accsToSearch,
+						uniprotIndex);
 				// map main isoforms to the corresponding no isoform entries,
 				// that is an entry like P12345-1 to P12345
 				for (String mainIsoform : mainIsoforms) {
@@ -569,8 +556,7 @@ public class UniprotProteinLocalRetriever implements UniprotRetriever {
 		return uniprot.getEntry();
 	}
 
-	protected static void addEntriesToMap(Collection<String> accessionsToQuery, Map<String, Entry> map,
-			List<Entry> entries) {
+	protected static void addEntriesToMap(Map<String, Entry> map, List<Entry> entries) {
 		for (Entry entry : entries) {
 			final List<String> accessions = entry.getAccession();
 			for (String accession : accessions) {
