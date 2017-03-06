@@ -586,11 +586,12 @@ public class MySQLDeleter {
 				throw new InterruptedException();
 			}
 		}
+
 		ContextualSessionHandler.delete(msRun);
 
 	}
 
-	public boolean deleteProject(String projectTag) throws InterruptedException {
+	public boolean deleteProject2(String projectTag) throws InterruptedException {
 
 		// look into the database if a project with the same name is already
 		// created
@@ -672,6 +673,57 @@ public class MySQLDeleter {
 			}
 			ContextualSessionHandler.beginGoodTransaction();
 			ContextualSessionHandler.refresh(hibProject);
+			final Set<Condition> conditions = hibProject.getConditions();
+
+			for (Condition condition : conditions) {
+
+				deleteCondition(condition);
+
+			}
+			for (Condition condition : conditions) {
+				final Sample sample = condition.getSample();
+				deleteSample(sample);
+			}
+
+			ContextualSessionHandler.delete(hibProject);
+
+			return true;
+		} else {
+			throw new IllegalArgumentException(projectTag + " doesn't exist");
+		}
+
+	}
+
+	public boolean deleteProject(String projectTag) throws InterruptedException {
+
+		// look into the database if a project with the same name is already
+		// created
+		Project hibProject = MySQLProteinDBInterface.getDBProjectByTag(projectTag);
+		if (hibProject != null) {
+			log.info("deleting project " + hibProject.getTag());
+			// get a map between MSRuns and Conditions
+			Map<MsRun, Set<Condition>> conditionsByMSRun = getConditionsByMSRun(hibProject);
+			Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(conditionsByMSRun);
+			int initialMSRunNumber = 0;
+
+			ContextualSessionHandler.beginGoodTransaction();
+			ContextualSessionHandler.refresh(hibProject);
+			final Set<MsRun> msRuns = hibProject.getMsRuns();
+			for (MsRun msRun : msRuns) {
+				ContextualSessionHandler.beginGoodTransaction();
+				deleteMSRun(msRun);
+				log.info("Flushing session...");
+				ContextualSessionHandler.flush();
+				log.info("Clearing session...");
+				ContextualSessionHandler.clear();
+				log.info("Session clear. Now finishing transaction");
+				ContextualSessionHandler.finishGoodTransaction();
+				log.info("Transaction finished.");
+			}
+			if (initialMSRunNumber == 0) {
+				initialMSRunNumber = msRuns.size();
+			}
+
 			final Set<Condition> conditions = hibProject.getConditions();
 
 			for (Condition condition : conditions) {
