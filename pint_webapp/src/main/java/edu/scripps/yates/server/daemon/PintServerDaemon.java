@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
 import edu.scripps.yates.server.daemon.tasks.PreLoadPublicProjects;
-import edu.scripps.yates.server.daemon.tasks.ProteinUniprotAnnotationUpdater;
 import edu.scripps.yates.shared.util.SharedConstants;
 
 public class PintServerDaemon implements ServletContextListener {
@@ -49,7 +48,8 @@ public class PintServerDaemon implements ServletContextListener {
 			// pintServerDaemonTasks.add(new
 			// ProteinAccessionsUpdater(servletContext));
 			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", servletContext));
-			pintServerDaemonTasks.add(new ProteinUniprotAnnotationUpdater(servletContext));
+			// pintServerDaemonTasks.add(new
+			// ProteinUniprotAnnotationUpdater(servletContext));
 			// pintServerDaemonTasks.add(new
 			// DeleteHiddenProjects(servletContext));
 			// pintServerDaemonTasks.add(new GeneInformationConsolidation(
