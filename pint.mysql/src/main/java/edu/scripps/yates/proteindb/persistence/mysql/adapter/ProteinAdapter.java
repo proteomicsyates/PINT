@@ -299,9 +299,9 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
 			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
-			if (annotatedProtein.containsKey(accession))
+			if (annotatedProtein.containsKey(accession) && annotatedProtein.get(accession) != null) {
 				return annotatedProtein.get(accession).getGenes();
-			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
+			} else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
 				return annotatedProtein.get(nonIsoFormaAcc).getGenes();
 			} else {
 				log.info("check it out");
