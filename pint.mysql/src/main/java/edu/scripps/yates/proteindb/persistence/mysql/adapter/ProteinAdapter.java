@@ -277,9 +277,9 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
 			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
-			if (annotatedProtein.containsKey(accession))
+			if (annotatedProtein.containsKey(accession) && annotatedProtein.get(accession) != null) {
 				return annotatedProtein.get(accession).getOrganism();
-			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
+			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getOrganism();
 			} else {
 				log.info("check it out");
@@ -301,7 +301,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
 			if (annotatedProtein.containsKey(accession) && annotatedProtein.get(accession) != null) {
 				return annotatedProtein.get(accession).getGenes();
-			} else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
+			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getGenes();
 			} else {
 				log.info("check it out");
@@ -321,9 +321,9 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
 			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
-			if (annotatedProtein.containsKey(accession))
+			if (annotatedProtein.containsKey(accession) && annotatedProtein.get(accession) != null) {
 				return annotatedProtein.get(accession).getLength();
-			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
+			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getLength();
 			} else {
 				log.info("check it out");
@@ -343,9 +343,9 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
 			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
-			if (annotatedProtein.containsKey(accession))
+			if (annotatedProtein.containsKey(accession) && annotatedProtein.get(accession) != null) {
 				return annotatedProtein.get(accession).getMW();
-			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
+			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getMW();
 			} else {
 				log.info("check it out");
