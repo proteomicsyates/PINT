@@ -21,13 +21,17 @@ import edu.scripps.yates.dtaselectparser.DTASelectParser;
 import edu.scripps.yates.dtaselectparser.util.DTASelectProtein;
 import edu.scripps.yates.excel.proteindb.importcfg.RemoteFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FileReferenceType;
+import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdDescriptionType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.MsRunType;
+import edu.scripps.yates.excel.proteindb.importcfg.jaxb.OrganismSetType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteInfoType;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.ipi.UniprotEntry;
+import edu.scripps.yates.utilities.model.factories.OrganismEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
+import edu.scripps.yates.utilities.proteomicsmodel.Organism;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
@@ -40,13 +44,15 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 	private final RemoteFileReader remoteFileReader;
 	private final RemoteInfoType remoteInfoCfg;
 	private final MSRun msrun;
+	private final OrganismSetType organismSet;
 
 	public ProteinsAdapterByRemoteFiles(RemoteInfoType remoteInfoCfg, RemoteFileReader remoteFileReader,
-			Condition expCondition, MsRunType msRunCfg) {
+			Condition expCondition, MsRunType msRunCfg, OrganismSetType organismSet) {
 		this.remoteInfoCfg = remoteInfoCfg;
 		condition = expCondition;
 		this.remoteFileReader = remoteFileReader;
 		msrun = new MSRunAdapter(msRunCfg).adapt();
+		this.organismSet = organismSet;
 	}
 
 	@Override
@@ -138,6 +144,9 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 					.values();
 			for (DTASelectProtein dtaSelectProtein : dtaSelectProteins) {
 				Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun);
+				if (protein.getOrganism() == null) {
+					((ProteinImplFromDTASelect) protein).setOrganism(getOrganismFromConfFile());
+				}
 				// look in the static model storage first
 				if (StaticProteomicsModelStorage.containsProtein(msrun.getRunId(), condition.getName(),
 						protein.getAccession())) {
@@ -145,6 +154,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 							.getProtein(msrun.getRunId(), condition.getName(), protein.getAccession()).iterator()
 							.next();
 				}
+
 				StaticProteomicsModelStorage.addProtein(protein, msrun.getRunId(), condition.getName());
 				protein.setMSRun(msrun);
 				protein.addCondition(condition);
@@ -196,6 +206,17 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 					+ "' is not reachable.\nTry it again or review the connection settings to server");
 		}
 		return retMap;
+	}
+
+	private Organism getOrganismFromConfFile() {
+		if (organismSet != null) {
+			final IdDescriptionType organismType = organismSet.getOrganism().get(0);
+			return new OrganismAdapter(organismType).adapt();
+		}
+
+		final OrganismEx organismEx = new OrganismEx("0000");
+		organismEx.setName("Unknown");
+		return organismEx;
 	}
 
 	private void loadUniprotAnnotations(DTASelectParser dtaSelectFilterParser, QuantParser quantParser) {

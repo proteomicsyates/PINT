@@ -28,6 +28,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ExperimentalDesignType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdentificationExcelType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.MsRunType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.MsRunsType;
+import edu.scripps.yates.excel.proteindb.importcfg.jaxb.OrganismSetType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.QuantificationExcelType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.QuantificationInfoType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteInfoType;
@@ -60,6 +61,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	private final ExcelFileReader excelFileReader;
 	private final RemoteFileReader remoteFileReader;
 	private final MsRunsType msRunsCfg;
+	private final OrganismSetType organismTypeCfg;
 	private static final Map<String, Condition> conditionsById = new HashMap<String, Condition>();
 	private static final Map<String, Map<String, Set<Protein>>> proteinsByRunIDAndAcc = new HashMap<String, Map<String, Set<Protein>>>();
 	private static final Map<String, Set<Peptide>> peptidesByRunID = new HashMap<String, Set<Peptide>>();
@@ -67,14 +69,15 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	private final Set<String> thereIsProteinSetReferenceFromExcelByMSRunID = new HashSet<String>();
 
 	public ConditionAdapter(ExperimentalConditionType expConditionCfg, MsRunsType msRunsType,
-			ExperimentalDesignType experimentalDesignCfg, Project project, ExcelFileReader excelReader,
-			RemoteFileReader remoteFileReader) {
+			ExperimentalDesignType experimentalDesignCfg, OrganismSetType organismTypeCfg, Project project,
+			ExcelFileReader excelReader, RemoteFileReader remoteFileReader) {
 		this.expConditionCfg = expConditionCfg;
 		this.experimentalDesignCfg = experimentalDesignCfg;
 		this.project = project;
 		excelFileReader = excelReader;
 		this.remoteFileReader = remoteFileReader;
 		msRunsCfg = msRunsType;
+		this.organismTypeCfg = organismTypeCfg;
 	}
 
 	@Override
@@ -236,7 +239,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 
 					// if (msRunCfg.getFastaFileRef() == null) {
 					final Map<String, Protein> remoteProteins = new ProteinsAdapterByRemoteFiles(remoteInfoCfg,
-							remoteFileReader, ret, msRunCfg).adapt();
+							remoteFileReader, ret, msRunCfg, organismTypeCfg).adapt();
 
 					// if there is already proteins related to this MSRun, merge
 					// with them
@@ -249,7 +252,9 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 						mergeProteins(getProteinsByRunID(project.getTag(), msRunCfg.getId()), remoteProteins,
 								addProteinsNotInOriginalProteinSet, project.getTag(), msRunCfg.getId());
 						for (Protein protein : getProteinsByRunID(project.getTag(), msRunCfg.getId())) {
-
+							if (protein.getOrganism() == null) {
+								log.info(protein);
+							}
 							ret.addProtein(protein);
 							final Set<PSM> psMs = protein.getPSMs();
 							addPSMsByRunID(project.getTag(), msRunCfg.getId(), psMs);

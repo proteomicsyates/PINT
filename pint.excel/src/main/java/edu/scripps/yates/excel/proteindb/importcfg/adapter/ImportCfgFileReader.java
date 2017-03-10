@@ -240,7 +240,8 @@ public class ImportCfgFileReader {
 		for (ExperimentalConditionType expConditionCfg : projectCfg.getExperimentalConditions()
 				.getExperimentalCondition()) {
 			final ConditionAdapter conditionAdapter = new ConditionAdapter(expConditionCfg, msRuns,
-					projectCfg.getExperimentalDesign(), project, excelReader, remoteFileReader);
+					projectCfg.getExperimentalDesign(), projectCfg.getExperimentalDesign().getOrganismSet(), project,
+					excelReader, remoteFileReader);
 			final Condition condition = conditionAdapter.adapt();
 			conditionsByConditionID.put(condition.getName(), condition);
 			project.getConditions().add(condition);
