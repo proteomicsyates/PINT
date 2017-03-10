@@ -65,6 +65,13 @@ public class MySQLSaver {
 		}
 		saveMSRun(protein.getMsRun());
 
+		// organism
+		final Organism organism = protein.getOrganism();
+		if (organism != null) {
+			saveOrganismForProtein(organism, protein);
+
+		}
+
 		ContextualSessionHandler.save(protein);
 		if (protein.getId() == null) {
 			log.info("Protein with no ID after saving it");
@@ -106,12 +113,6 @@ public class MySQLSaver {
 			}
 		}
 
-		// organism
-		final Organism organism = protein.getOrganism();
-		if (organism != null) {
-			saveOrganismForProtein(organism, protein);
-
-		}
 		// // protein ratios
 		// final Set<ProteinRatioValue> proteinRatios = protein
 		// .getProteinRatioValues();
