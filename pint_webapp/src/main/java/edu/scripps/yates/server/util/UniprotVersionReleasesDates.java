@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.shared.model.ProjectBean;
 
 /**
@@ -55,7 +56,7 @@ public class UniprotVersionReleasesDates {
 					+ df.format(getUniprotReleaseDatesByVersions().get(currentUniprotVersion)));
 			return;
 		}
-		final File uniprotReleasesDatesFile = FileManager.getUniprotReleasesDatesFile();
+		final File uniprotReleasesDatesFile = getUniprotReleasesDatesFile();
 		FileOutputStream fos = new FileOutputStream(uniprotReleasesDatesFile, true);
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 		try {
@@ -69,6 +70,11 @@ public class UniprotVersionReleasesDates {
 		}
 	}
 
+	private File getUniprotReleasesDatesFile() {
+		return new File(FileManager.getUniprotReleasesFolder() + File.separator
+				+ UniprotProteinLocalRetriever.UNIPROT_RELEASES_DATES_FILE_NAME);
+	}
+
 	/**
 	 * Gets a map of uniprot versions with its associated release date times
 	 *
@@ -76,7 +82,7 @@ public class UniprotVersionReleasesDates {
 	 */
 	public Map<String, Date> getUniprotReleaseDatesByVersions() {
 		Map<String, Date> ret = new HashMap<String, Date>();
-		final File uniprotReleasesDatesFile = FileManager.getUniprotReleasesDatesFile();
+		final File uniprotReleasesDatesFile = getUniprotReleasesDatesFile();
 		try {
 			List<String> lines = Files.readAllLines(Paths.get(uniprotReleasesDatesFile.getAbsolutePath()),
 					Charset.forName("UTF-8"));

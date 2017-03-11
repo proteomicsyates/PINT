@@ -2,6 +2,7 @@ package edu.scripps.yates.annotations.uniprot;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,8 +32,8 @@ public class UniprotProteinRetriever {
 		this.uniprotVersion = uniprotVersion;
 	}
 
-	public Set<String> getUniprotVersionsForProjects(Set<String> projectTags) {
-		return uniprotLocalRetriever.getUniprotVersionsForProjects(projectTags);
+	public Set<String> getUniprotVersionsForProjects(Map<String, Date> uploadDatesByProjectTags) {
+		return uniprotLocalRetriever.getUniprotVersionsForProjects(uploadDatesByProjectTags);
 	}
 
 	private HashMap<String, Protein> getFromCache(Collection<String> accessions) {

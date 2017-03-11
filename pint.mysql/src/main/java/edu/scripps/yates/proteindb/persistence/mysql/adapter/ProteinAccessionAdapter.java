@@ -13,10 +13,9 @@ import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 
-public class ProteinAccessionAdapter implements Adapter<ProteinAccession>,
-		Serializable {
+public class ProteinAccessionAdapter implements Adapter<ProteinAccession>, Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -3917756538499650517L;
 	private final Accession accession;
@@ -24,8 +23,7 @@ public class ProteinAccessionAdapter implements Adapter<ProteinAccession>,
 	public static final String SEPARATOR = "***";
 	private final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession> map = new HashMap<String, edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession>();
 
-	public ProteinAccessionAdapter(Accession accession,
-			boolean isPrimaryAccession) {
+	public ProteinAccessionAdapter(Accession accession, boolean isPrimaryAccession) {
 		if (accession == null)
 			throw new IllegalArgumentException("Accession cannot be null");
 		this.accession = accession;
@@ -44,8 +42,8 @@ public class ProteinAccessionAdapter implements Adapter<ProteinAccession>,
 				proteinAccession.setIsPrimary(isPrimaryAccession);
 			return proteinAccession;
 		}
-		ProteinAccession ret = new ProteinAccession(accession2, accession
-				.getAccessionType().name(), isPrimaryAccession);
+		ProteinAccession ret = new ProteinAccession(accession2, accession.getAccessionType().name(),
+				isPrimaryAccession);
 		map.put(accession2, ret);
 
 		// protein
@@ -56,17 +54,15 @@ public class ProteinAccessionAdapter implements Adapter<ProteinAccession>,
 		if (description == null || "".equals(description)) {
 			if (accession.getAccessionType().equals(AccessionType.UNIPROT)) {
 				// take the description from Uniprot annotations if available
-				UniprotProteinRetriever uplr = new UniprotProteinRetriever(
-						null, UniprotProteinRetrievalSettings.getInstance()
-								.getUniprotReleasesFolder(),
-						UniprotProteinRetrievalSettings.getInstance()
-								.isUseIndex());
-				Map<String, Protein> annotatedProteins = uplr
-						.getAnnotatedProtein(accession2);
+				UniprotProteinRetriever uplr = new UniprotProteinRetriever(null,
+						UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
+						UniprotProteinRetrievalSettings.getInstance().isUseIndex());
+				Map<String, Protein> annotatedProteins = uplr.getAnnotatedProtein(accession2);
 				if (annotatedProteins.containsKey(accession2)) {
 					annotatedProtein = annotatedProteins.get(accession2);
-					description = annotatedProtein.getPrimaryAccession()
-							.getDescription();
+					if (annotatedProtein != null) {
+						description = annotatedProtein.getPrimaryAccession().getDescription();
+					}
 				}
 			}
 		}
@@ -76,10 +72,8 @@ public class ProteinAccessionAdapter implements Adapter<ProteinAccession>,
 		List<String> alternativeNames = accession.getAlternativeNames();
 		if (alternativeNames == null)
 			alternativeNames = new ArrayList<String>();
-		if (annotatedProtein != null
-				&& annotatedProtein.getPrimaryAccession().getAlternativeNames() != null)
-			alternativeNames.addAll(annotatedProtein.getPrimaryAccession()
-					.getAlternativeNames());
+		if (annotatedProtein != null && annotatedProtein.getPrimaryAccession().getAlternativeNames() != null)
+			alternativeNames.addAll(annotatedProtein.getPrimaryAccession().getAlternativeNames());
 		if (alternativeNames != null && !alternativeNames.isEmpty()) {
 			StringBuilder sb = new StringBuilder();
 			for (String altName : alternativeNames) {

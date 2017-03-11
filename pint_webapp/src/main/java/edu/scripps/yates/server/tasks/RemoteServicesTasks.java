@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1495,6 +1496,17 @@ public class RemoteServicesTasks {
 			proteinAmountMapByProject.get(projectTag).get(conditionName).addAll(set);
 		}
 		return set;
+	}
+
+	public static Map<String, Date> getUploadDatesFromProjects(Set<String> projectTags) {
+		Map<String, Date> ret = new HashMap<String, Date>();
+		final Set<ProjectBean> projectBeans = getProjectBeans();
+		for (ProjectBean projectBean : projectBeans) {
+			if (projectTags.contains(projectBean.getTag())) {
+				ret.put(projectBean.getTag(), projectBean.getUploadedDate());
+			}
+		}
+		return ret;
 	}
 
 }

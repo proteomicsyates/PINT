@@ -21,6 +21,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.model.enums.AmountType;
+import edu.scripps.yates.utilities.model.factories.OrganismEx;
 import edu.scripps.yates.utilities.model.factories.PeptideEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
@@ -170,11 +171,16 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		// organism
 		// try to get it from Uniprot. Otherwise, get it from
 		Organism organism = getOrganismFromUniprot(protein);
-		if (organism == null)
+		if (organism == null) {
 			organism = protein.getOrganism();
-		if (organism != null)
+		}
+		if (organism != null) {
 			ret.setOrganism(new OrganismAdapter(organism).adapt());
-
+		} else {
+			final OrganismEx organism2 = new OrganismEx("0000");
+			organism2.setName("Unknown");
+			ret.setOrganism(new OrganismAdapter(organism2).adapt());
+		}
 		// conditions
 		final Set<Condition> conditions = protein.getConditions();
 		if (conditions != null) {
@@ -277,9 +283,9 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
 			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
-			if (annotatedProtein.containsKey(accession))
+			if (annotatedProtein.containsKey(accession) && annotatedProtein.get(accession) != null) {
 				return annotatedProtein.get(accession).getOrganism();
-			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
+			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getOrganism();
 			} else {
 				log.info("check it out");
@@ -299,9 +305,9 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
 			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
-			if (annotatedProtein.containsKey(accession))
+			if (annotatedProtein.containsKey(accession) && annotatedProtein.get(accession) != null) {
 				return annotatedProtein.get(accession).getGenes();
-			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
+			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getGenes();
 			} else {
 				log.info("check it out");
@@ -321,9 +327,9 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
 			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
-			if (annotatedProtein.containsKey(accession))
+			if (annotatedProtein.containsKey(accession) && annotatedProtein.get(accession) != null) {
 				return annotatedProtein.get(accession).getLength();
-			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
+			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getLength();
 			} else {
 				log.info("check it out");
@@ -343,9 +349,9 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 				.getAnnotatedProtein(accession);
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
 			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
-			if (annotatedProtein.containsKey(accession))
+			if (annotatedProtein.containsKey(accession) && annotatedProtein.get(accession) != null) {
 				return annotatedProtein.get(accession).getMW();
-			else if (annotatedProtein.containsKey(nonIsoFormaAcc)) {
+			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getMW();
 			} else {
 				log.info("check it out");

@@ -98,7 +98,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 	public Entry getItem(String key) {
 		try {
 			// load index file
-			final Map<String, Pair<Long, Long>> indexMap = loadIndexFile();
+			loadIndexFile();
 			// look for the provided key
 			if (indexMap.containsKey(key)) {
 				final Pair<Long, Long> pair = indexMap.get(key);
@@ -115,7 +115,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		return null;
 	}
 
-	private Map<String, Pair<Long, Long>> loadIndexFile() throws IOException {
+	private void loadIndexFile() throws IOException {
 		// if not ready, means that the index file has to be updated
 		if (status == Status.NOT_READY) {
 			indexMap.clear();
@@ -141,8 +141,6 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 				status = Status.READY;
 			}
 		}
-
-		return indexMap;
 	}
 
 	/**
@@ -158,7 +156,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 
 		// load index file
 		try {
-			final Map<String, Pair<Long, Long>> indexMap = loadIndexFile();
+			loadIndexFile();
 
 			String item = marshallEntryToText(entry);
 
