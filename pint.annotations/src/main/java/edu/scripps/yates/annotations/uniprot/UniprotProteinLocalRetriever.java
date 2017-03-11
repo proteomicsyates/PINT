@@ -1,10 +1,14 @@
 package edu.scripps.yates.annotations.uniprot;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -146,50 +151,37 @@ public class UniprotProteinLocalRetriever {
 		}
 	}
 
-	public Set<String> getUniprotVersionsForProjects(Set<String> projectTags) {
+	public Set<String> getUniprotVersionsForProjects(Map<String, Date> uploadedDateByProjectTags) {
 		Set<String> ret = new HashSet<String>();
 		if (uniprotReleasesFolder != null) {
 			final String uniprotReleasesPath = uniprotReleasesFolder.getAbsolutePath();
-			File uniprotRootFolder = new File(uniprotReleasesPath);
-			final FileFilter fileFilter = new FileFilter() {
+			File uniprotReleasesFile = new File(uniprotReleasesPath + File.separator + "uniprot_releases_dates.txt");
+			if (uniprotReleasesFile.exists()) {
+				Map<Object, Object> mapLines;
+				try {
+					mapLines = Files.lines(Paths.get(uniprotReleasesPath, "uniprot_releases_dates.txt"))
+							.collect(Collectors.toMap(line -> line.toString().split("\t")[1],
+									line -> line.toString().split("\t")[0]));
 
-				@Override
-				public boolean accept(File arg0) {
-					if (arg0.isDirectory())
-						return true;
-					return false;
-				}
-			};
-			final File[] uniprotVersionsFolders = uniprotRootFolder.listFiles(fileFilter);
-			if (uniprotVersionsFolders != null && uniprotVersionsFolders.length > 0) {
-				for (File uniprotVersionFolder : uniprotVersionsFolders) {
-					String uniprotVersionString = FilenameUtils.getName(uniprotVersionFolder.getAbsolutePath());
-					boolean includeAnnotation = true;
-					// look into the folder and see if there is one folder for
-					// each
-					// project name
-					final File[] projectFolders = uniprotVersionFolder.listFiles(fileFilter);
-					if (projectFolders != null && projectFolders.length > 0) {
-						for (String projectTag : projectTags) {
-							boolean projectFound = false;
-							for (File projectFolder : projectFolders) {
-								final String projectFolderName = FilenameUtils.getName(projectFolder.getAbsolutePath());
-								if (projectTag.equals(projectFolderName)) {
-									projectFound = true;
-									break;
+					for (String projectTag : uploadedDateByProjectTags.keySet()) {
+						Date uploadDate = uploadedDateByProjectTags.get(projectTag);
+
+						for (Object key : mapLines.keySet()) {
+							DateFormat df = new SimpleDateFormat("yyyy MM dd");
+							Date uniprotReleaseDate;
+							try {
+								uniprotReleaseDate = df.parse(key.toString());
+								if (uploadDate.before(uniprotReleaseDate) || uploadDate.equals(uniprotReleaseDate)) {
+									ret.add(mapLines.get(key).toString());
 								}
-							}
-							// if there is one project that is not found,
-							// continue
-							// with the next uniprot annotation version
-							if (!projectFound) {
-								includeAnnotation = false;
-								break;
+							} catch (ParseException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
 						}
-						if (includeAnnotation)
-							ret.add(uniprotVersionString);
 					}
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 		}

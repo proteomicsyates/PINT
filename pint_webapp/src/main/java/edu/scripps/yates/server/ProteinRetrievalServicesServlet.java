@@ -737,13 +737,14 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			Set<String> ret = new HashSet<String>();
 
 			final String latestVersion = UniprotProteinRemoteRetriever.getCurrentUniprotRemoteVersion();
-			if (latestVersion != null)
+			if (latestVersion != null) {
 				ret.add(latestVersion);
-
+			}
+			Map<String, Date> uploadDatesByProjectTags = RemoteServicesTasks.getUploadDatesFromProjects(projectTags);
 			Set<String> uniprotversions = new UniprotProteinRetriever(null,
 					UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 					UniprotProteinRetrievalSettings.getInstance().isUseIndex())
-							.getUniprotVersionsForProjects(projectTags);
+							.getUniprotVersionsForProjects(uploadDatesByProjectTags);
 			ret.addAll(uniprotversions);
 			return ret;
 		} catch (Exception e) {
