@@ -34,7 +34,6 @@ public class FileManager {
 	private static final String PSEAQUANT = "psea_quant";
 	private static final String FASTAS = "fastas";
 	private static final String DEFAULT_VIEWS = "default-views";
-	private static final String UNIPROT_RELEASES_DATES_FILE_NAME = "uniprot_releases_dates.txt";
 	private static String projectFilesPath;
 	private static Map<Integer, List<FileWithFormat>> filesByImportProcessID = new HashMap<Integer, List<FileWithFormat>>();
 	private static Map<Integer, File> projectCfgFileByImportProcessID = new HashMap<Integer, File>();
@@ -446,18 +445,6 @@ public class FileManager {
 			e.printStackTrace();
 			log.error("Error deleting files for import process: " + jobID + "\t" + e.getMessage());
 		}
-
-	}
-
-	/**
-	 * Gets the file in which the uniprot releases dates will be stored
-	 *
-	 * @param projectFilesPath2
-	 * @return
-	 */
-	public static File getUniprotReleasesDatesFile() {
-		return new File(
-				getUniprotReleasesFolder().getAbsolutePath() + File.separator + UNIPROT_RELEASES_DATES_FILE_NAME);
 
 	}
 

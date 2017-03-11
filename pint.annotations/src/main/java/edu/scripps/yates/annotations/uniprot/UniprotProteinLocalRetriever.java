@@ -38,6 +38,8 @@ import edu.scripps.yates.utilities.fasta.FastaParser;
 
 public class UniprotProteinLocalRetriever {
 	private static final Logger log = Logger.getLogger(UniprotProteinLocalRetriever.class);
+	public static final String UNIPROT_RELEASES_DATES_FILE_NAME = "uniprot_releases_dates.txt";
+
 	private static String defaultUniprotVersion;
 	private final File uniprotReleasesFolder;
 	private Collection<String> missingAccessions = new HashSet<String>();
@@ -151,17 +153,26 @@ public class UniprotProteinLocalRetriever {
 		}
 	}
 
+	/**
+	 * Gets the file in which the uniprot releases dates will be stored
+	 *
+	 * @param projectFilesPath2
+	 * @return
+	 */
+	public File getUniprotReleasesDatesFile() {
+		return new File(uniprotReleasesFolder.getAbsolutePath() + File.separator + UNIPROT_RELEASES_DATES_FILE_NAME);
+
+	}
+
 	public Set<String> getUniprotVersionsForProjects(Map<String, Date> uploadedDateByProjectTags) {
 		Set<String> ret = new HashSet<String>();
 		if (uniprotReleasesFolder != null) {
-			final String uniprotReleasesPath = uniprotReleasesFolder.getAbsolutePath();
-			File uniprotReleasesFile = new File(uniprotReleasesPath + File.separator + "uniprot_releases_dates.txt");
+			File uniprotReleasesFile = getUniprotReleasesDatesFile();
 			if (uniprotReleasesFile.exists()) {
 				Map<Object, Object> mapLines;
 				try {
-					mapLines = Files.lines(Paths.get(uniprotReleasesPath, "uniprot_releases_dates.txt"))
-							.collect(Collectors.toMap(line -> line.toString().split("\t")[1],
-									line -> line.toString().split("\t")[0]));
+					mapLines = Files.lines(Paths.get(uniprotReleasesFile.toURI())).collect(Collectors
+							.toMap(line -> line.toString().split("\t")[1], line -> line.toString().split("\t")[0]));
 
 					for (String projectTag : uploadedDateByProjectTags.keySet()) {
 						Date uploadDate = uploadedDateByProjectTags.get(projectTag);
