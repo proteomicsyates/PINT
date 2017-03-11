@@ -15,6 +15,7 @@ import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
 import edu.scripps.yates.server.daemon.tasks.PreLoadPublicProjects;
 import edu.scripps.yates.shared.util.SharedConstants;
+import edu.scripps.yates.utilities.env.EnvironmentalVariables;
 
 public class PintServerDaemon implements ServletContextListener {
 	private static final Logger log = Logger.getLogger(PintServerDaemon.class);
@@ -42,7 +43,7 @@ public class PintServerDaemon implements ServletContextListener {
 		log.info("Starting PintServerDaemon...");
 		final ServletContext servletContext = sce.getServletContext();
 
-		if (SharedConstants.DAEMON_TASKS_ENABLED) {
+		if (SharedConstants.DAEMON_TASKS_ENABLED && !isTestServer()) {
 			// /////////////////////////////////////////////////
 			// REGISTER MAINTENANCE TASKS HERE
 			// pintServerDaemonTasks.add(new
@@ -100,6 +101,11 @@ public class PintServerDaemon implements ServletContextListener {
 		// };
 		// th.setDaemon(true);
 		// th.start();
+	}
+
+	private boolean isTestServer() {
+		final boolean isTestServer = "true".equals(EnvironmentalVariables.getEnvironmentalVariableValue("SERVER_TEST"));
+		return isTestServer;
 	}
 
 	@Override
