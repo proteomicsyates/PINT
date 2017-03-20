@@ -32,8 +32,8 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	 */
 	private static final long serialVersionUID = -1435542806814270031L;
 	private Set<Integer> dbIds = new HashSet<Integer>();
-	private  List<PSMBean> psms = new ArrayList<PSMBean>();
-	private  List<PeptideBean> peptides = new ArrayList<PeptideBean>();
+	private List<PSMBean> psms = new ArrayList<PSMBean>();
+	private List<PeptideBean> peptides = new ArrayList<PeptideBean>();
 
 	private Set<AccessionBean> secondaryAccessions = new HashSet<AccessionBean>();
 
@@ -241,7 +241,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	 *            the psms to set
 	 */
 	public void setPsms(List<PSMBean> psms) {
-		 this.psms = psms;
+		this.psms = psms;
 	}
 
 	/**
@@ -661,7 +661,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 				overrideAcc = false;
 			}
 		}
-		if (overrideAcc) {
+		if (overrideAcc && primaryAccession != null) {
 			this.primaryAccession = primaryAccession;
 			// check whether there are one secondary accession equal to the
 			// primary, and in that case, remove it
@@ -1111,13 +1111,13 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 					}
 				}
 			}
-			 if (psms != null) {
-			 for (PSMBean psmBean : psms) {
-			 if (psmBean.isFromThisProject(projectTag)) {
-			 return true;
-			 }
-			 }
-			 }
+			if (psms != null) {
+				for (PSMBean psmBean : psms) {
+					if (psmBean.isFromThisProject(projectTag)) {
+						return true;
+					}
+				}
+			}
 		}
 		return false;
 	}
@@ -1203,12 +1203,11 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 			// allow peptides in proteins.
 			// IMPORTANT: do it after cloning all the other features of the
 			// protein
-			 for (PeptideBean peptideBean : getPeptides()) {
-			 final PeptideBean lightPeptide =
-			 peptideBean.cloneToLightPeptideBean();
-			 lightVersion.addPeptideToProtein(lightPeptide);
-			 }
-			 lightVersion.getPSMDBIds().addAll(getPSMDBIds());
+			for (PeptideBean peptideBean : getPeptides()) {
+				final PeptideBean lightPeptide = peptideBean.cloneToLightPeptideBean();
+				lightVersion.addPeptideToProtein(lightPeptide);
+			}
+			lightVersion.getPSMDBIds().addAll(getPSMDBIds());
 			lightVersion.getPeptideDBIds().addAll(getPeptideDBIds());
 			lightVersion.coverageArrayString = coverageArrayString;
 			lightVersion.ratioDistributions = getRatioDistributions();
@@ -1302,16 +1301,17 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 		return sortedIds;
 	}
 
-	 /**
+	/**
 	 * @param peptides
-	 * the peptides to set
+	 *            the peptides to set
 	 */
-	 public void setPeptides(List<PeptideBean> peptides) {
-	 this.peptides = peptides;
-	 }
+	public void setPeptides(List<PeptideBean> peptides) {
+		this.peptides = peptides;
+	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
