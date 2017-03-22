@@ -114,9 +114,13 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 
 	private Label getEscapedString(String string) {
 		if (string != null) {
-			return new Label(string);
+			Label label = new Label(string);
+			label.setStyleName("no-wrap");
+			return label;
 		} else {
-			return new Label("Not available");
+			Label label = new Label("Not available");
+			label.setStyleName("no-wrap");
+			return label;
 		}
 	}
 
@@ -125,6 +129,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			DateLabel label = new DateLabel(
 					com.google.gwt.i18n.client.DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG));
 			label.setValue(date);
+			label.setStyleName("no-wrap");
 			return label;
 		} else {
 			return getEscapedString(null);
@@ -133,9 +138,13 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 
 	private Label getProjectStatus(ProjectBean projectBean) {
 		if (projectBean.isPublicAvailable()) {
-			return new Label("Public");
+			Label label = new Label("Public");
+			label.setStyleName("no-wrap");
+			return label;
 		} else {
-			return new Label("This project is private");
+			Label label = new Label("This project is private");
+			label.setStyleName("no-wrap");
+			return label;
 		}
 	}
 
@@ -155,6 +164,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumGenes(result);
 				Label numGenesLabel = new Label(format.format(result));
+				numGenesLabel.setStyleName("no-wrap");
 				if (projectBean.equals(selectedItem.getT())) {
 					rightPanel.setWidget(rowGenes, 1, numGenesLabel);
 				}
@@ -181,6 +191,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumPSMs(result);
 				Label numPSMsLabel = new Label(format.format(result));
+				numPSMsLabel.setStyleName("no-wrap");
 				if (projectBean.equals(selectedItem.getT())) {
 					rightPanel.setWidget(rowPSMs, 1, numPSMsLabel);
 				}
@@ -206,6 +217,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumPeptides(result);
 				Label numPeptidesLabel = new Label(format.format(result));
+				numPeptidesLabel.setStyleName("no-wrap");
 				if (projectBean.equals(selectedItem.getT())) {
 					rightPanel.setWidget(rowPeptides, 1, numPeptidesLabel);
 				}
@@ -232,6 +244,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumProteins(result);
 				Label numProteinsLabel = new Label(format.format(result));
+				numProteinsLabel.setStyleName("no-wrap");
 				if (projectBean.equals(selectedItem.getT())) {
 					rightPanel.setWidget(rowProteins, 1, numProteinsLabel);
 				}
@@ -258,6 +271,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			public void onSuccess(Set<String> result) {
 				projectStatsMap.get(projectBean).setNumMSRuns(result.size());
 				Label numMSRunsLabel = new Label(format.format(result.size()));
+				numMSRunsLabel.setStyleName("no-wrap");
 				if (projectBean.equals(selectedItem.getT())) {
 					rightPanel.setWidget(rowMSRuns, 1, numMSRunsLabel);
 				}
