@@ -37,6 +37,7 @@ public class ProjectStatsFromConditionItemPanel extends AbstractProjectStatsItem
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(conditionBean).setNumGenes(result);
 						Label numGenesLabel = new Label(format.format(result));
+						numGenesLabel.setStyleName("no-wrap");
 						if (conditionBean.equals(selectedItem.getT())) {
 							rightPanel.setWidget(rowGenes, 1, numGenesLabel);
 						}
@@ -64,6 +65,7 @@ public class ProjectStatsFromConditionItemPanel extends AbstractProjectStatsItem
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(conditionBean).setNumPSMs(result);
 						Label numPSMsLabel = new Label(format.format(result));
+						numPSMsLabel.setStyleName("no-wrap");
 						if (conditionBean.equals(selectedItem.getT())) {
 							rightPanel.setWidget(rowPSMs, 1, numPSMsLabel);
 						}
@@ -90,6 +92,7 @@ public class ProjectStatsFromConditionItemPanel extends AbstractProjectStatsItem
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(conditionBean).setNumPeptides(result);
 						Label numPeptidesLabel = new Label(format.format(result));
+						numPeptidesLabel.setStyleName("no-wrap");
 						if (conditionBean.equals(selectedItem.getT())) {
 							rightPanel.setWidget(rowPeptides, 1, numPeptidesLabel);
 						}
@@ -117,6 +120,7 @@ public class ProjectStatsFromConditionItemPanel extends AbstractProjectStatsItem
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(conditionBean).setNumProteins(result);
 						Label numProteinsLabel = new Label(format.format(result));
+						numProteinsLabel.setStyleName("no-wrap");
 						if (conditionBean.equals(selectedItem.getT())) {
 							rightPanel.setWidget(rowProteins, 1, numProteinsLabel);
 						}
@@ -144,6 +148,7 @@ public class ProjectStatsFromConditionItemPanel extends AbstractProjectStatsItem
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(conditionBean).setNumMSRuns(result);
 						Label numMSRunsLabel = new Label(format.format(result));
+						numMSRunsLabel.setStyleName("no-wrap");
 						if (conditionBean.equals(selectedItem.getT())) {
 							rightPanel.setWidget(rowMSRuns, 1, numMSRunsLabel);
 						}
