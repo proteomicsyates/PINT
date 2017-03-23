@@ -112,7 +112,13 @@ public class ProteinImplFromDTASelect implements Protein {
 	}
 
 	private void createAmounts() {
-		for (Condition condition : getConditions()) {
+		Set<Condition> conditions = new HashSet<Condition>();
+		conditions.addAll(getConditions());
+		if (conditions.isEmpty()) {
+			// I just need one element, I dont care if it is null
+			conditions.add(null);
+		}
+		for (Condition condition : conditions) {
 			if (this.getNSAF() != null) {
 				Amount amount = new AmountEx(getNSAF(), AmountType.NSAF, condition);
 				this.amounts.add(amount);
