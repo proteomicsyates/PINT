@@ -38,6 +38,7 @@ public class ProteinDTASelectParser {
 	boolean dtaselect;
 	private HashMap<String, Set<Protein>> proteins;
 	private Map<String, PSM> psms;
+	private boolean separateByFractionationStep;
 
 	public ProteinDTASelectParser(URL u) throws IOException {
 		this(FilenameUtils.getBaseName(u.getFile()), u.openStream());
@@ -80,9 +81,14 @@ public class ProteinDTASelectParser {
 					final List<DTASelectPSM> psMs2 = dtaSelectProtein.getPSMs();
 					// take the MSRuns from psms
 					Set<String> msRunIDs = new HashSet<String>();
-					for (DTASelectPSM dtaPSM : psMs2) {
-						msRunIDs.add(dtaPSM.getRawFileName());
+					if (separateByFractionationStep) {
+						for (DTASelectPSM dtaPSM : psMs2) {
+							msRunIDs.add(dtaPSM.getRawFileName());
+						}
+					} else {
+						msRunIDs.add(getParser().getRunPath());
 					}
+
 					for (String msRunID : msRunIDs) {
 						Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msRunID);
 						if (StaticProteomicsModelStorage.containsProtein(msRunID, null, protein.getAccession())) {
@@ -211,4 +217,19 @@ public class ProteinDTASelectParser {
 		return psms;
 	}
 
+	/**
+	 * Whether to create a separate object (Proteins, Peptides and Psms) per
+	 * fractionation step (b=TRUE) or just an object per experiment (per input
+	 * file).<br>
+	 * By default, it will be TRUE
+	 * 
+	 * @param b
+	 */
+	public void setSeparateByFractionationStep(boolean b) {
+		this.separateByFractionationStep = b;
+	}
+
+	public boolean getSeparateByFractionationStep() {
+		return this.separateByFractionationStep;
+	}
 }
