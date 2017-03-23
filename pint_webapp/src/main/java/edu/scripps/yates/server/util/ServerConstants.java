@@ -3,7 +3,7 @@ package edu.scripps.yates.server.util;
 public class ServerConstants {
 	public static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
 
-	public static final String PROJECT_XML_CFG = "import_schema_0.6.xsd";
+	public static final String PROJECT_XML_CFG = "import_schema_0.7.xsd";
 
 	/**
 	 * Constants for reading default view file
