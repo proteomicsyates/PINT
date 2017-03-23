@@ -143,7 +143,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 			final Collection<DTASelectProtein> dtaSelectProteins = dtaSelectFilterParser.getDTASelectProteins()
 					.values();
 			for (DTASelectProtein dtaSelectProtein : dtaSelectProteins) {
-				Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun);
+				Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun, false);
 				if (protein.getOrganism() == null) {
 					((ProteinImplFromDTASelect) protein).setOrganism(getOrganismFromConfFile());
 				}

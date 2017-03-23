@@ -67,11 +67,12 @@ public class ProteinImplFromDTASelect implements Protein {
 	private boolean genesParsed = false;
 	private final List<Accession> secondaryAccessions = new ArrayList<Accession>();
 	private boolean peptidesParsed;
-	private final boolean forceAllPSMsToBeFromThisMSRun;
+	private boolean forceAllPSMsToBeFromThisMSRun;
 	private static int max = 0;
 	private final static Map<String, MSRun> msRunMap = new HashMap<String, MSRun>();
 
-	public ProteinImplFromDTASelect(DTASelectProtein dtaSelectProtein, String msRunID) {
+	public ProteinImplFromDTASelect(DTASelectProtein dtaSelectProtein, String msRunID,
+			boolean forceAllPSMsToBeFromThisMSRun) {
 		this.dtaSelectProtein = dtaSelectProtein;
 		if (dtaSelectProtein.getLength() != null)
 			length = dtaSelectProtein.getLength();
@@ -83,7 +84,7 @@ public class ProteinImplFromDTASelect implements Protein {
 		} else {
 			msrun = msRunMap.get(msRunID);
 		}
-		forceAllPSMsToBeFromThisMSRun = false;
+		this.forceAllPSMsToBeFromThisMSRun = forceAllPSMsToBeFromThisMSRun;
 
 		final int length2 = getPrimaryAccession().getAccession().length();
 		if (length2 > max) {
@@ -93,7 +94,8 @@ public class ProteinImplFromDTASelect implements Protein {
 		createAmounts();
 	}
 
-	public ProteinImplFromDTASelect(DTASelectProtein dtaSelectProtein2, MSRun msrun2) {
+	public ProteinImplFromDTASelect(DTASelectProtein dtaSelectProtein2, MSRun msrun2,
+			boolean forceAllPSMsToBeFromThisMSRun) {
 		dtaSelectProtein = dtaSelectProtein2;
 		if (dtaSelectProtein.getLength() != null)
 			length = dtaSelectProtein.getLength();
@@ -102,7 +104,7 @@ public class ProteinImplFromDTASelect implements Protein {
 
 		msrun = msrun2;
 		msRunMap.put(msrun.getRunId(), msrun);
-		forceAllPSMsToBeFromThisMSRun = true;
+		this.forceAllPSMsToBeFromThisMSRun = forceAllPSMsToBeFromThisMSRun;
 		final int length2 = getPrimaryAccession().getAccession().length();
 		if (length2 > max) {
 			log.info(getPrimaryAccession().getAccession() + " length=" + length2);
@@ -245,9 +247,9 @@ public class ProteinImplFromDTASelect implements Protein {
 				if (forceAllPSMsToBeFromThisMSRun) {
 					dtaSelectPSM.setMsRunId(getMSRun().getRunId());
 				}
-				// only assign the ones from the same msRun, that is, fileName
-				// otherwise, we are going to assign psms to a protein belonging
-				// to another MSRun
+				// only assign the ones from the same msRun, that is, raw
+				// fileName otherwise, we are going to assign psms to a protein
+				// belonging to another MSRun
 				if (dtaSelectPSM.getMsRunId().equals(msrun.getRunId())) {
 					PSM psm = null;
 					// if
@@ -522,5 +524,9 @@ public class ProteinImplFromDTASelect implements Protein {
 	@Override
 	public String toString() {
 		return getPrimaryAccession().getAccession() + " in MSRun " + getMSRun().getRunId();
+	}
+
+	public void setForceAllPSMsToBeFromThisMSRun(boolean forceAllPSMsToBeFromThisMSRun) {
+		this.forceAllPSMsToBeFromThisMSRun = forceAllPSMsToBeFromThisMSRun;
 	}
 }
