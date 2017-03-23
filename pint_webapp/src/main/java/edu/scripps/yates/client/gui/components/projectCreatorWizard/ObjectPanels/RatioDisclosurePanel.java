@@ -32,7 +32,7 @@ public class RatioDisclosurePanel extends ClosableWithTitlePanel implements Refe
 		// condition 1 ref
 		Label condition1RefLabel = new Label("Condition 1 (numerator):");
 		addWidget(condition1RefLabel);
-		numeratorConditionRefCombo = new ListBox(false);
+		numeratorConditionRefCombo = new ListBox();
 		numeratorConditionRefCombo.setVisibleItemCount(1);
 		numeratorConditionRefCombo.addChangeHandler(new ChangeHandler() {
 			@Override
@@ -45,7 +45,7 @@ public class RatioDisclosurePanel extends ClosableWithTitlePanel implements Refe
 		// condition 2 ref
 		Label condition2RefLabel = new Label("Condition 2 (denominator):");
 		addWidget(condition2RefLabel);
-		denominatorRefCombo = new ListBox(false);
+		denominatorRefCombo = new ListBox();
 		denominatorRefCombo.setVisibleItemCount(1);
 		denominatorRefCombo.addChangeHandler(new ChangeHandler() {
 			@Override
@@ -110,13 +110,13 @@ public class RatioDisclosurePanel extends ClosableWithTitlePanel implements Refe
 		return ratioDescriptorBean;
 	}
 
-	public ExcelAmountRatioTypeBean getExcelAmountRatioTypeBean() {
-		return excelAmountRatioTypeBean;
-	}
-
-	public RemoteFilesRatioTypeBean getRemoteFilesRatioTypeBean() {
-		return remoteFilesRatioTypeBean;
-	}
+	// public ExcelAmountRatioTypeBean getExcelAmountRatioTypeBean() {
+	// return excelAmountRatioTypeBean;
+	// }
+	//
+	// public RemoteFilesRatioTypeBean getRemoteFilesRatioTypeBean() {
+	// return remoteFilesRatioTypeBean;
+	// }
 
 	@Override
 	public void updateGUIFromObjectData(HasId object) {

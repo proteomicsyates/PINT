@@ -291,6 +291,24 @@ public class RemoteFileReader {
 									labelM = label2;
 								}
 							}
+							if (labelL == null) {
+								throw new IllegalArgumentException(
+										"Label LIGHT is not defined in a triple label experiment (reading file '"
+												+ fileID
+												+ "')\nEither you have to define the label LIGHT or you have to define LIGHT/MEDIUM and LIGHT/HEAVY ratios");
+							}
+							if (labelM == null) {
+								throw new IllegalArgumentException(
+										"Label MEDIUM is not defined in a triple label experiment (reading file '"
+												+ fileID
+												+ "')\nEither you have to define the label MEDIUM or you have to define LIGHT/MEDIUM and MEDIUM/HEAVY ratios");
+							}
+							if (labelH == null) {
+								throw new IllegalArgumentException(
+										"Label HEAVY is not defined in a triple label experiment (reading file '"
+												+ fileID
+												+ "')\nEither you have to define the label HEAVY or you have to define LIGHT/HEAVY and MEDIUM/HEAVY ratios");
+							}
 							parser.addFile(file, labelsByConditionsByFileID.get(fileID), labelL, labelM, labelH);
 						}
 					}

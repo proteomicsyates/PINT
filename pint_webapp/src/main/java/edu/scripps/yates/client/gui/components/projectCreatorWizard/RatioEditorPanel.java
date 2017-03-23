@@ -1,5 +1,9 @@
 package edu.scripps.yates.client.gui.components.projectCreatorWizard;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -43,11 +47,13 @@ public class RatioEditorPanel extends Composite implements ReferencesDataObject,
 	private final ExcelAmountRatioTypeBean excelRatioBean;
 	private String sessionID;
 	private final int referencedDisclosurePanelID;
-	private SharedAggregationLevel aggregationLevel;
+	private Set<SharedAggregationLevel> aggregationLevels = new HashSet<SharedAggregationLevel>();
 
 	public RatioEditorPanel(String sessionID, int importJobID, RatioDescriptorTypeBean ratioDescriptorTypeBean,
-			int referencedRatioDisclosurePanelID, SharedAggregationLevel aggregationLevel) {
-		this.aggregationLevel = aggregationLevel;
+			int referencedRatioDisclosurePanelID, Collection<SharedAggregationLevel> aggregationLevels) {
+		if (aggregationLevels != null) {
+			this.aggregationLevels.addAll(aggregationLevels);
+		}
 		this.sessionID = sessionID;
 		this.importJobID = importJobID;
 		initRatioEditorPanel();
@@ -64,8 +70,10 @@ public class RatioEditorPanel extends Composite implements ReferencesDataObject,
 	 */
 	public RatioEditorPanel(int importJobID, RemoteFilesRatioTypeBean remoteFilesRatioBean,
 			RatioDescriptorTypeBean ratioDescriptorTypeBean, int referencedRatioDisclosurePanelID,
-			SharedAggregationLevel aggregationLevel) {
-		this.aggregationLevel = aggregationLevel;
+			Collection<SharedAggregationLevel> aggregationLevels) {
+		if (aggregationLevels != null) {
+			this.aggregationLevels.addAll(aggregationLevels);
+		}
 		this.importJobID = importJobID;
 		referencedDisclosurePanelID = referencedRatioDisclosurePanelID;
 		this.ratioDescriptorTypeBean = ratioDescriptorTypeBean;
@@ -76,14 +84,14 @@ public class RatioEditorPanel extends Composite implements ReferencesDataObject,
 		if (remoteFilesRatioBean.getFileRef() != null) {
 			// select remote file in combo
 			ProjectCreatorWizardUtil.selectInCombo(remoteDataSourceListBox, remoteFilesRatioBean.getFileRef());
-			remoteDataSourceSelected(aggregationLevel);
+			remoteDataSourceSelected(aggregationLevels);
 			if (ratioInfoRemoteFilePanel == null) {
 				ratioInfoRemoteFilePanel = new RatioFromRemoteFilePanel(sessionID, importJobID,
 						ratioDescriptorTypeBean);
 			}
 			ratioInfoRemoteFilePanel.updateGUIFromObjectData(remoteFilesRatioBean);
-			if (aggregationLevel != null) {
-				ratioInfoRemoteFilePanel.setAggregationLevel(aggregationLevel);
+			if (aggregationLevels != null) {
+				ratioInfoRemoteFilePanel.setAggregationLevels(aggregationLevels);
 			}
 		}
 		// register as a listener of that ratio
@@ -94,7 +102,9 @@ public class RatioEditorPanel extends Composite implements ReferencesDataObject,
 	public RatioEditorPanel(int importJobID, ExcelAmountRatioTypeBean excelRatioBean,
 			SharedAggregationLevel aggregationLevel, RatioDescriptorTypeBean ratioDescriptorTypeBean,
 			int referencedRatioDisclosurePanelID) {
-		this.aggregationLevel = aggregationLevel;
+		if (aggregationLevels != null) {
+			aggregationLevels.addAll(aggregationLevels);
+		}
 		this.importJobID = importJobID;
 		referencedDisclosurePanelID = referencedRatioDisclosurePanelID;
 		this.ratioDescriptorTypeBean = ratioDescriptorTypeBean;
@@ -202,8 +212,9 @@ public class RatioEditorPanel extends Composite implements ReferencesDataObject,
 
 			@Override
 			public void onChange(ChangeEvent event) {
-				SharedAggregationLevel aggregationLevel = null; // unknown yet
-				remoteDataSourceSelected(aggregationLevel);
+				Set<SharedAggregationLevel> aggregationLevels = new HashSet<SharedAggregationLevel>(); // unknown
+																										// yet
+				remoteDataSourceSelected(aggregationLevels);
 			}
 		});
 	}
@@ -246,7 +257,7 @@ public class RatioEditorPanel extends Composite implements ReferencesDataObject,
 
 	}
 
-	private void remoteDataSourceSelected(SharedAggregationLevel aggregationLevel) {
+	private void remoteDataSourceSelected(Collection<SharedAggregationLevel> aggregationLevels) {
 		if (ratioInfoRemoteFilePanel != null)
 			ratioInfoRemoteFilePanel.resetData();
 
@@ -268,8 +279,8 @@ public class RatioEditorPanel extends Composite implements ReferencesDataObject,
 						ratioInfoRemoteFilePanel = new RatioFromRemoteFilePanel(sessionID, importJobID,
 								ratioDescriptorTypeBean);
 					}
-					if (aggregationLevel != null) {
-						ratioInfoRemoteFilePanel.setAggregationLevel(aggregationLevel);
+					if (aggregationLevels != null) {
+						ratioInfoRemoteFilePanel.setAggregationLevels(aggregationLevels);
 					}
 					// if (
 					ratioInfoRemoteFilePanel.setRemoteFileBean(fileBean);// )
@@ -406,7 +417,7 @@ public class RatioEditorPanel extends Composite implements ReferencesDataObject,
 				String condition1ID = null;
 				String condition2ID = null;
 				String id = null;
-				final RemoteFilesRatioTypeBean remoteFileInfoBean = ratioInfoRemoteFilePanel.getObject();
+				final RemoteFilesRatioTypeBean remoteFileRatioInfoBean = ratioInfoRemoteFilePanel.getObject();
 				if (ratioDescriptorTypeBean != null) {
 					if (ratioDescriptorTypeBean.getCondition1() != null) {
 						condition1ID = ratioDescriptorTypeBean.getCondition1().getId();
@@ -427,10 +438,11 @@ public class RatioEditorPanel extends Composite implements ReferencesDataObject,
 					id = excelRatioBean.getId();
 				}
 
-				remoteFileInfoBean.setNumerator(condition1ID);
-				remoteFileInfoBean.setDenominator(condition2ID);
-				remoteFileInfoBean.setId(id);
-				return remoteFileInfoBean;
+				remoteFileRatioInfoBean.setNumerator(condition1ID);
+				remoteFileRatioInfoBean.setDenominator(condition2ID);
+				remoteFileRatioInfoBean.setId(id);
+
+				return remoteFileRatioInfoBean;
 			}
 		}
 		return null;
@@ -502,14 +514,15 @@ public class RatioEditorPanel extends Composite implements ReferencesDataObject,
 	/**
 	 * @return the aggregationLevel
 	 */
-	public SharedAggregationLevel getAggregationLevel() {
+	public Set<SharedAggregationLevel> getAggregationLevels() {
 		if (ratioInfoRemoteFilePanel != null) {
-			aggregationLevel = ratioInfoRemoteFilePanel.getSelectedAggregationLevel();
+			aggregationLevels = ratioInfoRemoteFilePanel.getSelectedAggregationLevels();
 		}
 		if (ratioInfoExcelPanel != null) {
-			aggregationLevel = ratioInfoExcelPanel.getAggregationLevel();
+			aggregationLevels.clear();
+			aggregationLevels.add(ratioInfoExcelPanel.getAggregationLevel());
 		}
-		return aggregationLevel;
+		return aggregationLevels;
 	}
 
 }

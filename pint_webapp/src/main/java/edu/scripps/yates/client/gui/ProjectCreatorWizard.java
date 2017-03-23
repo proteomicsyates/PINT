@@ -1,8 +1,13 @@
 package edu.scripps.yates.client.gui;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
@@ -543,28 +548,12 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 					SharedAggregationLevel.PSM);
 			disclosurePanel.updateGUIFromObjectData(excelRatioTypeBean);
 		}
-
-		// psm remote file ratios
-		final List<RemoteFilesRatioTypeBean> psmRemoteFileRatios = projectConfigurationPanel.getPSMRemoteFileRatios();
-		for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean : psmRemoteFileRatios) {
-			RatioDisclosurePanel disclosurePanel = createNewRatioDisclosurePanel(remoteFilesRatioTypeBean,
-					SharedAggregationLevel.PSM);
-			disclosurePanel.updateGUIFromObjectData(remoteFilesRatioTypeBean);
-		}
 		// peptide excel ratios
 		final List<ExcelAmountRatioTypeBean> peptideExcelRatios = projectConfigurationPanel.getPeptideExcelRatios();
 		for (ExcelAmountRatioTypeBean excelRatioTypeBean : peptideExcelRatios) {
 			RatioDisclosurePanel disclosurePanel = createNewRatioDisclosurePanel(excelRatioTypeBean,
 					SharedAggregationLevel.PEPTIDE);
 			disclosurePanel.updateGUIFromObjectData(excelRatioTypeBean);
-		}
-		// peptide remote file ratios
-		final List<RemoteFilesRatioTypeBean> peptideRemoteFileRatios = projectConfigurationPanel
-				.getPeptideRemoteFileRatios();
-		for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean : peptideRemoteFileRatios) {
-			RatioDisclosurePanel disclosurePanel = createNewRatioDisclosurePanel(remoteFilesRatioTypeBean,
-					SharedAggregationLevel.PEPTIDE);
-			disclosurePanel.updateGUIFromObjectData(remoteFilesRatioTypeBean);
 		}
 		// protein excel ratios
 		final List<ExcelAmountRatioTypeBean> proteinExcelRatios = projectConfigurationPanel.getProteinExcelRatios();
@@ -573,14 +562,69 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 					SharedAggregationLevel.PROTEIN);
 			disclosurePanel.updateGUIFromObjectData(excelRatioTypeBean);
 		}
-		// psm remote file ratios
+
+		// if the remote file ratios are equal between them, do not create a new
+		// ratio disclusure panel for each, just add a new aggregation level
+		Map<RemoteFilesRatioTypeBean, Set<SharedAggregationLevel>> remoteFilesRatioTypeBeanMap = new HashMap<RemoteFilesRatioTypeBean, Set<SharedAggregationLevel>>();
+		final List<RemoteFilesRatioTypeBean> psmRemoteFileRatios = projectConfigurationPanel.getPSMRemoteFileRatios();
+		for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean : psmRemoteFileRatios) {
+			if (remoteFilesRatioTypeBeanMap.containsKey(remoteFilesRatioTypeBean)) {
+				remoteFilesRatioTypeBeanMap.get(remoteFilesRatioTypeBean).add(SharedAggregationLevel.PSM);
+			}
+		}
+		final List<RemoteFilesRatioTypeBean> peptideRemoteFileRatios = projectConfigurationPanel
+				.getPeptideRemoteFileRatios();
+		for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean : peptideRemoteFileRatios) {
+			if (remoteFilesRatioTypeBeanMap.containsKey(remoteFilesRatioTypeBean)) {
+				remoteFilesRatioTypeBeanMap.get(remoteFilesRatioTypeBean).add(SharedAggregationLevel.PEPTIDE);
+			}
+		}
 		final List<RemoteFilesRatioTypeBean> proteinRemoteFileRatios = projectConfigurationPanel
 				.getProteinRemoteFileRatios();
 		for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean : proteinRemoteFileRatios) {
+			if (remoteFilesRatioTypeBeanMap.containsKey(remoteFilesRatioTypeBean)) {
+				remoteFilesRatioTypeBeanMap.get(remoteFilesRatioTypeBean).add(SharedAggregationLevel.PROTEIN);
+			}
+		}
+		for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean : remoteFilesRatioTypeBeanMap.keySet()) {
 			RatioDisclosurePanel disclosurePanel = createNewRatioDisclosurePanel(remoteFilesRatioTypeBean,
-					SharedAggregationLevel.PROTEIN);
+					remoteFilesRatioTypeBeanMap.get(remoteFilesRatioTypeBean));
 			disclosurePanel.updateGUIFromObjectData(remoteFilesRatioTypeBean);
 		}
+		// // psm remote file ratios
+		// final List<RemoteFilesRatioTypeBean> psmRemoteFileRatios =
+		// projectConfigurationPanel.getPSMRemoteFileRatios();
+		// for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean :
+		// psmRemoteFileRatios) {
+		// RatioDisclosurePanel disclosurePanel =
+		// createNewRatioDisclosurePanel(remoteFilesRatioTypeBean,
+		// SharedAggregationLevel.PSM);
+		// disclosurePanel.updateGUIFromObjectData(remoteFilesRatioTypeBean);
+		// }
+		//
+		// // peptide remote file ratios
+		// final List<RemoteFilesRatioTypeBean> peptideRemoteFileRatios =
+		// projectConfigurationPanel
+		// .getPeptideRemoteFileRatios();
+		// for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean :
+		// peptideRemoteFileRatios) {
+		// RatioDisclosurePanel disclosurePanel =
+		// createNewRatioDisclosurePanel(remoteFilesRatioTypeBean,
+		// SharedAggregationLevel.PEPTIDE);
+		// disclosurePanel.updateGUIFromObjectData(remoteFilesRatioTypeBean);
+		// }
+		//
+		// // protein remote file ratios
+		// final List<RemoteFilesRatioTypeBean> proteinRemoteFileRatios =
+		// projectConfigurationPanel
+		// .getProteinRemoteFileRatios();
+		// for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean :
+		// proteinRemoteFileRatios) {
+		// RatioDisclosurePanel disclosurePanel =
+		// createNewRatioDisclosurePanel(remoteFilesRatioTypeBean,
+		// SharedAggregationLevel.PROTEIN);
+		// disclosurePanel.updateGUIFromObjectData(remoteFilesRatioTypeBean);
+		// }
 		// iterate over the list of EditableDisclosurePanels to update their GUI
 		// that represents a data object
 		for (ClosableWithTitlePanel editableDisclosurePanel : disclosurePanels) {
@@ -662,8 +706,9 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 		projectConfigurationPanel.addHandlerAddRatio(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				SharedAggregationLevel aggregationLevel = null; // unknown yet
-				createNewRatioDisclosurePanel(aggregationLevel);
+				Set<SharedAggregationLevel> aggregationLevels = new HashSet<SharedAggregationLevel>(); // unknown
+																										// yet
+				createNewRatioDisclosurePanel(aggregationLevels);
 			}
 		});
 		// remove ratio
@@ -1021,7 +1066,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 	}
 
 	private RatioDisclosurePanel createNewRatioDisclosurePanel(RemoteFilesRatioTypeBean remoteFilesRatioTypeBean,
-			SharedAggregationLevel aggregationLevel) {
+			Collection<SharedAggregationLevel> aggregationLevels) {
 		final RatioDisclosurePanel ratioDisclosurePanel = new RatioDisclosurePanel(sessionID, importJobID);
 		final RatioDescriptorTypeBean ratioBean = ratioDisclosurePanel.getObject();
 		ratioDisclosurePanel.addCloseClickHandler(new ClickHandler() {
@@ -1040,11 +1085,11 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 		if (remoteFilesRatioTypeBean != null)
 			ratioDisclosurePanel.updateGUIFromObjectData(remoteFilesRatioTypeBean);
 
-		createNewRatioEditorPanel(remoteFilesRatioTypeBean, ratioDisclosurePanel, aggregationLevel);
+		createNewRatioEditorPanel(remoteFilesRatioTypeBean, ratioDisclosurePanel, aggregationLevels);
 		return ratioDisclosurePanel;
 	}
 
-	private RatioDisclosurePanel createNewRatioDisclosurePanel(SharedAggregationLevel aggregationLevel) {
+	private RatioDisclosurePanel createNewRatioDisclosurePanel(Collection<SharedAggregationLevel> aggregationLevels) {
 		final RatioDisclosurePanel ratioDisclosurePanel = new RatioDisclosurePanel(sessionID, importJobID);
 		final RatioDescriptorTypeBean ratioBean = ratioDisclosurePanel.getObject();
 		ratioDisclosurePanel.addCloseClickHandler(new ClickHandler() {
@@ -1061,7 +1106,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 		horizontalPanelRatios.addToHorizontalPanel(ratioDisclosurePanel);
 		ratioDisclosurePanel.updateGUIReferringToDataObjects();
 
-		createNewRatioEditorPanel(ratioBean, ratioDisclosurePanel, aggregationLevel);
+		createNewRatioEditorPanel(ratioBean, ratioDisclosurePanel, aggregationLevels);
 		return ratioDisclosurePanel;
 	}
 
@@ -1102,6 +1147,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 	private RatioEditorPanel createNewRatioEditorPanel(ExcelAmountRatioTypeBean excelRatioBean,
 			RatioDisclosurePanel ratioDisclosurePanel, SharedAggregationLevel aggregationLevel) {
 		// create a new editor ratio
+
 		final RatioEditorPanel ratioEditor = new RatioEditorPanel(importJobID, excelRatioBean, aggregationLevel,
 				ratioDisclosurePanel.getObject(), ratioDisclosurePanel.getInternalID());
 		ratioEditors.add(ratioEditor);
@@ -1119,10 +1165,10 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 	}
 
 	private RatioEditorPanel createNewRatioEditorPanel(RatioDescriptorTypeBean ratioDescriptorTypeBean,
-			RatioDisclosurePanel ratioDisclosurePanel, SharedAggregationLevel aggregationLevel) {
+			RatioDisclosurePanel ratioDisclosurePanel, Collection<SharedAggregationLevel> aggregationLevels) {
 		// create a new editor ratio
 		final RatioEditorPanel ratioEditor = new RatioEditorPanel(sessionID, importJobID, ratioDescriptorTypeBean,
-				ratioDisclosurePanel.getInternalID(), aggregationLevel);
+				ratioDisclosurePanel.getInternalID(), aggregationLevels);
 		ratioEditors.add(ratioEditor);
 
 		// add the ratio editor as a new tab
@@ -1138,10 +1184,10 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 	}
 
 	private RatioEditorPanel createNewRatioEditorPanel(RemoteFilesRatioTypeBean remoteFilesRatioBean,
-			RatioDisclosurePanel ratioDisclosurePanel, SharedAggregationLevel aggregationLevel) {
+			RatioDisclosurePanel ratioDisclosurePanel, Collection<SharedAggregationLevel> aggregationLevels) {
 		// create a new editor ratio
 		final RatioEditorPanel ratioEditor = new RatioEditorPanel(importJobID, remoteFilesRatioBean,
-				ratioDisclosurePanel.getObject(), ratioDisclosurePanel.getInternalID(), aggregationLevel);
+				ratioDisclosurePanel.getObject(), ratioDisclosurePanel.getInternalID(), aggregationLevels);
 		ratioEditors.add(ratioEditor);
 
 		// add the ratio editor as a new tab
@@ -1405,11 +1451,20 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 	private List<RemoteFilesRatioTypeBean> getPSMRemoteFilesRatios() {
 		List<RemoteFilesRatioTypeBean> ret = new ArrayList<RemoteFilesRatioTypeBean>();
 		for (RatioEditorPanel ratioEditorPanel : ratioEditors) {
-			if (ratioEditorPanel.getAggregationLevel() == SharedAggregationLevel.PSM) {
+			if (ratioEditorPanel.getAggregationLevels().isEmpty()) {
+				StatusReportersRegister.getInstance()
+						.notifyStatusReporters("Ratio definition is not complete for ratio '"
+								+ ratioEditorPanel.getTitle() + "' Define the aggregation level on the ratio tab.");
+			}
+			if (ratioEditorPanel.getAggregationLevels().contains(SharedAggregationLevel.PSM)) {
 				final RemoteFilesRatioTypeBean remoteFilesRatioTypeBean = ratioEditorPanel
 						.getRemoteFilesRatioTypeBean();
 				if (remoteFilesRatioTypeBean != null) {
 					ret.add(remoteFilesRatioTypeBean);
+				} else {
+					StatusReportersRegister.getInstance()
+							.notifyStatusReporters("Ratio definition is not complete for ratio '"
+									+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
 				}
 			}
 		}
@@ -1419,11 +1474,20 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 	private List<RemoteFilesRatioTypeBean> getPeptideRemoteFilesRatios() {
 		List<RemoteFilesRatioTypeBean> ret = new ArrayList<RemoteFilesRatioTypeBean>();
 		for (RatioEditorPanel ratioEditorPanel : ratioEditors) {
-			if (ratioEditorPanel.getAggregationLevel() == SharedAggregationLevel.PEPTIDE) {
+			if (ratioEditorPanel.getAggregationLevels().isEmpty()) {
+				StatusReportersRegister.getInstance()
+						.notifyStatusReporters("Ratio definition is not complete for ratio '"
+								+ ratioEditorPanel.getTitle() + "' Define the aggregation level on the ratio tab.");
+			}
+			if (ratioEditorPanel.getAggregationLevels().contains(SharedAggregationLevel.PEPTIDE)) {
 				final RemoteFilesRatioTypeBean remoteFilesRatioTypeBean = ratioEditorPanel
 						.getRemoteFilesRatioTypeBean();
 				if (remoteFilesRatioTypeBean != null) {
 					ret.add(remoteFilesRatioTypeBean);
+				} else {
+					StatusReportersRegister.getInstance()
+							.notifyStatusReporters("Ratio definition is not complete for ratio '"
+									+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
 				}
 			}
 		}
@@ -1433,11 +1497,20 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 	private List<RemoteFilesRatioTypeBean> getProteinRemoteFilesRatios() {
 		List<RemoteFilesRatioTypeBean> ret = new ArrayList<RemoteFilesRatioTypeBean>();
 		for (RatioEditorPanel ratioEditorPanel : ratioEditors) {
-			if (ratioEditorPanel.getAggregationLevel() == SharedAggregationLevel.PROTEIN) {
+			if (ratioEditorPanel.getAggregationLevels().isEmpty()) {
+				StatusReportersRegister.getInstance()
+						.notifyStatusReporters("Ratio definition is not complete for ratio '"
+								+ ratioEditorPanel.getTitle() + "' Define the aggregation level on the ratio tab.");
+			}
+			if (ratioEditorPanel.getAggregationLevels().contains(SharedAggregationLevel.PROTEIN)) {
 				final RemoteFilesRatioTypeBean remoteFilesRatioTypeBean = ratioEditorPanel
 						.getRemoteFilesRatioTypeBean();
 				if (remoteFilesRatioTypeBean != null) {
 					ret.add(remoteFilesRatioTypeBean);
+				} else {
+					StatusReportersRegister.getInstance()
+							.notifyStatusReporters("Ratio definition is not complete for ratio '"
+									+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
 				}
 			}
 		}
@@ -1450,6 +1523,10 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 			final ExcelAmountRatioTypeBean proteinExcelRatioTypeBean = ratioEditorPanel.getProteinExcelRatioTypeBean();
 			if (proteinExcelRatioTypeBean != null) {
 				ret.add(proteinExcelRatioTypeBean);
+			} else {
+				StatusReportersRegister.getInstance()
+						.notifyStatusReporters("Ratio definition is not complete for ratio '"
+								+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
 			}
 		}
 		return ret;
@@ -1461,6 +1538,10 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 			final ExcelAmountRatioTypeBean peptideExcelRatioTypeBean = ratioEditorPanel.getPeptideExcelRatioTypeBean();
 			if (peptideExcelRatioTypeBean != null) {
 				ret.add(peptideExcelRatioTypeBean);
+			} else {
+				StatusReportersRegister.getInstance()
+						.notifyStatusReporters("Ratio definition is not complete for ratio '"
+								+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
 			}
 		}
 		return ret;
@@ -1472,6 +1553,10 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 			final ExcelAmountRatioTypeBean psmExcelRatioTypeBean = ratioEditorPanel.getPSMExcelRatioTypeBean();
 			if (psmExcelRatioTypeBean != null) {
 				ret.add(psmExcelRatioTypeBean);
+			} else {
+				StatusReportersRegister.getInstance()
+						.notifyStatusReporters("Ratio definition is not complete for ratio '"
+								+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
 			}
 		}
 		return ret;

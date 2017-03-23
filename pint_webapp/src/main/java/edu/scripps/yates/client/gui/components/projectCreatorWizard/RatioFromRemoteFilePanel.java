@@ -1,7 +1,10 @@
 package edu.scripps.yates.client.gui.components.projectCreatorWizard;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -84,10 +87,17 @@ public class RatioFromRemoteFilePanel extends Composite
 		grid.setStyleName("verticalComponent");
 		grid.setCellSpacing(4);
 		grid.setSize("100%", "100%");
-		Label lblType = new Label("Quantitation ratios at level:");
+		Label lblType = new Label("Quantitation ratios at level(s):");
+		String tooltip = "You can select more than one level.<br>(It will depend on the input file type whether each ratio can be extracted or not)";
+		lblType.setTitle(tooltip);
 		grid.setWidget(0, 0, lblType);
 		comboBoxAggregationLevel = new ListBox();
+		comboBoxAggregationLevel.setMultipleSelect(true);
+		comboBoxAggregationLevel.setTitle(tooltip);
 		for (SharedAggregationLevel aggregationLevel : SharedAggregationLevel.values()) {
+			if (aggregationLevel == SharedAggregationLevel.PROTEINGROUP) {
+				continue;
+			}
 			comboBoxAggregationLevel.addItem(aggregationLevel.name(), aggregationLevel.name());
 		}
 		grid.setWidget(0, 1, comboBoxAggregationLevel);
@@ -409,12 +419,14 @@ public class RatioFromRemoteFilePanel extends Composite
 
 	}
 
-	public SharedAggregationLevel getSelectedAggregationLevel() {
-		if (comboBoxAggregationLevel.getSelectedIndex() >= 0) {
-			return SharedAggregationLevel
-					.valueOf(comboBoxAggregationLevel.getValue(comboBoxAggregationLevel.getSelectedIndex()));
+	public Set<SharedAggregationLevel> getSelectedAggregationLevels() {
+		Set<SharedAggregationLevel> ret = new HashSet<SharedAggregationLevel>();
+		for (int i = 0; i < comboBoxAggregationLevel.getItemCount(); i++) {
+			if (comboBoxAggregationLevel.isItemSelected(i)) {
+				ret.add(SharedAggregationLevel.valueOf(comboBoxAggregationLevel.getValue(i)));
+			}
 		}
-		return null;
+		return ret;
 	}
 
 	@Override
@@ -452,7 +464,10 @@ public class RatioFromRemoteFilePanel extends Composite
 
 	}
 
-	public void setAggregationLevel(SharedAggregationLevel aggregationLevel) {
-		ProjectCreatorWizardUtil.selectInComboByValue(comboBoxAggregationLevel, aggregationLevel.name());
+	public void setAggregationLevels(Collection<SharedAggregationLevel> aggregationLevels) {
+		for (SharedAggregationLevel sharedAggregationLevel : aggregationLevels) {
+			ProjectCreatorWizardUtil.selectInComboByValue(comboBoxAggregationLevel, sharedAggregationLevel.name());
+
+		}
 	}
 }
