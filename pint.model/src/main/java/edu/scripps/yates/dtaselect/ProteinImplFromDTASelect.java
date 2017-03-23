@@ -18,7 +18,9 @@ import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
+import edu.scripps.yates.utilities.model.enums.AmountType;
 import edu.scripps.yates.utilities.model.factories.AccessionEx;
+import edu.scripps.yates.utilities.model.factories.AmountEx;
 import edu.scripps.yates.utilities.model.factories.GeneEx;
 import edu.scripps.yates.utilities.model.factories.MSRunEx;
 import edu.scripps.yates.utilities.model.factories.OrganismEx;
@@ -88,7 +90,7 @@ public class ProteinImplFromDTASelect implements Protein {
 			log.debug(getPrimaryAccession().getAccession() + " length=" + length2);
 			max = length2;
 		}
-
+		createAmounts();
 	}
 
 	public ProteinImplFromDTASelect(DTASelectProtein dtaSelectProtein2, MSRun msrun2) {
@@ -105,6 +107,28 @@ public class ProteinImplFromDTASelect implements Protein {
 		if (length2 > max) {
 			log.info(getPrimaryAccession().getAccession() + " length=" + length2);
 			max = length2;
+		}
+		createAmounts();
+	}
+
+	private void createAmounts() {
+		for (Condition condition : getConditions()) {
+			if (this.getNSAF() != null) {
+				Amount amount = new AmountEx(getNSAF(), AmountType.NSAF, condition);
+				this.amounts.add(amount);
+			}
+			if (this.getNSAFNorm() >= 0) {
+				Amount amount = new AmountEx(getNSAFNorm(), AmountType.NSAF_NORM, condition);
+				this.amounts.add(amount);
+			}
+			if (this.getEMPai() != null) {
+				Amount amount = new AmountEx(getEMPai(), AmountType.EMPAI, condition);
+				this.amounts.add(amount);
+			}
+			if (this.getEMPaiCov() >= 0) {
+				Amount amount = new AmountEx(getEMPaiCov(), AmountType.EMPAI_COV, condition);
+				this.amounts.add(amount);
+			}
 		}
 	}
 
@@ -416,10 +440,9 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public void addAmount(Amount amount) {
-		if (!amounts.isEmpty())
-			System.out.println("SECOND AMOUNT");
-		if (!amounts.contains(amount))
+		if (!amounts.contains(amount)) {
 			amounts.add(amount);
+		}
 	}
 
 	@Override
