@@ -4,6 +4,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.PeptideRatiosType;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExcelAmountRatioTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.PeptideRatiosTypeBean;
+import edu.scripps.yates.shared.model.projectCreator.excel.RemoteFilesRatioTypeBean;
 
 public class PeptideRatiosTypeAdapter implements Adapter<PeptideRatiosType> {
 	private final PeptideRatiosTypeBean peptideAmountRatios;
@@ -21,16 +22,12 @@ public class PeptideRatiosTypeAdapter implements Adapter<PeptideRatiosType> {
 				ret.getExcelRatio().add(new ExcelAmountRatioTypeAdapter(excelAmountRatioTypeBean).adapt());
 			}
 		}
-		// TODO add remotefilesRatios to proteins
-		// if (proteinAmountRatios.getRemoteFilesRatio() != null) {
-		// for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean :
-		// proteinAmountRatios
-		// .getRemoteFilesRatio()) {
-		// ret.getRemoteFilesRatio().add(
-		// new RemoteFilesRatioTypeAdapter(
-		// remoteFilesRatioTypeBean).adapt());
-		// }
-		// }
+
+		if (peptideAmountRatios.getRemoteFilesRatio() != null) {
+			for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean : peptideAmountRatios.getRemoteFilesRatio()) {
+				ret.getRemoteFilesRatio().add(new RemoteFilesRatioTypeAdapter(remoteFilesRatioTypeBean).adapt());
+			}
+		}
 		return ret;
 	}
 
