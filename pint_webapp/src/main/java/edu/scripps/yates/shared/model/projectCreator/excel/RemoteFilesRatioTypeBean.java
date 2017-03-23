@@ -139,4 +139,74 @@ public class RemoteFilesRatioTypeBean extends HasId implements Serializable {
 	public void setId(String id) {
 		this.id = id;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return -1;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (object == null) {
+			return false;
+		}
+		if (object instanceof RemoteFilesRatioTypeBean) {
+			RemoteFilesRatioTypeBean remoteFileRatio2 = (RemoteFilesRatioTypeBean) object;
+
+			if (!areEquals(getMsRunRef(), remoteFileRatio2.getMsRunRef())) {
+				return false;
+			}
+			if (!areEquals(getFileRef(), remoteFileRatio2.getFileRef())) {
+				return false;
+			}
+			if (!areEquals(getId(), remoteFileRatio2.getId())) {
+				return false;
+			}
+			if (getNumerator() != null && remoteFileRatio2.getNumerator() == null) {
+				return false;
+			}
+			if (getNumerator() == null && remoteFileRatio2.getNumerator() != null) {
+				return false;
+			}
+			if (getNumerator() != null && remoteFileRatio2.getNumerator() != null) {
+				if (!areEquals(getNumerator(), remoteFileRatio2.getNumerator())) {
+					return false;
+				}
+			}
+			if (getDenominator() != null && remoteFileRatio2.getDenominator() == null) {
+				return false;
+			}
+			if (getDenominator() == null && remoteFileRatio2.getDenominator() != null) {
+				return false;
+			}
+			if (getDenominator() != null && remoteFileRatio2.getDenominator() != null) {
+				if (!areEquals(getDenominator(), remoteFileRatio2.getDenominator())) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+		return super.equals(object);
+	}
+
+	private boolean areEquals(String string1, String string2) {
+		if (string1 == null && string2 != null) {
+			return false;
+		}
+		if (string1 != null && string2 == null) {
+			return false;
+		}
+		if (string1 == null && string2 == null) {
+			return true;
+		}
+		if (!string1.equals(string2)) {
+			return false;
+		}
+		return true;
+	}
 }
