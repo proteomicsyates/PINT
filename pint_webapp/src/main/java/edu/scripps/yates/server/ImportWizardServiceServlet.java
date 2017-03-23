@@ -42,6 +42,7 @@ import org.xml.sax.SAXException;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
+import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.client.ImportWizardService;
 import edu.scripps.yates.client.exceptions.PintException;
 import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
@@ -55,11 +56,13 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ExperimentalConditionsTy
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FileSetType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FileType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FormatType;
+import edu.scripps.yates.excel.proteindb.importcfg.jaxb.LabelType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ObjectFactory;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.PintImportCfg;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ProjectType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RatiosType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteFilesRatioType;
+import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SampleType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServerType;
 import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
@@ -94,6 +97,7 @@ import edu.scripps.yates.shared.model.projectCreator.excel.ServerTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SheetTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SheetsTypeBean;
 import edu.scripps.yates.shared.util.CryptoUtil;
+import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
@@ -758,7 +762,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public void validateImportConfigurationFile(File savedFileCfg) throws PintException {
 
 		try {
-			StringBuilder sb = new StringBuilder();
+			StringBuilder errorString = new StringBuilder();
 			final PintImportCfg pintImportCfg = ImportCfgFileParserUtil.getPintImportFromFile(savedFileCfg);
 			// check experimental conditions
 			if (pintImportCfg.getProject() != null && pintImportCfg.getProject().getExperimentalConditions() != null) {
@@ -780,24 +784,182 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 						}
 					}
 					if (!valid) {
-						sb.append(
-								"Identification data or protein/peptide amounts are needed in experimental condition '"
+						errorString
+								.append("Identification data or protein/peptide amounts are needed in experimental condition '"
 										+ conditionType.getId() + "'\n");
 					}
 				}
 			}
 			// check ratios
+			boolean someRatio = false;
+			Set<String> conditionsInRatios = new HashSet<String>();
+			List<RemoteFilesRatioType> remoteFilesRatioTypes = new ArrayList<RemoteFilesRatioType>();
 			if (pintImportCfg.getProject() != null && pintImportCfg.getProject().getExperimentalConditions() != null) {
 				final RatiosType ratios = pintImportCfg.getProject().getRatios();
 				if (ratios != null) {
-					if (ratios.getPsmAmountRatios() != null) {
-						for (RemoteFilesRatioType remoteFilesRatioType : ratios.getPsmAmountRatios()
-								.getRemoteFilesRatio()) {
-							validateRemoteFilesRatio(sb, remoteFilesRatioType,
-									pintImportCfg.getProject().getExperimentalConditions());
-							// validate If Ligh and Heavy Labels are there
 
+					if (ratios.getPsmAmountRatios() != null
+							&& ratios.getPsmAmountRatios().getRemoteFilesRatio() != null) {
+						remoteFilesRatioTypes.addAll(ratios.getPsmAmountRatios().getRemoteFilesRatio());
+					}
+					if (ratios.getPeptideAmountRatios() != null
+							&& ratios.getPeptideAmountRatios().getRemoteFilesRatio() != null) {
+						remoteFilesRatioTypes.addAll(ratios.getPeptideAmountRatios().getRemoteFilesRatio());
+					}
+					if (ratios.getProteinAmountRatios() != null
+							&& ratios.getProteinAmountRatios().getRemoteFilesRatio() != null) {
+						remoteFilesRatioTypes.addAll(ratios.getProteinAmountRatios().getRemoteFilesRatio());
+					}
+					if (!remoteFilesRatioTypes.isEmpty()) {
+						someRatio = true;
+					}
+
+					for (RemoteFilesRatioType remoteFilesRatioType : remoteFilesRatioTypes) {
+						validateRemoteFilesRatio(errorString, remoteFilesRatioType,
+								pintImportCfg.getProject().getExperimentalConditions());
+						final String numerator = remoteFilesRatioType.getNumerator().getConditionRef();
+						conditionsInRatios.add(numerator);
+						final String denominator = remoteFilesRatioType.getDenominator().getConditionRef();
+						conditionsInRatios.add(denominator);
+						if (numerator.equals(denominator)) {
+							errorString.append(
+									"Error in the definition of a Ratio. A ratio has to be linked to 2 different conditions.\n");
 						}
+					}
+				}
+			}
+			// if there is some quantitative ratio, we need at least two labels
+			if (someRatio) {
+				if (pintImportCfg.getProject().getExperimentalDesign() != null
+						&& pintImportCfg.getProject().getExperimentalDesign() != null) {
+					int numLabels = 0;
+					if (pintImportCfg.getProject().getExperimentalDesign().getLabelSet() != null) {
+						for (LabelType label : pintImportCfg.getProject().getExperimentalDesign().getLabelSet()
+								.getLabel()) {
+							numLabels++;
+							QuantificationLabel quantLabel = QuantificationLabel.getByName(label.getId());
+							if (quantLabel == null) {
+								errorString.append("Label '" + label.getId()
+										+ "' not recognized. Try to select one of the following values:\n'"
+										+ QuantificationLabel.getValuesString() + "'\n");
+								errorString
+										.append("If you need to add a new label, contact to salvador at scripps.edu\n");
+							}
+						}
+					}
+					if (numLabels < 2) {
+						errorString.append(
+								"The definition of at least 2 labels is necessary when having some quantitative ratio in your project\n");
+					}
+				}
+			}
+
+			if (!conditionsInRatios.isEmpty()) {
+				if (pintImportCfg.getProject().getExperimentalConditions() != null) {
+					if (pintImportCfg.getProject().getExperimentalConditions().getExperimentalCondition() != null) {
+						List<Pair<String, String>> conditionPairsInRatios = new ArrayList<Pair<String, String>>();
+						Set<String> samplesInRatios = new HashSet<String>();
+						for (ExperimentalConditionType condition : pintImportCfg.getProject()
+								.getExperimentalConditions().getExperimentalCondition()) {
+							if (conditionsInRatios.contains(condition.getId())) {
+								if (condition.getSampleRef() != null) {
+									samplesInRatios.add(condition.getSampleRef());
+								} else {
+									errorString.append("Experimental condition '" + condition.getId()
+											+ "' has to be linked to a sample\n");
+								}
+							}
+							for (RemoteFilesRatioType remoteFileRatio : remoteFilesRatioTypes) {
+								// numerator
+								if (remoteFileRatio.getNumerator().getConditionRef().equals(condition.getId())) {
+									boolean found = false;
+									for (Pair<String, String> conditionPair : conditionPairsInRatios) {
+										// if first element is numerator
+										if (conditionPair.getFirstElement().equals(condition.getId())) {
+											// and second element is denominator
+											if (conditionPair.getSecondElement()
+													.equals(remoteFileRatio.getDenominator().getConditionRef())) {
+												found = true;
+											}
+										}
+									}
+									if (!found) {
+										Pair<String, String> newPair = new Pair<String, String>(
+												remoteFileRatio.getNumerator().getConditionRef(),
+												remoteFileRatio.getDenominator().getConditionRef());
+										conditionPairsInRatios.add(newPair);
+									}
+
+								}
+								// denominator
+								if (remoteFileRatio.getDenominator().getConditionRef().equals(condition.getId())) {
+									boolean found = false;
+									for (Pair<String, String> conditionPair : conditionPairsInRatios) {
+										// if second element is denominator
+										if (conditionPair.getSecondElement().equals(condition.getId())) {
+											// and first element is numerator
+											if (conditionPair.getFirstElement()
+													.equals(remoteFileRatio.getNumerator().getConditionRef())) {
+												found = true;
+											}
+										}
+									}
+									if (!found) {
+										Pair<String, String> newPair = new Pair<String, String>(
+												remoteFileRatio.getNumerator().getConditionRef(),
+												remoteFileRatio.getDenominator().getConditionRef());
+										conditionPairsInRatios.add(newPair);
+									}
+								}
+							}
+						}
+						// translate conditionPairsInRatios to
+						// samplesPairsInRatios
+						for (ExperimentalConditionType condition : pintImportCfg.getProject()
+								.getExperimentalConditions().getExperimentalCondition()) {
+							for (Pair<String, String> conditionPair : conditionPairsInRatios) {
+								if (conditionPair.getFirstElement().equals(condition.getId())) {
+									if (condition.getSampleRef() != null) {
+										conditionPair.setFirstElement(condition.getSampleRef());
+									}
+								}
+								if (conditionPair.getSecondElement().equals(condition.getId())) {
+									if (condition.getSampleRef() != null) {
+										conditionPair.setSecondElement(condition.getSampleRef());
+									}
+								}
+							}
+						}
+						List<Pair<String, String>> samplePairsInRatios = conditionPairsInRatios;
+
+						if (pintImportCfg.getProject().getExperimentalDesign() != null
+								&& pintImportCfg.getProject().getExperimentalDesign().getSampleSet() != null) {
+							for (SampleType sample : pintImportCfg.getProject().getExperimentalDesign().getSampleSet()
+									.getSample()) {
+								if (samplesInRatios.contains(sample.getId())) {
+									if (sample.getLabelRef() == null) {
+										errorString.append("Sample '" + sample.getId()
+												+ "' has to be linked to a Label, because it has been referentiated by an experimental condition that is defined in a quantitative ratio.\n");
+									}
+								}
+								for (Pair<String, String> pair : samplePairsInRatios) {
+									if (pair.getFirstElement().equals(sample.getId())) {
+										pair.setFirstElement(sample.getLabelRef());
+									}
+									if (pair.getSecondElement().equals(sample.getId())) {
+										pair.setSecondElement(sample.getLabelRef());
+									}
+									if (pair.getFirstElement().equals(pair.getSecondElement())) {
+										errorString
+												.append("There is a Ratio between 2 conditions having the same label '"
+														+ pair.getFirstElement() + "' coming from sample '"
+														+ sample.getId()
+														+ "' (see Condition->Sample->Label relationships)\n");
+									}
+								}
+							}
+						}
+
 					}
 				}
 			}
@@ -809,14 +971,14 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			if (!errorHandler.getErrorsAsValidatorMessages().isEmpty()) {
 
 				for (ValidatorMessage validatorMessage : errorHandler.getErrorsAsValidatorMessages()) {
-					if (!"".equals(sb.toString()))
-						sb.append("\n");
-					sb.append(translateValidatorMessageIntoUserMessage(validatorMessage.getMessage()));
+					if (!"".equals(errorString.toString()))
+						errorString.append("\n");
+					errorString.append(translateValidatorMessageIntoUserMessage(validatorMessage.getMessage()));
 				}
 
 			}
-			if (!"".equals(sb.toString()))
-				throw new PintException(sb.toString(), PINT_ERROR_TYPE.IMPORT_XML_SCHEMA_ERROR);
+			if (!"".equals(errorString.toString()))
+				throw new PintException(errorString.toString(), PINT_ERROR_TYPE.IMPORT_XML_SCHEMA_ERROR);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.FILE_NOT_FOUND_IN_SERVER);
@@ -838,6 +1000,9 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		}
 		if (message.contains("Attribute 'msRunRef' must appear on element 'remoteFiles_quant_info'")) {
 			return "All quantification datasets MUST reference a MS RUN";
+		}
+		if (message.contains("Attribute 'msRunRef' must appear on element 'remoteFiles_ratio'.")) {
+			return "All ratios MUST reference a MS RUN";
 		}
 		if (message.contains("The content of element 'sampleSet' is not complete. One of '{sample}' is expected.")) {
 			return "At least one SAMPLE MUST be defined";
@@ -882,7 +1047,12 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		final ConditionRefType condition2ID = remoteFilesRatioType.getDenominator();
 		log.info("Validating ratio from remote files: fileID:" + fileID + " runID:" + msRunID + " condition1:"
 				+ condition1ID + " condition2:" + condition2ID);
-		// TODO
+		if (msRunID == null) {
+			if (!"".equals(errorString.toString())) {
+				errorString.append("\n");
+			}
+			errorString.append("Reference to MSRun is missing in ratio " + remoteFilesRatioType.getName());
+		}
 	}
 
 	@Override
