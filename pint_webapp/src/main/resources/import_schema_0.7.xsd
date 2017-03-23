@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema version="1.0.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+				<xsd:element abstract="false" name="pint_import_cfg">
+								<xsd:complexType>
+												<xsd:complexContent>
+																<xsd:extension base="pint_import_cfgType"/>
+												</xsd:complexContent>
+								</xsd:complexType>
+								<xsd:keyref name="FK_PeptideAmountRatioType" refer="PK_COLUMN">
+												<xsd:selector xpath="project/ratios/peptide_amount_ratios/excel_ratio"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_ProteinAccessionType" refer="PK_COLUMN">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/identification_info/excel_ident_info/protein_accession"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_ProteinDescriptionType" refer="PK_COLUMN">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/identification_info/excel_ident_info/protein_description"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_PeptideSequenceType" refer="PK_COLUMN">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/identification_info/excel_ident_info/sequence"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_PsmScoreType" refer="PK_COLUMN">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/identification_info/excel_ident_info/psm_score"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_PtmScoreType" refer="PK_COLUMN">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/identification_info/excel_ident_info/ptm_score"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_PeptideScoreType" refer="PK_COLUMN">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/identification_info/excel_ident_info/peptide_score"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_PsmAmountType" refer="PK_COLUMN">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/quantification_info/excel_quant_info/psm_amount"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_PeptideAmountType" refer="PK_COLUMN">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/quantification_info/excel_quant_info/peptide_amount"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_ProteinAmountType" refer="PK_COLUMN">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/quantification_info/excel_quant_info/protein_amount"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_ProteinAnnotationType" refer="PK_COLUMN">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/identification_info/excel_ident_info/protein_annotations/protein_annotation"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:key id="PK_COLUMN" name="PK_COLUMN">
+												<xsd:selector xpath="fileSet/file/sheets/sheet/column"/>
+												<xsd:field xpath="@id"/>
+								</xsd:key>
+		
+								<xsd:key name="PK_RUN">
+												<xsd:selector xpath="project/msRuns/msRun"/>
+												<xsd:field xpath="@id"/>
+								</xsd:key>
+								<xsd:keyref name="FK_ProteinAmountRatiosColumnRef" refer="PK_COLUMN">
+												<xsd:selector xpath="project/ratios/protein_amount_ratios/excel_ratio"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_PeptideAmountRatiosColumnRef" refer="PK_COLUMN">
+												<xsd:selector xpath="project/ratios/peptide_amount_ratios/excel_ratio"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_PeptideAmountScoreRatiosColumnRef" refer="PK_COLUMN">
+												<xsd:selector xpath="project/ratios/peptide_amount_ratios/excel_ratio/ratio_score"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_ProteinAmountScoreRatiosColumnRef" refer="PK_COLUMN">
+												<xsd:selector xpath="project/ratios/protein_amount_ratios/excel_ratio/ratio_score"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_ProteinThresholdColumnRef" refer="PK_COLUMN">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/identification_info/excel_ident_info/protein_thresholds/protein_threshold"/>
+												<xsd:field xpath="@columnRef"/>
+								</xsd:keyref>
+								
+
+								<xsd:keyref name="FK_ProteinAmountRatiosConditionNumerator" refer="PK_CONDITION">
+												<xsd:selector xpath="project/ratios/protein_amount_ratios/excel_ratio/numerator"/>
+												<xsd:field xpath="@conditionRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_ProteinAmountRatiosConditionDenominator" refer="PK_CONDITION">
+												<xsd:selector xpath="project/ratios/protein_amount_ratios/excel_ratio/denominator"/>
+												<xsd:field xpath="@conditionRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_PeptideAmountRatiosConditionNumerator" refer="PK_CONDITION">
+												<xsd:selector xpath="project/ratios/peptide_amount_ratios/excel_ratio/numerator"/>
+												<xsd:field xpath="@conditionRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_PeptideAmountRatiosConditionDenominator" refer="PK_CONDITION">
+												<xsd:selector xpath="project/ratios/peptide_amount_ratios/excel_ratio/denominator"/>
+												<xsd:field xpath="@conditionRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_CensusRatiosConditionNumerator" refer="PK_CONDITION">
+												<xsd:selector xpath="project/ratios/peptide_amount_ratios/remoteFile_ratio/numerator"/>
+												<xsd:field xpath="@conditionRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_CensusRatiosConditionDenominator" refer="PK_CONDITION">
+												<xsd:selector xpath="project/ratios/peptide_amount_ratios/remoteFile_ratio/denominator"/>
+												<xsd:field xpath="@conditionRef"/>
+								</xsd:keyref>
+								<xsd:key name="PK_CONDITION">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition"/>
+												<xsd:field xpath="@id"/>
+								</xsd:key>
+								<xsd:key name="PK_FILE">
+												<xsd:selector xpath="fileSet/file"/>
+												<xsd:field xpath="@id"/>
+								</xsd:key>
+								<xsd:key name="PK_SHEET">
+												<xsd:selector xpath="fileSet/file/sheets/sheet"/>
+												<xsd:field xpath="@id"/>
+								</xsd:key>
+								<xsd:key name="PK_SAMPLE">
+												<xsd:selector xpath="project/experimental_design/sampleSet/sample"/>
+												<xsd:field xpath="@id"/>
+								</xsd:key>
+								<xsd:key name="PK_ORGANISM">
+												<xsd:selector xpath="project/experimental_design/organismSet/organism"/>
+												<xsd:field xpath="@id"/>
+								</xsd:key>
+								<xsd:key name="PK_TISSUE">
+												<xsd:selector xpath="project/experimental_design/tissueSet/tissue"/>
+												<xsd:field xpath="@id"/>
+								</xsd:key>
+								<xsd:key name="PK_SERVER">
+												<xsd:selector xpath="servers/server"/>
+												<xsd:field xpath="@id"/>
+								</xsd:key>
+								<xsd:keyref name="FK_ServerRef" refer="PK_SERVER">
+												<xsd:selector xpath="fileSet/file"/>
+												<xsd:field xpath="@serverRef"/>
+								</xsd:keyref>
+								
+								<xsd:keyref name="FK_SampleRef" refer="PK_SAMPLE">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition"/>
+												<xsd:field xpath="@sampleRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_TissueRef" refer="PK_TISSUE">
+												<xsd:selector xpath="project/experimental_design/sampleSet/sample"/>
+												<xsd:field xpath="@tissueRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_OrganismRef" refer="PK_ORGANISM">
+												<xsd:selector xpath="project/experimental_design/sampleSet/sample"/>
+												<xsd:field xpath="@organismRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_IdentificationFileRef" refer="PK_FILE">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/identification_info/remoteFiles_ident_info/fileRef"/>
+												<xsd:field xpath="@fileRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_QuantificationFileRef" refer="PK_FILE">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition/quantification_info/remoteFiles_quant_info/fileRef"/>
+												<xsd:field xpath="@fileRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_QuantificationPeptideRatiosFileRef" refer="PK_FILE">
+												<xsd:selector xpath="project/ratios/peptide_amount_ratios/remoteFiles_ratio"/>
+												<xsd:field xpath="@fileRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_QuantificationProteinRatiosFileRef" refer="PK_FILE">
+												<xsd:selector xpath="project/ratios/protein_amount_ratios/remoteFiles_ratio"/>
+												<xsd:field xpath="@fileRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_QuantificationRemotePeptideRatiosMSRunRef" refer="PK_RUN"> 
+  												<xsd:selector xpath="project/ratios/peptide_amount_ratios/remoteFiles_ratio"/> 
+  												<xsd:field xpath="@msRunRef"/> 
+  								</xsd:keyref> 
+								<xsd:keyref name="FK_QuantificationRemoteProteinRatiosMSRunRef" refer="PK_RUN">
+												<xsd:selector xpath="project/ratios/protein_amount_ratios/remoteFiles_ratio"/>
+												<xsd:field xpath="@msRunRef"/>
+								</xsd:keyref>
+<!-- 								<xsd:keyref name="FK_QuantificationExcelPeptideRatiosMSRunRef" refer="PK_RUN"> -->
+<!-- 												<xsd:selector xpath="project/ratios/peptide_amount_ratios/excel_ratio"/> -->
+<!-- 												<xsd:field xpath="@msRunRef"/> -->
+<!-- 								</xsd:keyref> -->
+<!-- 								<xsd:keyref name="FK_QuantificationExcelProteinRatiosMSRunRef" refer="PK_RUN"> -->
+<!-- 												<xsd:selector xpath="project/ratios/protein_amount_ratios/excel_ratio"/> -->
+<!-- 												<xsd:field xpath="@msRunRef"/> -->
+<!-- 								</xsd:keyref> -->
+								<xsd:keyref name="FK_QuantificationPeptideRatiosNumeratorConditionRef" refer="PK_CONDITION">
+												<xsd:selector xpath="project/ratios/peptide_amount_ratios/remoteFiles_ratio/numerator"/>
+												<xsd:field xpath="@conditionRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_QuantificationProteinRatiosNumeratorConditionRef" refer="PK_CONDITION">
+												<xsd:selector xpath="project/ratios/protein_amount_ratios/remoteFiles_ratio/numerator"/>
+												<xsd:field xpath="@conditionRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_QuantificationPeptideRatiosDenominatorConditionRef" refer="PK_CONDITION">
+												<xsd:selector xpath="project/ratios/peptide_amount_ratios/remoteFiles_ratio/denominator"/>
+												<xsd:field xpath="@conditionRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_QuantificationProteinRatiosDenominatorConditionRef" refer="PK_CONDITION">
+												<xsd:selector xpath="project/ratios/protein_amount_ratios/remoteFiles_ratio/denominator"/>
+												<xsd:field xpath="@conditionRef"/>
+								</xsd:keyref>
+								<!--  disabled since we allow several msRuns in the msRunRef attribute, separated by commas -->
+<!-- 								<xsd:keyref name="FK_IdentificationRemoteFileMSRunRef" refer="PK_RUN"> -->
+<!-- 												<xsd:selector xpath="project/experimental_conditions/experimental_condition/identification_info"/> -->
+<!-- 												<xsd:field xpath="@msRunRef"/> -->
+<!-- 								</xsd:keyref> -->
+<!-- 								<xsd:keyref name="FK_QuantificationRemoteFileMSRunRef" refer="PK_RUN"> -->
+<!-- 												<xsd:selector xpath="project/experimental_conditions/experimental_condition/quantification_info"/> -->
+<!-- 												<xsd:field xpath="@msRunRef"/> -->
+<!-- 								</xsd:keyref> -->
+								<xsd:key name="PK_LABEL">
+												<xsd:selector xpath="project/experimental_design/labelSet/label"/>
+												<xsd:field xpath="@id"/>
+								</xsd:key>
+								<xsd:keyref name="FK_SampleLabelRef" refer="PK_LABEL">
+												<xsd:selector xpath="project/experimental_design/sampleSet/sample"/>
+												<xsd:field xpath="@labelRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_ConditionLabelRef" refer="PK_LABEL">
+												<xsd:selector xpath="project/experimental_conditions/experimental_condition"/>
+												<xsd:field xpath="@labelRef"/>
+								</xsd:keyref>
+								<xsd:keyref name="FK_MSRunFastaFileRef" refer="PK_FILE">
+												<xsd:selector xpath="project/msRuns/msRun"/>
+												<xsd:field xpath="@fastaFileRef"/>
+								</xsd:keyref>
+
+
+				</xsd:element>
+				<xsd:complexType name="columnType">
+								<xsd:attribute name="id" type="xsd:string" use="required"/>
+								<xsd:attribute name="header" type="xsd:string" use="required"/>
+								<xsd:attribute name="number" type="xsd:boolean" use="required">
+												<xsd:annotation>
+																<xsd:documentation>Indicate if the data in this column are numbers or not</xsd:documentation>
+												</xsd:annotation>
+								</xsd:attribute>
+				</xsd:complexType>
+				<xsd:complexType name="sheetType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="column" type="columnType"/>
+								</xsd:sequence>
+								<xsd:attribute name="id" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="sheetsType">
+								<xsd:sequence>
+												<xsd:element minOccurs="1" maxOccurs="unbounded" name="sheet" type="sheetType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="fileType">
+								<xsd:sequence>
+												<xsd:element minOccurs="1" maxOccurs="1" name="format" type="formatType"/>
+												<xsd:element minOccurs="0" maxOccurs="1" name="sheets" type="sheetsType"/>
+												<xsd:element minOccurs="0" maxOccurs="1" name="fasta_digestion" type="fastaDisgestionType"/>
+								</xsd:sequence>
+								<xsd:attribute name="id" type="xsd:string" use="required"/>
+								<xsd:attribute name="url" type="xsd:anyURI" use="optional"/>
+								<xsd:attribute name="name" type="xsd:string" use="required"/>
+								<xsd:attribute name="serverRef" type="xsd:string" use="optional"/>
+								<xsd:attribute name="relative_path" type="xsd:anyURI" use="optional"/>
+				</xsd:complexType>
+				<xsd:complexType name="fastaDisgestionType">
+								<xsd:attribute name="cleavageAAs" type="xsd:string" use="required"/>
+								<xsd:attribute name="misscleavages" type="xsd:int" use="required"/>
+								<xsd:attribute name="enzymeOffset" type="xsd:int" use="required"/>
+								<xsd:attribute name="enzymeNoCutResidues" type="xsd:string" use="required"/>
+								<xsd:attribute name="isH2OPlusProtonAdded" type="xsd:boolean" use="required"/>
+				</xsd:complexType>
+				<xsd:simpleType name="formatType">
+								<xsd:restriction base="xsd:string">
+												<xsd:enumeration value="excel"/>
+												<xsd:enumeration value="census_out_txt"/>
+												<xsd:enumeration value="census_chro_xml"/>
+												<xsd:enumeration value="dta_select_filter_txt"/>
+												<xsd:enumeration value="fasta"/>
+
+								</xsd:restriction>
+				</xsd:simpleType>
+				<xsd:complexType name="fileSetType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="1" name="file" type="fileType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="sampleSetType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="1" name="sample" type="sampleType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="organismSetType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="1" name="organism" type="idDescriptionType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="tissueSetType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="1" name="tissue" type="idDescriptionType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="labelSetType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="1" name="label" type="labelType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="labelType">
+								<xsd:attribute name="id" type="xsd:string" use="required"/>
+								<xsd:attribute name="massDiff" type="xsd:double" use="optional"/>
+				</xsd:complexType>
+				<xsd:complexType name="protein_accessionType">
+								<xsd:sequence>
+												<xsd:element name="regexp" type="xsd:string"/>
+								</xsd:sequence>
+								<xsd:attribute name="groups" type="xsd:boolean" use="required"/>
+								<xsd:attribute name="group_separator" type="xsd:string" use="optional"/>
+								<xsd:attribute name="columnRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="protein_descriptionType">
+								<xsd:sequence>
+												<xsd:element name="regexp" type="xsd:string"/>
+								</xsd:sequence>
+								<xsd:attribute name="groups" type="xsd:boolean" use="required"/>
+								<xsd:attribute name="group_separator" type="xsd:string" use="optional"/>
+								<xsd:attribute name="columnRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+			
+				
+				<xsd:complexType name="sequenceType">
+								<xsd:attribute name="columnRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+					<xsd:complexType name="psmType">
+								<xsd:attribute name="columnRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="ptm_scoreType">
+								<xsd:complexContent>
+												<xsd:extension base="scoreType">
+																<xsd:attribute name="modification_name" type="xsd:string" use="required"/>
+												</xsd:extension>
+								</xsd:complexContent>
+				</xsd:complexType>
+				<xsd:complexType name="scoreType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="1" minOccurs="0" name="description" type="xsd:string"/>
+								</xsd:sequence>
+								<xsd:attribute name="score_name" type="xsd:string" use="required"/>
+								<xsd:attribute name="score_type" type="xsd:string" use="required"/>
+								<xsd:attribute name="columnRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+
+				<xsd:complexType name="amountType">
+								<xsd:attribute name="combinationType" type="amountCombinationType" use="required"/>
+								<xsd:attribute name="type" type="amountTypeType" use="required"/>
+								<xsd:attribute name="columnRef" type="xsd:string" use="required"/>
+
+				</xsd:complexType>
+				<xsd:simpleType name="amountTypeType">
+								<xsd:restriction base="xsd:string">
+												<xsd:enumeration value="INTENSITY"/>
+												<xsd:enumeration value="NORMALIZED_INTENSITY"/>
+												<xsd:enumeration value="SPC"/>
+												<xsd:enumeration value="NSAF"/>
+												<xsd:enumeration value="AREA"/>
+												<xsd:enumeration value="XIC"/>
+												<xsd:enumeration value="dNSAF"/>
+												<xsd:enumeration value="EMPAI"/>
+												<xsd:enumeration value="EMPAI_COV"/>
+												<xsd:enumeration value="REGRESSION_FACTOR"/>
+								</xsd:restriction>
+				</xsd:simpleType>
+				<xsd:simpleType name="amountCombinationType">
+								<xsd:restriction base="xsd:string">
+												<xsd:enumeration value="NO_COMBINATION"/>
+												<xsd:enumeration value="AVERAGE"/>
+												<xsd:enumeration value="SUM"/>
+												<xsd:enumeration value="WEIGHTED_AVERAGE"/>
+								</xsd:restriction>
+				</xsd:simpleType>
+			
+				<xsd:complexType name="msRunRefType">
+								<xsd:attribute name="msRunRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="msRunRefsType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="1" name="msRunRef" type="msRunRefType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="experimental_conditionType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="1" minOccurs="1" name="description" type="xsd:string"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="identification_info" type="identification_InfoType"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="quantification_info" type="quantification_InfoType"/>
+								</xsd:sequence>
+								<xsd:attribute name="id" type="xsd:string" use="required"/>
+								<xsd:attribute name="sampleRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="identification_InfoType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="excel_ident_info" type="identification_excelType"/>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="remoteFiles_ident_info" type="remote_InfoType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="quantification_InfoType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="excel_quant_info" type="quantification_excelType"/>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="remoteFiles_quant_info" type="remote_InfoType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="remote_InfoType">
+								<xsd:sequence>
+												<xsd:element name="fileRef" minOccurs="1" maxOccurs="unbounded" type="fileReferenceType"/>
+												<xsd:element name="discard_decoys" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+								</xsd:sequence>
+								<xsd:attribute name="msRunRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="fileReferenceType">
+								<xsd:attribute name="fileRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="identification_excelType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="1" minOccurs="1" name="protein_accession" type="protein_accessionType"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="protein_description" type="protein_descriptionType"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="protein_annotations" type="protein_annotationsType"/>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="protein_score" type="scoreType"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="sequence" type="sequenceType"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="psm_id" type="psmType"/>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="psm_score" type="scoreType"/>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="peptide_score" type="scoreType"/>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="ptm_score" type="ptm_scoreType"/>
+												<xsd:element name="discard_decoys" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="protein_thresholds" type="proteinThresholdsType"/>
+								</xsd:sequence>
+								<xsd:attribute name="msRunRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="proteinThresholdsType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="1" name="protein_threshold" type="proteinThresholdType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="proteinThresholdType">
+								<xsd:attribute name="name" type="xsd:string" use="required"/>
+								<xsd:attribute name="description" type="xsd:string" use="required"/>
+								<xsd:attribute name="yes_value" type="xsd:string" use="required"/>
+								<xsd:attribute name="columnRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="quantification_excelType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="protein_amount" type="amountType"/>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="peptide_amount" type="amountType"/>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="psm_amount" type="amountType"/>
+								</xsd:sequence>
+								<xsd:attribute name="msRunRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="sampleType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="1" minOccurs="1" name="description" type="xsd:string"/>
+								</xsd:sequence>
+								<xsd:attribute name="id" type="xsd:string" use="required"/>
+								<xsd:attribute name="organismRef" type="xsd:string" use="required"/>
+								<xsd:attribute name="tissueRef" type="xsd:string" use="optional"/>
+								<xsd:attribute name="labelRef" type="xsd:string" use="optional"/>
+								<xsd:attribute name="wt" type="xsd:boolean" use="optional"/>
+				</xsd:complexType>
+				<xsd:complexType name="idDescriptionType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="1" minOccurs="0" name="description" type="xsd:string"/>
+								</xsd:sequence>
+								<xsd:attribute name="id" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				
+				<xsd:complexType name="protein_annotationsType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="1" name="protein_annotation" type="protein_annotationType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="protein_annotationType">
+								<xsd:attribute name="name" type="xsd:string" use="required"/>
+								<xsd:attribute name="binary" type="xsd:boolean" use="required"/>
+								<xsd:attribute name="yes_value" type="xsd:string" use="required"/>
+								<xsd:attribute name="columnRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="experimental_conditionsType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="1" name="experimental_condition" type="experimental_conditionType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="conditionRefType">
+								<xsd:attribute name="conditionRef" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="excel_amount_ratioType">
+								<xsd:sequence>
+									<xsd:choice maxOccurs="1" minOccurs="0" >
+											<xsd:element maxOccurs="1" minOccurs="1" name="protein_accession" type="protein_accessionType"/>
+											<xsd:element maxOccurs="1" minOccurs="1" name="peptide_sequence" type="sequenceType"/>
+											<xsd:element maxOccurs="1" minOccurs="1" name="psm_id" type="psmType"/>
+									</xsd:choice>
+												<xsd:element maxOccurs="1" minOccurs="1" name="numerator" type="conditionRefType"/>
+												<xsd:element maxOccurs="1" minOccurs="1" name="denominator" type="conditionRefType"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="ratio_score" type="scoreType"/>
+								</xsd:sequence>
+								<xsd:attribute name="name" type="xsd:string" use="required"/>
+								<xsd:attribute name="columnRef" type="xsd:string" use="required"/>
+								<xsd:attribute name="msRunRef" type="xsd:string"/>
+								
+				</xsd:complexType>
+				<xsd:complexType name="psm_ratiosType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="excel_ratio" type="excel_amount_ratioType"/>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="remoteFiles_ratio" type="remote_files_ratioType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="peptide_ratiosType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="excel_ratio" type="excel_amount_ratioType"/>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="remoteFiles_ratio" type="remote_files_ratioType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="protein_ratiosType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="excel_ratio" type="excel_amount_ratioType"/>
+												<xsd:element maxOccurs="unbounded" minOccurs="0" name="remoteFiles_ratio" type="remote_files_ratioType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="remote_files_ratioType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="1" minOccurs="1" name="numerator" type="conditionRefType"/>
+												<xsd:element maxOccurs="1" minOccurs="1" name="denominator" type="conditionRefType"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="discard_decoys" type="xsd:string"/>
+								</xsd:sequence>
+								<xsd:attribute name="name" use="required" type="xsd:string"/>
+								<xsd:attribute name="fileRef" use="required" type="xsd:string"/>
+								<xsd:attribute name="msRunRef" use="required" type="xsd:string"/>
+				</xsd:complexType>
+				<xsd:complexType name="condition_labelType">
+								<xsd:attribute name="conditionRef" use="required" type="xsd:string"/>
+								<xsd:attribute name="labelRef" use="required" type="xsd:string"/>
+				</xsd:complexType>
+				
+				<xsd:complexType name="ratiosType">
+								<xsd:sequence>
+												<xsd:element minOccurs="0" maxOccurs="1" name="protein_amount_ratios" type="protein_ratiosType"/>
+												<xsd:element minOccurs="0" maxOccurs="1" name="peptide_amount_ratios" type="peptide_ratiosType"/>
+												<xsd:element minOccurs="0" maxOccurs="1" name="psm_amount_ratios" type="psm_ratiosType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="msRunType">
+								<xsd:attribute name="id" type="xsd:string" use="required"/>
+								<xsd:attribute name="path" type="xsd:string" use="required"/>
+								<xsd:attribute name="date" type="xsd:date" use="optional"/>
+								<xsd:attribute name="fastaFileRef" type="xsd:string" use="optional"/>
+								<xsd:attribute name="enzymeResidues" type="xsd:string" use="optional"/>
+								<xsd:attribute name="enzymeNocutResidues" type="xsd:string" use="optional"/>
+				</xsd:complexType>
+				<xsd:complexType name="msRunsType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="1" name="msRun" type="msRunType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="projectType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="1" minOccurs="1" name="description" type="xsd:string"/>
+												<xsd:element maxOccurs="1" minOccurs="1" name="experimental_conditions" type="experimental_conditionsType"/>
+												<xsd:element maxOccurs="1" minOccurs="1" name="ratios" type="ratiosType"/>
+												<xsd:element maxOccurs="1" minOccurs="1" name="msRuns" type="msRunsType"/>
+												<xsd:element maxOccurs="1" minOccurs="1" name="experimental_design" type="experimentalDesignType"/>
+								</xsd:sequence>
+								<xsd:attribute name="name" type="xsd:string" use="required"/>
+								<xsd:attribute name="quantitative" type="xsd:boolean" use="optional"/>
+								<xsd:attribute name="release_date" type="xsd:date" use="optional"/>
+								<xsd:attribute name="tag" type="xsd:string" use="required" />
+				</xsd:complexType>
+				<xsd:complexType name="experimentalDesignType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="1" minOccurs="1" name="sampleSet" type="sampleSetType"/>
+												<xsd:element maxOccurs="1" minOccurs="1" name="organismSet" type="organismSetType"/>
+												<xsd:element maxOccurs="1" minOccurs="1" name="tissueSet" type="tissueSetType"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="labelSet" type="labelSetType"/>
+
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType name="serverType">
+								<xsd:attribute name="id" type="xsd:string" use="required"/>
+								<xsd:attribute name="host_name" type="xsd:string" use="required"/>
+								<xsd:attribute name="user_name" type="xsd:string" use="required"/>
+								<xsd:attribute name="password" type="xsd:string" use="required"/>
+				</xsd:complexType>
+				<xsd:complexType name="serversType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="unbounded" minOccurs="1" name="server" type="serverType"/>
+								</xsd:sequence>
+				</xsd:complexType>
+				<xsd:complexType abstract="false" name="pint_import_cfgType">
+								<xsd:sequence>
+												<xsd:element maxOccurs="1" minOccurs="1" name="fileSet" type="fileSetType"/>
+												<xsd:element maxOccurs="1" minOccurs="1" name="project" type="projectType"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="servers" type="serversType"/>
+								</xsd:sequence>
+								<xsd:attribute name="version" type="xsd:string"/>
+								<xsd:attribute name="importID" type="xsd:int" use="optional"/>
+				</xsd:complexType>
+</xsd:schema>
