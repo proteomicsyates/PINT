@@ -242,9 +242,13 @@ public class ClientSafeHtmlUtils {
 					if (includeTitle)
 						title = description + " (Click to go to UniprotKB)";
 
-					final SafeHtml link = template.link(
-							UriUtils.fromString(SharedConstants.UNIPROT_ACC_LINK + accessionString), "uniprotAccLink",
-							title, description, accessionString);
+					String uniprotLinkURL = SharedConstants.UNIPROT_ACC_LINK + accessionString;
+					// if it is a isoform/proteoform
+					if (accessionString.contains("-")) {
+						uniprotLinkURL += "#" + accessionString;
+					}
+					final SafeHtml link = template.link(UriUtils.fromString(uniprotLinkURL), "uniprotAccLink", title,
+							description, accessionString);
 					sb.append(link);
 
 				} else if (accessionType == AccessionType.NCBI) {

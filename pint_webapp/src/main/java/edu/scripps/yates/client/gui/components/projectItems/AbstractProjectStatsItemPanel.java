@@ -176,49 +176,63 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 		}
 
 		if (projectStats.getNumConditions() != null) {
-			rightPanel.setWidget(rowConditions, 1, new Label(format.format(projectStats.getNumConditions())));
+			Label label = new Label(format.format(projectStats.getNumConditions()));
+			label.setStyleName("no-wrap");
+			rightPanel.setWidget(rowConditions, 1, label);
 		} else {
 			if (!selectedItems.contains(selectedItem)) {
 				requestNumConditions(projectStats.getT());
 			}
 		}
 		if (projectStats.getNumSamples() != null) {
-			rightPanel.setWidget(rowSamples, 1, new Label(format.format(projectStats.getNumSamples())));
+			Label label = new Label(format.format(projectStats.getNumSamples()));
+			label.setStyleName("no-wrap");
+			rightPanel.setWidget(rowSamples, 1, label);
 		} else {
 			if (!selectedItems.contains(selectedItem)) {
 				requestNumSamples(projectStats.getT());
 			}
 		}
 		if (projectStats.getNumMSRuns() != null) {
-			rightPanel.setWidget(rowMSRuns, 1, new Label(format.format(projectStats.getNumMSRuns())));
+			Label label = new Label(format.format(projectStats.getNumMSRuns()));
+			label.setStyleName("no-wrap");
+			rightPanel.setWidget(rowMSRuns, 1, label);
 		} else {
 			if (!selectedItems.contains(selectedItem)) {
 				requestNumMSRuns(projectStats.getT());
 			}
 		}
 		if (projectStats.getNumProteins() != null) {
-			rightPanel.setWidget(rowProteins, 1, new Label(format.format(projectStats.getNumProteins())));
+			Label label = new Label(format.format(projectStats.getNumProteins()));
+			label.setStyleName("no-wrap");
+			rightPanel.setWidget(rowProteins, 1, label);
 		} else {
 			if (!selectedItems.contains(selectedItem)) {
 				requestNumProteins(projectStats.getT());
 			}
 		}
 		if (projectStats.getNumGenes() != null) {
-			rightPanel.setWidget(rowGenes, 1, new Label(format.format(projectStats.getNumGenes())));
+			Label label = new Label(format.format(projectStats.getNumGenes()));
+			label.setStyleName("no-wrap");
+			rightPanel.setWidget(rowGenes, 1, label);
 		} else {
 			if (!selectedItems.contains(selectedItem)) {
 				requestNumGenes(projectStats.getT());
 			}
 		}
 		if (projectStats.getNumPeptides() != null) {
-			rightPanel.setWidget(rowPeptides, 1, new Label(format.format(projectStats.getNumPeptides())));
+			Label label = new Label(format.format(projectStats.getNumPeptides()));
+			label.setStyleName("no-wrap");
+			rightPanel.setWidget(rowPeptides, 1, label);
 		} else {
 			if (!selectedItems.contains(selectedItem)) {
 				requestNumPeptides(projectStats.getT());
 			}
 		}
 		if (projectStats.getNumPSMs() != null) {
-			rightPanel.setWidget(rowPSMs, 1, new Label(String.valueOf(format.format(projectStats.getNumPSMs()))));
+			Label label = new Label(String.valueOf(format.format(projectStats.getNumPSMs())));
+			label.setStyleName("no-wrap");
+			rightPanel.setWidget(rowPSMs, 1, label);
 		} else {
 			if (!selectedItems.contains(selectedItem)) {
 				requestNumPSMs(projectStats.getT());

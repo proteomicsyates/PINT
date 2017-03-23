@@ -1790,3 +1790,6 @@ table td{
 .reactomeTableSpecies{
 	padding: 10px;
 }
+.no-wrap{
+	white-space: nowrap;
+}
