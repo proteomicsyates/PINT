@@ -176,7 +176,9 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 		}
 
 		if (projectStats.getNumConditions() != null) {
-			rightPanel.setWidget(rowConditions, 1, new Label(format.format(projectStats.getNumConditions())));
+			Label label = new Label(format.format(projectStats.getNumConditions()));
+			label.setStyleName("no-wrap");
+			rightPanel.setWidget(rowConditions, 1, label);
 		} else {
 			if (!selectedItems.contains(selectedItem)) {
 				requestNumConditions(projectStats.getT());

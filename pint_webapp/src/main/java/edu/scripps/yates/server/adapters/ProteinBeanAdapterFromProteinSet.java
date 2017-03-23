@@ -108,8 +108,9 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 				proteinBean.addSecondaryAccession(new AccessionBeanAdapter(proteinAccession).adapt());
 			}
 		}
-		if (proteinBean.getPrimaryAccession() == null)
-			throw new IllegalArgumentException("This protein has not primary accession");
+		if (proteinBean.getPrimaryAccession() == null) {
+			log.error("This protein has not primary accession");
+		}
 		// log.debug("Adapting genes for protein DbID: " + protein.getId()
 		// + " with linkToPSMs=" + linkToPSMs);
 		if (queriableProtein.getGenes() != null) {
