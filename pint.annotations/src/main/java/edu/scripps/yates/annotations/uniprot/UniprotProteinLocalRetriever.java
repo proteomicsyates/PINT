@@ -302,6 +302,11 @@ public class UniprotProteinLocalRetriever {
 	}
 
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions) {
+		return getAnnotatedProteins(uniprotVersion, accessions, true);
+	}
+
+	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions,
+			boolean retrieveFastaIsoforms) {
 		Set<String> accsToSearch = new HashSet<String>();
 		Set<String> mainIsoforms = new HashSet<String>();
 		for (String acc : accessions) {
@@ -415,6 +420,7 @@ public class UniprotProteinLocalRetriever {
 				try {
 					UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever(uniprotReleasesFolder,
 							useIndex);
+					uprr.setLookForIsoforms(retrieveFastaIsoforms);
 					log.debug("Trying to retrieve  " + missingProteinsAccs.size()
 							+ " proteins that were not present in the local system");
 					queryProteinsMap

@@ -64,6 +64,7 @@ public class UniprotProteinRemoteRetriever {
 	private Set<String> missingAccessions = new HashSet<String>();
 	private final File uniprotReleaseFolder;
 	private final boolean useIndex;
+	private boolean lookForIsoforms = false;
 	private static Unmarshaller unmarshaller;
 	private static Marshaller marshaller;
 	private static JAXBContext jaxbContext;
@@ -109,6 +110,12 @@ public class UniprotProteinRemoteRetriever {
 			final String isoformVersion = FastaParser.getIsoformVersion(acc);
 			final String noIsoformAccession = FastaParser.getNoIsoformAccession(acc);
 			if (isoformVersion != null && !"1".equals(isoformVersion)) {
+				// first, check if the isoform was already retrieved previously
+				final Entry isoformEntry = uniprotIndex.getItem(isoformVersion);
+				if (isoformEntry != null) {
+					entryMap.put(isoformVersion, isoformEntry);
+					continue;
+				}
 				isoformList.add(acc);
 				if (!noIsoformList.contains(noIsoformAccession)) {
 					noIsoformList.add(noIsoformAccession);
@@ -209,48 +216,53 @@ public class UniprotProteinRemoteRetriever {
 		}
 
 		// now, if there are isoforms, look for the protein sequences of them
+		if (lookForIsoforms) {
+			Map<String, Entry> fastaEntries = getFASTASequences(isoformList);
+			if (!fastaEntries.isEmpty()) {
+				for (String isoformAcc : isoformList) {
+					String noIsoformAcc = FastaParser.getNoIsoformAccession(isoformAcc);
+					if (entryMap.containsKey(noIsoformAcc)) {
+						Entry noIsoformEntry = entryMap.get(noIsoformAcc);
 
-		Map<String, Entry> fastaEntries = getFASTASequences(isoformList);
-		for (String isoformAcc : isoformList) {
-			String noIsoformAcc = FastaParser.getNoIsoformAccession(isoformAcc);
-			if (entryMap.containsKey(noIsoformAcc)) {
-				Entry noIsoformEntry = entryMap.get(noIsoformAcc);
+						if (fastaEntries.containsKey(isoformAcc)) {
+							final Entry isoformEntry = fastaEntries.get(isoformAcc);
+							final SequenceType sequenceType = isoformEntry.getSequence();
+							if (sequenceType != null) {
+								final String proteinSequence = sequenceType.getValue();
+								if (proteinSequence != null) {
+									Entry clonedEntry = cloneEntry(noIsoformEntry);
+									// override the protein sequence
+									clonedEntry.getSequence().setValue(proteinSequence);
+									// override main accession
+									clonedEntry.getAccession().clear();
+									clonedEntry.getAccession().add(isoformAcc);
+									// override names
+									clonedEntry.getProtein()
+											.setRecommendedName(isoformEntry.getProtein().getRecommendedName());
+									clonedEntry.getProtein().getAlternativeName().clear();
+									clonedEntry.getProtein().getAlternativeName()
+											.addAll(isoformEntry.getProtein().getAlternativeName());
+									// store it with the isoform acc
+									entryMap.put(isoformAcc, clonedEntry);
 
-				if (fastaEntries.containsKey(isoformAcc)) {
-					final Entry isoformEntry = fastaEntries.get(isoformAcc);
-					final SequenceType sequenceType = isoformEntry.getSequence();
-					if (sequenceType != null) {
-						final String proteinSequence = sequenceType.getValue();
-						if (proteinSequence != null) {
-							Entry clonedEntry = cloneEntry(noIsoformEntry);
-							// override the protein sequence
-							clonedEntry.getSequence().setValue(proteinSequence);
-							// override main accession
-							clonedEntry.getAccession().clear();
-							clonedEntry.getAccession().add(isoformAcc);
-							// override names
-							clonedEntry.getProtein().setRecommendedName(isoformEntry.getProtein().getRecommendedName());
-							clonedEntry.getProtein().getAlternativeName().clear();
-							clonedEntry.getProtein().getAlternativeName()
-									.addAll(isoformEntry.getProtein().getAlternativeName());
-							// store it with the isoform acc
-							entryMap.put(isoformAcc, clonedEntry);
-
-							// call to the UniprotLocalRetriever to save into
-							// the file
-							// system
-							try {
-								if (uniprotReleaseFolder != null) {
-									UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
-											uniprotReleaseFolder, useIndex);
-									Uniprot uniprot = new Uniprot();
-									uniprot.getEntry().add(clonedEntry);
-									uplr.saveUniprotToLocalFilesystem(uniprot, uniprotVersion, useIndex);
+									// call to the UniprotLocalRetriever to save
+									// into
+									// the file
+									// system
+									try {
+										if (uniprotReleaseFolder != null) {
+											UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
+													uniprotReleaseFolder, useIndex);
+											Uniprot uniprot = new Uniprot();
+											uniprot.getEntry().add(clonedEntry);
+											uplr.saveUniprotToLocalFilesystem(uniprot, uniprotVersion, useIndex);
+										}
+									} catch (JAXBException e) {
+										e.printStackTrace();
+									}
+									log.debug("Response parsed succesfully");
 								}
-							} catch (JAXBException e) {
-								e.printStackTrace();
 							}
-							log.debug("Response parsed succesfully");
 						}
 					}
 				}
@@ -799,6 +811,10 @@ public class UniprotProteinRemoteRetriever {
 		Set<String> accessions = new HashSet<String>();
 		accessions.add(accession);
 		return getAnnotatedProteins(uniprotVersion, accessions, uniprotLocalIndex);
+	}
+
+	public void setLookForIsoforms(boolean lookForIsoforms) {
+		this.lookForIsoforms = lookForIsoforms;
 	}
 
 }
