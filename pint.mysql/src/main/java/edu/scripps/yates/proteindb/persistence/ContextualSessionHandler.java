@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.persistence;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +33,7 @@ import org.hibernate.stat.Statistics;
  */
 public class ContextualSessionHandler {
 
-	private static final SessionFactory sessionFactory = HibernateUtil.getInstance().getSessionFactory();
+	private static SessionFactory sessionFactory;
 	// private static final ThreadGroupLocal<Session> threadGroupSession = new
 	// ThreadGroupLocal<Session>();
 
@@ -41,10 +42,23 @@ public class ContextualSessionHandler {
 	private static Statistics statistics;
 
 	/**
-	 * Enable statistics
+	 * Setup the session factory with a propertiesFile that contains the
+	 * username password and url for the connection to the db
+	 *
+	 * @param propertiesFile
+	 * @return
 	 */
-	static {
-		sessionFactory.getStatistics().setStatisticsEnabled(true);
+	public static SessionFactory getSessionFactory(File propertiesFile) {
+		if (sessionFactory == null) {
+			sessionFactory = HibernateUtil.getInstance(propertiesFile).getSessionFactory();
+			// enable statistics
+			sessionFactory.getStatistics().setStatisticsEnabled(true);
+		}
+		return sessionFactory;
+	}
+
+	private static SessionFactory getSessionFactory() {
+		return getSessionFactory(null);
 	}
 
 	/**
@@ -279,7 +293,7 @@ public class ContextualSessionHandler {
 	// }
 
 	public static Session getSession() {
-		final Session currentSession = sessionFactory.getCurrentSession();
+		final Session currentSession = getSessionFactory().getCurrentSession();
 		return currentSession;
 	}
 
@@ -288,7 +302,7 @@ public class ContextualSessionHandler {
 		// log.info("Closing the session " + contador + " (closing)" +
 		// " from Thread: " + Thread.currentThread().getId());
 		final Session session = getSession();
-		ManagedSessionContext.unbind(sessionFactory);
+		ManagedSessionContext.unbind(getSessionFactory());
 		session.close();
 
 	}
@@ -338,8 +352,8 @@ public class ContextualSessionHandler {
 
 	public static void printStatistics() {
 
-		if (sessionFactory != null) {
-			ContextualSessionHandler.statistics = sessionFactory.getStatistics();
+		if (getSessionFactory() != null) {
+			ContextualSessionHandler.statistics = getSessionFactory().getStatistics();
 			if (statistics != null) {
 				log.info("Sessions: " + statistics.getSessionOpenCount() + ", OPEN="
 						+ (statistics.getSessionOpenCount() - statistics.getSessionCloseCount()) + ", Transactions="
@@ -353,8 +367,8 @@ public class ContextualSessionHandler {
 	}
 
 	public static long getNumSessionsClosed() {
-		if (sessionFactory != null) {
-			ContextualSessionHandler.statistics = sessionFactory.getStatistics();
+		if (getSessionFactory() != null) {
+			ContextualSessionHandler.statistics = getSessionFactory().getStatistics();
 			if (statistics != null) {
 				return statistics.getSessionCloseCount();
 			}
@@ -363,8 +377,8 @@ public class ContextualSessionHandler {
 	}
 
 	public static long getNumSessionsOpened() {
-		if (sessionFactory != null) {
-			ContextualSessionHandler.statistics = sessionFactory.getStatistics();
+		if (getSessionFactory() != null) {
+			ContextualSessionHandler.statistics = getSessionFactory().getStatistics();
 			if (statistics != null) {
 				return statistics.getSessionOpenCount();
 			}
@@ -396,7 +410,7 @@ public class ContextualSessionHandler {
 	}
 
 	public static Session openSession() {
-		final Session currentSession = sessionFactory.openSession();
+		final Session currentSession = getSessionFactory().openSession();
 		ManagedSessionContext.bind(currentSession);
 		return currentSession;
 

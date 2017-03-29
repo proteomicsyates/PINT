@@ -26,7 +26,7 @@ import org.hibernate.stat.Statistics;
  */
 public class ThreadSessionHandler {
 
-	private static final SessionFactory sessionFactory = HibernateUtil.getInstance().getSessionFactory();
+	private static final SessionFactory sessionFactory = HibernateUtil.getInstance(null).getSessionFactory();
 	private static final ThreadLocal<Session> threadSession = new ThreadLocal<Session>();
 	// private static final ThreadGroupLocal<Session> threadGroupSession = new
 	// ThreadGroupLocal<Session>();

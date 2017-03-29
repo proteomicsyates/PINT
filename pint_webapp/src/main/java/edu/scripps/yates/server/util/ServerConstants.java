@@ -1,7 +1,7 @@
 package edu.scripps.yates.server.util;
 
 public class ServerConstants {
-	public static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
+	public static final String PINT_DEVELOPER_ENV_VAR = "SERVER_TEST";
 
 	public static final String PROJECT_XML_CFG = "import_schema_0.7.xsd";
 
@@ -41,4 +41,14 @@ public class ServerConstants {
 	public static final String PEPTIDE_PAGE_SIZE = "peptide table page size";
 	public static final String PEPTIDE_COLUMNS = "peptide columns";
 
+	// this file should be located at the WEB-INF folder
+	public static final String PINT_PROPERTIES_FILE_NAME = "pint.properties";
+	public static final String PINT_TEST_PROPERTIES_FILE_NAME = "pint_test.properties";
+
+	// names of properties in the pint_properties file
+	public static final String PROJECT_FILES_PATH = "projectFilesPath";
+	public static final String INDEX_UNIPROT_ANNOTATIONS = "indexUniprotAnnotations";
+	public static final String PRELOAD_PUBLIC_PROJECTS = "preLoadPublicProjects";
+	public static final String PROJECTS_TO_PRELOAD = "projectsToPreLoad";
+	public static final String PROJECTS_TO_NOT_PRELOAD = "projectsToNotPreLoad";
 }

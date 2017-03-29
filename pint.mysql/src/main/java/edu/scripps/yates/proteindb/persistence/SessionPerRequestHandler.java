@@ -26,7 +26,7 @@ import org.hibernate.stat.Statistics;
  */
 public class SessionPerRequestHandler {
 
-	private static final SessionFactory sessionFactory = HibernateUtil.getInstance().getSessionFactory();
+	private static final SessionFactory sessionFactory = HibernateUtil.getInstance(null).getSessionFactory();
 	private Session session;
 	// private static final ThreadGroupLocal<Session> threadGroupSession = new
 	// ThreadGroupLocal<Session>();
@@ -332,8 +332,8 @@ public class SessionPerRequestHandler {
 					log.debug("Transaction is NULL when begin transaction is called from Thread: "
 							+ Thread.currentThread().getId());
 			} else {
-				log.debug("Begin old transaction: " + tx.hashCode() + " from Thread: "
-						+ Thread.currentThread().getId());
+				log.debug(
+						"Begin old transaction: " + tx.hashCode() + " from Thread: " + Thread.currentThread().getId());
 			}
 		} catch (HibernateException ex) {
 			throw new IllegalArgumentException(ex);
@@ -361,8 +361,7 @@ public class SessionPerRequestHandler {
 	public synchronized void rollbackTransaction() {
 
 		if (tx != null)
-			log.debug("Rolling bak transaction :" + tx.hashCode() + " from Thread: "
-					+ Thread.currentThread().getId());
+			log.debug("Rolling bak transaction :" + tx.hashCode() + " from Thread: " + Thread.currentThread().getId());
 		else
 			log.debug("Transaction to roolback is NULL from ThreadLocal variable!");
 		try {

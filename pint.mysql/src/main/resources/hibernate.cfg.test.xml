@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+       
+        <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">natjeija</property>
+<!--         <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/interactome_db</property> -->
+<!--         <property name="hibernate.connection.url">jdbc:mysql://137.131.224.151:3306/interactome_db</property> -->
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/interactome_db</property>
+        <property name="hibernate.connection.username">salvador</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.search.autoregister_listeners">true</property>
+        <property name="hibernate.show_sql">false</property>
+        
+        
+       
+		<property name="hibernate.c3p0.max_statements">50</property>
+		<!-- // If this is a number greater than 0, C3P0 will test all idle, 
+		pooled but unchecked-out connections, every this number of seconds 
+		// Set this to something below your MySQL wait_timeout: mysql> show global variables like 'wait_timeout';-->
+		<property name="hibernate.c3p0.idle_test_period">3000</property>
+
+		<!-- additional configurations April-9-2014 -->
+		
+		<!-- transaction isolation: 1: READ UNCOMMITTED, 2: READ COMMITTED, 4: REPEATABLE READ, 8: SERIALIZABLE -->
+        <property name="hibernate.connection.isolation">2</property>
+        <property name="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
+        <property name="hibernate.dbcp.testWhileIdle">true</property>
+        <property name="hibernate.dbcp.timeBetweenEvictionRunsMillis">600000</property>
+        <property name="hibernate.dbcp.validationQuery">Select 1</property>
+        <property name="hibernate.transaction.auto_close_session">false</property>
+        <property name="hibernate.connection.release_mode">on_close</property>
+        
+        <!-- additional configurations May-13-2014 -->
+        <property name="hibernate.connection.autoReconnect">true</property> 
+        
+        <!-- additional configuration March-25-2015 -->
+        <!--  This allow to take the session with: HibernateUtil.getInstance().getSessionFactory().getCurrentSession(); -->
+        <!--  The session has to be 'managed' in a servlet filter like: ManagedSessionContext.bind(currentSession); -->
+        <!--  To unbind the session : currentSession = ManagedSessionContext.unbind(sf); -->
+        <property name="hibernate.current_session_context_class">managed</property>
+<!--         <property name="hibernate.current_session_context_class">thread</property> -->
+        
+        
+        <!-- additional configuration March-25-2015 -->
+        <!-- disable second level cache -->
+<!-- 		<property name="hibernate.cache.use_second_level_cache">false</property> -->
+		<!-- additional configuration January-24-2016 -->
+		
+		
+		<!-- additional configuration January-24-2016 -->
+		<!-- Because by default, Hibernate will cache all the persisted objects in the session-level -->
+		<!-- cache and ultimately your application would fall over with an OutOfMemoryException somewhere -->
+		<!-- around the 50,000th row. You can resolve this problem if you are using batch processing with Hibernate. -->
+		<property name="hibernate.jdbc.batch_size">50</property>
+		
+		<!-- second level cache with EHCache -->
+		<property name="hibernate.cache.use_second_level_cache">true</property>
+		<property name="hibernate.cache.use_query_cache">true</property>
+<!-- 		<property name="hibernate.cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</property> -->
+		<property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>
+		
+		<!-- Lucene text search -->
+		<property name="hibernate.search.default.directory_provider">filesystem</property>
+		<property name="hibernate.search.Rules.directory_provider">nio</property>
+		<property name="hibernate.search.default.indexBase">C:\Users\Salva\Desktop\tmp\lucene_index</property>
+        
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Gene.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ProteinAmount.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/PeptideAmount.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Sample.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Threshold.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Condition.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Project.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Tissue.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ProteinThreshold.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/AmountType.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Protein.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ProteinAccession.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Organism.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/RatioDescriptor.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/AnnotationType.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/MsRun.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ProteinAnnotation.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ProteinRatioValue.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/PeptideRatioValue.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/PsmRatioValue.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/OperatorType.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/CombinationType.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ConfidenceScoreType.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Psm.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Peptide.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Ptm.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/PtmSite.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/PsmScore.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ProteinScore.hbm.xml" />
+        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/PeptideScore.hbm.xml" />        
+   		<mapping resource="edu/scripps/yates/proteindb/persistence/mysql/PsmAmount.hbm.xml" />
+   		<mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Label.hbm.xml" />
+   		
+   		<!-- new configuration for hibernate search on January-24-2016 -->
+<!--    		<event type="post-update"> -->
+<!--             <listener class="org.hibernate.search.event.FullTextIndexEventListener"/> -->
+<!--         </event> -->
+<!--         <event type="post-insert"> -->
+<!--             <listener class="org.hibernate.search.event.FullTextIndexEventListener"/> -->
+<!--         </event> -->
+<!--         <event type="post-delete"> -->
+<!--             <listener class="org.hibernate.search.event.FullTextIndexEventListener"/> -->
+<!--         </event> -->
+<!--         <event type="post-collection-recreate"> -->
+<!--             <listener class="org.hibernate.search.event.FullTextIndexEventListener"/> -->
+<!--         </event> -->
+<!--         <event type="post-collection-remove"> -->
+<!--             <listener class="org.hibernate.search.event.FullTextIndexEventListener"/> -->
+<!--         </event> -->
+<!--         <event type="post-collection-update"> -->
+<!--             <listener class="org.hibernate.search.event.FullTextIndexEventListener"/> -->
+<!--         </event> -->
+<!--         <event type="flush"> -->
+<!--             <listener class="org.hibernate.event.def.DefaultFlushEventListener"/> -->
+<!--             <listener class="org.hibernate.search.event.FullTextIndexEventListener"/> -->
+<!--         </event> -->
+    </session-factory>
+</hibernate-configuration>

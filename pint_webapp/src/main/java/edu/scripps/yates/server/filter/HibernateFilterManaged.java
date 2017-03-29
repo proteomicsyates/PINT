@@ -1,5 +1,6 @@
 package edu.scripps.yates.server.filter;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -20,6 +21,7 @@ import org.hibernate.context.internal.ManagedSessionContext;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 
 import edu.scripps.yates.proteindb.persistence.HibernateUtil;
+import edu.scripps.yates.server.util.ServerConstants;
 
 public class HibernateFilterManaged implements Filter {
 
@@ -140,11 +142,16 @@ public class HibernateFilterManaged implements Filter {
 	public void init(FilterConfig filterConfig) throws ServletException {
 		log.info("Initializing filter...");
 		log.info("Obtaining SessionFactory from static HibernateUtil singleton");
-		sf = HibernateUtil.getInstance().getSessionFactory();
+		sf = HibernateUtil.getInstance(getPropertiesFile(filterConfig)).getSessionFactory();
 	}
 
 	@Override
 	public void destroy() {
 	}
 
+	private File getPropertiesFile(FilterConfig filterConfig) {
+		final File file = new File(filterConfig.getServletContext().getRealPath("/WEB-INF") + File.separator
+				+ ServerConstants.PINT_PROPERTIES_FILE_NAME);
+		return file;
+	}
 }

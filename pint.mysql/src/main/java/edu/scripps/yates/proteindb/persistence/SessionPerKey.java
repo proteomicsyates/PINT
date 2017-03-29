@@ -27,7 +27,7 @@ import org.hibernate.resource.transaction.spi.TransactionStatus;
  */
 public class SessionPerKey {
 
-	private static final SessionFactory sessionFactory = HibernateUtil.getInstance().getSessionFactory();
+	private static final SessionFactory sessionFactory = HibernateUtil.getInstance(null).getSessionFactory();
 	// private static final ThreadGroupLocal<Session> threadGroupSession = new
 	// ThreadGroupLocal<Session>();
 	private static final Map<String, Transaction> transactions = new HashMap<String, Transaction>();

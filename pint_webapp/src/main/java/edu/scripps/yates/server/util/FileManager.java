@@ -232,20 +232,8 @@ public class FileManager {
 	public static String getProjectFilesPath(ServletContext servletContext) {
 		Map<String, String> env = System.getenv();
 		if (projectFilesPath == null || projectFilesPath.equals(System.getProperty("java.io.tmpdir"))) {
-			String projectFilePathProperty = ServletContextProperty.PROJECT_FILES_PATH_SERVER;
-			if (env.containsKey(ServerConstants.PINT_DEVELOPER_ENV_VAR)
-					&& env.get(ServerConstants.PINT_DEVELOPER_ENV_VAR).equals("true")) {
-				log.info("USING DEVELOPMENT MODE");
-				projectFilePathProperty = ServletContextProperty.PROJECT_FILES_PATH;
-			}
-			log.info("Using init parameter: " + projectFilePathProperty);
-			try {
-				projectFilesPath = ServletContextProperty.getServletContextProperty(servletContext,
-						projectFilePathProperty);
-				log.info("Using: " + projectFilePathProperty + "=" + projectFilesPath);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			projectFilesPath = ServerUtil.getPINTPropertyValue(servletContext, ServerConstants.PROJECT_FILES_PATH);
+
 			loadIfNeeded();
 		}
 		return projectFilesPath;

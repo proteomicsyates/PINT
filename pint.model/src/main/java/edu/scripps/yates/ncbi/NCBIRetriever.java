@@ -1,7 +1,7 @@
 package edu.scripps.yates.ncbi;
 
 import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.properties.Properties;
+import edu.scripps.yates.utilities.properties.PropertiesUtil;
 
 public class NCBIRetriever {
 	private static final String NCBI_SERVER_URL = "ncbi.server.url";
@@ -17,9 +17,9 @@ public class NCBIRetriever {
 	}
 
 	private static String getFastaHeaderFromNCBI(String accession) {
-		final String ncbiServerURL = Properties
+		final String ncbiServerURL = PropertiesUtil
 				.getPropertyValue(NCBI_SERVER_URL);
-		final String ncbiServerURLSuffix = Properties
+		final String ncbiServerURLSuffix = PropertiesUtil
 				.getPropertyValue(NCBI_SERVER_SUFIX);
 		String urlString = ncbiServerURL + accession + ncbiServerURLSuffix;
 

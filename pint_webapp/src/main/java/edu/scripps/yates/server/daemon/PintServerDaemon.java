@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -13,7 +12,7 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
-import edu.scripps.yates.server.daemon.tasks.PreLoadPublicProjects;
+import edu.scripps.yates.server.util.ServerUtil;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.utilities.env.EnvironmentalVariables;
 
@@ -28,6 +27,7 @@ public class PintServerDaemon implements ServletContextListener {
 	public void contextInitialized(final ServletContextEvent sce) {
 		// check database connection
 		try {
+			ContextualSessionHandler.getSessionFactory(ServerUtil.getPINTPropertiesFile(sce.getServletContext()));
 			ContextualSessionHandler.openSession();
 			ContextualSessionHandler.beginGoodTransaction();
 			ContextualSessionHandler.finishGoodTransaction();
@@ -35,20 +35,22 @@ public class PintServerDaemon implements ServletContextListener {
 			e.printStackTrace();
 			log.error(e);
 			log.error("Some error happened trying to initiate the database connection: " + e.getMessage());
+			log.error(
+					"Check the database user credentials in the pint.properties file at the WEB-INF folder of the web application");
 			System.exit(-1);
 		} finally {
 			ContextualSessionHandler.closeSession();
 		}
 		//
 		log.info("Starting PintServerDaemon...");
-		final ServletContext servletContext = sce.getServletContext();
 
 		if (SharedConstants.DAEMON_TASKS_ENABLED && !isTestServer()) {
 			// /////////////////////////////////////////////////
 			// REGISTER MAINTENANCE TASKS HERE
 			// pintServerDaemonTasks.add(new
 			// ProteinAccessionsUpdater(servletContext));
-			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", servletContext));
+			// pintServerDaemonTasks.add(new
+			// PreLoadPublicProjects("DAEMON_SESSION", servletContext));
 			// pintServerDaemonTasks.add(new
 			// ProteinUniprotAnnotationUpdater(servletContext));
 			// pintServerDaemonTasks.add(new

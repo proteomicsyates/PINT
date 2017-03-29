@@ -8,11 +8,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 
 public class SessionPerKeyHandler {
-	private static final Logger log = Logger
-			.getLogger(SessionPerKeyHandler.class);
+	private static final Logger log = Logger.getLogger(SessionPerKeyHandler.class);
 	private static final Map<String, SessionPerKey> sessions = new HashMap<String, SessionPerKey>();
-	private static final SessionFactory sessionFactory = HibernateUtil
-			.getInstance().getSessionFactory();
+	private static final SessionFactory sessionFactory = HibernateUtil.getInstance(null).getSessionFactory();
 
 	/**
 	 * Enable statistics
@@ -37,8 +35,7 @@ public class SessionPerKeyHandler {
 		if (sessionFactory != null) {
 			Statistics statistics = sessionFactory.getStatistics();
 			if (statistics != null) {
-				log.info("Sessions closed: "
-						+ statistics.getSessionCloseCount());
+				log.info("Sessions closed: " + statistics.getSessionCloseCount());
 				log.info("Sessions opened: " + statistics.getSessionOpenCount());
 				log.info("Transactions: " + statistics.getTransactionCount());
 

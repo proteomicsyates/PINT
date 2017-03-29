@@ -55,4 +55,5 @@ public class SharedConstants {
 
 	// tables selection model
 	public static final boolean TABLE_WITH_MULTIPLE_SELECTION = false;
+
 }

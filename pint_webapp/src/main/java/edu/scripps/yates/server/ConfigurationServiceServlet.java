@@ -30,6 +30,7 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		ServletCommonInit.init(getServletContext());
+
 	}
 
 	@Override

@@ -23,30 +23,7 @@
 		<!--    		<param-value>200</param-value> -->
 	</context-param>
 
-	<!--  Local storage of files on production server -->
-	<context-param>
-		<param-name>projectFilesPathServer</param-name>
-		<!-- DO NOT CHANGE -->
-		<param-value>/home/salvador/PInt</param-value>
-		<!--  change to your server path -->
-	</context-param>
-
-	<!-- Local storage of files on testing server/computer. -->
-	<!-- The testing server machine must have the environment variable PINT_DEVELOPER = true -->
-	<context-param>
-		<param-name>projectFilesPath</param-name>
-		<!-- DO NOT CHANGE -->
-		<param-value>Z:\share\Salva\data\PInt</param-value>
-		<!-- change to your testing server path -->
-	</context-param>
 	
-	<!-- This boolean property will determine if the uniprot annotations stored in the server (at $projectFilesPathServer/uniprot folder) will be indexed or not -->
-	<!-- If you change this property after having some annotations, the proper server functioning is not assured -->
-	<context-param>
-		<param-name>indexUniprotAnnotations</param-name>
-		<param-value>true</param-value>
-		<!-- possible values: true or false -->
-	</context-param>
 
 	<!-- Remote access to OMIM database is controlled by a personal API KEY. In order to use the service, state here your OMIM API KEY -->
 	<!-- For requesting a new one, go to http://www.omim.org/api -->
@@ -56,29 +33,7 @@
 		<!--  include here your API key -->
 	</context-param>
 
-	<!--  First time projects are loaded in the system, depending on their size, they can take some minutes -->
-	<!--  to optimize the loading time, projects can be preloaded in cache -->
-	<!--   -->
-	<!-- set to true if you want to pre load the public projects when server starts -->
-	<context-param>
-		<param-name>preLoadPublicProjects</param-name>
-		<param-value>true</param-value>
-		<!--  true or false -->
-	</context-param>
-
-	<!-- list of projects regardless of whether they are public or not that you want to pre load when server starts -->
-	<context-param>
-		<param-name>projectsToPreLoad</param-name>
-		<param-value>_CFTR_</param-value>
-		<!-- 		<param-value>_CFTR_,frm_silam,PALM,VX809</param-value>	 value of the project tag, separated by commas -->
-	</context-param>
-
-	<!-- list of projects regardless of the previous properties that are not going to be preloaded in anycase -->
-	<context-param>
-		<param-name>projectsToNotPreLoad</param-name>
-		<param-value>fmr_silamtest,VX809test,Offgel,CFTR_Scramble,CFTR_Scramble2,CFTR_Scramble3,CFTR_Scramble6,CFTR_Scramble7,CFTR_Scramble8</param-value>
-		<!--  value of the project tag, separated by commas -->
-	</context-param>
+	
 
 
 	<!-- Filters -->

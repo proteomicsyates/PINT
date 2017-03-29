@@ -21,6 +21,8 @@ public class ServletCommonInit {
 
 	public static void init(ServletContext context) {
 		try {
+			// init the DB connection
+			ContextualSessionHandler.getSessionFactory(ServerUtil.getPINTPropertiesFile(context));
 			ContextualSessionHandler.openSession();
 			ContextualSessionHandler.beginGoodTransaction();
 			ContextualSessionHandler.finishGoodTransaction();
@@ -38,11 +40,12 @@ public class ServletCommonInit {
 		FileManager.getProjectFilesPath(context);
 
 		// use the index
-		final boolean useIndex = Boolean.valueOf(ServletContextProperty.getServletContextProperty(context,
-				ServletContextProperty.INDEX_UNIPROT_ANNOTATIONS));
+		final boolean useIndex = Boolean
+				.valueOf(ServerUtil.getPINTPropertyValue(context, ServerConstants.INDEX_UNIPROT_ANNOTATIONS));
 		// uniprot releases folder
 		final File uniprotReleasesFolder = FileManager.getUniprotReleasesFolder();
 		// configure the UniprotProteinRetrievalSettings
 		UniprotProteinRetrievalSettings.getInstance(uniprotReleasesFolder, useIndex);
 	}
+
 }
