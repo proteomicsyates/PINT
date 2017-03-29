@@ -110,11 +110,14 @@ public class UniprotProteinRemoteRetriever {
 			final String isoformVersion = FastaParser.getIsoformVersion(acc);
 			final String noIsoformAccession = FastaParser.getNoIsoformAccession(acc);
 			if (isoformVersion != null && !"1".equals(isoformVersion)) {
-				// first, check if the isoform was already retrieved previously
-				final Entry isoformEntry = uniprotIndex.getItem(isoformVersion);
-				if (isoformEntry != null) {
-					entryMap.put(isoformVersion, isoformEntry);
-					continue;
+				if (uniprotIndex != null) {
+					// first, check if the isoform was already retrieved
+					// previously
+					final Entry isoformEntry = uniprotIndex.getItem(isoformVersion);
+					if (isoformEntry != null) {
+						entryMap.put(isoformVersion, isoformEntry);
+						continue;
+					}
 				}
 				isoformList.add(acc);
 				if (!noIsoformList.contains(noIsoformAccession)) {
