@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
+import edu.scripps.yates.annotations.util.IndexException;
 import edu.scripps.yates.utilities.index.TextFileIndexIO;
 
 /**
@@ -94,7 +95,8 @@ public class UniprotXmlIndexIO extends TextFileIndexIO {
 		} catch (JAXBException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
+			throw new IndexException(
+					"Error reading index. Index file may be corrupt. Try to delete it and run the program again.");
 		}
-		return null;
 	}
 }
