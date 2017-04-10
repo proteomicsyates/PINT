@@ -2,11 +2,9 @@ package edu.scripps.yates.annotations.uniprot;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -386,25 +384,26 @@ public class UniprotProteinRemoteRetriever {
 	private Uniprot parseResponse(InputStream is, Set<String> accessionsSent) {
 
 		log.debug("Processing response");
-		OutputStream outputStream = null;
+		// OutputStream outputStream = null;
 		try {
 
-			final File createTempFile = File.createTempFile("uniprot", "xml");
-			createTempFile.deleteOnExit();
-			// read this file into InputStream
+			// final File createTempFile = File.createTempFile("uniprot",
+			// "xml");
+			// createTempFile.deleteOnExit();
+			// // read this file into InputStream
+			//
+			// // write the inputStream to a FileOutputStream
+			// outputStream = new FileOutputStream(createTempFile);
+			//
+			// int read = 0;
+			// byte[] bytes = new byte[1024];
+			//
+			// while ((read = is.read(bytes)) != -1) {
+			// outputStream.write(bytes, 0, read);
+			// }
 
-			// write the inputStream to a FileOutputStream
-			outputStream = new FileOutputStream(createTempFile);
-
-			int read = 0;
-			byte[] bytes = new byte[1024];
-
-			while ((read = is.read(bytes)) != -1) {
-				outputStream.write(bytes, 0, read);
-			}
-
-			outputStream.close();
-			Uniprot uniprot = (Uniprot) unmarshaller.unmarshal(createTempFile);
+			// outputStream.close();
+			Uniprot uniprot = (Uniprot) unmarshaller.unmarshal(is);
 
 			log.debug("Response parsed succesfully");
 			log.debug(uniprot.getEntry().size() + " entries");
@@ -412,8 +411,8 @@ public class UniprotProteinRemoteRetriever {
 		} catch (JAXBException e) {
 			// e.printStackTrace();
 			log.warn(e.getMessage() + "\t" + e.getLinkedException().getMessage());
-		} catch (IOException e2) {
-			e2.printStackTrace();
+			// } catch (IOException e2) {
+			// e2.printStackTrace();
 		} finally {
 			if (is != null) {
 				try {
@@ -422,15 +421,15 @@ public class UniprotProteinRemoteRetriever {
 					e.printStackTrace();
 				}
 			}
-			if (outputStream != null) {
-				try {
-					// outputStream.flush();
-					outputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-			}
+			// if (outputStream != null) {
+			// try {
+			// // outputStream.flush();
+			// outputStream.close();
+			// } catch (IOException e) {
+			// e.printStackTrace();
+			// }
+			//
+			// }
 		}
 		return getRDFEntries(accessionsSent);
 	}
