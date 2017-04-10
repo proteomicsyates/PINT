@@ -530,32 +530,34 @@ public class UniprotProteinLocalRetriever {
 			Pattern pattern = Pattern.compile(regexp);
 			final String uniprotReleasesPath = uniprotReleasesFolder.getAbsolutePath();
 			File folder = new File(uniprotReleasesPath);
-			final File[] listFiles = folder.listFiles();
-			int year = 0;
-			int month = 0;
-			Date releaseDate = null;
-			for (File file : listFiles) {
-				if (file.isDirectory()) {
-					final String folderName = FilenameUtils.getName(file.getAbsolutePath());
+			if (folder.exists()) {
+				final File[] listFiles = folder.listFiles();
+				int year = 0;
+				int month = 0;
+				Date releaseDate = null;
+				for (File file : listFiles) {
+					if (file.isDirectory()) {
+						final String folderName = FilenameUtils.getName(file.getAbsolutePath());
 
-					final Matcher matcher = pattern.matcher(folderName);
-					if (matcher.find()) {
-						year = Integer.valueOf(matcher.group(1));
-						month = Integer.valueOf(matcher.group(2));
-						Date releaseDateTmp = new Date(year, month, 1);
-						if (releaseDate == null || releaseDate.compareTo(releaseDateTmp) == -1) {
-							releaseDate = releaseDateTmp;
+						final Matcher matcher = pattern.matcher(folderName);
+						if (matcher.find()) {
+							year = Integer.valueOf(matcher.group(1));
+							month = Integer.valueOf(matcher.group(2));
+							Date releaseDateTmp = new Date(year, month, 1);
+							if (releaseDate == null || releaseDate.compareTo(releaseDateTmp) == -1) {
+								releaseDate = releaseDateTmp;
+							}
 						}
 					}
 				}
-			}
-			if (releaseDate != null) {
-				DecimalFormat twoDigits = new DecimalFormat("00");
-				String monthString = twoDigits.format(month);
-				DecimalFormat fourDigits = new DecimalFormat("0000");
-				String yearString = fourDigits.format(year);
-				final String ret = yearString + "_" + monthString;
-				return ret;
+				if (releaseDate != null) {
+					DecimalFormat twoDigits = new DecimalFormat("00");
+					String monthString = twoDigits.format(month);
+					DecimalFormat fourDigits = new DecimalFormat("0000");
+					String yearString = fourDigits.format(year);
+					final String ret = yearString + "_" + monthString;
+					return ret;
+				}
 			}
 		}
 		return "";
