@@ -329,7 +329,7 @@ public class UniprotProteinLocalRetriever {
 		}
 
 		List<Entry> entries = new ArrayList<Entry>();
-		if (cacheEnabled) {
+		if (cacheEnabled && !cache.isEmpty()) {
 			int foundInCache = 0;
 			// look into cache if enabled
 			Iterator<String> iterator = accsToSearch.iterator();
@@ -375,6 +375,7 @@ public class UniprotProteinLocalRetriever {
 						loadedIndexes.put(uniprotXmlFile, uniprotIndex);
 					}
 					int numEntriesRetrievedFromIndex = 0;
+
 					for (String acc : accsToSearch) {
 
 						final Entry item = uniprotIndex.getItem(acc);
@@ -387,7 +388,7 @@ public class UniprotProteinLocalRetriever {
 						}
 					}
 					if (accsToSearch.size() > 0) {
-						log.debug(numEntriesRetrievedFromIndex + " entries retrieved from index");
+						log.info(numEntriesRetrievedFromIndex + " entries retrieved from index");
 					}
 
 				} catch (IOException e) {
