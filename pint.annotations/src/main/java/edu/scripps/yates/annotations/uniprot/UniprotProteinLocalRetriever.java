@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +47,8 @@ public class UniprotProteinLocalRetriever {
 	private final boolean useIndex;
 	private final static Map<File, UniprotXmlIndex> loadedIndexes = new HashMap<File, UniprotXmlIndex>();
 	private static JAXBContext jaxbContext;
-
+	private boolean cacheEnabled = true;
+	private final Map<String, Entry> cache = new HashMap<String, Entry>();
 	// private static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
 
 	/**
@@ -327,7 +329,23 @@ public class UniprotProteinLocalRetriever {
 		}
 
 		List<Entry> entries = new ArrayList<Entry>();
-
+		if (cacheEnabled) {
+			int foundInCache = 0;
+			// look into cache if enabled
+			Iterator<String> iterator = accsToSearch.iterator();
+			while (iterator.hasNext()) {
+				String acc = iterator.next();
+				Entry cachedEntry = cache.get(acc);
+				if (cachedEntry != null) {
+					entries.add(cachedEntry);
+					iterator.remove();
+					foundInCache++;
+				}
+			}
+			if (foundInCache > 0) {
+				log.info(foundInCache + " entries found in cache");
+			}
+		}
 		if (uniprotVersion == null || "".equals(uniprotVersion)) {
 
 			defaultUniprotVersion = UniprotProteinRemoteRetriever.getCurrentUniprotRemoteVersion();
@@ -361,6 +379,9 @@ public class UniprotProteinLocalRetriever {
 
 						final Entry item = uniprotIndex.getItem(acc);
 						if (item != null) {
+							if (cacheEnabled) {
+								addEntryToMap(cache, item);
+							}
 							entries.add(item);
 							numEntriesRetrievedFromIndex++;
 						}
@@ -394,8 +415,9 @@ public class UniprotProteinLocalRetriever {
 									+ projectFolder.getAbsolutePath());
 							final List<Entry> mergedEntries = mergeXMLFiles(xmlfilesNames, projectFolder,
 									uniprotVersion);
-							if (mergedEntries != null)
+							if (mergedEntries != null) {
 								entries.addAll(mergedEntries);
+							}
 						} catch (JAXBException e) {
 							e.printStackTrace();
 							log.warn("Error trying to unify the uniprot xml files");
@@ -423,8 +445,12 @@ public class UniprotProteinLocalRetriever {
 					uprr.setLookForIsoforms(retrieveFastaIsoforms);
 					log.debug("Trying to retrieve  " + missingProteinsAccs.size()
 							+ " proteins that were not present in the local system");
-					queryProteinsMap
-							.putAll(uprr.getAnnotatedProteins(uniprotVersion, missingProteinsAccs, uniprotIndex));
+					Map<String, Entry> annotatedProteins = uprr.getAnnotatedProteins(uniprotVersion,
+							missingProteinsAccs, uniprotIndex);
+					if (cacheEnabled) {
+						cache.putAll(annotatedProteins);
+					}
+					queryProteinsMap.putAll(annotatedProteins);
 					missingAccessions = uprr.getMissingAccessions();
 				} catch (IllegalArgumentException e) {
 					log.warn(e.getMessage());
@@ -446,6 +472,9 @@ public class UniprotProteinLocalRetriever {
 				if (entry != null) {
 					log.debug("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
 					queryProteinsMap.put(mainIsoform, entry);
+					if (cacheEnabled) {
+						cache.put(mainIsoform, entry);
+					}
 				}
 			}
 
@@ -465,6 +494,9 @@ public class UniprotProteinLocalRetriever {
 				for (String mainIsoform : mainIsoforms) {
 					final Entry entry = queryProteinsMap.get(FastaParser.getNoIsoformAccession(mainIsoform));
 					if (entry != null) {
+						if (cacheEnabled) {
+							cache.put(mainIsoform, entry);
+						}
 						log.info("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
 						queryProteinsMap.put(mainIsoform, entry);
 					}
@@ -567,14 +599,28 @@ public class UniprotProteinLocalRetriever {
 
 	protected static void addEntriesToMap(Map<String, Entry> map, List<Entry> entries) {
 		for (Entry entry : entries) {
-			final List<String> accessions = entry.getAccession();
-			for (String accession : accessions) {
-				// String nonIsoFormAcc = getNoIsoformAccession(accession);
-				// if (accessionsToQuery.contains(nonIsoFormAcc))
-				map.put(accession, entry);
-			}
+			addEntryToMap(map, entry);
 		}
 
+	}
+
+	protected static void addEntryToMap(Map<String, Entry> map, Entry entry) {
+
+		final List<String> accessions = entry.getAccession();
+		for (String accession : accessions) {
+			// String nonIsoFormAcc = getNoIsoformAccession(accession);
+			// if (accessionsToQuery.contains(nonIsoFormAcc))
+			map.put(accession, entry);
+		}
+
+	}
+
+	public boolean isCacheEnabled() {
+		return cacheEnabled;
+	}
+
+	public void setCacheEnabled(boolean cacheEnabled) {
+		this.cacheEnabled = cacheEnabled;
 	}
 
 }
