@@ -78,14 +78,16 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			Map<String, Pair<Long, Long>> itemPositions, boolean appendOnIndexFile) throws IOException {
 		// write the positions in the index
 		FileWriter fw = new FileWriter(index.indexFile, appendOnIndexFile);
+		StringBuilder sb = new StringBuilder();
 		try {
 			for (String key : itemPositions.keySet()) {
 				final Pair<Long, Long> pair = itemPositions.get(key);
-				fw.write(key + TAB + pair.getFirstelement() + TAB + pair.getSecondElement() + NEWLINE);
+				sb.append(key + TAB + pair.getFirstelement() + TAB + pair.getSecondElement() + NEWLINE);
 				log.debug("Writing in index: " + key + " positions:[" + pair.getFirstelement() + ","
 						+ pair.getSecondElement() + "]");
 			}
 		} finally {
+			fw.write(sb.toString());
 			fw.close();
 			index.status = Status.READY;
 			if (index.indexFile.length() % 1000 == 0)
@@ -153,7 +155,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 	 */
 	@Override
 	public Map<String, Pair<Long, Long>> addItem(Entry entry) {
-
+		Map<String, Pair<Long, Long>> itemPositions = null;
 		// load index file
 		try {
 			loadIndexFile();
@@ -177,7 +179,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 				return ret;
 			}
 			// add into the file to index
-			final Map<String, Pair<Long, Long>> itemPositions = uniprotFileIndexIO.addNewItem(item);
+			itemPositions = uniprotFileIndexIO.addNewItem(item);
 
 			// add to the map
 			indexMap.putAll(itemPositions);
