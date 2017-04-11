@@ -215,9 +215,9 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		JAXB.marshal(entry, output);
 		String string = output.toString();
 		final int indexOf = string.indexOf("\n");
-		if (indexOf > -1)
+		if (indexOf > -1) {
 			string = string.substring(indexOf + 1);
-
+		}
 		return string.trim();
 	}
 
