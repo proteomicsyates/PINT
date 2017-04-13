@@ -342,7 +342,7 @@ public class UniprotProteinLocalRetriever {
 					foundInCache++;
 				}
 			}
-			if (foundInCache > 0) {
+			if (foundInCache > 1) {
 				log.info(foundInCache + " entries found in cache");
 			}
 		}
