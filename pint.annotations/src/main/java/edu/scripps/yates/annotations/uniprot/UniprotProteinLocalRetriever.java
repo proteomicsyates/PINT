@@ -342,9 +342,9 @@ public class UniprotProteinLocalRetriever {
 					foundInCache++;
 				}
 			}
-			if (foundInCache > 1) {
-				log.info(foundInCache + " entries found in cache");
-			}
+
+			log.debug(foundInCache + " entries found in cache");
+
 		}
 		if (uniprotVersion == null || "".equals(uniprotVersion)) {
 
@@ -388,7 +388,7 @@ public class UniprotProteinLocalRetriever {
 						}
 					}
 					if (accsToSearch.size() > 0) {
-						log.info(numEntriesRetrievedFromIndex + " entries retrieved from index");
+						log.debug(numEntriesRetrievedFromIndex + " entries retrieved from index");
 					}
 
 				} catch (IOException e) {
