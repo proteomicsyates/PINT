@@ -46,6 +46,12 @@
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-user</artifactId>
       <scope>provided</scope>
+      <exclusions>
+      	<exclusion>
+      		<groupId>javax.validation</groupId>
+      		<artifactId>validation-api</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.google.gwt</groupId>
@@ -125,12 +131,12 @@
   	<dependency>
         <groupId>org.reactome.web</groupId>
         <artifactId>fireworks</artifactId>
-        <version>1.3.3</version>
+        <version>1.3.7</version>
   	</dependency>
     <dependency>
     	<groupId>org.reactome.web.pwp</groupId>
         <artifactId>model</artifactId>
-        <version>1.2.0</version>
+        <version>1.3.0</version>
     </dependency>
     <dependency>
         <groupId>org.reactome.web</groupId>
@@ -151,6 +157,16 @@
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>pint.annotations</artifactId>
     	<version>1.0.1-SNAPSHOT</version>
+    	<exclusions>
+    		<exclusion>
+    			<groupId>javax.validation</groupId>
+    			<artifactId>validation-api</artifactId>
+    		</exclusion>
+    		<exclusion>
+    			<groupId>org.jboss.logging</groupId>
+    			<artifactId>jboss-logging</artifactId>
+    		</exclusion>
+    	</exclusions>
     </dependency>
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
@@ -162,6 +178,7 @@
     	<artifactId>pint.model</artifactId>
     	<version>1.0.0-SNAPSHOT</version>
     </dependency>
+   
   </dependencies>
 
   <build>
