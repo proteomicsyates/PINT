@@ -31,7 +31,7 @@
         <property name="hibernate.dbcp.timeBetweenEvictionRunsMillis">600000</property>
         <property name="hibernate.dbcp.validationQuery">Select 1</property>
         <property name="hibernate.transaction.auto_close_session">false</property>
-        <property name="hibernate.connection.release_mode">on_close</property>
+        <property name="hibernate.connection.handling_mode">on_close</property>
         
         <!-- additional configurations May-13-2014 -->
         <property name="hibernate.connection.autoReconnect">true</property> 
