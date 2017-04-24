@@ -60,6 +60,12 @@
         <groupId>uk.ac.ebi.uniprot</groupId>
         <artifactId>japi</artifactId>
         <version>1.0.13</version>
+        <exclusions>
+        	<exclusion>
+        		<groupId>org.jboss.logging</groupId>
+        		<artifactId>jboss-logging</artifactId>
+        	</exclusion>
+        </exclusions>
     </dependency>
   </dependencies>
   <build>
