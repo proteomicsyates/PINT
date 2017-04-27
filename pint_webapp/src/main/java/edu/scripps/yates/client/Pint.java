@@ -9,7 +9,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.UmbrellaException;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 
@@ -52,13 +51,14 @@ public class Pint implements EntryPoint {
 			@Override
 			public void onUncaughtException(Throwable e) {
 				Throwable unwrapped = unwrap(e);
-				GWT.log("Ex caught!" + e.getMessage());
+				GWT.log("Exception uncaught! " + e.getMessage());
 
-				Window.alert(unwrapped.getMessage());
+				// Window.alert(unwrapped.getMessage());
 				StatusReportersRegister.getInstance().notifyStatusReporters(unwrapped);
 			}
 
 			public Throwable unwrap(Throwable e) {
+				e.printStackTrace();
 				if (e instanceof UmbrellaException) {
 					UmbrellaException ue = (UmbrellaException) e;
 					if (ue.getCauses().size() == 1) {
