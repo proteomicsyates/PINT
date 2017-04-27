@@ -57,6 +57,11 @@ public class ContextualSessionHandler {
 		return sessionFactory;
 	}
 
+	public static void clearSessionFactory() {
+		HibernateUtil.clearSessionFactory();
+		sessionFactory = null;
+	}
+
 	private static SessionFactory getSessionFactory() {
 		return getSessionFactory(null);
 	}
