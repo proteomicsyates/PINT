@@ -247,27 +247,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.servlet.GenericServlet#getServletContext()
-	 */
-	@Override
-	public ServletContext getServletContext() {
-		if (servletContext != null) {
-			return servletContext;
-		}
-		return super.getServletContext();
-	}
-
-	/**
-	 * @param servletContext
-	 *            the servletContext to set
-	 */
-	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = servletContext;
-	}
-
 	@Override
 	public QueryResultSubLists getProteinsFromProjects(String sessionID, Set<String> projectTags, String uniprotVersion,
 			boolean separateNonConclusiveProteins, Integer defaultQueryIndex, boolean testMode) throws PintException {
@@ -637,7 +616,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				// lock project
 				ProjectLocker.lock(projectTags, enclosingMethod);
 				// create a new one
-				String omimAPIKey = ServerUtil.getPINTProperties(servletContext).getOmimKey();
+				String omimAPIKey = ServerUtil.getPINTProperties(getServletContext()).getOmimKey();
 				file = DataExporter.exportProteinsFromProjects(projectTags, omimAPIKey);
 				log.info("file created in the server at: " + file.getAbsolutePath());
 
@@ -707,7 +686,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				// lock projects
 				ProjectLocker.lock(projectTags, enclosingMethod);
 				// create a new one
-				String omimAPIKey = ServerUtil.getPINTProperties(servletContext).getOmimKey();
+				String omimAPIKey = ServerUtil.getPINTProperties(getServletContext()).getOmimKey();
 				file = DataExporter.exportProteinGroupsFromProjects(projectTags, separateNonConclusiveProteins,
 						omimAPIKey);
 				log.info("file created in the server at: " + file.getAbsolutePath());
@@ -1055,11 +1034,11 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					log.info("Getting OMIM annotations in session '" + sessionID + "'");
 					task.setTaskDescription("Retrieving OMIM annotations...");
 					task.incrementProgress(1);
-					RemoteServicesTasks
-							.annotateProteinsOMIM(DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(),
-									PintConfigurationPropertiesIO
-											.readProperties(ServerUtil.getPINTPropertiesFile(servletContext))
-											.getOmimKey());
+					RemoteServicesTasks.annotateProteinsOMIM(
+							DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(),
+							PintConfigurationPropertiesIO
+									.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()))
+									.getOmimKey());
 				}
 				// add to cache by query if not empty
 				if (!DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins().isEmpty()) {
@@ -2499,5 +2478,24 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
 		} finally {
 		}
+	}
+
+	/**
+	 * This method is used in case that the methods in this servlet are used
+	 * from another servlet, so the servletContext is not initialized
+	 * 
+	 * @param servletContext
+	 */
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
+
+	}
+
+	@Override
+	public ServletContext getServletContext() {
+		if (servletContext == null) {
+			servletContext = super.getServletContext();
+		}
+		return servletContext;
 	}
 }
