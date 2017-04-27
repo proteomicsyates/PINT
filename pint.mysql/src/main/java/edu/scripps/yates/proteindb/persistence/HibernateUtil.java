@@ -145,8 +145,21 @@ public class HibernateUtil {
 	}
 
 	private void checkDBConnection(String dbURL, String dbUsername, String dbPassword) throws SQLException {
-		Connection connection = DriverManager.getConnection(dbURL + "?user=" + dbUsername + "&password=" + dbPassword);
+		checkDriver();
+		Connection connection = DriverManager.getConnection(dbURL, dbUsername, dbPassword);
+		log.info("Database connected using " + dbURL + " " + dbUsername + " " + dbPassword);
 		connection.close();
+	}
+
+	private void checkDriver() {
+		log.info("Loading driver...");
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			log.info("Driver loaded!");
+		} catch (ClassNotFoundException e) {
+			throw new IllegalStateException("Cannot find the driver in the classpath!", e);
+		}
 	}
 
 	public SessionFactory getSessionFactory() {
