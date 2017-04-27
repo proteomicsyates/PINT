@@ -2,6 +2,9 @@ package edu.scripps.yates.proteindb.persistence;
 
 import java.io.File;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -18,6 +21,7 @@ public class HibernateUtil {
 	private static Logger log = Logger.getLogger(HibernateUtil.class);
 	private static HibernateUtil instance;
 	private static boolean testEnabled;
+	private static String errorMessage;
 
 	private HibernateUtil(File propertiesFile) {
 		sessionFactory = buildSessionFactory(propertiesFile);
@@ -29,6 +33,10 @@ public class HibernateUtil {
 
 	public static void initSessionFactory(File propertiesFile) {
 		HibernateUtil.getInstance(propertiesFile);
+	}
+
+	public static void clearSessionFactory() {
+		instance = null;
 	}
 
 	/**
@@ -88,25 +96,38 @@ public class HibernateUtil {
 			// overwrite url, username and password if defined in a
 			// propertiesFile file by the user
 			if (propertiesFile != null && propertiesFile.exists()) {
-				try {
-					final java.util.Properties properties = PropertiesUtil.getProperties(propertiesFile);
-					final String dbUsername = properties.getProperty("db_username");
-					if (dbUsername != null) {
-						configure.setProperty("hibernate.connection.username", dbUsername);
-					}
-					final String dbURL = properties.getProperty("db_url");
-					if (dbURL != null) {
-						configure.setProperty("hibernate.connection.url", dbURL);
-					}
-					final String dbPassword = properties.getProperty("db_password");
-					if (dbPassword != null) {
-						configure.setProperty("hibernate.connection.password", dbPassword);
-					}
-				} catch (Exception e) {
-					log.warn(e);
+
+				final java.util.Properties properties = PropertiesUtil.getProperties(propertiesFile);
+				final String dbUsername = properties.getProperty("db_username");
+				if (dbUsername != null && !"".contentEquals(dbUsername)) {
+					configure.setProperty("hibernate.connection.username", dbUsername);
+				} else {
+					throw new IllegalArgumentException("User name is required to connect to the database");
 				}
+				final String dbURL = properties.getProperty("db_url");
+				if (dbURL != null && !"".equals(dbURL)) {
+					configure.setProperty("hibernate.connection.url", dbURL);
+				} else {
+					throw new IllegalArgumentException(
+							"An URL where the database is accessible is required to connect to the database");
+				}
+				final String dbPassword = properties.getProperty("db_password");
+				if (dbPassword != null && !"".contentEquals(dbPassword)) {
+					configure.setProperty("hibernate.connection.password", dbPassword);
+				} else {
+					throw new IllegalArgumentException("Password is required to connect to the database");
+				}
+				// check connectino first
+				checkDBConnection(dbURL, dbUsername, dbPassword);
+				SessionFactory buildSessionFactory = configure.buildSessionFactory();
+				errorMessage = null;
+				return buildSessionFactory;
+			} else {
+				if (errorMessage != null) {
+					throw new IllegalArgumentException(errorMessage);
+				}
+				throw new IllegalArgumentException("SessionFactory was not configured properly");
 			}
-			return configure.buildSessionFactory();
 
 			// ClassPathResource cpr = new
 			// ClassPathResource("/hibernate.cfg.xml");
@@ -114,12 +135,18 @@ public class HibernateUtil {
 			// .buildSessionFactory();
 
 		} catch (Throwable ex) {
+			errorMessage = ex.getMessage();
 			// Make sure you log the exception, as it might be swallowed
 			ex.printStackTrace();
 			log.error("Initial SessionFactory creation failed." + ex.getMessage());
 
-			throw new ExceptionInInitializerError(ex);
+			throw new IllegalArgumentException(ex);
 		}
+	}
+
+	private void checkDBConnection(String dbURL, String dbUsername, String dbPassword) throws SQLException {
+		Connection connection = DriverManager.getConnection(dbURL + "?user=" + dbUsername + "&password=" + dbPassword);
+		connection.close();
 	}
 
 	public SessionFactory getSessionFactory() {
