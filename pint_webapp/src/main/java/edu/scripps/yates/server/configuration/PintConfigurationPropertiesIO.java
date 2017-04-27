@@ -108,9 +108,6 @@ public class PintConfigurationPropertiesIO {
 			if (properties.getDb_username() != null) {
 				fw.append(DB_USER_NAME).append("=").append(properties.getDb_username()).append("\n");
 			}
-			if (properties.getOmimKey() != null) {
-				fw.append(OMIM_PROPERTY).append("=").append(properties.getOmimKey()).append("\n");
-			}
 			if (properties.getProjectFilesPath() != null) {
 				fw.append(PROJECT_FILES_PATH).append("=").append(properties.getProjectFilesPath()).append("\n");
 			}

@@ -103,15 +103,30 @@ public class ConfigurationPanel extends WindowBox implements StatusReporter {
 
 	private Widget createMainWidget() {
 		FlowPanel mainPanel = new FlowPanel();
-		VerticalPanel verticalpanel = new VerticalPanel();
-		verticalpanel.getElement().getStyle().setMargin(10, Unit.PX);
 		InlineLabel label = new InlineLabel("Welcome to the basic configuration of PINT");
 		label.setStyleName("configurationPanel_welcome");
-		verticalpanel.add(label);
+		mainPanel.add(label);
+		CaptionPanel firstCaptionPanel = new CaptionPanel("Explanation");
+		firstCaptionPanel.setStyleName("configurationPanel_CaptionPanel");
+		VerticalPanel verticalpanel = new VerticalPanel();
+		verticalpanel.getElement().getStyle().setMargin(10, Unit.PX);
+
 		InlineLabel label2 = new InlineLabel("Here you can set or update some basic parameters.");
-		label2.setStyleName("configurationPanel_welcome2");
 		verticalpanel.add(label2);
-		mainPanel.add(verticalpanel);
+
+		Label label3 = new Label(
+				"This form will update the file located at your server at: pint_webapp/WEB-INF/pint.properties. So you could also directly edit that file and then restart the server.");
+		verticalpanel.add(label3);
+		HorizontalPanel horizontal = new HorizontalPanel();
+		Label label4 = new Label("For a template of a pint.properties file, go to ");
+		horizontal.add(label4);
+		Anchor link = new Anchor(" here", true,
+				"https://raw.githubusercontent.com/proteomicsyates/PINT/master/pint_webapp/src/main/webapp/WEB-INF/pint.properties",
+				"_blank");
+		horizontal.add(link);
+		verticalpanel.add(horizontal);
+		firstCaptionPanel.add(verticalpanel);
+		mainPanel.add(firstCaptionPanel);
 		// admin password
 		CaptionPanel adminPassCaptionPanel = new CaptionPanel("PINT master password");
 		adminPassCaptionPanel.setStyleName("configurationPanel_CaptionPanel");
@@ -129,13 +144,13 @@ public class ConfigurationPanel extends WindowBox implements StatusReporter {
 		final FlexTable grid = new FlexTable();
 		grid.setWidget(0, 0, new Label(
 				"All projects in PINT are stored in a database. Here you can configure the access to that database."));
-		HorizontalPanel horizontal = new HorizontalPanel();
-		Anchor link = new Anchor("create_db_schema_096.sql", true,
+		HorizontalPanel horizontal2 = new HorizontalPanel();
+		Anchor link2 = new Anchor("create_db_schema_096.sql", true,
 				"https://raw.githubusercontent.com/proteomicsyates/PINT/master/pint.mysql/create_db_schema_096.sql",
 				"_blank");
-		horizontal.add(new Label("SQL script to create the database: "));
-		horizontal.add(link);
-		grid.setWidget(1, 0, horizontal);
+		horizontal2.add(new Label("SQL script to create the database: "));
+		horizontal2.add(link2);
+		grid.setWidget(1, 0, horizontal2);
 		grid.setWidget(2, 0, getDataBaseConnectionRowPanel());
 		grid.setWidget(3, 0, getDataBaseUserNameRowPanel());
 		grid.setWidget(4, 0, getDataBasePasswordRowPanel());

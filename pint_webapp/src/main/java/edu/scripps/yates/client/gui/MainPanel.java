@@ -153,7 +153,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 		configurationVerticalPanel.add(nlnhtmlConfiguration);
 
 		InlineHTML nlnhtmlConfigurationExplanation = new InlineHTML(
-				"Click here to go to the basic configuration of PINT (master password protected).\nYou can edit the master password, the database connection parameters, the location of the internal files in the server and the projects you want to pre-load in cache for a faster accession.");
+				"Click here to go to the basic configuration of PINT (master password-protected).\nYou can edit the master password, the database connection parameters, the location of the internal files in the server and the projects you want to pre-load in cache for a faster accession.");
 		nlnhtmlConfigurationExplanation.setStyleName("mainPageBoxExplanation");
 		configurationVerticalPanel.add(nlnhtmlConfigurationExplanation);
 
