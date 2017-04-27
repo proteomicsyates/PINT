@@ -201,6 +201,8 @@
             </goals>
             <configuration>
             	<extraJvmArgs>-Xmx6024M -Xss1024k</extraJvmArgs>
+<!--             	<style>OBF</style> -->
+            	<style>DETAILED</style>
             </configuration>
           </execution>
         </executions>
