@@ -27,16 +27,21 @@ public class HibernateFilter implements Filter {
 
 		final long numCall = ++numRPCCalls;
 		log.info("Entering in the Hibernate filter in " + numCall + ". Num calls that are ongoing: " + numRPCCalls);
-		ContextualSessionHandler.printStatistics();
 		String errorMessage = null;
-		try {
 
-			// /////
-			// log.info("Creating a new session from Hibernate filter");
-			// final Session session = ContextualSessionHandler.getSession();
-			// log.info("Session id: " + session.hashCode());
+		// /////
+		// log.info("Creating a new session from Hibernate filter");
+		// final Session session = ContextualSessionHandler.getSession();
+		// log.info("Session id: " + session.hashCode());
+		try {
+			ContextualSessionHandler.printStatistics();
 			ContextualSessionHandler.openSession();
 			ContextualSessionHandler.beginGoodTransaction();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+		}
+		try {
 			// pass the request along the filter chain
 			chain.doFilter(request, response);
 			// ContextualSessionHandler.finishGoodTransaction();
@@ -61,10 +66,14 @@ public class HibernateFilter implements Filter {
 				log.warn("Closing session from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
 						+ numRPCCalls + " WITH ERROR: " + errorMessage);
 			}
-			// Close the Session
-			ContextualSessionHandler.closeSession();
+			try {
+				// Close the Session
+				ContextualSessionHandler.closeSession();
 
-			ContextualSessionHandler.printStatistics();
+				ContextualSessionHandler.printStatistics();
+			} catch (Exception e) {
+				log.error(e);
+			}
 			// SessionPerKeyHandler.printStatistics();
 			log.info("Session closed from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
 					+ numRPCCalls);

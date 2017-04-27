@@ -20,28 +20,30 @@ public class ServletCommonInit {
 	private final static Logger log = Logger.getLogger(ServletCommonInit.class);
 
 	public static void init(ServletContext context) {
+		FileManager.getProjectFilesPath(context);
+		boolean sessionOpen = false;
 		try {
 			// init the DB connection
 			ContextualSessionHandler.getSessionFactory(ServerUtil.getPINTPropertiesFile(context));
 			ContextualSessionHandler.openSession();
+			sessionOpen = true;
 			ContextualSessionHandler.beginGoodTransaction();
 			ContextualSessionHandler.finishGoodTransaction();
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e);
 			log.error("Some error happened trying to initiate the database connection: " + e.getMessage());
-			System.exit(-1);
 		} finally {
-			ContextualSessionHandler.closeSession();
+			if (sessionOpen) {
+				ContextualSessionHandler.closeSession();
+			}
 		}
 		// configure the Uniprot annotations retrieval for using the local
 		// folder and whether to index or not the annotations file, all
 		// configured in the servlet context (web.xml file)
-		FileManager.getProjectFilesPath(context);
 
 		// use the index
-		final boolean useIndex = Boolean
-				.valueOf(ServerUtil.getPINTPropertyValue(context, ServerConstants.INDEX_UNIPROT_ANNOTATIONS));
+		final Boolean useIndex = true;
 		// uniprot releases folder
 		final File uniprotReleasesFolder = FileManager.getUniprotReleasesFolder();
 		// configure the UniprotProteinRetrievalSettings

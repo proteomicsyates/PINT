@@ -1334,50 +1334,45 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 	protected void dataSubmission() {
 
 		// check first the login
-		PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
-				"Entry password for project submission:");
+		final PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
+				"enter PINT master password for project submission:");
 		loginPanel.addCloseHandler(new CloseHandler<PopupPanel>() {
 
 			@Override
 			public void onClose(CloseEvent<PopupPanel> event) {
-				final PopupPanel popup = event.getTarget();
-				final Widget widget = popup.getWidget();
-				if (widget instanceof PopUpPanelPasswordChecker) {
-					PopUpPanelPasswordChecker loginPanel = (PopUpPanelPasswordChecker) widget;
-					if (loginPanel.isLoginOK()) {
-						try {
-							updateRepresentedObject();
-							showDialog(
-									"Submitting data to the server and retrieving corresponding UniProt annotations...\nThis may take several minutes.",
-									true, false, true);
-							importWizardService.submitProject(importJobID, pintImportCfgTypeBean,
-									new AsyncCallback<String>() {
+				if (loginPanel.isLoginOK()) {
+					try {
+						updateRepresentedObject();
+						showDialog(
+								"Submitting data to the server and retrieving corresponding UniProt annotations...\nThis may take several minutes.",
+								true, false, true);
+						importWizardService.submitProject(importJobID, pintImportCfgTypeBean,
+								new AsyncCallback<String>() {
 
-										@Override
-										public void onFailure(Throwable caught) {
-											showErrorMessage(caught);
-										}
+									@Override
+									public void onFailure(Throwable caught) {
+										showErrorMessage(caught);
+									}
 
-										@Override
-										public void onSuccess(String encrypt) {
-											// final String encrypt = CryptoUtil
-											// .encrypt(pintImportCfgTypeBean.getProject().getTag());
-											String privateURL = Window.Location.getProtocol() + "//"
-													+ Window.Location.getHost() + "/pint/?project=" + encrypt;
-											StatusReportersRegister.getInstance().notifyStatusReporters(
-													"Project has been successfully uploaded in the database\n"
-															+ "by default, the project will be private, only accesible by this encoded URL: "
-															+ privateURL + "\n");
-											hiddeDialog();
-											showDialog(
-													"Project has been successfully uploaded in the database\nTo access the project, go to:\n"
-															+ privateURL,
-													false, true, false);
-										}
-									});
-						} catch (PintException e) {
-							errorSavingProject(e);
-						}
+									@Override
+									public void onSuccess(String encrypt) {
+										// final String encrypt = CryptoUtil
+										// .encrypt(pintImportCfgTypeBean.getProject().getTag());
+										String privateURL = Window.Location.getProtocol() + "//"
+												+ Window.Location.getHost() + "/pint/?project=" + encrypt;
+										StatusReportersRegister.getInstance().notifyStatusReporters(
+												"Project has been successfully uploaded in the database\n"
+														+ "by default, the project will be private, only accesible by this encoded URL: "
+														+ privateURL + "\n");
+										hiddeDialog();
+										showDialog(
+												"Project has been successfully uploaded in the database\nTo access the project, go to:\n"
+														+ privateURL,
+												false, true, false);
+									}
+								});
+					} catch (PintException e) {
+						errorSavingProject(e);
 					}
 				}
 			}

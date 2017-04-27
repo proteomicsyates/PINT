@@ -9,8 +9,6 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.util.FileManager;
-import edu.scripps.yates.server.util.ServerConstants;
-import edu.scripps.yates.server.util.ServerUtil;
 
 public abstract class PintServerDaemonTask extends Thread {
 	protected final Logger log = Logger.getLogger(PintServerDaemonTask.class);
@@ -31,14 +29,14 @@ public abstract class PintServerDaemonTask extends Thread {
 		FileManager.getProjectFilesPath(servletContext);
 
 		// use the index
-		final boolean useIndex = Boolean
-				.valueOf(ServerUtil.getPINTPropertyValue(servletContext, ServerConstants.INDEX_UNIPROT_ANNOTATIONS));
+		final boolean useIndex = true;
 		File uniprotReleasesFolder = FileManager.getUniprotReleasesFolder();
 		urs = UniprotProteinRetrievalSettings.getInstance(uniprotReleasesFolder, useIndex);
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Thread#run()
 	 */
 	@Override

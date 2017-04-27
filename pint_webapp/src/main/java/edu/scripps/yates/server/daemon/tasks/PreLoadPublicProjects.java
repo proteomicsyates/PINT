@@ -10,7 +10,6 @@ import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.ProteinRetrievalServicesServlet;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.util.FileManager;
-import edu.scripps.yates.server.util.ServerConstants;
 import edu.scripps.yates.server.util.ServerUtil;
 import edu.scripps.yates.shared.model.ProjectBean;
 
@@ -34,8 +33,7 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 	@Override
 	public void run() {
 		log.info("Starting " + getTaskName());
-		final String projectsToPreload = ServerUtil.getPINTPropertyValue(servletContext,
-				ServerConstants.PROJECTS_TO_PRELOAD);
+		final String projectsToPreload = ServerUtil.getPINTProperties(servletContext).getProjectsToPreLoad();
 		if (projectsToPreload != null) {
 			if (projectsToPreload.contains(",")) {
 				final String[] split = projectsToPreload.split(",");
@@ -49,25 +47,16 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 		ContextualSessionHandler.getSession().beginTransaction();
 		final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans();
 
-		final String preLoadPublicProjects = ServerUtil.getPINTPropertyValue(servletContext,
-				ServerConstants.PRELOAD_PUBLIC_PROJECTS);
-		if (preLoadPublicProjects != null) {
-			try {
-				final Boolean preloadPublic = Boolean.valueOf(preLoadPublicProjects);
-				if (preloadPublic != null && preloadPublic) {
-					for (ProjectBean projectBean : projectBeans) {
-						if (projectBean.isPublicAvailable()) {
-							projectsToLoad.add(projectBean.getTag());
-						}
-					}
+		final Boolean preloadPublic = ServerUtil.getPINTProperties(servletContext).isPreLoadPublicProjects();
+		if (preloadPublic != null && preloadPublic) {
+			for (ProjectBean projectBean : projectBeans) {
+				if (projectBean.isPublicAvailable()) {
+					projectsToLoad.add(projectBean.getTag());
 				}
-			} catch (Exception e) {
-
 			}
 		}
 
-		final String projectsToNotPreLoad = ServerUtil.getPINTPropertyValue(servletContext,
-				ServerConstants.PROJECTS_TO_NOT_PRELOAD);
+		final String projectsToNotPreLoad = ServerUtil.getPINTProperties(servletContext).getProjectsToNotPreLoad();
 		if (projectsToNotPreLoad != null) {
 			if (projectsToNotPreLoad.contains(",")) {
 				final String[] split = projectsToNotPreLoad.split(",");

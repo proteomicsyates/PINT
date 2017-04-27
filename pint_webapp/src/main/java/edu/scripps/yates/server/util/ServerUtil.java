@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -14,7 +13,8 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.utilities.properties.PropertiesUtil;
+import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
+import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
 
 public class ServerUtil {
 	private static final Logger log = Logger.getLogger(ServerUtil.class);
@@ -78,27 +78,29 @@ public class ServerUtil {
 	public static File getPINTPropertiesFile(ServletContext context) {
 		Map<String, String> environmentalVariables = System.getenv();
 		String pintPropertiesFile = ServerConstants.PINT_PROPERTIES_FILE_NAME;
-		if (environmentalVariables.containsKey(ServerConstants.PINT_DEVELOPER_ENV_VAR)) {
-			if (environmentalVariables.get(ServerConstants.PINT_DEVELOPER_ENV_VAR).equals("true")) {
-				pintPropertiesFile = ServerConstants.PINT_TEST_PROPERTIES_FILE_NAME;
-			}
+		String testComputer = environmentalVariables.get(ServerConstants.PINT_DEVELOPER_ENV_VAR);
+		String scrippsComputer = environmentalVariables.get(ServerConstants.PINT_SCRIPPS_ENV_VAR);
+		if (testComputer != null && testComputer.equalsIgnoreCase("true")) {
+			log.info("TEST SERVER DETECTED.");
+			pintPropertiesFile = ServerConstants.PINT_TEST_PROPERTIES_FILE_NAME;
 		}
+		if (scrippsComputer != null && scrippsComputer.contentEquals("TRUE")) {
+			log.info("SCRIPPS SERVER DETECTED.");
+			pintPropertiesFile = ServerConstants.PINT_SCRIPPS_PROPERTIES_FILE_NAME;
+		}
+
 		final File file = new File(context.getRealPath("/WEB-INF") + File.separator + pintPropertiesFile);
+		log.info("Using properties file: " + file.getAbsolutePath());
 		return file;
 	}
 
-	public static Properties getPINTProperties(ServletContext context) {
+	public static PintConfigurationProperties getPINTProperties(ServletContext context) {
 		try {
-			return PropertiesUtil.getProperties(getPINTPropertiesFile(context));
+			return PintConfigurationPropertiesIO.readProperties(getPINTPropertiesFile(context));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new Properties();
+		throw new IllegalArgumentException("Error getting PINT properties file");
 	}
 
-	public static String getPINTPropertyValue(ServletContext context, String propertyName) {
-		final String property = getPINTProperties(context).getProperty(propertyName);
-		log.info("Property  " + propertyName + " = " + property);
-		return property;
-	}
 }

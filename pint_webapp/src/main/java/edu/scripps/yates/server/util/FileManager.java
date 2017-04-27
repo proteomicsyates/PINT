@@ -39,7 +39,6 @@ public class FileManager {
 	private static Map<Integer, File> projectCfgFileByImportProcessID = new HashMap<Integer, File>();
 	private static boolean ready = false;
 	private static boolean loading;
-	private static final String PINT_PROPERTIES_FILE_NAME = "pint.properties";
 	private static final String PROJECT_STATS_FILE_NAME = "stats.properties";
 
 	private static File getXmlFolder() {
@@ -211,6 +210,10 @@ public class FileManager {
 		return projectFilesPath;
 	}
 
+	public static void resetProjectfilePath() {
+		projectFilesPath = null;
+	}
+
 	public static File getUniprotReleasesFolder() {
 		String folderName = getProjectFilesPath() + File.separator + UNIPROT_RELEASES;
 		File folder = new File(folderName);
@@ -230,10 +233,8 @@ public class FileManager {
 	}
 
 	public static String getProjectFilesPath(ServletContext servletContext) {
-		Map<String, String> env = System.getenv();
 		if (projectFilesPath == null || projectFilesPath.equals(System.getProperty("java.io.tmpdir"))) {
-			projectFilesPath = ServerUtil.getPINTPropertyValue(servletContext, ServerConstants.PROJECT_FILES_PATH);
-
+			projectFilesPath = ServerUtil.getPINTProperties(servletContext).getProjectFilesPath();
 			loadIfNeeded();
 		}
 		return projectFilesPath;
@@ -447,10 +448,6 @@ public class FileManager {
 
 	public static File getPSEAQuantFile(String filename) {
 		return new File(getPSEAQuantFolder() + File.separator + filename);
-	}
-
-	public static File getPintPropertiesFile() {
-		return new File(getProjectFilesPath() + File.separator + PINT_PROPERTIES_FILE_NAME);
 	}
 
 	public static File getProjectStatsFile() {

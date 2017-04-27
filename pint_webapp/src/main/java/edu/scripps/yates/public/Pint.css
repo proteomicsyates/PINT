@@ -1657,6 +1657,7 @@ table td{
 .configurationPanel{
 	width: 600px;
 	height: 500px;
+	
 }
 .configurationPanel_welcome{
 	font-size: 20px;
@@ -1667,6 +1668,8 @@ table td{
 
 .configurationPanel_CaptionPanel{
 	padding: 10px;
+	font-size: 13px;
+	margin: 10px;
 }
 .configurationPanel_Grid{
 	padding: 10px;

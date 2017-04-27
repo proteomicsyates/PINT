@@ -67,7 +67,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServerType;
 import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLSaver;
-import edu.scripps.yates.server.configuration.ConfigurationPropertiesIO;
+import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
 import edu.scripps.yates.server.projectCreator.ImportCfgFileParserUtil;
 import edu.scripps.yates.server.projectCreator.adapter.FileSetAdapter;
 import edu.scripps.yates.server.projectCreator.adapter.RemoteSSHFileReferenceAdapter;
@@ -82,6 +82,7 @@ import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.FileWithFormat;
 import edu.scripps.yates.server.util.RemoteFileWithType;
 import edu.scripps.yates.server.util.ServerConstants;
+import edu.scripps.yates.server.util.ServerUtil;
 import edu.scripps.yates.server.util.ServletCommonInit;
 import edu.scripps.yates.shared.model.DataSourceBean;
 import edu.scripps.yates.shared.model.FileFormat;
@@ -1238,7 +1239,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 	@Override
 	public void checkUserLogin(String userName, String encryptedPassword) throws PintException {
-		final String adminPassword = ConfigurationPropertiesIO.readProperties().getAdminPassword();
+		final String adminPassword = PintConfigurationPropertiesIO
+				.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext())).getAdminPassword();
 		if (adminPassword == null || "".equals(adminPassword)) {
 			return;
 		} else if (adminPassword.equals(encryptedPassword)) {

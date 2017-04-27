@@ -1,18 +1,20 @@
 package edu.scripps.yates.server.projectStats;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
@@ -37,7 +39,6 @@ public class ProjectStatsManager {
 	private final File file;
 	private final Map<String, ProjectStatsParent> map = new HashMap<String, ProjectStatsParent>();
 	private final HashMap<Thread, Method> methodsByThread = new HashMap<Thread, Method>();
-	private final static ReentrantLock lock = new ReentrantLock();
 	private static ProjectStats generalProjectsStats = new ProjectStatsImpl(null, ProjectStatsType.PINT);
 
 	private ProjectStatsManager(File file, Method method) {
@@ -48,23 +49,25 @@ public class ProjectStatsManager {
 
 	private void loadFile() {
 		// wait if someone is trying to access the file
-
+		FileLock fileLock = null;
+		BufferedReader br = null;
 		try {
+			FileInputStream fis = new FileInputStream(file);
+			fileLock = fis.getChannel().lock(0L, Long.MAX_VALUE, true);
 			log.info("Trying to get the lock from Thread " + Thread.currentThread().getId() + " from method "
 					+ methodsByThread.get(Thread.currentThread()).getName());
-			lock.lockInterruptibly();
+
 			log.info("Lock acquired from Thread " + Thread.currentThread().getId() + " from method "
 					+ methodsByThread.get(Thread.currentThread()).getName());
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		try {
 			if (!file.exists()) {
 				return;
 			}
-			List<String> readAllLines = Files.readAllLines(Paths.get(file.getAbsolutePath()), Charset.defaultCharset());
+
+			DataInputStream in = new DataInputStream(fis);
+			br = new BufferedReader(new InputStreamReader(in));
+			String line;
 			String projectTag = null;
-			for (String line : readAllLines) {
+			while ((line = br.readLine()) != null) {
 
 				if ("".equals(line.trim())) {
 					continue;
@@ -126,13 +129,29 @@ public class ProjectStatsManager {
 
 			}
 			log.info(FilenameUtils.getName(file.getAbsolutePath()) + " loaded correctly");
-		} catch (Exception e) {
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			log.info("Error while reading stats file: " + e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
 		} finally {
-			lock.unlock();
-			log.info("Lock released from Thread " + Thread.currentThread().getId() + " from method "
-					+ methodsByThread.get(Thread.currentThread()).getName());
+
+			try {
+				if (fileLock != null) {
+					fileLock.release();
+					log.info("Lock released from Thread " + Thread.currentThread().getId() + " from method "
+							+ methodsByThread.get(Thread.currentThread()).getName());
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
 		}
 	}
 
@@ -175,44 +194,47 @@ public class ProjectStatsManager {
 
 	private void updateFile(String line) {
 		// wait until someone release the lock
+		FileLock fileLock = null;
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file, true);
+			fileLock = fos.getChannel().lock();
+			log.info("Trying to get the lock for update the file from Thread " + Thread.currentThread().getId()
+					+ " from method " + methodsByThread.get(Thread.currentThread()).getName());
 
-		log.info("Trying to get the lock for update the file from Thread " + Thread.currentThread().getId()
-				+ " from method " + methodsByThread.get(Thread.currentThread()).getName());
-		try {
-			lock.lockInterruptibly();
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		log.info("Lock acquired from Thread " + Thread.currentThread().getId() + " from method "
-				+ methodsByThread.get(Thread.currentThread()).getName());
-		try {
+			log.info("Lock acquired from Thread " + Thread.currentThread().getId() + " from method "
+					+ methodsByThread.get(Thread.currentThread()).getName());
+
 			List<String> projectList = new ArrayList<String>();
 			projectList.addAll(map.keySet());
 			Collections.sort(projectList);
-			FileWriter fw = null;
 
-			try {
-				fw = new FileWriter(file, true);
+			String str = line + "\n";
+			fos.write(str.getBytes());
 
-				fw.write(line + "\n");
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				log.error("Some error happened while updating stats file: " + e.getMessage());
-			} finally {
-				if (fw != null) {
-					try {
-						fw.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-						log.error("Error while closing stats file: " + e.getMessage());
-					}
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} finally {
+			if (fileLock != null) {
+				try {
+					fileLock.release();
+					log.info("Lock released from Thread " + Thread.currentThread().getId() + " from method "
+							+ methodsByThread.get(Thread.currentThread()).getName());
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
-		} finally {
-			lock.unlock();
-			log.info("Lock released from Thread " + Thread.currentThread().getId() + " from method "
-					+ methodsByThread.get(Thread.currentThread()).getName());
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+					log.error("Error while closing stats file: " + e.getMessage());
+				}
+			}
+
 		}
 	}
 
@@ -482,6 +504,10 @@ public class ProjectStatsManager {
 			updateFile(generalProjectsStats.getNumProteinsString(""));
 		}
 		return generalProjectsStats.getNumProteins();
+	}
+
+	public static void clearGeneralProjectStats() {
+		generalProjectsStats.clear();
 	}
 
 	public int getNumGenes() {

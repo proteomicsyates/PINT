@@ -217,4 +217,14 @@ public abstract class ProjectStats<T> implements Serializable {
 
 	protected abstract ProjectStatsType getType();
 
+	public void clear() {
+		this.numConditions = null;
+		this.numGenes = null;
+		this.numMSRuns = null;
+		this.numPeptides = null;
+		this.numProteins = null;
+		this.numPSMs = null;
+		this.numSamples = null;
+	}
+
 }

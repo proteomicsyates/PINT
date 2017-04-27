@@ -115,26 +115,22 @@ public class HeaderPanel extends Composite {
 		queryHyperlink.setStyleName("menu1button");
 		menuHorizontalPanel.add(queryHyperlink);
 		queryHyperlink.setWidth("");
-
-		Hyperlink aboutHyperlink = new Hyperlink("About", false, "about");
-		aboutHyperlink.setStyleName("menu1button");
-		menuHorizontalPanel.add(aboutHyperlink);
-		aboutHyperlink.setWidth("");
-
 		HorizontalPanel emptyPanel = new HorizontalPanel();
 		emptyPanel.setStyleName("horizontalComponent-alignLeft");
 		menuHorizontalPanel.add(emptyPanel);
 		emptyPanel.setSize("100px", "30px");
-
-		Hyperlink registerHyperlink = new Hyperlink("Register", false, "register");
-		registerHyperlink.setStyleName("menu2button");
-		menuHorizontalPanel.add(registerHyperlink);
-		registerHyperlink.setWidth("");
-
-		Hyperlink loginHyperlink = new Hyperlink("Login", false, "login");
-		loginHyperlink.setStyleName("menu2button");
-		menuHorizontalPanel.add(loginHyperlink);
-		loginHyperlink.setWidth("");
+		HorizontalPanel emptyPanel2 = new HorizontalPanel();
+		emptyPanel2.setStyleName("horizontalComponent-alignLeft");
+		menuHorizontalPanel.add(emptyPanel2);
+		emptyPanel2.setSize("100px", "30px");
+		HorizontalPanel emptyPanel3 = new HorizontalPanel();
+		emptyPanel3.setStyleName("horizontalComponent-alignLeft");
+		menuHorizontalPanel.add(emptyPanel3);
+		emptyPanel3.setSize("100px", "30px");
+		Hyperlink aboutHyperlink = new Hyperlink("About", false, "about");
+		aboutHyperlink.setStyleName("menu1button");
+		menuHorizontalPanel.add(aboutHyperlink);
+		aboutHyperlink.setWidth("");
 
 		Hyperlink helpHyperlink = new Hyperlink("Help", false, "help");
 		helpHyperlink.setStyleName("menu2button");

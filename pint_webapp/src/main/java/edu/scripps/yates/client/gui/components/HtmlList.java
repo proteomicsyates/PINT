@@ -43,8 +43,7 @@ public class HtmlList extends Widget {
 
 	public void addItem(String text, Command command) {
 		LIElement liElement = Document.get().createLIElement();
-		liElement.setInnerSafeHtml(new SafeHtmlBuilder().appendEscaped(text)
-				.toSafeHtml());
+		liElement.setInnerSafeHtml(new SafeHtmlBuilder().appendEscaped(text).toSafeHtml());
 		getElement().appendChild(liElement);
 
 		if (command != null)
@@ -78,5 +77,10 @@ public class HtmlList extends Widget {
 
 	public void setText(String text, int listIndex) {
 		listItems.get(listIndex).setInnerText(text);
+	}
+
+	public void setTextAndTitle(String text, String title, int listIndex) {
+		listItems.get(listIndex).setInnerText(text);
+		listItems.get(listIndex).setTitle(title);
 	}
 }

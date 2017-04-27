@@ -7,7 +7,6 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
@@ -90,11 +89,13 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 		dataStatsVerticalPanel.setStyleName("mainPageDataStatistics");
 		dataStatsVerticalPanel.setBorderWidth(0);
 
-		InlineHTML nlnhtmlNewInlinehtml = new InlineHTML("Data statistics:");
+		InlineHTML nlnhtmlNewInlinehtml = new InlineHTML("PINT database statistics:");
 		nlnhtmlNewInlinehtml.setStyleName("title2");
 		nlnhtmlNewInlinehtml.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		dataStatsVerticalPanel.add(nlnhtmlNewInlinehtml);
-
+		InlineHTML text = new InlineHTML("Currently, this instance of PINT contains:");
+		text.setStyleName("mainPageBoxExplanation");
+		dataStatsVerticalPanel.add(text);
 		listItemPanel = new HtmlList(ListType.UNORDERED);
 		listItemPanel.setStyleName("mainPageDataStatistics-numbers");
 		dataStatsVerticalPanel.add(listItemPanel);
@@ -118,7 +119,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 		submitVerticalPanel.add(nlnhtmlNewInlinehtml_3);
 
 		InlineHTML nlnhtmlSubmitExplanation = new InlineHTML(
-				"Click here to upload new data into the PInt database. The tool will guide you in order to capture your data in an appropiate way.");
+				"Click here to create a new project and upload data into it. The tool will guide you in order to capture your data in an appropiate way.");
 		nlnhtmlSubmitExplanation.setStyleName("mainPageBoxExplanation");
 		submitVerticalPanel.add(nlnhtmlSubmitExplanation);
 
@@ -129,12 +130,12 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 		accessDataVerticalPanel.setBorderWidth(0);
 		accessDataVerticalPanel.setStyleName("mainPageBoxes");
 
-		InlineHTML nlnhtmlAccessData = new InlineHTML("Access data:");
+		InlineHTML nlnhtmlAccessData = new InlineHTML("Browse data:");
 		nlnhtmlAccessData.setStyleName("title2");
 		accessDataVerticalPanel.add(nlnhtmlAccessData);
 
 		InlineHTML nlnhtmlAccessDataExplanation = new InlineHTML(
-				"Click here to access to the data. The list of available data projects will be listed, and the user will be able to select the projects in which is interested.");
+				"Click here to see the list of the stored projects in PINT. You will be able to select the ones in which you are interested.");
 		nlnhtmlAccessDataExplanation.setStyleName("mainPageBoxExplanation");
 		accessDataVerticalPanel.add(nlnhtmlAccessDataExplanation);
 
@@ -152,7 +153,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 		configurationVerticalPanel.add(nlnhtmlConfiguration);
 
 		InlineHTML nlnhtmlConfigurationExplanation = new InlineHTML(
-				"Click here to go to the basic configuration of PINT.");
+				"Click here to go to the basic configuration of PINT (master password protected).\nYou can edit the master password, the database connection parameters, the location of the internal files in the server and the projects you want to pre-load in cache for a faster accession.");
 		nlnhtmlConfigurationExplanation.setStyleName("mainPageBoxExplanation");
 		configurationVerticalPanel.add(nlnhtmlConfigurationExplanation);
 
@@ -192,7 +193,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 	protected void checkLoginBeforeStartconfiguration() {
 		// check first the login
 		PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
-				"Enter admin password to enter in PINT configuration:");
+				"Enter PINT master password to access to PINT basic configuration:");
 		loginPanel.addCloseHandler(new CloseHandler<PopupPanel>() {
 
 			@Override
@@ -221,7 +222,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert(caught.getMessage());
+				listItemPanel.setTextAndTitle("error", caught.getMessage(), 0);
 			}
 		});
 		proteinRetrievingService.getNumConditions(new AsyncCallback<Integer>() {
@@ -233,7 +234,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert(caught.getMessage());
+				listItemPanel.setTextAndTitle("error", caught.getMessage(), 1);
 			}
 		});
 		proteinRetrievingService.getNumMSRuns(new AsyncCallback<Integer>() {
@@ -245,7 +246,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert(caught.getMessage());
+				listItemPanel.setTextAndTitle("error", caught.getMessage(), 2);
 			}
 		});
 		proteinRetrievingService.getNumDifferentProteins(new AsyncCallback<Integer>() {
@@ -257,7 +258,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert(caught.getMessage());
+				listItemPanel.setTextAndTitle("error", caught.getMessage(), 3);
 			}
 		});
 		proteinRetrievingService.getNumGenes(new AsyncCallback<Integer>() {
@@ -269,7 +270,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert(caught.getMessage());
+				listItemPanel.setTextAndTitle("error", caught.getMessage(), 4);
 			}
 		});
 		proteinRetrievingService.getNumDifferentPeptides(new AsyncCallback<Integer>() {
@@ -281,7 +282,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert(caught.getMessage());
+				listItemPanel.setTextAndTitle("error", caught.getMessage(), 5);
 			}
 		});
 		proteinRetrievingService.getNumPSMs(new AsyncCallback<Integer>() {
@@ -293,7 +294,7 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert(caught.getMessage());
+				listItemPanel.setTextAndTitle("error", caught.getMessage(), 6);
 			}
 		});
 	}

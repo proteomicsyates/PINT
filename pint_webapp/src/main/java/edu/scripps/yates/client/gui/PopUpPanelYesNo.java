@@ -19,8 +19,8 @@ public class PopUpPanelYesNo extends VerticalPanel {
 	private final PopupPanel popup;
 	private final Label statusLabel = new Label();
 	private Label titleLabel;
-	private final Button button1;
-	private final Button button2;
+	private Button button1;
+	private Button button2;
 
 	public PopUpPanelYesNo(boolean autoHide, boolean modal, boolean glassEnabled, String title, String messageText) {
 		this(autoHide, modal, glassEnabled, title, messageText, "Yes", "No");
@@ -55,14 +55,17 @@ public class PopUpPanelYesNo extends VerticalPanel {
 
 		Grid holder = new Grid(1, 2);
 		holder.setStyleName("checkLoginPopUp-grid");
-
-		button1 = new Button(button1Text != null ? button1Text : "");
 		if (button1Text != null) {
-			holder.setWidget(0, 0, button1);
+			button1 = new Button(button1Text);
+			if (button1Text != null) {
+				holder.setWidget(0, 0, button1);
+			}
 		}
-		button2 = new Button(button2Text != null ? button2Text : "");
 		if (button2Text != null) {
-			holder.setWidget(0, 1, button2);
+			button2 = new Button(button2Text);
+			if (button2Text != null) {
+				holder.setWidget(0, 1, button2);
+			}
 		}
 		this.add(holder);
 		this.add(statusLabel);
@@ -72,11 +75,15 @@ public class PopUpPanelYesNo extends VerticalPanel {
 	}
 
 	public void addButton1ClickHandler(ClickHandler clickHandler) {
-		button1.addClickHandler(clickHandler);
+		if (button1 != null) {
+			button1.addClickHandler(clickHandler);
+		}
 	}
 
 	public void addButton2ClickHandler(ClickHandler clickHandler) {
-		button2.addClickHandler(clickHandler);
+		if (button2 != null) {
+			button2.addClickHandler(clickHandler);
+		}
 	}
 
 	protected void hideAfterTime(int milliseconds) {

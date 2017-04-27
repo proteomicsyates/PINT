@@ -23,12 +23,12 @@ import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.components.MyWindowScrollPanel;
 import edu.scripps.yates.client.gui.components.pseaquant.PSEAQuantFormPanel;
-import edu.scripps.yates.client.gui.configuration.ConfigurationClientManager;
 import edu.scripps.yates.client.gui.configuration.ConfigurationPanel;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
 import edu.scripps.yates.client.util.ClientToken;
 import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
 import edu.scripps.yates.shared.util.CryptoUtil;
 
 public class Pint implements EntryPoint {
@@ -84,46 +84,15 @@ public class Pint implements EntryPoint {
 
 		showLoadingDialog("Configuring PINT. Please wait...");
 		ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
-		final ConfigurationClientManager configurationManager = ConfigurationClientManager.getInstance();
-		service.getAdminPassword(new AsyncCallback<String>() {
+
+		service.getPintConfigurationProperties(new AsyncCallback<PintConfigurationProperties>() {
 
 			@Override
-			public void onSuccess(String encryptedAdminPassword) {
-				String decryptedAdminPassword = CryptoUtil.decrypt(encryptedAdminPassword);
-				if (decryptedAdminPassword == null) {
-					decryptedAdminPassword = "";
-				}
-				configurationManager.setAdminPassword(decryptedAdminPassword);
-				if (configurationManager.isConfigurationCheckingIsFinished()) {
-					if (forceToShowPanel || configurationManager.isSomeConfigurationMissing()) {
-						showConfigurationPanel();
-					} else {
-						hiddeLoadingDialog();
-					}
-				}
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-				GWT.log("Error setting up PINT: " + caught.getMessage());
-				hiddeLoadingDialog();
-			}
-		});
-		service.getOMIMKey(new AsyncCallback<String>() {
-
-			@Override
-			public void onSuccess(String omimKey) {
-				if (omimKey == null) {
-					omimKey = "";
-				}
-				configurationManager.setOMIMKey(omimKey);
-				if (configurationManager.isConfigurationCheckingIsFinished()) {
-					if (forceToShowPanel || configurationManager.isSomeConfigurationMissing()) {
-						showConfigurationPanel();
-					} else {
-						hiddeLoadingDialog();
-					}
+			public void onSuccess(PintConfigurationProperties properties) {
+				if (forceToShowPanel || properties.isSomeConfigurationMissing()) {
+					showConfigurationPanel(properties);
+				} else {
+					hiddeLoadingDialog();
 				}
 			}
 
@@ -137,9 +106,9 @@ public class Pint implements EntryPoint {
 
 	}
 
-	protected void showConfigurationPanel() {
+	protected void showConfigurationPanel(PintConfigurationProperties pintConfigurationProperties) {
 		if (configurationPanel == null) {
-			configurationPanel = new ConfigurationPanel();
+			configurationPanel = new ConfigurationPanel(pintConfigurationProperties);
 		}
 		hiddeLoadingDialog();
 		configurationPanel.center();

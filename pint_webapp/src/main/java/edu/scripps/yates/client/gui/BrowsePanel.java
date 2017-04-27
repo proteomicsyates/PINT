@@ -403,7 +403,7 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 	protected void checkUserNameForDeletion(final String projectTag) {
 		// check first the login
 		PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
-				"Enter password for project deletion:");
+				"Enter PINT master password for project deletion:");
 		loginPanel.addCloseHandler(new CloseHandler<PopupPanel>() {
 
 			@Override

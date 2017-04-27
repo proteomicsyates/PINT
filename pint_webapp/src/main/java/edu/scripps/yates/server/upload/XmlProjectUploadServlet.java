@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
@@ -45,6 +47,13 @@ public class XmlProjectUploadServlet extends UploadAction {
 
 	}
 
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		FileManager.getProjectFilesPath(getServletContext());
+
+		super.init(config);
+	}
+
 	/**
 	 * Maintain a list with received files and their content types.
 	 */
@@ -65,7 +74,6 @@ public class XmlProjectUploadServlet extends UploadAction {
 			if (false == item.isFormField()) {
 				try {
 					// needed before the following line
-					FileManager.getProjectFilesPath(getServletContext());
 					File file = FileManager.getProjectXmlFile(item.getName());
 
 					log.info("Saving XML project file to: " + file.getAbsolutePath());
