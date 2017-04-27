@@ -881,7 +881,15 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 
 	@Override
 	public void showErrorMessage(Throwable throwable) {
-		showMessage(throwable.getMessage());
+		throwable.printStackTrace();
+
+		String message = throwable.getMessage();
+		if (message == null) {
+			message = "Internal error";
+
+		}
+		showMessage(message);
+
 	}
 
 	@Override
