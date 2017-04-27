@@ -424,6 +424,14 @@ public class PreparedCriteria {
 		return cr;
 	}
 
+	public static Criteria getCriteriaForDifferentPSMs() {
+		final Criteria cr = ContextualSessionHandler.getSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.conditions", "condition").createAlias("condition.project", "project")
+				.setProjection(Projections.distinct(Projections.property("psmId")));
+		cr.addOrder(Order.asc("psmId").ignoreCase());
+		return cr;
+	}
+
 	public static Criteria getCriteriaForProteinPrimaryAccsInProjectInMSRun(String projectTag, String runID) {
 		final Criteria cr = ContextualSessionHandler.getSession()
 				.createCriteria(ProteinAccession.class, "proteinAccession")
