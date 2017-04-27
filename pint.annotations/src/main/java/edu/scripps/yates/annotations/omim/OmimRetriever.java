@@ -1,10 +1,7 @@
 package edu.scripps.yates.annotations.omim;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -35,8 +32,7 @@ public class OmimRetriever {
 	private static JAXBContext jaxbContext;
 	private final static int MAX_NUM_ENTRIES_PER_QUERY = 100;
 
-	public static Map<Integer, OmimEntry> retrieveOmimEntries(String omimAPIKey, Collection<Integer> omimIDs) {
-		log.info("Retrieving " + omimIDs.size() + " OMIM entries");
+	public static JAXBContext getJAXBContext() {
 		if (jaxbContext == null) {
 			try {
 				jaxbContext = JAXBContext.newInstance(Omim.class);
@@ -45,6 +41,12 @@ public class OmimRetriever {
 
 			}
 		}
+		return jaxbContext;
+	}
+
+	public static Map<Integer, OmimEntry> retrieveOmimEntries(String omimAPIKey, Collection<Integer> omimIDs) {
+		log.info("Retrieving " + omimIDs.size() + " OMIM entries");
+
 		String omimUrl = omimProps.getPropertyValue(PropertiesUtil.OMIM_URL_PROP);
 		if (omimUrl == null || "".equals(omimUrl)) {
 			omimUrl = "http://api.omim.org";
@@ -76,7 +78,7 @@ public class OmimRetriever {
 				url += omimID;
 				numId++;
 			}
-			url += "&format=xml&&apiKey=" + omimAPIKey;
+			url += "&format=xml&apiKey=" + omimAPIKey;
 			EntryList entryList = sendRequest(url);
 			if (entryList != null && entryList.getEntry() != null) {
 				for (Entry entry : entryList.getEntry()) {
@@ -144,13 +146,13 @@ public class OmimRetriever {
 	}
 
 	private static EntryList sendRequest(String urlString) {
-
+		HttpURLConnection conn = null;
 		try {
 			log.info("Submitting String= " + urlString + "...");
 			URL url = new URL(urlString).toURI().toURL();
 			log.info("Submitting URL= " + url + "...");
 			long t1 = System.currentTimeMillis();
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn = (HttpURLConnection) url.openConnection();
 			HttpURLConnection.setFollowRedirects(true);
 			conn.setDoInput(true);
 			conn.connect();
@@ -177,14 +179,22 @@ public class OmimRetriever {
 				InputStream is = conn.getInputStream();
 				URLConnection.guessContentTypeFromStream(is);
 				final Omim response = parseResponse(is);
-				return response.getEntryList();
-			} else
+				if (response != null) {
+					return response.getEntryList();
+				}
+				return null;
+			} else {
 				log.error("Failed, got " + conn.getResponseMessage() + " for " + urlString);
+			}
 			conn.disconnect();
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.warn(e.getMessage());
+		} finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
 		}
 		return null;
 	}
@@ -192,35 +202,19 @@ public class OmimRetriever {
 	private static Omim parseResponse(InputStream is) {
 
 		log.debug("Processing response");
-		OutputStream outputStream = null;
+
 		try {
 
-			final File createTempFile = File.createTempFile("omim", "xml");
-			createTempFile.deleteOnExit();
-			// read this file into InputStream
-
-			// write the inputStream to a FileOutputStream
-			outputStream = new FileOutputStream(createTempFile);
-
-			int read = 0;
-			byte[] bytes = new byte[1024];
-
-			while ((read = is.read(bytes)) != -1) {
-				outputStream.write(bytes, 0, read);
-			}
-
-			System.out.println("Done!");
-			outputStream.close();
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Omim omim = (Omim) unmarshaller.unmarshal(createTempFile);
+			Unmarshaller unmarshaller = getJAXBContext().createUnmarshaller();
+			Omim omim = (Omim) unmarshaller.unmarshal(is);
 
 			log.debug("Response parsed succesfully");
-			log.debug(omim.getEntryList().getEntry().size() + " entries");
+			if (omim.getEntryList() != null) {
+				log.debug(omim.getEntryList().getEntry().size() + " entries");
+			}
 			return omim;
 		} catch (JAXBException e) {
 			e.printStackTrace();
-		} catch (IOException e2) {
-			e2.printStackTrace();
 		} finally {
 			if (is != null) {
 				try {
@@ -229,16 +223,23 @@ public class OmimRetriever {
 					e.printStackTrace();
 				}
 			}
-			if (outputStream != null) {
-				try {
-					// outputStream.flush();
-					outputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 
-			}
 		}
 		return null;
+	}
+
+	/**
+	 * Throws
+	 * 
+	 * @param omimKey
+	 */
+	public static void checkOMIMKey(String omimKey) throws OmimException {
+		String url = "http://api.omim.org/api/entry?mimNumber=100100&apiKey=" + omimKey;
+		EntryList sendRequest = sendRequest(url);
+		if (sendRequest == null) {
+			String message = "OMIM API Key '" + omimKey + "' is invalid";
+			log.error(message);
+			throw new OmimException(message);
+		}
 	}
 }
