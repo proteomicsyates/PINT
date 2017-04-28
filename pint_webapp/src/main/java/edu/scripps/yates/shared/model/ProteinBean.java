@@ -1465,4 +1465,24 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	public void setPeptideDBIds(Set<Integer> peptideDBIds) {
 		this.peptideDBIds = peptideDBIds;
 	}
+
+	public ProteinBean getLightVersion() {
+		return lightVersion;
+	}
+
+	public void setLightVersion(ProteinBean lightVersion) {
+		this.lightVersion = lightVersion;
+	}
+
+	public void setEnsemblID(String ensemblID) {
+		this.ensemblID = ensemblID;
+	}
+
+	public void setRatioDistributions(Map<String, RatioDistribution> ratioDistributions) {
+		this.ratioDistributions = ratioDistributions;
+	}
+
+	public void setUniprotFeatures(Map<String, List<UniprotFeatureBean>> uniprotFeatures) {
+		this.uniprotFeatures = uniprotFeatures;
+	}
 }

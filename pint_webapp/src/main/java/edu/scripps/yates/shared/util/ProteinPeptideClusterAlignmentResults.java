@@ -25,6 +25,10 @@ public class ProteinPeptideClusterAlignmentResults implements Serializable {
 		setCluster(cluster);
 	}
 
+	public void setResultsByPeptideSequence(Map<String, Set<AlignmentResult>> resultsByPeptideSequence) {
+		this.resultsByPeptideSequence = resultsByPeptideSequence;
+	}
+
 	public void addAlignmentResult(String peptide1, String peptide2, AlignmentResult alignmentResult) {
 		addToMap(peptide1, alignmentResult);
 		addToMap(peptide2, alignmentResult);
