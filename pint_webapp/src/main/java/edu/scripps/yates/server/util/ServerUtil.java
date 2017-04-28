@@ -1,6 +1,5 @@
 package edu.scripps.yates.server.util;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,34 +83,9 @@ public class ServerUtil {
 		return false;
 	}
 
-	public static boolean isScrippsServer() {
-		Map<String, String> environmentalVariables = System.getenv();
-		String testComputer = environmentalVariables.get(ServerConstants.PINT_SCRIPPS_ENV_VAR);
-		if (testComputer != null && testComputer.equalsIgnoreCase("true")) {
-			return true;
-		}
-		return false;
-	}
-
-	public static File getPINTPropertiesFile(ServletContext context) {
-		String pintPropertiesFile = ServerConstants.PINT_PROPERTIES_FILE_NAME;
-		if (isTestServer()) {
-			log.info("TEST SERVER DETECTED.");
-			pintPropertiesFile = ServerConstants.PINT_TEST_PROPERTIES_FILE_NAME;
-		}
-		if (isScrippsServer()) {
-			log.info("SCRIPPS SERVER DETECTED.");
-			pintPropertiesFile = ServerConstants.PINT_SCRIPPS_PROPERTIES_FILE_NAME;
-		}
-
-		final File file = new File(context.getRealPath("/WEB-INF") + File.separator + pintPropertiesFile);
-		log.info("Using properties file: " + file.getAbsolutePath());
-		return file;
-	}
-
 	public static PintConfigurationProperties getPINTProperties(ServletContext context) {
 		try {
-			return PintConfigurationPropertiesIO.readProperties(getPINTPropertiesFile(context));
+			return PintConfigurationPropertiesIO.readProperties(FileManager.getPINTPropertiesFile(context));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

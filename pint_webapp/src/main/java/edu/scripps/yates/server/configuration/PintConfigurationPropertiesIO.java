@@ -14,7 +14,6 @@ import edu.scripps.yates.annotations.omim.OmimRetriever;
 import edu.scripps.yates.dbindex.util.PropertiesReader;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
-import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.util.CryptoUtil;
@@ -27,7 +26,6 @@ public class PintConfigurationPropertiesIO {
 	private static final String DB_USER_NAME = "db_username";
 	private static final String DB_PASSWORD = "db_password";
 	private static final String DB_URL = "db_url";
-	private static final String PROJECT_FILES_PATH = "projectFilesPath";
 	private static final String PRELOAD_PUBLIC_PROJECTS = "preLoadPublicProjects";
 	private static final String PROJECTS_TO_PRELOAD = "projectsToPreLoad";
 	private static final String PROJECTS_TO_NOT_PRELOAD = "projectsToNotPreLoad";
@@ -108,9 +106,6 @@ public class PintConfigurationPropertiesIO {
 			if (properties.getDb_username() != null) {
 				fw.append(DB_USER_NAME).append("=").append(properties.getDb_username()).append("\n");
 			}
-			if (properties.getProjectFilesPath() != null) {
-				fw.append(PROJECT_FILES_PATH).append("=").append(properties.getProjectFilesPath()).append("\n");
-			}
 			if (properties.isPreLoadPublicProjects() != null) {
 				fw.append(PRELOAD_PUBLIC_PROJECTS).append("=").append(properties.isPreLoadPublicProjects().toString())
 						.append("\n");
@@ -171,11 +166,7 @@ public class PintConfigurationPropertiesIO {
 			property = property.trim();
 		}
 		ret.setPreLoadPublicProjects(Boolean.valueOf(property));
-		property = prop.getProperty(PROJECT_FILES_PATH);
-		if (property != null) {
-			property = property.trim();
-		}
-		ret.setProjectFilesPath(property);
+
 		property = prop.getProperty(PROJECTS_TO_NOT_PRELOAD);
 		if (property != null) {
 			property = property.trim();
@@ -210,9 +201,12 @@ public class PintConfigurationPropertiesIO {
 		testDatabaseConnection(setupPropertiesFile);
 	}
 
-	private static void testDatabaseConnection(File setupPropertiesFile) {
+	private static void testDatabaseConnection(File pintPropertiesFile) {
+		PintConfigurationProperties properties = PintConfigurationPropertiesIO.readProperties(pintPropertiesFile);
+
 		ContextualSessionHandler.clearSessionFactory();
-		ContextualSessionHandler.getSessionFactory(setupPropertiesFile);
+		ContextualSessionHandler.getSessionFactory(properties.getDb_username(), properties.getDb_password(),
+				properties.getDb_url());
 
 		ContextualSessionHandler.openSession();
 		ContextualSessionHandler.beginGoodTransaction();
@@ -230,17 +224,6 @@ public class PintConfigurationPropertiesIO {
 		writeProperties(properties, setupPropertiesFile);
 		testDatabaseConnection(setupPropertiesFile);
 
-	}
-
-	public static void writeProjectFilesPath(String projectFilesPath, File setupPropertiesFile) {
-		// replace \ by /
-		projectFilesPath = projectFilesPath.replace("\\", "/");
-		// replace // by /
-		projectFilesPath = projectFilesPath.replace("//", "/");
-		final PintConfigurationProperties properties = readProperties(setupPropertiesFile);
-		properties.setProjectFilesPath(projectFilesPath);
-		writeProperties(properties, setupPropertiesFile);
-		FileManager.resetProjectfilePath();
 	}
 
 	public static void writeProjectsToPreload(String projectsToPreload, File setupPropertiesFile) {

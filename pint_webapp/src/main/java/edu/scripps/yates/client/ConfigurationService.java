@@ -30,10 +30,6 @@ public interface ConfigurationService extends RemoteService {
 
 	void setDBUserName(String dbUserName) throws PintException;
 
-	String getProjectFilesPath();
-
-	void setProjectFilesPath(String projectFilesPath) throws PintException;
-
 	String getProjectToPreLoad();
 
 	void setProjectsToPreload(String projectsToPreload) throws PintException;

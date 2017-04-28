@@ -3,6 +3,22 @@
     PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app id="WebApp_1492817428040">
+
+	<!-- ************************************* -->
+	<!-- MODIFY THIS BEFORE STARTING SERVER!!! -->
+	<!-- Folder in your PINT server where local files (uniprot annotations, uploaded files, etc...) will be stored -->
+	<context-param>
+		<param-name>PINT_HOME_PATH</param-name>
+		<param-value>/home/salvador/PInt</param-value>
+		<!--  include here your API key -->
+	</context-param>
+	<!-- ************************************* -->
+
+
+	<!-- ************************************* -->
+	<!-- DO NOT MODIFY ANYTHING FROM HERE      -->
+    <!-- ************************************* -->
+	
 	<!-- context-params -->
 	<!-- max size of the upload request -->
 	<context-param>
@@ -22,19 +38,6 @@
 		<param-value>0</param-value>
 		<!--    		<param-value>200</param-value> -->
 	</context-param>
-
-	
-
-	<!-- Remote access to OMIM database is controlled by a personal API KEY. In order to use the service, state here your OMIM API KEY -->
-	<!-- For requesting a new one, go to http://www.omim.org/api -->
-	<context-param>
-		<param-name>OMIM_API_KEY</param-name>
-		<param-value>nUQ7nH12QW6GxlhZk4bu1g</param-value>
-		<!--  include here your API key -->
-	</context-param>
-
-	
-
 
 	<!-- Filters -->
 	<filter id="Filter_1492817520469">
@@ -228,4 +231,7 @@
 	<welcome-file-list>
 		<welcome-file>Pint.html</welcome-file>
 	</welcome-file-list>
+	
+	
+	
 </web-app>

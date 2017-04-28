@@ -21,7 +21,10 @@ import org.hibernate.context.internal.ManagedSessionContext;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 
 import edu.scripps.yates.proteindb.persistence.HibernateUtil;
+import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
+import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerConstants;
+import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
 
 public class HibernateFilterManaged implements Filter {
 
@@ -142,7 +145,11 @@ public class HibernateFilterManaged implements Filter {
 	public void init(FilterConfig filterConfig) throws ServletException {
 		log.info("Initializing filter...");
 		log.info("Obtaining SessionFactory from static HibernateUtil singleton");
-		sf = HibernateUtil.getInstance(getPropertiesFile(filterConfig)).getSessionFactory();
+		File pintPropertiesFile = FileManager.getPINTPropertiesFile(filterConfig.getServletContext());
+		PintConfigurationProperties properties = PintConfigurationPropertiesIO.readProperties(pintPropertiesFile);
+
+		sf = HibernateUtil.getInstance(properties.getDb_username(), properties.getDb_password(), properties.getDb_url())
+				.getSessionFactory();
 	}
 
 	@Override

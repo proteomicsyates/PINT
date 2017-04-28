@@ -8,6 +8,8 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
+import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
+import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
 
 /**
  * This class contains a common method to run from all servlets in the init()
@@ -24,7 +26,11 @@ public class ServletCommonInit {
 		boolean sessionOpen = false;
 		try {
 			// init the DB connection
-			ContextualSessionHandler.getSessionFactory(ServerUtil.getPINTPropertiesFile(context));
+			File pintPropertiesFile = FileManager.getPINTPropertiesFile(context);
+			PintConfigurationProperties properties = PintConfigurationPropertiesIO.readProperties(pintPropertiesFile);
+
+			ContextualSessionHandler.getSessionFactory(properties.getDb_username(), properties.getDb_password(),
+					properties.getDb_url());
 			ContextualSessionHandler.openSession();
 			sessionOpen = true;
 			ContextualSessionHandler.beginGoodTransaction();

@@ -1037,7 +1037,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					RemoteServicesTasks.annotateProteinsOMIM(
 							DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(),
 							PintConfigurationPropertiesIO
-									.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()))
+									.readProperties(FileManager.getPINTPropertiesFile(getServletContext()))
 									.getOmimKey());
 				}
 				// add to cache by query if not empty

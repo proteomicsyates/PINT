@@ -1,5 +1,6 @@
 package edu.scripps.yates.server.daemon;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -11,10 +12,13 @@ import javax.servlet.ServletContextListener;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
+import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
 import edu.scripps.yates.server.daemon.tasks.PreLoadPublicProjects;
 import edu.scripps.yates.server.daemon.tasks.ProteinUniprotAnnotationUpdater;
+import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerUtil;
+import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
 import edu.scripps.yates.shared.util.SharedConstants;
 
 public class PintServerDaemon implements ServletContextListener {
@@ -29,7 +33,11 @@ public class PintServerDaemon implements ServletContextListener {
 		// check database connection
 		boolean sessionOpen = false;
 		try {
-			ContextualSessionHandler.getSessionFactory(ServerUtil.getPINTPropertiesFile(sce.getServletContext()));
+			File pintPropertiesFile = FileManager.getPINTPropertiesFile(sce.getServletContext());
+			PintConfigurationProperties properties = PintConfigurationPropertiesIO.readProperties(pintPropertiesFile);
+
+			ContextualSessionHandler.getSessionFactory(properties.getDb_username(), properties.getDb_password(),
+					properties.getDb_url());
 			ContextualSessionHandler.openSession();
 			sessionOpen = true;
 			ContextualSessionHandler.beginGoodTransaction();

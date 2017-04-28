@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.persistence;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +37,6 @@ public class ContextualSessionHandler {
 	// ThreadGroupLocal<Session>();
 
 	private static Logger log = Logger.getLogger("log4j.logger.org.proteored");
-	private static int contador = 0;
 	private static Statistics statistics;
 
 	/**
@@ -48,9 +46,9 @@ public class ContextualSessionHandler {
 	 * @param propertiesFile
 	 * @return
 	 */
-	public static SessionFactory getSessionFactory(File propertiesFile) {
+	public static SessionFactory getSessionFactory(String dbUsername, String dbPassword, String dbURL) {
 		if (sessionFactory == null) {
-			sessionFactory = HibernateUtil.getInstance(propertiesFile).getSessionFactory();
+			sessionFactory = HibernateUtil.getInstance(dbUsername, dbPassword, dbURL).getSessionFactory();
 			// enable statistics
 			sessionFactory.getStatistics().setStatisticsEnabled(true);
 		}
@@ -63,7 +61,7 @@ public class ContextualSessionHandler {
 	}
 
 	private static SessionFactory getSessionFactory() {
-		return getSessionFactory(null);
+		return getSessionFactory(null, null, null);
 	}
 
 	/**

@@ -155,11 +155,7 @@ public class ConfigurationPanel extends WindowBox implements StatusReporter {
 		grid.setWidget(3, 0, getDataBaseUserNameRowPanel());
 		grid.setWidget(4, 0, getDataBasePasswordRowPanel());
 		databaseConnectionPanel.add(grid);
-		// server storage folder
-		CaptionPanel projectFilesPathPanel = new CaptionPanel("Storage of files in server (optional)");
-		projectFilesPathPanel.setStyleName("configurationPanel_CaptionPanel");
-		mainPanel.add(projectFilesPathPanel);
-		projectFilesPathPanel.add(getProjectFilesPathRowPanel());
+
 		// server storage folder
 		CaptionPanel projectPreloadingPanel = new CaptionPanel("Project preloading");
 		projectPreloadingPanel.setStyleName("configurationPanel_CaptionPanel");
@@ -589,68 +585,6 @@ public class ConfigurationPanel extends WindowBox implements StatusReporter {
 		});
 		labelDBURLStatus = new Label(getStatusText(dbURL));
 		grid.setWidget(1, 3, labelDBURLStatus);
-		return grid;
-	}
-
-	private Widget getProjectFilesPathRowPanel() {
-		final FlexTable grid = new FlexTable();
-		grid.setStyleName("configurationPanel_Grid");
-		final String projectfilesPath = pintConfigurationProperties.getProjectFilesPath();
-		grid.setWidget(0, 0, new Label("Folder in server to store files:"));
-		grid.getFlexCellFormatter().setColSpan(0, 0, 4);
-		grid.setWidget(1, 0, getValidIcon(projectfilesPath, true));
-		final TextBox textBox = new TextBox();
-		if (projectfilesPath != null) {
-			textBox.setText(projectfilesPath);
-		}
-		grid.setWidget(1, 1, textBox);
-		String html = "Set";
-		if (projectfilesPath != null && !"".equals(projectfilesPath)) {
-			html = "Update";
-		}
-		final Button button = new Button(html);
-		grid.setWidget(1, 2, button);
-		button.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				final Image imageLoading = new Image(MyClientBundle.INSTANCE.smallLoader());
-				imageLoading.setTitle("Setting the server storage folder");
-				grid.setWidget(1, 0, imageLoading);
-				button.setEnabled(false);
-				textBox.setEnabled(false);
-				service.setProjectFilesPath(textBox.getText(), new AsyncCallback<Void>() {
-
-					@Override
-					public void onSuccess(Void result) {
-						pintConfigurationProperties.setProjectFilesPath(textBox.getText());
-						labelProjectfilePathStatus.setText(getStatusText(textBox.getText()));
-						grid.setWidget(1, 0, getValidIcon(textBox.getText(), true));
-						button.setEnabled(true);
-						textBox.setEnabled(true);
-						checkClosability();
-						showMessage("Server storage folder updated");
-						somethingchanged = true;
-					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						showErrorMessage(caught);
-						pintConfigurationProperties.setProjectFilesPath(null);
-						labelProjectfilePathStatus.setText(getStatusText(null));
-						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-						GWT.log("Error setting up PINT: " + caught.getMessage());
-						grid.setWidget(1, 0, getValidIcon(false));
-						button.setEnabled(true);
-						textBox.setEnabled(true);
-						checkClosability();
-					}
-				});
-
-			}
-		});
-		labelProjectfilePathStatus = new Label(getStatusText(projectfilesPath));
-		grid.setWidget(1, 3, labelProjectfilePathStatus);
 		return grid;
 	}
 
