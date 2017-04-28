@@ -15,12 +15,18 @@ import org.hibernate.cfg.Configuration;
 // if false: uses production database (using hibernate.cfg.xml)
 public class HibernateUtil {
 	private final SessionFactory sessionFactory;
+	private String dbUserName;
+	private String dbPassword;
+	private String dbURL;
 	private static Logger log = Logger.getLogger(HibernateUtil.class);
 	private static HibernateUtil instance;
 	private static boolean testEnabled;
 	private static String errorMessage;
 
 	private HibernateUtil(String dbUsername, String dbPassword, String dbURL) {
+		this.dbUserName = dbUsername;
+		this.dbPassword = dbPassword;
+		this.dbURL = dbURL;
 		sessionFactory = buildSessionFactory(dbUsername, dbPassword, dbURL);
 	}
 
@@ -45,7 +51,8 @@ public class HibernateUtil {
 	 */
 	public static HibernateUtil getInstance(boolean testEnabled, String dbUsername, String dbPassword, String dbURL) {
 		HibernateUtil.testEnabled = testEnabled;
-		if (instance == null) {
+		if (instance == null || !instance.dbUserName.equals(dbUsername) || !instance.dbPassword.equals(dbPassword)
+				|| !instance.dbURL.equals(dbURL)) {
 			instance = new HibernateUtil(dbUsername, dbPassword, dbURL);
 		}
 		return instance;
@@ -59,17 +66,23 @@ public class HibernateUtil {
 		return instance;
 	}
 
+	private boolean isTest() {
+		Map<String, String> env = System.getenv();
+		if (HibernateUtil.testEnabled || (env.get("SERVER_TEST") != null && env.get("SERVER_TEST").equals("true"))) {
+			return true;
+		}
+		return false;
+	}
+
 	private SessionFactory buildSessionFactory(String dbUsername, String dbPassword, String dbURL) {
 		try {
 			// Create the SessionFactory from hibernate.cfg.xml
 			// new Configuration().configure(hibernate.cfg.test.xml)
-			Map<String, String> env = System.getenv();
 
 			log.info("Checking environment variable SERVER_TEST in HibernateUtil");
 			log.info("Creating sessionFactory in HibernateUtil");
 			Configuration configure = null;
-			if (HibernateUtil.testEnabled
-					|| (env.get("SERVER_TEST") != null && env.get("SERVER_TEST").equals("true"))) {
+			if (isTest()) {
 				if (HibernateUtil.testEnabled) {
 					log.info("testEnabled = TRUE -> using hibernate.cfg.test.xml");
 				} else {
@@ -96,23 +109,40 @@ public class HibernateUtil {
 			if (dbUsername != null && !"".contentEquals(dbUsername)) {
 				configure.setProperty("hibernate.connection.username", dbUsername);
 			} else {
-				throw new IllegalArgumentException("User name is required to connect to the database");
+				// only throw if it is not test, because the
+				// hibernate.cfg.test.xml could have the username and password
+				// and dbURL
+				if (!isTest()) {
+					throw new IllegalArgumentException("User name is required to connect to the database");
+				}
 			}
 
 			if (dbURL != null && !"".equals(dbURL)) {
 				configure.setProperty("hibernate.connection.url", dbURL);
 			} else {
-				throw new IllegalArgumentException(
-						"An URL where the database is accessible is required to connect to the database");
+				// only throw if it is not test, because the
+				// hibernate.cfg.test.xml could have the username and password
+				// and dbURL
+				if (!isTest()) {
+					throw new IllegalArgumentException(
+							"An URL where the database is accessible is required to connect to the database");
+				}
 			}
-
 			if (dbPassword != null && !"".contentEquals(dbPassword)) {
 				configure.setProperty("hibernate.connection.password", dbPassword);
 			} else {
-				throw new IllegalArgumentException("Password is required to connect to the database");
+				// only throw if it is not test, because the
+				// hibernate.cfg.test.xml could have the username and password
+				// and dbURL
+				if (!isTest()) {
+					throw new IllegalArgumentException("Password is required to connect to the database");
+				}
 			}
-			// check connectino first
-			checkDBConnection(dbURL, dbUsername, dbPassword);
+
+			// check DB connection first
+			checkDBConnection(configure.getProperty("hibernate.connection.url"),
+					configure.getProperty("hibernate.connection.username"),
+					configure.getProperty("hibernate.connection.password"));
 			SessionFactory buildSessionFactory = configure.buildSessionFactory();
 			errorMessage = null;
 			return buildSessionFactory;

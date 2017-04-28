@@ -10,7 +10,9 @@ import org.hibernate.stat.Statistics;
 public class SessionPerKeyHandler {
 	private static final Logger log = Logger.getLogger(SessionPerKeyHandler.class);
 	private static final Map<String, SessionPerKey> sessions = new HashMap<String, SessionPerKey>();
-	private static final SessionFactory sessionFactory = HibernateUtil.getInstance(null).getSessionFactory();
+	// TODO CHANGE THIS USENAME, PASSW, URL if you want to use it
+	private static final SessionFactory sessionFactory = HibernateUtil.getInstance(null, null, null)
+			.getSessionFactory();
 
 	/**
 	 * Enable statistics

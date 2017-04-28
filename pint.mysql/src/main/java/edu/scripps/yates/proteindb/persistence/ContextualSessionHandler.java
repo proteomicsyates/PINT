@@ -412,8 +412,30 @@ public class ContextualSessionHandler {
 		getSession().clear();
 	}
 
+	/**
+	 * This open a session, but it will fail if the session factory was not
+	 * created before by calling to openSession(username, password, dbURL)
+	 * 
+	 * @return
+	 */
 	public static Session openSession() {
 		final Session currentSession = getSessionFactory().openSession();
+		ManagedSessionContext.bind(currentSession);
+		return currentSession;
+
+	}
+
+	/**
+	 * Opens a session and if it is necessary creates a new sessionFactory using
+	 * the username password and dbURL provided.
+	 * 
+	 * @param username
+	 * @param password
+	 * @param dbURL
+	 * @return
+	 */
+	public static Session openSession(String username, String password, String dbURL) {
+		final Session currentSession = getSessionFactory(username, password, dbURL).openSession();
 		ManagedSessionContext.bind(currentSession);
 		return currentSession;
 
