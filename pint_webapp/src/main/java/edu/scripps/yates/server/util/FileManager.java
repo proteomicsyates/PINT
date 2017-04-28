@@ -233,7 +233,8 @@ public class FileManager {
 	}
 
 	public static String getProjectFilesPath(ServletContext servletContext) {
-		if (projectFilesPath == null || projectFilesPath.equals(System.getProperty("java.io.tmpdir"))) {
+		if (projectFilesPath == null || projectFilesPath.equals(System.getProperty("java.io.tmpdir"))
+				|| projectFilesPath.equals("/home/path_to_Pint_folder")) {
 			projectFilesPath = ServerUtil.getPINTProperties(servletContext).getProjectFilesPath();
 			loadIfNeeded();
 		}
