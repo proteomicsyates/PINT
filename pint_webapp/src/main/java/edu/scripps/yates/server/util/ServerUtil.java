@@ -75,16 +75,31 @@ public class ServerUtil {
 		return ret;
 	}
 
-	public static File getPINTPropertiesFile(ServletContext context) {
+	public static boolean isTestServer() {
 		Map<String, String> environmentalVariables = System.getenv();
-		String pintPropertiesFile = ServerConstants.PINT_PROPERTIES_FILE_NAME;
 		String testComputer = environmentalVariables.get(ServerConstants.PINT_DEVELOPER_ENV_VAR);
-		String scrippsComputer = environmentalVariables.get(ServerConstants.PINT_SCRIPPS_ENV_VAR);
 		if (testComputer != null && testComputer.equalsIgnoreCase("true")) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean isScrippsServer() {
+		Map<String, String> environmentalVariables = System.getenv();
+		String testComputer = environmentalVariables.get(ServerConstants.PINT_SCRIPPS_ENV_VAR);
+		if (testComputer != null && testComputer.equalsIgnoreCase("true")) {
+			return true;
+		}
+		return false;
+	}
+
+	public static File getPINTPropertiesFile(ServletContext context) {
+		String pintPropertiesFile = ServerConstants.PINT_PROPERTIES_FILE_NAME;
+		if (isTestServer()) {
 			log.info("TEST SERVER DETECTED.");
 			pintPropertiesFile = ServerConstants.PINT_TEST_PROPERTIES_FILE_NAME;
 		}
-		if (scrippsComputer != null && scrippsComputer.contentEquals("TRUE")) {
+		if (isScrippsServer()) {
 			log.info("SCRIPPS SERVER DETECTED.");
 			pintPropertiesFile = ServerConstants.PINT_SCRIPPS_PROPERTIES_FILE_NAME;
 		}

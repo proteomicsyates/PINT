@@ -12,9 +12,10 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
+import edu.scripps.yates.server.daemon.tasks.PreLoadPublicProjects;
+import edu.scripps.yates.server.daemon.tasks.ProteinUniprotAnnotationUpdater;
 import edu.scripps.yates.server.util.ServerUtil;
 import edu.scripps.yates.shared.util.SharedConstants;
-import edu.scripps.yates.utilities.env.EnvironmentalVariables;
 
 public class PintServerDaemon implements ServletContextListener {
 	private static final Logger log = Logger.getLogger(PintServerDaemon.class);
@@ -48,15 +49,13 @@ public class PintServerDaemon implements ServletContextListener {
 		//
 		log.info("Starting PintServerDaemon...");
 
-		if (SharedConstants.DAEMON_TASKS_ENABLED && !isTestServer()) {
+		if (SharedConstants.DAEMON_TASKS_ENABLED && !ServerUtil.isTestServer()) {
 			// /////////////////////////////////////////////////
 			// REGISTER MAINTENANCE TASKS HERE
 			// pintServerDaemonTasks.add(new
 			// ProteinAccessionsUpdater(servletContext));
-			// pintServerDaemonTasks.add(new
-			// PreLoadPublicProjects("DAEMON_SESSION", servletContext));
-			// pintServerDaemonTasks.add(new
-			// ProteinUniprotAnnotationUpdater(servletContext));
+			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", sce.getServletContext()));
+			pintServerDaemonTasks.add(new ProteinUniprotAnnotationUpdater(sce.getServletContext()));
 			// pintServerDaemonTasks.add(new
 			// DeleteHiddenProjects(servletContext));
 			// pintServerDaemonTasks.add(new GeneInformationConsolidation(
@@ -107,11 +106,6 @@ public class PintServerDaemon implements ServletContextListener {
 		// };
 		// th.setDaemon(true);
 		// th.start();
-	}
-
-	private boolean isTestServer() {
-		final boolean isTestServer = "true".equals(EnvironmentalVariables.getEnvironmentalVariableValue("SERVER_TEST"));
-		return isTestServer;
 	}
 
 	@Override
