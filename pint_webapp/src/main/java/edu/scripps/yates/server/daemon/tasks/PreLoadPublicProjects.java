@@ -26,6 +26,7 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 	 */
 	public PreLoadPublicProjects(String sessionID, ServletContext servletContext) {
 		super(servletContext);
+		log.info("Creating PINT ServerDaemonTask: " + this.getClass().getCanonicalName());
 		FileManager.getProjectFilesPath(servletContext);
 		this.sessionID = sessionID;
 	}

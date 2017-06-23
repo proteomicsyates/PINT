@@ -47,6 +47,7 @@ public class ProteinUniprotAnnotationUpdater extends PintServerDaemonTask {
 	 */
 	public ProteinUniprotAnnotationUpdater(ServletContext servletContext) {
 		super(servletContext);
+		log.info("Creating PINT ServerDaemonTask: " + this.getClass().getCanonicalName());
 		projectFilesPath = FileManager.getProjectFilesPath(servletContext);
 	}
 

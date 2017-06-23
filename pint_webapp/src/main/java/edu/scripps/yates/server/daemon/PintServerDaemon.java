@@ -57,13 +57,17 @@ public class PintServerDaemon implements ServletContextListener {
 		//
 		log.info("Starting PintServerDaemon...");
 
-		if (SharedConstants.DAEMON_TASKS_ENABLED && !ServerUtil.isTestServer()) {
+		boolean isTestServer = ServerUtil.isTestServer();
+		log.info("Is a test server: " + isTestServer);
+		if (SharedConstants.DAEMON_TASKS_ENABLED && !isTestServer) {
 			// /////////////////////////////////////////////////
 			// REGISTER MAINTENANCE TASKS HERE
 			// pintServerDaemonTasks.add(new
 			// ProteinAccessionsUpdater(servletContext));
-			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", sce.getServletContext()));
+
 			pintServerDaemonTasks.add(new ProteinUniprotAnnotationUpdater(sce.getServletContext()));
+			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", sce.getServletContext()));
+
 			// pintServerDaemonTasks.add(new
 			// DeleteHiddenProjects(servletContext));
 			// pintServerDaemonTasks.add(new GeneInformationConsolidation(
