@@ -16,6 +16,7 @@ import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.annotations.util.IndexException;
 import edu.scripps.yates.utilities.index.TextFileIndexIO;
+import edu.scripps.yates.utilities.index.TextFileIndexMultiThreadSafeIO;
 
 /**
  * Extension of {@link TextFileIndexIO} using as start token <entry and as end
@@ -27,7 +28,7 @@ import edu.scripps.yates.utilities.index.TextFileIndexIO;
  * @author Salva
  *
  */
-public class UniprotXmlIndexIO extends TextFileIndexIO {
+public class UniprotXmlIndexIO extends TextFileIndexMultiThreadSafeIO {
 	private final static Logger log = Logger.getLogger(UniprotXmlIndexIO.class);
 	private final static String ENTRY_START_TOKEN = "<entry";
 	private final static String ENTRY_FINAL_TOKEN = "</entry>";

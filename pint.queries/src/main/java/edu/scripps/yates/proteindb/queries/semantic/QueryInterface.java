@@ -13,6 +13,11 @@ import org.proteored.miapeapi.experiment.model.sort.SystemCoreManager;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
+import edu.scripps.yates.pi.ParIterator;
+import edu.scripps.yates.pi.ParIteratorFactory;
+import edu.scripps.yates.pi.ParIterator.Schedule;
+import edu.scripps.yates.pi.reductions.Reducible;
+import edu.scripps.yates.pi.reductions.Reduction;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAnnotationAdapter;
@@ -31,11 +36,6 @@ import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.model.enums.AmountType;
-import pi.ParIterator;
-import pi.ParIterator.Schedule;
-import pi.ParIteratorFactory;
-import pi.reductions.Reducible;
-import pi.reductions.Reduction;
 
 public class QueryInterface {
 	private ProteinProviderFromDB proteinProvider;

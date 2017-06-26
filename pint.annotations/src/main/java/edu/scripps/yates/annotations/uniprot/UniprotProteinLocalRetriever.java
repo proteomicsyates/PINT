@@ -255,7 +255,7 @@ public class UniprotProteinLocalRetriever {
 				}
 				final List<Entry> entries = uniprot.getEntry();
 				for (Entry entry : entries) {
-					uniprotIndex.addItem(entry);
+					uniprotIndex.addItem(entry, null);
 				}
 				if (entries.size() > 1) {
 					log.info(entries.size() + " entries added to index of uniprot version " + uniprotVersion);

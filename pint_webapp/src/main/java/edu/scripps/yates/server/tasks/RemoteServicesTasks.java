@@ -1183,6 +1183,7 @@ public class RemoteServicesTasks {
 			log.info(++numProteins + " / " + proteins.size() + " proteins: "
 					+ proteinBeanAdapted.getPrimaryAccession().getAccession());
 			//
+
 		}
 		log.info(ret.size() + "  proteins converted to beans");
 		return ret;
