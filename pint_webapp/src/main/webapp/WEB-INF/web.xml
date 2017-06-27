@@ -5,18 +5,6 @@
 <web-app id="WebApp_1492817428040">
 
 	<!-- ************************************* -->
-	<!-- MODIFY THIS BEFORE STARTING SERVER!!! -->
-	<!-- Folder in your PINT server where local files (uniprot annotations, uploaded files, etc...) will be stored -->
-	<context-param>
-		<param-name>PINT_HOME_PATH</param-name>
-		<!-- edit the param-value with the path in your server -->
-		<param-value>/home/salvador/PInt</param-value>
-		
-	</context-param>
-	<!-- ************************************* -->
-
-
-	<!-- ************************************* -->
 	<!-- DO NOT MODIFY ANYTHING FROM HERE      -->
     <!-- ************************************* -->
 	
