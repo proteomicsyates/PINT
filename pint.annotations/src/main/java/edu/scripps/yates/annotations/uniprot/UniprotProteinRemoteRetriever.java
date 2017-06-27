@@ -521,7 +521,8 @@ public class UniprotProteinRemoteRetriever {
 
 	private Map<String, Entry> getFASTASequencesInParallel(Set<String> accessions) {
 		int threadCount = SystemCoreManager.getAvailableNumSystemCores(8);
-		log.info("Reading proteins and peptides in parallel...");
+		log.info("getting fasta sequences of " + accessions.size() + " proteins in parallel using " + threadCount
+				+ " threads...");
 		ParIterator<String> iterator = ParIteratorFactory.createParIterator(accessions, threadCount, Schedule.GUIDED);
 		Reducible<Map<String, Entry>> reducibleEntryMap = new Reducible<Map<String, Entry>>();
 		List<UniprotFastaRetrieverThread> runners = new ArrayList<UniprotFastaRetrieverThread>();
@@ -737,7 +738,8 @@ public class UniprotProteinRemoteRetriever {
 		// "P13368 P20806 Q9UM73 P97793 Q17192"), });
 
 		Collection<String> set = new HashSet<String>();
-		String[] array = new String[] { "P04150-2", "P04150-2", "P04150-2", "P04150-2", "P04150-2" };
+
+		String[] array = new String[] { "Q8CIE2-2", "P06802-2", "P01895-2", "Q8BUL6-2" };
 		for (String string : array) {
 			set.add(string);
 		}
