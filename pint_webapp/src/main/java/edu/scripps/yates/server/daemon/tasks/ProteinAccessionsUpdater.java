@@ -55,7 +55,7 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 			List<edu.scripps.yates.proteindb.persistence.mysql.Protein> proteins = ContextualSessionHandler
 					.retrieveList(edu.scripps.yates.proteindb.persistence.mysql.Protein.class);
 
-			log.debug(proteins.size() + " proteins in the DB");
+			log.info(proteins.size() + " proteins in the DB");
 			UniprotProteinLocalRetriever ulr = new UniprotProteinLocalRetriever(urs.getUniprotReleasesFolder(), true);
 
 			for (edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteins) {
@@ -63,7 +63,7 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 				Set<ProteinAccession> primaryAccs = new HashSet<ProteinAccession>();
 				Set<ProteinAccession> primaryUniprotAccs = new HashSet<ProteinAccession>();
 				ProteinAccession ipiAcc = null;
-				Set<String> accs = new HashSet<String>();
+				Set<String> uniprotACCs = new HashSet<String>();
 				for (ProteinAccession proteinAccession : proteinAccessions) {
 					if (proteinAccession.isIsPrimary()) {
 						primaryAccs.add(proteinAccession);
@@ -75,14 +75,24 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 					}
 
 					if (proteinAccession.getAccessionType().equals(AccessionType.UNIPROT.name())) {
-						accs.add(proteinAccession.getAccession());
+						uniprotACCs.add(proteinAccession.getAccession());
+					}
+				}
+				if (primaryAccs.isEmpty()) {
+					log.info("Protein with ID: " + protein.getId() + " has no primary IDs");
+					if (!proteinAccessions.isEmpty()) {
+						ProteinAccession acc = proteinAccessions.iterator().next();
+						log.info("Setting primary ID to " + acc.getAccession());
+						acc.setIsPrimary(true);
+						ContextualSessionHandler.saveOrUpdate(acc);
+						log.info(acc.getAccession() + " set to primary ID");
 					}
 				}
 				if (primaryAccs.size() > 1) {
-					log.debug(protein.getId() + " contains more than one primary acc in the DB");
+					log.info(protein.getId() + " contains more than one primary acc in the DB");
 					if (ipiAcc != null) {
-						log.debug("It contains also a IPI acc");
-						final Map<String, Entry> annotatedProteins = ulr.getAnnotatedProteins(null, accs);
+						log.info("It contains also a IPI acc");
+						final Map<String, Entry> annotatedProteins = ulr.getAnnotatedProteins(null, uniprotACCs);
 						boolean hasSwissProt = false;
 						ProteinAccession hasTrembl = null;
 						for (ProteinAccession primaryAcc : primaryAccs) {
@@ -96,21 +106,21 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 							}
 						}
 						if (hasSwissProt && hasTrembl != null) {
-							log.debug("Contains both swissprot and trembl as primary. Lets keep the swissprot");
+							log.info("Contains both swissprot and trembl as primary. Lets keep the swissprot");
 							hasTrembl.setIsPrimary(false);
-							log.debug("Setting " + hasTrembl.getAccession() + " as not primary");
+							log.info("Setting " + hasTrembl.getAccession() + " as not primary");
 							ContextualSessionHandler.saveOrUpdate(hasTrembl);
 						}
 						if ((hasSwissProt || hasTrembl != null) && ipiAcc != null && ipiAcc.isIsPrimary()) {
-							log.debug("both Uniprot and IPI as primary. Lets keep the swissprot");
+							log.info("both Uniprot and IPI as primary. Lets keep the swissprot");
 							ipiAcc.setIsPrimary(false);
-							log.debug("Setting " + ipiAcc.getAccession() + " as not primary");
+							log.info("Setting " + ipiAcc.getAccession() + " as not primary");
 							ContextualSessionHandler.saveOrUpdate(ipiAcc);
 						}
 					} else {
 						if (primaryUniprotAccs.size() > 1) {
-							log.debug("there is more than one uniprot acc as primary.");
-							final Map<String, Entry> annotatedProteins = ulr.getAnnotatedProteins(null, accs);
+							log.info("there is more than one uniprot acc as primary.");
+							final Map<String, Entry> annotatedProteins = ulr.getAnnotatedProteins(null, uniprotACCs);
 							ProteinAccession goodAcc = null;
 							Set<ProteinAccession> accsToDowngrade = new HashSet<ProteinAccession>();
 							for (ProteinAccession primaryAcc : primaryUniprotAccs) {
@@ -136,13 +146,13 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 									for (ProteinAccession proteinAccession : primaryUniprotAccs) {
 										tmp += proteinAccession.getAccession() + ",";
 									}
-									log.debug("Protein with more than one valid uniprot primary acc: " + tmp);
+									log.info("Protein with more than one valid uniprot primary acc: " + tmp);
 
 								}
 							} else {
-								log.debug("Protein with obsolete accession but not valid found");
+								log.info("Protein with obsolete accession but not valid found");
 								for (ProteinAccession proteinAccession : primaryUniprotAccs) {
-									log.debug(proteinAccession.getAccession());
+									log.info(proteinAccession.getAccession());
 								}
 
 							}
@@ -152,7 +162,7 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 				}
 
 			}
-
+			log.info("Committing transaction...");
 			ContextualSessionHandler.finishGoodTransaction();
 
 		} catch (Exception e) {

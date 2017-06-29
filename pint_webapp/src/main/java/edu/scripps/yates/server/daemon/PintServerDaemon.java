@@ -15,6 +15,7 @@ import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
 import edu.scripps.yates.server.daemon.tasks.PreLoadPublicProjects;
+import edu.scripps.yates.server.daemon.tasks.ProteinAccessionsUpdater;
 import edu.scripps.yates.server.daemon.tasks.ProteinUniprotAnnotationUpdater;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerUtil;
@@ -59,12 +60,12 @@ public class PintServerDaemon implements ServletContextListener {
 
 		boolean isTestServer = ServerUtil.isTestServer();
 		log.info("Is a test server: " + isTestServer);
-		if (SharedConstants.DAEMON_TASKS_ENABLED && !isTestServer) {
+		if (SharedConstants.DAEMON_TASKS_ENABLED
+		// && !isTestServer
+		) {
 			// /////////////////////////////////////////////////
 			// REGISTER MAINTENANCE TASKS HERE
-			// pintServerDaemonTasks.add(new
-			// ProteinAccessionsUpdater(servletContext));
-
+			pintServerDaemonTasks.add(new ProteinAccessionsUpdater(sce.getServletContext()));
 			pintServerDaemonTasks.add(new ProteinUniprotAnnotationUpdater(sce.getServletContext()));
 			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", sce.getServletContext()));
 

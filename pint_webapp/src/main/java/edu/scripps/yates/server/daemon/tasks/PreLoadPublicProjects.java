@@ -36,9 +36,11 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 		log.info("Starting " + getTaskName());
 		final String projectsToPreload = ServerUtil.getPINTProperties(servletContext).getProjectsToPreLoad();
 		if (projectsToPreload != null) {
+			log.info("ProjectsToPreload property=" + projectsToPreload);
 			if (projectsToPreload.contains(",")) {
 				final String[] split = projectsToPreload.split(",");
 				for (String projectToPreload : split) {
+					log.info("Project to preload: " + projectToPreload);
 					projectsToLoad.add(projectToPreload);
 				}
 			} else {
@@ -50,6 +52,8 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 
 		final Boolean preloadPublic = ServerUtil.getPINTProperties(servletContext).isPreLoadPublicProjects();
 		if (preloadPublic != null && preloadPublic) {
+			log.info("preloadPublic property=" + preloadPublic);
+
 			for (ProjectBean projectBean : projectBeans) {
 				if (projectBean.isPublicAvailable()) {
 					projectsToLoad.add(projectBean.getTag());
@@ -59,6 +63,8 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 
 		final String projectsToNotPreLoad = ServerUtil.getPINTProperties(servletContext).getProjectsToNotPreLoad();
 		if (projectsToNotPreLoad != null) {
+			log.info("projectsToNotPreLoad property=" + projectsToPreload);
+
 			if (projectsToNotPreLoad.contains(",")) {
 				final String[] split = projectsToNotPreLoad.split(",");
 				for (String projectToNotPreLoad : split) {
@@ -70,6 +76,9 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 		}
 
 		if (!projectsToLoad.isEmpty()) {
+			for (ProjectBean projectBean : projectBeans) {
+				log.info("Project to preload: " + projectBean.getTag());
+			}
 			ProteinRetrievalServicesServlet proteinRetrieval = new ProteinRetrievalServicesServlet();
 			proteinRetrieval.setServletContext(servletContext);
 			for (ProjectBean projectBean : projectBeans) {
