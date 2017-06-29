@@ -8,7 +8,7 @@
 	<!-- In this folder the pint.properties should be present -->
 	<context-param>
 		<param-name>PINT_HOME_PATH</param-name>
-		<param-value>/home/salvador/PInt/pint.properties</param-value>
+		<param-value>/home/salvador/PInt</param-value>
 	</context-param>
 
 
