@@ -4,6 +4,15 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app id="WebApp_1492817428040">
 
+	<!-- MODIFY THIS BEFORE SETTING UP YOUR SERVER -->
+	<!-- In this folder the pint.properties should be present -->
+	<context-param>
+		<param-name>PINT_HOME_PATH</param-name>
+		<param-value>/home/salvador/PInt/pint.properties</param-value>
+	</context-param>
+
+
+
 	<!-- ************************************* -->
 	<!-- DO NOT MODIFY ANYTHING FROM HERE      -->
     <!-- ************************************* -->
