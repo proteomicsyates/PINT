@@ -9,6 +9,8 @@ import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
@@ -209,6 +211,23 @@ public class ContextualSessionHandler {
 
 		@SuppressWarnings("unchecked")
 		List<T> result = criteria.list();
+
+		return result;
+	}
+
+	/**
+	 * Function like select * from clazz
+	 *
+	 * @param <T>
+	 *
+	 * @param clazz
+	 * @return the list of objects of the class = clazz
+	 */
+	public static <T> ScrollableResults retrieveReadOnlyIterator(Class<?> clazz) {
+		Criteria criteria = getSession().createCriteria(clazz).setReadOnly(true);
+
+		@SuppressWarnings("unchecked")
+		ScrollableResults result = criteria.scroll(ScrollMode.FORWARD_ONLY);
 
 		return result;
 	}
