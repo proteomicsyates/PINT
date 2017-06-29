@@ -56,9 +56,11 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 					.retrieveList(edu.scripps.yates.proteindb.persistence.mysql.Protein.class);
 
 			log.info(proteins.size() + " proteins in the DB");
+			ContextualSessionHandler.finishGoodTransaction();
 			UniprotProteinLocalRetriever ulr = new UniprotProteinLocalRetriever(urs.getUniprotReleasesFolder(), true);
 
 			for (edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteins) {
+				ContextualSessionHandler.getSession().beginTransaction();
 				final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
 				Set<ProteinAccession> primaryAccs = new HashSet<ProteinAccession>();
 				Set<ProteinAccession> primaryUniprotAccs = new HashSet<ProteinAccession>();
@@ -160,10 +162,9 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 						}
 					}
 				}
-
+				log.info("Committing transaction...");
+				ContextualSessionHandler.finishGoodTransaction();
 			}
-			log.info("Committing transaction...");
-			ContextualSessionHandler.finishGoodTransaction();
 
 		} catch (Exception e) {
 			e.printStackTrace();
