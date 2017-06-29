@@ -49,6 +49,7 @@ public class UniprotProteinLocalRetriever {
 	private static JAXBContext jaxbContext;
 	private boolean cacheEnabled = true;
 	private final Map<String, Entry> cache = new HashMap<String, Entry>();
+	private boolean retrieveFastaIsoforms = true;
 	// private static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
 
 	/**
@@ -304,7 +305,7 @@ public class UniprotProteinLocalRetriever {
 	}
 
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions) {
-		return getAnnotatedProteins(uniprotVersion, accessions, true);
+		return getAnnotatedProteins(uniprotVersion, accessions, retrieveFastaIsoforms);
 	}
 
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions,
@@ -624,6 +625,11 @@ public class UniprotProteinLocalRetriever {
 
 	public void setCacheEnabled(boolean cacheEnabled) {
 		this.cacheEnabled = cacheEnabled;
+	}
+
+	public void setRetrieveFastaIsoforms(boolean b) {
+		retrieveFastaIsoforms = b;
+
 	}
 
 }
