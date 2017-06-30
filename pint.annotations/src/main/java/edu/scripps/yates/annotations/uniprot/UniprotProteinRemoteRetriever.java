@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -520,7 +521,16 @@ public class UniprotProteinRemoteRetriever {
 	}
 
 	private Map<String, Entry> getFASTASequencesInParallel(Set<String> accessions) {
-		int threadCount = SystemCoreManager.getAvailableNumSystemCores(8);
+		Set<String> validToLook = new HashSet<String>();
+		for (String acc : accessions) {
+			if (!entriesWithNoFASTA.contains(acc)) {
+				validToLook.add(acc);
+			}
+		}
+		if (validToLook.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		int threadCount = Math.min(SystemCoreManager.getAvailableNumSystemCores(8), accessions.size());
 		log.info("getting fasta sequences of " + accessions.size() + " proteins in parallel using " + threadCount
 				+ " threads...");
 		ParIterator<String> iterator = ParIteratorFactory.createParIterator(accessions, threadCount, Schedule.GUIDED);

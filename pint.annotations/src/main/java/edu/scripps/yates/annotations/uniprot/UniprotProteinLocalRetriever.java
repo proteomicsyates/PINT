@@ -36,6 +36,7 @@ import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.ObjectFactory;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.utilities.fasta.FastaParser;
+import edu.scripps.yates.utilities.memory.MemoryUsageReport;
 
 public class UniprotProteinLocalRetriever {
 	private static final Logger log = Logger.getLogger(UniprotProteinLocalRetriever.class);
@@ -47,9 +48,10 @@ public class UniprotProteinLocalRetriever {
 	private final boolean useIndex;
 	private final static Map<File, UniprotXmlIndex> loadedIndexes = new HashMap<File, UniprotXmlIndex>();
 	private static JAXBContext jaxbContext;
-	private boolean cacheEnabled = true;
-	private final Map<String, Entry> cache = new HashMap<String, Entry>();
+	private static boolean cacheEnabled = true;
+	private static final Map<String, Entry> cache = new HashMap<String, Entry>();
 	private boolean retrieveFastaIsoforms = true;
+	private List<String> entryKeys = new ArrayList<String>();
 	// private static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
 
 	/**
@@ -382,6 +384,7 @@ public class UniprotProteinLocalRetriever {
 						final Entry item = uniprotIndex.getItem(acc);
 						if (item != null) {
 							if (cacheEnabled) {
+								checkMemoryForCache(1);
 								addEntryToMap(cache, item);
 							}
 							entries.add(item);
@@ -450,6 +453,7 @@ public class UniprotProteinLocalRetriever {
 					Map<String, Entry> annotatedProteins = uprr.getAnnotatedProteins(uniprotVersion,
 							missingProteinsAccs, uniprotIndex);
 					if (cacheEnabled) {
+						checkMemoryForCache(annotatedProteins.size());
 						cache.putAll(annotatedProteins);
 					}
 					queryProteinsMap.putAll(annotatedProteins);
@@ -509,6 +513,39 @@ public class UniprotProteinLocalRetriever {
 				log.info("It is not possible to get information using the argument uniprot version: " + uniprotVersion);
 				return new HashMap<String, Entry>();
 			}
+		}
+	}
+
+	private void checkMemoryForCache(int numItems) {
+		double freeMemoryPercentage = MemoryUsageReport.getFreeMemoryPercentage();
+		if (freeMemoryPercentage < MemoryUsageReport.RECOMMENDED_MINIMUM_MEMORY_PERCENTAGE) {
+			// remove one item from cache
+			log.warn("Memory free is under " + MemoryUsageReport.RECOMMENDED_MINIMUM_MEMORY_PERCENTAGE + "%: "
+					+ freeMemoryPercentage
+					+ ". Removing old entry from the cache before entering another one.");
+			for (int i = 0; i < numItems; i++) {
+				removeFirstEntryFromCache();
+			}
+		}
+	}
+
+	private void removeFirstEntryFromCache() {
+		Entry entry = cache.get(getFirstEntryKeyFromCache());
+		List<String> accession = entry.getAccession();
+		for (String acc : accession) {
+			cache.remove(acc);
+			entryKeys.remove(acc);
+		}
+	}
+
+	private String getFirstEntryKeyFromCache() {
+		return entryKeys.get(0);
+	}
+
+	private void addEntryKeys(Entry entry) {
+		List<String> accession = entry.getAccession();
+		for (String acc : accession) {
+			entryKeys.add(acc);
 		}
 	}
 

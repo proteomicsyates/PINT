@@ -164,6 +164,7 @@ public class QueryResult {
 					peptideMap.put(peptide.getSequence(), set);
 				}
 			}
+
 		}
 		return peptideMap;
 	}

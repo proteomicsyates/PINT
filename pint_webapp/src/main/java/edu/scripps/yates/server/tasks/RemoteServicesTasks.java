@@ -46,6 +46,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
+import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
@@ -102,6 +103,7 @@ import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.PAnalyzer;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
+import edu.scripps.yates.utilities.memory.MemoryUsageReport;
 import edu.scripps.yates.utilities.model.factories.AccessionEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
@@ -113,6 +115,7 @@ import edu.scripps.yates.utilities.util.Pair;
 public class RemoteServicesTasks {
 	private final static Logger log = Logger.getLogger(RemoteServicesTasks.class);
 	private static final Map<String, Set<String>> hiddenPTMsByProject = new HashMap<String, Set<String>>();
+	private static final int CHUNK_TO_RELEASE = 1000;
 
 	public static Map<String, Set<Protein>> getProteinsFromProject(String sessionID, String projectTag,
 			String uniprotVersion, Collection<String> hiddenPTMs, String omimAPIKey) {
@@ -1271,11 +1274,17 @@ public class RemoteServicesTasks {
 
 		int numPeptides = 0;
 		int percentage = 0;
+		Set<Peptide> peptidesToRelease = new HashSet<Peptide>();
 		for (String sequence : peptideMap.keySet()) {
 			numPeptides++;
-			final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(peptideMap.get(sequence))
-					.adapt();
+			Set<Peptide> peptideSet = peptideMap.get(sequence);
+			final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(peptideSet).adapt();
 			ret.add(peptideBeanAdapted);
+			peptidesToRelease.addAll(peptideSet);
+			if (peptidesToRelease.size() >= CHUNK_TO_RELEASE) {
+				cleanUpPeptidesFromSession(peptidesToRelease);
+				peptidesToRelease.clear();
+			}
 			// add to current dataset
 			if (sessionID != null) {
 				DataSetsManager.getDataSet(sessionID, null).addPeptide(peptideBeanAdapted);
@@ -1287,7 +1296,40 @@ public class RemoteServicesTasks {
 				percentage = currentPercentage;
 			}
 		}
+		cleanUpPeptidesFromSession(peptidesToRelease);
+		peptidesToRelease.clear();
 		return ret;
+	}
+
+	private static void cleanUpPeptidesFromSession(Collection<Peptide> peptides) {
+		log.info(MemoryUsageReport.getMemoryUsageReport());
+		for (Peptide peptide : peptides) {
+			ContextualSessionHandler.getSessionFactory(null, null, null).getCache().evictEntity(Peptide.class,
+					peptide.getId());
+			ContextualSessionHandler.getSession().evict(peptide);
+			cleanUpProteinsFromSession(peptide.getProteins());
+			cleanUpPsmsFromSession(peptide.getPsms());
+		}
+		log.info(MemoryUsageReport.getMemoryUsageReport());
+	}
+
+	private static void cleanUpProteinsFromSession(Collection<Protein> proteins) {
+
+		for (Protein protein : proteins) {
+			ContextualSessionHandler.getSessionFactory(null, null, null).getCache().evictEntity(Protein.class,
+					protein.getId());
+			ContextualSessionHandler.getSession().evict(protein);
+		}
+
+	}
+
+	private static void cleanUpPsmsFromSession(Collection<Psm> psms) {
+
+		for (Psm psm : psms) {
+			ContextualSessionHandler.getSessionFactory(null, null, null).getCache().evictEntity(Psm.class, psm.getId());
+			ContextualSessionHandler.getSession().evict(psm);
+		}
+
 	}
 
 	public static Set<PeptideBean> createPeptideBeansFromPeptideMapInParallel(String sessionID,
