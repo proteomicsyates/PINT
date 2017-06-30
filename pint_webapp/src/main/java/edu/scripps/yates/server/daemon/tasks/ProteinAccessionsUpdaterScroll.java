@@ -65,7 +65,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 			while (true) {
 				Set<Protein> proteinSet = new HashSet<Protein>();
 				while (proteins.next()) {
-					if (changeCounter == chunkSizeForchanges) {
+					if (changeCounter >= chunkSizeForchanges) {
 						break;
 
 					}
