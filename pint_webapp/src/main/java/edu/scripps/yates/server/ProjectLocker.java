@@ -13,7 +13,7 @@ public class ProjectLocker {
 	private static final Logger log = Logger.getLogger(ProjectLocker.class);
 
 	private static ReentrantLock getLock(String projectTag) {
-		if (!projectLocked.containsKey(projectTag)) {
+		if (!projectLocked.containsKey(projectTag) || projectLocked.get(projectTag) == null) {
 			ReentrantLock lock = new ReentrantLock(true);
 			projectLocked.put(projectTag, lock);
 		}
