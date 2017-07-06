@@ -11,12 +11,6 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
-import edu.scripps.yates.cores.SystemCoreManager;
-import edu.scripps.yates.pi.ParIterator;
-import edu.scripps.yates.pi.ParIterator.Schedule;
-import edu.scripps.yates.pi.ParIteratorFactory;
-import edu.scripps.yates.pi.reductions.Reducible;
-import edu.scripps.yates.pi.reductions.Reduction;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAnnotationAdapter;
@@ -32,9 +26,15 @@ import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromProteinAcce
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSEQCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSimpleAnnotationCommand;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
+import edu.scripps.yates.utilities.cores.SystemCoreManager;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.model.enums.AmountType;
+import edu.scripps.yates.utilities.pi.ParIterator;
+import edu.scripps.yates.utilities.pi.ParIteratorFactory;
+import edu.scripps.yates.utilities.pi.ParIterator.Schedule;
+import edu.scripps.yates.utilities.pi.reductions.Reducible;
+import edu.scripps.yates.utilities.pi.reductions.Reduction;
 import gnu.trove.set.hash.THashSet;
 
 public class QueryInterface {

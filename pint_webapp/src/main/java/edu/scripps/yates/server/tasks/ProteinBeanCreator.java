@@ -5,12 +5,12 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
-import edu.scripps.yates.pi.ParIterator;
-import edu.scripps.yates.pi.reductions.Reducible;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.server.adapters.ProteinBeanAdapterFromProteinSet;
 import edu.scripps.yates.shared.model.ProteinBean;
+import edu.scripps.yates.utilities.pi.ParIterator;
+import edu.scripps.yates.utilities.pi.reductions.Reducible;
 import gnu.trove.set.hash.THashSet;
 
 public class ProteinBeanCreator extends Thread {
