@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,11 +13,16 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
+import gnu.trove.set.hash.TIntHashSet;
+
 public class Omim2UniprotIDMap {
 	private static final Logger log = Logger.getLogger(Omim2UniprotIDMap.class);
 	private boolean loaded = false;
-	private final Map<String, List<Integer>> uniprotToOmim = new HashMap<String, List<Integer>>();
-	private final Map<Integer, List<String>> omimToUniprot = new HashMap<Integer, List<String>>();
+	private final Map<String, List<Integer>> uniprotToOmim = new THashMap<String, List<Integer>>();
+	private final TIntObjectHashMap<List<String>> omimToUniprot = new TIntObjectHashMap<List<String>>();
 	private String version;
 
 	public List<Integer> uniprot2Omim(String uniprotAcc) {
@@ -29,15 +32,15 @@ public class Omim2UniprotIDMap {
 		return uniprotToOmim.get(uniprotAcc);
 	}
 
-	public Map<String, Set<Integer>> uniprot2Omim(Collection<String> uniprotAccs) {
-		Map<String, Set<Integer>> ret = new HashMap<String, Set<Integer>>();
+	public Map<String, TIntHashSet> uniprot2Omim(Collection<String> uniprotAccs) {
+		Map<String, TIntHashSet> ret = new THashMap<String, TIntHashSet>();
 		for (String uniprotAcc : uniprotAccs) {
 			final List<Integer> uniprot2Omim = uniprot2Omim(uniprotAcc);
 			if (uniprot2Omim != null) {
 				if (ret.containsKey(uniprotAcc)) {
 					ret.get(uniprotAcc).addAll(uniprot2Omim);
 				} else {
-					Set<Integer> set = new HashSet<Integer>();
+					TIntHashSet set = new TIntHashSet();
 					set.addAll(uniprot2Omim);
 					ret.put(uniprotAcc, set);
 				}
@@ -53,15 +56,15 @@ public class Omim2UniprotIDMap {
 		return omimToUniprot.get(omimID);
 	}
 
-	public Map<Integer, Set<String>> omim2Uniprot(Collection<Integer> omimIDs) {
-		Map<Integer, Set<String>> ret = new HashMap<Integer, Set<String>>();
+	public TIntObjectHashMap<Set<String>> omim2Uniprot(Collection<Integer> omimIDs) {
+		TIntObjectHashMap<Set<String>> ret = new TIntObjectHashMap<Set<String>>();
 		for (Integer omimID : omimIDs) {
 			final List<String> uniprotAccs = omim2Uniprot(omimID);
 			if (uniprotAccs != null) {
 				if (ret.containsKey(omimID)) {
 					ret.get(omimID).addAll(uniprotAccs);
 				} else {
-					Set<String> set = new HashSet<String>();
+					Set<String> set = new THashSet<String>();
 					set.addAll(uniprotAccs);
 					ret.put(omimID, set);
 				}
@@ -78,8 +81,8 @@ public class Omim2UniprotIDMap {
 
 			String sCurrentLine;
 
-			br = new BufferedReader(new InputStreamReader(new DataInputStream(
-					new ClassPathResource("mimtosp.txt").getInputStream())));
+			br = new BufferedReader(
+					new InputStreamReader(new DataInputStream(new ClassPathResource("mimtosp.txt").getInputStream())));
 			int numLine = 0;
 			int omimID = 0;
 			while ((sCurrentLine = br.readLine()) != null) {
@@ -145,7 +148,7 @@ public class Omim2UniprotIDMap {
 	/**
 	 * @return the omimToUniprot
 	 */
-	public Map<Integer, List<String>> getOmimToUniprot() {
+	public TIntObjectHashMap<List<String>> getOmimToUniprot() {
 		if (!loaded)
 			load();
 		return omimToUniprot;

@@ -1,7 +1,6 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +42,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.pattern.Adapter<Set<Protein>> {
 	private final static Logger log = Logger.getLogger(ProteinsAdapterByExcel.class);
@@ -54,12 +54,12 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 
 	// in order to take the same protein for different psms
 	// private final static Map<String, Map<String, ProteinEx>>
-	// proteinMapByMSRunID = new HashMap<String, Map<String, ProteinEx>>();
+	// proteinMapByMSRunID = new THashMap<String, Map<String, ProteinEx>>();
 	// public final static Map<Condition, Map<String, Set<Protein>>>
-	// proteinMapByCondition = new HashMap<Condition, Map<String,
+	// proteinMapByCondition = new THashMap<Condition, Map<String,
 	// Set<Protein>>>();
-	// public static final Map<String, Map<Integer, Set<Protein>>>
-	// proteinsByMSRunAndRowIndex = new HashMap<String, Map<Integer,
+	// public static final Map<String, TIntObjectHashMap< Set<Protein>>>
+	// proteinsByMSRunAndRowIndex = new THashMap<String, TIntObjectHashMap<
 	// Set<Protein>>>();
 
 	/**
@@ -106,7 +106,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	}
 
 	private Set<String> getUniprotAccs() {
-		Set<String> accessions = new HashSet<String>();
+		Set<String> accessions = new THashSet<String>();
 		final ExcelColumn proteinAccColumn = excelFileReader
 				.getExcelColumnFromReference(excelCfg.getProteinAccession().getColumnRef());
 		ProteinAccessionType proteinAccessionCfg = excelCfg.getProteinAccession();
@@ -191,7 +191,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	}
 
 	private Set<Protein> getProteinsFromExcelReader() {
-		Set<Protein> ret = new HashSet<Protein>();
+		Set<Protein> ret = new THashSet<Protein>();
 
 		final ExcelColumn proteinAccessionValuesColumn = excelFileReader
 				.getExcelColumnFromReference(excelCfg.getProteinAccession().getColumnRef());
@@ -292,7 +292,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	private Set<Protein> getProteins(int rowIndex, boolean grabProteinIfNoProteinAmount) {
 		log.info("Getting proteins from row " + rowIndex + " on condition " + expCondition.getName() + " and run "
 				+ msRun.getId());
-		Set<Protein> ret = new HashSet<Protein>();
+		Set<Protein> ret = new THashSet<Protein>();
 
 		final ProteinAccessionType proteinAccessionCfg = excelCfg.getProteinAccession();
 		final ProteinDescriptionType proteinDescriptionCfg = excelCfg.getProteinDescription();
@@ -320,7 +320,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 		// if (proteinMapByMSRunID.containsKey(msRun.getId())) {
 		// proteinMap = proteinMapByMSRunID.get(msRun.getId());
 		// } else {
-		// proteinMap = new HashMap<String, ProteinEx>();
+		// proteinMap = new THashMap<String, ProteinEx>();
 		// proteinMapByMSRunID.put(msRun.getId(), proteinMap);
 		// }
 		for (int i = 0; i < proteinAccsToParse.size(); i++) {
@@ -631,22 +631,24 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	// private static void addProteinByMSRunIDAndRowIndex(String msRunRef, int
 	// rowIndex, Protein protein) {
 	// if (proteinsByMSRunAndRowIndex.containsKey(msRunRef)) {
-	// final Map<Integer, Set<Protein>> map =
+	// final TIntObjectHashMap< Set<Protein>> map =
 	// proteinsByMSRunAndRowIndex.get(msRunRef);
 	// addProteinByRowIndex(map, rowIndex, protein);
 	// } else {
-	// Map<Integer, Set<Protein>> map = new HashMap<Integer, Set<Protein>>();
+	// TIntObjectHashMap< Set<Protein>> map = new TIntObjectHashMap<
+	// Set<Protein>>();
 	// addProteinByRowIndex(map, rowIndex, protein);
 	// proteinsByMSRunAndRowIndex.put(msRunRef, map);
 	// }
 	// }
 	//
-	// private static void addProteinByRowIndex(Map<Integer, Set<Protein>> map,
+	// private static void addProteinByRowIndex(TIntObjectHashMap< Set<Protein>>
+	// map,
 	// int rowIndex, Protein protein) {
 	// if (map.containsKey(rowIndex)) {
 	// map.get(rowIndex).add(protein);
 	// } else {
-	// Set<Protein> set = new HashSet<Protein>();
+	// Set<Protein> set = new THashSet<Protein>();
 	// set.add(protein);
 	// map.put(rowIndex, set);
 	// }
@@ -657,7 +659,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	// if (proteinMapByCondition.containsKey(condition)) {
 	// ModelUtils.addToMap(proteinMapByCondition.get(condition), proteins);
 	// } else {
-	// Map<String, Set<Protein>> map = new HashMap<String, Set<Protein>>();
+	// Map<String, Set<Protein>> map = new THashMap<String, Set<Protein>>();
 	// ModelUtils.addToMap(map, proteins);
 	// proteinMapByCondition.put(condition, map);
 	// }
@@ -675,9 +677,9 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	//
 	// protected static Set<Protein> getProteinsByMSRunAndRowIndex(String
 	// msRunRef, int rowIndex) {
-	// Set<Protein> ret = new HashSet<Protein>();
+	// Set<Protein> ret = new THashSet<Protein>();
 	// if (proteinsByMSRunAndRowIndex.containsKey(msRunRef)) {
-	// final Map<Integer, Set<Protein>> proteinsByRowIndex =
+	// final TIntObjectHashMap< Set<Protein>> proteinsByRowIndex =
 	// proteinsByMSRunAndRowIndex.get(msRunRef);
 	// if (proteinsByRowIndex.containsKey(rowIndex)) {
 	// return proteinsByRowIndex.get(rowIndex);

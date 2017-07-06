@@ -1,17 +1,16 @@
 package edu.scripps.yates.server.cache;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCacheProjectBeanByProteinID implements Cache<ProjectBean, Integer> {
-	private static final Map<Integer, ProjectBean> map = new HashMap<Integer, ProjectBean>();
+	private static final TIntObjectHashMap<ProjectBean> map = new TIntObjectHashMap<ProjectBean>();
 	private static ServerCacheProjectBeanByProteinID instance;
 
 	private ServerCacheProjectBeanByProteinID() {
@@ -70,7 +69,7 @@ public class ServerCacheProjectBeanByProteinID implements Cache<ProjectBean, Int
 
 	@Override
 	public Set<ProjectBean> getFromCache(Collection<Integer> keys) {
-		Set<ProjectBean> ret = new HashSet<ProjectBean>();
+		Set<ProjectBean> ret = new THashSet<ProjectBean>();
 		for (Integer key : keys) {
 			Integer processedKey = processKey(key);
 			if (contains(processedKey))

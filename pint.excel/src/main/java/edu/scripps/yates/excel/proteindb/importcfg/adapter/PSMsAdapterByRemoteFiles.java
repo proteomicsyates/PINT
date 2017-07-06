@@ -1,8 +1,6 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +20,8 @@ import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class PSMsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pattern.Adapter<Map<String, PSM>> {
 	private final static Logger log = Logger.getLogger(PSMsAdapterByRemoteFiles.class);
@@ -44,12 +44,12 @@ public class PSMsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pat
 	}
 
 	private Map<String, PSM> getPSMsFromRemoteFileReader() {
-		Map<String, PSM> retMap = new HashMap<String, PSM>();
+		Map<String, PSM> retMap = new THashMap<String, PSM>();
 		// if there is identification data
 		if (remoteInfoCfg != null) {
 
 			final List<FileReferenceType> fileRefs = remoteInfoCfg.getFileRef();
-			Set<String> fileRefSet = new HashSet<String>();
+			Set<String> fileRefSet = new THashSet<String>();
 			String fileRefString = "";
 			for (FileReferenceType fileReference : fileRefs) {
 				final String fileRef = fileReference.getFileRef();
@@ -61,7 +61,7 @@ public class PSMsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pat
 				final DTASelectParser dtaSelectFilterParser = remoteFileReader.getDTASelectFilterParser(fileRefSet);
 				final CensusChroParser censusChroParser = remoteFileReader.getCensusChroParser(fileRefSet);
 				if (dtaSelectFilterParser != null) {
-					final HashMap<String, DTASelectPSM> dtaSelectPSMs = dtaSelectFilterParser.getDTASelectPSMsByPSMID();
+					final Map<String, DTASelectPSM> dtaSelectPSMs = dtaSelectFilterParser.getDTASelectPSMsByPSMID();
 					for (DTASelectPSM dtaSelectPSM : dtaSelectPSMs.values()) {
 						final PSMImplFromDTASelect psm = new PSMImplFromDTASelect(dtaSelectPSM, msrun);
 						psm.addCondition(expCondition);

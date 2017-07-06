@@ -1,7 +1,5 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
@@ -9,10 +7,11 @@ import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.ProjectBean;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ProjectBeanAdapter implements Adapter<ProjectBean> {
 	private final Project project;
-	private static Map<Integer, ProjectBean> map = new HashMap<Integer, ProjectBean>();
+	private static TIntObjectHashMap<ProjectBean> map = new TIntObjectHashMap<ProjectBean>();
 
 	public ProjectBeanAdapter(Project project) {
 		this.project = project;

@@ -43,6 +43,11 @@
 		<display-name>hibernateFilter</display-name>
 		<filter-class>edu.scripps.yates.server.filter.HibernateFilter</filter-class>
 	</filter>
+<!-- 	<filter id="Filter_1492817520469"> -->
+<!-- 		<filter-name>hibernateFilterManaged</filter-name> -->
+<!-- 		<display-name>hibernateFilterManaged</display-name> -->
+<!-- 		<filter-class>edu.scripps.yates.server.filter.HibernateFilterManaged</filter-class> -->
+<!-- 	</filter> -->
 
 	<filter id="Filter_1492817520481">
 		<filter-name>exceptionFilter</filter-name>
@@ -56,6 +61,11 @@
 		<filter-name>hibernateFilter</filter-name>
 		<url-pattern>*</url-pattern>
 	</filter-mapping>
+	<!-- use hibernateFilter in all requests -->
+<!-- 	<filter-mapping> -->
+<!-- 		<filter-name>hibernateFilterManaged</filter-name> -->
+<!-- 		<url-pattern>*</url-pattern> -->
+<!-- 	</filter-mapping> -->
 
 	<!--  filter to print stackTrace of unhandled exceptions  -->
 	<filter-mapping>

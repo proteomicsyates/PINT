@@ -2,13 +2,14 @@ package edu.scripps.yates.annotations.uniprot;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.EvidenceType;
 import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class UniprotPTMRetriever {
 	private static UniprotPTMRetriever instance;
@@ -55,13 +56,13 @@ public class UniprotPTMRetriever {
 	 * @param uniprotAccs
 	 * @return
 	 */
-	public Map<String, Map<Integer, PTMInformation>> getPTMsFromUniprotAccs(String uniprotVersion,
+	public Map<String, TIntObjectHashMap<PTMInformation>> getPTMsFromUniprotAccs(String uniprotVersion,
 			Collection<String> uniprotAccs) {
 		final Map<String, Entry> annotatedProteins = uplr.getAnnotatedProteins(uniprotVersion, uniprotAccs);
-		Map<String, Map<Integer, PTMInformation>> ret = new HashMap<String, Map<Integer, PTMInformation>>();
+		Map<String, TIntObjectHashMap<PTMInformation>> ret = new THashMap<String, TIntObjectHashMap<PTMInformation>>();
 
 		for (String uniprotAcc : uniprotAccs) {
-			Map<Integer, PTMInformation> map = new HashMap<Integer, PTMInformation>();
+			TIntObjectHashMap<PTMInformation> map = new TIntObjectHashMap<PTMInformation>();
 			if (annotatedProteins.containsKey(uniprotAcc)) {
 				final Entry entry = annotatedProteins.get(uniprotAcc);
 				final List<FeatureType> features = entry.getFeature();
@@ -123,7 +124,7 @@ public class UniprotPTMRetriever {
 	 * @param uniprotAccs
 	 * @return
 	 */
-	public Map<String, Map<Integer, PTMInformation>> getPTMsFromUniprotAccs(Collection<String> uniprotAccs) {
+	public Map<String, TIntObjectHashMap<PTMInformation>> getPTMsFromUniprotAccs(Collection<String> uniprotAccs) {
 		return getPTMsFromUniprotAccs(null, uniprotAccs);
 	}
 

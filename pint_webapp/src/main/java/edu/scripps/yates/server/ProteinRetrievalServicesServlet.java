@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -124,6 +122,8 @@ import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.UniprotLineHeader;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * The server-side implementation of the RPC service.
@@ -141,8 +141,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	// FakeProteinProvider(
 	// 100);
 
-	private static final HashMap<String, File> proteinResultFilesByQueryStringInOrder = new HashMap<String, File>();
-	private static final HashMap<String, File> proteinGroupResultFilesByQueryStringInOrder = new HashMap<String, File>();
+	private static final Map<String, File> proteinResultFilesByQueryStringInOrder = new THashMap<String, File>();
+	private static final Map<String, File> proteinGroupResultFilesByQueryStringInOrder = new THashMap<String, File>();
 
 	private static final int MIN_PEPTIDE_ALIGNMENT_LENGTH = 6;
 
@@ -226,7 +226,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public Set<String> getProjectTags() throws PintException {
 		try {
-			Set<String> projectTagSet = new HashSet<String>();
+			Set<String> projectTagSet = new THashSet<String>();
 
 			List<edu.scripps.yates.proteindb.persistence.mysql.Project> retrieveList = ContextualSessionHandler
 					.retrieveList(edu.scripps.yates.proteindb.persistence.mysql.Project.class);
@@ -261,10 +261,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			}.getClass().getEnclosingMethod();
 			// register task
 			ServerTaskRegister.registerTask(task);
-
-			// SEND TRACKING EMAIL. Testing it...
-			sendTrackingEmail(projectTagsString);
-			// SEND TRACKING EMAIL
 
 			DataSetsManager.clearDataSet(sessionID);
 
@@ -411,7 +407,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public Set<String> getExperimentalConditionsFromProject(String projectTag) throws PintException {
 		try {
 			Set<Condition> conditions = RemoteServicesTasks.getExperimentalConditionsFromProject(projectTag);
-			Set<String> names = new HashSet<String>();
+			Set<String> names = new THashSet<String>();
 			for (Condition condition : conditions) {
 				names.add(condition.getName());
 			}
@@ -715,7 +711,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public Set<String> getUniprotAnnotationsFromProjects(Set<String> projectTags) throws PintException {
 		try {
-			Set<String> ret = new HashSet<String>();
+			Set<String> ret = new THashSet<String>();
 
 			final String latestVersion = UniprotProteinRemoteRetriever.getCurrentUniprotRemoteVersion();
 			if (latestVersion != null) {
@@ -772,7 +768,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public Map<String, String> getUniprotHeaderLines() throws PintException {
 		try {
 			final UniprotLineHeader[] values = UniprotLineHeader.values();
-			Map<String, String> ret = new HashMap<String, String>();
+			Map<String, String> ret = new THashMap<String, String>();
 			for (UniprotLineHeader uniprotLineHeader : values) {
 				ret.put(uniprotLineHeader.name(), uniprotLineHeader.getDescription());
 			}
@@ -788,7 +784,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public Map<String, String> getCommands() throws PintException {
 		try {
-			Map<String, String> ret = new HashMap<String, String>();
+			Map<String, String> ret = new THashMap<String, String>();
 			final Command[] values = Command.values();
 			for (Command command : values) {
 				ret.put(command.name() + " (" + command.getAbbreviation() + ")", command.getFormat());
@@ -805,7 +801,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public Set<String> getThresholdNamesFromProjects(Set<String> projectTags) throws PintException {
 		try {
-			Set<String> ret = new HashSet<String>();
+			Set<String> ret = new THashSet<String>();
 			for (String projectName : projectTags) {
 				ret.addAll(PreparedQueries.getProteinThresholdNamesByProject(projectName));
 			}
@@ -919,7 +915,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	// @Override
 	// public List<ProteinGroupBean> groupProteins(
-	// Set<Integer> proteinBeanUniqueIdentifiers, // this is not DB ids
+	// TIntHashSet proteinBeanUniqueIdentifiers, // this is not DB ids
 	// boolean separateNonConclusiveProteins) throws PintException {
 	// try {
 	// Set<ProteinBean> proteins =
@@ -1011,8 +1007,12 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				log.info(proteins.size() + " proteins comming from command  '" + queryText + "'");
 				if (!proteins.isEmpty()) {
 					log.info("Creating Protein beans in session '" + sessionID + "'");
+					// RemoteServicesTasks.createProteinBeansFromQueriableProteins(sessionID,
+					// proteins,
+					// getHiddenPTMs(projectTags),
+					// getProjectTagString(projectTags));
 					RemoteServicesTasks.createProteinBeansFromQueriableProteins(sessionID, proteins,
-							getHiddenPTMs(projectTags));
+							getHiddenPTMs(projectTags), getProjectTagString(projectTags));
 					// proteins have to be before creating peptides, because
 					// when peptides are created, the cache of the proteins is
 					// used.
@@ -1052,6 +1052,12 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				return ret;
 
 			} finally {
+				// clear static data by DB identifiers
+				log.info("Clearing static beans objects by DB Identifiers");
+				PSMBeanAdapter.clearStaticMaps();
+				ServerCacheProteinBeansByProteinDBId.getInstance().clearCache();
+				ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
+				// end clearing cache
 				if (lock) {
 					ProjectLocker.unlock(projectTags, enclosingMethod);
 				}
@@ -1277,7 +1283,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				return ServerCacheOrganismBeansByProjectName.getInstance().getFromCache(projectTag);
 			} else {
 				final Set<Organism> organisms = PreparedQueries.getOrganismsByProject(projectTag);
-				Set<OrganismBean> ret = new HashSet<OrganismBean>();
+				Set<OrganismBean> ret = new THashSet<OrganismBean>();
 				for (Organism organism : organisms) {
 					if (organism.getName().equals(ModelUtils.ORGANISM_CONTAMINANT.getName())) {
 						continue;
@@ -2066,12 +2072,12 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				proteinProjection.setDescription(FastaParser.getDescription(proteinProjection.getDescription()));
 			}
 			// add to the map by acc
-			Map<String, Set<ProteinProjection>> ret = new HashMap<String, Set<ProteinProjection>>();
+			Map<String, Set<ProteinProjection>> ret = new THashMap<String, Set<ProteinProjection>>();
 			for (ProteinProjection proteinProjection : list) {
 				if (ret.containsKey(proteinProjection.getAcc())) {
 					ret.get(proteinProjection.getAcc()).add(proteinProjection);
 				} else {
-					Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+					Set<ProteinProjection> set = new THashSet<ProteinProjection>();
 					set.add(proteinProjection);
 					ret.put(proteinProjection.getAcc(), set);
 				}
@@ -2108,12 +2114,12 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				proteinProjection.setDescription(FastaParser.getDescription(proteinProjection.getDescription()));
 			}
 			// add to the map by gene name
-			Map<String, Set<ProteinProjection>> ret = new HashMap<String, Set<ProteinProjection>>();
+			Map<String, Set<ProteinProjection>> ret = new THashMap<String, Set<ProteinProjection>>();
 			for (ProteinProjection proteinProjection : list) {
 				if (ret.containsKey(proteinProjection.getGene())) {
 					ret.get(proteinProjection.getGene()).add(proteinProjection);
 				} else {
-					Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+					Set<ProteinProjection> set = new THashSet<ProteinProjection>();
 					set.add(proteinProjection);
 					ret.put(proteinProjection.getGene(), set);
 				}
@@ -2150,12 +2156,12 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				proteinProjection.setDescription(FastaParser.getDescription(proteinProjection.getDescription()));
 			}
 			// add to the map by gene name
-			Map<String, Set<ProteinProjection>> ret = new HashMap<String, Set<ProteinProjection>>();
+			Map<String, Set<ProteinProjection>> ret = new THashMap<String, Set<ProteinProjection>>();
 			for (ProteinProjection proteinProjection : list) {
 				if (ret.containsKey(proteinProjection.getDescription())) {
 					ret.get(proteinProjection.getDescription()).add(proteinProjection);
 				} else {
-					Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+					Set<ProteinProjection> set = new THashSet<ProteinProjection>();
 					set.add(proteinProjection);
 					ret.put(proteinProjection.getDescription(), set);
 				}

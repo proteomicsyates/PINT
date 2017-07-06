@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.psm;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +10,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
+import gnu.trove.map.hash.THashMap;
 
 public class PsmProviderFromPsmLabeledAmount implements ProteinProviderFromDB {
 	private final String labelName;
@@ -26,7 +26,7 @@ public class PsmProviderFromPsmLabeledAmount implements ProteinProviderFromDB {
 	@Override
 	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
 		if (result == null) {
-			result = new HashMap<String, Set<Psm>>();
+			result = new THashMap<String, Set<Psm>>();
 			int numPSMs = 0;
 			if (projectTags != null) {
 				for (String projectTag : projectTags) {

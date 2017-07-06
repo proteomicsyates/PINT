@@ -1,25 +1,23 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.scripps.yates.proteindb.persistence.mysql.AnnotationType;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
+import gnu.trove.map.hash.THashMap;
 
-public class AnnotationTypeAdapter implements
-		Adapter<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType>,
-		Serializable {
+public class AnnotationTypeAdapter
+		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType>, Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 832232304738325346L;
 	private final edu.scripps.yates.utilities.proteomicsmodel.AnnotationType annotationType;
 	private final edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation hibProteinAnnotation;
-	private final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.AnnotationType> map = new HashMap<String, edu.scripps.yates.proteindb.persistence.mysql.AnnotationType>();
+	private final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.AnnotationType> map = new THashMap<String, edu.scripps.yates.proteindb.persistence.mysql.AnnotationType>();
 
-	public AnnotationTypeAdapter(
-			edu.scripps.yates.utilities.proteomicsmodel.AnnotationType annotationType,
+	public AnnotationTypeAdapter(edu.scripps.yates.utilities.proteomicsmodel.AnnotationType annotationType,
 			ProteinAnnotation hibProteinAnnotation) {
 		this.annotationType = annotationType;
 		this.hibProteinAnnotation = hibProteinAnnotation;

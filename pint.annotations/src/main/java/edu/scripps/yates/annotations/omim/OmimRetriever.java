@@ -7,12 +7,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -25,6 +21,10 @@ import edu.scripps.yates.annotations.omim.xml.Omim.EntryList;
 import edu.scripps.yates.annotations.omim.xml.Omim.EntryList.Entry;
 import edu.scripps.yates.annotations.omim.xml.Omim.EntryList.Entry.Titles;
 import edu.scripps.yates.annotations.util.PropertiesUtil;
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.TIntHashSet;
 
 public class OmimRetriever {
 	private final static Logger log = Logger.getLogger(OmimRetriever.class);
@@ -44,7 +44,22 @@ public class OmimRetriever {
 		return jaxbContext;
 	}
 
-	public static Map<Integer, OmimEntry> retrieveOmimEntries(String omimAPIKey, Collection<Integer> omimIDs) {
+	public static TIntObjectHashMap<OmimEntry> retrieveOmimEntries(String omimAPIKey, Collection<Integer> omimIDs) {
+		TIntHashSet set = new TIntHashSet(omimIDs);
+
+		return retrieveOmimEntries(omimAPIKey, set);
+	}
+
+	public static TIntObjectHashMap<OmimEntry> retrieveOmimEntries(String omimAPIKey, int[] omimIDs) {
+		List<Integer> list = new ArrayList<Integer>();
+		for (Integer omimID : omimIDs) {
+			list.add(omimID);
+		}
+		return retrieveOmimEntries(omimAPIKey, list);
+	}
+
+	public static TIntObjectHashMap<OmimEntry> retrieveOmimEntries(String omimAPIKey, TIntHashSet omimIDs) {
+
 		log.info("Retrieving " + omimIDs.size() + " OMIM entries");
 
 		String omimUrl = omimProps.getPropertyValue(PropertiesUtil.OMIM_URL_PROP);
@@ -55,12 +70,12 @@ public class OmimRetriever {
 		if (omimEntryParam == null || "".equals(omimEntryParam)) {
 			omimEntryParam = "/api/entry";
 		}
-		Map<Integer, OmimEntry> ret = new HashMap<Integer, OmimEntry>();
+		TIntObjectHashMap<OmimEntry> ret = new TIntObjectHashMap<OmimEntry>();
 
 		int numOmimIDs = 0;
-		final Iterator<Integer> omimIDIterator = omimIDs.iterator();
+		TIntIterator omimIDIterator = omimIDs.iterator();
 		while (numOmimIDs < omimIDs.size()) {
-			Set<Integer> queryIDs = new HashSet<Integer>();
+			TIntHashSet queryIDs = new TIntHashSet();
 			for (int i = 0; i < MAX_NUM_ENTRIES_PER_QUERY; i++) {
 				if (omimIDIterator.hasNext()) {
 					queryIDs.add(omimIDIterator.next());
@@ -71,7 +86,9 @@ public class OmimRetriever {
 			}
 			String url = omimUrl + omimEntryParam + "?mimNumber=";
 			int numId = 1;
-			for (Integer omimID : queryIDs) {
+			TIntIterator iterator = queryIDs.iterator();
+			while (iterator.hasNext()) {
+				int omimID = iterator.next();
 				if (numId > 1) {
 					url += ",";
 				}
@@ -115,20 +132,22 @@ public class OmimRetriever {
 
 	public static Map<String, List<OmimEntry>> getAssociatedOmimEntries(String omimAPIKey,
 			Collection<String> uniprotAccs) {
-		Map<String, List<OmimEntry>> ret = new HashMap<String, List<OmimEntry>>();
+		Map<String, List<OmimEntry>> ret = new THashMap<String, List<OmimEntry>>();
 		Omim2UniprotIDMap omimToUniprotMap = new Omim2UniprotIDMap();
 
-		final Map<String, Set<Integer>> uniprot2OmimMap = omimToUniprotMap.uniprot2Omim(uniprotAccs);
-		Set<Integer> omimIDs = new HashSet<Integer>();
-		for (Set<Integer> omimIDSet : uniprot2OmimMap.values()) {
+		final Map<String, TIntHashSet> uniprot2OmimMap = omimToUniprotMap.uniprot2Omim(uniprotAccs);
+		TIntHashSet omimIDs = new TIntHashSet();
+		for (TIntHashSet omimIDSet : uniprot2OmimMap.values()) {
 			omimIDs.addAll(omimIDSet);
 		}
 		// get all omimEntries at the same time faster than one by one
-		final Map<Integer, OmimEntry> omimDiseaseNamesByOmimID = retrieveOmimEntries(omimAPIKey, omimIDs);
+		final TIntObjectHashMap<OmimEntry> omimDiseaseNamesByOmimID = retrieveOmimEntries(omimAPIKey, omimIDs._set);
 		for (String uniprotAcc : uniprotAccs) {
-			final Set<Integer> omimIDSet = uniprot2OmimMap.get(uniprotAcc);
+			final TIntHashSet omimIDSet = uniprot2OmimMap.get(uniprotAcc);
 			if (omimIDSet != null) {
-				for (Integer omimID : omimIDSet) {
+				TIntIterator iterator = omimIDSet.iterator();
+				while (iterator.hasNext()) {
+					int omimID = iterator.next();
 					final OmimEntry omimEntry = omimDiseaseNamesByOmimID.get(omimID);
 					if (omimEntry != null) {
 						if (ret.containsKey(uniprotAcc)) {

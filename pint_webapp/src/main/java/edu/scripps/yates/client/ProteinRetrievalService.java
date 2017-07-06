@@ -89,7 +89,7 @@ public interface ProteinRetrievalService extends RemoteService {
 	List<RatioDescriptorBean> getRatioDescriptorsFromProjects(Set<String> projectTags) throws PintException;
 
 	// List<ProteinGroupBean> groupProteins(
-	// Set<Integer> proteinBeanUniqueIdentifiers,
+	// TInHashSet proteinBeanUniqueIdentifiers,
 	// boolean separateNonConclusiveProteins) throws PintException;
 
 	ProteinGroupBeanSubList groupProteins(String sessionID, boolean separateNonConclusiveProteins, int pageSize)

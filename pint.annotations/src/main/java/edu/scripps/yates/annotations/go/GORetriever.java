@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +22,9 @@ import org.springframework.core.io.ClassPathResource;
 
 import edu.scripps.yates.annotations.go.index.FlatFileCache;
 import edu.scripps.yates.utilities.fasta.FastaParser;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.set.hash.THashSet;
 import psidev.psi.tools.ontology_manager.OntologyManager;
 import psidev.psi.tools.ontology_manager.impl.local.OntologyLoaderException;
 import psidev.psi.tools.ontology_manager.interfaces.OntologyAccess;
@@ -31,7 +32,7 @@ import psidev.psi.tools.ontology_manager.interfaces.OntologyTermI;
 
 public class GORetriever {
 	private static final Logger log = Logger.getLogger(GORetriever.class);
-	public static Map<String, Integer> indexByColumnName = new HashMap<String, Integer>();
+	public static TObjectIntHashMap<String> indexByColumnName = new TObjectIntHashMap<String>();
 	private static FlatFileCache cache;
 	private static int CHUNK_SIZE = 100;
 	private static final DecimalFormat df = new DecimalFormat("#.#");
@@ -84,14 +85,14 @@ public class GORetriever {
 	}
 
 	public Map<String, Set<GoEntry>> retrieveGOEntries(Collection<String> accs) throws IOException {
-		Map<String, Set<GoEntry>> ret = new HashMap<String, Set<GoEntry>>();
+		Map<String, Set<GoEntry>> ret = new THashMap<String, Set<GoEntry>>();
 		int num = 0;
 
 		int percentage = 0;
 
 		final Map<String, Set<GoEntry>> entriesByID = cache.getEntriesByID(accs);
 		ret.putAll(entriesByID);
-		Set<String> missingEntries = new HashSet<String>();
+		Set<String> missingEntries = new THashSet<String>();
 		if (accs.size() != entriesByID.size()) {
 			for (String acc : accs) {
 				if (!entriesByID.containsKey(acc) && !FastaParser.isContaminant(acc) && !FastaParser.isReverse(acc)) {
@@ -103,7 +104,7 @@ public class GORetriever {
 			}
 		}
 
-		Set<String> toSend = new HashSet<String>();
+		Set<String> toSend = new THashSet<String>();
 		for (String acc : missingEntries) {
 			if (FastaParser.isContaminant(acc) || FastaParser.isReverse(acc)) {
 				continue;
@@ -157,7 +158,7 @@ public class GORetriever {
 	private Set<GoEntry> retrieve(Collection<String> accs) throws IOException {
 		try {
 
-			Set<GoEntry> ret = new HashSet<GoEntry>();
+			Set<GoEntry> ret = new THashSet<GoEntry>();
 
 			BufferedReader rd = null;
 			try {
@@ -184,7 +185,7 @@ public class GORetriever {
 				}
 				// Read the annotations line by line
 				String line;
-				Set<String> entriesWithInfo = new HashSet<String>();
+				Set<String> entriesWithInfo = new THashSet<String>();
 				while ((line = rd.readLine()) != null) {
 					GoEntry entry = new GoEntry(line);
 					ret.add(entry);

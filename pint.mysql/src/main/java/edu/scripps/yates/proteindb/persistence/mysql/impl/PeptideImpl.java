@@ -1,7 +1,5 @@
 package edu.scripps.yates.proteindb.persistence.mysql.impl;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
@@ -17,26 +15,28 @@ import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class PeptideImpl implements Peptide {
 	private final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide;
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
-	private final Set<Amount> amounts = new HashSet<Amount>();
-	private final Set<Score> scores = new HashSet<Score>();
-	private final Set<Protein> proteins = new HashSet<Protein>();
-	private final Set<Condition> conditions = new HashSet<Condition>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
+	private final Set<Amount> amounts = new THashSet<Amount>();
+	private final Set<Score> scores = new THashSet<Score>();
+	private final Set<Protein> proteins = new THashSet<Protein>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
 	private boolean ratiosParsed = false;
 	private boolean amountsParsed = false;
 	private boolean scoresParsed = false;
 	private boolean conditionsParsed = false;
-	private final Set<PSM> psms = new HashSet<PSM>();
+	private final Set<PSM> psms = new THashSet<PSM>();
 	private boolean psmsParsed = false;
 	private MSRun msRun;
 	private boolean msRunParsed = false;
-	private final static HashMap<Integer, Ratio> peptideRatiosMap = new HashMap<Integer, Ratio>();
-	private final static HashMap<Integer, Amount> peptideAmountMap = new HashMap<Integer, Amount>();;
-	private final static HashMap<Integer, Score> peptideScoreMap = new HashMap<Integer, Score>();
-	protected final static HashMap<Integer, Peptide> peptideMap = new HashMap<Integer, Peptide>();
+	private final static TIntObjectHashMap<Ratio> peptideRatiosMap = new TIntObjectHashMap<Ratio>();
+	private final static TIntObjectHashMap<Amount> peptideAmountMap = new TIntObjectHashMap<Amount>();;
+	private final static TIntObjectHashMap<Score> peptideScoreMap = new TIntObjectHashMap<Score>();
+	protected final static TIntObjectHashMap<Peptide> peptideMap = new TIntObjectHashMap<Peptide>();
 
 	public PeptideImpl(edu.scripps.yates.proteindb.persistence.mysql.Peptide peptide) {
 		hibPeptide = peptide;

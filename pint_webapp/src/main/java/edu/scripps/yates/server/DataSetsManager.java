@@ -1,17 +1,18 @@
 package edu.scripps.yates.server;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import gnu.trove.map.hash.THashMap;
+
 public class DataSetsManager {
-	private static final Map<String, DataSet> dataSetMap = new HashMap<String, DataSet>();
+	private static final Map<String, DataSet> dataSetMap = new THashMap<String, DataSet>();
 	private final static Logger log = Logger.getLogger(DataSetsManager.class);
 
 	public static DataSet getDataSet(String sessionID, String name) {
 
-		if (!dataSetMap.containsKey(sessionID)) {
+		if (!dataSetMap.containsKey(sessionID) || dataSetMap.get(sessionID) == null) {
 			log.info("Creating new dataset '" + name + "' for sessionID: " + sessionID);
 			DataSet dataSet = new DataSet(sessionID, name);
 			dataSetMap.put(sessionID, dataSet);
@@ -44,7 +45,7 @@ public class DataSetsManager {
 		StringBuilder sb = new StringBuilder();
 		sb.append("DataSetsManager having " + dataSetMap.size() + " datasets.\n");
 		for (String sessionID : dataSetMap.keySet()) {
-			sb.append(sessionID + "\t" + dataSetMap.get(sessionID));
+			sb.append(sessionID + "\t" + dataSetMap.get(sessionID) + "\n");
 		}
 		return sb.toString();
 	}

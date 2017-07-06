@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +29,7 @@ import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.strings.StringUtils;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Implements a {@link Query} from SEQ command:<br>
@@ -172,7 +172,7 @@ public class QueryFromSEQCommand extends AbstractQuery {
 
 	private String getProteinSequence(QueriableProteinSet protein) {
 		final String acc = protein.getPrimaryAccession();
-		Set<String> uniprotACCs = new HashSet<String>();
+		Set<String> uniprotACCs = new THashSet<String>();
 		final Pair<String, String> accPair = FastaParser.getACC(acc);
 		if (accPair != null && accPair.getSecondElement() == AccessionType.UNIPROT.name()) {
 			uniprotACCs.add(accPair.getFirstelement());

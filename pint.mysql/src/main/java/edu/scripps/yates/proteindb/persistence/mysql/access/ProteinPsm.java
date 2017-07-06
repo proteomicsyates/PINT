@@ -1,10 +1,10 @@
 package edu.scripps.yates.proteindb.persistence.mysql.access;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinPsm implements Serializable {
 
@@ -61,7 +61,7 @@ public class ProteinPsm implements Serializable {
 	 */
 	public Set<Condition> getConditions() {
 		if (conditions == null) {
-			conditions = new HashSet<Condition>();
+			conditions = new THashSet<Condition>();
 		}
 		return conditions;
 	}

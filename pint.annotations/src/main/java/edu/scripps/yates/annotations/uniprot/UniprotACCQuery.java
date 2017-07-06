@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,18 +19,19 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.annotations.uniprot.UniprotProteinRemoteRetriever;
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.GeneNameType;
 import edu.scripps.yates.annotations.uniprot.xml.GeneType;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class UniprotACCQuery {
 	private static Logger log = Logger.getLogger(UniprotACCQuery.class);
-	private static Map<String, Uniprot> entriesByQuery = new HashMap<String, Uniprot>();
-	private final static Map<String, Set<String>> map = new HashMap<String, Set<String>>();
+	private static Map<String, Uniprot> entriesByQuery = new THashMap<String, Uniprot>();
+	private final static Map<String, Set<String>> map = new THashMap<String, Set<String>>();
 
 	/**
 	 * Parse the protein description for taxid and gene symbols and use that
@@ -70,7 +69,7 @@ public class UniprotACCQuery {
 			if (map.containsKey(otherAcc)) {
 				map.get(otherAcc).add(uniprotAcc);
 			} else {
-				Set<String> set = new HashSet<String>();
+				Set<String> set = new THashSet<String>();
 				set.add(uniprotAcc);
 				map.put(otherAcc, set);
 			}
@@ -107,7 +106,7 @@ public class UniprotACCQuery {
 				if (map.containsKey(otherAcc)) {
 					map.get(otherAcc).add(uniprotAcc);
 				} else {
-					Set<String> set = new HashSet<String>();
+					Set<String> set = new THashSet<String>();
 					set.add(uniprotAcc);
 					map.put(otherAcc, set);
 				}

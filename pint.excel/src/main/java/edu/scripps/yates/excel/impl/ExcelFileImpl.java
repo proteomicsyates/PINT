@@ -3,7 +3,6 @@ package edu.scripps.yates.excel.impl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,10 +13,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import edu.scripps.yates.excel.ExcelFile;
 import edu.scripps.yates.excel.ExcelReader;
 import edu.scripps.yates.excel.ExcelSheet;
+import gnu.trove.map.hash.THashMap;
 
 public class ExcelFileImpl implements ExcelFile {
 	private final static Logger log = Logger.getLogger(ExcelFileImpl.class);
-	private final Map<String, ExcelSheet> sheetMap = new HashMap<String, ExcelSheet>();
+	private final Map<String, ExcelSheet> sheetMap = new THashMap<String, ExcelSheet>();
 	private final List<String> sheetKeys = new ArrayList<String>();
 
 	public ExcelFileImpl(File file) throws IOException {

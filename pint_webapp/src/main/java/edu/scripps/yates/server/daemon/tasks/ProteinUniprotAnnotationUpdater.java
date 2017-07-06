@@ -3,7 +3,6 @@ package edu.scripps.yates.server.daemon.tasks;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +21,7 @@ import edu.scripps.yates.server.util.UniprotVersionReleasesDates;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * {@link PintServerDaemonTask} that checks all the accessions of the proteins
@@ -59,7 +59,7 @@ public class ProteinUniprotAnnotationUpdater extends PintServerDaemonTask {
 			// get the uniprot accessions
 			final List<ProteinAccession> proteinAccessions = PreparedQueries
 					.getProteinAccession(AccessionType.UNIPROT.name());
-			final Set<String> accessions = new HashSet<String>();
+			final Set<String> accessions = new THashSet<String>();
 
 			for (ProteinAccession proteinAccession : proteinAccessions) {
 				if (proteinAccession.getAccessionType().equals(AccessionType.UNIPROT.name()))
@@ -149,7 +149,7 @@ public class ProteinUniprotAnnotationUpdater extends PintServerDaemonTask {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			ContextualSessionHandler.getSession().getTransaction().rollback();
+			ContextualSessionHandler.getCurrentSession().getTransaction().rollback();
 		} finally {
 			ContextualSessionHandler.closeSession();
 		}

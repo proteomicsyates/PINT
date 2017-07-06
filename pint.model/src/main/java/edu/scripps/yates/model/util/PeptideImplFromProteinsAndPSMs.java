@@ -1,7 +1,6 @@
 package edu.scripps.yates.model.util;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -13,15 +12,16 @@ import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import gnu.trove.set.hash.THashSet;
 
 public class PeptideImplFromProteinsAndPSMs implements Peptide {
-	private final Set<PSM> psms = new HashSet<PSM>();
-	private final Set<Protein> proteins = new HashSet<Protein>();
-	private final Set<Amount> amounts = new HashSet<Amount>();
+	private final Set<PSM> psms = new THashSet<PSM>();
+	private final Set<Protein> proteins = new THashSet<Protein>();
+	private final Set<Amount> amounts = new THashSet<Amount>();
 	private MSRun msrun;
-	private final Set<Condition> conditions = new HashSet<Condition>();
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
-	private final Set<Score> scores = new HashSet<Score>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
+	private final Set<Score> scores = new THashSet<Score>();
 	private boolean conditionsParsed = false;
 
 	public PeptideImplFromProteinsAndPSMs(List<Protein> proteins, Collection<PSM> psms, MSRun msrun) {

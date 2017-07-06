@@ -1,11 +1,12 @@
 package edu.scripps.yates.proteindb.persistence.mysql.access;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.criterion.Criterion;
+
+import gnu.trove.map.hash.THashMap;
 
 public class CriterionSet {
 	private final List<CriterionDescriptor> criterionDescriptors = new ArrayList<CriterionDescriptor>();
@@ -22,7 +23,7 @@ public class CriterionSet {
 	}
 
 	public Map<String, List<CriterionDescriptor>> getCriterionByAssociationPath() {
-		Map<String, List<CriterionDescriptor>> ret = new HashMap<String, List<CriterionDescriptor>>();
+		Map<String, List<CriterionDescriptor>> ret = new THashMap<String, List<CriterionDescriptor>>();
 		for (CriterionDescriptor criterionDescriptor : criterionDescriptors) {
 			if (ret.containsKey(criterionDescriptor.getAssociationPath())) {
 				ret.get(criterionDescriptor.getAssociationPath()).add(criterionDescriptor);

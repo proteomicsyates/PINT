@@ -3,8 +3,6 @@ package edu.scripps.yates.annotations.uniprot;
 import java.io.File;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,11 +16,13 @@ import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class UniprotProteinRetriever {
 	private final static Logger log = Logger.getLogger(UniprotProteinRetriever.class);
-	private static final HashMap<String, Protein> cachedProteins = new HashMap<String, Protein>();
-	private static final HashSet<String> notAvailableProteins = new HashSet<String>();
+	private static final Map<String, Protein> cachedProteins = new THashMap<String, Protein>();
+	private static final Set<String> notAvailableProteins = new THashSet<String>();
 	public static boolean enableCache = true;
 	private final UniprotProteinLocalRetriever uniprotLocalRetriever;
 	private final String uniprotVersion;
@@ -36,16 +36,16 @@ public class UniprotProteinRetriever {
 		return uniprotLocalRetriever.getUniprotVersionsForProjects(uploadDatesByProjectTags);
 	}
 
-	private HashMap<String, Protein> getFromCache(Collection<String> accessions) {
-		HashMap<String, Protein> ret = new HashMap<String, Protein>();
+	private Map<String, Protein> getFromCache(Collection<String> accessions) {
+		Map<String, Protein> ret = new THashMap<String, Protein>();
 		for (String accession : accessions) {
 			ret.putAll(getFromCache(accession));
 		}
 		return ret;
 	}
 
-	private HashMap<String, Protein> getFromCache(String accession) {
-		HashMap<String, Protein> ret = new HashMap<String, Protein>();
+	private Map<String, Protein> getFromCache(String accession) {
+		Map<String, Protein> ret = new THashMap<String, Protein>();
 
 		if (enableCache && cachedProteins.containsKey(accession)) {
 			ret.put(accession, cachedProteins.get(accession));
@@ -65,8 +65,8 @@ public class UniprotProteinRetriever {
 	}
 
 	public Map<String, String> getAnnotatedProteinSequence(Collection<String> accessions) {
-		Map<String, String> ret = new HashMap<String, String>();
-		Set<String> missingAccessions = new HashSet<String>();
+		Map<String, String> ret = new THashMap<String, String>();
+		Set<String> missingAccessions = new THashSet<String>();
 		if (accessions != null && !accessions.isEmpty()) {
 			// discard the proteins that were retrieved before and there was no
 			// sequence
@@ -133,7 +133,7 @@ public class UniprotProteinRetriever {
 			} else {
 				// even not finding the proteins, store them in the cache in
 				// order to not look for them again
-				Map<String, Protein> nullProteins = new HashMap<String, Protein>();
+				Map<String, Protein> nullProteins = new THashMap<String, Protein>();
 				for (String acc : missingAccessions) {
 					nullProteins.put(acc, null);
 				}
@@ -169,7 +169,7 @@ public class UniprotProteinRetriever {
 	 * @return
 	 */
 	public Map<String, Protein> getAnnotatedProtein(String accession) {
-		Set<String> set = new HashSet<String>();
+		Set<String> set = new THashSet<String>();
 		set.add(accession);
 		return getAnnotatedProteins(set);
 
@@ -185,7 +185,7 @@ public class UniprotProteinRetriever {
 	// }
 
 	public static Map<String, Protein> convertUniprotEntries2Proteins(Collection<Entry> entries) {
-		HashMap<String, Protein> ret = new HashMap<String, Protein>();
+		Map<String, Protein> ret = new THashMap<String, Protein>();
 		// log.info(entries.size() + " entries found");
 		for (Entry entry : entries) {
 			Protein protein = new ProteinImplFromUniprotEntry(entry);
@@ -203,7 +203,7 @@ public class UniprotProteinRetriever {
 	}
 
 	public Map<String, String> getAnnotatedProteinSequence(String accession) {
-		Set<String> accessions = new HashSet<String>();
+		Set<String> accessions = new THashSet<String>();
 		accessions.add(accession);
 		return getAnnotatedProteinSequence(accessions);
 

@@ -1,17 +1,17 @@
 package edu.scripps.yates.server.cache;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.util.FileDescriptor;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCacheProteinGroupFileDescriptorByProjectName implements Cache<FileDescriptor, String> {
-	private static final Map<String, FileDescriptor> map = new HashMap<String, FileDescriptor>();
+	private static final Map<String, FileDescriptor> map = new THashMap<String, FileDescriptor>();
 	private static ServerCacheProteinGroupFileDescriptorByProjectName instance;
 	private static final boolean enabled = false;
 
@@ -72,7 +72,7 @@ public class ServerCacheProteinGroupFileDescriptorByProjectName implements Cache
 
 	@Override
 	public Set<FileDescriptor> getFromCache(Collection<String> keys) {
-		Set<FileDescriptor> ret = new HashSet<FileDescriptor>();
+		Set<FileDescriptor> ret = new THashSet<FileDescriptor>();
 		for (String key : keys) {
 			String processedKey = processKey(key);
 			if (contains(processedKey))

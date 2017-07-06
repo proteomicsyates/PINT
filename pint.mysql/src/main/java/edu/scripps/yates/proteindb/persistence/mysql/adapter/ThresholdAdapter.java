@@ -1,21 +1,20 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
+import gnu.trove.map.hash.THashMap;
 
-public class ThresholdAdapter implements
-		Adapter<edu.scripps.yates.proteindb.persistence.mysql.Threshold>,
-		Serializable {
+public class ThresholdAdapter
+		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.Threshold>, Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6872165014895642210L;
 	private final edu.scripps.yates.utilities.proteomicsmodel.Threshold threshold;
 	private final ProteinThreshold hibAppliedThreshold;
-	private final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.Threshold> map = new HashMap<String, edu.scripps.yates.proteindb.persistence.mysql.Threshold>();
+	private final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.Threshold> map = new THashMap<String, edu.scripps.yates.proteindb.persistence.mysql.Threshold>();
 
 	public ThresholdAdapter(edu.scripps.yates.utilities.proteomicsmodel.Threshold threshold,
 			ProteinThreshold hibAppliedThreshold) {

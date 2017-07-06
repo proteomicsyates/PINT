@@ -2,8 +2,6 @@ package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,10 +16,12 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAnnotationAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinAnnotator {
 	private static final Logger log = Logger.getLogger(ProteinAnnotator.class);
-	private static Map<String, ProteinAnnotator> instanceByVersion = new HashMap<String, ProteinAnnotator>();
+	private static Map<String, ProteinAnnotator> instanceByVersion = new THashMap<String, ProteinAnnotator>();
 
 	public static ProteinAnnotator getInstance(String uniprotKBVersion) {
 		ProteinAnnotator instance;
@@ -33,8 +33,8 @@ public class ProteinAnnotator {
 	}
 
 	private final UniprotProteinRetriever uplr;
-	private final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = new HashMap<String, edu.scripps.yates.utilities.proteomicsmodel.Protein>();
-	private final Map<String, Set<ProteinAnnotation>> annotationsByProteinAcc = new HashMap<String, Set<ProteinAnnotation>>();
+	private final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = new THashMap<String, edu.scripps.yates.utilities.proteomicsmodel.Protein>();
+	private final Map<String, Set<ProteinAnnotation>> annotationsByProteinAcc = new THashMap<String, Set<ProteinAnnotation>>();
 
 	private ProteinAnnotator(String uniprotKBVersion) {
 		uplr = new UniprotProteinRetriever(uniprotKBVersion,
@@ -109,7 +109,7 @@ public class ProteinAnnotator {
 					if (annotationsByProteinAcc.containsKey(accession)) {
 						annotationsByProteinAcc.get(accession).add(proteinAnnotation);
 					} else {
-						Set<ProteinAnnotation> set = new HashSet<ProteinAnnotation>();
+						Set<ProteinAnnotation> set = new THashSet<ProteinAnnotation>();
 						set.add(proteinAnnotation);
 						annotationsByProteinAcc.put(accession, set);
 					}
@@ -127,8 +127,8 @@ public class ProteinAnnotator {
 
 	private Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> getAnnotatedProteins(
 			Collection<String> accessions) {
-		Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> ret = new HashMap<String, edu.scripps.yates.utilities.proteomicsmodel.Protein>();
-		Set<String> notAnnotatedAccs = new HashSet<String>();
+		Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> ret = new THashMap<String, edu.scripps.yates.utilities.proteomicsmodel.Protein>();
+		Set<String> notAnnotatedAccs = new THashSet<String>();
 		for (String acc : accessions) {
 			if (annotatedProteins.containsKey(acc)) {
 				ret.put(acc, annotatedProteins.get(acc));

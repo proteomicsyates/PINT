@@ -1,6 +1,5 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
@@ -10,15 +9,16 @@ import edu.scripps.yates.proteindb.persistence.mysql.PsmAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.AmountType;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class AmountBeanAdapter implements Adapter<AmountBean> {
 	private final ProteinAmount proteinAmount;
 	private final PeptideAmount peptideAmount;
 	private final PsmAmount psmAmount;
 	private final MsRun msRun;
-	private static final Map<Integer, AmountBean> mapPep = new HashMap<Integer, AmountBean>();
-	private static final Map<Integer, AmountBean> mapPro = new HashMap<Integer, AmountBean>();
-	private static final Map<Integer, AmountBean> mapPsm = new HashMap<Integer, AmountBean>();
+	private static final TIntObjectHashMap< AmountBean> mapPep = new TIntObjectHashMap<AmountBean>();
+	private static final TIntObjectHashMap< AmountBean> mapPro = new TIntObjectHashMap<AmountBean>();
+	private static final TIntObjectHashMap< AmountBean> mapPsm = new TIntObjectHashMap<AmountBean>();
 
 	public AmountBeanAdapter(ProteinAmount proteinAmount, MsRun msRun) {
 		this.proteinAmount = proteinAmount;

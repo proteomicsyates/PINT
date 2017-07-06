@@ -16,8 +16,8 @@ public class ProteinAnnotationAdapter
 	// ideally has to be an object for each protein in the set. But it is not
 	// done. So, disabling the static map, we will force to create a new
 	// annotation object for each protein
-	// private final static Map<Integer, ProteinAnnotation> map = new
-	// HashMap<Integer, ProteinAnnotation>();
+	// private final static TIntObjectHashMap< ProteinAnnotation> map = new
+	// TIntObjectHashMap< ProteinAnnotation>();
 	private final Protein protein;
 
 	public ProteinAnnotationAdapter(edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation proteinAnnotation2, Protein protein) {

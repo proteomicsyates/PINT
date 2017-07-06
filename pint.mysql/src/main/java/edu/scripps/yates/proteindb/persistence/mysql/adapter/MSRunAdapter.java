@@ -1,13 +1,13 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
+import gnu.trove.map.hash.THashMap;
 
 public class MSRunAdapter implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.MsRun>, Serializable {
 	/**
@@ -17,7 +17,7 @@ public class MSRunAdapter implements Adapter<edu.scripps.yates.proteindb.persist
 	private static Logger log = Logger.getLogger(MSRunAdapter.class);
 	private final edu.scripps.yates.utilities.proteomicsmodel.MSRun msRun;
 	private final Project project;
-	private final static Map<String, MsRun> map = new HashMap<String, MsRun>();
+	private final static Map<String, MsRun> map = new THashMap<String, MsRun>();
 
 	public MSRunAdapter(edu.scripps.yates.utilities.proteomicsmodel.MSRun msRun2, Project project) {
 		if (msRun2 == null)

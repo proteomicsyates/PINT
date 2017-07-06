@@ -1,6 +1,5 @@
 package edu.scripps.yates.server.daemon.tasks;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +11,7 @@ import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * {@link PintServerDaemonTask} that checks all proteins in the DB and checks
@@ -49,7 +49,7 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 	@Override
 	public void run() {
 		try {
-			ContextualSessionHandler.getSession().beginTransaction();
+			ContextualSessionHandler.getCurrentSession().beginTransaction();
 			log.info("Starting " + getTaskName());
 
 			List<edu.scripps.yates.proteindb.persistence.mysql.Protein> proteins = ContextualSessionHandler
@@ -60,12 +60,12 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 			UniprotProteinLocalRetriever ulr = new UniprotProteinLocalRetriever(urs.getUniprotReleasesFolder(), true);
 
 			for (edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteins) {
-				ContextualSessionHandler.getSession().beginTransaction();
+				ContextualSessionHandler.getCurrentSession().beginTransaction();
 				final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
-				Set<ProteinAccession> primaryAccs = new HashSet<ProteinAccession>();
-				Set<ProteinAccession> primaryUniprotAccs = new HashSet<ProteinAccession>();
+				Set<ProteinAccession> primaryAccs = new THashSet<ProteinAccession>();
+				Set<ProteinAccession> primaryUniprotAccs = new THashSet<ProteinAccession>();
 				ProteinAccession ipiAcc = null;
-				Set<String> uniprotACCs = new HashSet<String>();
+				Set<String> uniprotACCs = new THashSet<String>();
 				for (ProteinAccession proteinAccession : proteinAccessions) {
 					if (proteinAccession.isIsPrimary()) {
 						primaryAccs.add(proteinAccession);
@@ -124,7 +124,7 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 							log.info("there is more than one uniprot acc as primary.");
 							final Map<String, Entry> annotatedProteins = ulr.getAnnotatedProteins(null, uniprotACCs);
 							ProteinAccession goodAcc = null;
-							Set<ProteinAccession> accsToDowngrade = new HashSet<ProteinAccession>();
+							Set<ProteinAccession> accsToDowngrade = new THashSet<ProteinAccession>();
 							for (ProteinAccession primaryAcc : primaryUniprotAccs) {
 								if (annotatedProteins.containsKey(primaryAcc.getAccession())) {
 									final Entry entry = annotatedProteins.get(primaryAcc.getAccession());
@@ -168,9 +168,9 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			ContextualSessionHandler.getSession().getTransaction().rollback();
+			ContextualSessionHandler.getCurrentSession().getTransaction().rollback();
 		} finally {
-			ContextualSessionHandler.getSession().close();
+			ContextualSessionHandler.getCurrentSession().close();
 		}
 	}
 

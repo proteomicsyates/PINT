@@ -2,17 +2,18 @@ package edu.scripps.yates.server.cache;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCachePSMBeansByProjectTag implements Cache<List<PSMBean>, String> {
-	private static final HashMap<String, List<PSMBean>> map = new HashMap<String, List<PSMBean>>();
+	private static final Map<String, List<PSMBean>> map = new THashMap<String, List<PSMBean>>();
 
 	private static ServerCachePSMBeansByProjectTag instance;
 
@@ -71,7 +72,7 @@ public class ServerCachePSMBeansByProjectTag implements Cache<List<PSMBean>, Str
 
 	@Override
 	public Set<List<PSMBean>> getFromCache(Collection<String> keys) {
-		Set<List<PSMBean>> ret = new HashSet<List<PSMBean>>();
+		Set<List<PSMBean>> ret = new THashSet<List<PSMBean>>();
 		for (String key : keys) {
 			if (contains(key))
 				ret.add(getFromCache(key));

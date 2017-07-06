@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,12 +29,14 @@ import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinDTASelectParser {
 	private static final Logger log = Logger.getLogger(ProteinDTASelectParser.class);
 	private final DTASelectParser parser;
 	boolean dtaselect;
-	private HashMap<String, Set<Protein>> proteins;
+	private Map<String, Set<Protein>> proteins;
 	private Map<String, PSM> psms;
 
 	public ProteinDTASelectParser(URL u) throws IOException {
@@ -70,16 +70,16 @@ public class ProteinDTASelectParser {
 	 *
 	 * @return
 	 */
-	public HashMap<String, Set<Protein>> getProteins() {
+	public Map<String, Set<Protein>> getProteins() {
 		if (proteins == null) {
-			proteins = new HashMap<String, Set<Protein>>();
+			proteins = new THashMap<String, Set<Protein>>();
 			Collection<DTASelectProtein> dtaSelectProteins;
 			try {
 				dtaSelectProteins = parser.getDTASelectProteins().values();
 				for (DTASelectProtein dtaSelectProtein : dtaSelectProteins) {
 					final List<DTASelectPSM> psMs2 = dtaSelectProtein.getPSMs();
 					// take the MSRuns from psms
-					Set<String> msRunIDs = new HashSet<String>();
+					Set<String> msRunIDs = new THashSet<String>();
 
 					for (DTASelectPSM dtaPSM : psMs2) {
 						msRunIDs.add(dtaPSM.getRawFileName());
@@ -96,7 +96,7 @@ public class ProteinDTASelectParser {
 						}
 
 						if (!proteins.containsKey(protein.getAccession())) {
-							Set<Protein> set = new HashSet<Protein>();
+							Set<Protein> set = new THashSet<Protein>();
 							set.add(protein);
 							proteins.put(protein.getAccession(), set);
 						} else {
@@ -200,7 +200,7 @@ public class ProteinDTASelectParser {
 
 	public Map<String, PSM> getPSMsByPSMID() {
 		if (psms == null) {
-			psms = new HashMap<String, PSM>();
+			psms = new THashMap<String, PSM>();
 			for (Set<Protein> proteinSet : getProteins().values()) {
 				for (Protein dtaSelectProtein : proteinSet) {
 					for (PSM psm : dtaSelectProtein.getPSMs()) {

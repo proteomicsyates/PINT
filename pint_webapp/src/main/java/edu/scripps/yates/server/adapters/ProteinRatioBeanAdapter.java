@@ -1,18 +1,16 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ProteinRatioBeanAdapter implements Adapter<RatioBean> {
 	private final ProteinRatioValue proteinRatioValue;
-	private final static Map<Integer, RatioBean> map = new HashMap<Integer, RatioBean>();
+	private final static TIntObjectHashMap<RatioBean> map = new TIntObjectHashMap<RatioBean>();
 
 	public ProteinRatioBeanAdapter(ProteinRatioValue proteinRatioValue) {
 		this.proteinRatioValue = proteinRatioValue;

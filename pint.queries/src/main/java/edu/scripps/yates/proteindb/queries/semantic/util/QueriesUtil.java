@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +17,8 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class QueriesUtil {
 	public static final Logger log = Logger.getLogger(QueriesUtil.class);
@@ -47,7 +47,7 @@ public class QueriesUtil {
 		}
 		log.info("proteinPSMLinks cleared for  " + numProteins + " proteins and " + numPSMs + " PSMs");
 
-		Map<String, Set<LinkBetweenQueriableProteinSetAndPSM>> linkMapByProteinAcc = new HashMap<String, Set<LinkBetweenQueriableProteinSetAndPSM>>();
+		Map<String, Set<LinkBetweenQueriableProteinSetAndPSM>> linkMapByProteinAcc = new THashMap<String, Set<LinkBetweenQueriableProteinSetAndPSM>>();
 		for (Set<Protein> proteinSet : proteinSets) {
 			for (Protein protein : proteinSet) {
 				final Set<Psm> psms = protein.getPsms();
@@ -62,7 +62,7 @@ public class QueriesUtil {
 					if (linkMapByProteinAcc.containsKey(accession)) {
 						linkMapByProteinAcc.get(accession).add(proteinSet2PsmLink);
 					} else {
-						Set<LinkBetweenQueriableProteinSetAndPSM> linkSet = new HashSet<LinkBetweenQueriableProteinSetAndPSM>();
+						Set<LinkBetweenQueriableProteinSetAndPSM> linkSet = new THashSet<LinkBetweenQueriableProteinSetAndPSM>();
 						linkSet.add(proteinSet2PsmLink);
 						linkMapByProteinAcc.put(accession, linkSet);
 					}
@@ -126,7 +126,7 @@ public class QueriesUtil {
 
 	public static Map<String, Set<Protein>> getProteinSubList(Map<String, Set<Protein>> proteinsByProjectCondition,
 			int maxIndex) {
-		Map<String, Set<Protein>> ret = new HashMap<String, Set<Protein>>();
+		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		List<Protein> list = new ArrayList<Protein>();
 		for (Set<Protein> proteinSet : proteinsByProjectCondition.values()) {
 			list.addAll(proteinSet);

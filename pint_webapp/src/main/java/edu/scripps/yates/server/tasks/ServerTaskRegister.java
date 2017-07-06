@@ -1,10 +1,11 @@
 package edu.scripps.yates.server.tasks;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+
+import gnu.trove.set.hash.THashSet;
 
 /**
  * This class will track all server requests in order to not repeat the same
@@ -16,7 +17,7 @@ import org.apache.log4j.Logger;
 public class ServerTaskRegister {
 	private static Logger log = Logger.getLogger(ServerTaskRegister.class);
 
-	private static final Set<Task> runningTasks = new HashSet<Task>();
+	private static final Set<Task> runningTasks = new THashSet<Task>();
 	/**
 	 * To avoid concurrent access to the runningTasks
 	 */

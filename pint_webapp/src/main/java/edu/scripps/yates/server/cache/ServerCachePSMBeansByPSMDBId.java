@@ -1,16 +1,16 @@
 package edu.scripps.yates.server.cache;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCachePSMBeansByPSMDBId implements Cache<PSMBean, Integer> {
-	private static final HashMap<Integer, PSMBean> map = new HashMap<Integer, PSMBean>();
+	private static final TIntObjectHashMap<PSMBean> map = new TIntObjectHashMap<PSMBean>();
 
 	private static ServerCachePSMBeansByPSMDBId instance;
 
@@ -57,7 +57,7 @@ public class ServerCachePSMBeansByPSMDBId implements Cache<PSMBean, Integer> {
 
 	@Override
 	public Set<PSMBean> getFromCache(Collection<Integer> keys) {
-		Set<PSMBean> ret = new HashSet<PSMBean>();
+		Set<PSMBean> ret = new THashSet<PSMBean>();
 		for (Integer key : keys) {
 			if (contains(key))
 				ret.add(getFromCache(key));

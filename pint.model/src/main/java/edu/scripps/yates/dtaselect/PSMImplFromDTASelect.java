@@ -1,7 +1,6 @@
 package edu.scripps.yates.dtaselect;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,23 +22,24 @@ import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
+import gnu.trove.set.hash.THashSet;
 
 public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteomicsmodel.PSM {
 	private final DTASelectPSM dtaSelectPSM;
 	private final List<PTM> ptms;
-	private final Set<Score> scores = new HashSet<Score>();
-	private final Set<Protein> proteins = new HashSet<Protein>();
+	private final Set<Score> scores = new THashSet<Score>();
+	private final Set<Protein> proteins = new THashSet<Protein>();
 	private PeptideRelation relation;
-	private final Set<Amount> psmAmounts = new HashSet<Amount>();
+	private final Set<Amount> psmAmounts = new THashSet<Amount>();
 	private Peptide peptide;
-	private final Set<Condition> conditions = new HashSet<Condition>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
 	private MSRun msRun;
 	private boolean scoreParsed = false;
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
 	// protected static final Map<DTASelectPSM, PSM> psmMap = new
 	// HashMap<DTASelectPSM, PSM>();
 	// protected static final Map<String, Map<String, Peptide>>
-	// peptideMapByMSRun = new HashMap<String, Map<String, Peptide>>();
+	// peptideMapByMSRun = new THashMap<String, Map<String, Peptide>>();
 	// private static final String probability =
 	// CVManager.getPreferredName(CommonlyUsedCV.quantificationPValueID);
 	private static final String psmScoreName = CVManager

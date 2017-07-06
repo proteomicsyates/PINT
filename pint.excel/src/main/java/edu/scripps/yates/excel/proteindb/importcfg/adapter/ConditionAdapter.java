@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,6 +50,8 @@ import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Adapter<Condition> {
 	private final static Logger log = Logger.getLogger(ConditionAdapter.class);
@@ -62,11 +62,11 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	private final RemoteFileReader remoteFileReader;
 	private final MsRunsType msRunsCfg;
 	private final OrganismSetType organismTypeCfg;
-	private static final Map<String, Condition> conditionsById = new HashMap<String, Condition>();
-	private static final Map<String, Map<String, Set<Protein>>> proteinsByRunIDAndAcc = new HashMap<String, Map<String, Set<Protein>>>();
-	private static final Map<String, Set<Peptide>> peptidesByRunID = new HashMap<String, Set<Peptide>>();
-	private static final Map<String, Set<PSM>> psmsByRunID = new HashMap<String, Set<PSM>>();
-	private final Set<String> thereIsProteinSetReferenceFromExcelByMSRunID = new HashSet<String>();
+	private static final Map<String, Condition> conditionsById = new THashMap<String, Condition>();
+	private static final Map<String, Map<String, Set<Protein>>> proteinsByRunIDAndAcc = new THashMap<String, Map<String, Set<Protein>>>();
+	private static final Map<String, Set<Peptide>> peptidesByRunID = new THashMap<String, Set<Peptide>>();
+	private static final Map<String, Set<PSM>> psmsByRunID = new THashMap<String, Set<PSM>>();
+	private final Set<String> thereIsProteinSetReferenceFromExcelByMSRunID = new THashSet<String>();
 
 	public ConditionAdapter(ExperimentalConditionType expConditionCfg, MsRunsType msRunsType,
 			ExperimentalDesignType experimentalDesignCfg, OrganismSetType organismTypeCfg, Project project,
@@ -360,7 +360,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 
 					if (dtaSelectProteinsMap != null) {
 						// map the proteins with the appropiate parsed accession
-						Map<String, DTASelectProtein> dtaSelectProteinsMap2 = new HashMap<String, DTASelectProtein>();
+						Map<String, DTASelectProtein> dtaSelectProteinsMap2 = new THashMap<String, DTASelectProtein>();
 						for (DTASelectProtein dtaSelectProtein : dtaSelectProteinsMap.values()) {
 							dtaSelectProteinsMap2.put(ProteinDTASelectParser
 									.getProteinAccessionFromDTASelectProtein(dtaSelectProtein).getAccession(),
@@ -535,14 +535,14 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 			boolean addProteinsNotInOriginalProteinSet, String projectTag, String msRunID) {
 		log.info("merging " + originalProteins.size() + " with " + otherProteins.size() + " proteins");
 		// index original proteins by accessions
-		Map<String, Set<Protein>> originalProteinsMap = new HashMap<String, Set<Protein>>();
+		Map<String, Set<Protein>> originalProteinsMap = new THashMap<String, Set<Protein>>();
 		ModelUtils.addToMap(originalProteinsMap, originalProteins);
 
 		int numValid = 0;
 		for (String otherProteinAccPrimitive : otherProteins.keySet()) {
 			// otherProteinAccPrimitive can be IPI1090020.2 and we here split it
 			// in IPI1090020.2 and IPI1090020
-			Set<String> otherProteinAccVersions = new HashSet<String>();
+			Set<String> otherProteinAccVersions = new THashSet<String>();
 			otherProteinAccVersions.add(otherProteinAccPrimitive);
 			if (otherProteinAccPrimitive.contains(".")) {
 				otherProteinAccVersions.add(otherProteinAccPrimitive.split("\\.")[0]);
@@ -587,7 +587,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	}
 
 	private void addProteinByRunID(String projectTag, String msRunID, Protein otherProtein) {
-		Set<Protein> proteins = new HashSet<Protein>();
+		Set<Protein> proteins = new THashSet<Protein>();
 		proteins.add(otherProtein);
 		addProteinsByRunID(projectTag, msRunID, proteins);
 	}
@@ -684,7 +684,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 				if (proteinsByRunIDAndAcc.get(key).containsKey(accession)) {
 					proteinsByRunIDAndAcc.get(key).get(accession).add(protein);
 				} else {
-					Set<Protein> set = new HashSet<Protein>();
+					Set<Protein> set = new THashSet<Protein>();
 					set.add(protein);
 					proteinsByRunIDAndAcc.get(key).put(accession, set);
 				}
@@ -694,7 +694,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 						if (proteinsByRunIDAndAcc.get(key).containsKey(accession2.getAccession())) {
 							proteinsByRunIDAndAcc.get(key).get(accession2.getAccession()).add(protein);
 						} else {
-							Set<Protein> set = new HashSet<Protein>();
+							Set<Protein> set = new THashSet<Protein>();
 							set.add(protein);
 							proteinsByRunIDAndAcc.get(key).put(accession2.getAccession(), set);
 						}
@@ -702,13 +702,13 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 				}
 			}
 		} else {
-			Map<String, Set<Protein>> map = new HashMap<String, Set<Protein>>();
+			Map<String, Set<Protein>> map = new THashMap<String, Set<Protein>>();
 			for (Protein protein : proteins) {
 				final String accession = protein.getPrimaryAccession().getAccession();
 				if (map.containsKey(accession)) {
 					map.get(accession).add(protein);
 				} else {
-					Set<Protein> set = new HashSet<Protein>();
+					Set<Protein> set = new THashSet<Protein>();
 					set.add(protein);
 					map.put(accession, set);
 				}
@@ -718,7 +718,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 						if (map.containsKey(accession2.getAccession())) {
 							map.get(accession2.getAccession()).add(protein);
 						} else {
-							Set<Protein> set = new HashSet<Protein>();
+							Set<Protein> set = new THashSet<Protein>();
 							set.add(protein);
 							map.put(accession2.getAccession(), set);
 						}
@@ -734,7 +734,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 		String key = projectTag + msRunRef;
 		final Map<String, Set<Protein>> map = proteinsByRunIDAndAcc.get(key);
 
-		Set<Protein> set = new HashSet<Protein>();
+		Set<Protein> set = new THashSet<Protein>();
 		if (map != null) {
 			for (Set<Protein> proteinSet : map.values()) {
 				for (Protein protein : proteinSet) {
@@ -753,7 +753,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 		if (peptidesByRunID.containsKey(key)) {
 			peptidesByRunID.get(key).addAll(peptides);
 		} else {
-			Set<Peptide> set = new HashSet<Peptide>();
+			Set<Peptide> set = new THashSet<Peptide>();
 			set.addAll(peptides);
 			peptidesByRunID.put(key, set);
 		}
@@ -773,7 +773,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 		if (psmsByRunID.containsKey(key)) {
 			psmsByRunID.get(key).addAll(psms);
 		} else {
-			Set<PSM> set = new HashSet<PSM>();
+			Set<PSM> set = new THashSet<PSM>();
 			set.addAll(psms);
 			psmsByRunID.put(key, set);
 		}

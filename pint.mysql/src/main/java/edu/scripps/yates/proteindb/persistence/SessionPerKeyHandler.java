@@ -1,15 +1,16 @@
 package edu.scripps.yates.proteindb.persistence;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 
+import gnu.trove.map.hash.THashMap;
+
 public class SessionPerKeyHandler {
 	private static final Logger log = Logger.getLogger(SessionPerKeyHandler.class);
-	private static final Map<String, SessionPerKey> sessions = new HashMap<String, SessionPerKey>();
+	private static final Map<String, SessionPerKey> sessions = new THashMap<String, SessionPerKey>();
 	// TODO CHANGE THIS USENAME, PASSW, URL if you want to use it
 	private static final SessionFactory sessionFactory = HibernateUtil.getInstance(null, null, null)
 			.getSessionFactory();

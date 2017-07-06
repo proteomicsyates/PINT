@@ -1,16 +1,17 @@
 package edu.scripps.yates.server.cache;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCacheProteinAccessionsByFileKey implements Cache<List<String>, String> {
-	private static final HashMap<String, List<String>> map = new HashMap<String, List<String>>();
+	private static final Map<String, List<String>> map = new THashMap<String, List<String>>();
 
 	private static ServerCacheProteinAccessionsByFileKey instance;
 
@@ -57,7 +58,7 @@ public class ServerCacheProteinAccessionsByFileKey implements Cache<List<String>
 
 	@Override
 	public Set<List<String>> getFromCache(Collection<String> keys) {
-		Set<List<String>> ret = new HashSet<List<String>>();
+		Set<List<String>> ret = new THashSet<List<String>>();
 		for (String key : keys) {
 			if (contains(key))
 				ret.add(getFromCache(key));

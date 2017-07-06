@@ -1,6 +1,5 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -12,10 +11,11 @@ import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAccessionAda
 import edu.scripps.yates.shared.model.AccessionBean;
 import edu.scripps.yates.shared.model.AccessionType;
 import edu.scripps.yates.utilities.fasta.FastaParser;
+import gnu.trove.map.hash.THashMap;
 
 public class AccessionBeanAdapter implements Adapter<AccessionBean> {
 	private final ProteinAccession proteinAccession;
-	private final static Map<String, AccessionBean> map = new HashMap<String, AccessionBean>();
+	private final static Map<String, AccessionBean> map = new THashMap<String, AccessionBean>();
 	private final static Logger log = Logger.getLogger(AccessionBeanAdapter.class);
 
 	public AccessionBeanAdapter(ProteinAccession proteinAccession) {

@@ -3,18 +3,18 @@ package edu.scripps.yates.proteindb.persistence.mysql.impl;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ProjectImpl implements Project {
 	private final edu.scripps.yates.proteindb.persistence.mysql.Project hibProject;
-	protected final static HashMap<Integer, Project> projectsMap = new HashMap<Integer, Project>();
+	protected final static TIntObjectHashMap<Project> projectsMap = new TIntObjectHashMap<Project>();
 
 	public ProjectImpl(edu.scripps.yates.proteindb.persistence.mysql.Project project) {
 		hibProject = project;
@@ -49,7 +49,7 @@ public class ProjectImpl implements Project {
 
 	@Override
 	public Set<Condition> getConditions() {
-		Set<Condition> ret = new HashSet<Condition>();
+		Set<Condition> ret = new THashSet<Condition>();
 		final Set<edu.scripps.yates.proteindb.persistence.mysql.Condition> conditions = hibProject.getConditions();
 		for (edu.scripps.yates.proteindb.persistence.mysql.Condition condition : conditions) {
 			if (ConditionImpl.conditionsMap.containsKey(condition.getId()))
@@ -80,7 +80,7 @@ public class ProjectImpl implements Project {
 
 	@Override
 	public Set<MSRun> getMSRuns() {
-		Set<MSRun> ret = new HashSet<MSRun>();
+		Set<MSRun> ret = new THashSet<MSRun>();
 		final Set<MsRun> msRuns = hibProject.getMsRuns();
 		if (msRuns != null) {
 			for (MsRun hibMsRun : msRuns) {

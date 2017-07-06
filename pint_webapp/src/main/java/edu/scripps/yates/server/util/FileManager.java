@@ -5,10 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletContext;
 
@@ -22,6 +20,7 @@ import edu.scripps.yates.server.projectCreator.ImportCfgFileParserUtil;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class FileManager {
 	private static final Logger log = Logger.getLogger(FileManager.class);
@@ -36,8 +35,8 @@ public class FileManager {
 	private static final String FASTAS = "fastas";
 	private static final String DEFAULT_VIEWS = "default-views";
 	private static String projectFilesPath;
-	private static Map<Integer, List<FileWithFormat>> filesByImportProcessID = new HashMap<Integer, List<FileWithFormat>>();
-	private static Map<Integer, File> projectCfgFileByImportProcessID = new HashMap<Integer, File>();
+	private static TIntObjectHashMap<List<FileWithFormat>> filesByImportProcessID = new TIntObjectHashMap<List<FileWithFormat>>();
+	private static TIntObjectHashMap<File> projectCfgFileByImportProcessID = new TIntObjectHashMap<File>();
 	private static boolean ready = false;
 	private static boolean loading;
 	private static final String PROJECT_STATS_FILE_NAME = "stats.properties";
@@ -234,7 +233,7 @@ public class FileManager {
 			if (ServerUtil.isTestServer()) {
 				projectFilesPath = "Z:\\share\\Salva\\data\\PInt";
 			} else {
-				projectFilesPath = (String) servletContext.getInitParameter(SharedConstants.PINT_HOME_PATH);
+				projectFilesPath = servletContext.getInitParameter(SharedConstants.PINT_HOME_PATH);
 
 			}
 			projectFilesPath = projectFilesPath.replace("\\", "/");

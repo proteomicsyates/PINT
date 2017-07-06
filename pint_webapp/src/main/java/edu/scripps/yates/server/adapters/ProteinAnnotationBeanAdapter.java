@@ -1,17 +1,14 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.ProteinAnnotationBean;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
-public class ProteinAnnotationBeanAdapter implements
-		Adapter<ProteinAnnotationBean> {
+public class ProteinAnnotationBeanAdapter implements Adapter<ProteinAnnotationBean> {
 	private final ProteinAnnotation proteinAnnotation;
 	private final edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation modelProteinAnnotation;
-	private final static Map<Integer, ProteinAnnotationBean> map = new HashMap<Integer, ProteinAnnotationBean>();
+	private final static TIntObjectHashMap<ProteinAnnotationBean> map = new TIntObjectHashMap<ProteinAnnotationBean>();
 
 	public ProteinAnnotationBeanAdapter(ProteinAnnotation proteinAnnotation) {
 		this.proteinAnnotation = proteinAnnotation;

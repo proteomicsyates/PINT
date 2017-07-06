@@ -1,15 +1,13 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.ThresholdBean;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ThresholdBeanAdapter implements Adapter<ThresholdBean> {
 	private final ProteinThreshold appliedThreshold;
-	private final static Map<Integer, ThresholdBean> map = new HashMap<Integer, ThresholdBean>();
+	private final static TIntObjectHashMap<ThresholdBean> map = new TIntObjectHashMap<ThresholdBean>();
 
 	public ThresholdBeanAdapter(ProteinThreshold appliedThreshold) {
 		this.appliedThreshold = appliedThreshold;

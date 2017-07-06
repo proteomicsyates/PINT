@@ -1,17 +1,14 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.LabelBean;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class LabelBeanAdapter implements Adapter<LabelBean> {
 	private final edu.scripps.yates.proteindb.persistence.mysql.Label label;
-	private final static Map<Integer, LabelBean> map = new HashMap<Integer, LabelBean>();
+	private final static TIntObjectHashMap<LabelBean> map = new TIntObjectHashMap<LabelBean>();
 
-	public LabelBeanAdapter(
-			edu.scripps.yates.proteindb.persistence.mysql.Label label) {
+	public LabelBeanAdapter(edu.scripps.yates.proteindb.persistence.mysql.Label label) {
 		this.label = label;
 	}
 

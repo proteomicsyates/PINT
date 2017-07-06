@@ -1,6 +1,5 @@
 package edu.scripps.yates.server.daemon.tasks;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +13,7 @@ import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * {@link PintServerDaemonTask} that checks all proteins in the DB and checks
@@ -52,7 +52,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 	public void run() {
 		try {
 			UniprotProteinLocalRetriever ulr = new UniprotProteinLocalRetriever(urs.getUniprotReleasesFolder(), true);
-			ContextualSessionHandler.getSession().beginTransaction();
+			ContextualSessionHandler.getCurrentSession().beginTransaction();
 			log.info("Starting " + getTaskName());
 
 			ScrollableResults proteins = ContextualSessionHandler
@@ -63,7 +63,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 			int chunkSizeForchanges = 5;
 			int changeCounter = 0;
 			while (true) {
-				Set<Protein> proteinSet = new HashSet<Protein>();
+				Set<Protein> proteinSet = new THashSet<Protein>();
 				while (proteins.next()) {
 					if (changeCounter >= chunkSizeForchanges) {
 						break;
@@ -81,7 +81,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 					} else {
 						try {
 
-							Set<String> accs = new HashSet<String>();
+							Set<String> accs = new THashSet<String>();
 							for (Protein p2 : proteinSet) {
 								Set<ProteinAccession> paccs = p2.getProteinAccessions();
 								for (ProteinAccession proteinAccession : paccs) {
@@ -94,10 +94,10 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 							ulr.getAnnotatedProteins(null, accs);
 							for (Protein protein : proteinSet) {
 								final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
-								Set<ProteinAccession> primaryAccs = new HashSet<ProteinAccession>();
-								Set<ProteinAccession> primaryUniprotAccs = new HashSet<ProteinAccession>();
+								Set<ProteinAccession> primaryAccs = new THashSet<ProteinAccession>();
+								Set<ProteinAccession> primaryUniprotAccs = new THashSet<ProteinAccession>();
 								ProteinAccession ipiAcc = null;
-								Set<String> uniprotACCs = new HashSet<String>();
+								Set<String> uniprotACCs = new THashSet<String>();
 								for (ProteinAccession proteinAccession : proteinAccessions) {
 									if (proteinAccession.isIsPrimary()) {
 										primaryAccs.add(proteinAccession);
@@ -166,7 +166,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 											final Map<String, Entry> annotatedProteins = ulr.getAnnotatedProteins(null,
 													uniprotACCs);
 											ProteinAccession goodAcc = null;
-											Set<ProteinAccession> accsToDowngrade = new HashSet<ProteinAccession>();
+											Set<ProteinAccession> accsToDowngrade = new THashSet<ProteinAccession>();
 											for (ProteinAccession primaryAcc : primaryUniprotAccs) {
 												if (annotatedProteins.containsKey(primaryAcc.getAccession())) {
 													final Entry entry = annotatedProteins
@@ -214,7 +214,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 									// removed
 									// by
 									// GC
-									ContextualSessionHandler.getSession().evict(protein);
+									ContextualSessionHandler.getCurrentSession().evict(protein);
 									// remove protein from cache for the same
 									// reason
 									ContextualSessionHandler.getSessionFactory(null, null, null).getCache()
@@ -233,7 +233,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 				}
 				log.info("Committing transaction...");
 				ContextualSessionHandler.finishGoodTransaction();
-				ContextualSessionHandler.getSession().beginTransaction();
+				ContextualSessionHandler.getCurrentSession().beginTransaction();
 				proteins = ContextualSessionHandler
 						.retrieveReadOnlyIterator(edu.scripps.yates.proteindb.persistence.mysql.Protein.class);
 				log.info("Scroll adquired for proteins in the DB");
@@ -242,9 +242,9 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			ContextualSessionHandler.getSession().getTransaction().rollback();
+			ContextualSessionHandler.getCurrentSession().getTransaction().rollback();
 		} finally {
-			ContextualSessionHandler.getSession().close();
+			ContextualSessionHandler.getCurrentSession().close();
 		}
 	}
 

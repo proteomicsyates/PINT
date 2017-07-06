@@ -1,9 +1,7 @@
 package edu.scripps.yates.server.grouping;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
@@ -11,9 +9,10 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.utilities.grouping.GroupablePSM;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.PeptideRelation;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class GroupableExtendedPsm implements GroupablePSM {
-	public final static Map<Integer, GroupableExtendedPsm> map = new HashMap<Integer, GroupableExtendedPsm>();
+	public final static TIntObjectHashMap<GroupableExtendedPsm> map = new TIntObjectHashMap<GroupableExtendedPsm>();
 	private final Psm psm;
 	private PeptideRelation relation;
 	private ArrayList<GroupableProtein> groupableProteins;
@@ -30,11 +29,9 @@ public class GroupableExtendedPsm implements GroupablePSM {
 			final Set<Protein> proteins = psm.getProteins();
 			for (Protein protein : proteins) {
 				if (GroupableExtendedProtein.map.containsKey(protein.getId())) {
-					groupableProteins.add(GroupableExtendedProtein.map
-							.get(protein.getId()));
+					groupableProteins.add(GroupableExtendedProtein.map.get(protein.getId()));
 				} else {
-					groupableProteins
-							.add(new GroupableExtendedProtein(protein));
+					groupableProteins.add(new GroupableExtendedProtein(protein));
 				}
 			}
 		}

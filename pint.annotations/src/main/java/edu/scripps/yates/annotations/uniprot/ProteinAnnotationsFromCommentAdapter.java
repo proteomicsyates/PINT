@@ -1,6 +1,5 @@
 package edu.scripps.yates.annotations.uniprot;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +17,7 @@ import edu.scripps.yates.utilities.model.factories.ProteinAnnotationEx;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinAnnotationsFromCommentAdapter implements Adapter<Set<ProteinAnnotation>> {
 
@@ -50,7 +50,7 @@ public class ProteinAnnotationsFromCommentAdapter implements Adapter<Set<Protein
 
 	@Override
 	public Set<ProteinAnnotation> adapt() {
-		Set<ProteinAnnotation> ret = new HashSet<ProteinAnnotation>();
+		Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
 		// absorption
 		final Absorption absorption = comment.getAbsorption();
 		if (absorption != null && absorption.getText() != null) {

@@ -2,20 +2,19 @@ package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.proteored.miapeapi.experiment.model.sort.SystemCoreManager;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
+import edu.scripps.yates.cores.SystemCoreManager;
 import edu.scripps.yates.pi.ParIterator;
-import edu.scripps.yates.pi.ParIteratorFactory;
 import edu.scripps.yates.pi.ParIterator.Schedule;
+import edu.scripps.yates.pi.ParIteratorFactory;
 import edu.scripps.yates.pi.reductions.Reducible;
 import edu.scripps.yates.pi.reductions.Reduction;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
@@ -36,6 +35,7 @@ import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.model.enums.AmountType;
+import gnu.trove.set.hash.THashSet;
 
 public class QueryInterface {
 	private ProteinProviderFromDB proteinProvider;
@@ -175,7 +175,7 @@ public class QueryInterface {
 			} else {
 				log.info(
 						"There are more than one query about ACCs. Joining accessions of all of them and building the protein provider");
-				Set<String> accs = new HashSet<String>();
+				Set<String> accs = new THashSet<String>();
 				for (AbstractQuery abstractQuery : accQueries) {
 					accs.addAll(((QueryFromProteinAccessionsCommand) abstractQuery).getAccs());
 				}
@@ -203,7 +203,7 @@ public class QueryInterface {
 				|| queryBinaryTree.isPredominant(QueryFromComplexAnnotationCommand.class)) {
 			log.info("There is at least one predominant query that is over Uniprot annotations ");
 
-			Set<AbstractQuery> abstractQueries = new HashSet<AbstractQuery>();
+			Set<AbstractQuery> abstractQueries = new THashSet<AbstractQuery>();
 			final Set<QueryFromComplexAnnotationCommand> predominantAbstractQueries = (Set<QueryFromComplexAnnotationCommand>) queryBinaryTree
 					.getPredominantAbstractQueries(QueryFromComplexAnnotationCommand.class, false);
 			abstractQueries.addAll(predominantAbstractQueries);
@@ -225,7 +225,7 @@ public class QueryInterface {
 		// annotate them
 		ProteinAnnotator.getInstance(uniprotKBVersion).annotateProteins(proteinMap);
 		// filter them and keep the valids
-		Set<String> validProteinAccs = new HashSet<String>();
+		Set<String> validProteinAccs = new THashSet<String>();
 		log.info("Performing a pre evaluation of the proteins checking their annotations...");
 		log.info("Checking " + proteinMap.size() + " proteins");
 		for (String proteinAcc : proteinMap.keySet()) {

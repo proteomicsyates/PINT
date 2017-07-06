@@ -10,8 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,6 +89,8 @@ import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ImportCfgFileReader {
 	private static final Logger log = Logger.getLogger(ImportCfgFileReader.class);
@@ -99,12 +99,12 @@ public class ImportCfgFileReader {
 	public static boolean ignoreUniprotAnnotations = false;
 	private ProjectType projectCfg;
 	private ExcelFileReader excelReader;
-	private HashMap<String, Condition> conditionsByConditionID;
+	private Map<String, Condition> conditionsByConditionID;
 	private RemoteFileReader remoteFileReader;
 	public static final String SINGLETON_SUM_COUNT_RATIO = "Singleton counts ratio";
 	public static final String SINGLETON_SUM_INTENSITIES_RATIO = "Singleton sum intensities ratio";
 	public static final String SINGLETON_INTENSITY_RATIO = "Singleton intensity ratio";
-	private final Map<String, Set<Protein>> proteinMap = new HashMap<String, Set<Protein>>();
+	private final Map<String, Set<Protein>> proteinMap = new THashMap<String, Set<Protein>>();
 	private Pattern discardDecoyRegexp;
 	public static boolean ALLOW_PROTEINS_IN_EXCEL_NOT_FOUND_BEFORE = false;
 
@@ -236,7 +236,7 @@ public class ImportCfgFileReader {
 		}
 		// experimental Conditions
 		final RatiosType ratiosCfg = projectCfg.getRatios();
-		conditionsByConditionID = new HashMap<String, Condition>();
+		conditionsByConditionID = new THashMap<String, Condition>();
 		for (ExperimentalConditionType expConditionCfg : projectCfg.getExperimentalConditions()
 				.getExperimentalCondition()) {
 			final ConditionAdapter conditionAdapter = new ConditionAdapter(expConditionCfg, msRuns,
@@ -342,7 +342,7 @@ public class ImportCfgFileReader {
 
 	private Map<String, List<RatioDescriptor>> getRatioDescriptorsByFile(PintImportCfgType cfg,
 			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile) {
-		Map<String, List<RatioDescriptor>> ret = new HashMap<String, List<RatioDescriptor>>();
+		Map<String, List<RatioDescriptor>> ret = new THashMap<String, List<RatioDescriptor>>();
 
 		if (cfg != null && cfg.getProject() != null && cfg.getProject().getRatios() != null) {
 			if (cfg.getProject().getRatios().getPsmAmountRatios() != null
@@ -407,7 +407,7 @@ public class ImportCfgFileReader {
 
 	private Map<String, QuantificationLabel> getNumeratorLabelsByFile(PintImportCfgType cfg,
 			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile) {
-		Map<String, QuantificationLabel> ret = new HashMap<String, QuantificationLabel>();
+		Map<String, QuantificationLabel> ret = new THashMap<String, QuantificationLabel>();
 		if (cfg != null && cfg.getProject() != null && cfg.getProject().getRatios() != null) {
 			if (cfg.getProject().getRatios().getPsmAmountRatios() != null
 					&& cfg.getProject().getRatios().getPsmAmountRatios().getRemoteFilesRatio() != null) {
@@ -454,7 +454,7 @@ public class ImportCfgFileReader {
 
 	private Map<String, QuantificationLabel> getDenominatorLabelsByFile(PintImportCfgType cfg,
 			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile) {
-		Map<String, QuantificationLabel> ret = new HashMap<String, QuantificationLabel>();
+		Map<String, QuantificationLabel> ret = new THashMap<String, QuantificationLabel>();
 		if (cfg != null && cfg.getProject() != null && cfg.getProject().getRatios() != null) {
 			if (cfg.getProject().getRatios().getPsmAmountRatios() != null
 					&& cfg.getProject().getRatios().getPsmAmountRatios().getRemoteFilesRatio() != null) {
@@ -544,7 +544,7 @@ public class ImportCfgFileReader {
 	 * @return
 	 */
 	private Map<String, Map<QuantCondition, QuantificationLabel>> getLabelsByConditions(PintImportCfgType cfg) {
-		Map<String, Map<QuantCondition, QuantificationLabel>> ret = new HashMap<String, Map<QuantCondition, QuantificationLabel>>();
+		Map<String, Map<QuantCondition, QuantificationLabel>> ret = new THashMap<String, Map<QuantCondition, QuantificationLabel>>();
 
 		// get all census-chro
 		// List<FileType> censusChroFiles =
@@ -553,7 +553,7 @@ public class ImportCfgFileReader {
 			if (fileType.getFormat() == FormatType.CENSUS_CHRO_XML
 					|| fileType.getFormat() == FormatType.CENSUS_OUT_TXT) {
 				// add the map in any case
-				Map<QuantCondition, QuantificationLabel> map = new HashMap<QuantCondition, QuantificationLabel>();
+				Map<QuantCondition, QuantificationLabel> map = new THashMap<QuantCondition, QuantificationLabel>();
 				ret.put(fileType.getId(), map);
 				String fileId = fileType.getId();
 				for (ExperimentalConditionType conditionType : cfg.getProject().getExperimentalConditions()
@@ -707,7 +707,7 @@ public class ImportCfgFileReader {
 		if (proteinMap2.containsKey(accession)) {
 			proteinMap2.get(accession).add(protein);
 		} else {
-			Set<Protein> set = new HashSet<Protein>();
+			Set<Protein> set = new THashSet<Protein>();
 			set.add(protein);
 			proteinMap2.put(accession, set);
 		}
@@ -793,7 +793,7 @@ public class ImportCfgFileReader {
 								// peaks = pairs)
 								final Set<QuantRatio> ratios = quantifiedPSM.getRatios();
 								if (ratios != null) {
-									Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new HashMap<Pair<String, String>, List<QuantRatio>>();
+									Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
 									for (QuantRatio quantRatio : ratios) {
 										final QuantificationLabel label1 = quantRatio.getLabel1();
 										final QuantificationLabel label2 = quantRatio.getLabel2();
@@ -1073,7 +1073,7 @@ public class ImportCfgFileReader {
 								// peaks = pairs)
 								final Set<QuantRatio> ratios = quantifiedPSM.getRatios();
 								if (ratios != null) {
-									Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new HashMap<Pair<String, String>, List<QuantRatio>>();
+									Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
 									for (QuantRatio quantRatio : ratios) {
 										final QuantificationLabel label1 = quantRatio.getLabel1();
 										final QuantificationLabel label2 = quantRatio.getLabel2();
@@ -1312,10 +1312,10 @@ public class ImportCfgFileReader {
 	}
 
 	private Map<String, Set<QuantRatio>> getRatiosByDescription(List<QuantRatio> safeRatios) {
-		Map<String, Set<QuantRatio>> ret = new HashMap<String, Set<QuantRatio>>();
+		Map<String, Set<QuantRatio>> ret = new THashMap<String, Set<QuantRatio>>();
 		for (QuantRatio ratio : safeRatios) {
 			if (!ret.containsKey(ratio.getDescription())) {
-				Set<QuantRatio> set = new HashSet<QuantRatio>();
+				Set<QuantRatio> set = new THashSet<QuantRatio>();
 				set.add(ratio);
 				ret.put(ratio.getDescription(), set);
 			} else {
@@ -1366,7 +1366,7 @@ public class ImportCfgFileReader {
 								// ratios
 								final Set<QuantRatio> ratios = quantifiedProtein.getRatios();
 								if (ratios != null) {
-									Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new HashMap<Pair<String, String>, List<QuantRatio>>();
+									Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
 									for (QuantRatio quantRatio : ratios) {
 										final QuantificationLabel label1 = quantRatio.getLabel1();
 										final QuantificationLabel label2 = quantRatio.getLabel2();
@@ -1864,7 +1864,7 @@ public class ImportCfgFileReader {
 	// getProteinsWithThatAccAndDetectedInOneCondition(String proteinAcc,
 	// Project project,
 	// String conditionRef) {
-	// Set<Protein> ret = new HashSet<Protein>();
+	// Set<Protein> ret = new THashSet<Protein>();
 	//
 	// Condition condition = getCondition(conditionRef, project);
 	// if (condition != null) {
@@ -1896,7 +1896,7 @@ public class ImportCfgFileReader {
 
 	private Set<Protein> getProteinsWithThatAccAndDetectedInBothConditions(String proteinAcc, Project project,
 			String condition1Ref, String condition2Ref) {
-		Set<Protein> ret = new HashSet<Protein>();
+		Set<Protein> ret = new THashSet<Protein>();
 
 		Condition condition1 = getCondition(condition1Ref, project);
 		Condition condition2 = getCondition(condition2Ref, project);
@@ -2211,7 +2211,7 @@ public class ImportCfgFileReader {
 	// private Set<HasConditions> areDetectedOnBothConditions(Set<HasConditions>
 	// hasConditions, String condition1Ref,
 	// String condition2Ref) {
-	// Set<HasConditions> ret = new HashSet<HasConditions>();
+	// Set<HasConditions> ret = new THashSet<HasConditions>();
 	//
 	// for (HasConditions hasCondition : hasConditions) {
 	// boolean condition1Found = false;

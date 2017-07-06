@@ -1,8 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,30 +27,32 @@ import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinImpl implements Protein {
-	private static HashMap<Integer, Amount> proteinAmountMap = new HashMap<Integer, Amount>();
-	private static HashMap<Integer, Ratio> proteinRatiosMap = new HashMap<Integer, Ratio>();
-	protected static HashMap<Integer, Protein> proteinMap = new HashMap<Integer, Protein>();
-	private final static HashMap<Integer, Score> scoreMap = new HashMap<Integer, Score>();
+	private static TIntObjectHashMap<Amount> proteinAmountMap = new TIntObjectHashMap<Amount>();
+	private static TIntObjectHashMap<Ratio> proteinRatiosMap = new TIntObjectHashMap<Ratio>();
+	protected static TIntObjectHashMap<Protein> proteinMap = new TIntObjectHashMap<Protein>();
+	private final static TIntObjectHashMap<Score> scoreMap = new TIntObjectHashMap<Score>();
 
 	private final edu.scripps.yates.proteindb.persistence.mysql.Protein hibProtein;
-	private final Set<Gene> genes = new HashSet<Gene>();
+	private final Set<Gene> genes = new THashSet<Gene>();
 	private Set<ProteinAnnotation> annotations;
-	private final Set<Amount> amounts = new HashSet<Amount>();
+	private final Set<Amount> amounts = new THashSet<Amount>();
 
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
 	private Set<Threshold> thresholds;
-	private final Set<PSM> psms = new HashSet<PSM>();
-	private final Set<Peptide> peptides = new HashSet<Peptide>();
+	private final Set<PSM> psms = new THashSet<PSM>();
+	private final Set<Peptide> peptides = new THashSet<Peptide>();
 	private List<Accession> secondaryAccessions;
 	private ProteinEvidence evidence;
 	private ProteinGroup group;
 	private Accession primaryAcc;
-	private final Set<Score> scores = new HashSet<Score>();
+	private final Set<Score> scores = new THashSet<Score>();
 	private boolean proteinAmountsParsed = false;
 	private boolean conditionsParsed = false;
-	private final Set<Condition> conditions = new HashSet<Condition>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
 	private boolean proteinRatiosParsed = false;
 	private boolean psmsParsed = false;
 	private Organism organism;
@@ -92,7 +92,7 @@ public class ProteinImpl implements Protein {
 	@Override
 	public Set<ProteinAnnotation> getAnnotations() {
 		if (annotations == null) {
-			annotations = new HashSet<ProteinAnnotation>();
+			annotations = new THashSet<ProteinAnnotation>();
 			final Set<edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation> proteinAnnotations = hibProtein
 					.getProteinAnnotations();
 			for (edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation proteinAnnotation : proteinAnnotations) {
@@ -150,7 +150,7 @@ public class ProteinImpl implements Protein {
 	@Override
 	public Set<Threshold> getThresholds() {
 		if (thresholds == null) {
-			thresholds = new HashSet<Threshold>();
+			thresholds = new THashSet<Threshold>();
 			final Set<ProteinThreshold> proteinThresholds = hibProtein.getProteinThresholds();
 
 			for (ProteinThreshold hibProteinThreshold : proteinThresholds) {

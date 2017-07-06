@@ -14,7 +14,7 @@ public class LinkBetweenQueriableProteinSetAndPSM {
 	private final QueriableProteinSet queriableProteinSet;
 	private final QueriablePsm queriablePsm;
 	// private final Map<Boolean, Set<QueriableProtein2PSMLink>>
-	// evaluatedProtein2PSMLinks = new HashMap<Boolean,
+	// evaluatedProtein2PSMLinks = new THashMap<Boolean,
 	// Set<QueriableProtein2PSMLink>>();
 	private Set<LinkBetweenQueriableProteinSetAndPSM> linkSetForSameProtein;
 

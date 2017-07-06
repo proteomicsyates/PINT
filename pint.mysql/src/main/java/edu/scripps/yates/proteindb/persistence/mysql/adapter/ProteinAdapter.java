@@ -1,8 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +35,9 @@ import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinAdapter implements Adapter<Protein>, Serializable {
 	/**
@@ -46,9 +47,9 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 	private static final Logger log = Logger.getLogger(ProteinAdapter.class);
 	private final edu.scripps.yates.utilities.proteomicsmodel.Protein protein;
 	private final Project hibProject;
-	private static final HashMap<Integer, Protein> map = new HashMap<Integer, Protein>();
+	private static final TIntObjectHashMap<Protein> map = new TIntObjectHashMap<Protein>();
 	// private static final HashMap<MSRun, Map<String, Peptide>> peptidesByMSRun
-	// = new HashMap<MSRun, Map<String, Peptide>>();
+	// = new THashMap<MSRun, Map<String, Peptide>>();
 
 	public ProteinAdapter(edu.scripps.yates.utilities.proteomicsmodel.Protein protein, Project hibProject) {
 		this.protein = protein;
@@ -250,7 +251,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 	}
 
 	private Map<edu.scripps.yates.proteindb.persistence.mysql.Condition, Set<PSM>> getPSMsByCondition(Set<PSM> psMs) {
-		Map<edu.scripps.yates.proteindb.persistence.mysql.Condition, Set<PSM>> ret = new HashMap<edu.scripps.yates.proteindb.persistence.mysql.Condition, Set<PSM>>();
+		Map<edu.scripps.yates.proteindb.persistence.mysql.Condition, Set<PSM>> ret = new THashMap<edu.scripps.yates.proteindb.persistence.mysql.Condition, Set<PSM>>();
 		if (psMs != null) {
 			for (PSM psm : psMs) {
 				final Set<Condition> conditions = psm.getConditions();
@@ -261,7 +262,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 						if (ret.containsKey(hibCondition)) {
 							ret.get(hibCondition).add(psm);
 						} else {
-							Set<PSM> psmSet = new HashSet<PSM>();
+							Set<PSM> psmSet = new THashSet<PSM>();
 							psmSet.add(psm);
 							ret.put(hibCondition, psmSet);
 						}

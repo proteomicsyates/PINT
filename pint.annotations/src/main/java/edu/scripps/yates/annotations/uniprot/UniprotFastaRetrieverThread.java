@@ -7,7 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -16,6 +15,7 @@ import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.pi.ParIterator;
 import edu.scripps.yates.pi.reductions.Reducible;
 import edu.scripps.yates.utilities.dates.DatesUtil;
+import gnu.trove.map.hash.THashMap;
 
 public class UniprotFastaRetrieverThread extends Thread {
 	private static Logger log = Logger.getLogger(UniprotFastaRetrieverThread.class);
@@ -29,7 +29,7 @@ public class UniprotFastaRetrieverThread extends Thread {
 
 	@Override
 	public void run() {
-		Map<String, Entry> ret = new HashMap<String, Entry>();
+		Map<String, Entry> ret = new THashMap<String, Entry>();
 		reducibleMap.set(ret);
 		int num = 0;
 

@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.persistence.mysql.access;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -40,6 +39,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ConditionAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProjectAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * This class provides the methods for the appropiate saving of the data in the
@@ -888,7 +888,7 @@ public class MySQLSaver {
 		// proteinamounts
 		final Set<Protein> proteins = hibExperimentalCondition.getProteins();
 		log.info("Saving " + proteins.size() + " proteins");
-		Set<Protein> discardedProteins = new HashSet<Protein>();
+		Set<Protein> discardedProteins = new THashSet<Protein>();
 		if (proteins != null && !proteins.isEmpty()) {
 			int size = proteins.size();
 			int i = 1;

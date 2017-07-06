@@ -1,15 +1,13 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.MSRunBean;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class MSRunBeanAdapter implements Adapter<MSRunBean> {
 	private final MsRun msRun;
-	private final static Map<Integer, MSRunBean> map = new HashMap<Integer, MSRunBean>();
+	private final static TIntObjectHashMap<MSRunBean> map = new TIntObjectHashMap<MSRunBean>();
 
 	public MSRunBeanAdapter(MsRun msRun) {
 		this.msRun = msRun;

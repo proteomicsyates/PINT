@@ -352,6 +352,13 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 		this.dbIds.addAll(dbIds);
 	}
 
+	public void addDbIds(int[] dbIds) {
+		for (int dbId : dbIds) {
+			this.dbIds.add(dbId);
+		}
+
+	}
+
 	/**
 	 * @param dbId
 	 *            the dbId to set
@@ -1294,7 +1301,10 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 
 		if (!omimEntries.isEmpty()) {
 			final Set<Integer> keySet = omimEntries.keySet();
-			sortedIds.addAll(keySet);
+			for (Integer i : keySet) {
+				sortedIds.add(i);
+			}
+
 			Collections.sort(sortedIds);
 
 		}

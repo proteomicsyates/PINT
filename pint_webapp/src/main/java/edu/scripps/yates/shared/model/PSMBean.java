@@ -54,7 +54,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	private String chargeState;
 	private Map<String, List<Pair<Integer, Integer>>> startingPositions = new HashMap<String, List<Pair<Integer, Integer>>>();
 	private Set<OrganismBean> organisms = new HashSet<OrganismBean>();
-	private Set<Integer> proteinDBIds = new HashSet<Integer>();
+	private HashSet<Integer> proteinDBIds = new HashSet<Integer>();
 	private Set<ExperimentalConditionBean> conditions = new HashSet<ExperimentalConditionBean>();
 	private int numProteins;
 	private PeptideRelation relation;
@@ -838,7 +838,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	/**
 	 * @return the proteinDBIds
 	 */
-	public Set<Integer> getProteinDBIds() {
+	public HashSet<Integer> getProteinDBIds() {
 		return proteinDBIds;
 	}
 
@@ -846,7 +846,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	 * @param proteinDBIds
 	 *            the proteinDBIds to set
 	 */
-	public void setProteinDBIds(Set<Integer> proteinDBIds) {
+	public void setProteinDBIds(HashSet<Integer> proteinDBIds) {
 		this.proteinDBIds = proteinDBIds;
 	}
 

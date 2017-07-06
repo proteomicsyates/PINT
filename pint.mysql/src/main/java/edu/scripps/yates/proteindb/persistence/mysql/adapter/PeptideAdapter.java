@@ -1,7 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
@@ -14,9 +13,10 @@ import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class PeptideAdapter implements Adapter<Peptide>, Serializable {
-	private static final HashMap<Integer, Peptide> map = new HashMap<Integer, Peptide>();
+	private static final TIntObjectHashMap<Peptide> map = new TIntObjectHashMap<Peptide>();
 	private final edu.scripps.yates.utilities.proteomicsmodel.Peptide peptide;
 	private final Project hibProject;
 	/**

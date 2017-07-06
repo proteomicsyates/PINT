@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,13 +31,14 @@ import edu.scripps.yates.shared.model.projectStats.ProjectStats;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsImpl;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsParent;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsType;
+import gnu.trove.map.hash.THashMap;
 
 public class ProjectStatsManager {
 	private final static Logger log = Logger.getLogger(ProjectStatsManager.class);
 	private static ProjectStatsManager instance;
 	private final File file;
-	private final Map<String, ProjectStatsParent> map = new HashMap<String, ProjectStatsParent>();
-	private final HashMap<Thread, Method> methodsByThread = new HashMap<Thread, Method>();
+	private final Map<String, ProjectStatsParent> map = new THashMap<String, ProjectStatsParent>();
+	private final Map<Thread, Method> methodsByThread = new THashMap<Thread, Method>();
 	private static ProjectStats generalProjectsStats = new ProjectStatsImpl(null, ProjectStatsType.PINT);
 
 	private ProjectStatsManager(File file, Method method) {

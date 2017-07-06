@@ -1,8 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +18,9 @@ import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ConditionAdapter
 		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.Condition>, Serializable {
@@ -30,8 +31,8 @@ public class ConditionAdapter
 	private final static Logger log = Logger.getLogger(ConditionAdapter.class);
 	private final edu.scripps.yates.utilities.proteomicsmodel.Condition expConditionModel;
 	private final Project hibProject;
-	public final static Map<Integer, edu.scripps.yates.proteindb.persistence.mysql.Condition> map = new HashMap<Integer, edu.scripps.yates.proteindb.persistence.mysql.Condition>();
-	public final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.Condition> conditionsByNameAndProject = new HashMap<String, edu.scripps.yates.proteindb.persistence.mysql.Condition>();
+	public final static TIntObjectHashMap<edu.scripps.yates.proteindb.persistence.mysql.Condition> map = new TIntObjectHashMap<edu.scripps.yates.proteindb.persistence.mysql.Condition>();
+	public final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.Condition> conditionsByNameAndProject = new THashMap<String, edu.scripps.yates.proteindb.persistence.mysql.Condition>();
 
 	/**
 	 *
@@ -189,7 +190,7 @@ public class ConditionAdapter
 	}
 
 	private void annotateMissingProteinsFromUniprot() {
-		Set<String> uniprotAccs = new HashSet<String>();
+		Set<String> uniprotAccs = new THashSet<String>();
 		final Set<Protein> proteins = expConditionModel.getProteins();
 		for (Protein protein : proteins) {
 			final Accession primaryAccession = protein.getPrimaryAccession();

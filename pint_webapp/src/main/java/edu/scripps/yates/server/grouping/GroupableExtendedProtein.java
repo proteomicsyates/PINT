@@ -1,9 +1,7 @@
 package edu.scripps.yates.server.grouping;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
@@ -14,10 +12,11 @@ import edu.scripps.yates.utilities.grouping.GroupablePSM;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class GroupableExtendedProtein implements GroupableProtein {
 
-	public static final Map<Integer, GroupableExtendedProtein> map = new HashMap<Integer, GroupableExtendedProtein>();
+	public static final TIntObjectHashMap<GroupableExtendedProtein> map = new TIntObjectHashMap<GroupableExtendedProtein>();
 	private final Protein protein;
 	private ArrayList<GroupablePSM> groupablePSMs;
 	private String primaryAccession;
@@ -41,8 +40,7 @@ public class GroupableExtendedProtein implements GroupableProtein {
 			final Set<Psm> psms = protein.getPsms();
 			for (Psm psm : psms) {
 				if (GroupableExtendedPsm.map.containsKey(psm.getId())) {
-					groupablePSMs
-							.add(GroupableExtendedPsm.map.get(psm.getId()));
+					groupablePSMs.add(GroupableExtendedPsm.map.get(psm.getId()));
 				} else {
 					groupablePSMs.add(new GroupableExtendedPsm(psm));
 				}
@@ -54,8 +52,7 @@ public class GroupableExtendedProtein implements GroupableProtein {
 	@Override
 	public String getAccession() {
 		if (primaryAccession == null) {
-			final ProteinAccession acc = PersistenceUtils
-					.getPrimaryAccession(protein);
+			final ProteinAccession acc = PersistenceUtils.getPrimaryAccession(protein);
 			primaryAccession = acc.getAccession();
 		}
 		return primaryAccession;

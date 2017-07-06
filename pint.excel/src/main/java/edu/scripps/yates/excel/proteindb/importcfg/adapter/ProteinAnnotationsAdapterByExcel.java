@@ -1,6 +1,5 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +11,7 @@ import edu.scripps.yates.utilities.model.factories.ProteinAnnotationEx;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinAnnotationsAdapterByExcel implements Adapter<Set<ProteinAnnotation>> {
 	private final int rowIndex;
@@ -27,7 +27,7 @@ public class ProteinAnnotationsAdapterByExcel implements Adapter<Set<ProteinAnno
 
 	@Override
 	public Set<ProteinAnnotation> adapt() {
-		Set<ProteinAnnotation> ret = new HashSet<ProteinAnnotation>();
+		Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
 
 		if (excelCondition.getProteinAnnotations() != null) {
 			final List<ProteinAnnotationType> proteinAnnotationCfg = excelCondition.getProteinAnnotations()

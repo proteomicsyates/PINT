@@ -45,7 +45,7 @@ public class GeneInformationConsolidation extends PintServerDaemonTask {
 		log.info("Starting " + getTaskName());
 		ContextualSessionHandler.openSession();
 		try {
-			ContextualSessionHandler.getSession().beginTransaction();
+			ContextualSessionHandler.getCurrentSession().beginTransaction();
 			final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans();
 			for (ProjectBean projectBean : projectBeans) {
 				final Map<String, Set<Protein>> proteins = PreparedQueries
@@ -114,7 +114,7 @@ public class GeneInformationConsolidation extends PintServerDaemonTask {
 			e.printStackTrace();
 			ContextualSessionHandler.rollbackTransaction();
 		} finally {
-			ContextualSessionHandler.getSession().close();
+			ContextualSessionHandler.getCurrentSession().close();
 		}
 	}
 

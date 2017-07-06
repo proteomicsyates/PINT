@@ -2,8 +2,6 @@ package edu.scripps.yates.proteindb.persistence.mysql.access;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +28,8 @@ import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Prepared queries using a session that if a sessionID is provided (not null)
@@ -80,7 +80,7 @@ public class PreparedQueries {
 	public static Map<String, Set<Protein>> getProteinsWithAmount(String projectTag) {
 		final List<Protein> list = parseParametersForQuery(PROTEINS_WITH_AMOUNT, "project.tag=:projectTag", projectTag)
 				.list();
-		Map<String, Set<Protein>> ret = new HashMap<String, Set<Protein>>();
+		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -96,7 +96,7 @@ public class PreparedQueries {
 			String amountType) {
 		final List<Protein> list = parseParametersForQuery(PROTEINS_WITH_AMOUNT, "project.tag=:projectTag", projectTag,
 				"condition.name=:conditionName", conditionName, "amountType.name=:amountType", amountType).list();
-		Map<String, Set<Protein>> ret = new HashMap<String, Set<Protein>>();
+		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -116,7 +116,7 @@ public class PreparedQueries {
 				"condition.name=:conditionName", conditionName).list();
 		log.info("Returning " + list.size() + " proteins from the query");
 
-		Map<String, Set<Protein>> ret = new HashMap<String, Set<Protein>>();
+		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -657,7 +657,7 @@ public class PreparedQueries {
 		final Query query = parseParametersForQuery(PROTEINS_WITH_THRESHOLD, "protein_threshold.passThreshold=:pass",
 				pass, "threshold.name=:threshold_name", thresholdName, "project.tag=:project_name", projectTag);
 		final List<Protein> list = query.list();
-		Map<String, Set<Protein>> ret = new HashMap<String, Set<Protein>>();
+		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -679,7 +679,7 @@ public class PreparedQueries {
 		final Query query = parseParametersForQuery(PROTEINS_WITH_GENES, "gene.geneId=:gene_name", geneName,
 				"project.tag=:project_name", projectTag);
 		final List<Protein> list = query.list();
-		Map<String, Set<Protein>> ret = new HashMap<String, Set<Protein>>();
+		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -697,11 +697,11 @@ public class PreparedQueries {
 
 	public static List<RatioDescriptor> getPSMRatioDescriptorsByProject(String projectTag) {
 
-		final List projectList = ContextualSessionHandler.getSession().createCriteria(Project.class)
+		final List projectList = ContextualSessionHandler.getCurrentSession().createCriteria(Project.class)
 				.add(Restrictions.eq("tag", projectTag)).list();
 		if (!projectList.isEmpty()) {
 			Project project = (Project) projectList.get(0);
-			Criteria criteria = ContextualSessionHandler.getSession()
+			Criteria criteria = ContextualSessionHandler.getCurrentSession()
 					.createCriteria(RatioDescriptor.class, "ratioDescriptor")
 					.add(Restrictions.isNotEmpty("psmRatioValues"))
 					.createAlias("ratioDescriptor.conditionByExperimentalCondition1Id", "condition1")
@@ -717,11 +717,11 @@ public class PreparedQueries {
 
 	public static List<RatioDescriptor> getProteinRatioDescriptorsByProject(String projectTag) {
 
-		final List projectList = ContextualSessionHandler.getSession().createCriteria(Project.class)
+		final List projectList = ContextualSessionHandler.getCurrentSession().createCriteria(Project.class)
 				.add(Restrictions.eq("tag", projectTag)).list();
 		if (!projectList.isEmpty()) {
 			Project project = (Project) projectList.get(0);
-			Criteria criteria = ContextualSessionHandler.getSession()
+			Criteria criteria = ContextualSessionHandler.getCurrentSession()
 					.createCriteria(RatioDescriptor.class, "ratioDescriptor")
 					.add(Restrictions.isNotEmpty("proteinRatioValues"))
 					.createAlias("ratioDescriptor.conditionByExperimentalCondition1Id", "condition1")
@@ -737,11 +737,11 @@ public class PreparedQueries {
 
 	public static List<RatioDescriptor> getPeptideRatioDescriptorsByProject(String projectTag) {
 
-		final List projectList = ContextualSessionHandler.getSession().createCriteria(Project.class)
+		final List projectList = ContextualSessionHandler.getCurrentSession().createCriteria(Project.class)
 				.add(Restrictions.eq("tag", projectTag)).list();
 		if (!projectList.isEmpty()) {
 			Project project = (Project) projectList.get(0);
-			Criteria criteria = ContextualSessionHandler.getSession()
+			Criteria criteria = ContextualSessionHandler.getCurrentSession()
 					.createCriteria(RatioDescriptor.class, "ratioDescriptor")
 					.add(Restrictions.isNotEmpty("peptideRatioValues"))
 					.createAlias("ratioDescriptor.conditionByExperimentalCondition1Id", "condition1")
@@ -809,7 +809,7 @@ public class PreparedQueries {
 
 	public static Set<Organism> getOrganismsByProject(String projectTag) {
 		final Query query = parseParametersForQuery(ORGANISMS_BY_PROJECT, "project.tag=:project_name", projectTag);
-		final Set<Organism> set = new HashSet<Organism>();
+		final Set<Organism> set = new THashSet<Organism>();
 		set.addAll(query.list());
 		return set;
 	}
@@ -819,7 +819,7 @@ public class PreparedQueries {
 
 	public static Set<Sample> getSamplesByProject(String projectTag) {
 		final Query query = parseParametersForQuery(SAMPLES_BY_PROJECT, "project.tag=:project_name", projectTag);
-		final Set<Sample> set = new HashSet<Sample>();
+		final Set<Sample> set = new THashSet<Sample>();
 		set.addAll(query.list());
 		return set;
 	}
@@ -846,7 +846,7 @@ public class PreparedQueries {
 		final Query query = parseParametersForQuery(PROTEINS_BY_TAXONOMY, "project.tag=:project_tag", projectTag,
 				"organism.taxonomyId=:taxonomy_id", ncbiTaxID, "organism.name=:organism_name", organismName);
 		final List<Protein> proteinList = query.list();
-		Map<String, Set<Protein>> ret = new HashMap<String, Set<Protein>>();
+		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, proteinList);
 		return ret;
 	}
@@ -913,7 +913,7 @@ public class PreparedQueries {
 		if (projectTag == null || "".equals(projectTag)) {
 			baseQuery = PROTEINS_WITH_ACC_NO_PROJECT;
 		}
-		Set<Object> set = new HashSet<Object>();
+		Set<Object> set = new THashSet<Object>();
 		set.addAll(accessions);
 		Query query = parseParametersForQuerySpecial2(baseQuery, "protein_accession.accession", "accession", set,
 				"project.tag=:projectTag", projectTag);
@@ -962,7 +962,7 @@ public class PreparedQueries {
 		if (msRuns.isEmpty()) {
 			return Collections.emptyList();
 		}
-		Set<Object> set = new HashSet<Object>();
+		Set<Object> set = new THashSet<Object>();
 		set.addAll(msRuns);
 		Query query = parseParametersForQuerySpecial2(PROTEINS_BY_MSRUN, "protein.msRun", "msRun", set);
 		query.setCacheable(true);
@@ -975,10 +975,10 @@ public class PreparedQueries {
 	private final static String PROTEIN_AMOUNT_TYPES_BY_CONDITION = "select distinct amountType from AmountType amountType join amountType.proteinAmounts proteinAmount";
 
 	public static Map<Condition, Set<AmountType>> getPSMAmountTypesByConditions(Collection<Condition> conditions) {
-		Map<Condition, Set<AmountType>> map = new HashMap<Condition, Set<AmountType>>();
+		Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
 		for (Condition condition : conditions) {
 			// PSM AMOUNTS
-			Set<Object> set = new HashSet<Object>();
+			Set<Object> set = new THashSet<Object>();
 			set.add(condition);
 			Query query = parseParametersForQuerySpecial2(PSM_AMOUNT_TYPES_BY_CONDITION, "psmAmount.condition",
 					"condition", set);
@@ -988,7 +988,7 @@ public class PreparedQueries {
 				if (map.containsKey(condition)) {
 					map.get(condition).addAll(list);
 				} else {
-					Set<AmountType> set2 = new HashSet<AmountType>();
+					Set<AmountType> set2 = new THashSet<AmountType>();
 					set2.addAll(list);
 					map.put(condition, set2);
 				}
@@ -998,10 +998,10 @@ public class PreparedQueries {
 	}
 
 	public static Map<Condition, Set<AmountType>> getPeptideAmountTypesByConditions(Collection<Condition> conditions) {
-		Map<Condition, Set<AmountType>> map = new HashMap<Condition, Set<AmountType>>();
+		Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
 		for (Condition condition : conditions) {
 			// PEPTIDE AMOUNTS
-			Set<Object> set = new HashSet<Object>();
+			Set<Object> set = new THashSet<Object>();
 			set.add(condition);
 			Query query = parseParametersForQuerySpecial2(PEPTIDE_AMOUNT_TYPES_BY_CONDITION, "peptideAmount.condition",
 					"condition", set);
@@ -1011,7 +1011,7 @@ public class PreparedQueries {
 				if (map.containsKey(condition)) {
 					map.get(condition).addAll(list);
 				} else {
-					Set<AmountType> set2 = new HashSet<AmountType>();
+					Set<AmountType> set2 = new THashSet<AmountType>();
 					set2.addAll(list);
 					map.put(condition, set2);
 				}
@@ -1022,10 +1022,10 @@ public class PreparedQueries {
 	}
 
 	public static Map<Condition, Set<AmountType>> getProteinAmountTypesByConditions(Collection<Condition> conditions) {
-		Map<Condition, Set<AmountType>> map = new HashMap<Condition, Set<AmountType>>();
+		Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
 		for (Condition condition : conditions) {
 			// PROTEIN AMOUNTS
-			Set<Object> set = new HashSet<Object>();
+			Set<Object> set = new THashSet<Object>();
 			set.add(condition);
 			Query query = parseParametersForQuerySpecial2(PROTEIN_AMOUNT_TYPES_BY_CONDITION, "proteinAmount.condition",
 					"condition", set);
@@ -1035,7 +1035,7 @@ public class PreparedQueries {
 				if (map.containsKey(condition)) {
 					map.get(condition).addAll(list);
 				} else {
-					Set<AmountType> set2 = new HashSet<AmountType>();
+					Set<AmountType> set2 = new THashSet<AmountType>();
 					set2.addAll(list);
 					map.put(condition, set2);
 				}
@@ -1063,7 +1063,7 @@ public class PreparedQueries {
 	}
 
 	public static List<Psm> getPsmsByMSRuns(Collection<MsRun> msRuns) {
-		Set<Object> set = new HashSet<Object>();
+		Set<Object> set = new THashSet<Object>();
 		set.addAll(msRuns);
 		Query query = parseParametersForQuerySpecial2(PSMS_BY_MSRUN, "psm.msRun", "msRun", set);
 		final List<Psm> list1 = query.list();

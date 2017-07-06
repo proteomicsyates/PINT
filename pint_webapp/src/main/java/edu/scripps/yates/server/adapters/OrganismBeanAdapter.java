@@ -1,15 +1,15 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.OrganismBean;
+import gnu.trove.map.hash.THashMap;
 
 public class OrganismBeanAdapter implements Adapter<OrganismBean> {
 	private final Organism organism;
-	private final static Map<String, OrganismBean> map = new HashMap<String, OrganismBean>();
+	private final static Map<String, OrganismBean> map = new THashMap<String, OrganismBean>();
 
 	public OrganismBeanAdapter(Organism organism) {
 		this.organism = organism;

@@ -1,8 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +11,8 @@ import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class QueryResult {
 	private final static Logger log = Logger.getLogger(QueryResult.class);
@@ -20,8 +20,8 @@ public class QueryResult {
 	private Map<String, Set<QueriableProteinSet>> proteinMap;
 	private Map<String, Set<QueriablePsm>> psmMap;
 	private Set<QueriablePsm> psmSet;
-	private HashMap<String, Set<Peptide>> peptideMap;
-	private HashSet<Psm> individualPSMs;
+	private Map<String, Set<Peptide>> peptideMap;
+	private Set<Psm> individualPSMs;
 	private final Collection<LinkBetweenQueriableProteinSetAndPSM> invalidLinks;
 
 	public QueryResult(Collection<LinkBetweenQueriableProteinSetAndPSM> validLinks,
@@ -41,7 +41,7 @@ public class QueryResult {
 		// go for all items at protein level and remove all the psms not in the
 		// valid psmSet
 		log.info("Collecting psms to detach...");
-		Set<Psm> psmsToDetach = new HashSet<Psm>();
+		Set<Psm> psmsToDetach = new THashSet<Psm>();
 		for (LinkBetweenQueriableProteinSetAndPSM link : links) {
 			final Set<Protein> proteins = link.getIndividualProteins();
 			for (Protein protein : proteins) {
@@ -65,7 +65,7 @@ public class QueryResult {
 		log.info("Detached PSMs finished");
 
 		log.info("Collecting proteins to detach...");
-		Set<Protein> proteinsToDetach = new HashSet<Protein>();
+		Set<Protein> proteinsToDetach = new THashSet<Protein>();
 		Set<Protein> validProteins = getProteinSetFromLinks(links);
 		for (Psm psm : validPSMs) {
 			final Set<Protein> proteins = psm.getProteins();
@@ -108,7 +108,7 @@ public class QueryResult {
 	}
 
 	private Set<Protein> getProteinSetFromLinks(Collection<LinkBetweenQueriableProteinSetAndPSM> links2) {
-		Set<Protein> ret = new HashSet<Protein>();
+		Set<Protein> ret = new THashSet<Protein>();
 		log.info("Getting proteins from " + links2.size() + " links");
 
 		for (LinkBetweenQueriableProteinSetAndPSM link : links2) {
@@ -131,7 +131,7 @@ public class QueryResult {
 	public Map<String, Set<QueriableProteinSet>> getProteins() {
 		if (proteinMap == null) {
 			log.info("Getting proteins from the query Result, from " + validLinks.size() + " links");
-			proteinMap = new HashMap<String, Set<QueriableProteinSet>>();
+			proteinMap = new THashMap<String, Set<QueriableProteinSet>>();
 			final Iterator<LinkBetweenQueriableProteinSetAndPSM> linksIterator = validLinks.iterator();
 			while (linksIterator.hasNext()) {
 				LinkBetweenQueriableProteinSetAndPSM link = linksIterator.next();
@@ -153,13 +153,13 @@ public class QueryResult {
 	public Map<String, Set<Peptide>> getPeptides() {
 		if (peptideMap == null) {
 			log.info("Getting peptides from query result from " + validLinks.size() + " links");
-			peptideMap = new HashMap<String, Set<Peptide>>();
+			peptideMap = new THashMap<String, Set<Peptide>>();
 			for (LinkBetweenQueriableProteinSetAndPSM link : validLinks) {
 				final Peptide peptide = link.getPeptide();
 				if (peptideMap.containsKey(peptide.getSequence())) {
 					peptideMap.get(peptide.getSequence()).add(peptide);
 				} else {
-					Set<Peptide> set = new HashSet<Peptide>();
+					Set<Peptide> set = new THashSet<Peptide>();
 					set.add(peptide);
 					peptideMap.put(peptide.getSequence(), set);
 				}
@@ -175,7 +175,7 @@ public class QueryResult {
 			if (map.containsKey(primaryAcc)) {
 				map.get(primaryAcc).add(queriableProtein);
 			} else {
-				Set<QueriableProteinSet> set = new HashSet<QueriableProteinSet>();
+				Set<QueriableProteinSet> set = new THashSet<QueriableProteinSet>();
 				set.add(queriableProtein);
 				map.put(primaryAcc, set);
 			}
@@ -185,13 +185,13 @@ public class QueryResult {
 	public Map<String, Set<QueriablePsm>> getPsmMap() {
 		if (psmMap == null) {
 			log.info("Getting PSMs from query result from " + validLinks.size() + " links");
-			psmMap = new HashMap<String, Set<QueriablePsm>>();
+			psmMap = new THashMap<String, Set<QueriablePsm>>();
 			for (LinkBetweenQueriableProteinSetAndPSM link : validLinks) {
 				final String sequence = link.getQueriablePsm().getPsm().getSequence();
 				if (psmMap.containsKey(sequence)) {
 					psmMap.get(sequence).add(link.getQueriablePsm());
 				} else {
-					Set<QueriablePsm> set = new HashSet<QueriablePsm>();
+					Set<QueriablePsm> set = new THashSet<QueriablePsm>();
 					set.add(link.getQueriablePsm());
 					psmMap.put(sequence, set);
 				}
@@ -205,7 +205,7 @@ public class QueryResult {
 		if (psmSet == null) {
 			log.info("Getting queriable PSMs from query result from " + validLinks.size() + " links");
 
-			psmSet = new HashSet<QueriablePsm>();
+			psmSet = new THashSet<QueriablePsm>();
 			for (LinkBetweenQueriableProteinSetAndPSM link : validLinks) {
 				final QueriablePsm queriablePsm = link.getQueriablePsm();
 				psmSet.add(queriablePsm);
@@ -234,7 +234,7 @@ public class QueryResult {
 	private Set<Psm> getIndividualPSMs() {
 		if (individualPSMs == null) {
 			log.info("Getting individual PSMs from " + validLinks.size() + " links");
-			individualPSMs = new HashSet<Psm>();
+			individualPSMs = new THashSet<Psm>();
 			for (QueriablePsm queriablePSM : getPsms()) {
 				individualPSMs.add(queriablePSM.getPsm());
 			}

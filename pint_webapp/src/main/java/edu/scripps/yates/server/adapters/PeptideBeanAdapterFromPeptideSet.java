@@ -1,7 +1,6 @@
 package edu.scripps.yates.server.adapters;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,6 +23,8 @@ import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ProteinBean;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Adapter for creating a single {@link ProteinBean} from a {@link Collection}
@@ -104,7 +105,7 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 			}
 		}
 
-		Map<Condition, Set<Psm>> psmsByCondition = new HashMap<Condition, Set<Psm>>();
+		Map<Condition, Set<Psm>> psmsByCondition = new THashMap<Condition, Set<Psm>>();
 		// log.debug("Adapting psms for peptide DbID: " + peptide.getId());
 
 		for (Object obj : peptide.getPsms()) {
@@ -132,7 +133,7 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 					if (psmsByCondition.containsKey(condition)) {
 						psmsByCondition.get(condition).add(psm);
 					} else {
-						Set<Psm> set = new HashSet<Psm>();
+						Set<Psm> set = new THashSet<Psm>();
 						set.add(psm);
 						psmsByCondition.put(condition, set);
 					}

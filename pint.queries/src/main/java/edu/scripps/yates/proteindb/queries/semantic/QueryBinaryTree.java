@@ -1,7 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.queries.LogicalOperator;
 import edu.scripps.yates.proteindb.queries.semantic.util.BinaryTree;
+import gnu.trove.set.hash.THashSet;
 
 public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	private final static Logger log = Logger.getLogger(QueryBinaryTree.class);
@@ -156,7 +156,7 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	 * @return
 	 */
 	public Set<? extends AbstractQuery> getAbstractQueries(Class<? extends AbstractQuery> class1) {
-		Set<AbstractQuery> ret = new HashSet<AbstractQuery>();
+		Set<AbstractQuery> ret = new THashSet<AbstractQuery>();
 		for (AbstractQuery abstractQuery : getAbstractQueries()) {
 			if (class1.isInstance(abstractQuery)) {
 				ret.add(abstractQuery);
@@ -201,7 +201,7 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	 */
 	public Set<? extends AbstractQuery> getPredominantAbstractQueries(Class<? extends AbstractQuery> class1,
 			boolean requireNonNegative) {
-		Set<AbstractQuery> ret = new HashSet<AbstractQuery>();
+		Set<AbstractQuery> ret = new THashSet<AbstractQuery>();
 		if (element.getLogicalOperator() != null) {
 			if (element.getLogicalOperator() == LogicalOperator.AND) {
 				ret.addAll(getLeftBNode().getPredominantAbstractQueries(class1, requireNonNegative));

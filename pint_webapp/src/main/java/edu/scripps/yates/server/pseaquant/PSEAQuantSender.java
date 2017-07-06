@@ -9,8 +9,6 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -43,6 +41,9 @@ import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantReplicate;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantResult;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantSupportedOrganism;
 import edu.scripps.yates.utilities.maths.Maths;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class PSEAQuantSender {
 	private final static Logger log = Logger.getLogger(PSEAQuantSender.class);
@@ -153,7 +154,7 @@ public class PSEAQuantSender {
 	private File createInputFile() {
 		Random random = new Random();
 		log.info("Creating  ratio file");
-		Map<String, Map<Integer, List<Double>>> valuesPerGeneAndReplicate = null;
+		Map<String, TIntObjectHashMap<List<Double>>> valuesPerGeneAndReplicate = null;
 		if (quantType == PSEAQuantQuantType.BASED) {
 			valuesPerGeneAndReplicate = getRatiosFromReplicates();
 		} else {
@@ -167,13 +168,14 @@ public class PSEAQuantSender {
 		return newRatioFile;
 	}
 
-	private void writeRatioFile(Map<String, Map<Integer, List<Double>>> ratiosPerGeneAndReplicate, File inputFile) {
+	private void writeRatioFile(Map<String, TIntObjectHashMap<List<Double>>> ratiosPerGeneAndReplicate,
+			File inputFile) {
 		BufferedWriter bw = null;
 		try {
 			bw = new BufferedWriter(new FileWriter(inputFile));
 			for (String geneSymbol : ratiosPerGeneAndReplicate.keySet()) {
 				bw.write(geneSymbol + "\t");
-				final Map<Integer, List<Double>> valuesPerReplicate = ratiosPerGeneAndReplicate.get(geneSymbol);
+				final TIntObjectHashMap<List<Double>> valuesPerReplicate = ratiosPerGeneAndReplicate.get(geneSymbol);
 				for (int numReplicate = 1; numReplicate <= replicates.size(); numReplicate++) {
 					List<Double> valueList = valuesPerReplicate.get(numReplicate);
 					if (valueList == null || valueList.isEmpty()) {
@@ -231,8 +233,8 @@ public class PSEAQuantSender {
 	 *
 	 * @return
 	 */
-	private Map<String, Map<Integer, List<Double>>> getRatiosFromReplicates() {
-		Map<String, Map<Integer, List<Double>>> ret = new HashMap<String, Map<Integer, List<Double>>>();
+	private Map<String, TIntObjectHashMap<List<Double>>> getRatiosFromReplicates() {
+		Map<String, TIntObjectHashMap<List<Double>>> ret = new THashMap<String, TIntObjectHashMap<List<Double>>>();
 		int numReplicate = 0;
 		for (PSEAQuantReplicate pseaQuantReplicate : replicates) {
 			numReplicate++;
@@ -275,11 +277,11 @@ public class PSEAQuantSender {
 
 				String geneName = getGeneName(protein);
 				if (geneName != null) {
-					Map<Integer, List<Double>> ratiosPerReplicates = null;
+					TIntObjectHashMap<List<Double>> ratiosPerReplicates = null;
 					if (ret.containsKey(geneName)) {
 						ratiosPerReplicates = ret.get(geneName);
 					} else {
-						ratiosPerReplicates = new HashMap<Integer, List<Double>>();
+						ratiosPerReplicates = new TIntObjectHashMap<List<Double>>();
 						ret.put(geneName, ratiosPerReplicates);
 					}
 					List<Double> values = getProteinRatios(protein);
@@ -299,9 +301,9 @@ public class PSEAQuantSender {
 		return ret;
 	}
 
-	private Map<String, Map<Integer, List<Double>>> getSPCsFromReplicates() {
-		Map<String, Map<Integer, List<Double>>> ret = new HashMap<String, Map<Integer, List<Double>>>();
-		Map<String, Map<Integer, Set<String>>> retTMP = new HashMap<String, Map<Integer, Set<String>>>();
+	private Map<String, TIntObjectHashMap<List<Double>>> getSPCsFromReplicates() {
+		Map<String, TIntObjectHashMap<List<Double>>> ret = new THashMap<String, TIntObjectHashMap<List<Double>>>();
+		Map<String, TIntObjectHashMap<Set<String>>> retTMP = new THashMap<String, TIntObjectHashMap<Set<String>>>();
 		int numReplicate = 0;
 		for (PSEAQuantReplicate pseaQuantReplicate : replicates) {
 			numReplicate++;
@@ -342,11 +344,11 @@ public class PSEAQuantSender {
 				// }
 				String geneName = getGeneName(protein);
 				if (geneName != null) {
-					Map<Integer, Set<String>> ratiosPerReplicates = null;
+					TIntObjectHashMap<Set<String>> ratiosPerReplicates = null;
 					if (ret.containsKey(geneName)) {
 						ratiosPerReplicates = retTMP.get(geneName);
 					} else {
-						ratiosPerReplicates = new HashMap<Integer, Set<String>>();
+						ratiosPerReplicates = new TIntObjectHashMap<Set<String>>();
 						retTMP.put(geneName, ratiosPerReplicates);
 					}
 					Set<String> psmIds = getProteinPSMIds(protein);
@@ -355,7 +357,7 @@ public class PSEAQuantSender {
 						if (ratiosPerReplicates.containsKey(numReplicate)) {
 							ratiosPerReplicates.get(numReplicate).addAll(psmIds);
 						} else {
-							Set<String> set = new HashSet<String>();
+							Set<String> set = new THashSet<String>();
 							set.addAll(psmIds);
 							ratiosPerReplicates.put(numReplicate, set);
 						}
@@ -366,10 +368,10 @@ public class PSEAQuantSender {
 
 		// convert retTM to ret
 		for (String key : retTMP.keySet()) {
-			Map<Integer, List<Double>> retMap = new HashMap<Integer, List<Double>>();
+			TIntObjectHashMap<List<Double>> retMap = new TIntObjectHashMap<List<Double>>();
 			ret.put(key, retMap);
-			final Map<Integer, Set<String>> map = retTMP.get(key);
-			for (Integer numRep : map.keySet()) {
+			final TIntObjectHashMap<Set<String>> map = retTMP.get(key);
+			for (int numRep : map.keys()) {
 				final Set<String> set = map.get(numRep);
 				List<Double> list = new ArrayList<Double>();
 				list.add(Double.valueOf(set.size()));
@@ -381,7 +383,7 @@ public class PSEAQuantSender {
 	}
 
 	private Set<String> getProteinPSMIds(Protein protein) {
-		Set<String> ret = new HashSet<String>();
+		Set<String> ret = new THashSet<String>();
 
 		final Set<Psm> psms = protein.getPsms();
 		for (Psm psm : psms) {

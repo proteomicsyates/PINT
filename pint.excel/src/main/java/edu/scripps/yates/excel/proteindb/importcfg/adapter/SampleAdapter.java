@@ -1,6 +1,5 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +11,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SampleType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.TissueSetType;
 import edu.scripps.yates.utilities.model.factories.SampleEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
+import gnu.trove.map.hash.THashMap;
 
 public class SampleAdapter implements edu.scripps.yates.utilities.pattern.Adapter<Sample> {
 
@@ -19,7 +19,7 @@ public class SampleAdapter implements edu.scripps.yates.utilities.pattern.Adapte
 	private final OrganismSetType organismSet;
 	private final TissueSetType tissueSet;
 	private final LabelSetType labelSetType;
-	private static final Map<String, Sample> map = new HashMap<String, Sample>();
+	private static final Map<String, Sample> map = new THashMap<String, Sample>();
 
 	public SampleAdapter(SampleType sampleCfg, OrganismSetType organismSet, TissueSetType tissueSet,
 			LabelSetType labelSetType) {

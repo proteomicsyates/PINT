@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.protein;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,6 +11,7 @@ import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
+import gnu.trove.map.hash.THashMap;
 
 public class ProteinProviderFromProjectCondition implements ProteinProviderFromDB {
 
@@ -26,7 +26,7 @@ public class ProteinProviderFromProjectCondition implements ProteinProviderFromD
 	@Override
 	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
 		if (results == null) {
-			results = new HashMap<String, Set<Protein>>();
+			results = new THashMap<String, Set<Protein>>();
 			int numProteins = 0;
 			if (condition != null) {
 				final Set<ConditionProject> conditionProjects = condition.getConditionProjects();

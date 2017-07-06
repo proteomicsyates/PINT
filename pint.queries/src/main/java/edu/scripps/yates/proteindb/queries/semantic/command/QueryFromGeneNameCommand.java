@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -16,6 +15,7 @@ import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.strings.StringUtils;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Implements a {@link Query} from Gene Name command:<br>
@@ -26,7 +26,7 @@ import edu.scripps.yates.utilities.strings.StringUtils;
  */
 public class QueryFromGeneNameCommand extends AbstractQuery {
 
-	private final Set<String> geneNames = new HashSet<String>();
+	private final Set<String> geneNames = new THashSet<String>();
 	private static Logger log = Logger.getLogger(QueryFromGeneNameCommand.class);
 
 	public QueryFromGeneNameCommand(CommandReference commandReference) throws MalformedQueryException {

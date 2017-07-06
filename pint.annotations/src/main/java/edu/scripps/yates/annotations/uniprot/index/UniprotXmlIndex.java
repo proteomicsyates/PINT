@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,12 +21,13 @@ import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.index.FileIndex;
 import edu.scripps.yates.utilities.index.TextFileIndex;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
 
 public class UniprotXmlIndex implements FileIndex<Entry> {
 	private static final Logger log = Logger.getLogger(TextFileIndex.class);
 	private final File fileToIndex;
 	private final File indexFile;
-	private final HashMap<String, Pair<Long, Long>> indexMap = new HashMap<String, Pair<Long, Long>>();
+	private final Map<String, Pair<Long, Long>> indexMap = new THashMap<String, Pair<Long, Long>>();
 	private final static String INDEX_EXT = ".idx";
 	private static final String TAB = "\t";
 	private static final String NEWLINE = "\n";
@@ -170,7 +170,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			if (keys == null || keys.isEmpty()) {
 				keys = uniprotFileIndexIO.getKeys(item);
 			}
-			Map<String, Pair<Long, Long>> ret = new HashMap<String, Pair<Long, Long>>();
+			Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
 			if (keys != null && !keys.isEmpty()) {
 				for (String key : keys) {
 					if (indexMap.containsKey(key)) {

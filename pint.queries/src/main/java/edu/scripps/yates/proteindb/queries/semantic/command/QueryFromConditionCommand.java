@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -15,6 +14,7 @@ import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromComman
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Implements a {@link Query} from CONDITION command:<br>
@@ -72,7 +72,7 @@ public class QueryFromConditionCommand extends AbstractQuery {
 	}
 
 	public boolean evaluate(Set<LinkBetweenQueriableProteinSetAndPSM> linkSetForSameProtein) {
-		Set<Condition> conditions = new HashSet<Condition>();
+		Set<Condition> conditions = new THashSet<Condition>();
 		for (LinkBetweenQueriableProteinSetAndPSM proteinPSMLink : linkSetForSameProtein) {
 			conditions.addAll(proteinPSMLink.getQueriableProtein().getConditions());
 		}

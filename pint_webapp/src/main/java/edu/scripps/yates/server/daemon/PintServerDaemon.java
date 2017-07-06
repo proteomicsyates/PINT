@@ -10,6 +10,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
@@ -33,16 +34,18 @@ public class PintServerDaemon implements ServletContextListener {
 	public void contextInitialized(final ServletContextEvent sce) {
 		// check database connection
 		boolean sessionOpen = false;
+		SessionFactory sessionFactory = null;
 		try {
 			File pintPropertiesFile = FileManager.getPINTPropertiesFile(sce.getServletContext());
 			PintConfigurationProperties properties = PintConfigurationPropertiesIO.readProperties(pintPropertiesFile);
 
-			ContextualSessionHandler.getSessionFactory(properties.getDb_username(), properties.getDb_password(),
-					properties.getDb_url());
-			ContextualSessionHandler.openSession();
-			sessionOpen = true;
-			ContextualSessionHandler.beginGoodTransaction();
-			ContextualSessionHandler.finishGoodTransaction();
+			sessionFactory = ContextualSessionHandler.getSessionFactory(properties.getDb_username(),
+					properties.getDb_password(), properties.getDb_url());
+			// Session session = ContextualSessionHandler.openSession();
+			//
+			// sessionOpen = true;
+			// ContextualSessionHandler.beginGoodTransaction();
+			// ContextualSessionHandler.finishGoodTransaction();
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e);
@@ -51,9 +54,9 @@ public class PintServerDaemon implements ServletContextListener {
 					"Check the database user credentials in the pint.properties file at the WEB-INF folder of the web application");
 
 		} finally {
-			if (sessionOpen) {
-				ContextualSessionHandler.closeSession();
-			}
+			// if (sessionOpen) {
+			// ContextualSessionHandler.closeSession();
+			// }
 		}
 		//
 		log.info("Starting PintServerDaemon...");
@@ -119,6 +122,7 @@ public class PintServerDaemon implements ServletContextListener {
 		// };
 		// th.setDaemon(true);
 		// th.start();
+
 	}
 
 	@Override
@@ -212,7 +216,7 @@ public class PintServerDaemon implements ServletContextListener {
 	// ThreadSessionHandler.beginGoodTransaction();
 	// final Map<String, Set<Protein>> proteins = PreparedQueries
 	// .getProteinsByProjectCondition(projectBean.getTag(), null);
-	// final Set<String> accs = new HashSet<String>();
+	// final Set<String> accs = new THashSet<String>();
 	// for (String acc : proteins.keySet()) {
 	// final ProteinAccession primaryAccession = PersistenceUtils
 	// .getPrimaryAccession(proteins.get(acc).iterator()

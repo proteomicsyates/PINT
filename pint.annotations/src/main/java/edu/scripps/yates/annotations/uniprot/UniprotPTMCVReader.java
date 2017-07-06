@@ -5,17 +5,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 
 import edu.scripps.yates.annotations.util.PropertiesUtil;
+import gnu.trove.map.hash.THashMap;
 
 public class UniprotPTMCVReader {
 	private static UniprotPTMCVReader instance;
-	private final Map<String, UniprotPTMCVTerm> ptmsByIDMap = new HashMap<String, UniprotPTMCVTerm>();
+	private final Map<String, UniprotPTMCVTerm> ptmsByIDMap = new THashMap<String, UniprotPTMCVTerm>();
 	private final Logger log = Logger.getLogger(UniprotPTMCVReader.class);
 
 	public static UniprotPTMCVReader getInstance() {

@@ -9,7 +9,6 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,16 +37,17 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServerType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServersType;
 import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
+import gnu.trove.map.hash.THashMap;
 
 public class RemoteFileReader {
 	private final static Logger log = Logger.getLogger(RemoteFileReader.class);
-	private final Map<String, RemoteSSHFileReference> remoteFiles = new HashMap<String, RemoteSSHFileReference>();
-	private final Map<String, FormatType> types = new HashMap<String, FormatType>();
-	private final Map<String, CensusChroParser> censusChroParsers = new HashMap<String, CensusChroParser>();
-	private final Map<String, CensusOutParser> censusOutParsers = new HashMap<String, CensusOutParser>();
+	private final Map<String, RemoteSSHFileReference> remoteFiles = new THashMap<String, RemoteSSHFileReference>();
+	private final Map<String, FormatType> types = new THashMap<String, FormatType>();
+	private final Map<String, CensusChroParser> censusChroParsers = new THashMap<String, CensusChroParser>();
+	private final Map<String, CensusOutParser> censusOutParsers = new THashMap<String, CensusOutParser>();
 
-	private final Map<String, DTASelectParser> dtaSelectParsers = new HashMap<String, DTASelectParser>();
-	private final Map<String, FastaDisgestionType> fastaDigestionByFileId = new HashMap<String, FastaDisgestionType>();
+	private final Map<String, DTASelectParser> dtaSelectParsers = new THashMap<String, DTASelectParser>();
+	private final Map<String, FastaDisgestionType> fastaDigestionByFileId = new THashMap<String, FastaDisgestionType>();
 
 	private final List<IonExclusion> censusIonExlusions = new ArrayList<IonExclusion>();
 	private final Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFileID;
@@ -168,7 +168,7 @@ public class RemoteFileReader {
 	}
 
 	public CensusChroParser getCensusChroParser(Collection<String> fileIds) {
-		Map<File, String> fileIDByFiles = new HashMap<File, String>();
+		Map<File, String> fileIDByFiles = new THashMap<File, String>();
 		for (String fileId : fileIds) {
 			if (remoteFiles.containsKey(fileId) && types.containsKey(fileId)) {
 				final RemoteSSHFileReference remoteSSHServer = remoteFiles.get(fileId);
@@ -239,7 +239,7 @@ public class RemoteFileReader {
 	}
 
 	public CensusOutParser getCensusOutParser(Collection<String> fileIds) {
-		Map<File, String> fileIDByFiles = new HashMap<File, String>();
+		Map<File, String> fileIDByFiles = new THashMap<File, String>();
 		for (String fileId : fileIds) {
 			if (remoteFiles.containsKey(fileId) && types.containsKey(fileId)) {
 				final RemoteSSHFileReference remoteSSHServer = remoteFiles.get(fileId);

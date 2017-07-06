@@ -181,7 +181,7 @@ public class ProteinPeptideCluster implements Serializable {
 	 * @param peptideUniqueIdentifiers
 	 *            the peptideUniqueIdentifiers to set
 	 */
-	public void setPeptideUniqueIdentifiers(Set<Integer> peptideUniqueIdentifiers) {
+	public void setPeptideUniqueIdentifiers(HashSet<Integer> peptideUniqueIdentifiers) {
 		this.peptideUniqueIdentifiers = peptideUniqueIdentifiers;
 	}
 
@@ -211,7 +211,7 @@ public class ProteinPeptideCluster implements Serializable {
 	 * @param proteinUniqueIdentifier
 	 *            the proteinUniqueIdentifier to set
 	 */
-	public void setProteinUniqueIdentifier(Set<Integer> proteinUniqueIdentifier) {
+	public void setProteinUniqueIdentifier(HashSet<Integer> proteinUniqueIdentifier) {
 		this.proteinUniqueIdentifier = proteinUniqueIdentifier;
 	}
 

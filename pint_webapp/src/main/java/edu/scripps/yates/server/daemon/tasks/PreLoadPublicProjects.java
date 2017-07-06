@@ -1,10 +1,11 @@
 package edu.scripps.yates.server.daemon.tasks;
 
 import java.text.DecimalFormat;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
+
+import org.hibernate.Session;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.ProteinRetrievalServicesServlet;
@@ -12,11 +13,12 @@ import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerUtil;
 import edu.scripps.yates.shared.model.ProjectBean;
+import gnu.trove.set.hash.THashSet;
 
 public class PreLoadPublicProjects extends PintServerDaemonTask {
 	private final static DecimalFormat myFormatter = new DecimalFormat("#.##");
 	private final String sessionID;
-	private final Set<String> projectsToLoad = new HashSet<String>();
+	private final Set<String> projectsToLoad = new THashSet<String>();
 
 	/**
 	 * Preload projects tagged as 'public', in order to allow a faster loading
@@ -47,7 +49,8 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 				projectsToLoad.add(projectsToPreload);
 			}
 		}
-		ContextualSessionHandler.getSession().beginTransaction();
+		Session session = ContextualSessionHandler.getCurrentSession();
+		session.beginTransaction();
 		final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans();
 
 		final Boolean preloadPublic = ServerUtil.getPINTProperties(servletContext).isPreLoadPublicProjects();
@@ -82,27 +85,30 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 			ProteinRetrievalServicesServlet proteinRetrieval = new ProteinRetrievalServicesServlet();
 			proteinRetrieval.setServletContext(servletContext);
 			for (ProjectBean projectBean : projectBeans) {
+				if (projectBean.isBig()) {
+					log.info("Project '" + projectBean.getTag() + "' skipped because is tagged as BIG");
+					continue;
+				}
 				if (projectsToLoad.contains(projectBean.getTag())) {
 					try {
 						ContextualSessionHandler.openSession();
-						ContextualSessionHandler.getSession().beginTransaction();
+						session.beginTransaction();
 						long t1 = System.currentTimeMillis();
 						log.info("Pre loading project: " + projectBean.getTag());
-						Set<String> projectTagSet = new HashSet<String>();
+						Set<String> projectTagSet = new THashSet<String>();
 						projectTagSet.add(projectBean.getTag());
 						proteinRetrieval.getProteinsFromProjects(sessionID, projectTagSet, null, false, null, false);
 						double t2 = (System.currentTimeMillis() * 1.0 - t1 * 1.0) / 1000;
 						log.info(projectBean.getTag() + " pre loaded in " + myFormatter.format(t2) + " seconds");
 					} catch (Exception e) {
 						e.printStackTrace();
-						ContextualSessionHandler.getSession().getTransaction().rollback();
+						session.getTransaction().rollback();
 					} finally {
-						ContextualSessionHandler.getSession().close();
+						session.close();
 					}
 				}
 			}
 		}
-
 	}
 
 	@Override

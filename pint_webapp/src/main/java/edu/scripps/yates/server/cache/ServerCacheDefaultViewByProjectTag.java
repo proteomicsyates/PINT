@@ -1,17 +1,17 @@
 package edu.scripps.yates.server.cache;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCacheDefaultViewByProjectTag implements Cache<DefaultView, String> {
-	private static final Map<String, DefaultView> map = new HashMap<String, DefaultView>();
+	private static final Map<String, DefaultView> map = new THashMap<String, DefaultView>();
 	private static ServerCacheDefaultViewByProjectTag instance;
 
 	private ServerCacheDefaultViewByProjectTag() {
@@ -70,7 +70,7 @@ public class ServerCacheDefaultViewByProjectTag implements Cache<DefaultView, St
 
 	@Override
 	public Set<DefaultView> getFromCache(Collection<String> keys) {
-		Set<DefaultView> ret = new HashSet<DefaultView>();
+		Set<DefaultView> ret = new THashSet<DefaultView>();
 		for (String key : keys) {
 			String processedKey = processKey(key);
 			if (contains(processedKey))

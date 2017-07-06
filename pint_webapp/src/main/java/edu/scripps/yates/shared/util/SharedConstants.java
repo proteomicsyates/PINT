@@ -52,7 +52,7 @@ public class SharedConstants {
 	public static final int MAX_NUMBER_PARALLEL_PROCESSES = 8;
 
 	// enable send emails
-	public static final boolean EMAIL_ENABLED = false;
+	public static final boolean EMAIL_ENABLED = true;
 
 	// tables selection model
 	public static final boolean TABLE_WITH_MULTIPLE_SELECTION = false;

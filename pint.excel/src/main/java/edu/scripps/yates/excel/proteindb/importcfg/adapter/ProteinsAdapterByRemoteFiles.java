@@ -2,8 +2,6 @@ package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +35,8 @@ import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pattern.Adapter<Map<String, Protein>> {
 	private final static Logger log = Logger.getLogger(ProteinsAdapterByRemoteFiles.class);
@@ -64,7 +64,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 		Map<String, Protein> retMap = null;
 
 		final List<FileReferenceType> fileRefs = remoteInfoCfg.getFileRef();
-		Set<String> fileRefSet = new HashSet<String>();
+		Set<String> fileRefSet = new THashSet<String>();
 		DBIndexInterface fastaDBIndex = null;
 		for (FileReferenceType fileReference : fileRefs) {
 			// try to get it as a FASTA file.
@@ -88,7 +88,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 
 	private Map<String, Protein> createProteinsFromRemoteFiles(Set<String> fileRefSet, DBIndexInterface fastaDBIndex)
 			throws IOException {
-		Map<String, Protein> retMap = new HashMap<String, Protein>();
+		Map<String, Protein> retMap = new THashMap<String, Protein>();
 		String fileRefString = "";
 
 		for (String fileReference : fileRefSet) {
@@ -229,14 +229,14 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 	}
 
 	private Set<String> getUniprotAccs(DTASelectParser dtaSelectFilterParser, QuantParser quantParser) {
-		Set<String> accessions = new HashSet<String>();
+		Set<String> accessions = new THashSet<String>();
 		if (dtaSelectFilterParser != null) {
 			try {
 				final Set<String> locuses = dtaSelectFilterParser.getDTASelectProteins().keySet();
 				for (String locus : locuses) {
 
 					final Pair<String, String> acc = FastaParser.getACC(locus);
-					Set<String> uniProtAccs = new HashSet<String>();
+					Set<String> uniProtAccs = new THashSet<String>();
 					if (acc.getSecondElement().equals("UNIPROT")) {
 						uniProtAccs.add(acc.getFirstelement());
 					} else if (acc.getSecondElement().equals("IPI")) {

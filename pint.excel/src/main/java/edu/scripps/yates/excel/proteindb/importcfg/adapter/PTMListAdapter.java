@@ -1,7 +1,6 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,13 +14,14 @@ import edu.scripps.yates.utilities.model.factories.ScoreEx;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import gnu.trove.map.hash.THashMap;
 
 public class PTMListAdapter implements edu.scripps.yates.utilities.pattern.Adapter<List<PTM>> {
 	private final String rawPeptideSequence;
 	private final IdentificationExcelType excelTypeCfg;
 	private final ExcelFileReader excelFileReader;
 	private final int rowIndex;
-	private static final Map<String, List<PTM>> map = new HashMap<String, List<PTM>>();
+	private static final Map<String, List<PTM>> map = new THashMap<String, List<PTM>>();
 	private final String psmId;
 
 	public PTMListAdapter(String psmId, int rowIndex, String rawPeptideSequence, IdentificationExcelType excelTypeCfg,

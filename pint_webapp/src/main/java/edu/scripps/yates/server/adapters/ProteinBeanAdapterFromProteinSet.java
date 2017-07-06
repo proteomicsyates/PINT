@@ -26,6 +26,7 @@ import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.ProteinBean;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Adapter for creating a single {@link ProteinBean} from a {@link Collection}
@@ -36,7 +37,7 @@ import edu.scripps.yates.shared.model.ProteinBean;
  */
 public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	private final static Logger log = Logger.getLogger(ProteinBeanAdapterFromProteinSet.class);
-	// private final static Map<String, ProteinBean> map = new HashMap<String,
+	// private final static Map<String, ProteinBean> map = new THashMap<String,
 	// ProteinBean>();
 	private final Set<QueriableProteinSet> queriableProteins;
 	// private final String primaryAcc;
@@ -46,7 +47,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 
 		// primaryAcc = primaryAcc;
 		this.hiddenPTMs = hiddenPTMs;
-		queriableProteins = new HashSet<QueriableProteinSet>();
+		queriableProteins = new THashSet<QueriableProteinSet>();
 
 		if (proteins != null) {
 			// for (Protein protein : proteins) {
@@ -97,10 +98,10 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	 */
 	private void addProteinInformationToProteinBean(ProteinBean proteinBean, QueriableProteinSet queriableProtein,
 			Collection<String> hiddenPTMs) {
-		for (Integer dbId : queriableProtein.getProteinDBIds()) {
+		for (Integer dbId : queriableProtein.getProteinDBIds()._set) {
 			ServerCacheProteinBeansByProteinDBId.getInstance().addtoCache(proteinBean, dbId);
 		}
-		proteinBean.addDbIds(queriableProtein.getProteinDBIds());
+		proteinBean.addDbIds(queriableProtein.getProteinDBIds()._set);
 		ProteinAccession primaryProteinAccession = queriableProtein.getPrimaryProteinAccession();
 		proteinBean.setPrimaryAccession(new AccessionBeanAdapter(primaryProteinAccession).adapt());
 		for (ProteinAccession proteinAccession : queriableProtein.getProteinAccessions()) {

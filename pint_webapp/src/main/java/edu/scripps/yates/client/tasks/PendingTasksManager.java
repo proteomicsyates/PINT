@@ -5,10 +5,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class PendingTasksManager {
-	private static final HashMap<TaskType, List<String>> tasks = new HashMap<TaskType, List<String>>();
+	private static final Map<TaskType, List<String>> tasks = new HashMap<TaskType, List<String>>();
 	private static final Set<PendingTaskHandler> controllers = new HashSet<PendingTaskHandler>();
 
 	private static enum OPERATION {
@@ -16,8 +17,8 @@ public class PendingTasksManager {
 	};
 
 	/**
-	 * This will register the {@link PendingTaskHandler} in order to notify
-	 * him each time a new task is added or removed
+	 * This will register the {@link PendingTaskHandler} in order to notify him
+	 * each time a new task is added or removed
 	 *
 	 * @param controller
 	 */

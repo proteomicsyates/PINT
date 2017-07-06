@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.protein;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +13,7 @@ import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
+import gnu.trove.map.hash.THashMap;
 
 public class ProteinProviderFromProteinRatios implements ProteinProviderFromDB {
 	private final static Logger log = Logger.getLogger(ProteinProviderFromProteinRatios.class);
@@ -35,7 +35,7 @@ public class ProteinProviderFromProteinRatios implements ProteinProviderFromDB {
 	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
 			int numProteins = 0;
-			result = new HashMap<String, Set<Protein>>();
+			result = new THashMap<String, Set<Protein>>();
 			// condition1 and condition2 only can contain one ConditionProject
 			if (condition1.getConditionProjects().size() != 1) {
 				throw new IllegalArgumentException("First condition con only be referring to one condition");

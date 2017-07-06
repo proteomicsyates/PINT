@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +53,8 @@ import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.files.FileUtils;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * This class retrieves the protein information from uniprot
@@ -69,7 +69,7 @@ public class UniprotProteinRemoteRetriever {
 			.getPropertyValue(PropertiesUtil.UNIPROT_SERVER_PROP);
 	private static final Logger log = Logger.getLogger(UniprotProteinRemoteRetriever.class);
 	private static final int MAX_NUM_TO_RETRIEVE = 200; // defined by EBI fetch
-	private Set<String> missingAccessions = new HashSet<String>();
+	private Set<String> missingAccessions = new THashSet<String>();
 	private final File uniprotReleaseFolder;
 	private final boolean useIndex;
 	private boolean lookForIsoforms = false;
@@ -79,7 +79,7 @@ public class UniprotProteinRemoteRetriever {
 	private static Date currentUniprotVersionRetrievedDate;
 	private static String currentUniprotVersion;
 	private static boolean notTryUntilNextDay;
-	protected static final Set<String> entriesWithNoFASTA = new HashSet<String>();
+	protected static final Set<String> entriesWithNoFASTA = new THashSet<String>();
 	// service
 
 	/**
@@ -106,9 +106,9 @@ public class UniprotProteinRemoteRetriever {
 
 	public Uniprot getProteins(Collection<String> accessions, String uniprotVersion, UniprotXmlIndex uniprotIndex) {
 
-		Map<String, Entry> entryMap = new HashMap<String, Entry>();
+		Map<String, Entry> entryMap = new THashMap<String, Entry>();
 		List<String> noIsoformList = new ArrayList<String>();
-		Set<String> isoformList = new HashSet<String>();
+		Set<String> isoformList = new THashSet<String>();
 		for (String acc : accessions) {
 			// skip reverse proteins
 			if (acc.toLowerCase().contains("reverse")) {
@@ -149,7 +149,7 @@ public class UniprotProteinRemoteRetriever {
 			}
 		}
 
-		Set<String> accessionsSent = new HashSet<String>();
+		Set<String> accessionsSent = new THashSet<String>();
 		try {
 
 			int totalNumAccs = 0;
@@ -314,7 +314,7 @@ public class UniprotProteinRemoteRetriever {
 	public Uniprot getProteins(String queryString) {
 
 		try {
-			Set<String> accessionsSent = new HashSet<String>();
+			Set<String> accessionsSent = new THashSet<String>();
 			accessionsSent.add(queryString);
 			StringBuilder locationBuilder = new StringBuilder(UNIPROT_SERVER + queryString + "&format=xml");
 
@@ -521,7 +521,7 @@ public class UniprotProteinRemoteRetriever {
 	}
 
 	private Map<String, Entry> getFASTASequencesInParallel(Set<String> accessions) {
-		Set<String> validToLook = new HashSet<String>();
+		Set<String> validToLook = new THashSet<String>();
 		for (String acc : accessions) {
 			if (!entriesWithNoFASTA.contains(acc)) {
 				validToLook.add(acc);
@@ -555,7 +555,7 @@ public class UniprotProteinRemoteRetriever {
 		Reduction<Map<String, Entry>> entryReduction = new Reduction<Map<String, Entry>>() {
 			@Override
 			public Map<String, Entry> reduce(Map<String, Entry> first, Map<String, Entry> second) {
-				Map<String, Entry> ret = new HashMap<String, Entry>();
+				Map<String, Entry> ret = new THashMap<String, Entry>();
 				for (String acc : first.keySet()) {
 					if (!ret.containsKey(acc)) {
 						ret.put(acc, first.get(acc));
@@ -576,7 +576,7 @@ public class UniprotProteinRemoteRetriever {
 	}
 
 	private Map<String, Entry> getFASTASequences(Set<String> accessions) {
-		Map<String, Entry> ret = new HashMap<String, Entry>();
+		Map<String, Entry> ret = new THashMap<String, Entry>();
 		int num = 0;
 		log.debug("Trying to get the fasta sequences of " + accessions.size() + " proteins (probably isoforms)");
 		for (String accession : accessions) {
@@ -747,7 +747,7 @@ public class UniprotProteinRemoteRetriever {
 		// new ParameterNameValue("query",
 		// "P13368 P20806 Q9UM73 P97793 Q17192"), });
 
-		Collection<String> set = new HashSet<String>();
+		Collection<String> set = new THashSet<String>();
 
 		String[] array = new String[] { "Q8CIE2-2", "P06802-2", "P01895-2", "Q8BUL6-2" };
 		for (String string : array) {
@@ -780,7 +780,7 @@ public class UniprotProteinRemoteRetriever {
 			log.debug(proteins.getEntry().size() + " accessions retrieved in " + (t2 - t1) / 1000 + "sg");
 
 			// long t3 = System.currentTimeMillis();
-			Map<String, Entry> map = new HashMap<String, Entry>();
+			Map<String, Entry> map = new THashMap<String, Entry>();
 			UniprotProteinLocalRetriever.addEntriesToMap(map, proteins.getEntry());
 			checkIfSomeProteinIsMissing(accessions, map, uniprotVersion, uniprotLocalIndex);
 
@@ -819,7 +819,7 @@ public class UniprotProteinRemoteRetriever {
 	}
 
 	private Set<String> getMissingAccs(Map<String, ?> ret, Collection<String> accessions) {
-		Set<String> missingProteins = new HashSet<String>();
+		Set<String> missingProteins = new THashSet<String>();
 		for (String accession : accessions) {
 			if (!ret.containsKey(accession))
 				missingProteins.add(accession);
@@ -888,7 +888,7 @@ public class UniprotProteinRemoteRetriever {
 
 	public Map<String, Entry> getAnnotatedProtein(String uniprotVersion, String accession,
 			UniprotXmlIndex uniprotLocalIndex) {
-		Set<String> accessions = new HashSet<String>();
+		Set<String> accessions = new THashSet<String>();
 		accessions.add(accession);
 		return getAnnotatedProteins(uniprotVersion, accessions, uniprotLocalIndex);
 	}

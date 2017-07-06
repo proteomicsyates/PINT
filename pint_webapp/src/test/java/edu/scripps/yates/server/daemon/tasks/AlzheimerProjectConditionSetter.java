@@ -34,10 +34,10 @@ public class AlzheimerProjectConditionSetter extends PintServerDaemonTask {
 
 			long numProteinsUpdated = 0;
 
-			final Project project = ContextualSessionHandler.getSession().load(Project.class, 36);
+			final Project project = ContextualSessionHandler.getCurrentSession().load(Project.class, 36);
 			final Set<MsRun> msRuns = project.getMsRuns();
 			for (MsRun msRun : msRuns) {
-				ContextualSessionHandler.getSession().beginTransaction();
+				ContextualSessionHandler.getCurrentSession().beginTransaction();
 				numRuns++;
 				final Set<Psm> psms = msRun.getPsms();
 				for (Psm psm : psms) {
@@ -58,7 +58,7 @@ public class AlzheimerProjectConditionSetter extends PintServerDaemonTask {
 									psm.getConditions().add(condition2);
 								}
 								if (condition1 != null || condition2 != null) {
-									ContextualSessionHandler.getSession().update(psm);
+									ContextualSessionHandler.getCurrentSession().update(psm);
 									numPSMsUpdated++;
 								} else {
 									numPSMsNotUpdated++;
@@ -72,7 +72,7 @@ public class AlzheimerProjectConditionSetter extends PintServerDaemonTask {
 									if (psmAmount.getCondition() != null) {
 										numPSMsUpdated++;
 										psm.getConditions().add(psmAmount.getCondition());
-										ContextualSessionHandler.getSession().update(psm);
+										ContextualSessionHandler.getCurrentSession().update(psm);
 									} else {
 										numPSMsNotUpdated++;
 									}
@@ -97,7 +97,7 @@ public class AlzheimerProjectConditionSetter extends PintServerDaemonTask {
 						}
 					}
 					if (updated) {
-						ContextualSessionHandler.getSession().update(peptide);
+						ContextualSessionHandler.getCurrentSession().update(peptide);
 						log.info("MSRuns=" + numRuns + "\tUpdatedPeptides=" + numPeptidesUpdated);
 					}
 
@@ -114,7 +114,7 @@ public class AlzheimerProjectConditionSetter extends PintServerDaemonTask {
 							}
 						}
 						if (updated2) {
-							ContextualSessionHandler.getSession().update(protein);
+							ContextualSessionHandler.getCurrentSession().update(protein);
 							log.info("MSRuns=" + numRuns + "\tUpdatedProteins=" + numProteinsUpdated);
 						}
 					}
@@ -127,9 +127,9 @@ public class AlzheimerProjectConditionSetter extends PintServerDaemonTask {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			ContextualSessionHandler.getSession().getTransaction().rollback();
+			ContextualSessionHandler.getCurrentSession().getTransaction().rollback();
 		} finally {
-			ContextualSessionHandler.getSession().close();
+			ContextualSessionHandler.getCurrentSession().close();
 		}
 	}
 

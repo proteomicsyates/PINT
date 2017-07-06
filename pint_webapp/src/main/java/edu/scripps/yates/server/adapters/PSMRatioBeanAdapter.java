@@ -1,18 +1,16 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class PSMRatioBeanAdapter implements Adapter<RatioBean> {
 	private final PsmRatioValue psmRatioValue;
-	private final static Map<Integer, RatioBean> map = new HashMap<Integer, RatioBean>();
+	private final static TIntObjectHashMap<RatioBean> map = new TIntObjectHashMap<RatioBean>();
 
 	public PSMRatioBeanAdapter(PsmRatioValue peptideRatioValue) {
 		psmRatioValue = peptideRatioValue;

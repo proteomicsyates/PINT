@@ -1,7 +1,6 @@
 package edu.scripps.yates.util;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,33 +20,34 @@ import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
+import gnu.trove.set.hash.THashSet;
 
 public class AnnotatedProteinImpl implements Protein {
 	private final Protein protein;
-	private final Set<ProteinAnnotation> annotations = new HashSet<ProteinAnnotation>();
+	private final Set<ProteinAnnotation> annotations = new THashSet<ProteinAnnotation>();
 	private final List<Accession> secondaryAccessions = new ArrayList<Accession>();
 	private final Protein annotatedProtein;
 	private final Accession primaryAccession;
 	private ProteinGroup group;
 	private ProteinEvidence evidence;
-	private final Set<Amount> amounts = new HashSet<Amount>();
+	private final Set<Amount> amounts = new THashSet<Amount>();
 	private boolean amountsParsed = false;
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
 	private boolean ratiosParsed = false;
-	private final Set<Condition> conditions = new HashSet<Condition>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
 	private boolean conditionsParsed = false;
-	private final Set<Score> scores = new HashSet<Score>();
+	private final Set<Score> scores = new THashSet<Score>();
 	private boolean scoresParsed = false;
-	private final Set<PSM> psms = new HashSet<PSM>();
+	private final Set<PSM> psms = new THashSet<PSM>();
 	private boolean psmsParsed = false;
 	private Organism organism;
 	private MSRun msRun;
 	private double mw;
 	private double pi;
 	private int lentgh;
-	private final Set<Peptide> peptides = new HashSet<Peptide>();
+	private final Set<Peptide> peptides = new THashSet<Peptide>();
 	private boolean peptidesParsed = false;
-	private final Set<Gene> genes = new HashSet<Gene>();
+	private final Set<Gene> genes = new THashSet<Gene>();
 	private boolean genesParsed = false;
 	private boolean lengthParsed = false;
 	private boolean piParsed = false;

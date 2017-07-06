@@ -2,8 +2,6 @@ package edu.scripps.yates.excel.proteindb;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +53,9 @@ import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinImpl2 implements Protein {
 	private static final Logger log = Logger.getLogger(ProteinImpl2.class);
@@ -93,13 +94,13 @@ public class ProteinImpl2 implements Protein {
 	/**
 	 * List of rows by sheet number
 	 */
-	private final HashMap<Integer, List<Row>> rows;
+	private final TIntObjectHashMap<List<Row>> rows;
 	private final ColumnIndexManager columnManager;
-	private final Set<Amount> amounts = new HashSet<Amount>();
-	private final Set<Ratio> proteinRatios = new HashSet<Ratio>();
+	private final Set<Amount> amounts = new THashSet<Amount>();
+	private final Set<Ratio> proteinRatios = new THashSet<Ratio>();
 
 	private Set<Threshold> thresholds;
-	private final Set<PSM> psms = new HashSet<PSM>();
+	private final Set<PSM> psms = new THashSet<PSM>();
 	private final List<Accession> secondaryAccessions = new ArrayList<Accession>();
 	private int length;
 	private double pi;
@@ -108,13 +109,13 @@ public class ProteinImpl2 implements Protein {
 	private MSRun msRun;
 	private ProteinGroup group;
 	private ProteinEvidence evidence;
-	private final Set<Peptide> peptides = new HashSet<Peptide>();
-	private final Set<Condition> conditions = new HashSet<Condition>();
-	private final Set<Score> scores = new HashSet<Score>();
+	private final Set<Peptide> peptides = new THashSet<Peptide>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
+	private final Set<Score> scores = new THashSet<Score>();
 	private boolean ratiosParsed = false;
-	private final Set<Gene> genes = new HashSet<Gene>();
+	private final Set<Gene> genes = new THashSet<Gene>();
 	private boolean genesParsed = false;
-	private static Map<String, String> staticUniprot2IPIMap = new HashMap<String, String>();
+	private static Map<String, String> staticUniprot2IPIMap = new THashMap<String, String>();
 
 	static {
 
@@ -122,7 +123,7 @@ public class ProteinImpl2 implements Protein {
 			QUANTIFICATION_PVALUE = CVManager.getPreferredName(CommonlyUsedCV.quantificationPValueID);
 	}
 
-	public ProteinImpl2(ColumnName columnName, HashMap<Integer, List<Row>> rows, ColumnIndexManager colManager,
+	public ProteinImpl2(ColumnName columnName, TIntObjectHashMap<List<Row>> rows, ColumnIndexManager colManager,
 			MSRun msrun) {
 		msRun = msrun;
 		this.rows = rows;
@@ -149,7 +150,7 @@ public class ProteinImpl2 implements Protein {
 					.getCell(columnManager.getColumnIndex(ColumnName.Official_Gene_symbol));
 			if (cell != null) {
 
-				Set<String> geneNames = new HashSet<String>();
+				Set<String> geneNames = new THashSet<String>();
 				final String stringCellValue = cell.getStringCellValue();
 				if (stringCellValue.contains(";")) {
 					final String[] split = stringCellValue.split(";");
@@ -325,7 +326,7 @@ public class ProteinImpl2 implements Protein {
 
 	@Override
 	public Set<ProteinAnnotation> getAnnotations() {
-		Set<ProteinAnnotation> ret = new HashSet<ProteinAnnotation>();
+		Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
 
 		// forst parse "uniprot annotation" column, that contains different
 		// annotations
@@ -333,8 +334,7 @@ public class ProteinImpl2 implements Protein {
 		for (int i = 0; i < rowList.size(); i++) {
 			final String annotation = getStringValue(getCell(ColumnName.UNIPROT_ANNOTATION, i));
 			if (annotation != null) {
-				final HashMap<AnnotationType, List<String>> parsedAnnotations = AnnotationType
-						.parseAnnotations(annotation);
+				final Map<AnnotationType, List<String>> parsedAnnotations = AnnotationType.parseAnnotations(annotation);
 				for (AnnotationType annotationType : parsedAnnotations.keySet()) {
 					final List<String> list = parsedAnnotations.get(annotationType);
 					for (String annotationValue : list) {
@@ -377,7 +377,7 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	private Set<ProteinAnnotationEx> getProteinAnnotations(AnnotationType annotationType, ColumnName columnName) {
-		Set<ProteinAnnotationEx> ret = new HashSet<ProteinAnnotationEx>();
+		Set<ProteinAnnotationEx> ret = new THashSet<ProteinAnnotationEx>();
 		final List<Row> rowList = rows.get(columnManager.getSheetIndex(columnName));
 		for (int i = 0; i < rowList.size(); i++) {
 			String annotation = getStringValue(getCell(columnName, i));
@@ -564,14 +564,14 @@ public class ProteinImpl2 implements Protein {
 
 	// private Set<ProteinAmount> getScrambledsiRNAAmounts(Experiment
 	// experiment) {
-	// Set<ProteinAmount> amounts = new HashSet<ProteinAmount>();
+	// Set<ProteinAmount> amounts = new THashSet<ProteinAmount>();
 	//
 	// // DMSO Condition
 	// ExperimentalCondition scrambledsiRNA = getExperimentalCondition(
 	// "ScrambledsiRNA", "ScrambledsiRNA treated");
 	//
 	// // Protein amounts for each 3 replicates:
-	// // Set<ProteinAmount> replicatesAmounts = new HashSet<ProteinAmount>();
+	// // Set<ProteinAmount> replicatesAmounts = new THashSet<ProteinAmount>();
 	// // ColumnName[] columnNames = { ColumnName.DMSO_031010,
 	// // ColumnName.DMSO_050908, ColumnName.DMSO_051508 };
 	// // replicatesAmounts = getProteinAmounts(columnNames,
@@ -590,14 +590,14 @@ public class ProteinImpl2 implements Protein {
 	// }
 
 	// private Set<ProteinAmount> getMockIPsAmounts() {
-	// Set<ProteinAmount> amounts = new HashSet<ProteinAmount>();
+	// Set<ProteinAmount> amounts = new THashSet<ProteinAmount>();
 	//
 	// // 1h 30C Condition
 	// ExperimentalCondition mockIPs_Condition = getExperimentalCondition(
 	// "Mock IPs", "Mock IPs");
 	//
 	// // Protein amounts for each 4 replicates:
-	// // Set<ProteinAmount> replicatesAmounts = new HashSet<ProteinAmount>();
+	// // Set<ProteinAmount> replicatesAmounts = new THashSet<ProteinAmount>();
 	// // ColumnName[] columnNames = { ColumnName.DMSO_031010,
 	// // ColumnName.DMSO_050908, ColumnName.DMSO_051508 };
 	// // replicatesAmounts = getProteinAmounts(columnNames,
@@ -615,14 +615,14 @@ public class ProteinImpl2 implements Protein {
 	// }
 
 	// private Set<ProteinAmount> getNullIPsAmounts() {
-	// Set<ProteinAmount> amounts = new HashSet<ProteinAmount>();
+	// Set<ProteinAmount> amounts = new THashSet<ProteinAmount>();
 	//
 	// // 1h 30C Condition
 	// ExperimentalCondition nullIPs_Condition = getExperimentalCondition(
 	// "Null IPs", "Null IPs");
 	//
 	// // Protein amounts for each 4 replicates:
-	// // Set<ProteinAmount> replicatesAmounts = new HashSet<ProteinAmount>();
+	// // Set<ProteinAmount> replicatesAmounts = new THashSet<ProteinAmount>();
 	// // ColumnName[] columnNames = { ColumnName.DMSO_031010,
 	// // ColumnName.DMSO_050908, ColumnName.DMSO_051508 };
 	// // replicatesAmounts = getProteinAmounts(columnNames,
@@ -653,6 +653,7 @@ public class ProteinImpl2 implements Protein {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -676,7 +677,7 @@ public class ProteinImpl2 implements Protein {
 	public Set<Threshold> getThresholds() {
 		if (thresholds != null)
 			return thresholds;
-		thresholds = new HashSet<Threshold>();
+		thresholds = new THashSet<Threshold>();
 		final Set<Threshold> coreInteractomeThresholds = getCoreInteractomeThresholds();
 		if (!coreInteractomeThresholds.isEmpty()) {
 
@@ -686,7 +687,7 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	private Set<Threshold> getCoreInteractomeThresholds() {
-		HashSet<Threshold> ret = new HashSet<Threshold>();
+		Set<Threshold> ret = new THashSet<Threshold>();
 
 		// 4A
 		Boolean bool = getBooleanValue(getCell(ColumnName.Xscorefilter_4A, 0));
