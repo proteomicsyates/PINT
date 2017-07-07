@@ -38,6 +38,11 @@
 	</context-param>
 
 	<!-- Filters -->
+	<filter id="Filter_1492817520481">
+		<filter-name>exceptionFilter</filter-name>
+		<display-name>exceptionFilter</display-name>
+		<filter-class>edu.scripps.yates.server.filter.ExceptionFilter</filter-class>
+	</filter>
 	<filter id="Filter_1492817520469">
 		<filter-name>hibernateFilter</filter-name>
 		<display-name>hibernateFilter</display-name>
@@ -49,13 +54,12 @@
 <!-- 		<filter-class>edu.scripps.yates.server.filter.HibernateFilterManaged</filter-class> -->
 <!-- 	</filter> -->
 
-	<filter id="Filter_1492817520481">
-		<filter-name>exceptionFilter</filter-name>
-		<display-name>exceptionFilter</display-name>
-		<filter-class>edu.scripps.yates.server.filter.ExceptionFilter</filter-class>
-	</filter>
-
 	<!-- filter mappings -->
+	<!--  filter to print stackTrace of unhandled exceptions  -->
+	<filter-mapping>
+		<filter-name>exceptionFilter</filter-name>
+		<url-pattern>*</url-pattern>
+	</filter-mapping>
 	<!-- use hibernateFilter in all requests -->
 	<filter-mapping>
 		<filter-name>hibernateFilter</filter-name>
@@ -67,11 +71,7 @@
 <!-- 		<url-pattern>*</url-pattern> -->
 <!-- 	</filter-mapping> -->
 
-	<!--  filter to print stackTrace of unhandled exceptions  -->
-	<filter-mapping>
-		<filter-name>exceptionFilter</filter-name>
-		<url-pattern>*</url-pattern>
-	</filter-mapping>
+	
 
 
 	<!-- listeners -->
