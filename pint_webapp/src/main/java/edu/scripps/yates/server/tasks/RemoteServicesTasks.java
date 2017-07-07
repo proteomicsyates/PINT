@@ -1289,7 +1289,10 @@ public class RemoteServicesTasks {
 			if (peptidesToRelease.size() >= CHUNK_TO_RELEASE) {
 				cleanUpPeptidesFromSession(peptidesToRelease);
 				peptidesToRelease.clear();
-				System.gc();
+				if (MemoryUsageReport.getFreeMemoryPercentage() < 10.0) {
+					System.gc();
+					log.info(MemoryUsageReport.getMemoryUsageReport());
+				}
 				log.info(MemoryUsageReport.getMemoryUsageReport());
 			}
 			// add to current dataset
@@ -1309,7 +1312,6 @@ public class RemoteServicesTasks {
 	}
 
 	private static void cleanUpPeptidesFromSession(Collection<Peptide> peptides) {
-		log.info(MemoryUsageReport.getMemoryUsageReport());
 		for (Peptide peptide : peptides) {
 			ContextualSessionHandler.getSessionFactory(null, null, null).getCache().evictEntity(Peptide.class,
 					peptide.getId());
@@ -1317,7 +1319,7 @@ public class RemoteServicesTasks {
 			cleanUpProteinsFromSession(peptide.getProteins());
 			cleanUpPsmsFromSession(peptide.getPsms());
 		}
-		log.info(MemoryUsageReport.getMemoryUsageReport());
+
 	}
 
 	private static void cleanUpProteinsFromSession(Collection<Protein> proteins) {
