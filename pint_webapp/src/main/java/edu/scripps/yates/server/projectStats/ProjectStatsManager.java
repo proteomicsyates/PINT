@@ -194,11 +194,11 @@ public class ProjectStatsManager {
 
 	private void updateFile(String line) {
 		// wait until someone release the lock
-		FileLock fileLock = null;
+
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(file, true);
-			fileLock = fos.getChannel().lock();
+
 			log.info("Trying to get the lock for update the file from Thread " + Thread.currentThread().getId()
 					+ " from method " + methodsByThread.get(Thread.currentThread()).getName());
 
@@ -217,15 +217,7 @@ public class ProjectStatsManager {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} finally {
-			if (fileLock != null) {
-				try {
-					fileLock.release();
-					log.info("Lock released from Thread " + Thread.currentThread().getId() + " from method "
-							+ methodsByThread.get(Thread.currentThread()).getName());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+
 			if (fos != null) {
 				try {
 					fos.close();
