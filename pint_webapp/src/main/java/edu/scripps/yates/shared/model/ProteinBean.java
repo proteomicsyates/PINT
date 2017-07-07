@@ -668,7 +668,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 				overrideAcc = false;
 			}
 		}
-		if (overrideAcc && primaryAccession != null) {
+		if (this.primaryAccession == null || (overrideAcc && primaryAccession != null)) {
 			this.primaryAccession = primaryAccession;
 			// check whether there are one secondary accession equal to the
 			// primary, and in that case, remove it

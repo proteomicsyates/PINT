@@ -110,7 +110,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 			}
 		}
 		if (proteinBean.getPrimaryAccession() == null) {
-			log.error("This protein has not primary accession");
+			log.error("This protein has not primary accession ");
 		}
 		// log.debug("Adapting genes for protein DbID: " + protein.getId()
 		// + " with linkToPSMs=" + linkToPSMs);

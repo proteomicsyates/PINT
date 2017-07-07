@@ -2,6 +2,7 @@ package edu.scripps.yates.proteindb.persistence.mysql.access;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -809,7 +810,7 @@ public class PreparedQueries {
 
 	public static Set<Organism> getOrganismsByProject(String projectTag) {
 		final Query query = parseParametersForQuery(ORGANISMS_BY_PROJECT, "project.tag=:project_name", projectTag);
-		final Set<Organism> set = new THashSet<Organism>();
+		final Set<Organism> set = new HashSet<Organism>();
 		set.addAll(query.list());
 		return set;
 	}
@@ -819,7 +820,7 @@ public class PreparedQueries {
 
 	public static Set<Sample> getSamplesByProject(String projectTag) {
 		final Query query = parseParametersForQuery(SAMPLES_BY_PROJECT, "project.tag=:project_name", projectTag);
-		final Set<Sample> set = new THashSet<Sample>();
+		final Set<Sample> set = new HashSet<Sample>();
 		set.addAll(query.list());
 		return set;
 	}

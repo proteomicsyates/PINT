@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -107,8 +109,8 @@ import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.memory.MemoryUsageReport;
 import edu.scripps.yates.utilities.model.factories.AccessionEx;
 import edu.scripps.yates.utilities.pi.ParIterator;
-import edu.scripps.yates.utilities.pi.ParIteratorFactory;
 import edu.scripps.yates.utilities.pi.ParIterator.Schedule;
+import edu.scripps.yates.utilities.pi.ParIteratorFactory;
 import edu.scripps.yates.utilities.pi.reductions.Reducible;
 import edu.scripps.yates.utilities.pi.reductions.Reduction;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
@@ -124,7 +126,7 @@ import gnu.trove.set.hash.THashSet;
 
 public class RemoteServicesTasks {
 	private final static Logger log = Logger.getLogger(RemoteServicesTasks.class);
-	private static final Map<String, Set<String>> hiddenPTMsByProject = new THashMap<String, Set<String>>();
+	private static final Map<String, Set<String>> hiddenPTMsByProject = new HashMap<String, Set<String>>();
 	private static final int CHUNK_TO_RELEASE = 1000;
 
 	public static Map<String, Set<Protein>> getProteinsFromProject(String sessionID, String projectTag,
@@ -471,7 +473,7 @@ public class RemoteServicesTasks {
 		if (projectTag == null)
 			throw new IllegalArgumentException("project name is null");
 
-		Set<Condition> conditionsSet = new THashSet<Condition>();
+		Set<Condition> conditionsSet = new HashSet<Condition>();
 
 		List<Parameter<String>> listParameter = new ArrayList<Parameter<String>>();
 		listParameter.add(new Parameter<String>("tag", projectTag));
@@ -494,7 +496,7 @@ public class RemoteServicesTasks {
 		if (projectTag == null)
 			throw new IllegalArgumentException("project name is null");
 
-		Set<String> ret = new THashSet<String>();
+		Set<String> ret = new HashSet<String>();
 
 		try {
 			final List<MsRun> msruns = PreparedQueries.getMSRunsByProject(projectTag);
@@ -546,7 +548,7 @@ public class RemoteServicesTasks {
 	}
 
 	public static Set<ProjectBean> getProjectBeans(boolean includeHidden) {
-		Set<ProjectBean> ret = new THashSet<ProjectBean>();
+		Set<ProjectBean> ret = new HashSet<ProjectBean>();
 
 		List<edu.scripps.yates.proteindb.persistence.mysql.Project> retrieveList = ContextualSessionHandler
 				.retrieveList(edu.scripps.yates.proteindb.persistence.mysql.Project.class);
@@ -914,7 +916,7 @@ public class RemoteServicesTasks {
 	}
 
 	public static Set<String> getHiddenPTMs(Collection<String> projectTags) throws PintException {
-		final Set<String> hiddenPTMs = new THashSet<String>();
+		final Set<String> hiddenPTMs = new HashSet<String>();
 		for (String projectTag : projectTags) {
 			hiddenPTMs.addAll(getHiddenPTMs(projectTag));
 		}
@@ -1199,8 +1201,7 @@ public class RemoteServicesTasks {
 				DataSetsManager.getDataSet(sessionID, projectTagString).addProtein(proteinBeanAdapted);
 			}
 			ret.add(proteinBeanAdapted);
-			log.info(++numProteins + " / " + proteins.size() + " proteins: "
-					+ proteinBeanAdapted.getPrimaryAccession().getAccession());
+
 			//
 
 		}
@@ -1289,6 +1290,7 @@ public class RemoteServicesTasks {
 				cleanUpPeptidesFromSession(peptidesToRelease);
 				peptidesToRelease.clear();
 				System.gc();
+				log.info(MemoryUsageReport.getMemoryUsageReport());
 			}
 			// add to current dataset
 			if (sessionID != null) {
@@ -1433,20 +1435,20 @@ public class RemoteServicesTasks {
 			}
 		}
 		if (!psmAmountMapByProject.containsKey(projectTag)) {
-			Map<String, Set<AmountType>> map = new THashMap<String, Set<AmountType>>();
+			Map<String, Set<AmountType>> map = new HashMap<String, Set<AmountType>>();
 			psmAmountMapByProject.put(projectTag, map);
 		}
 		if (!psmAmountMapByProject.get(projectTag).containsKey(conditionName)) {
-			Set<AmountType> set = new THashSet<AmountType>();
+			Set<AmountType> set = new HashSet<AmountType>();
 			psmAmountMapByProject.get(projectTag).put(conditionName, set);
 		}
-		Set<AmountType> set = new THashSet<AmountType>();
+		Set<AmountType> set = new HashSet<AmountType>();
 		final Set<Condition> conditions = RemoteServicesTasks.getExperimentalConditionsFromProject(projectTag);
 		final Map<Condition, Set<edu.scripps.yates.proteindb.persistence.mysql.AmountType>> amountTypeMap = PreparedQueries
 				.getPSMAmountTypesByConditions(conditions);
 		for (Condition condition : amountTypeMap.keySet()) {
 			if (!psmAmountMapByProject.get(projectTag).containsKey(condition.getName())) {
-				Set<AmountType> set2 = new THashSet<AmountType>();
+				Set<AmountType> set2 = new HashSet<AmountType>();
 				psmAmountMapByProject.get(projectTag).put(condition.getName(), set2);
 			}
 
@@ -1476,20 +1478,20 @@ public class RemoteServicesTasks {
 			}
 		}
 		if (!peptideAmountMapByProject.containsKey(projectTag)) {
-			Map<String, Set<AmountType>> map = new THashMap<String, Set<AmountType>>();
+			Map<String, Set<AmountType>> map = new HashMap<String, Set<AmountType>>();
 			peptideAmountMapByProject.put(projectTag, map);
 		}
 		if (!peptideAmountMapByProject.get(projectTag).containsKey(conditionName)) {
-			Set<AmountType> set = new THashSet<AmountType>();
+			Set<AmountType> set = new HashSet<AmountType>();
 			peptideAmountMapByProject.get(projectTag).put(conditionName, set);
 		}
-		Set<AmountType> set = new THashSet<AmountType>();
+		Set<AmountType> set = new HashSet<AmountType>();
 		final Set<Condition> conditions = RemoteServicesTasks.getExperimentalConditionsFromProject(projectTag);
 		final Map<Condition, Set<edu.scripps.yates.proteindb.persistence.mysql.AmountType>> amountTypeMap = PreparedQueries
 				.getPeptideAmountTypesByConditions(conditions);
 		for (Condition condition : amountTypeMap.keySet()) {
 			if (!peptideAmountMapByProject.get(projectTag).containsKey(condition.getName())) {
-				Set<AmountType> set2 = new THashSet<AmountType>();
+				Set<AmountType> set2 = new HashSet<AmountType>();
 				peptideAmountMapByProject.get(projectTag).put(condition.getName(), set2);
 			}
 
@@ -1519,20 +1521,20 @@ public class RemoteServicesTasks {
 			}
 		}
 		if (!proteinAmountMapByProject.containsKey(projectTag)) {
-			Map<String, Set<AmountType>> map = new THashMap<String, Set<AmountType>>();
+			Map<String, Set<AmountType>> map = new HashMap<String, Set<AmountType>>();
 			proteinAmountMapByProject.put(projectTag, map);
 		}
 		if (!proteinAmountMapByProject.get(projectTag).containsKey(conditionName)) {
-			Set<AmountType> set = new THashSet<AmountType>();
+			Set<AmountType> set = new HashSet<AmountType>();
 			proteinAmountMapByProject.get(projectTag).put(conditionName, set);
 		}
-		Set<AmountType> set = new THashSet<AmountType>();
+		Set<AmountType> set = new HashSet<AmountType>();
 		final Set<Condition> conditions = RemoteServicesTasks.getExperimentalConditionsFromProject(projectTag);
 		final Map<Condition, Set<edu.scripps.yates.proteindb.persistence.mysql.AmountType>> amountTypeMap = PreparedQueries
 				.getProteinAmountTypesByConditions(conditions);
 		for (Condition condition : amountTypeMap.keySet()) {
 			if (!proteinAmountMapByProject.get(projectTag).containsKey(condition.getName())) {
-				Set<AmountType> set2 = new THashSet<AmountType>();
+				Set<AmountType> set2 = new HashSet<AmountType>();
 				proteinAmountMapByProject.get(projectTag).put(condition.getName(), set2);
 			}
 			for (edu.scripps.yates.proteindb.persistence.mysql.AmountType amountType : amountTypeMap.get(condition)) {
@@ -1551,7 +1553,7 @@ public class RemoteServicesTasks {
 	}
 
 	public static Map<String, Date> getUploadDatesFromProjects(Set<String> projectTags) {
-		Map<String, Date> ret = new THashMap<String, Date>();
+		Map<String, Date> ret = new HashMap<String, Date>();
 		final Set<ProjectBean> projectBeans = getProjectBeans();
 		for (ProjectBean projectBean : projectBeans) {
 			if (projectTags.contains(projectBean.getTag())) {
