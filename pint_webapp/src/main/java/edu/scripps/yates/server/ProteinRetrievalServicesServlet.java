@@ -2,6 +2,7 @@ package edu.scripps.yates.server;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,7 +25,6 @@ import org.hibernate.Criteria;
 import org.hibernate.transform.Transformers;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import com.ibm.icu.text.DateFormat;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRemoteRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
