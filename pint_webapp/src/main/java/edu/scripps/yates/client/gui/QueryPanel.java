@@ -136,7 +136,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	protected final edu.scripps.yates.client.ProteinRetrievalServiceAsync proteinRetrievingService = ProteinRetrievalServiceAsync.Util
 			.getInstance();
 
-	private final Set<String> loadedProjects = new HashSet<String>();
+	public static final Set<String> loadedProjects = new HashSet<String>();
 	private final ProjectsBeanSet loadedProjectBeanSet = new ProjectsBeanSet();
 	private MyDialogBox loadingDialog;
 
@@ -2161,7 +2161,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	/**
 	 * Creates an implementation of {@link DoSomethingTask} that checks if some
-	 * of the tables are waiting to be loaded, and if so, it center the
+	 * of the tables are waiting to be loaded, and if so, it centers the
 	 * corresponding loading dialog.
 	 *
 	 * @return
@@ -2453,6 +2453,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see com.google.gwt.user.client.ui.Widget#onUnload()
 	 */
 	@Override

@@ -33,8 +33,6 @@ import org.xml.sax.SAXException;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import edu.scripps.yates.client.ProjectSaverService;
-import edu.scripps.yates.client.exceptions.PintException;
-import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.excel.proteindb.importcfg.adapter.ImportCfgFileReader;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLSaver;
@@ -42,6 +40,8 @@ import edu.scripps.yates.server.daemon.PintServerDaemon;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerConstants;
 import edu.scripps.yates.server.util.ServletCommonInit;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.xml.XMLSchemaValidatorErrorHandler;

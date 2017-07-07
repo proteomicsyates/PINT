@@ -30,8 +30,6 @@ import edu.scripps.yates.annotations.uniprot.UniprotProteinRemoteRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.client.ProteinRetrievalService;
-import edu.scripps.yates.client.exceptions.PintException;
-import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
@@ -82,6 +80,8 @@ import edu.scripps.yates.server.util.ServletCommonInit;
 import edu.scripps.yates.shared.columns.comparator.PSMComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinGroupComparator;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.AccessionBean;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;
@@ -264,26 +264,28 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ServerTaskRegister.registerTask(task);
 
 			DataSetsManager.clearDataSet(sessionID);
-
+			DataSetsManager.getDataSet(sessionID, projectTagsString);
 			if (ServerCacheProteinBeansByProjectTag.getInstance().contains(projectTagsString)
 					&& defaultQueryIndex == null) {
 				log.info("Getting proteinBeans from cache for project(s): '" + projectTagsString + "' in session '"
 						+ sessionID + "'");
 				final List<ProteinBean> proteinBeansInCache = ServerCacheProteinBeansByProjectTag.getInstance()
 						.getFromCache(projectTagsString);
-				log.info(proteinBeansInCache.size() + " protein beans retrieved from cache");
-				if (!proteinBeansInCache.isEmpty()) {
-					// add to the dataset
-					log.info("Adding them to the dataset in session '" + sessionID + "'");
-					for (ProteinBean proteinBean : proteinBeansInCache) {
-						DataSetsManager.getDataSet(sessionID, projectTagsString).addProtein(proteinBean);
+				if (proteinBeansInCache != null) {
+					log.info(proteinBeansInCache.size() + " protein beans retrieved from cache");
+					if (!proteinBeansInCache.isEmpty()) {
+						// add to the dataset
+						log.info("Adding them to the dataset in session '" + sessionID + "'");
+						for (ProteinBean proteinBean : proteinBeansInCache) {
+							DataSetsManager.getDataSet(sessionID, projectTagsString).addProtein(proteinBean);
+						}
+						log.info("Setting dataset ready in session '" + sessionID + "'");
+						DataSetsManager.getDataSet(sessionID, projectTagsString).setReady(true);
+						log.info(DataSetsManager.getDataSet(sessionID, projectTagsString));
+						QueryResultSubLists ret = getQueryResultSubListsFromDataSet(sessionID, projectTags,
+								separateNonConclusiveProteins);
+						return ret;
 					}
-					log.info("Setting dataset ready in session '" + sessionID + "'");
-					DataSetsManager.getDataSet(sessionID, projectTagsString).setReady(true);
-					log.info(DataSetsManager.getDataSet(sessionID, projectTagsString));
-					QueryResultSubLists ret = getQueryResultSubListsFromDataSet(sessionID, projectTags,
-							separateNonConclusiveProteins);
-					return ret;
 				}
 			}
 			try {

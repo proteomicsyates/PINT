@@ -27,6 +27,7 @@ public class HibernateFilter implements Filter {
 
 		final long numCall = ++numRPCCalls;
 		log.info("Entering in the Hibernate filter in " + numCall + ". Num calls that are ongoing: " + numRPCCalls);
+
 		String errorMessage = null;
 
 		// /////
@@ -46,10 +47,7 @@ public class HibernateFilter implements Filter {
 			chain.doFilter(request, response);
 			// ContextualSessionHandler.finishGoodTransaction();
 		} catch (Exception ex) {
-			log.warn(ex.getMessage());
-			errorMessage = ex.getMessage();
-			ex.printStackTrace();
-			log.warn("Rolling back transaction");
+			log.warn("Rolling back transaction due to error: " + ex.getMessage());
 			ContextualSessionHandler.rollbackTransaction();
 			log.warn("Transaction rolled back");
 			if (ServletException.class.isInstance(ex)) {
@@ -69,10 +67,9 @@ public class HibernateFilter implements Filter {
 			try {
 				// Close the Session
 				ContextualSessionHandler.closeSession();
-
 				ContextualSessionHandler.printStatistics();
 			} catch (Exception e) {
-				log.error(e);
+				log.error("Error closing session: " + e.getMessage());
 			}
 			// SessionPerKeyHandler.printStatistics();
 			log.info("Session closed from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "

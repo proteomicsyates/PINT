@@ -43,8 +43,6 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.client.ImportWizardService;
-import edu.scripps.yates.client.exceptions.PintException;
-import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.ExcelSheet;
 import edu.scripps.yates.excel.impl.ExcelFileImpl;
@@ -82,6 +80,8 @@ import edu.scripps.yates.server.util.FileWithFormat;
 import edu.scripps.yates.server.util.RemoteFileWithType;
 import edu.scripps.yates.server.util.ServerConstants;
 import edu.scripps.yates.server.util.ServletCommonInit;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.DataSourceBean;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.ProjectBean;

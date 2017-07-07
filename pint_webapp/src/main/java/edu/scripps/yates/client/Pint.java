@@ -25,6 +25,8 @@ import edu.scripps.yates.client.gui.components.pseaquant.PSEAQuantFormPanel;
 import edu.scripps.yates.client.gui.configuration.ConfigurationPanel;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
+import edu.scripps.yates.client.tasks.PendingTasksManager;
+import edu.scripps.yates.client.tasks.TaskType;
 import edu.scripps.yates.client.util.ClientToken;
 import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
@@ -287,7 +289,13 @@ public class Pint implements EntryPoint {
 					} else {
 						loadPanel(queryPanel);
 					}
+					return;
 				}
+				// removePending task
+				PendingTasksManager.removeAllTasks(TaskType.PROTEINS_BY_PROJECT);
+				PendingTasksManager.removeAllTasks(TaskType.QUERY_SENT);
+				QueryPanel.loadedProjects.clear();
+
 				if (historyToken.contains(TargetHistory.BROWSE.getTargetHistory())) {
 					if (browsePanel == null)
 						browsePanel = new BrowsePanel();

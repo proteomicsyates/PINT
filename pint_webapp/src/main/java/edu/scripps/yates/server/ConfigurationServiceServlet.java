@@ -7,12 +7,12 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
 import edu.scripps.yates.client.ConfigurationService;
-import edu.scripps.yates.client.exceptions.PintException;
-import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServletCommonInit;
 import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 
 public class ConfigurationServiceServlet extends RemoteServiceServlet implements ConfigurationService {
 

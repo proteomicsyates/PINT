@@ -24,10 +24,13 @@ public class ProteinAnnotationBeanAdapter implements Adapter<ProteinAnnotationBe
 	@Override
 	public ProteinAnnotationBean adapt() {
 		if (proteinAnnotation != null) {
-			if (map.containsKey(proteinAnnotation.getId()))
+			if (proteinAnnotation.getId() != null && map.containsKey(proteinAnnotation.getId())) {
 				return map.get(proteinAnnotation.getId());
+			}
 			ProteinAnnotationBean ret = new ProteinAnnotationBean();
-			map.put(proteinAnnotation.getId(), ret);
+			if (proteinAnnotation.getId() != null) {
+				map.put(proteinAnnotation.getId(), ret);
+			}
 			ret.setName(proteinAnnotation.getName());
 			ret.setSource(proteinAnnotation.getSource());
 			ret.setType(proteinAnnotation.getAnnotationType().getName());

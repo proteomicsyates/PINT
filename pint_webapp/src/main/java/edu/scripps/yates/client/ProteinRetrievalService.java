@@ -8,7 +8,7 @@ import java.util.Set;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
-import edu.scripps.yates.client.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;

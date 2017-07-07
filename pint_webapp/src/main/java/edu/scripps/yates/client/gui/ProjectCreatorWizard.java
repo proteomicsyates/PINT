@@ -34,8 +34,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.ImportWizardServiceAsync;
 import edu.scripps.yates.client.ProjectSaverServiceAsync;
-import edu.scripps.yates.client.exceptions.PintException;
-import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.client.gui.components.MoleAnimation;
 import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.components.ScrolledTabLayoutPanel;
@@ -61,6 +59,8 @@ import edu.scripps.yates.client.interfaces.ContainsImportJobID;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
 import edu.scripps.yates.client.interfaces.StatusReporter;
 import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.DataSourceBean;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;

@@ -1,5 +1,6 @@
 package edu.scripps.yates.server;
 
+import java.util.Date;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -19,18 +20,36 @@ public class DataSetsManager {
 			log.info(printStatistics());
 			log.info("");
 		}
-		return dataSetMap.get(sessionID);
+		DataSet ret = dataSetMap.get(sessionID);
+		ret.setLatestAccess(new Date());
+		return ret;
 	}
 
+	/**
+	 * Clears the content of a dataset in the static map of datasets
+	 * 
+	 * @param sessionID
+	 */
 	public static void clearDataSet(String sessionID) {
-		log.info("Trying to remove dataset from sessionID: " + sessionID);
+
 		if (sessionID != null) {
 			if (dataSetMap.containsKey(sessionID)) {
 
 				final DataSet dataSet = dataSetMap.get(sessionID);
-				log.info("Removing dataset '" + dataSet.getName() + "' for sessionID: " + sessionID);
+				// get, if any, any thread that is ongoing building the dataset
+				// for that session.
+				// if exists, it is because the user went away from one dataset
+				// and loaded the other. So that, we
+				// want to cancel that thread.
+				try {
+					Thread thread = dataSet.getActiveDatasetThread();
+					log.info("Interrumping previous thread loading a different dataset for this session ID: "
+							+ sessionID);
+					thread.interrupt();
+				} catch (SecurityException e) {
+				}
+				log.info("Clearing dataset '" + dataSet.getName() + "' from sessionID: " + sessionID);
 				dataSet.clearDataSet();
-				dataSetMap.remove(sessionID);
 
 			} else {
 				log.info("There was no dataset with sessionID: " + sessionID);
@@ -39,6 +58,16 @@ public class DataSetsManager {
 		final String printStatistics = printStatistics();
 		log.info(printStatistics);
 		log.info("");
+	}
+
+	public static void removeDataSet(String sessionID) {
+		if (sessionID != null) {
+			if (dataSetMap.containsKey(sessionID)) {
+				final DataSet dataSet = dataSetMap.get(sessionID);
+				log.info("Removing dataset '" + dataSet.getName() + "' for sessionID: " + sessionID);
+				dataSetMap.remove(sessionID);
+			}
+		}
 	}
 
 	private static String printStatistics() {

@@ -5,8 +5,11 @@ import java.util.logging.Logger;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.shared.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
@@ -14,8 +17,8 @@ import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.widgetideas.client.ProgressBar;
 
-import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.ProteinRetrievalService;
+import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.shared.util.ProgressStatus;
 
@@ -29,20 +32,29 @@ public abstract class ProgressLoadingDialog extends DialogBox {
 	protected boolean started = false;
 	protected com.google.gwt.core.client.Scheduler.RepeatingCommand command;
 	private Image imageLoader;
+	private Button button;
 
 	public ProgressLoadingDialog(boolean showDynamicBar) {
-		this("Progress on task", showDynamicBar);
+		this("Progress on task", showDynamicBar, false);
 	}
 
 	public ProgressLoadingDialog() {
-		this("Progress on task", true);
+		this("Progress on task", true, false);
 	}
 
 	public ProgressLoadingDialog(String text) {
-		this(text, true);
+		this(text, true, false);
 	}
 
-	public ProgressLoadingDialog(String text, boolean showDynamicBar) {
+	public ProgressLoadingDialog(boolean showDynamicBar, boolean showButton) {
+		this("Progress on task", showDynamicBar, showButton);
+	}
+
+	public ProgressLoadingDialog(String text, boolean showButton) {
+		this(text, true, showButton);
+	}
+
+	public ProgressLoadingDialog(String text, boolean showDynamicBar, boolean showButton) {
 		super(true, true);
 
 		// Enable animation.
@@ -54,9 +66,22 @@ public abstract class ProgressLoadingDialog extends DialogBox {
 		panel = new VerticalPanel();
 		panel.setSize("100%", "100%");
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		VerticalPanel verticalPanel = new VerticalPanel();
 		inlineHTML = new InlineHTML(text);
 		inlineHTML.setWidth("100%");
-		panel.add(inlineHTML);
+		verticalPanel.add(inlineHTML);
+		if (showButton) {
+			this.button = new Button("Close");
+			this.button.addClickHandler(new ClickHandler() {
+
+				@Override
+				public void onClick(ClickEvent event) {
+					ProgressLoadingDialog.this.hide();
+				}
+			});
+			verticalPanel.add(button);
+		}
+		panel.add(verticalPanel);
 
 		final MyClientBundle myClientBundle = MyClientBundle.INSTANCE;
 		if (showDynamicBar) {
@@ -69,6 +94,20 @@ public abstract class ProgressLoadingDialog extends DialogBox {
 		bar.setTextVisible(true);
 		bar.setProgress(0);
 		setWidget(panel);
+	}
+
+	public void setButtonText(String text) {
+		if (button == null) {
+			throw new IllegalArgumentException("Dialog has no button!");
+		}
+		button.setText(text);
+	}
+
+	public void addButtonAction(ClickHandler handler) {
+		if (button == null) {
+			throw new IllegalArgumentException("Dialog has no button!");
+		}
+		button.addClickHandler(handler);
 	}
 
 	protected void start() {

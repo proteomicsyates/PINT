@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -52,11 +52,15 @@ public class DataSet {
 	private boolean ready;
 	private final String sessionId;
 	private String name;
+	private Thread activeDatasetThread;
 	private final static Logger log = Logger.getLogger(DataSet.class);
+	private Date latestAccess;
 
 	public DataSet(String sessionID, String name) {
 		sessionId = sessionID;
 		setName(name);
+		this.activeDatasetThread = Thread.currentThread();
+		this.setLatestAccess(new Date());
 	}
 
 	/**
@@ -569,5 +573,17 @@ public class DataSet {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Thread getActiveDatasetThread() {
+		return activeDatasetThread;
+	}
+
+	public Date getLatestAccess() {
+		return latestAccess;
+	}
+
+	public void setLatestAccess(Date latestAccess) {
+		this.latestAccess = latestAccess;
 	}
 }

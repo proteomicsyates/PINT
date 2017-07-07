@@ -1,5 +1,6 @@
 package edu.scripps.yates.server.cache;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,9 @@ public class ServerCacheProteinBeansByProjectTag implements Cache<List<ProteinBe
 			if (map.containsKey(key)) {
 				map.get(key).addAll(proteins);
 			} else {
-				map.put(key, proteins);
+				List<ProteinBean> list = new ArrayList<ProteinBean>();
+				list.addAll(proteins);
+				map.put(key, list);
 			}
 		}
 	}

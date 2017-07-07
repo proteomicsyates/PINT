@@ -3,8 +3,8 @@ package edu.scripps.yates.client;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
-import edu.scripps.yates.client.exceptions.PintException;
 import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
+import edu.scripps.yates.shared.exceptions.PintException;
 
 @RemoteServiceRelativePath("configuration")
 public interface ConfigurationService extends RemoteService {

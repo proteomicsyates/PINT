@@ -17,8 +17,6 @@ import javax.servlet.ServletContext;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.client.exceptions.PintException;
-import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.server.DataSet;
@@ -32,6 +30,8 @@ import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.PSMColumns;
 import edu.scripps.yates.shared.columns.ProteinColumns;
 import edu.scripps.yates.shared.columns.ProteinGroupColumns;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.AccessionType;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PSMBean;

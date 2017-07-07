@@ -20,6 +20,7 @@ import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 import edu.scripps.yates.server.cache.ServerCachePSMBeansByPSMDBId;
 import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.util.SharedConstants;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -90,10 +91,12 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 
 		}
 		if (psm.getPsmScores() != null) {
-			for (Object obj : psm.getPsmScores()) {
-				PsmScore score = (PsmScore) obj;
-				ret.addScore(new ScoreBeanAdapter(String.valueOf(score.getValue()), score.getName(),
-						score.getConfidenceScoreType()).adapt());
+			if (SharedConstants.ADAPT_PSM_SCORES) {
+				for (Object obj : psm.getPsmScores()) {
+					PsmScore score = (PsmScore) obj;
+					ret.addScore(new ScoreBeanAdapter(String.valueOf(score.getValue()), score.getName(),
+							score.getConfidenceScoreType()).adapt());
+				}
 			}
 		}
 		if (psm.getPtms() != null) {

@@ -21,6 +21,8 @@ import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
+import edu.scripps.yates.shared.exceptions.PintRuntimeException;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;
@@ -82,6 +84,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// map.put(primaryAcc, ret);
 		// }
 		for (QueriableProteinSet queriableProtein : queriableProteins) {
+
 			addProteinInformationToProteinBean(ret, queriableProtein, hiddenPTMs);
 
 		}
@@ -95,6 +98,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	 * @param proteinBean
 	 * @param queriableProtein
 	 * @param hiddenPTMs
+	 * @throws InterruptedException
 	 */
 	private void addProteinInformationToProteinBean(ProteinBean proteinBean, QueriableProteinSet queriableProtein,
 			Collection<String> hiddenPTMs) {
@@ -189,6 +193,10 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// log.debug("Adapting psms for protein DbID: " + protein.getId());
 		if (queriableProtein.getLinks() != null) {
 			for (LinkBetweenQueriableProteinSetAndPSM link : queriableProtein.getLinks()) {
+				if (Thread.interrupted()) {
+					throw new PintRuntimeException("Thread interrumpted while adapting proteinBean from proteinSet",
+							PINT_ERROR_TYPE.THREAD_INTERRUPTED);
+				}
 				final Psm psm = link.getQueriablePsm().getPsm();
 
 				if (!proteinBean.getPSMDBIds().contains(psm.getId())) {

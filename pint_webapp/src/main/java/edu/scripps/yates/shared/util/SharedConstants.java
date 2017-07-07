@@ -56,5 +56,6 @@ public class SharedConstants {
 
 	// tables selection model
 	public static final boolean TABLE_WITH_MULTIPLE_SELECTION = false;
+	public static final boolean ADAPT_PSM_SCORES = false;
 
 }

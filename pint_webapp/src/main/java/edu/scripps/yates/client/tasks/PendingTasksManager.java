@@ -68,6 +68,9 @@ public class PendingTasksManager {
 	}
 
 	public static int removeTasks(TaskType taskType, Collection<String> keys) {
+		if (keys == null || keys.isEmpty()) {
+			return getNumPendingTasks(taskType);
+		}
 		getPendingTaskKeys(taskType).removeAll(keys);
 		notifyPendingTaskControllers(OPERATION.REMOVE);
 		return getNumPendingTasks(taskType);
@@ -79,6 +82,10 @@ public class PendingTasksManager {
 
 	public static int getNumPendingTasks(TaskType taskType) {
 		return getPendingTaskKeys(taskType).size();
+	}
+
+	public static void removeAllTasks(TaskType taskType) {
+		removeTasks(taskType, getPendingTaskKeys(taskType));
 	}
 
 }
