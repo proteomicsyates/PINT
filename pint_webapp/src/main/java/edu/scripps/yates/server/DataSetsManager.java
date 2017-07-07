@@ -43,9 +43,11 @@ public class DataSetsManager {
 				// want to cancel that thread.
 				try {
 					Thread thread = dataSet.getActiveDatasetThread();
-					log.info("Interrumping previous thread loading a different dataset for this session ID: "
-							+ sessionID);
-					thread.interrupt();
+					if (thread != Thread.currentThread()) {
+						log.info("Interrumping previous thread loading a different dataset for this session ID: "
+								+ sessionID);
+						thread.interrupt();
+					}
 				} catch (SecurityException e) {
 				}
 				log.info("Clearing dataset '" + dataSet.getName() + "' from sessionID: " + sessionID);
