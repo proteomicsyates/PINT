@@ -67,7 +67,9 @@ public class PintServerDaemon implements ServletContextListener {
 			// /////////////////////////////////////////////////
 			// REGISTER MAINTENANCE TASKS HERE
 			pintServerDaemonTasks.add(new ProteinAccessionsUpdaterScroll(sce.getServletContext()));
+
 			pintServerDaemonTasks.add(new ProteinUniprotAnnotationUpdater(sce.getServletContext()));
+
 			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", sce.getServletContext()));
 
 			// pintServerDaemonTasks.add(new
