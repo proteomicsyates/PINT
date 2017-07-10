@@ -178,6 +178,12 @@
 		</init-param>
 	</servlet>
 	
+	<servlet>
+    	<servlet-name>remoteLogging</servlet-name>
+    	<servlet-class>com.google.gwt.logging.server.RemoteLoggingServiceImpl</servlet-class>
+  	</servlet>
+  	
+	
 	<!-- servlet-mappings -->
 	<servlet-mapping id="ServletMapping_1492817520246">
 		<servlet-name>ReactomeRESTfulAPI</servlet-name>
@@ -235,6 +241,11 @@
 		<url-pattern>/pint/logging</url-pattern>
 	</servlet-mapping>
 
+	<servlet-mapping>
+    	<servlet-name>remoteLogging</servlet-name>
+    	<url-pattern>/pint/remote_logging</url-pattern>
+  	</servlet-mapping>
+  	
 	<!--  welcome-file-list -->
 	<welcome-file-list>
 		<welcome-file>Pint.html</welcome-file>
