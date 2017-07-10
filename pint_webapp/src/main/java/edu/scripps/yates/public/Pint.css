@@ -943,6 +943,16 @@
 .DialogBox-content{
 	padding:10px;
 }
+.DialogBox-textlabel{
+	padding:5px;
+	font-size: 15px;
+}
+.Dialogbox-loadingBar{
+	padding-top: 15px;
+}
+.Dialogbox-button{
+	margin-top: 30px;
+}
 
 .gwt-DialogBox .dialogMiddleCenter {
   padding: 3px;

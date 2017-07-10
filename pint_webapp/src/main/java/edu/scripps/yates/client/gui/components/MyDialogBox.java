@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 
 public class MyDialogBox extends DialogBox {
-	private final InlineHTML inlineHTML;
+	private final InlineHTML textLabel;
 	private final Image loadingBar;
 	private final VerticalPanel panel;
 	private Timer timerTaskOnCloseDialog;
@@ -133,18 +133,21 @@ public class MyDialogBox extends DialogBox {
 		panel.setSize("100%", "100%");
 		panel.setStyleName("DialogBox-content");
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		inlineHTML = new InlineHTML(text);
-		inlineHTML.setWidth("100%");
-		panel.add(inlineHTML);
+		textLabel = new InlineHTML(new SafeHtmlBuilder().appendEscaped(text).toSafeHtml());
+		textLabel.setStyleName("DialogBox-textlabel");
+		textLabel.setWidth("100%");
+		panel.add(textLabel);
 		if (buttonText != null && !"".equals(buttonText)) {
 			button = new Button(buttonText);
 			panel.add(button);
 		} else {
 			button = new Button("not defined");
 			button.setVisible(false);
-			panel.add(button);
 		}
+		button.setStyleName("Dialogbox-button");
+		panel.add(button);
 		loadingBar = new Image(myClientBundle.horizontalLoader());
+		loadingBar.setStyleName("Dialogbox-loadingBar");
 		if (showLoaderBar) {
 			panel.add(loadingBar);
 		}
@@ -168,7 +171,7 @@ public class MyDialogBox extends DialogBox {
 
 	@Override
 	public void setText(String text) {
-		inlineHTML.setHTML(new SafeHtmlBuilder().appendEscapedLines(text).toSafeHtml());
+		textLabel.setHTML(new SafeHtmlBuilder().appendEscapedLines(text).toSafeHtml());
 	}
 
 	public void setShowLoadingBar(boolean showLoadingBar) {
