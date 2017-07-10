@@ -56,7 +56,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 			log.info("Starting " + getTaskName());
 
 			ScrollableResults proteins = ContextualSessionHandler
-					.retrieveReadOnlyIterator(edu.scripps.yates.proteindb.persistence.mysql.Protein.class);
+					.retrieveIterator(edu.scripps.yates.proteindb.persistence.mysql.Protein.class);
 			log.info("Scroll adquired for proteins in the DB");
 			int totalAccCounter = 0;
 			int chunkSize = 200;
@@ -125,9 +125,9 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 									}
 								}
 								if (primaryAccs.size() > 1) {
-									log.info(protein.getId() + " contains more than one primary acc in the DB");
+									log.debug(protein.getId() + " contains more than one primary acc in the DB");
 									if (ipiAcc != null) {
-										log.info("It contains also a IPI acc");
+										log.debug("It contains also a IPI acc");
 										final Map<String, Entry> annotatedProteins = ulr.getAnnotatedProteins(null,
 												uniprotACCs);
 										boolean hasSwissProt = false;
@@ -235,7 +235,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 				ContextualSessionHandler.finishGoodTransaction();
 				ContextualSessionHandler.getCurrentSession().beginTransaction();
 				proteins = ContextualSessionHandler
-						.retrieveReadOnlyIterator(edu.scripps.yates.proteindb.persistence.mysql.Protein.class);
+						.retrieveIterator(edu.scripps.yates.proteindb.persistence.mysql.Protein.class);
 				log.info("Scroll adquired for proteins in the DB");
 				changeCounter = 0;
 				totalAccCounter = 0;
