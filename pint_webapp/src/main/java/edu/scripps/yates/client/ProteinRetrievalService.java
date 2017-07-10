@@ -233,4 +233,6 @@ public interface ProteinRetrievalService extends RemoteService {
 	int getNumGenes(String projectTag, SampleBean sample) throws PintException;
 
 	int getNumMSRuns(String projectTag, SampleBean sample) throws PintException;
+
+	void cancelQuery(String sessionID) throws PintException;
 }

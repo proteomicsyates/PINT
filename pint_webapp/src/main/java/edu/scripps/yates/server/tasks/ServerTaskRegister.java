@@ -2,6 +2,7 @@ package edu.scripps.yates.server.tasks;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.locks.StampedLock;
 
 import org.apache.log4j.Logger;
 
@@ -17,11 +18,26 @@ import gnu.trove.set.hash.THashSet;
 public class ServerTaskRegister {
 	private static Logger log = Logger.getLogger(ServerTaskRegister.class);
 
-	private static final Set<Task> runningTasks = new THashSet<Task>();
+	private final Set<Task> runningTasks = new THashSet<Task>();
 	/**
 	 * To avoid concurrent access to the runningTasks
 	 */
-	private static boolean accessRequested;
+	private boolean accessRequested;
+
+	private static ServerTaskRegister instance;
+	private StampedLock lock = new StampedLock();
+	private long currentStamp;
+
+	private ServerTaskRegister() {
+
+	}
+
+	public static ServerTaskRegister getInstance() {
+		if (instance == null) {
+			instance = new ServerTaskRegister();
+		}
+		return instance;
+	}
 
 	/**
 	 * register a {@link Task}. If the same task was already running, the thread
@@ -29,7 +45,7 @@ public class ServerTaskRegister {
 	 *
 	 * @param task
 	 */
-	public static void registerTask(Task task) {
+	public void registerTask(Task task) {
 
 		while (isOtherTaskLikeThisRunning(task)) {
 			try {
@@ -45,7 +61,7 @@ public class ServerTaskRegister {
 
 	}
 
-	public static synchronized Task getRunningTask(String key) {
+	public synchronized Task getRunningTask(String key) {
 		try {
 			waitForAccess();
 			final Iterator<Task> iterator = runningTasks.iterator();
@@ -56,12 +72,14 @@ public class ServerTaskRegister {
 			}
 			return null;
 		} finally {
-			log.info("Access to set of task released");
+			log.info("Trying to unlock access to set of task with stamp " + currentStamp);
 			accessRequested = false;
+			lock.unlock(currentStamp);
+			log.info("Access to set of task unlocked with stamp " + currentStamp);
 		}
 	}
 
-	private static synchronized boolean isOtherTaskLikeThisRunning(Task task2) {
+	private synchronized boolean isOtherTaskLikeThisRunning(Task task2) {
 		try {
 			waitForAccess();
 			final Iterator<Task> iterator = runningTasks.iterator();
@@ -79,12 +97,14 @@ public class ServerTaskRegister {
 			log.info("There is no other task like " + task2);
 			return false;
 		} finally {
-			log.info("Access to set of task released");
+			log.info("Trying to unlock access to set of task with stamp " + currentStamp);
 			accessRequested = false;
+			lock.unlock(currentStamp);
+			log.info("Access to set of task unlocked with stamp " + currentStamp);
 		}
 	}
 
-	public static synchronized void endTask(Task task2) {
+	public synchronized void endTask(Task task2) {
 		try {
 			if (task2 == null)
 				return;
@@ -102,13 +122,15 @@ public class ServerTaskRegister {
 			}
 			return;
 		} finally {
-			log.info("Access to set of task released");
+			log.info("Trying to unlock access to set of task with stamp " + currentStamp);
 			accessRequested = false;
+			lock.unlock(currentStamp);
+			log.info("Access to set of task unlocked with stamp " + currentStamp);
 		}
 	}
 
-	private static synchronized void waitForAccess() {
-		while (accessRequested) {
+	private synchronized void waitForAccess() {
+		while ((currentStamp = lock.tryWriteLock()) == 0l) {
 			try {
 				log.info("Waiting for accessing to the set of tasks");
 				Thread.sleep(1000);
@@ -117,7 +139,7 @@ public class ServerTaskRegister {
 			}
 		}
 		accessRequested = true;
-		// log.info("Access to set of tasks requested");
+		log.info("Access to set of tasks requested with stamp " + currentStamp);
 	}
 
 	/**
@@ -127,7 +149,7 @@ public class ServerTaskRegister {
 	 * @param class1
 	 * @return
 	 */
-	public static boolean isRunningTask(String key, Class<? extends Task> class1) {
+	public boolean isRunningTask(String key, Class<? extends Task> class1) {
 		final Task runningTask = getRunningTask(key);
 		if (runningTask != null) {
 			if (runningTask.getClass().equals(class1)) {
@@ -143,7 +165,7 @@ public class ServerTaskRegister {
 	 * @param task
 	 * @return
 	 */
-	public static boolean isRunningTask(Task task) {
+	public boolean isRunningTask(Task task) {
 		return isRunningTask(task.getKey(), task.getClass());
 	}
 }
