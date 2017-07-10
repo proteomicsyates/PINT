@@ -266,7 +266,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ServerTaskRegister.getInstance().registerTask(task);
 
 			DataSetsManager.clearDataSet(sessionID);
-			DataSetsManager.getDataSet(sessionID, projectTagsString);
+			// set current thread as the one holding this dataset
+			DataSetsManager.getDataSet(sessionID, projectTagsString).setActiveDatasetThread(Thread.currentThread());
+
 			if (ServerCacheProteinBeansByProjectTag.getInstance().contains(projectTagsString)
 					&& defaultQueryIndex == null) {
 				log.info("Getting proteinBeans from cache for project(s): '" + projectTagsString + "' in session '"
@@ -339,6 +341,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		} catch (Exception e) {
 			log.error(e);
 			e.printStackTrace();
+			if (e instanceof PintException) {
+				throw (PintException) e;
+			}
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
 			if (task != null) {
@@ -968,6 +973,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ServerTaskRegister.getInstance().registerTask(task);
 			// clear map of current proteins for this sessionID
 			DataSetsManager.clearDataSet(sessionID);
+
+			// set current thread as the one holding this dataset
+			DataSetsManager.getDataSet(sessionID, queryInOrder).setActiveDatasetThread(Thread.currentThread());
+
 			// look into cache
 			// attach the project Tags to the queryInOrder, otherwise, if
 			// someone execute one query in one project, and then another one in
