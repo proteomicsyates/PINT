@@ -48,7 +48,7 @@
 <!-- 	<set-property name="gwt.logging.popupHandler" value="DISABLED" />   -->
 	<set-property name="gwt.logging.consoleHandler" value="DISABLED"/>   
 <!-- 	<set-property name="gwt.logging.firebugHandler" value="ENABLED" />   -->
-
+ 	<set-property name="gwt.logging.simpleRemoteHandler" value="ENABLED"/>
 	
 
 	<inherits name="org.reactome.web.fireworks.Fireworks" />
