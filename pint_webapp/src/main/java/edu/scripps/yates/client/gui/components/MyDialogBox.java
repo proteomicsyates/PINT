@@ -1,6 +1,7 @@
 package edu.scripps.yates.client.gui.components;
 
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
@@ -18,6 +19,7 @@ public class MyDialogBox extends DialogBox {
 	private final VerticalPanel panel;
 	private Timer timerTaskOnCloseDialog;
 	private Button button;
+	private HandlerRegistration buttonClickHandlerRegistry;
 
 	/**
 	 * By default is showing the loader bar
@@ -156,7 +158,11 @@ public class MyDialogBox extends DialogBox {
 			throw new IllegalArgumentException("Button is null. Create this object with a name for the button");
 		}
 		if (handler != null) {
-			button.addClickHandler(handler);
+			// remove first previous handlers
+			if (buttonClickHandlerRegistry != null) {
+				buttonClickHandlerRegistry.removeHandler();
+			}
+			buttonClickHandlerRegistry = button.addClickHandler(handler);
 		}
 	}
 
