@@ -865,6 +865,9 @@ public class DataExporter {
 	public static File exportProteinsForReactome(String sessionID, ServletContext servletContext) throws PintException {
 		final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
 		if (dataSet == null || dataSet.isEmpty() || !dataSet.isReady()) {
+			if (dataSet != null && !dataSet.getActiveDatasetThread().isAlive()) {
+				DataSetsManager.removeDataSet(sessionID);
+			}
 			throw new PintException("DataSet is not ready or is empty", PINT_ERROR_TYPE.DATA_EXPORTER_ERROR);
 		}
 		// final String fileName = "Reactome_" + sessionID + ".txt";
