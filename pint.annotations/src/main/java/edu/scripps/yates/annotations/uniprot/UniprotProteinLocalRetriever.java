@@ -338,6 +338,9 @@ public class UniprotProteinLocalRetriever {
 			// look into cache if enabled
 			Iterator<String> iterator = accsToSearch.iterator();
 			while (iterator.hasNext()) {
+				if (Thread.currentThread().isInterrupted()) {
+					throw new RuntimeException("Thread interrupted");
+				}
 				String acc = iterator.next();
 				Entry cachedEntry = cache.get(acc);
 				if (cachedEntry != null) {
@@ -381,7 +384,9 @@ public class UniprotProteinLocalRetriever {
 					int numEntriesRetrievedFromIndex = 0;
 
 					for (String acc : accsToSearch) {
-
+						if (Thread.currentThread().isInterrupted()) {
+							throw new RuntimeException("Thread interrupted");
+						}
 						final Entry item = uniprotIndex.getItem(acc);
 						if (item != null) {
 							if (cacheEnabled) {
@@ -475,6 +480,9 @@ public class UniprotProteinLocalRetriever {
 			// map main isoforms to the corresponding no isoform entries,
 			// that is an entry like P12345-1 to P12345
 			for (String mainIsoform : mainIsoforms) {
+				if (Thread.currentThread().isInterrupted()) {
+					throw new RuntimeException("Thread interrupted");
+				}
 				final Entry entry = queryProteinsMap.get(FastaParser.getNoIsoformAccession(mainIsoform));
 				if (entry != null) {
 					log.debug("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
@@ -499,6 +507,9 @@ public class UniprotProteinLocalRetriever {
 				// map main isoforms to the corresponding no isoform entries,
 				// that is an entry like P12345-1 to P12345
 				for (String mainIsoform : mainIsoforms) {
+					if (Thread.currentThread().isInterrupted()) {
+						throw new RuntimeException("Thread interrupted");
+					}
 					final Entry entry = queryProteinsMap.get(FastaParser.getNoIsoformAccession(mainIsoform));
 					if (entry != null) {
 						if (cacheEnabled) {

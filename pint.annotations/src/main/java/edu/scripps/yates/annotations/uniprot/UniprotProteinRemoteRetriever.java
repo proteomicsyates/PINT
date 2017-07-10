@@ -48,8 +48,8 @@ import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.files.FileUtils;
 import edu.scripps.yates.utilities.pi.ParIterator;
-import edu.scripps.yates.utilities.pi.ParIteratorFactory;
 import edu.scripps.yates.utilities.pi.ParIterator.Schedule;
+import edu.scripps.yates.utilities.pi.ParIteratorFactory;
 import edu.scripps.yates.utilities.pi.reductions.Reducible;
 import edu.scripps.yates.utilities.pi.reductions.Reduction;
 import edu.scripps.yates.utilities.util.Pair;
@@ -110,6 +110,9 @@ public class UniprotProteinRemoteRetriever {
 		List<String> noIsoformList = new ArrayList<String>();
 		Set<String> isoformList = new THashSet<String>();
 		for (String acc : accessions) {
+			if (Thread.currentThread().isInterrupted()) {
+				throw new RuntimeException("Thread interrupted");
+			}
 			// skip reverse proteins
 			if (acc.toLowerCase().contains("reverse")) {
 				continue;

@@ -131,6 +131,9 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 				try {
 					String line;
 					while ((line = fr.readLine()) != null) {
+						if (Thread.currentThread().isInterrupted()) {
+							throw new RuntimeException("Thread interrupted");
+						}
 						final String[] split = line.split(TAB);
 						String key = split[0];
 						long start = new Long(split[1]);
