@@ -78,6 +78,7 @@ import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerDataUtils;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
+import edu.scripps.yates.shared.exceptions.PintRuntimeException;
 import edu.scripps.yates.shared.model.AccessionBean;
 import edu.scripps.yates.shared.model.AccessionType;
 import edu.scripps.yates.shared.model.AmountType;
@@ -1191,6 +1192,10 @@ public class RemoteServicesTasks {
 			String printIfNecessary = counter.printIfNecessary();
 			if (!"".equals(printIfNecessary)) {
 				log.info(printIfNecessary);
+			}
+			if (Thread.currentThread().isInterrupted()) {
+				log.info("This thread has been interrupted");
+				throw new PintRuntimeException(PINT_ERROR_TYPE.THREAD_INTERRUPTED);
 			}
 			if (numProteins == SharedConstants.MAX_NUM_PROTEINS)// test purposes
 				break;
