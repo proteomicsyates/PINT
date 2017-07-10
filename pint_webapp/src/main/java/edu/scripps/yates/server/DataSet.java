@@ -482,10 +482,11 @@ public class DataSet {
 	 */
 	@Override
 	public String toString() {
-		return "/nDATASET:\nReady:\t" + ready + "\nName: " + name + "\nSessionID: " + sessionId + "\nProtein groups:\t"
-				+ getProteinGroups(false).size() + "\n" + "Proteins:\t" + getProteins().size() + "\n" + "PSMs:\t"
-				+ getPsms().size() + "\n" + "Peptides:\t" + getNumDifferentSequences(false) + "\n"
-				+ "Peptides(ptm sensible):\t" + getNumDifferentSequences(true) + "\n";
+		return "/nDATASET:\nThread holder ID:\t" + this.activeDatasetThread.getId() + "\nReady:\t" + ready + "\nName: "
+				+ name + "\nSessionID: " + sessionId + "\nProtein groups:\t" + getProteinGroups(false).size() + "\n"
+				+ "Proteins:\t" + getProteins().size() + "\n" + "PSMs:\t" + getPsms().size() + "\n" + "Peptides:\t"
+				+ getNumDifferentSequences(false) + "\n" + "Peptides(ptm sensible):\t" + getNumDifferentSequences(true)
+				+ "\n";
 	}
 
 	public void addPeptide(PeptideBean peptideBean) {
@@ -585,5 +586,12 @@ public class DataSet {
 
 	public void setLatestAccess(Date latestAccess) {
 		this.latestAccess = latestAccess;
+	}
+
+	public void setActiveDatasetThread(Thread activeDatasetThread) {
+		log.info("Changing thread holder for dataset in session ID '" + sessionId + "' to thread "
+				+ activeDatasetThread.getId());
+
+		this.activeDatasetThread = activeDatasetThread;
 	}
 }
