@@ -7,7 +7,8 @@ public enum TaskType {
 	PSMS_BY_PROTEIN("Loading PSMs from protein %...", "Loading PSMs from % proteins..."), //
 	PSMS_BY_PROTEIN_GROUP("Loading PSMs from protein group %...", "Loading PSMs from % protein groups..."), //
 	QUERY_SENT("Waiting for query results. Please wait...", "Waiting for query results. Please wait..."), //
-	PROTEINS_BY_PEPTIDE("Retrieving peptides shared by % protein...", "Retrieving peptides shared by protein group");
+	PROTEINS_BY_PEPTIDE("Retrieving peptides shared by % protein...", "Retrieving peptides shared by protein group"), //
+	CANCELLING_REQUEST("Cancelling request...", "Cancelling requests...");
 
 	private final String singleTaskMessage;
 	private final String multipleTaskMessage;
