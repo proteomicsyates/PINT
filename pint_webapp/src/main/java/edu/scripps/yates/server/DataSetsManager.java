@@ -45,8 +45,8 @@ public class DataSetsManager {
 				try {
 					Thread thread = dataSet.getActiveDatasetThread();
 					if (thread != Thread.currentThread()) {
-						log.info("Interrumping previous thread loading a different dataset for this session ID: "
-								+ sessionID);
+						log.info("Interrumping previous thread '" + thread.getId()
+								+ "' loading a different dataset for this session ID: " + sessionID);
 						thread.interrupt();
 					}
 				} catch (SecurityException e) {
@@ -77,7 +77,8 @@ public class DataSetsManager {
 		StringBuilder sb = new StringBuilder();
 		sb.append("DataSetsManager having " + dataSetMap.size() + " datasets.\n");
 		for (String sessionID : dataSetMap.keySet()) {
-			sb.append(sessionID + "\t" + dataSetMap.get(sessionID) + "\n");
+			DataSet dataSet = dataSetMap.get(sessionID);
+			sb.append(sessionID + "\t" + dataSet + "\n");
 		}
 		return sb.toString();
 	}
