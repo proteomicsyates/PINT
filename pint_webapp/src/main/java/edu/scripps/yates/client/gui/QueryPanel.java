@@ -2176,29 +2176,40 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		for (TaskType taskType : taskTypes) {
 			String buttonText = null;
 			ClickHandler handler = null;
-			if (taskType == TaskType.QUERY_SENT) {
-				buttonText = "Cancel";
-				handler = new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						proteinRetrievingService.cancelQuery(sessionID, new AsyncCallback<Void>() {
-							@Override
-							public void onFailure(Throwable caught) {
-								showMessage("Error trying to cancel task");
-								showErrorMessage(caught);
-							}
-
-							@Override
-							public void onSuccess(Void result) {
-								showMessage("Task cancelled.");
-							}
-						});
-
-					}
-				};
-			}
 			final List<String> pendingTaskKeys = PendingTasksManager.getPendingTaskKeys(taskType);
 			if (!pendingTaskKeys.isEmpty()) {
+				if (taskType == TaskType.QUERY_SENT || taskType == TaskType.PROTEINS_BY_PROJECT) {
+					buttonText = "Cancel";
+					handler = new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							showLoadingDialog("Cancelling...", null, null);
+							String stamp = String.valueOf(System.currentTimeMillis());
+							PendingTasksManager.addPendingTask(TaskType.CANCELLING_REQUEST, stamp);
+							proteinRetrievingService.cancelQuery(sessionID, new AsyncCallback<Void>() {
+								@Override
+								public void onFailure(Throwable caught) {
+									showMessage("Error trying to cancel task");
+									showErrorMessage(caught);
+									hiddeLoadingDialog();
+									PendingTasksManager.removeTask(TaskType.CANCELLING_REQUEST, stamp);
+								}
+
+								@Override
+								public void onSuccess(Void result) {
+									for (String pendingTaskKey : pendingTaskKeys) {
+										PendingTasksManager.removeTask(taskType, pendingTaskKey);
+									}
+									PendingTasksManager.removeTask(TaskType.CANCELLING_REQUEST, stamp);
+									showMessage("Task cancelled.");
+									hiddeLoadingDialog();
+								}
+							});
+
+						}
+					};
+				}
+
 				someTaskIsPending = true;
 				if (pendingTaskKeys.size() == 1) {
 
