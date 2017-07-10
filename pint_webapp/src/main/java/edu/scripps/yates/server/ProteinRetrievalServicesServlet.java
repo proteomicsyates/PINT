@@ -25,6 +25,7 @@ import org.hibernate.Criteria;
 import org.hibernate.transform.Transformers;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.ibm.icu.text.SimpleDateFormat;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRemoteRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
@@ -133,6 +134,7 @@ import gnu.trove.map.hash.THashMap;
 public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implements ProteinRetrievalService {
 	private static final org.apache.log4j.Logger log = org.apache.log4j.Logger
 			.getLogger(ProteinRetrievalServicesServlet.class);
+	private final static SimpleDateFormat emailDateFormatter = new SimpleDateFormat("EEE, MMM d,''yy 'at' HH:mm:ss z");
 
 	// private final MySQLMultiProjectProteinProvider mySQLProteinProvider =
 	// MySQLMultiProjectProteinProvider
@@ -261,7 +263,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			final Method enclosingMethod = new Object() {
 			}.getClass().getEnclosingMethod();
 			// register task
-			ServerTaskRegister.registerTask(task);
+			ServerTaskRegister.getInstance().registerTask(task);
 
 			DataSetsManager.clearDataSet(sessionID);
 			DataSetsManager.getDataSet(sessionID, projectTagsString);
@@ -310,7 +312,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 							querySB.append("COND[,").append(projectTag).append("]");
 						}
 					} catch (Exception e) {
-						final Task runningTask = ServerTaskRegister.getRunningTask(
+						final Task runningTask = ServerTaskRegister.getInstance().getRunningTask(
 								SharedTaskKeyGenerator.getKeyForGetProteinsFromProjectTask(projectTag, uniprotVersion));
 						if (runningTask != null)
 							runningTask.setAsFinished();
@@ -340,7 +342,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
 			if (task != null) {
-				ServerTaskRegister.endTask(task);
+				ServerTaskRegister.getInstance().endTask(task);
 			}
 		}
 
@@ -432,7 +434,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		// create a Task
 		GetDownloadLinkFromProteinsfromQueryTask task = new GetDownloadLinkFromProteinsfromQueryTask(
 				projectTagCollectionKey);
-		if (ServerTaskRegister.isRunningTask(task)) {
+		if (ServerTaskRegister.getInstance().isRunningTask(task)) {
 			log.info("Task " + task.getKey() + " is already running. Discarding this request.");
 			return null;
 		}
@@ -440,7 +442,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}.getClass().getEnclosingMethod();
 		try {
 			// register tag
-			ServerTaskRegister.registerTask(task);
+			ServerTaskRegister.getInstance().registerTask(task);
 			try {
 				// lock project
 
@@ -493,7 +495,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				throw e;
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
-			ServerTaskRegister.endTask(task);
+			ServerTaskRegister.getInstance().endTask(task);
 
 		}
 	}
@@ -506,7 +508,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		// create a Task
 		GetDownloadLinkFromProteinGroupsFromQueryTask task = new GetDownloadLinkFromProteinGroupsFromQueryTask(
 				projectTagCollectionKey, separateNonConclusiveProteins);
-		if (ServerTaskRegister.isRunningTask(task)) {
+		if (ServerTaskRegister.getInstance().isRunningTask(task)) {
 			log.info("Task " + task.getKey() + " is already running. Discarding this request.");
 			return null;
 		}
@@ -514,7 +516,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}.getClass().getEnclosingMethod();
 		try {
 			// register task
-			ServerTaskRegister.registerTask(task);
+			ServerTaskRegister.getInstance().registerTask(task);
 			try {
 				// lock projects
 
@@ -569,7 +571,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
 
-			ServerTaskRegister.endTask(task);
+			ServerTaskRegister.getInstance().endTask(task);
 		}
 	}
 
@@ -586,13 +588,13 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		// create a Task
 		GetDownloadLinkFromProteinsInProjectTask task = new GetDownloadLinkFromProteinsInProjectTask(
 				projectTagCollectionKey);
-		if (ServerTaskRegister.isRunningTask(task)) {
+		if (ServerTaskRegister.getInstance().isRunningTask(task)) {
 			log.info("Task " + task.getKey() + " is already running. Discarding this request.");
 			return null;
 		}
 		try {
 			// register task
-			ServerTaskRegister.registerTask(task);
+			ServerTaskRegister.getInstance().registerTask(task);
 
 			log.info("Getting download link for proteins in project: " + projectTagCollectionKey);
 			if (ServerCacheProteinFileDescriptorByProjectName.getInstance().contains(projectTagCollectionKey)) {
@@ -635,7 +637,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				throw e;
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
-			ServerTaskRegister.endTask(task);
+			ServerTaskRegister.getInstance().endTask(task);
 		}
 	}
 
@@ -653,13 +655,13 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		// create a Task
 		GetDownloadLinkFromProteinGroupsInProjectTask task = new GetDownloadLinkFromProteinGroupsInProjectTask(
 				projectTagCollectionKey, separateNonConclusiveProteins);
-		if (ServerTaskRegister.isRunningTask(task)) {
+		if (ServerTaskRegister.getInstance().isRunningTask(task)) {
 			log.info("Task " + task.getKey() + " is already running. Discarding this request.");
 			return null;
 		}
 		try {
 			// register task
-			ServerTaskRegister.registerTask(task);
+			ServerTaskRegister.getInstance().registerTask(task);
 
 			log.info("Getting download link for proteins groups in project: " + projectTagCollectionKey);
 
@@ -707,7 +709,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				throw e;
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
-			ServerTaskRegister.endTask(task);
+			ServerTaskRegister.getInstance().endTask(task);
 		}
 	}
 
@@ -963,7 +965,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			// create task
 			task = new GetProteinsFromQuery(projectTags, queryInOrder);
 			// register task
-			ServerTaskRegister.registerTask(task);
+			ServerTaskRegister.getInstance().registerTask(task);
 			// clear map of current proteins for this sessionID
 			DataSetsManager.clearDataSet(sessionID);
 			// look into cache
@@ -976,6 +978,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				log.info("Getting proteinBeans from cache for query: " + key + " in session '" + sessionID + "'");
 				List<ProteinBean> ret = ServerCacheProteinBeansByQueryString.getInstance().getFromCache(key);
 				if (!ret.isEmpty()) {
+					// SEND TRACKING EMAIL. Testing it...
+					sendTrackingEmail(getProjectTagString(projectTags) + "\t" + queryInOrder,
+							"Triggered by query: " + queryText, "Getting dataset from server cache");
+					// SEND TRACKING EMAIL
 					// add to the dataset
 					for (ProteinBean proteinBean : ret) {
 						DataSetsManager.getDataSet(sessionID, queryInOrder).addProtein(proteinBean);
@@ -1075,7 +1081,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		} finally {
 			// release task
 			if (task != null)
-				ServerTaskRegister.endTask(task);
+				ServerTaskRegister.getInstance().endTask(task);
 			log.warn("Rolling back transaction for not making any change in DB");
 			ContextualSessionHandler.rollbackTransaction();
 			log.warn("Transaction rolled back");
@@ -1089,8 +1095,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 			// look into server cache using the expression
 			String queryInOrder = expressionTree.printInOrder();
-			// SEND TRACKING EMAIL. Testing it...
-			sendTrackingEmail(getProjectTagString(projectTags) + "\t" + queryInOrder);
+			// SEND TRACKING EMAIL.
+			sendTrackingEmail(getProjectTagString(projectTags) + "\t" + queryInOrder,
+					"Triggered by query: " + queryInOrder);
 			// SEND TRACKING EMAIL
 
 			QueryResult result = expressionTree.getQueryResults();
@@ -1317,26 +1324,34 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		return RemoteServicesTasks.getDefaultViewByProject(projectTag);
 	}
 
-	public void sendTrackingEmail(String projectTag) {
+	public void sendTrackingEmail(String projectTag, String... annotations) {
 		try {
 			if (SharedConstants.EMAIL_ENABLED) {
 
 				log.info("Trying to send the tracking email");
 				String remoteHost = "";
-				String text = "";
+				StringBuilder text = new StringBuilder();
 				if (getThreadLocalRequest() != null) {
 					remoteHost = HttpUtils.remoteAddr(getThreadLocalRequest());
-					text = "Someone from IP " + remoteHost + " has loaded the project '" + projectTag + "'\n\n";
-					text += "Remote address: " + getThreadLocalRequest().getRemoteAddr() + "\n";
-					text += "Remote host: '" + remoteHost + "'\n";
-					text += "Remote port: '" + getThreadLocalRequest().getRemotePort() + "'\n";
-					text += "Remote user: '" + getThreadLocalRequest().getRemoteUser() + "'\n";
+					text.append("Someone from IP " + remoteHost + " has loaded the project '" + projectTag + "'\n\n");
+					text.append("Remote address: " + getThreadLocalRequest().getRemoteAddr() + "\n");
+					text.append("Remote host: '" + remoteHost + "'\n");
+					text.append("Remote port: '" + getThreadLocalRequest().getRemotePort() + "'\n");
+					text.append("Remote user: '" + getThreadLocalRequest().getRemoteUser() + "'\n");
+					text.append("Timestamp: '" + emailDateFormatter.format(new Date()) + "'\n");
+				}
+				if (annotations != null && annotations.length > 0) {
+					text.append("\n---\n");
+					for (String annotation : annotations) {
+						text.append(annotation + "\n");
+					}
+					text.append("---\n");
 				}
 				String from = "salvador@scripps.edu";
 				String to = "salvador@scripps.edu";
 				String subject = "PINT tracking email at " + DateFormat.getDateInstance().format(new Date());
 				log.info("Trying to send the tracking email with text: " + text);
-				String error = EmailSender.sendEmail(subject, text, to, from);
+				String error = EmailSender.sendEmail(subject, text.toString(), to, from);
 				if (error != null) {
 					log.warn(error);
 				}
@@ -1352,7 +1367,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public ProgressStatus getProgressStatus(String sessionID, String taskKey) {
 		log.info("Request for progress on task: " + taskKey + " received");
-		final Task runningTask = ServerTaskRegister.getRunningTask(taskKey);
+		final Task runningTask = ServerTaskRegister.getInstance().getRunningTask(taskKey);
 		if (runningTask != null) {
 			log.info("The progress is: " + runningTask.getProgressStatus());
 			return runningTask.getProgressStatus();
@@ -2506,5 +2521,16 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			servletContext = super.getServletContext();
 		}
 		return servletContext;
+	}
+
+	@Override
+	public void cancelQuery(String sessionID) throws PintException {
+		try {
+			log.info("Cancelling request from session ID :" + sessionID);
+			DataSetsManager.clearDataSet(sessionID);
+		} catch (Exception e) {
+			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
+		} finally {
+		}
 	}
 }

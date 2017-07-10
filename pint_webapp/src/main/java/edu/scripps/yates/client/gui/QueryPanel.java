@@ -205,7 +205,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		DockLayoutPanel mainPanel = new DockLayoutPanel(Unit.PX);
 		mainPanel.setStyleName("MainPanel");
 		initWidget(mainPanel);
-		showLoadingDialog("Loading PINT components...");
+		showLoadingDialog("Loading PINT components...", null, null);
 
 		// HeaderPanel header = new HeaderPanel();
 		// mainPanel.add(header);
@@ -1637,7 +1637,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					updateStatus(caught);
 					MyDialogBox errorDialog = new MyDialogBox(
 							"Error loading project: '" + projectTag + "':\n" + caught.getMessage(), true, false, false,
-							getTimerOnClosingLoadingDialog());
+							getTimerOnClosingLoadingDialog(), null);
 					errorDialog.center();
 				}
 
@@ -2174,13 +2174,39 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		boolean someTaskIsPending = false;
 		final TaskType[] taskTypes = TaskType.values();
 		for (TaskType taskType : taskTypes) {
+			String buttonText = null;
+			ClickHandler handler = null;
+			if (taskType == TaskType.QUERY_SENT) {
+				buttonText = "Cancel";
+				handler = new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						proteinRetrievingService.cancelQuery(sessionID, new AsyncCallback<Void>() {
+							@Override
+							public void onFailure(Throwable caught) {
+								showMessage("Error trying to cancel task");
+								showErrorMessage(caught);
+							}
+
+							@Override
+							public void onSuccess(Void result) {
+								showMessage("Task cancelled.");
+							}
+						});
+
+					}
+				};
+			}
 			final List<String> pendingTaskKeys = PendingTasksManager.getPendingTaskKeys(taskType);
 			if (!pendingTaskKeys.isEmpty()) {
 				someTaskIsPending = true;
 				if (pendingTaskKeys.size() == 1) {
-					showLoadingDialog(taskType.getSingleTaskMessage("'" + pendingTaskKeys.get(0) + "'"));
+
+					showLoadingDialog(taskType.getSingleTaskMessage("'" + pendingTaskKeys.get(0) + "'"), buttonText,
+							handler);
 				} else {
-					showLoadingDialog(taskType.getMultipleTaskMessage("" + pendingTaskKeys.size()));
+					showLoadingDialog(taskType.getMultipleTaskMessage("" + pendingTaskKeys.size()), buttonText,
+							handler);
 				}
 			}
 		}
@@ -2213,14 +2239,17 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		}
 	}
 
-	private void showLoadingDialog(String text, boolean autohide, boolean modal) {
+	private void showLoadingDialog(String text, boolean autohide, boolean modal, String buttonText,
+			ClickHandler clickHandler) {
 		if (loadingDialog == null) {
-			loadingDialog = new MyDialogBox(text, autohide, modal, getTimerOnClosingLoadingDialog());
+			loadingDialog = new MyDialogBox(text, autohide, modal, getTimerOnClosingLoadingDialog(), buttonText);
 		} else {
 			loadingDialog.setText(text);
 			loadingDialog.setAutoHideEnabled(autohide);
 			loadingDialog.setModal(modal);
+			loadingDialog.setButtonText(buttonText);
 		}
+		loadingDialog.addClickHandler(clickHandler);
 		loadingDialog.center();
 
 	}
@@ -2230,8 +2259,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	 *
 	 * @param text
 	 */
-	private void showLoadingDialog(String text) {
-		showLoadingDialog(text, true, false);
+	private void showLoadingDialog(String text, String buttonText, ClickHandler handler) {
+		showLoadingDialog(text, true, false, buttonText, handler);
 	}
 
 	private void hiddeLoadingDialog() {

@@ -1,7 +1,9 @@
 package edu.scripps.yates.client.gui.components;
 
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
@@ -15,6 +17,7 @@ public class MyDialogBox extends DialogBox {
 	private final Image loadingBar;
 	private final VerticalPanel panel;
 	private Timer timerTaskOnCloseDialog;
+	private Button button;
 
 	/**
 	 * By default is showing the loader bar
@@ -37,7 +40,7 @@ public class MyDialogBox extends DialogBox {
 	 * @return
 	 */
 	public MyDialogBox(String text, boolean autoHide, boolean modal, Timer timerTaskOnCloseDialog) {
-		this(text, autoHide, modal, true, timerTaskOnCloseDialog);
+		this(text, autoHide, modal, true, timerTaskOnCloseDialog, null);
 	}
 
 	/**
@@ -54,6 +57,43 @@ public class MyDialogBox extends DialogBox {
 	}
 
 	/**
+	 * By default is showing the loader bar
+	 *
+	 * @param text
+	 * @param autoHide
+	 * @param modal
+	 * @return
+	 */
+	public MyDialogBox(String text, boolean autoHide, boolean modal, String textButton) {
+		this(text, autoHide, modal, true, null, textButton);
+	}
+
+	/**
+	 * By default is showing the loader bar
+	 *
+	 * @param text
+	 * @param autoHide
+	 * @param modal
+	 * @return
+	 */
+	public MyDialogBox(String text, boolean autoHide, boolean modal, Timer timerTaskOnCloseDialog, String textButton) {
+		this(text, autoHide, modal, true, timerTaskOnCloseDialog, textButton);
+	}
+
+	/**
+	 * This constructor can also specify whether to show the loader bar or not
+	 *
+	 * @param text
+	 * @param autoHide
+	 * @param modal
+	 * @param showLoaderBar
+	 * @return
+	 */
+	public MyDialogBox(String text, boolean autoHide, boolean modal, boolean showLoaderBar, String textButton) {
+		this(text, autoHide, modal, showLoaderBar, null, textButton);
+	}
+
+	/**
 	 * This constructor can also specify whether to show the loader bar or not
 	 *
 	 * @param text
@@ -63,7 +103,7 @@ public class MyDialogBox extends DialogBox {
 	 * @return
 	 */
 	public MyDialogBox(String text, boolean autoHide, boolean modal, boolean showLoaderBar,
-			Timer timerTaskOnCloseDialog) {
+			Timer timerTaskOnCloseDialog, String buttonText) {
 
 		super(autoHide, modal);
 		this.timerTaskOnCloseDialog = timerTaskOnCloseDialog;
@@ -94,6 +134,14 @@ public class MyDialogBox extends DialogBox {
 		inlineHTML = new InlineHTML(text);
 		inlineHTML.setWidth("100%");
 		panel.add(inlineHTML);
+		if (buttonText != null && !"".equals(buttonText)) {
+			button = new Button(buttonText);
+			panel.add(button);
+		} else {
+			button = new Button("not defined");
+			button.setVisible(false);
+			panel.add(button);
+		}
 		loadingBar = new Image(myClientBundle.horizontalLoader());
 		if (showLoaderBar) {
 			panel.add(loadingBar);
@@ -101,6 +149,15 @@ public class MyDialogBox extends DialogBox {
 		// panel.add(ok);
 		//
 		setWidget(panel);
+	}
+
+	public void addClickHandler(ClickHandler handler) {
+		if (button == null) {
+			throw new IllegalArgumentException("Button is null. Create this object with a name for the button");
+		}
+		if (handler != null) {
+			button.addClickHandler(handler);
+		}
 	}
 
 	@Override
@@ -118,6 +175,7 @@ public class MyDialogBox extends DialogBox {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see com.google.gwt.user.client.ui.DialogBox#hide(boolean)
 	 */
 	@Override
@@ -134,6 +192,15 @@ public class MyDialogBox extends DialogBox {
 	 */
 	public void setTimerTaskOnCloseDialog(Timer timerTaskOnCloseDialog) {
 		this.timerTaskOnCloseDialog = timerTaskOnCloseDialog;
+	}
+
+	public void setButtonText(String buttonText) {
+		if (buttonText != null && !"".equals(buttonText)) {
+			this.button.setText(buttonText);
+			this.button.setVisible(true);
+		} else {
+			this.button.setVisible(false);
+		}
 	}
 
 }

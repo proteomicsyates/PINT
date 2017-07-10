@@ -53,9 +53,10 @@ public class ProjectStatsManager {
 		BufferedReader br = null;
 		try {
 			FileInputStream fis = new FileInputStream(file);
-			fileLock = fis.getChannel().lock(0L, Long.MAX_VALUE, true);
 			log.info("Trying to get the lock from Thread " + Thread.currentThread().getId() + " from method "
 					+ methodsByThread.get(Thread.currentThread()).getName());
+
+			fileLock = fis.getChannel().lock(0L, Long.MAX_VALUE, true);
 
 			log.info("Lock acquired from Thread " + Thread.currentThread().getId() + " from method "
 					+ methodsByThread.get(Thread.currentThread()).getName());

@@ -26,7 +26,8 @@ public class DataSetsManager {
 	}
 
 	/**
-	 * Clears the content of a dataset in the static map of datasets
+	 * Clears the content of a dataset in the static map of datasets and sends a
+	 * interrupt signal to the thread that is working on that dataset
 	 * 
 	 * @param sessionID
 	 */

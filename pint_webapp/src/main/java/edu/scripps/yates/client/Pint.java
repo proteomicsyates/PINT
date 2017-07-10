@@ -84,7 +84,7 @@ public class Pint implements EntryPoint {
 
 	public void startupConfiguration(final boolean forceToShowPanel) {
 
-		showLoadingDialog("Configuring PINT. Please wait...");
+		showLoadingDialog("Configuring PINT. Please wait...", null);
 		ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
 
 		service.getPintConfigurationProperties(new AsyncCallback<PintConfigurationProperties>() {
@@ -116,11 +116,14 @@ public class Pint implements EntryPoint {
 		configurationPanel.center();
 	}
 
-	private void showLoadingDialog(String text) {
+	private void showLoadingDialog(String text, String buttonText) {
 		if (loadingDialog == null) {
-			loadingDialog = new MyDialogBox(text, true, true, null);
+			loadingDialog = new MyDialogBox(text, true, true, null, buttonText);
 		}
 		loadingDialog.setText(text);
+		if (buttonText != null && !"".equals(buttonText)) {
+			loadingDialog.setButtonText(buttonText);
+		}
 		loadingDialog.center();
 	}
 
@@ -174,7 +177,8 @@ public class Pint implements EntryPoint {
 			}
 			if (decodedProjectTag == null) {
 				final MyDialogBox instance = new MyDialogBox(
-						"PINT doesn't recognize the encrypted code as a valid project identifier", true, true, null);
+						"PINT doesn't recognize the encrypted code as a valid project identifier", true, true, null,
+						null);
 				instance.setShowLoadingBar(false);
 				instance.center();
 				return;
@@ -237,7 +241,7 @@ public class Pint implements EntryPoint {
 	}
 
 	private void login() {
-		showLoadingDialog("Initializing PINT...");
+		showLoadingDialog("Initializing PINT...", null);
 		ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 		String clientToken = ClientToken.getToken();
 

@@ -572,7 +572,7 @@ public class RemoteServicesTasks {
 		GetRandomProteinsAccessionsFromCensusChroFileTask task = new GetRandomProteinsAccessionsFromCensusChroFileTask(
 				censusChroFile, null);
 		// register task
-		ServerTaskRegister.registerTask(task);
+		ServerTaskRegister.getInstance().registerTask(task);
 
 		try {
 			List<String> parsedAccs = new ArrayList<String>();
@@ -615,7 +615,7 @@ public class RemoteServicesTasks {
 			log.info("returning " + ret.size() + " protein accessions from census chro file");
 			return ret;
 		} finally {
-			ServerTaskRegister.endTask(task);
+			ServerTaskRegister.getInstance().endTask(task);
 		}
 	}
 
@@ -653,7 +653,7 @@ public class RemoteServicesTasks {
 		GetRandomProteinsAccessionsFromCensusOutFileTask task = new GetRandomProteinsAccessionsFromCensusOutFileTask(
 				censusOutFile, null);
 		// register task
-		ServerTaskRegister.registerTask(task);
+		ServerTaskRegister.getInstance().registerTask(task);
 
 		try {
 			List<String> parsedAccs = new ArrayList<String>();
@@ -696,7 +696,7 @@ public class RemoteServicesTasks {
 			log.info("returning " + ret.size() + " protein accessions from census chro file");
 			return ret;
 		} finally {
-			ServerTaskRegister.endTask(task);
+			ServerTaskRegister.getInstance().endTask(task);
 		}
 	}
 
@@ -771,7 +771,7 @@ public class RemoteServicesTasks {
 		GetRandomProteinsAccessionsFromCensusChroFileTask task = new GetRandomProteinsAccessionsFromCensusChroFileTask(
 				dtaSelectFilterFile, null);
 		// register task
-		ServerTaskRegister.registerTask(task);
+		ServerTaskRegister.getInstance().registerTask(task);
 		try {
 			List<String> parsedAccs = new ArrayList<String>();
 			if (numRandomValues == 0)
@@ -805,7 +805,7 @@ public class RemoteServicesTasks {
 			log.info("returning " + ret.size() + " protein accessions from DTASelect-filter file");
 			return ret;
 		} finally {
-			ServerTaskRegister.endTask(task);
+			ServerTaskRegister.getInstance().endTask(task);
 		}
 	}
 
