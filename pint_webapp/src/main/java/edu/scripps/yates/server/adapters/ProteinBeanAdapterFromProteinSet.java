@@ -84,6 +84,9 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// map.put(primaryAcc, ret);
 		// }
 		for (QueriableProteinSet queriableProtein : queriableProteins) {
+			if (Thread.currentThread().isInterrupted()) {
+				throw new PintRuntimeException(PINT_ERROR_TYPE.THREAD_INTERRUPTED);
+			}
 
 			addProteinInformationToProteinBean(ret, queriableProtein, hiddenPTMs);
 
