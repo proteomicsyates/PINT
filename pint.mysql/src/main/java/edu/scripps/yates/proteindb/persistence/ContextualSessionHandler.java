@@ -234,6 +234,23 @@ public class ContextualSessionHandler {
 	}
 
 	/**
+	 * Function like select * from clazz
+	 *
+	 * @param <T>
+	 *
+	 * @param clazz
+	 * @return the list of objects of the class = clazz
+	 */
+	public static <T> ScrollableResults retrieveIterator(Class<?> clazz) {
+		Criteria criteria = getCurrentSession().createCriteria(clazz).setReadOnly(false);
+
+		@SuppressWarnings("unchecked")
+		ScrollableResults result = criteria.scroll(ScrollMode.FORWARD_ONLY);
+
+		return result;
+	}
+
+	/**
 	 * Function like "select * from clazz where col1 == val1 and col2 == val2"
 	 * col1 is a <M1> type column and col2 is a <M2> type column
 	 *
