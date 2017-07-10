@@ -264,6 +264,11 @@ public class ReactomePanel extends ResizeLayoutPanel
 								"Reactome analysis received with " + result.getPathwaysFound() + " pathways found.");
 
 					}
+
+					@Override
+					public void onAnalysisError(Throwable exception) {
+						reactomeSubmitButton.setEnabled(true);
+					}
 				});
 
 	}

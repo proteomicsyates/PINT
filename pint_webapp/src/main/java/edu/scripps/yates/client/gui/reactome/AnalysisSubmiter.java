@@ -140,6 +140,7 @@ public class AnalysisSubmiter {
 
 				@Override
 				public void onError(Request request, Throwable exception) {
+					handler.onAnalysisError(exception);
 					StatusReportersRegister.getInstance().notifyStatusReporters(exception);
 
 				}
