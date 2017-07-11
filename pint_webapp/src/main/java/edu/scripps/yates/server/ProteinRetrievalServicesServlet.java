@@ -1411,12 +1411,11 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public String login(String clientToken, String userName, String password) throws PintException {
-		String clientIP = getThreadLocalRequest().getRemoteAddr();
+		String clientIP = HttpUtils.remoteAddr(getThreadLocalRequest());
 		// TODO validate login
 		validateLogin(userName, password);
 		final String id = UUID.randomUUID().toString() + clientIP;
 		log.info("NEW SESSION ID:" + id);
-
 		sendTrackingEmail(clientIP, "New session detected from IP: " + clientIP);
 
 		// create db session
