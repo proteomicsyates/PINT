@@ -178,6 +178,7 @@ public class OmimRetriever {
 			conn = (HttpURLConnection) url.openConnection();
 			HttpURLConnection.setFollowRedirects(true);
 			conn.setDoInput(true);
+			conn.setConnectTimeout(10000);// wait for 10s
 			conn.connect();
 
 			int status = conn.getResponseCode();

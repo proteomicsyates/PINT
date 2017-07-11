@@ -178,6 +178,7 @@ public class UniprotProteinRemoteRetriever {
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 				HttpURLConnection.setFollowRedirects(true);
 				conn.setDoInput(true);
+				conn.setConnectTimeout(10000);// wait for 10s
 				conn.connect();
 
 				int status = conn.getResponseCode();
@@ -193,6 +194,7 @@ public class UniprotProteinRemoteRetriever {
 					Thread.sleep(wait * 1000);
 					conn = (HttpURLConnection) new URL(location).openConnection();
 					conn.setDoInput(true);
+					conn.setConnectTimeout(10000);// wait for 10s
 					conn.connect();
 					status = conn.getResponseCode();
 				}
