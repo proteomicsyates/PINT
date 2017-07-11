@@ -776,7 +776,7 @@ public class UniprotProteinRemoteRetriever {
 		final String currentUniprotRemoteVersion = getCurrentUniprotRemoteVersion();
 		if (currentUniprotRemoteVersion.equals(uniprotVersion)) {
 			log.debug("Current uniprot release matches with the provided: " + uniprotVersion);
-			log.info("Attemping to retrieve " + accessions.size() + " accessions");
+			log.debug("Attemping to retrieve " + accessions.size() + " accessions");
 			long t1 = System.currentTimeMillis();
 			final Uniprot proteins = getProteins(accessions, uniprotVersion, uniprotLocalIndex);
 
