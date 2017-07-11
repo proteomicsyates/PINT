@@ -114,7 +114,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 									}
 								}
 								if (primaryAccs.isEmpty()) {
-									log.info("Protein with ID: " + protein.getId() + " has no primary IDs");
+									log.debug("Protein with ID: " + protein.getId() + " has no primary IDs");
 									if (!proteinAccessions.isEmpty()) {
 										ProteinAccession acc = proteinAccessions.iterator().next();
 										log.info("Setting primary ID to " + acc.getAccession());
@@ -162,7 +162,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 										}
 									} else {
 										if (primaryUniprotAccs.size() > 1) {
-											log.info("there is more than one uniprot acc as primary.");
+											log.debug("there is more than one uniprot acc as primary.");
 											final Map<String, Entry> annotatedProteins = ulr.getAnnotatedProteins(null,
 													uniprotACCs);
 											ProteinAccession goodAcc = null;
@@ -195,14 +195,14 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 													for (ProteinAccession proteinAccession : primaryUniprotAccs) {
 														tmp += proteinAccession.getAccession() + ",";
 													}
-													log.info("Protein with more than one valid uniprot primary acc: "
+													log.debug("Protein with more than one valid uniprot primary acc: "
 															+ tmp);
 
 												}
 											} else {
-												log.info("Protein with obsolete accession but not valid found");
+												log.debug("Protein with obsolete accession but not valid found");
 												for (ProteinAccession proteinAccession : primaryUniprotAccs) {
-													log.info(proteinAccession.getAccession());
+													log.debug(proteinAccession.getAccession());
 												}
 
 											}
