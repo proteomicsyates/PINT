@@ -91,7 +91,7 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 				}
 				if (projectsToLoad.contains(projectBean.getTag())) {
 					try {
-						ContextualSessionHandler.openSession();
+						session = ContextualSessionHandler.openSession();
 						session.beginTransaction();
 						long t1 = System.currentTimeMillis();
 						log.info("Pre loading project: " + projectBean.getTag());
