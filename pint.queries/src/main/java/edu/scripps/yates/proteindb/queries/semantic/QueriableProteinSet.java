@@ -3,6 +3,7 @@ package edu.scripps.yates.proteindb.queries.semantic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class QueriableProteinSet {
 	/**
 	 * Proteins that share the same primary accession
 	 */
-	private final Set<Protein> proteins = new THashSet<Protein>();
+	private final List<Protein> proteins = new ArrayList<Protein>();
 	private final String primaryAcc;
 	private ProteinAccession primaryProteinAcc;
 	private Set<Protein> individualProteins;
@@ -87,7 +88,7 @@ public class QueriableProteinSet {
 	 *
 	 * @return
 	 */
-	public Set<Protein> getAllProteins() {
+	public List<Protein> getAllProteins() {
 		return proteins;
 	}
 
@@ -102,7 +103,7 @@ public class QueriableProteinSet {
 	public Set<Protein> getIndividualProteins() {
 		if (individualProteins == null) {
 			individualProteins = new THashSet<Protein>();
-			final Set<Protein> allProteins = getAllProteins();
+			final List<Protein> allProteins = getAllProteins();
 			for (Protein protein : allProteins) {
 				if (!protein.getPsms().isEmpty()) {
 					individualProteins.add(protein);
@@ -287,7 +288,7 @@ public class QueriableProteinSet {
 	 */
 
 	public Set<Condition> getConditions() {
-		Set<Condition> ret = new THashSet<Condition>();
+		Set<Condition> ret = new HashSet<Condition>();
 		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getConditions());
 		}
@@ -372,7 +373,8 @@ public class QueriableProteinSet {
 			final Set<ProteinThreshold> proteinThresholds = protein.getProteinThresholds();
 			for (ProteinThreshold proteinThreshold : proteinThresholds) {
 				if (!ContextualSessionHandler.getCurrentSession().contains(proteinThreshold)) {
-					proteinThreshold = (ProteinThreshold) ContextualSessionHandler.getCurrentSession().merge(proteinThreshold);
+					proteinThreshold = (ProteinThreshold) ContextualSessionHandler.getCurrentSession()
+							.merge(proteinThreshold);
 				}
 				ret.add(proteinThreshold);
 			}
