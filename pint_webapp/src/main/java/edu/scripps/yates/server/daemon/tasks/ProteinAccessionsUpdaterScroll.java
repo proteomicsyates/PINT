@@ -241,7 +241,8 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 						+ this.getClass().getSimpleName());
 				log.info("Committing transaction...");
 				ContextualSessionHandler.finishGoodTransaction();
-				ContextualSessionHandler.getCurrentSession().beginTransaction();
+				ContextualSessionHandler.flush();
+				ContextualSessionHandler.beginGoodTransaction();
 				proteins = ContextualSessionHandler
 						.retrieveIterator(edu.scripps.yates.proteindb.persistence.mysql.Protein.class);
 				log.info("Scroll adquired for proteins in the DB");
@@ -250,9 +251,9 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			ContextualSessionHandler.getCurrentSession().getTransaction().rollback();
+			ContextualSessionHandler.rollbackTransaction();
 		} finally {
-			ContextualSessionHandler.getCurrentSession().close();
+			ContextualSessionHandler.closeSession();
 		}
 	}
 
