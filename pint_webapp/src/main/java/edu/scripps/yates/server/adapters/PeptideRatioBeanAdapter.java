@@ -10,18 +10,25 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class PeptideRatioBeanAdapter implements Adapter<RatioBean> {
 	private final PeptideRatioValue peptideRatioValue;
-	private final static TIntObjectHashMap<RatioBean> map = new TIntObjectHashMap<RatioBean>();
+	private final static ThreadLocal<TIntObjectHashMap<RatioBean>> map = new ThreadLocal<TIntObjectHashMap<RatioBean>>();
 
 	public PeptideRatioBeanAdapter(PeptideRatioValue peptideRatioValue) {
 		this.peptideRatioValue = peptideRatioValue;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new TIntObjectHashMap<RatioBean>());
+		}
 	}
 
 	@Override
 	public RatioBean adapt() {
-		if (map.containsKey(peptideRatioValue.getId()))
-			return map.get(peptideRatioValue.getId());
+		if (map.get().containsKey(peptideRatioValue.getId()))
+			return map.get().get(peptideRatioValue.getId());
 		RatioBean ret = new RatioBean();
-		map.put(peptideRatioValue.getId(), ret);
+		map.get().put(peptideRatioValue.getId(), ret);
 		if (peptideRatioValue.getConfidenceScoreValue() != null) {
 			ret.setAssociatedConfidenceScore(
 					new ScoreBeanAdapter(String.valueOf(peptideRatioValue.getConfidenceScoreValue()),
@@ -39,5 +46,11 @@ public class PeptideRatioBeanAdapter implements Adapter<RatioBean> {
 				SharedAggregationLevel.PEPTIDE).adapt();
 		ret.setRatioDescriptorBean(ratioDescriptorBean);
 		return ret;
+	}
+
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
 	}
 }

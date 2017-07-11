@@ -7,18 +7,25 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class PTMSiteBeanAdapter implements Adapter<PTMSiteBean> {
 	private final PtmSite ptmSite;
-	private final static TIntObjectHashMap<PTMSiteBean> map = new TIntObjectHashMap<PTMSiteBean>();
+	private final static ThreadLocal<TIntObjectHashMap<PTMSiteBean>> map = new ThreadLocal<TIntObjectHashMap<PTMSiteBean>>();
 
 	public PTMSiteBeanAdapter(PtmSite ptmSite) {
 		this.ptmSite = ptmSite;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new TIntObjectHashMap<PTMSiteBean>());
+		}
 	}
 
 	@Override
 	public PTMSiteBean adapt() {
-		if (map.containsKey(ptmSite.getId()))
-			return map.get(ptmSite.getId());
+		if (map.get().containsKey(ptmSite.getId()))
+			return map.get().get(ptmSite.getId());
 		PTMSiteBean ret = new PTMSiteBean();
-		map.put(ptmSite.getId(), ret);
+		map.get().put(ptmSite.getId(), ret);
 		ret.setAa(ptmSite.getAa());
 		ret.setPosition(ptmSite.getPosition());
 		if (ptmSite.getConfidenceScoreValue() != null)
@@ -27,4 +34,9 @@ public class PTMSiteBeanAdapter implements Adapter<PTMSiteBean> {
 		return ret;
 	}
 
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
+	}
 }

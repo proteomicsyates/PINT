@@ -9,21 +9,33 @@ import gnu.trove.map.hash.THashMap;
 
 public class OrganismBeanAdapter implements Adapter<OrganismBean> {
 	private final Organism organism;
-	private final static Map<String, OrganismBean> map = new THashMap<String, OrganismBean>();
+	private final static ThreadLocal<Map<String, OrganismBean>> map = new ThreadLocal<Map<String, OrganismBean>>();
 
 	public OrganismBeanAdapter(Organism organism) {
 		this.organism = organism;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new THashMap<String, OrganismBean>());
+		}
 	}
 
 	@Override
 	public OrganismBean adapt() {
-		if (map.containsKey(organism.getTaxonomyId()))
-			map.get(organism.getTaxonomyId());
+		if (map.get().containsKey(organism.getTaxonomyId()))
+			map.get().get(organism.getTaxonomyId());
 		OrganismBean ret = new OrganismBean();
 		ret.setName(organism.getName());
 		ret.setNcbiTaxID(organism.getTaxonomyId());
-		map.put(organism.getTaxonomyId(), ret);
+		map.get().put(organism.getTaxonomyId(), ret);
 		return ret;
 	}
 
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
+	}
 }

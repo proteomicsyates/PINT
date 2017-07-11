@@ -7,18 +7,25 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class MSRunBeanAdapter implements Adapter<MSRunBean> {
 	private final MsRun msRun;
-	private final static TIntObjectHashMap<MSRunBean> map = new TIntObjectHashMap<MSRunBean>();
+	private final static ThreadLocal<TIntObjectHashMap<MSRunBean>> map = new ThreadLocal<TIntObjectHashMap<MSRunBean>>();
 
 	public MSRunBeanAdapter(MsRun msRun) {
 		this.msRun = msRun;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new TIntObjectHashMap<MSRunBean>());
+		}
 	}
 
 	@Override
 	public MSRunBean adapt() {
-		if (map.containsKey(msRun.getId()))
-			return map.get(msRun.getId());
+		if (map.get().containsKey(msRun.getId()))
+			return map.get().get(msRun.getId());
 		MSRunBean ret = new MSRunBean();
-		map.put(msRun.getId(), ret);
+		map.get().put(msRun.getId(), ret);
 		ret.setDate(msRun.getDate());
 		ret.setPath(msRun.getPath());
 		ret.setRunID(msRun.getRunId());
@@ -27,4 +34,9 @@ public class MSRunBeanAdapter implements Adapter<MSRunBean> {
 		return ret;
 	}
 
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
+	}
 }

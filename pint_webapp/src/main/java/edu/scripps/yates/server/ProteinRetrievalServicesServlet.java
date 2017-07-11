@@ -45,10 +45,24 @@ import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueryBinaryTree;
 import edu.scripps.yates.proteindb.queries.semantic.QueryInterface;
 import edu.scripps.yates.proteindb.queries.semantic.QueryResult;
+import edu.scripps.yates.server.adapters.AccessionBeanAdapter;
 import edu.scripps.yates.server.adapters.AlignmentResultAdapter;
+import edu.scripps.yates.server.adapters.AmountBeanAdapter;
+import edu.scripps.yates.server.adapters.ConditionBeanAdapter;
+import edu.scripps.yates.server.adapters.LabelBeanAdapter;
+import edu.scripps.yates.server.adapters.MSRunBeanAdapter;
 import edu.scripps.yates.server.adapters.OrganismBeanAdapter;
 import edu.scripps.yates.server.adapters.PSMBeanAdapter;
+import edu.scripps.yates.server.adapters.PSMRatioBeanAdapter;
+import edu.scripps.yates.server.adapters.PTMBeanAdapter;
+import edu.scripps.yates.server.adapters.PTMSiteBeanAdapter;
+import edu.scripps.yates.server.adapters.PeptideRatioBeanAdapter;
 import edu.scripps.yates.server.adapters.ProjectBeanAdapter;
+import edu.scripps.yates.server.adapters.ProteinAnnotationBeanAdapter;
+import edu.scripps.yates.server.adapters.ProteinRatioBeanAdapter;
+import edu.scripps.yates.server.adapters.SampleBeanAdapter;
+import edu.scripps.yates.server.adapters.ThresholdBeanAdapter;
+import edu.scripps.yates.server.adapters.TissueBeanAdapter;
 import edu.scripps.yates.server.cache.ServerCacheGeneNameProteinProjectionsByProjectTag;
 import edu.scripps.yates.server.cache.ServerCacheOrganismBeansByProjectName;
 import edu.scripps.yates.server.cache.ServerCachePSMBeansByPSMDBId;
@@ -1014,7 +1028,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 				// clear static data by DB identifiers
 				log.info("Clearing static beans objects by DB Identifiers");
-				PSMBeanAdapter.clearStaticMaps();
+				clearThreadLocalStaticMaps();
 				ServerCacheProteinBeansByProteinDBId.getInstance().clearCache();
 				ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
 				// end clearing cache
@@ -1071,8 +1085,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 			} finally {
 				// clear static data by DB identifiers
-				log.info("Clearing static beans objects by DB Identifiers");
-				PSMBeanAdapter.clearStaticMaps();
+				clearThreadLocalStaticMaps();
 				ServerCacheProteinBeansByProteinDBId.getInstance().clearCache();
 				ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
 				// end clearing cache
@@ -1096,6 +1109,30 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			log.warn("Transaction rolled back");
 
 		}
+	}
+
+	private void clearThreadLocalStaticMaps() {
+		log.info("Clearing static beans objects by DB Identifiers");
+
+		AccessionBeanAdapter.clearStaticMap();
+		AmountBeanAdapter.clearStaticMap();
+		ConditionBeanAdapter.clearStaticMap();
+		LabelBeanAdapter.clearStaticMap();
+		MSRunBeanAdapter.clearStaticMap();
+		OrganismBeanAdapter.clearStaticMap();
+		PeptideRatioBeanAdapter.clearStaticMap();
+		ProjectBeanAdapter.clearStaticMap();
+		ProteinAnnotationBeanAdapter.clearStaticMap();
+		ProteinRatioBeanAdapter.clearStaticMap();
+		PSMBeanAdapter.clearStaticMap();
+		PSMRatioBeanAdapter.clearStaticMap();
+		PTMBeanAdapter.clearStaticMap();
+		PTMSiteBeanAdapter.clearStaticMap();
+		SampleBeanAdapter.clearStaticMap();
+		ThresholdBeanAdapter.clearStaticMap();
+		TissueBeanAdapter.clearStaticMap();
+		log.info("Static beans objects by DB Identifiers cleared");
+
 	}
 
 	public QueryResult getQueryResultFromQuery(QueryInterface expressionTree, Set<String> projectTags, boolean testMode)

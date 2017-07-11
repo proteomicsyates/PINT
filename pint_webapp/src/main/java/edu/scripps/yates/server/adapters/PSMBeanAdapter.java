@@ -3,7 +3,6 @@ package edu.scripps.yates.server.adapters;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
@@ -22,22 +21,31 @@ import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.util.SharedConstants;
 import gnu.trove.iterator.TIntIterator;
-import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class PSMBeanAdapter implements Adapter<PSMBean> {
-	private static Map<String, Integer> staticPsmIdentifierByRunID = new THashMap<String, Integer>();
+	private static ThreadLocal<TObjectIntHashMap<String>> staticPsmIdentifierByRunID = new ThreadLocal<TObjectIntHashMap<String>>();
 	private static int staticPsmIdentifier = 0;
 	private final QueriablePsm queriablePsm;
 	private final Collection<String> hiddenPTMs;
 
-	public static void clearStaticMaps() {
-		staticPsmIdentifierByRunID.clear();
+	public static void clearStaticMap() {
+		if (staticPsmIdentifierByRunID.get() != null) {
+			staticPsmIdentifierByRunID.get().clear();
+		}
 	}
 
 	public PSMBeanAdapter(QueriablePsm queriablePsm, Collection<String> hiddenPTMs) {
 		this.queriablePsm = queriablePsm;
 		this.hiddenPTMs = hiddenPTMs;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (staticPsmIdentifierByRunID.get() == null) {
+			staticPsmIdentifierByRunID.set(new TObjectIntHashMap<String>());
+		}
 	}
 
 	@Override
@@ -222,11 +230,11 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 	private static String getNextIdentifier(String runID) {
 		if (runID != null && !"".equals(runID)) {
 			Integer integer = 1;
-			if (staticPsmIdentifierByRunID.containsKey(runID)) {
-				integer = staticPsmIdentifierByRunID.get(runID) + 1;
+			if (staticPsmIdentifierByRunID.get().containsKey(runID)) {
+				integer = staticPsmIdentifierByRunID.get().get(runID) + 1;
 			}
-			staticPsmIdentifierByRunID.put(runID, integer);
-			return runID + "_" + staticPsmIdentifierByRunID.get(runID);
+			staticPsmIdentifierByRunID.get().put(runID, integer);
+			return runID + "_" + staticPsmIdentifierByRunID.get().get(runID);
 		}
 		return String.valueOf(++staticPsmIdentifier);
 	}

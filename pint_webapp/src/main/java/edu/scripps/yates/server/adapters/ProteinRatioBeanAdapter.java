@@ -10,18 +10,25 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ProteinRatioBeanAdapter implements Adapter<RatioBean> {
 	private final ProteinRatioValue proteinRatioValue;
-	private final static TIntObjectHashMap<RatioBean> map = new TIntObjectHashMap<RatioBean>();
+	private final static ThreadLocal<TIntObjectHashMap<RatioBean>> map = new ThreadLocal<TIntObjectHashMap<RatioBean>>();
 
 	public ProteinRatioBeanAdapter(ProteinRatioValue proteinRatioValue) {
 		this.proteinRatioValue = proteinRatioValue;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new TIntObjectHashMap<RatioBean>());
+		}
 	}
 
 	@Override
 	public RatioBean adapt() {
-		if (map.containsKey(proteinRatioValue.getId()))
-			return map.get(proteinRatioValue.getId());
+		if (map.get().containsKey(proteinRatioValue.getId()))
+			return map.get().get(proteinRatioValue.getId());
 		RatioBean ret = new RatioBean();
-		map.put(proteinRatioValue.getId(), ret);
+		map.get().put(proteinRatioValue.getId(), ret);
 		if (proteinRatioValue.getConfidenceScoreValue() != null) {
 			ret.setAssociatedConfidenceScore(
 					new ScoreBeanAdapter(String.valueOf(proteinRatioValue.getConfidenceScoreValue()),
@@ -41,4 +48,9 @@ public class ProteinRatioBeanAdapter implements Adapter<RatioBean> {
 		return ret;
 	}
 
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
+	}
 }

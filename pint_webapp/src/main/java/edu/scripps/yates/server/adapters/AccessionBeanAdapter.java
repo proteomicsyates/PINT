@@ -3,8 +3,6 @@ package edu.scripps.yates.server.adapters;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.log4j.Logger;
-
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAccessionAdapter;
@@ -15,22 +13,28 @@ import gnu.trove.map.hash.THashMap;
 
 public class AccessionBeanAdapter implements Adapter<AccessionBean> {
 	private final ProteinAccession proteinAccession;
-	private final static Map<String, AccessionBean> map = new THashMap<String, AccessionBean>();
-	private final static Logger log = Logger.getLogger(AccessionBeanAdapter.class);
+	private final static ThreadLocal<Map<String, AccessionBean>> map = new ThreadLocal<Map<String, AccessionBean>>();
 
 	public AccessionBeanAdapter(ProteinAccession proteinAccession) {
 		this.proteinAccession = proteinAccession;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new THashMap<String, AccessionBean>());
+		}
 	}
 
 	@Override
 	public AccessionBean adapt() {
-		if (map.containsKey(proteinAccession.getAccession())) {
+		if (map.get().containsKey(proteinAccession.getAccession())) {
 
-			AccessionBean ret = map.get(proteinAccession.getAccession());
+			AccessionBean ret = map.get().get(proteinAccession.getAccession());
 			return ret;
 		}
 		AccessionBean ret = new AccessionBean();
-		map.put(proteinAccession.getAccession(), ret);
+		map.get().put(proteinAccession.getAccession(), ret);
 		if (proteinAccession.getAlternativeNames() != null) {
 			if (proteinAccession.getAlternativeNames().contains(ProteinAccessionAdapter.SEPARATOR)) {
 				StringTokenizer tokenizer = new StringTokenizer(proteinAccession.getAlternativeNames(),
@@ -52,5 +56,11 @@ public class AccessionBeanAdapter implements Adapter<AccessionBean> {
 		final AccessionType accType = AccessionType.fromValue(proteinAccession.getAccessionType());
 		ret.setAccessionType(accType);
 		return ret;
+	}
+
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
 	}
 }

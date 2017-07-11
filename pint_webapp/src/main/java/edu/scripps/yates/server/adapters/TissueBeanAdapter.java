@@ -9,21 +9,33 @@ import gnu.trove.map.hash.THashMap;
 
 public class TissueBeanAdapter implements Adapter<TissueBean> {
 	private final Tissue tissue;
-	private final static Map<String, TissueBean> map = new THashMap<String, TissueBean>();
+	private final static ThreadLocal<Map<String, TissueBean>> map = new ThreadLocal<Map<String, TissueBean>>();
 
 	public TissueBeanAdapter(Tissue tissue) {
 		this.tissue = tissue;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new THashMap<String, TissueBean>());
+		}
 	}
 
 	@Override
 	public TissueBean adapt() {
-		if (map.containsKey(tissue.getTissueId()))
-			map.get(tissue.getTissueId());
+		if (map.get().containsKey(tissue.getTissueId()))
+			map.get().get(tissue.getTissueId());
 		TissueBean ret = new TissueBean();
 		ret.setDescription(tissue.getName());
 		ret.setTissueID(tissue.getTissueId());
-		map.put(tissue.getTissueId(), ret);
+		map.get().put(tissue.getTissueId(), ret);
 		return ret;
 	}
 
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
+	}
 }

@@ -11,20 +11,27 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 public class SampleBeanAdapter implements Adapter<SampleBean> {
 	private final Sample sample;
 	private final ProjectBean project;
-	private final static TIntObjectHashMap<SampleBean> map = new TIntObjectHashMap<SampleBean>();
+	private final static ThreadLocal<TIntObjectHashMap<SampleBean>> map = new ThreadLocal<TIntObjectHashMap<SampleBean>>();
 
 	public SampleBeanAdapter(Sample sample, ProjectBean project) {
 		this.sample = sample;
 		this.project = project;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new TIntObjectHashMap<SampleBean>());
+		}
 	}
 
 	@Override
 	public SampleBean adapt() {
-		if (map.containsKey(sample.getId())) {
-			return map.get(sample.getId());
+		if (map.get().containsKey(sample.getId())) {
+			return map.get().get(sample.getId());
 		}
 		SampleBean ret = new SampleBean();
-		map.put(sample.getId(), ret);
+		map.get().put(sample.getId(), ret);
 		ret.setDescription(sample.getDescription());
 		if (sample.getLabel() != null) {
 			ret.setLabel(new LabelBeanAdapter(sample.getLabel()).adapt());
@@ -52,4 +59,9 @@ public class SampleBeanAdapter implements Adapter<SampleBean> {
 		return ret;
 	}
 
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
+	}
 }

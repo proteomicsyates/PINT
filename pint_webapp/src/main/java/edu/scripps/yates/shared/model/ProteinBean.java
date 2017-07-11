@@ -436,6 +436,9 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	}
 
 	private void addtoMap(RatioBean ratioBean) {
+		if (ratioBean == null) {
+			return;
+		}
 		final ExperimentalConditionBean condition1 = ratioBean.getCondition1();
 		final ExperimentalConditionBean condition2 = ratioBean.getCondition2();
 		if (ratiosByExperimentalcondition.containsKey(condition1.getId())) {
@@ -520,6 +523,9 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	}
 
 	public void addProteinRatio(RatioBean proteinRatioBean) {
+		if (proteinRatioBean == null) {
+			return;
+		}
 		ratios.add(proteinRatioBean);
 		addtoMap(proteinRatioBean);
 	}

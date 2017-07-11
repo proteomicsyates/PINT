@@ -8,28 +8,36 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 public class ProteinAnnotationBeanAdapter implements Adapter<ProteinAnnotationBean> {
 	private final ProteinAnnotation proteinAnnotation;
 	private final edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation modelProteinAnnotation;
-	private final static TIntObjectHashMap<ProteinAnnotationBean> map = new TIntObjectHashMap<ProteinAnnotationBean>();
+	private final static ThreadLocal<TIntObjectHashMap<ProteinAnnotationBean>> map = new ThreadLocal<TIntObjectHashMap<ProteinAnnotationBean>>();
 
 	public ProteinAnnotationBeanAdapter(ProteinAnnotation proteinAnnotation) {
 		this.proteinAnnotation = proteinAnnotation;
 		modelProteinAnnotation = null;
+		initializeMap();
 	}
 
 	public ProteinAnnotationBeanAdapter(
 			edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation proteinAnnotation) {
 		modelProteinAnnotation = proteinAnnotation;
 		this.proteinAnnotation = null;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new TIntObjectHashMap<ProteinAnnotationBean>());
+		}
 	}
 
 	@Override
 	public ProteinAnnotationBean adapt() {
 		if (proteinAnnotation != null) {
-			if (proteinAnnotation.getId() != null && map.containsKey(proteinAnnotation.getId())) {
-				return map.get(proteinAnnotation.getId());
+			if (proteinAnnotation.getId() != null && map.get().containsKey(proteinAnnotation.getId())) {
+				return map.get().get(proteinAnnotation.getId());
 			}
 			ProteinAnnotationBean ret = new ProteinAnnotationBean();
 			if (proteinAnnotation.getId() != null) {
-				map.put(proteinAnnotation.getId(), ret);
+				map.get().put(proteinAnnotation.getId(), ret);
 			}
 			ret.setName(proteinAnnotation.getName());
 			ret.setSource(proteinAnnotation.getSource());
@@ -47,4 +55,9 @@ public class ProteinAnnotationBeanAdapter implements Adapter<ProteinAnnotationBe
 		}
 	}
 
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
+	}
 }

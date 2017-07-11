@@ -1,6 +1,8 @@
 package edu.scripps.yates.server.daemon.tasks;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -79,14 +81,15 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 		}
 
 		if (!projectsToLoad.isEmpty()) {
+			List<String> projectList = new ArrayList<String>();
+
 			for (ProjectBean projectBean : projectBeans) {
 				log.info("Project to preload: " + projectBean.getTag());
 			}
 			ProteinRetrievalServicesServlet proteinRetrieval = new ProteinRetrievalServicesServlet();
 			proteinRetrieval.setServletContext(servletContext);
 			for (ProjectBean projectBean : projectBeans) {
-				if (projectBean.isBig()) {
-					log.info("Project '" + projectBean.getTag() + "' skipped because is tagged as BIG");
+				if (ServerUtil.isTestServer() && !projectBean.getTag().equals("PCP PPI Cortex")) {
 					continue;
 				}
 				if (projectsToLoad.contains(projectBean.getTag())) {
