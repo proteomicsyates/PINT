@@ -75,6 +75,10 @@ public class OmimRetriever {
 		int numOmimIDs = 0;
 		TIntIterator omimIDIterator = omimIDs.iterator();
 		while (numOmimIDs < omimIDs.size()) {
+			if (Thread.currentThread().isInterrupted()) {
+				throw new RuntimeException("Thread interrupted.");
+			}
+
 			TIntHashSet queryIDs = new TIntHashSet();
 			for (int i = 0; i < MAX_NUM_ENTRIES_PER_QUERY; i++) {
 				if (omimIDIterator.hasNext()) {

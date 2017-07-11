@@ -188,6 +188,9 @@ public class UniprotProteinRetriever {
 		Map<String, Protein> ret = new THashMap<String, Protein>();
 		// log.info(entries.size() + " entries found");
 		for (Entry entry : entries) {
+			if (Thread.currentThread().isInterrupted()) {
+				throw new RuntimeException("Thread interrupted.");
+			}
 			Protein protein = new ProteinImplFromUniprotEntry(entry);
 			ret.put(protein.getPrimaryAccession().getAccession(), protein);
 			// index by all accessions

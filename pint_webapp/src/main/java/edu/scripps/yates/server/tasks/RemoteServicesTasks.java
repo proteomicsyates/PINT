@@ -199,6 +199,7 @@ public class RemoteServicesTasks {
 		int numSequences = 0;
 		final Iterator<ProteinBean> iterator = proteinBeans.iterator();
 		while (iterator.hasNext()) {
+			lookForInterruption();
 			ProteinBean proteinBean = iterator.next();
 			String accession = proteinBean.getPrimaryAccession().getAccession();
 			// if (accession.contains("-")) {
@@ -1193,10 +1194,7 @@ public class RemoteServicesTasks {
 			if (!"".equals(printIfNecessary)) {
 				log.info(printIfNecessary);
 			}
-			if (Thread.currentThread().isInterrupted()) {
-				log.info("This thread has been interrupted");
-				throw new PintRuntimeException(PINT_ERROR_TYPE.THREAD_INTERRUPTED);
-			}
+			lookForInterruption();
 			if (numProteins == SharedConstants.MAX_NUM_PROTEINS)// test purposes
 				break;
 
@@ -1316,6 +1314,8 @@ public class RemoteServicesTasks {
 
 	private static void cleanUpPeptidesFromSession(Collection<Peptide> peptides) {
 		for (Peptide peptide : peptides) {
+			lookForInterruption();
+
 			ContextualSessionHandler.getSessionFactory(null, null, null).getCache().evictEntity(Peptide.class,
 					peptide.getId());
 			ContextualSessionHandler.getCurrentSession().evict(peptide);
@@ -1331,6 +1331,8 @@ public class RemoteServicesTasks {
 		Session currentSession = ContextualSessionHandler.getCurrentSession();
 
 		for (Protein protein : proteins) {
+			lookForInterruption();
+
 			cache.evictEntity(Protein.class, protein.getId());
 			currentSession.evict(protein);
 		}
@@ -1342,8 +1344,18 @@ public class RemoteServicesTasks {
 		Session currentSession = ContextualSessionHandler.getCurrentSession();
 
 		for (Psm psm : psms) {
+			lookForInterruption();
+
 			cache.evictEntity(Psm.class, psm.getId());
 			currentSession.evict(psm);
+		}
+
+	}
+
+	private static void lookForInterruption() {
+		if (Thread.currentThread().isInterrupted()) {
+			log.info("This thread has been interrupted by other thread.");
+			throw new PintRuntimeException(PINT_ERROR_TYPE.THREAD_INTERRUPTED);
 		}
 
 	}
