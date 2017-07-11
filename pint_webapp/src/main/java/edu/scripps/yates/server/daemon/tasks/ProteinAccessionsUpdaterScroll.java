@@ -71,7 +71,7 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 					}
 					totalAccCounter++;
 					if (totalAccCounter % 100 == 0) {
-						log.info(totalAccCounter + " proteins analyzed with " + changeCounter + " changes in "
+						log.debug(totalAccCounter + " proteins analyzed with " + changeCounter + " changes in "
 								+ this.getClass().getSimpleName());
 					}
 					edu.scripps.yates.proteindb.persistence.mysql.Protein p = (Protein) proteins.get()[0];
@@ -122,6 +122,8 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 										ContextualSessionHandler.saveOrUpdate(acc);
 										changeCounter++;
 										log.info(acc.getAccession() + " set to primary ID");
+										log.info(totalAccCounter + " proteins analyzed with " + changeCounter
+												+ " changes in " + this.getClass().getSimpleName());
 									}
 								}
 								if (primaryAccs.size() > 1) {
@@ -149,7 +151,8 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 											log.info("Setting " + hasTrembl.getAccession() + " as not primary");
 											ContextualSessionHandler.saveOrUpdate(hasTrembl);
 											changeCounter++;
-
+											log.info(totalAccCounter + " proteins analyzed with " + changeCounter
+													+ " changes in " + this.getClass().getSimpleName());
 										}
 										if ((hasSwissProt || hasTrembl != null) && ipiAcc != null
 												&& ipiAcc.isIsPrimary()) {
@@ -158,7 +161,8 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 											log.info("Setting " + ipiAcc.getAccession() + " as not primary");
 											ContextualSessionHandler.saveOrUpdate(ipiAcc);
 											changeCounter++;
-
+											log.info(totalAccCounter + " proteins analyzed with " + changeCounter
+													+ " changes in " + this.getClass().getSimpleName());
 										}
 									} else {
 										if (primaryUniprotAccs.size() > 1) {
@@ -188,7 +192,9 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 																+ goodAcc.getAccession());
 														ContextualSessionHandler.saveOrUpdate(proteinAccession2);
 														changeCounter++;
-
+														log.info(totalAccCounter + " proteins analyzed with "
+																+ changeCounter + " changes in "
+																+ this.getClass().getSimpleName());
 													}
 												} else {
 													String tmp = "";
@@ -231,6 +237,8 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 					log.info("No more changes to make");
 					break;
 				}
+				log.info(totalAccCounter + " proteins analyzed with " + changeCounter + " changes in "
+						+ this.getClass().getSimpleName());
 				log.info("Committing transaction...");
 				ContextualSessionHandler.finishGoodTransaction();
 				ContextualSessionHandler.getCurrentSession().beginTransaction();
