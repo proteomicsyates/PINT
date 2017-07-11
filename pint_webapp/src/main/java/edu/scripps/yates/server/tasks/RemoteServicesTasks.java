@@ -1301,9 +1301,7 @@ public class RemoteServicesTasks {
 				log.info(MemoryUsageReport.getMemoryUsageReport());
 			}
 			// add to current dataset
-			if (sessionID != null) {
-				DataSetsManager.getDataSet(sessionID, null).addPeptide(peptideBeanAdapted);
-			}
+			DataSetsManager.getDataSet(sessionID, null).addPeptide(peptideBeanAdapted);
 			int currentPercentage = numPeptides * 100 / peptideMap.size();
 			if (currentPercentage != percentage) {
 				log.info(currentPercentage + "% (" + numPeptides + " / " + peptideMap.size()
