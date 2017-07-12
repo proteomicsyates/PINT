@@ -3,6 +3,8 @@ package edu.scripps.yates.client.gui.components.dataprovider;
 import java.util.Comparator;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.Range;
@@ -36,44 +38,46 @@ public class AsyncPSMBeanListFromPsmProvider extends AbstractAsyncDataProvider<P
 	protected void retrieveData(MyColumn<PSMBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
 			final Range range) {
 		GWT.log("Getting PSM beans sorted from provider");
-		Comparator<PSMBean> comparator = null;
-		if (column != null) {
-			comparator = column.getComparator();
-		}
-		boolean isAscending = false;
-		if (columnSortInfo != null) {
-			isAscending = columnSortInfo.isAscending();
-		}
-		service.getPsmBeansFromPsmProviderFromListSorted(sessionID, psmProvider, start, end, comparator, isAscending,
-				new AsyncCallback<PsmBeanSubList>() {
+		final Comparator<PSMBean> comparator = column != null ? column.getComparator() : null;
 
-					@Override
-					public void onSuccess(PsmBeanSubList result) {
-						try {
-							GWT.log("Result from getting PSM beans from provider");
-							if (result == null) {
-								updateRowCount(0, true);
-								setRange(null);
-								return;
+		final boolean isAscending = columnSortInfo != null ? columnSortInfo.isAscending() : false;
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+
+				service.getPsmBeansFromPsmProviderFromListSorted(sessionID, psmProvider, start, end,
+						column != null ? comparator : null, isAscending, new AsyncCallback<PsmBeanSubList>() {
+
+							@Override
+							public void onSuccess(PsmBeanSubList result) {
+								try {
+									GWT.log("Result from getting PSM beans from provider");
+									if (result == null) {
+										updateRowCount(0, true);
+										setRange(null);
+										return;
+									}
+									updateRowData(start, result.getDataList());
+									updateRowCount(result.getTotalNumber(), true);
+									setRange(range);
+								} finally {
+									retrievingDataFinished();
+								}
 							}
-							updateRowData(start, result.getDataList());
-							updateRowCount(result.getTotalNumber(), true);
-							setRange(range);
-						} finally {
-							retrievingDataFinished();
-						}
-					}
 
-					@Override
-					public void onFailure(Throwable caught) {
-						try {
-							updateRowCount(0, true);
-							setRange(null);
-							StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-						} finally {
-							retrievingDataFinished();
-						}
-					}
-				});
+							@Override
+							public void onFailure(Throwable caught) {
+								try {
+									updateRowCount(0, true);
+									setRange(null);
+									StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+								} finally {
+									retrievingDataFinished();
+								}
+							}
+						});
+			}
+		});
 	}
 }
