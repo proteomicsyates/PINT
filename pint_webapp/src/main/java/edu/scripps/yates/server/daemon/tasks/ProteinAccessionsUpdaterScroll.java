@@ -242,6 +242,8 @@ public class ProteinAccessionsUpdaterScroll extends PintServerDaemonTask {
 				log.info("Committing transaction...");
 				ContextualSessionHandler.finishGoodTransaction();
 				ContextualSessionHandler.flush();
+				ContextualSessionHandler.closeSession();
+				ContextualSessionHandler.openSession();
 				ContextualSessionHandler.beginGoodTransaction();
 				proteins = ContextualSessionHandler
 						.retrieveIterator(edu.scripps.yates.proteindb.persistence.mysql.Protein.class);
