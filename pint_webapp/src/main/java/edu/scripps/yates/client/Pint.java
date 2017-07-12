@@ -251,7 +251,7 @@ public class Pint implements EntryPoint {
 	}
 
 	private void login() {
-		showLoadingDialog("Initializing PINT...", null);
+
 		ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 		String clientToken = ClientToken.getToken();
 
@@ -275,7 +275,7 @@ public class Pint implements EntryPoint {
 				hiddeLoadingDialog();
 			}
 		});
-
+		showLoadingDialog("Initializing PINT...", null);
 	}
 
 	private void setUpHistory() {

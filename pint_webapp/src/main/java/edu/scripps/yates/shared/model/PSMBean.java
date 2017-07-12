@@ -1062,6 +1062,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -1110,6 +1111,9 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 
 	@Override
 	public void addRatioDistribution(RatioDistribution ratioDistribution) {
+		if (ratioDistribution == null) {
+			return;
+		}
 		final Map<String, RatioDistribution> ratioDistributions2 = getRatioDistributions();
 		if (!ratioDistributions2.containsKey(ratioDistribution.getRatioKey())) {
 			ratioDistributions.put(ratioDistribution.getRatioKey(), ratioDistribution);

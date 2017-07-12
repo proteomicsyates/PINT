@@ -328,7 +328,9 @@ public class DataSet {
 			final Set<RatioBean> ratios = ratioContainer.getRatios();
 			for (RatioBean ratioBean : ratios) {
 				final RatioDistribution ratioDistribution = ratioAnalyzer.getRatioDistribution(ratioBean);
-				ratioContainer.addRatioDistribution(ratioDistribution);
+				if (ratioDistribution != null) {
+					ratioContainer.addRatioDistribution(ratioDistribution);
+				}
 			}
 		}
 	}
