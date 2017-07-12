@@ -317,6 +317,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		for (int index = 0; index < speciesComboBox.getItemCount(); index++) {
 			if (speciesComboBox.getValue(index).equals(dataSpecies2.getScientificName())) {
 				speciesComboBox.setItemSelected(index, true);
+				requestFireworks(dataSpecies2, true);
 			} else {
 				speciesComboBox.setItemSelected(index, false);
 			}
