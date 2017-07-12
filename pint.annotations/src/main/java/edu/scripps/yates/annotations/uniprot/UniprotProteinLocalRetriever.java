@@ -550,7 +550,10 @@ public class UniprotProteinLocalRetriever {
 	}
 
 	private String getFirstEntryKeyFromCache() {
-		return entryKeys.get(0);
+		if (!entryKeys.isEmpty()) {
+			return entryKeys.get(0);
+		}
+		return null;
 	}
 
 	private void addEntryKeys(Entry entry) {
