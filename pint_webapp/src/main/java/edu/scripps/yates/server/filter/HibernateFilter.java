@@ -26,23 +26,22 @@ public class HibernateFilter implements Filter {
 			throws IOException, ServletException {
 
 		final long numCall = ++numRPCCalls;
-		log.info("Entering in the Hibernate filter in " + numCall + ". Num calls that are ongoing: " + numRPCCalls);
-
-		String errorMessage = null;
-
-		// /////
-		// log.info("Creating a new session from Hibernate filter");
-		// final Session session = ContextualSessionHandler.getSession();
-		// log.info("Session id: " + session.hashCode());
 		try {
-			ContextualSessionHandler.printStatistics();
-			ContextualSessionHandler.openSession();
-			ContextualSessionHandler.beginGoodTransaction();
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.error(e);
-		}
-		try {
+			log.info("Entering in the Hibernate filter in " + numCall + ". Num calls that are ongoing: " + numRPCCalls);
+
+			// /////
+			// log.info("Creating a new session from Hibernate filter");
+			// final Session session = ContextualSessionHandler.getSession();
+			// log.info("Session id: " + session.hashCode());
+			try {
+				ContextualSessionHandler.printStatistics();
+				ContextualSessionHandler.openSession();
+				ContextualSessionHandler.beginGoodTransaction();
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.error(e);
+			}
+
 			// pass the request along the filter chain
 			chain.doFilter(request, response);
 			// ContextualSessionHandler.finishGoodTransaction();
@@ -57,13 +56,10 @@ public class HibernateFilter implements Filter {
 			}
 		} finally {
 			numRPCCalls--;
-			if (errorMessage == null) {
-				log.info("Closing session from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
-						+ numRPCCalls);
-			} else {
-				log.warn("Closing session from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
-						+ numRPCCalls + " WITH ERROR: " + errorMessage);
-			}
+
+			log.warn("Closing session from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
+					+ numRPCCalls);
+
 			try {
 				// Close the Session
 				ContextualSessionHandler.closeSession();
