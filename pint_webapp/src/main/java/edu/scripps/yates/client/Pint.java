@@ -6,8 +6,6 @@ import java.util.logging.Logger;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.UmbrellaException;
@@ -74,21 +72,21 @@ public class Pint implements EntryPoint {
 				return e;
 			}
 		});
-		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-			@Override
-			public void execute() {
-				log.info("WELCOME TO PINT");
-				GWT.log("Module base URL is: " + GWT.getModuleBaseURL());
-				GWT.log("Host page base UTL is:  " + GWT.getHostPageBaseURL());
-				GWT.log("Module base for static files is:  " + GWT.getModuleBaseForStaticFiles());
-				GWT.log("Module name is:  " + GWT.getModuleName());
-				GWT.log("Version is:  " + GWT.getVersion());
-				GWT.log("Production mode: " + GWT.isProdMode());
+		// Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+		// @Override
+		// public void execute() {
+		log.info("WELCOME TO PINT");
+		GWT.log("Module base URL is: " + GWT.getModuleBaseURL());
+		GWT.log("Host page base UTL is:  " + GWT.getHostPageBaseURL());
+		GWT.log("Module base for static files is:  " + GWT.getModuleBaseForStaticFiles());
+		GWT.log("Module name is:  " + GWT.getModuleName());
+		GWT.log("Version is:  " + GWT.getVersion());
+		GWT.log("Production mode: " + GWT.isProdMode());
 
-				// login
-				login();
-			}
-		});
+		// login
+		login();
+		// }
+		// });
 
 	}
 
