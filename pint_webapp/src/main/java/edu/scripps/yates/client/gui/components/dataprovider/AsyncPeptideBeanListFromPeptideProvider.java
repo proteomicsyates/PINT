@@ -8,7 +8,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.Range;
 
 import edu.scripps.yates.client.gui.columns.MyColumn;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
 import edu.scripps.yates.shared.util.sublists.PeptideBeanSubList;

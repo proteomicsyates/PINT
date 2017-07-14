@@ -10,7 +10,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.Range;
 
 import edu.scripps.yates.client.gui.columns.MyColumn;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;

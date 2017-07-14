@@ -1,6 +1,6 @@
-package edu.scripps.yates.client.interfaces;
+package edu.scripps.yates.client.statusreporter;
 
-public interface StatusReporter {
+interface StatusReporter {
 
 	public void showMessage(String message);
 

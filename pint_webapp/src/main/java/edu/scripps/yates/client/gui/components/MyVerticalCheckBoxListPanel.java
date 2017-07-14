@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -21,6 +22,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 	private final List<CheckBox> listCheckBox = new ArrayList<CheckBox>();
 	private final Map<String, CheckBox> checkBoxByKeyName = new HashMap<String, CheckBox>();
 	private final Set<AbstractColumnManager<T>> columnManagers = new HashSet<AbstractColumnManager<T>>();
+	private final Map<ColumnName, String> checkBoxNameByColumn = new HashMap<ColumnName, String>();
 
 	public MyVerticalCheckBoxListPanel(AbstractColumnManager<T> columnManager) {
 		this.columnManagers.add(columnManager);
@@ -65,6 +67,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 		listCheckBox.add(checkBox);
 		// add to the map
 		checkBoxByKeyName.put(keyName, checkBox);
+		this.checkBoxNameByColumn.put(column, checkBoxName);
 		// add to the panel
 		add(checkBox);
 		return checkBox;
@@ -213,9 +216,14 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 	public void setDefaultView(List<ColumnWithVisibility> columnsWithVisibility) {
 		for (ColumnWithVisibility columnWithVisibility : columnsWithVisibility) {
 			final ColumnName column = columnWithVisibility.getColumn();
-			if (checkBoxByKeyName.containsKey(column)) {
+			String keyName = getKeyName(column, checkBoxNameByColumn.get(column));
+			if (checkBoxByKeyName.containsKey(keyName)) {
+				if (column == ColumnName.SEQUENCE_COUNT) {
+					GWT.log("Is visible: " + columnWithVisibility.isVisible());
+				}
+
 				final boolean visible = columnWithVisibility.isVisible();
-				checkBoxByKeyName.get(column).setValue(visible);
+				checkBoxByKeyName.get(keyName).setValue(visible);
 			}
 		}
 	}

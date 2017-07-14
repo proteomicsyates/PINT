@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 import edu.scripps.yates.client.ImportWizardService;
 import edu.scripps.yates.client.ImportWizardServiceAsync;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsObject;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExcelAmountRatioTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;

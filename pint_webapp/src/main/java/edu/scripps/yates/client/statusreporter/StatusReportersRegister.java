@@ -1,11 +1,9 @@
-package edu.scripps.yates.client.util;
+package edu.scripps.yates.client.statusreporter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.Widget;
-
-import edu.scripps.yates.client.interfaces.StatusReporter;
 
 /**
  * Register of objects implementing the {@link StatusReporter} interfaz. This
@@ -57,5 +55,9 @@ public class StatusReportersRegister {
 				statusReporter.showErrorMessage(throwable);
 			}
 		}
+	}
+
+	public void unregisterStatusReporter(StatusReporter statusReporter) {
+		statusReporters.remove(statusReporter);
 	}
 }

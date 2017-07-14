@@ -72,14 +72,13 @@ import edu.scripps.yates.client.gui.reactome.ReactomePanel;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
 import edu.scripps.yates.client.interfaces.ShowHiddePanel;
-import edu.scripps.yates.client.interfaces.StatusReporter;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.tasks.PendingTaskHandler;
 import edu.scripps.yates.client.tasks.PendingTasksManager;
 import edu.scripps.yates.client.tasks.TaskType;
 import edu.scripps.yates.client.util.ClientGUIUtil;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.client.util.ProjectsBeanSet;
-import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.PSMColumns;
@@ -104,7 +103,7 @@ import edu.scripps.yates.shared.util.sublists.ProteinGroupBeanSubList;
 import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;
 import edu.scripps.yates.shared.util.sublists.QueryResultSubLists;
 
-public class QueryPanel extends InitializableComposite implements ShowHiddePanel, StatusReporter, PendingTaskHandler {
+public class QueryPanel extends InitializableComposite implements ShowHiddePanel, PendingTaskHandler {
 	private static final double HEADER_HEIGHT = 25;
 	private final java.util.logging.Logger log = java.util.logging.Logger.getLogger("NameOfYourLogger");
 
@@ -219,8 +218,6 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		textAreaStatus.setVisibleLines(4);
 		textAreaStatus.setText("Starting data view...");
 		textAreaStatus.setReadOnly(true);
-
-		StatusReportersRegister.getInstance().registerNewStatusReporter(this);
 
 		SplitLayoutPanel splitLayoutPanel = new SplitLayoutPanel(7);
 		mainPanel.add(splitLayoutPanel);
@@ -2062,48 +2059,76 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	}
 
+	private void changeToDataTab(DefaultView defaultViews) {
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				// select default tab
+				final TAB defaultTab = defaultViews.getDefaultTab();
+				GWT.log("Changing tab to " + defaultTab.name());
+
+				switch (defaultTab) {
+				case PROTEIN:
+					selectDataTab(proteinTablePanel);
+					break;
+				case PROTEIN_GROUP:
+					selectDataTab(proteinGroupTablePanel);
+					break;
+				case PSM:
+					selectDataTab(psmOnlyTablePanel);
+					break;
+				case PEPTIDE:
+					selectDataTab(peptideTablePanel);
+					break;
+				default:
+					break;
+				}
+				GWT.log("Changing tab to " + defaultTab.name() + " END");
+			}
+		});
+
+	}
+
+	private void setDefaultViewInTables(DefaultView defaultViews) {
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				GWT.log("Setting default view in tables");
+
+				// tables
+				proteinGroupTablePanel.setDefaultView(defaultViews);
+				proteinTablePanel.setDefaultView(defaultViews);
+				psmTablePanel.setDefaultView(defaultViews);
+				psmOnlyTablePanel.setDefaultView(defaultViews);
+				peptideTablePanel.setDefaultView(defaultViews);
+			}
+		});
+	}
+
+	private void setDefaultViewInCheckBoxes(DefaultView defaultViews) {
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				GWT.log("Setting default view in checkboxes");
+				// checkboxes
+				psmColumnNamesPanel.setDefaultView(defaultViews.getPsmDefaultView());
+				peptideColumnNamesPanel.setDefaultView(defaultViews.getPeptideDefaultView());
+				proteinColumnNamesPanel.setDefaultView(defaultViews.getProteinDefaultView());
+				proteinGroupColumnNamesPanel.setDefaultView(defaultViews.getProteinGroupDefaultView());
+			}
+		});
+
+	}
+
 	private void applyDefaultViews(ProjectBean projectBean, DefaultView defaultViews, boolean modifyColumns,
 			boolean showWelcomeWindowBox, boolean changeToDataTab, boolean bigProject, boolean testMode) {
 
-		if (changeToDataTab) {
-			// select default tab
-			final TAB defaultTab = defaultViews.getDefaultTab();
-			GWT.log("Changing tab to " + defaultTab.name());
-
-			switch (defaultTab) {
-			case PROTEIN:
-				selectDataTab(proteinTablePanel);
-				break;
-			case PROTEIN_GROUP:
-				selectDataTab(proteinGroupTablePanel);
-				break;
-			case PSM:
-				selectDataTab(psmOnlyTablePanel);
-				break;
-			case PEPTIDE:
-				selectDataTab(peptideTablePanel);
-				break;
-			default:
-				break;
-			}
-			GWT.log("Changing tab to " + defaultTab.name() + " END");
-		}
 		if (modifyColumns) {
-			GWT.log("Setting default view in tables");
-
-			// tables
-			proteinGroupTablePanel.setDefaultView(defaultViews);
-			proteinTablePanel.setDefaultView(defaultViews);
-			psmTablePanel.setDefaultView(defaultViews);
-			psmOnlyTablePanel.setDefaultView(defaultViews);
-			peptideTablePanel.setDefaultView(defaultViews);
-
-			GWT.log("Setting default view in checkboxes");
-			// checkboxes
-			psmColumnNamesPanel.setDefaultView(defaultViews.getPsmDefaultView());
-			peptideColumnNamesPanel.setDefaultView(defaultViews.getPeptideDefaultView());
-			proteinColumnNamesPanel.setDefaultView(defaultViews.getProteinDefaultView());
-			proteinGroupColumnNamesPanel.setDefaultView(defaultViews.getProteinGroupDefaultView());
+			setDefaultViewInTables(defaultViews);
+			setDefaultViewInCheckBoxes(defaultViews);
 		}
 		// if (selectFirstRowAfterDefaultView) {
 		// GWT.log("Selecting First row in tables");
@@ -2129,22 +2154,34 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			// defaultViews
 			GWT.log("Showing Welcome frame for project '" + defaultViews.getProjectTag() + "'");
 
-			welcomeToProjectWindowBox = new WindowBox(true, true, true, true, false);
-			welcomeToProjectWindowBox.setAnimationEnabled(true);
-			welcomeToProjectWindowBox.setWidget(new MyWelcomeProjectPanel(projectBean, defaultViews, this, testMode));
-			welcomeToProjectWindowBox.setText("Project '" + defaultViews.getProjectTag() + "'");
-			DoSomethingTask<Void> doSomething = new DoSomethingTask<Void>() {
+			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
 				@Override
-				public Void doSomething() {
-					onTaskRemovedOrAdded();
-					return null;
+				public void execute() {
+					// TODO Auto-generated method stub
+
+					welcomeToProjectWindowBox = new WindowBox(true, true, true, true, false);
+					welcomeToProjectWindowBox.setAnimationEnabled(true);
+					welcomeToProjectWindowBox
+							.setWidget(new MyWelcomeProjectPanel(projectBean, defaultViews, QueryPanel.this, testMode));
+					welcomeToProjectWindowBox.setText("Project '" + defaultViews.getProjectTag() + "'");
+					DoSomethingTask<Void> doSomething = new DoSomethingTask<Void>() {
+						@Override
+						public Void doSomething() {
+							onTaskRemovedOrAdded();
+							return null;
+						}
+					};
+					// add loadingDialogShowerTask to close event
+					welcomeToProjectWindowBox.addCloseEventDoSomethingTask(doSomething);
+					welcomeToProjectWindowBox.setGlassEnabled(true);
+					welcomeToProjectWindowBox.center();
+					GWT.log("Showing welcome window for project END");
 				}
-			};
-			// add loadingDialogShowerTask to close event
-			welcomeToProjectWindowBox.addCloseEventDoSomethingTask(doSomething);
-			welcomeToProjectWindowBox.setGlassEnabled(true);
-			welcomeToProjectWindowBox.center();
-			GWT.log("Showing welcome window for project END");
+			});
+		}
+		if (changeToDataTab) {
+			changeToDataTab(defaultViews);
 		}
 		defaultViewsApplied = true;
 	}
@@ -2189,8 +2226,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							proteinRetrievingService.cancelQuery(sessionID, new AsyncCallback<Void>() {
 								@Override
 								public void onFailure(Throwable caught) {
-									showMessage("Error trying to cancel task");
-									showErrorMessage(caught);
+									StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+									updateStatus("Error trying to cancel task");
+									updateStatus(caught);
 									hiddeLoadingDialog();
 									PendingTasksManager.removeTask(TaskType.CANCELLING_REQUEST, stamp);
 								}
@@ -2201,7 +2239,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 										PendingTasksManager.removeTask(taskType, pendingTaskKey);
 									}
 									PendingTasksManager.removeTask(TaskType.CANCELLING_REQUEST, stamp);
-									showMessage("Task cancelled.");
+									updateStatus("Task cancelled.");
 									hiddeLoadingDialog();
 								}
 							});
@@ -2517,16 +2555,6 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// }
 		// });
 		super.onUnload();
-	}
-
-	@Override
-	public void showMessage(String message) {
-		updateStatus(message);
-	}
-
-	@Override
-	public void showErrorMessage(Throwable throwable) {
-		updateStatus("ERROR: " + throwable.getMessage());
 	}
 
 	@Override

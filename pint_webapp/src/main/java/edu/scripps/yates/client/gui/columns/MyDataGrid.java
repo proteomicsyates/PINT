@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -92,8 +94,14 @@ public class MyDataGrid<T> extends CellTable<T> {
 	 * Calls to redrawRow to the visible rows
 	 */
 	public void redrawVisibleItems() {
-		setForceToRefresh(true);
-		setVisibleRangeAndClearData(getVisibleRange(), true);
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				setForceToRefresh(true);
+				setVisibleRangeAndClearData(getVisibleRange(), true);
+			}
+		});
 
 		// final Range visibleRange = getVisibleRange();
 		// final int start = visibleRange.getStart();
@@ -146,18 +154,26 @@ public class MyDataGrid<T> extends CellTable<T> {
 		}
 
 		addColumnToMap(col);
-		Header<?> header = null;
-		if (col instanceof MyColumn) {
-			header = ((MyColumn) col).getHeader();
-		}
-		// set default width to column
-		final MyColumn myColumn = (MyColumn) col;
-		final String width = String.valueOf(myColumn.getDefaultWidth()) + Unit.PX;
-		setColumnWidth(col, width);
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
-		// get index
-		int index = getIndexForColumnInTable(myColumn, columnManager);
-		insertColumn(index, col, header);
+			@Override
+			public void execute() {
+				Header<?> header = null;
+				if (col instanceof MyColumn) {
+					header = ((MyColumn) col).getHeader();
+				}
+				// set default width to column
+				final MyColumn myColumn = (MyColumn) col;
+				final String width = String.valueOf(myColumn.getDefaultWidth()) + Unit.PX;
+				setColumnWidth(col, width);
+
+				// get index
+				int index = getIndexForColumnInTable(myColumn, columnManager);
+
+				insertColumn(index, col, header);
+			}
+		});
+
 	}
 
 	private int getIndexForColumnInTable(MyColumn myColumn, AbstractColumnManager<T> columnManager) {
@@ -281,13 +297,20 @@ public class MyDataGrid<T> extends CellTable<T> {
 	 */
 	@Override
 	public void removeColumn(Column<T, ?> col) {
-		if (col instanceof MyColumn) {
-			MyColumn<T> mycol = (MyColumn<T>) col;
-			columnMapByColumnName.remove(mycol.getColumnName());
-		}
-		if (containsColumn(col)) {
-			super.removeColumn(col);
-		}
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				if (col instanceof MyColumn) {
+					MyColumn<T> mycol = (MyColumn<T>) col;
+					columnMapByColumnName.remove(mycol.getColumnName());
+				}
+				if (containsColumn(col)) {
+					MyDataGrid.super.removeColumn(col);
+				}
+			}
+		});
+
 	}
 
 	/*
@@ -358,12 +381,19 @@ public class MyDataGrid<T> extends CellTable<T> {
 	}
 
 	public void pushColumnToColumnSortList(Column<T, ?> column, ORDER order) {
-		// push the column to be sorted
-		getColumnSortList().push(column);
-		// if descending, sort again
-		if (ORDER.DESCENDING.equals(order)) {
-			getColumnSortList().push(column);
-		}
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				// push the column to be sorted
+				getColumnSortList().push(column);
+				// if descending, sort again
+				if (ORDER.DESCENDING.equals(order)) {
+					getColumnSortList().push(column);
+				}
+			}
+		});
+
 	}
 
 	/**

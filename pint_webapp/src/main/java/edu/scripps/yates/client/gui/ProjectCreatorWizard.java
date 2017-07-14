@@ -15,8 +15,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
@@ -34,7 +32,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.ImportWizardServiceAsync;
 import edu.scripps.yates.client.ProjectSaverServiceAsync;
-import edu.scripps.yates.client.gui.components.MoleAnimation;
 import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.components.ScrolledTabLayoutPanel;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ExperimentalConditionEditorPanel;
@@ -57,8 +54,7 @@ import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.Refe
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.ContainsImportJobID;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
-import edu.scripps.yates.client.interfaces.StatusReporter;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.DataSourceBean;
@@ -95,7 +91,7 @@ import gwtupload.client.IUploader.ServerMessage;
 import gwtupload.client.IUploader.UploadedInfo;
 import gwtupload.client.SingleUploader;
 
-public class ProjectCreatorWizard extends InitializableComposite implements StatusReporter, ContainsImportJobID {
+public class ProjectCreatorWizard extends InitializableComposite implements ContainsImportJobID {
 	private final HorizontalPanel contentPanel;
 	private SingleUploader uploader;
 	private final ImportWizardServiceAsync importWizardService = ImportWizardServiceAsync.Util.getInstance();
@@ -126,8 +122,6 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 
 	public ProjectCreatorWizard(String sessionID) {
 		this.sessionID = sessionID;
-		// register as an statusReporter
-		StatusReportersRegister.getInstance().registerNewStatusReporter(this);
 
 		DockLayoutPanel mainPanel = new DockLayoutPanel(Unit.PX);
 		mainPanel.setHeight("1100px");
@@ -1293,33 +1287,30 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 		return conditionEditor;
 	}
 
-	@Override
-	public void showMessage(final String message) {
-		// showDialog(message, false);
-
-		final MoleAnimation animation = new MoleAnimation(statusFlowPanel.getElement());
-
-		animation.animateMole(0, 40, 10);
-
-		statusInLineHTML.setHTML(new SafeHtmlBuilder().appendEscapedLines(message).toSafeHtml());
-
-		Timer timer = new Timer() {
-
-			@Override
-			public void run() {
-				// if (statusLabel.getText().equals(message))
-				// statusLabel.setText("");
-				animation.animateMole(40, 0, 1000);
-
-			}
-		};
-		timer.schedule(1000 * 5);
-	}
-
-	@Override
-	public void showErrorMessage(Throwable throwable) {
-		showDialog("Error:\n" + throwable.getMessage(), false, true, false);
-	}
+	// @Override
+	// public void showMessage(final String message) {
+	// // showDialog(message, false);
+	//
+	// final MoleAnimation animation = new
+	// MoleAnimation(statusFlowPanel.getElement());
+	//
+	// animation.animateMole(0, 40, 10);
+	//
+	// statusInLineHTML.setHTML(new
+	// SafeHtmlBuilder().appendEscapedLines(message).toSafeHtml());
+	//
+	// Timer timer = new Timer() {
+	//
+	// @Override
+	// public void run() {
+	// // if (statusLabel.getText().equals(message))
+	// // statusLabel.setText("");
+	// animation.animateMole(40, 0, 1000);
+	//
+	// }
+	// };
+	// timer.schedule(1000 * 5);
+	// }
 
 	private ClickHandler getDataSubmissionClickHandler() {
 		ClickHandler clickHandler = new ClickHandler() {
@@ -1351,7 +1342,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 
 									@Override
 									public void onFailure(Throwable caught) {
-										showErrorMessage(caught);
+										StatusReportersRegister.getInstance().notifyStatusReporters(caught);
 									}
 
 									@Override
@@ -1431,7 +1422,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Stat
 
 	protected void errorSavingProject(Throwable caught) {
 		// hiddeDialog();
-		showErrorMessage(caught);
+		StatusReportersRegister.getInstance().notifyStatusReporters(caught);
 		// set upload server disabled
 		projectConfigurationPanel.uploadButtonEnabled(false);
 		// enable download of the file

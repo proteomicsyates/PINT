@@ -11,7 +11,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import edu.scripps.yates.client.gui.columns.footers.FooterManager;
 import edu.scripps.yates.client.gui.components.MyVerticalCheckBoxListPanel;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.ProteinColumns;

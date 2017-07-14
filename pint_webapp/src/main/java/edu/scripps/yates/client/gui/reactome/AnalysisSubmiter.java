@@ -15,8 +15,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.gui.columns.PathWayTextColumn;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
-import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.util.FileDescriptor;
 import edu.scripps.yates.shared.util.SharedConstants;

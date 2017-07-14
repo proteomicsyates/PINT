@@ -30,7 +30,7 @@ import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.Proj
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ReferencesDataObject;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsDataObject;
 import edu.scripps.yates.client.interfaces.ContainsImportJobID;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
 public abstract class ClosableWithTitlePanel extends Composite implements

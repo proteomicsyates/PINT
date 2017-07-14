@@ -32,12 +32,11 @@ import edu.scripps.yates.client.ConfigurationServiceAsync;
 import edu.scripps.yates.client.gui.PopUpPanelYesNo;
 import edu.scripps.yates.client.gui.components.WindowBox;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
-import edu.scripps.yates.client.interfaces.StatusReporter;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
 import edu.scripps.yates.shared.util.CryptoUtil;
 
-public class ConfigurationPanel extends WindowBox implements StatusReporter {
+public class ConfigurationPanel extends WindowBox {
 	private final PintConfigurationProperties pintConfigurationProperties;
 	private final ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
 	private Label statusLabel;
@@ -807,8 +806,7 @@ public class ConfigurationPanel extends WindowBox implements StatusReporter {
 		return new Image(MyClientBundle.INSTANCE.greenTick());
 	}
 
-	@Override
-	public void showMessage(String message) {
+	private void showMessage(String message) {
 		statusLabel.setText(message);
 		statusLabel.setStyleName("configurationPanel_Status");
 		// show pop up dialog
@@ -826,8 +824,7 @@ public class ConfigurationPanel extends WindowBox implements StatusReporter {
 
 	}
 
-	@Override
-	public void showErrorMessage(Throwable throwable) {
+	private void showErrorMessage(Throwable throwable) {
 		statusLabel.setText(throwable.getMessage());
 		statusLabel.setStyleName("configurationPanel_Status_Error");
 		// show pop up dialog

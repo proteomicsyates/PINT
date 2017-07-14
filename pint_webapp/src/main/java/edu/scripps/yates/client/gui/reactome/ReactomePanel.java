@@ -58,7 +58,7 @@ import edu.scripps.yates.client.gui.PopUpPanelYesNo;
 import edu.scripps.yates.client.gui.components.ScrolledTabLayoutPanel;
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncPathwaySummaryDataProvider;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 
 public class ReactomePanel extends ResizeLayoutPanel
 		implements NodeSelectedHandler, FireworksLoadedHandler, AnalysisResetHandler, NodeHoverHandler,

@@ -491,6 +491,7 @@ public class ClientSafeHtmlUtils {
 		if (p.getLength() > 0) {
 			prefixTitle += "Protein total length=" + p.getLength() + " AAs\n";
 		}
+
 		int fragmentInitAA = 0;
 		if (coverageArrayString != null) {
 			int seqLenght = coverageArrayString.length;
@@ -558,6 +559,7 @@ public class ClientSafeHtmlUtils {
 					simplePanel.setStyleName("Domain graphicalview");
 					simplePanel.setWidth(percentage + "%");
 					simplePanel.setTitle(titles.get(i));
+
 					safeHtml = new SafeHtmlBuilder().appendHtmlConstant(simplePanel.toString()).toSafeHtml();
 				} else {
 					// safeHtml = HtmlTemplates.instance.bufferImage(percentage,
@@ -569,6 +571,7 @@ public class ClientSafeHtmlUtils {
 					simplePanel.setStyleName("buffer graphicalview");
 					simplePanel.setWidth(percentage + "%");
 					simplePanel.setTitle(titles.get(i));
+
 					safeHtml = new SafeHtmlBuilder().appendHtmlConstant(simplePanel.toString()).toSafeHtml();
 				}
 				sb.append(safeHtml);

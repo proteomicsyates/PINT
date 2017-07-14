@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.UmbrellaException;
@@ -28,10 +30,11 @@ import edu.scripps.yates.client.gui.components.pseaquant.PSEAQuantFormPanel;
 import edu.scripps.yates.client.gui.configuration.ConfigurationPanel;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
+import edu.scripps.yates.client.statusreporter.StatusReporterImpl;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.tasks.PendingTasksManager;
 import edu.scripps.yates.client.tasks.TaskType;
 import edu.scripps.yates.client.util.ClientToken;
-import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
 import edu.scripps.yates.shared.util.CryptoUtil;
 
@@ -74,27 +77,31 @@ public class Pint implements EntryPoint {
 				return e;
 			}
 		});
-		// Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-		// @Override
-		// public void execute() {
-		log.info("WELCOME TO PINT");
-		GWT.log("Module base URL is: " + GWT.getModuleBaseURL());
-		GWT.log("Host page base UTL is:  " + GWT.getHostPageBaseURL());
-		GWT.log("Module base for static files is:  " + GWT.getModuleBaseForStaticFiles());
-		GWT.log("Module name is:  " + GWT.getModuleName());
-		GWT.log("Version is:  " + GWT.getVersion());
-		GWT.log("Production mode: " + GWT.isProdMode());
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+				log.info("WELCOME TO PINT");
+				GWT.log("Module base URL is: " + GWT.getModuleBaseURL());
+				GWT.log("Host page base UTL is:  " + GWT.getHostPageBaseURL());
+				GWT.log("Module base for static files is:  " + GWT.getModuleBaseForStaticFiles());
+				GWT.log("Module name is:  " + GWT.getModuleName());
+				GWT.log("Version is:  " + GWT.getVersion());
+				GWT.log("Production mode: " + GWT.isProdMode());
 
-		// login
-		login();
-		// }
-		// });
+				// register as status reporter
+				StatusReporterImpl statusReporter = new StatusReporterImpl();
+				StatusReportersRegister.getInstance().registerNewStatusReporter(statusReporter);
+				//
+
+				// login
+				login();
+			}
+		});
 
 	}
 
 	public void startupConfiguration(final boolean forceToShowPanel) {
 
-		showLoadingDialog("Configuring PINT. Please wait...", null);
 		ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
 
 		// code splitting
@@ -154,6 +161,8 @@ public class Pint implements EntryPoint {
 	}
 
 	private void loadGUI() {
+		showLoadingDialog("Please wait while PINT is initialized.\nTt may take some seconds for the first time...",
+				null);
 		// code splitting
 		GWT.runAsync(new RunAsyncCallback() {
 
@@ -164,6 +173,7 @@ public class Pint implements EntryPoint {
 
 			@Override
 			public void onSuccess() {
+
 				// setup historychangehandler
 				setUpHistory();
 
@@ -176,7 +186,6 @@ public class Pint implements EntryPoint {
 				// MAIN PANEL
 				mainPanel = new MainPanel(Pint.this);
 				scroll.add(mainPanel);
-				// scroll.add(ReactomePanel.getInstance("asdfsdfasdf"));
 
 				// / PROJECT CREATOR #projectCreator
 				// createProjectPanel = new ProjectCreator();
@@ -276,7 +285,7 @@ public class Pint implements EntryPoint {
 	}
 
 	private void login() {
-		showLoadingDialog("Initializing PINT...", null);
+		showLoadingDialog("Login in...", null);
 		ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 		String clientToken = ClientToken.getToken();
 

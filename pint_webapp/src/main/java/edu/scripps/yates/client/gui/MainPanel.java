@@ -22,9 +22,8 @@ import edu.scripps.yates.client.gui.components.HtmlList;
 import edu.scripps.yates.client.gui.components.HtmlList.ListType;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
-import edu.scripps.yates.client.interfaces.StatusReporter;
 
-public class MainPanel extends InitializableComposite implements StatusReporter {
+public class MainPanel extends InitializableComposite {
 
 	protected final edu.scripps.yates.client.ProteinRetrievalServiceAsync proteinRetrievingService = ProteinRetrievalServiceAsync.Util
 			.getInstance();
@@ -305,15 +304,4 @@ public class MainPanel extends InitializableComposite implements StatusReporter 
 
 	}
 
-	@Override
-	public void showMessage(String message) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void showErrorMessage(Throwable throwable) {
-		// TODO Auto-generated method stub
-
-	}
 }

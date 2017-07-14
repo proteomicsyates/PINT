@@ -36,7 +36,7 @@ public class SharedConstants {
 	// footers of the data view tables. to enable set to true
 	public static final boolean FOOTERS_ENABLED = false;
 	// enable or disable the daemon tasks in PintserverDaemon.java
-	public static final boolean DAEMON_TASKS_ENABLED = true;
+	public static final boolean DAEMON_TASKS_ENABLED = false;
 
 	// for development purposes. Set to Integer.MAX_VALUE in production mode.
 	public static final int MAX_NUM_PROTEINS = Integer.MAX_VALUE;
