@@ -157,7 +157,7 @@ public class Pint implements EntryPoint {
 	}
 
 	private void loadGUI() {
-		showLoadingDialog("Please wait while PINT is initialized.\nTt may take some seconds for the first time...",
+		showLoadingDialog("Please wait while PINT is initialized.\nIt may take some seconds for the first time...",
 				null);
 		// code splitting
 		GWT.runAsync(new RunAsyncCallback() {
