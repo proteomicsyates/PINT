@@ -6,10 +6,12 @@ import java.util.logging.Logger;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.UmbrellaException;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 
@@ -95,22 +97,34 @@ public class Pint implements EntryPoint {
 		showLoadingDialog("Configuring PINT. Please wait...", null);
 		ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
 
-		service.getPintConfigurationProperties(new AsyncCallback<PintConfigurationProperties>() {
-
-			@Override
-			public void onSuccess(PintConfigurationProperties properties) {
-				if (forceToShowPanel || properties.isSomeConfigurationMissing()) {
-					showConfigurationPanel(properties);
-				} else {
-					hiddeLoadingDialog();
-				}
-			}
+		// code splitting
+		GWT.runAsync(new RunAsyncCallback() {
 
 			@Override
 			public void onFailure(Throwable caught) {
-				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-				GWT.log("Error setting up PINT: " + caught.getMessage());
-				hiddeLoadingDialog();
+				Window.alert("Code download failed");
+			}
+
+			@Override
+			public void onSuccess() {
+				service.getPintConfigurationProperties(new AsyncCallback<PintConfigurationProperties>() {
+
+					@Override
+					public void onSuccess(PintConfigurationProperties properties) {
+						if (forceToShowPanel || properties.isSomeConfigurationMissing()) {
+							showConfigurationPanel(properties);
+						} else {
+							hiddeLoadingDialog();
+						}
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+						GWT.log("Error setting up PINT: " + caught.getMessage());
+						hiddeLoadingDialog();
+					}
+				});
 			}
 		});
 
@@ -140,37 +154,50 @@ public class Pint implements EntryPoint {
 	}
 
 	private void loadGUI() {
-		// setup historychangehandler
-		setUpHistory();
+		// code splitting
+		GWT.runAsync(new RunAsyncCallback() {
 
-		RootLayoutPanel rootPanel = RootLayoutPanel.get();
-		rootPanel.setSize("100%", "100%");
-		rootPanel.animate(100);
-		scroll = new MyWindowScrollPanel();
-		rootPanel.add(scroll);
-
-		// MAIN PANEL
-		mainPanel = new MainPanel(this);
-		scroll.add(mainPanel);
-		// scroll.add(ReactomePanel.getInstance("asdfsdfasdf"));
-
-		// / PROJECT CREATOR #projectCreator
-		// createProjectPanel = new ProjectCreator();
-
-		final String projectParameter = com.google.gwt.user.client.Window.Location.getParameter("project");
-		final String testParameter = com.google.gwt.user.client.Window.Location.getParameter("test");
-
-		if (testParameter != null) {
-			try {
-				testMode = Boolean.parseBoolean(testParameter);
-			} catch (Exception e) {
-
+			@Override
+			public void onFailure(Throwable reason) {
+				Window.alert("Code download failed");
 			}
-		}
-		parseEncryptedProjectValues(projectParameter);
-		if (!"".equals(History.getToken())) {
-			History.fireCurrentHistoryState();
-		}
+
+			@Override
+			public void onSuccess() {
+				// setup historychangehandler
+				setUpHistory();
+
+				RootLayoutPanel rootPanel = RootLayoutPanel.get();
+				rootPanel.setSize("100%", "100%");
+				rootPanel.animate(100);
+				scroll = new MyWindowScrollPanel();
+				rootPanel.add(scroll);
+
+				// MAIN PANEL
+				mainPanel = new MainPanel(Pint.this);
+				scroll.add(mainPanel);
+				// scroll.add(ReactomePanel.getInstance("asdfsdfasdf"));
+
+				// / PROJECT CREATOR #projectCreator
+				// createProjectPanel = new ProjectCreator();
+
+				final String projectParameter = com.google.gwt.user.client.Window.Location.getParameter("project");
+				final String testParameter = com.google.gwt.user.client.Window.Location.getParameter("test");
+
+				if (testParameter != null) {
+					try {
+						testMode = Boolean.parseBoolean(testParameter);
+					} catch (Exception e) {
+
+					}
+				}
+				parseEncryptedProjectValues(projectParameter);
+				if (!"".equals(History.getToken())) {
+					History.fireCurrentHistoryState();
+				}
+			}
+		});
+
 	}
 
 	private void parseEncryptedProjectValues(String projectEncryptedValue) {
@@ -249,7 +276,7 @@ public class Pint implements EntryPoint {
 	}
 
 	private void login() {
-
+		showLoadingDialog("Initializing PINT...", null);
 		ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 		String clientToken = ClientToken.getToken();
 
@@ -273,7 +300,7 @@ public class Pint implements EntryPoint {
 				hiddeLoadingDialog();
 			}
 		});
-		showLoadingDialog("Initializing PINT...", null);
+
 	}
 
 	private void setUpHistory() {
