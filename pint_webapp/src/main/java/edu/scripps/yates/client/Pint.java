@@ -121,7 +121,7 @@ public class Pint implements EntryPoint {
 						if (forceToShowPanel || properties.isSomeConfigurationMissing()) {
 							showConfigurationPanel(properties);
 						} else {
-							hiddeLoadingDialog();
+
 						}
 					}
 
@@ -129,7 +129,7 @@ public class Pint implements EntryPoint {
 					public void onFailure(Throwable caught) {
 						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
 						GWT.log("Error setting up PINT: " + caught.getMessage());
-						hiddeLoadingDialog();
+
 					}
 				});
 			}
@@ -141,7 +141,7 @@ public class Pint implements EntryPoint {
 		if (configurationPanel == null) {
 			configurationPanel = new ConfigurationPanel(pintConfigurationProperties);
 		}
-		hiddeLoadingDialog();
+		loadingDialog.hide();
 		configurationPanel.center();
 	}
 
@@ -156,10 +156,6 @@ public class Pint implements EntryPoint {
 		loadingDialog.center();
 	}
 
-	private void hiddeLoadingDialog() {
-		loadingDialog.hide();
-	}
-
 	private void loadGUI() {
 		showLoadingDialog("Please wait while PINT is initialized.\nTt may take some seconds for the first time...",
 				null);
@@ -168,7 +164,7 @@ public class Pint implements EntryPoint {
 
 			@Override
 			public void onFailure(Throwable reason) {
-				Window.alert("Code download failed");
+				StatusReportersRegister.getInstance().notifyStatusReporters(reason);
 			}
 
 			@Override
@@ -204,6 +200,7 @@ public class Pint implements EntryPoint {
 				if (!"".equals(History.getToken())) {
 					History.fireCurrentHistoryState();
 				}
+				loadingDialog.hide();
 			}
 		});
 
@@ -298,7 +295,6 @@ public class Pint implements EntryPoint {
 				GWT.log("New session id:" + sessionID);
 				Pint.this.sessionID = sessionID;
 				loadGUI();
-				hiddeLoadingDialog();
 				startupConfiguration(false);
 			}
 
@@ -306,7 +302,7 @@ public class Pint implements EntryPoint {
 			public void onFailure(Throwable caught) {
 				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
 				GWT.log("Error in login: " + caught.getMessage());
-				hiddeLoadingDialog();
+				loadingDialog.hide();
 			}
 		});
 
