@@ -249,10 +249,10 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 			string2 = null;
 		}
 		if (string1 == null && string2 != null) {
-			return -1;
+			return 1;
 		}
 		if (string1 != null && string2 == null) {
-			return 1;
+			return -1;
 		}
 		if (string1 == null && string2 == null) {
 			return 0;
