@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -392,14 +393,26 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 
 	private void loadGUIIfAllRequiredDataIsReceived() {
 		if (projectBeanReceived && dataSourceBeansReceived) {
-			// remove the uploader if present
-			if (uploader != null)
-				uploader.removeFromParent();
-			contentPanel.clear();
-			// load the main GUI
-			loadGUI(pintImportCfgTypeBean, dataSourceBeans);
-			setImportJobID(importJobID);
-			hiddeDialog();
+			GWT.runAsync(new RunAsyncCallback() {
+
+				@Override
+				public void onFailure(Throwable reason) {
+					StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+				}
+
+				@Override
+				public void onSuccess() {
+					// remove the uploader if present
+					if (uploader != null)
+						uploader.removeFromParent();
+					contentPanel.clear();
+					// load the main GUI
+					loadGUI(pintImportCfgTypeBean, dataSourceBeans);
+					setImportJobID(importJobID);
+					hiddeDialog();
+				}
+			});
+
 		}
 
 	}
