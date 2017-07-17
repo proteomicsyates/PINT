@@ -393,7 +393,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 
 	private void loadGUIIfAllRequiredDataIsReceived() {
 		if (projectBeanReceived && dataSourceBeansReceived) {
-			GWT.runAsync(new RunAsyncCallback() {
+			GWT.runAsync(new RunAsyncCallback(){
 
 				@Override
 				public void onFailure(Throwable reason) {
@@ -410,9 +410,8 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 					loadGUI(pintImportCfgTypeBean, dataSourceBeans);
 					setImportJobID(importJobID);
 					hiddeDialog();
-				}
-			});
-
+				}});
+			
 		}
 
 	}

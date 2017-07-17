@@ -72,6 +72,7 @@ import edu.scripps.yates.client.gui.reactome.ReactomePanel;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
 import edu.scripps.yates.client.interfaces.ShowHiddePanel;
+import edu.scripps.yates.client.statusreporter.StatusReporter;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.tasks.PendingTaskHandler;
 import edu.scripps.yates.client.tasks.PendingTasksManager;
@@ -103,7 +104,7 @@ import edu.scripps.yates.shared.util.sublists.ProteinGroupBeanSubList;
 import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;
 import edu.scripps.yates.shared.util.sublists.QueryResultSubLists;
 
-public class QueryPanel extends InitializableComposite implements ShowHiddePanel, PendingTaskHandler {
+public class QueryPanel extends InitializableComposite implements ShowHiddePanel, PendingTaskHandler, StatusReporter {
 	private static final double HEADER_HEIGHT = 25;
 	private final java.util.logging.Logger log = java.util.logging.Logger.getLogger("NameOfYourLogger");
 
@@ -2308,7 +2309,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	 *
 	 * @param text
 	 */
-	private void showLoadingDialog(String text, String buttonText, ClickHandler handler) {
+	public void showLoadingDialog(String text, String buttonText, ClickHandler handler) {
 		showLoadingDialog(text, true, false, buttonText, handler);
 	}
 
@@ -2561,6 +2562,21 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	public void initialize() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void showMessage(String message) {
+		updateStatus(message);
+	}
+
+	@Override
+	public void showErrorMessage(Throwable throwable) {
+		updateStatus(throwable);
+	}
+
+	@Override
+	public String getStatusReporterKey() {
+		return this.getClass().getName();
 	}
 
 }

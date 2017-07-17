@@ -102,8 +102,6 @@ public class Pint implements EntryPoint {
 
 	public void startupConfiguration(final boolean forceToShowPanel) {
 
-		ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
-
 		// code splitting
 		GWT.runAsync(new RunAsyncCallback() {
 
@@ -114,6 +112,8 @@ public class Pint implements EntryPoint {
 
 			@Override
 			public void onSuccess() {
+				ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
+
 				service.getPintConfigurationProperties(new AsyncCallback<PintConfigurationProperties>() {
 
 					@Override
@@ -267,22 +267,14 @@ public class Pint implements EntryPoint {
 
 		Set<String> projectTags = getProjectValues(projectValue);
 		if (!projectTags.isEmpty()) {
-			GWT.runAsync(new RunAsyncCallback() {
 
-				@Override
-				public void onFailure(Throwable reason) {
-					StatusReportersRegister.getInstance().notifyStatusReporters(reason);
-				}
+			if (queryPanel != null && queryPanel.hasLoadedThisProjects(projectTags)) {
+			} else {
+				queryPanel = new QueryPanel(sessionID, projectTags, testMode);
+			}
+			queryPanel.showLoadingDialog("Loading data view...", null, null);
+			History.newItem(TargetHistory.QUERY.getTargetHistory());
 
-				@Override
-				public void onSuccess() {
-					if (queryPanel != null && queryPanel.hasLoadedThisProjects(projectTags)) {
-					} else {
-						queryPanel = new QueryPanel(sessionID, projectTags, testMode);
-					}
-					History.newItem(TargetHistory.QUERY.getTargetHistory());
-				}
-			});
 		} else {
 			PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true, "No projects selected",
 					"You need to select one project before to query the data.\nClick here to go to Browse menu.",
@@ -293,27 +285,38 @@ public class Pint implements EntryPoint {
 	}
 
 	private void login() {
-		showLoadingDialog("Login in...", null);
-		ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
-		String clientToken = ClientToken.getToken();
-
-		String userName = "guest";
-		String password = "guest";
-		service.login(clientToken, userName, password, new AsyncCallback<String>() {
+		GWT.runAsync(new RunAsyncCallback() {
 
 			@Override
-			public void onSuccess(String sessionID) {
-				GWT.log("New session id:" + sessionID);
-				Pint.this.sessionID = sessionID;
-				loadGUI();
-				startupConfiguration(false);
+			public void onSuccess() {
+				showLoadingDialog("Login in...", null);
+				ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
+				String clientToken = ClientToken.getToken();
+
+				String userName = "guest";
+				String password = "guest";
+				service.login(clientToken, userName, password, new AsyncCallback<String>() {
+
+					@Override
+					public void onSuccess(String sessionID) {
+						GWT.log("New session id:" + sessionID);
+						Pint.this.sessionID = sessionID;
+						loadGUI();
+						startupConfiguration(false);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+						GWT.log("Error in login: " + caught.getMessage());
+						loadingDialog.hide();
+					}
+				});
 			}
 
 			@Override
-			public void onFailure(Throwable caught) {
-				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-				GWT.log("Error in login: " + caught.getMessage());
-				loadingDialog.hide();
+			public void onFailure(Throwable reason) {
+				StatusReportersRegister.getInstance().notifyStatusReporters(reason);
 			}
 		});
 
@@ -335,15 +338,33 @@ public class Pint implements EntryPoint {
 				GWT.log("HISTORY VALUE: " + historyToken);
 				// Parse the history token
 				if (historyToken.contains(TargetHistory.QUERY.getTargetHistory())) {
-					// queryPanel is suppose to be already created
-					if (queryPanel == null || queryPanel.getLoadedProjects().isEmpty()) {
-						PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true, "No projects selected",
-								"You need to select one project before to query the data.\nClick here to go to Browse menu.",
-								TargetHistory.BROWSE);
-						popup.show();
-					} else {
-						loadPanel(queryPanel);
-					}
+					GWT.runAsync(new RunAsyncCallback() {
+
+						@Override
+						public void onFailure(Throwable reason) {
+							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+						}
+
+						@Override
+						public void onSuccess() {
+							// queryPanel is suppose to be already created
+							if (queryPanel == null || queryPanel.getLoadedProjects().isEmpty()) {
+								PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true,
+										"No projects selected",
+										"You need to select one project before to query the data.\nClick here to go to Browse menu.",
+										TargetHistory.BROWSE);
+								popup.show();
+							} else {
+								loadPanel(queryPanel);
+
+							}
+							return;
+						}
+
+					});
+					// we have to return here, otherwise we are going to clear
+					// the loadedProjects and the previous if clause is going to
+					// be true
 					return;
 				}
 				// removePending task
@@ -352,15 +373,37 @@ public class Pint implements EntryPoint {
 				QueryPanel.loadedProjects.clear();
 
 				if (historyToken.contains(TargetHistory.BROWSE.getTargetHistory())) {
-					if (browsePanel == null)
-						browsePanel = new BrowsePanel();
-					loadPanel(browsePanel);
+					GWT.runAsync(new RunAsyncCallback() {
+
+						@Override
+						public void onFailure(Throwable reason) {
+							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+						}
+
+						@Override
+						public void onSuccess() {
+							if (browsePanel == null)
+								browsePanel = new BrowsePanel();
+							loadPanel(browsePanel);
+						}
+					});
 				}
 				if (historyToken.contains(TargetHistory.HOME.getTargetHistory())) {
-					if (mainPanel == null)
-						mainPanel = new MainPanel(Pint.this);
-					loadPanel(mainPanel);
-					mainPanel.loadStatistics();
+					GWT.runAsync(new RunAsyncCallback() {
+
+						@Override
+						public void onFailure(Throwable reason) {
+							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+						}
+
+						@Override
+						public void onSuccess() {
+							if (mainPanel == null)
+								mainPanel = new MainPanel(Pint.this);
+							loadPanel(mainPanel);
+							mainPanel.loadStatistics();
+						}
+					});
 				}
 				if (historyToken.contains(TargetHistory.RELOAD.getTargetHistory())) {
 					parseProjectValues(historyToken);
@@ -449,20 +492,27 @@ public class Pint implements EntryPoint {
 	}
 
 	protected void loadPanel(InitializableComposite widget) {
-		RootLayoutPanel.get().clear();
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
-		if (widget instanceof QueryPanel) {
-			RootLayoutPanel.get().add(widget);
-		} else {
-			// in any other case, add with a scrollpanel
-			RootLayoutPanel.get().add(scroll);
-			scroll.clear();
-			scroll.add(widget);
+			@Override
+			public void execute() {
+				RootLayoutPanel.get().clear();
 
-		}
-		if (widget != null) {
-			widget.initialize();
-		}
+				if (widget instanceof QueryPanel) {
+					RootLayoutPanel.get().add(widget);
+				} else {
+					// in any other case, add with a scrollpanel
+					RootLayoutPanel.get().add(scroll);
+					scroll.clear();
+					scroll.add(widget);
+
+				}
+				if (widget != null) {
+					widget.initialize();
+				}
+			}
+		});
+
 	}
 
 }

@@ -50,4 +50,9 @@ public class StatusReporterImpl implements StatusReporter {
 
 	}
 
+	@Override
+	public String getStatusReporterKey() {
+		return this.getClass().getName();
+	}
+
 }
