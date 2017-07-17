@@ -267,11 +267,22 @@ public class Pint implements EntryPoint {
 
 		Set<String> projectTags = getProjectValues(projectValue);
 		if (!projectTags.isEmpty()) {
-			if (queryPanel != null && queryPanel.hasLoadedThisProjects(projectTags)) {
-			} else {
-				queryPanel = new QueryPanel(sessionID, projectTags, testMode);
-			}
-			History.newItem(TargetHistory.QUERY.getTargetHistory());
+			GWT.runAsync(new RunAsyncCallback() {
+
+				@Override
+				public void onFailure(Throwable reason) {
+					StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+				}
+
+				@Override
+				public void onSuccess() {
+					if (queryPanel != null && queryPanel.hasLoadedThisProjects(projectTags)) {
+					} else {
+						queryPanel = new QueryPanel(sessionID, projectTags, testMode);
+					}
+					History.newItem(TargetHistory.QUERY.getTargetHistory());
+				}
+			});
 		} else {
 			PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true, "No projects selected",
 					"You need to select one project before to query the data.\nClick here to go to Browse menu.",
@@ -356,36 +367,83 @@ public class Pint implements EntryPoint {
 
 				}
 				if (historyToken.equals(TargetHistory.SUBMIT.getTargetHistory())) {
-					if (createProjectWizardPanel == null) {
-						// not create again to not let the user loose everything
-						createProjectWizardPanel = new ProjectCreatorWizard(sessionID);
-					}
-					loadPanel(createProjectWizardPanel);
+					GWT.runAsync(new RunAsyncCallback() {
+
+						@Override
+						public void onFailure(Throwable reason) {
+							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+						}
+
+						@Override
+						public void onSuccess() {
+							if (createProjectWizardPanel == null) {
+								// not create again to not let the user loose
+								// everything
+								createProjectWizardPanel = new ProjectCreatorWizard(sessionID);
+							}
+							loadPanel(createProjectWizardPanel);
+						}
+					});
+
 					// if (createProjectPanel == null)
 					// createProjectPanel = new ProjectCreator();
 					// loadPanel(createProjectPanel);
 				}
 				if (historyToken.equals(TargetHistory.HELP.getTargetHistory())) {
-					if (helpPanel == null) {
-						helpPanel = new HelpPanel();
-					}
-					loadPanel(helpPanel);
+					GWT.runAsync(new RunAsyncCallback() {
+
+						@Override
+						public void onFailure(Throwable reason) {
+							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+						}
+
+						@Override
+						public void onSuccess() {
+							if (helpPanel == null) {
+								helpPanel = new HelpPanel();
+							}
+							loadPanel(helpPanel);
+						}
+					});
 				}
 				if (historyToken.equals(TargetHistory.ABOUT.getTargetHistory())) {
-					if (aboutPanel == null) {
-						aboutPanel = new AboutPanel();
-					}
-					loadPanel(aboutPanel);
+					GWT.runAsync(new RunAsyncCallback() {
+
+						@Override
+						public void onFailure(Throwable reason) {
+							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+						}
+
+						@Override
+						public void onSuccess() {
+							if (aboutPanel == null) {
+								aboutPanel = new AboutPanel();
+							}
+							loadPanel(aboutPanel);
+						}
+					});
 				}
 				if (historyToken.startsWith(TargetHistory.LOAD_PROJECT.getTargetHistory())) {
 					parseProjectValues(historyToken);
 
 				}
 				if (historyToken.contains(TargetHistory.PSEAQUANT.getTargetHistory())) {
-					PSEAQuantFormPanel pseaQuant = new PSEAQuantFormPanel(getProjectValues(historyToken));
-					loadPanel(pseaQuant);
+					GWT.runAsync(new RunAsyncCallback() {
+
+						@Override
+						public void onFailure(Throwable reason) {
+							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+						}
+
+						@Override
+						public void onSuccess() {
+							PSEAQuantFormPanel pseaQuant = new PSEAQuantFormPanel(getProjectValues(historyToken));
+							loadPanel(pseaQuant);
+						}
+					});
 				}
 			}
+
 		});
 
 	}

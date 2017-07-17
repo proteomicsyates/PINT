@@ -1,5 +1,7 @@
 package edu.scripps.yates.client.gui;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
@@ -22,6 +24,7 @@ import edu.scripps.yates.client.gui.components.HtmlList;
 import edu.scripps.yates.client.gui.components.HtmlList.ListType;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 
 public class MainPanel extends InitializableComposite {
 
@@ -212,90 +215,104 @@ public class MainPanel extends InitializableComposite {
 	}
 
 	public void loadStatistics() {
-		proteinRetrievingService.getNumExperiments(new AsyncCallback<Integer>() {
+		GWT.runAsync(new RunAsyncCallback() {
 
 			@Override
-			public void onSuccess(Integer result) {
-				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " projects.", 0);
+			public void onFailure(Throwable reason) {
+				StatusReportersRegister.getInstance().notifyStatusReporters(reason);
 			}
 
 			@Override
-			public void onFailure(Throwable caught) {
-				listItemPanel.setTextAndTitle("error", caught.getMessage(), 0);
+			public void onSuccess() {
+				proteinRetrievingService.getNumExperiments(new AsyncCallback<Integer>() {
+
+					@Override
+					public void onSuccess(Integer result) {
+						listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " projects.", 0);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						listItemPanel.setTextAndTitle("error", caught.getMessage(), 0);
+					}
+				});
+				proteinRetrievingService.getNumConditions(new AsyncCallback<Integer>() {
+
+					@Override
+					public void onSuccess(Integer result) {
+						listItemPanel.setText(
+								NumberFormat.getDecimalFormat().format(result) + " experimental conditions.", 1);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						listItemPanel.setTextAndTitle("error", caught.getMessage(), 1);
+					}
+				});
+				proteinRetrievingService.getNumMSRuns(new AsyncCallback<Integer>() {
+
+					@Override
+					public void onSuccess(Integer result) {
+						listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " MS runs.", 2);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						listItemPanel.setTextAndTitle("error", caught.getMessage(), 2);
+					}
+				});
+				proteinRetrievingService.getNumDifferentProteins(new AsyncCallback<Integer>() {
+
+					@Override
+					public void onSuccess(Integer result) {
+						listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " proteins.", 3);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						listItemPanel.setTextAndTitle("error", caught.getMessage(), 3);
+					}
+				});
+				proteinRetrievingService.getNumGenes(new AsyncCallback<Integer>() {
+
+					@Override
+					public void onSuccess(Integer result) {
+						listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " genes.", 4);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						listItemPanel.setTextAndTitle("error", caught.getMessage(), 4);
+					}
+				});
+				proteinRetrievingService.getNumDifferentPeptides(new AsyncCallback<Integer>() {
+
+					@Override
+					public void onSuccess(Integer result) {
+						listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " peptide sequences.",
+								5);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						listItemPanel.setTextAndTitle("error", caught.getMessage(), 5);
+					}
+				});
+				proteinRetrievingService.getNumPSMs(new AsyncCallback<Integer>() {
+
+					@Override
+					public void onSuccess(Integer result) {
+						listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " PSMs.", 6);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						listItemPanel.setTextAndTitle("error", caught.getMessage(), 6);
+					}
+				});
 			}
 		});
-		proteinRetrievingService.getNumConditions(new AsyncCallback<Integer>() {
 
-			@Override
-			public void onSuccess(Integer result) {
-				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " experimental conditions.", 1);
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				listItemPanel.setTextAndTitle("error", caught.getMessage(), 1);
-			}
-		});
-		proteinRetrievingService.getNumMSRuns(new AsyncCallback<Integer>() {
-
-			@Override
-			public void onSuccess(Integer result) {
-				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " MS runs.", 2);
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				listItemPanel.setTextAndTitle("error", caught.getMessage(), 2);
-			}
-		});
-		proteinRetrievingService.getNumDifferentProteins(new AsyncCallback<Integer>() {
-
-			@Override
-			public void onSuccess(Integer result) {
-				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " proteins.", 3);
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				listItemPanel.setTextAndTitle("error", caught.getMessage(), 3);
-			}
-		});
-		proteinRetrievingService.getNumGenes(new AsyncCallback<Integer>() {
-
-			@Override
-			public void onSuccess(Integer result) {
-				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " genes.", 4);
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				listItemPanel.setTextAndTitle("error", caught.getMessage(), 4);
-			}
-		});
-		proteinRetrievingService.getNumDifferentPeptides(new AsyncCallback<Integer>() {
-
-			@Override
-			public void onSuccess(Integer result) {
-				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " peptide sequences.", 5);
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				listItemPanel.setTextAndTitle("error", caught.getMessage(), 5);
-			}
-		});
-		proteinRetrievingService.getNumPSMs(new AsyncCallback<Integer>() {
-
-			@Override
-			public void onSuccess(Integer result) {
-				listItemPanel.setText(NumberFormat.getDecimalFormat().format(result) + " PSMs.", 6);
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				listItemPanel.setTextAndTitle("error", caught.getMessage(), 6);
-			}
-		});
 	}
 
 	@Override
