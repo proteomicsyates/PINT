@@ -51,6 +51,10 @@
  	<set-property name="gwt.logging.simpleRemoteHandler" value="ENABLED"/>
 	
 
+	<!-- enable code compression -->
+	<inherits name="com.google.gwt.precompress.Precompress" />
+	
+	<!-- Reactome -->
 	<inherits name="org.reactome.web.fireworks.Fireworks" />
 	<inherits name="org.reactome.web.diagram.DiagramViewer" />
 
