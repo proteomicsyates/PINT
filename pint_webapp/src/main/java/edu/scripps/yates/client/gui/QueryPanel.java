@@ -733,8 +733,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// hiddeLoadingDialog();
 		setStyleName("MainPanel");
 
-		// select data tab
-		firstLevelTabPanel.selectTab(layoutPanel);
+		// select project tab
+		selectProjectInfoTab();
 
 	}
 
@@ -785,6 +785,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	private void selectQueryTab() {
 		firstLevelTabPanel.selectTab(scrollQueryPanel);
+	}
+
+	private void selectProjectInfoTab() {
+		firstLevelTabPanel.selectTab(scrollProjectInformationPanel);
 	}
 
 	private ClickHandler createStartGroupingButtonClickHandler() {
