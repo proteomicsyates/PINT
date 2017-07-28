@@ -1676,8 +1676,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							proteinGroupTablePanel.setEmptyTableWidget(emptyLabelString);
 							peptideTablePanel.setEmptyTableWidget(emptyLabelString);
 							psmTablePanel.setEmptyTableWidget(emptyLabelString);
-							// change tab to query
-							selectQueryTab();
+
 						} else {
 							loadProteinsFromProject(null, null, testMode);
 						}
