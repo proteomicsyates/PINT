@@ -80,6 +80,9 @@ public class Pint implements EntryPoint {
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 			@Override
 			public void execute() {
+				showLoadingDialog(
+						"Please wait while PINT is initialized.\nIt may take some seconds for the first time...", null);
+
 				log.info("WELCOME TO PINT");
 				GWT.log("Module base URL is: " + GWT.getModuleBaseURL());
 				GWT.log("Host page base UTL is:  " + GWT.getHostPageBaseURL());
@@ -284,13 +287,11 @@ public class Pint implements EntryPoint {
 	}
 
 	private void login() {
-		showLoadingDialog("Please wait while PINT is initialized.\nIt may take some seconds for the first time...",
-				null);
+
 		GWT.runAsync(new RunAsyncCallback() {
 
 			@Override
 			public void onSuccess() {
-				showLoadingDialog("Login in...", null);
 				ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 				String clientToken = ClientToken.getToken();
 
