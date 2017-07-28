@@ -499,7 +499,11 @@ public class UniprotProteinLocalRetriever {
 			return queryProteinsMap;
 		} else {
 			try {
-				log.info("Local information (local index folder) not found");
+				String folderPath = "";
+				if (projectFolder != null) {
+					folderPath = projectFolder.getAbsolutePath();
+				}
+				log.info("Local information (local index folder) not found " + folderPath);
 				log.info("Trying to get it remotely from Uniprot repository");
 				UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever(uniprotReleasesFolder, useIndex);
 				final Map<String, Entry> queryProteinsMap = uprr.getAnnotatedProteins(uniprotVersion, accsToSearch,
