@@ -1027,15 +1027,14 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			if (lock) {
 				ProjectLocker.lock(projectTags, enclosingMethod);
 			}
-			// register task
-			ServerTaskRegister.getInstance().registerTask(task);
-			// clear map of current proteins for this sessionID
-			DataSetsManager.clearDataSet(sessionID);
-
 			QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode);
 			String queryInOrder = expressionTree.printInOrder();
 			// create task
 			task = new GetProteinsFromQuery(projectTags, queryInOrder);
+			// register task
+			ServerTaskRegister.getInstance().registerTask(task);
+			// clear map of current proteins for this sessionID
+			DataSetsManager.clearDataSet(sessionID);
 
 			// set current thread as the one holding this dataset
 			DataSetsManager.getDataSet(sessionID, queryInOrder).setActiveDatasetThread(Thread.currentThread());
