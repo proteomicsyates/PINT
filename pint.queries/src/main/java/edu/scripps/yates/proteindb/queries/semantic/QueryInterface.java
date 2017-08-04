@@ -15,6 +15,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAnnotationAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import edu.scripps.yates.proteindb.queries.LogicalOperator;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProjects;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProteinAccs;
@@ -31,8 +32,8 @@ import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.model.enums.AmountType;
 import edu.scripps.yates.utilities.pi.ParIterator;
-import edu.scripps.yates.utilities.pi.ParIteratorFactory;
 import edu.scripps.yates.utilities.pi.ParIterator.Schedule;
+import edu.scripps.yates.utilities.pi.ParIteratorFactory;
 import edu.scripps.yates.utilities.pi.reductions.Reducible;
 import edu.scripps.yates.utilities.pi.reductions.Reduction;
 import gnu.trove.set.hash.THashSet;
@@ -168,7 +169,7 @@ public class QueryInterface {
 			log.info("There is at least one predominant query that is over protein accessions");
 			// get all the queries from protein accessions
 			Set<? extends AbstractQuery> accQueries = queryBinaryTree
-					.getPredominantAbstractQueries(QueryFromProteinAccessionsCommand.class);
+					.getPredominantAbstractQueries(QueryFromProteinAccessionsCommand.class, LogicalOperator.AND);
 			if (accQueries.size() == 1) {
 				log.info("Getting the protein provider of the accession query");
 				return accQueries.iterator().next().getProteinProvider();
@@ -187,7 +188,7 @@ public class QueryInterface {
 			log.info("There is at least one predominant query that is over PTM ");
 			// get all the queries from PTM
 			Set<? extends AbstractQuery> ptmQueries = queryBinaryTree
-					.getPredominantAbstractQueries(QueryFromPTMCommand.class);
+					.getPredominantAbstractQueries(QueryFromPTMCommand.class, LogicalOperator.AND);
 			if (ptmQueries.size() == 1) {
 				log.info("Getting the protein provider of the PTM query");
 				return ptmQueries.iterator().next().getProteinProvider();
@@ -205,19 +206,34 @@ public class QueryInterface {
 
 			Set<AbstractQuery> abstractQueries = new THashSet<AbstractQuery>();
 			final Set<QueryFromComplexAnnotationCommand> predominantAbstractQueries = (Set<QueryFromComplexAnnotationCommand>) queryBinaryTree
-					.getPredominantAbstractQueries(QueryFromComplexAnnotationCommand.class, false);
+					.getPredominantAbstractQueries(QueryFromComplexAnnotationCommand.class, false, LogicalOperator.AND);
 			abstractQueries.addAll(predominantAbstractQueries);
 			final Set<QueryFromSimpleAnnotationCommand> predominantAbstractQueries2 = (Set<QueryFromSimpleAnnotationCommand>) queryBinaryTree
-					.getPredominantAbstractQueries(QueryFromSimpleAnnotationCommand.class, false);
+					.getPredominantAbstractQueries(QueryFromSimpleAnnotationCommand.class, false, LogicalOperator.AND);
 			abstractQueries.addAll(predominantAbstractQueries2);
+			LogicalOperator logicalOperator = LogicalOperator.AND;
+			if (abstractQueries.isEmpty()) {
+				// try to see if we have all the annotation queries with an or
+				final Set<QueryFromComplexAnnotationCommand> predominantAbstractQueries3 = (Set<QueryFromComplexAnnotationCommand>) queryBinaryTree
+						.getPredominantAbstractQueries(QueryFromComplexAnnotationCommand.class, false,
+								LogicalOperator.OR);
+				abstractQueries.addAll(predominantAbstractQueries3);
+				final Set<QueryFromSimpleAnnotationCommand> predominantAbstractQueries4 = (Set<QueryFromSimpleAnnotationCommand>) queryBinaryTree
+						.getPredominantAbstractQueries(QueryFromSimpleAnnotationCommand.class, false,
+								LogicalOperator.OR);
+				abstractQueries.addAll(predominantAbstractQueries4);
+				if (!abstractQueries.isEmpty()) {
+					logicalOperator = LogicalOperator.OR;
+				}
+			}
 
-			return getDominantProteinProviderFromAnnotationQueries(abstractQueries);
+			return getDominantProteinProviderFromAnnotationQueries(abstractQueries, logicalOperator);
 		}
 		return null;
 	}
 
 	private ProteinProviderFromDB getDominantProteinProviderFromAnnotationQueries(
-			Set<? extends AbstractQuery> annotationQueries) {
+			Set<? extends AbstractQuery> annotationQueries, LogicalOperator logicalOperator) {
 		String uniprotKBVersion = null;
 
 		// get all the proteins
@@ -243,12 +259,29 @@ public class QueryInterface {
 				if (!abstractQuery.isNegative()) {
 					if (!evaluationResult) {
 						valid = false;
-						break;
+						if (logicalOperator == LogicalOperator.AND) {
+							break;
+						}
+					} else {
+						// it is valid
+						if (logicalOperator == LogicalOperator.OR) {
+							valid = true;
+							break;
+						}
 					}
 				} else {
+					// is negative
 					if (evaluationResult) {
 						valid = false;
-						break;
+						if (logicalOperator == LogicalOperator.AND) {
+							break;
+						}
+					} else {
+						// it is valid
+						if (logicalOperator == LogicalOperator.OR) {
+							valid = true;
+							break;
+						}
 					}
 				}
 			}

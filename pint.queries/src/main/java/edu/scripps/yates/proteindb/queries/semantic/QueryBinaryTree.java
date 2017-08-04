@@ -186,13 +186,15 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	 * @param class1
 	 * @return
 	 */
-	public Set<? extends AbstractQuery> getPredominantAbstractQueries(Class<? extends AbstractQuery> class1) {
-		return getPredominantAbstractQueries(class1, true);
+	public Set<? extends AbstractQuery> getPredominantAbstractQueries(Class<? extends AbstractQuery> class1,
+			LogicalOperator logicalOperator) {
+		return getPredominantAbstractQueries(class1, true, logicalOperator);
 	}
 
 	/**
 	 * Gets a set of queries of a certain class, which is predominant, which
-	 * means that going up in the query tree, all the logical operators are AND
+	 * means that going up in the query tree, all the logical operators are a
+	 * certain one passed as argument
 	 *
 	 * @param require
 	 *            or not that the query is not negative.
@@ -200,12 +202,12 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	 * @return
 	 */
 	public Set<? extends AbstractQuery> getPredominantAbstractQueries(Class<? extends AbstractQuery> class1,
-			boolean requireNonNegative) {
+			boolean requireNonNegative, LogicalOperator logicalOperator) {
 		Set<AbstractQuery> ret = new THashSet<AbstractQuery>();
 		if (element.getLogicalOperator() != null) {
-			if (element.getLogicalOperator() == LogicalOperator.AND) {
-				ret.addAll(getLeftBNode().getPredominantAbstractQueries(class1, requireNonNegative));
-				ret.addAll(getRightBNode().getPredominantAbstractQueries(class1, requireNonNegative));
+			if (element.getLogicalOperator() == logicalOperator) {
+				ret.addAll(getLeftBNode().getPredominantAbstractQueries(class1, requireNonNegative, logicalOperator));
+				ret.addAll(getRightBNode().getPredominantAbstractQueries(class1, requireNonNegative, logicalOperator));
 			}
 			return ret;
 		} else {
