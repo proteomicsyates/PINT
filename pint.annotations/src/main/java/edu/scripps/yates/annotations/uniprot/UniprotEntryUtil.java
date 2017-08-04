@@ -41,6 +41,17 @@ public class UniprotEntryUtil {
 		return null;
 	}
 
+	public static Double getMolecularWeightInDalton(Entry entry) {
+		if (entry != null) {
+			if (entry.getSequence() != null) {
+				if (entry.getSequence().getMass() > 0) {
+					return Double.valueOf(entry.getSequence().getMass());
+				}
+			}
+		}
+		return null;
+	}
+
 	public static List<String> getGeneName(Entry entry, boolean justPrimary, boolean secondaryIfPrimaryIsNull) {
 		List<String> ret = new ArrayList<String>();
 		if (entry != null) {
