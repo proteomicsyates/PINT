@@ -1019,19 +1019,23 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public QueryResultSubLists getProteinsFromQuery(String sessionID, String queryText, Set<String> projectTags,
 			boolean separateNonConclusiveProteins, boolean lock, boolean testMode) throws PintException {
 		GetProteinsFromQuery task = null;
-
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
 		try {
-			final Method enclosingMethod = new Object() {
-			}.getClass().getEnclosingMethod();
+
 			logMethodCall(enclosingMethod);
-			QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode);
-			String queryInOrder = expressionTree.printInOrder();
-			// create task
-			task = new GetProteinsFromQuery(projectTags, queryInOrder);
+			if (lock) {
+				ProjectLocker.lock(projectTags, enclosingMethod);
+			}
 			// register task
 			ServerTaskRegister.getInstance().registerTask(task);
 			// clear map of current proteins for this sessionID
 			DataSetsManager.clearDataSet(sessionID);
+
+			QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode);
+			String queryInOrder = expressionTree.printInOrder();
+			// create task
+			task = new GetProteinsFromQuery(projectTags, queryInOrder);
 
 			// set current thread as the one holding this dataset
 			DataSetsManager.getDataSet(sessionID, queryInOrder).setActiveDatasetThread(Thread.currentThread());
@@ -1062,9 +1066,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			}
 
 			try {
-				if (lock) {
-					ProjectLocker.lock(projectTags, enclosingMethod);
-				}
+
 				task.setTaskDescription("Performing query...");
 				task.setMaxSteps(2);
 				task.setCurrentStep(1);
@@ -1132,9 +1134,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				ServerCacheProteinBeansByProteinDBId.getInstance().clearCache();
 				ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
 				// end clearing cache
-				if (lock) {
-					ProjectLocker.unlock(projectTags, enclosingMethod);
-				}
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1145,11 +1145,15 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
 			// release task
-			if (task != null)
+			if (task != null) {
 				ServerTaskRegister.getInstance().endTask(task);
+			}
 			log.warn("Rolling back transaction for not making any change in DB");
 			ContextualSessionHandler.rollbackTransaction();
 			log.warn("Transaction rolled back");
+			if (lock) {
+				ProjectLocker.unlock(projectTags, enclosingMethod);
+			}
 
 		}
 	}
