@@ -46,7 +46,9 @@ public class ServerTaskRegister {
 	 * @param task
 	 */
 	public void registerTask(Task task) {
-
+		if (task == null) {
+			return;
+		}
 		while (isOtherTaskLikeThisRunning(task)) {
 			try {
 				log.info("Waiting for a previous task: " + task);
