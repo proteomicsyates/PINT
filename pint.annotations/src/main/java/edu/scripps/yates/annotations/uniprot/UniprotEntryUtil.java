@@ -108,4 +108,26 @@ public class UniprotEntryUtil {
 		}
 		return null;
 	}
+
+	public static String getUniprotEvidence(Entry entry) {
+		if (entry != null) {
+			if (entry.getProteinExistence() != null) {
+				return entry.getProteinExistence().getType();
+			}
+		}
+		return null;
+	}
+
+	public static String getProteinDescription(Entry entry) {
+		if (entry != null) {
+			if (entry.getProtein() != null) {
+				if (entry.getProtein().getRecommendedName() != null) {
+					if (entry.getProtein().getRecommendedName().getFullName() != null) {
+						return entry.getProtein().getRecommendedName().getFullName().getValue();
+					}
+				}
+			}
+		}
+		return null;
+	}
 }
