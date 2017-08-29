@@ -6,4 +6,6 @@ public interface AnalysisPerformedHandler {
 
 	void onAnalysisPerformed(AnalysisResult result);
 
+	void onAnalysisError(Throwable exception);
+
 }

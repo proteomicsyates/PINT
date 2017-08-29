@@ -1,24 +1,24 @@
 package edu.scripps.yates.excel.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
 import edu.scripps.yates.excel.ExcelColumn;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 public class ExcelColumnImpl implements ExcelColumn {
 
 	private final String key;
 	private final String headerName;
-	private final Map<Integer, Object> values = new HashMap<Integer, Object>();
+	private final TIntObjectHashMap<Object> values = new TIntObjectHashMap<Object>();
 	private int lastNonEmptyRow = 0;
 	private boolean isNumerical = true;
 
-	private final Set<String> stringValues = new HashSet<String>();
+	private final Set<String> stringValues = new THashSet<String>();
 
 	public ExcelColumnImpl(String key, String headerName) {
 		this.headerName = headerName;
@@ -58,7 +58,7 @@ public class ExcelColumnImpl implements ExcelColumn {
 		if (numValues > values.size())
 			numValues = values.size();
 		List<Object> ret = new ArrayList<Object>();
-		Set<Integer> indexSet = new HashSet<Integer>();
+		TIntHashSet indexSet = new TIntHashSet();
 		while (numElements < numValues) {
 			final int index = random.nextInt(values.size()) + 1;
 			// don't repeat the index

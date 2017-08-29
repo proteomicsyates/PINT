@@ -193,6 +193,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * com.google.gwt.user.cellview.client.Column#render(com.google.gwt.cell
 	 * .client.Cell.Context, java.lang.Object,

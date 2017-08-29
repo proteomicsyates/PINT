@@ -34,7 +34,7 @@ import org.reactome.web.pwp.model.util.Path;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.shared.GWT;
 
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 
 public class DiagramLoader implements DatabaseObjectCreatedHandler, AncestorsCreatedHandler, DiagramLoadedHandler,
 		AnalysisResetHandler, GraphObjectHoveredHandler, GraphObjectSelectedHandler, DiagramObjectsFlaggedHandler,

@@ -1,32 +1,37 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.SampleBean;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class SampleBeanAdapter implements Adapter<SampleBean> {
 	private final Sample sample;
 	private final ProjectBean project;
-	private final static Map<Integer, SampleBean> map = new HashMap<Integer, SampleBean>();
+	private final static ThreadLocal<TIntObjectHashMap<SampleBean>> map = new ThreadLocal<TIntObjectHashMap<SampleBean>>();
 
 	public SampleBeanAdapter(Sample sample, ProjectBean project) {
 		this.sample = sample;
 		this.project = project;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new TIntObjectHashMap<SampleBean>());
+		}
 	}
 
 	@Override
 	public SampleBean adapt() {
-		if (map.containsKey(sample.getId())) {
-			return map.get(sample.getId());
+		if (map.get().containsKey(sample.getId())) {
+			return map.get().get(sample.getId());
 		}
 		SampleBean ret = new SampleBean();
-		map.put(sample.getId(), ret);
+		map.get().put(sample.getId(), ret);
 		ret.setDescription(sample.getDescription());
 		if (sample.getLabel() != null) {
 			ret.setLabel(new LabelBeanAdapter(sample.getLabel()).adapt());
@@ -54,4 +59,9 @@ public class SampleBeanAdapter implements Adapter<SampleBean> {
 		return ret;
 	}
 
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
+	}
 }

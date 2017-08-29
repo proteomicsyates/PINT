@@ -1,13 +1,12 @@
 package edu.scripps.yates.proteindb.persistence.mysql.impl;
 
-import java.util.HashMap;
-
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class PTMSiteImpl implements PTMSite {
-	protected final static HashMap<Integer, PTMSite> ptmSiteMap = new HashMap<Integer, PTMSite>();
+	protected final static TIntObjectHashMap<PTMSite> ptmSiteMap = new TIntObjectHashMap<PTMSite>();
 
 	private final PtmSite hibPtmSite;
 
@@ -28,10 +27,8 @@ public class PTMSiteImpl implements PTMSite {
 
 	@Override
 	public Score getScore() {
-		if (hibPtmSite.getConfidenceScoreType() != null
-				&& hibPtmSite.getConfidenceScoreValue() != null) {
-			return new ScoreImpl(hibPtmSite.getConfidenceScoreName(),
-					hibPtmSite.getConfidenceScoreValue(),
+		if (hibPtmSite.getConfidenceScoreType() != null && hibPtmSite.getConfidenceScoreValue() != null) {
+			return new ScoreImpl(hibPtmSite.getConfidenceScoreName(), hibPtmSite.getConfidenceScoreValue(),
 					hibPtmSite.getConfidenceScoreType());
 		}
 		return null;

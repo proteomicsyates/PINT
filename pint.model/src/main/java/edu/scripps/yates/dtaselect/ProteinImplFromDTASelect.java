@@ -1,8 +1,6 @@
 package edu.scripps.yates.dtaselect;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,33 +41,35 @@ import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinImplFromDTASelect implements Protein {
 	private static final Logger log = Logger.getLogger(ProteinImplFromDTASelect.class);
 	private final DTASelectProtein dtaSelectProtein;
 	private Accession primaryAccession;
-	private final Set<PSM> psms = new HashSet<PSM>();
-	private final Set<Peptide> peptides = new HashSet<Peptide>();
+	private final Set<PSM> psms = new THashSet<PSM>();
+	private final Set<Peptide> peptides = new THashSet<Peptide>();
 	private ProteinGroup proteinGroup;
 	private ProteinEvidence evidence;
 	private Organism organism;
-	private final Set<Condition> conditions = new HashSet<Condition>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
 	private MSRun msrun;
-	private final Set<Amount> amounts = new HashSet<Amount>();
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
-	private final Set<Score> scores = new HashSet<Score>();
+	private final Set<Amount> amounts = new THashSet<Amount>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
+	private final Set<Score> scores = new THashSet<Score>();
 	private boolean conditionsParsed = false;
 	private boolean psmsParsed = false;
 	private double mw;
 	private double pi;
 	private int length;
-	private final Set<Gene> genes = new HashSet<Gene>();
+	private final Set<Gene> genes = new THashSet<Gene>();
 	private boolean genesParsed = false;
 	private final List<Accession> secondaryAccessions = new ArrayList<Accession>();
 	private boolean peptidesParsed;
 	private boolean forceAllPSMsToBeFromThisMSRun;
 	private static int max = 0;
-	private final static Map<String, MSRun> msRunMap = new HashMap<String, MSRun>();
+	private final static Map<String, MSRun> msRunMap = new THashMap<String, MSRun>();
 
 	public ProteinImplFromDTASelect(DTASelectProtein dtaSelectProtein, String msRunID,
 			boolean forceAllPSMsToBeFromThisMSRun) {
@@ -114,7 +114,7 @@ public class ProteinImplFromDTASelect implements Protein {
 	}
 
 	private void createAmounts() {
-		Set<Condition> conditions = new HashSet<Condition>();
+		Set<Condition> conditions = new THashSet<Condition>();
 		conditions.addAll(getConditions());
 		if (conditions.isEmpty()) {
 			// I just need one element, I dont care if it is null
@@ -200,7 +200,7 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public Set<ProteinAnnotation> getAnnotations() {
-		Set<ProteinAnnotation> set = new HashSet<ProteinAnnotation>();
+		Set<ProteinAnnotation> set = new THashSet<ProteinAnnotation>();
 
 		final String proteinExistence = FastaParser
 				.getProteinExistenceFromFastaHeader(dtaSelectProtein.getDescription());
@@ -281,7 +281,7 @@ public class ProteinImplFromDTASelect implements Protein {
 					// peptideMap =
 					// PSMImplFromDTASelect.peptideMapByMSRun.get(msrun.getRunId());
 					// } else {
-					// peptideMap = new HashMap<String, Peptide>();
+					// peptideMap = new THashMap<String, Peptide>();
 					// PSMImplFromDTASelect.peptideMapByMSRun.put(msrun.getRunId(),
 					// peptideMap);
 					// }

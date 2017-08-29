@@ -1,29 +1,38 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.LabelBean;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class LabelBeanAdapter implements Adapter<LabelBean> {
 	private final edu.scripps.yates.proteindb.persistence.mysql.Label label;
-	private final static Map<Integer, LabelBean> map = new HashMap<Integer, LabelBean>();
+	private final static ThreadLocal<TIntObjectHashMap<LabelBean>> map = new ThreadLocal<TIntObjectHashMap<LabelBean>>();
 
-	public LabelBeanAdapter(
-			edu.scripps.yates.proteindb.persistence.mysql.Label label) {
+	public LabelBeanAdapter(edu.scripps.yates.proteindb.persistence.mysql.Label label) {
 		this.label = label;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new TIntObjectHashMap<LabelBean>());
+		}
 	}
 
 	@Override
 	public LabelBean adapt() {
-		if (map.containsKey(label.getId()))
-			return map.get(label.getId());
+		if (map.get().containsKey(label.getId()))
+			return map.get().get(label.getId());
 		LabelBean ret = new LabelBean();
-		map.put(label.getId(), ret);
+		map.get().put(label.getId(), ret);
 		ret.setMassDiff(label.getMassDiff());
 		ret.setName(label.getName());
 		return ret;
 	}
 
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
+	}
 }

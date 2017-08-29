@@ -2,9 +2,6 @@ package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -13,6 +10,8 @@ import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.Project>, Serializable {
 	/**
@@ -21,7 +20,7 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 	private static final long serialVersionUID = 8704484208696801294L;
 	private static final Logger log = Logger.getLogger(ProjectAdapter.class);
 	private final edu.scripps.yates.utilities.proteomicsmodel.Project project;
-	private final static Map<Integer, edu.scripps.yates.proteindb.persistence.mysql.Project> map = new HashMap<Integer, Project>();
+	private final static TIntObjectHashMap<edu.scripps.yates.proteindb.persistence.mysql.Project> map = new TIntObjectHashMap<Project>();
 
 	public ProjectAdapter(edu.scripps.yates.utilities.proteomicsmodel.Project project2) {
 		project = project2;
@@ -55,7 +54,7 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 		final Set<Condition> conditions = project.getConditions();
 
 		// create all the adapters and then adapt them
-		Set<ConditionAdapter> adapters = new HashSet<ConditionAdapter>();
+		Set<ConditionAdapter> adapters = new THashSet<ConditionAdapter>();
 		for (Condition condition : conditions) {
 
 			adapters.add(new ConditionAdapter(condition, ret));

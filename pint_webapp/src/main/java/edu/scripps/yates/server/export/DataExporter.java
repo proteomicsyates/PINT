@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -19,8 +17,6 @@ import javax.servlet.ServletContext;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.client.exceptions.PintException;
-import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.server.DataSet;
@@ -34,6 +30,8 @@ import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.PSMColumns;
 import edu.scripps.yates.shared.columns.ProteinColumns;
 import edu.scripps.yates.shared.columns.ProteinGroupColumns;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.AccessionType;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PSMBean;
@@ -45,6 +43,8 @@ import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class DataExporter {
 	private static final Logger log = Logger.getLogger(DataExporter.class);
@@ -93,7 +93,7 @@ public class DataExporter {
 				if (ServerCacheProteinBeansByProjectTag.getInstance().contains(projectTag)) {
 					final List<ProteinBean> fromCache = ServerCacheProteinBeansByProjectTag.getInstance()
 							.getFromCache(projectTag);
-					proteinBeans = new HashSet<ProteinBean>();
+					proteinBeans = new THashSet<ProteinBean>();
 					proteinBeans.addAll(fromCache);
 				} else {
 					final Map<String, Set<Protein>> proteinMap = RemoteServicesTasks.getProteinsFromProject(null,
@@ -187,7 +187,7 @@ public class DataExporter {
 				if (ServerCacheProteinBeansByProjectTag.getInstance().contains(projectTag)) {
 					final List<ProteinBean> fromCache = ServerCacheProteinBeansByProjectTag.getInstance()
 							.getFromCache(projectTag);
-					proteinBeans = new HashSet<ProteinBean>();
+					proteinBeans = new THashSet<ProteinBean>();
 					proteinBeans.addAll(fromCache);
 				} else {
 					final Map<String, Set<Protein>> proteinMap = RemoteServicesTasks.getProteinsFromProject(null,
@@ -654,7 +654,7 @@ public class DataExporter {
 	}
 
 	private static Map<String, List<String>> getConditionsByProjects(List<String> projectTags) throws PintException {
-		Map<String, List<String>> conditionsByProject = new HashMap<String, List<String>>();
+		Map<String, List<String>> conditionsByProject = new THashMap<String, List<String>>();
 		for (String projectTag : projectTags) {
 			final Set<Condition> experimentalConditions = RemoteServicesTasks
 					.getExperimentalConditionsFromProject(projectTag);
@@ -669,9 +669,9 @@ public class DataExporter {
 	}
 
 	private static Map<String, List<RatioDescriptorBean>> getRatioDescriptorsByProjects(List<String> projectTags) {
-		Map<String, List<RatioDescriptorBean>> ratiosByProject = new HashMap<String, List<RatioDescriptorBean>>();
+		Map<String, List<RatioDescriptorBean>> ratiosByProject = new THashMap<String, List<RatioDescriptorBean>>();
 
-		Set<String> projectTagSet = new HashSet<String>();
+		Set<String> projectTagSet = new THashSet<String>();
 		projectTagSet.addAll(projectTags);
 		final List<RatioDescriptorBean> experimentalConditions = RemoteServicesTasks
 				.getRatioDescriptorsFromProjects(projectTagSet);
@@ -865,6 +865,9 @@ public class DataExporter {
 	public static File exportProteinsForReactome(String sessionID, ServletContext servletContext) throws PintException {
 		final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
 		if (dataSet == null || dataSet.isEmpty() || !dataSet.isReady()) {
+			if (dataSet != null && !dataSet.getActiveDatasetThread().isAlive()) {
+				DataSetsManager.removeDataSet(sessionID);
+			}
 			throw new PintException("DataSet is not ready or is empty", PINT_ERROR_TYPE.DATA_EXPORTER_ERROR);
 		}
 		// final String fileName = "Reactome_" + sessionID + ".txt";

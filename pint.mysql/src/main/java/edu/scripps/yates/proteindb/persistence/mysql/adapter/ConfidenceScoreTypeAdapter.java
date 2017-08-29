@@ -1,21 +1,18 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ConfidenceScoreTypeAdapter
-		implements
-		Adapter<edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType>,
-		Serializable {
+		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType>, Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6579820518253735434L;
 	private final edu.scripps.yates.utilities.proteomicsmodel.Score score;
-	private final static Map<Integer, ConfidenceScoreType> map = new HashMap<Integer, ConfidenceScoreType>();
+	private final static TIntObjectHashMap<ConfidenceScoreType> map = new TIntObjectHashMap<ConfidenceScoreType>();
 
 	public ConfidenceScoreTypeAdapter(edu.scripps.yates.utilities.proteomicsmodel.Score score) {
 		this.score = score;

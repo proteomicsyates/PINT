@@ -59,7 +59,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		final Label label2 = new Label("Title:");
 		label2.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectTitle, 0, label2);
-		table.setWidget(rowProjectTitle, 1, getEscapedString(projectBean.getId()));
+		table.setWidget(rowProjectTitle, 1, getEscapedString(projectBean.getId(), true));
 		table.getCellFormatter().setAlignment(rowProjectTitle, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		table.getCellFormatter().setAlignment(rowProjectTitle, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
@@ -86,7 +86,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		final Label label5 = new Label("Description:");
 		label5.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectDescription, 0, label5);
-		table.setWidget(rowProjectDescription, 1, getEscapedString(projectBean.getDescription()));
+		table.setWidget(rowProjectDescription, 1, getEscapedString(projectBean.getDescription(), true));
 		table.getCellFormatter().setAlignment(rowProjectDescription, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		table.getCellFormatter().setAlignment(rowProjectDescription, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
@@ -108,18 +108,22 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		if (pubmedLink != null) {
 			return pubmedLink;
 		}
-		return getEscapedString(null);
+		return getEscapedString(null, false);
 
 	}
 
-	private Label getEscapedString(String string) {
+	private Label getEscapedString(String string, boolean skipStyle) {
 		if (string != null) {
 			Label label = new Label(string);
-			label.setStyleName("no-wrap");
+			if (!skipStyle) {
+				label.setStyleName("no-wrap");
+			}
 			return label;
 		} else {
 			Label label = new Label("Not available");
-			label.setStyleName("no-wrap");
+			if (!skipStyle) {
+				label.setStyleName("no-wrap");
+			}
 			return label;
 		}
 	}
@@ -132,7 +136,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			label.setStyleName("no-wrap");
 			return label;
 		} else {
-			return getEscapedString(null);
+			return getEscapedString(null, false);
 		}
 	}
 

@@ -1,8 +1,8 @@
 package edu.scripps.yates.persistence.memory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.proteored.miapeapi.experiment.model.Experiment;
@@ -16,25 +16,26 @@ import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Tissue;
+import gnu.trove.map.hash.THashMap;
 
 public class DataManagerMemory {
-	private final HashMap<String, Project> projects = new HashMap<String, Project>();
-	private final HashMap<String, List<Experiment>> experiments = new HashMap<String, List<Experiment>>();
+	private final Map<String, Project> projects = new THashMap<String, Project>();
+	private final Map<String, List<Experiment>> experiments = new THashMap<String, List<Experiment>>();
 
-	private final HashMap<String, List<Condition>> experimentConditions = new HashMap<String, List<Condition>>();
+	private final Map<String, List<Condition>> experimentConditions = new THashMap<String, List<Condition>>();
 	/**
 	 * A map of {@link MSRun} by path
 	 */
-	private final HashMap<String, MSRun> msRunsByPath = new HashMap<String, MSRun>();
+	private final Map<String, MSRun> msRunsByPath = new THashMap<String, MSRun>();
 	/**
 	 * A map of {@link MSRun} by id
 	 */
-	private final HashMap<String, MSRun> msRunsByID = new HashMap<String, MSRun>();
-	private final HashMap<String, List<Sample>> samples = new HashMap<String, List<Sample>>();
-	private final HashMap<String, Organism> organisms = new HashMap<String, Organism>();
-	private final HashMap<String, Tissue> tissues = new HashMap<String, Tissue>();
+	private final Map<String, MSRun> msRunsByID = new THashMap<String, MSRun>();
+	private final Map<String, List<Sample>> samples = new THashMap<String, List<Sample>>();
+	private final Map<String, Organism> organisms = new THashMap<String, Organism>();
+	private final Map<String, Tissue> tissues = new THashMap<String, Tissue>();
 	private final Logger log = Logger.getLogger(DataManagerMemory.class);
-	private final HashMap<Accession, List<Protein>> proteinMap = new HashMap<Accession, List<Protein>>();
+	private final Map<Accession, List<Protein>> proteinMap = new THashMap<Accession, List<Protein>>();
 
 	public Project getProjectByName(String projectName) {
 		return projects.get(projectName);
@@ -43,8 +44,7 @@ public class DataManagerMemory {
 	public void saveProject(Project project) {
 		final String name = project.getName();
 		if (projects.containsKey(name)) {
-			throw new IllegalArgumentException("Project with name '" + name
-					+ "' is already stored");
+			throw new IllegalArgumentException("Project with name '" + name + "' is already stored");
 		} else {
 			projects.put(name, project);
 		}
@@ -75,8 +75,7 @@ public class DataManagerMemory {
 	}
 
 	public void saveMSRun(MSRun msRun) {
-		log.debug("Saving new msRun in memory: " + msRun.getRunId() + ": "
-				+ msRun.getPath());
+		log.debug("Saving new msRun in memory: " + msRun.getRunId() + ": " + msRun.getPath());
 		msRunsByPath.put(msRun.getPath(), msRun);
 		msRunsByID.put(msRun.getRunId(), msRun);
 	}

@@ -1,12 +1,13 @@
 package edu.scripps.yates.annotations.uniprot;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
+
 public class UniprotPTMCVTerm {
-	private final Map<UniprotCVTermCode, Set<String>> values = new HashMap<UniprotCVTermCode, Set<String>>();
+	private final Map<UniprotCVTermCode, Set<String>> values = new THashMap<UniprotCVTermCode, Set<String>>();
 
 	/**
 	 * @return the values
@@ -23,7 +24,7 @@ public class UniprotPTMCVTerm {
 		if (values.containsKey(code)) {
 			values.get(code).add(value);
 		} else {
-			Set<String> set = new HashSet<String>();
+			Set<String> set = new THashSet<String>();
 			set.add(value);
 			values.put(code, set);
 		}

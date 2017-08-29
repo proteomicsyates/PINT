@@ -3,6 +3,20 @@
     PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app id="WebApp_1492817428040">
+
+	<!-- MODIFY THIS BEFORE SETTING UP YOUR SERVER -->
+	<!-- In this folder the pint.properties should be present -->
+	<context-param>
+		<param-name>PINT_HOME_PATH</param-name>
+		<param-value>/home/salvador/PInt</param-value>
+	</context-param>
+
+
+
+	<!-- ************************************* -->
+	<!-- DO NOT MODIFY ANYTHING FROM HERE      -->
+    <!-- ************************************* -->
+	
 	<!-- context-params -->
 	<!-- max size of the upload request -->
 	<context-param>
@@ -23,44 +37,41 @@
 		<!--    		<param-value>200</param-value> -->
 	</context-param>
 
-	
-
-	<!-- Remote access to OMIM database is controlled by a personal API KEY. In order to use the service, state here your OMIM API KEY -->
-	<!-- For requesting a new one, go to http://www.omim.org/api -->
-	<context-param>
-		<param-name>OMIM_API_KEY</param-name>
-		<param-value>nUQ7nH12QW6GxlhZk4bu1g</param-value>
-		<!--  include here your API key -->
-	</context-param>
-
-	
-
-
 	<!-- Filters -->
-	<filter id="Filter_1492817520469">
-		<filter-name>hibernateFilter</filter-name>
-		<display-name>hibernateFilter</display-name>
-		<filter-class>edu.scripps.yates.server.filter.HibernateFilter</filter-class>
-	</filter>
-
 	<filter id="Filter_1492817520481">
 		<filter-name>exceptionFilter</filter-name>
 		<display-name>exceptionFilter</display-name>
 		<filter-class>edu.scripps.yates.server.filter.ExceptionFilter</filter-class>
 	</filter>
+	<filter id="Filter_1492817520469">
+		<filter-name>hibernateFilter</filter-name>
+		<display-name>hibernateFilter</display-name>
+		<filter-class>edu.scripps.yates.server.filter.HibernateFilter</filter-class>
+	</filter>
+<!-- 	<filter id="Filter_1492817520469"> -->
+<!-- 		<filter-name>hibernateFilterManaged</filter-name> -->
+<!-- 		<display-name>hibernateFilterManaged</display-name> -->
+<!-- 		<filter-class>edu.scripps.yates.server.filter.HibernateFilterManaged</filter-class> -->
+<!-- 	</filter> -->
 
 	<!-- filter mappings -->
-	<!-- use hibernateFilter in all requests -->
-	<filter-mapping>
-		<filter-name>hibernateFilter</filter-name>
-		<url-pattern>*</url-pattern>
-	</filter-mapping>
-
 	<!--  filter to print stackTrace of unhandled exceptions  -->
 	<filter-mapping>
 		<filter-name>exceptionFilter</filter-name>
 		<url-pattern>*</url-pattern>
 	</filter-mapping>
+	<!-- use hibernateFilter in all requests -->
+	<filter-mapping>
+		<filter-name>hibernateFilter</filter-name>
+		<url-pattern>*</url-pattern>
+	</filter-mapping>
+	<!-- use hibernateFilter in all requests -->
+<!-- 	<filter-mapping> -->
+<!-- 		<filter-name>hibernateFilterManaged</filter-name> -->
+<!-- 		<url-pattern>*</url-pattern> -->
+<!-- 	</filter-mapping> -->
+
+	
 
 
 	<!-- listeners -->
@@ -167,6 +178,12 @@
 		</init-param>
 	</servlet>
 	
+	<servlet>
+    	<servlet-name>remoteLogging</servlet-name>
+    	<servlet-class>com.google.gwt.logging.server.RemoteLoggingServiceImpl</servlet-class>
+  	</servlet>
+  	
+	
 	<!-- servlet-mappings -->
 	<servlet-mapping id="ServletMapping_1492817520246">
 		<servlet-name>ReactomeRESTfulAPI</servlet-name>
@@ -224,8 +241,16 @@
 		<url-pattern>/pint/logging</url-pattern>
 	</servlet-mapping>
 
+	<servlet-mapping>
+    	<servlet-name>remoteLogging</servlet-name>
+    	<url-pattern>/pint/remote_logging</url-pattern>
+  	</servlet-mapping>
+  	
 	<!--  welcome-file-list -->
 	<welcome-file-list>
 		<welcome-file>Pint.html</welcome-file>
 	</welcome-file-list>
+	
+	
+	
 </web-app>

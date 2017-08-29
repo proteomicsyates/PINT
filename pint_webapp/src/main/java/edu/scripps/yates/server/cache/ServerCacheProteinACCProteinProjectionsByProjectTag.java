@@ -1,18 +1,18 @@
 package edu.scripps.yates.server.cache;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.ProteinProjection;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCacheProteinACCProteinProjectionsByProjectTag
 		implements Cache<Map<String, Set<ProteinProjection>>, String> {
-	private static final Map<String, Map<String, Set<ProteinProjection>>> map = new HashMap<String, Map<String, Set<ProteinProjection>>>();
+	private static final Map<String, Map<String, Set<ProteinProjection>>> map = new THashMap<String, Map<String, Set<ProteinProjection>>>();
 	private static ServerCacheProteinACCProteinProjectionsByProjectTag instance;
 
 	private ServerCacheProteinACCProteinProjectionsByProjectTag() {
@@ -61,7 +61,7 @@ public class ServerCacheProteinACCProteinProjectionsByProjectTag
 
 	@Override
 	public Set<Map<String, Set<ProteinProjection>>> getFromCache(Collection<String> keys) {
-		Set<Map<String, Set<ProteinProjection>>> ret = new HashSet<Map<String, Set<ProteinProjection>>>();
+		Set<Map<String, Set<ProteinProjection>>> ret = new THashSet<Map<String, Set<ProteinProjection>>>();
 		for (String key : keys) {
 			if (contains(key))
 				ret.add(getFromCache(key));

@@ -52,7 +52,7 @@ public class ProjectCreatorWizardUtil {
 		if (addEmptyFirstValue) {
 			starting = 1;
 		}
-		Set<Integer> projectObjectInternalIDs = new HashSet<Integer>();
+		HashSet<Integer> projectObjectInternalIDs = new HashSet<Integer>();
 		projectObjectInternalIDs.addAll(projectObjectsMap.keySet());
 
 		int itemCount = combo.getItemCount();

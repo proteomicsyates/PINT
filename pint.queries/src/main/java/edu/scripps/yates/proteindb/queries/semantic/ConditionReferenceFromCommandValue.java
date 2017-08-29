@@ -1,7 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
@@ -12,6 +11,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmAmount;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Class used for checking if a {@link Peptide}, {@link Psm}, {@link Psm},
@@ -22,7 +22,7 @@ import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
  *
  */
 public class ConditionReferenceFromCommandValue {
-	private final Set<ConditionProject> conditionProjects = new HashSet<ConditionProject>();
+	private final Set<ConditionProject> conditionProjects = new THashSet<ConditionProject>();
 
 	public class ConditionProject {
 		private final String conditionName;
@@ -43,6 +43,7 @@ public class ConditionReferenceFromCommandValue {
 
 		/*
 		 * (non-Javadoc)
+		 * 
 		 * @see java.lang.Object#equals(java.lang.Object)
 		 */
 		@Override

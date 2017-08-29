@@ -10,7 +10,7 @@ import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.TextBox;
 
 import edu.scripps.yates.client.ImportWizardServiceAsync;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.interfaces.HasId;
 import edu.scripps.yates.shared.model.projectCreator.excel.TissueTypeBean;
 

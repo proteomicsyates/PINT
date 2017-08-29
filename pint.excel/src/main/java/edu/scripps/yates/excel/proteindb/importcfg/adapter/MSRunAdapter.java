@@ -1,15 +1,15 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.MsRunType;
 import edu.scripps.yates.utilities.model.factories.MSRunEx;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
+import gnu.trove.map.hash.THashMap;
 
 public class MSRunAdapter implements edu.scripps.yates.utilities.pattern.Adapter<MSRun> {
-	private static Map<String, MSRun> map = new HashMap<String, MSRun>();
+	private static Map<String, MSRun> map = new THashMap<String, MSRun>();
 	private final MsRunType msRunCfg;
 	private final Project project;
 

@@ -1,9 +1,9 @@
 package edu.scripps.yates.server.cache;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -11,9 +11,11 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCacheProteinBeansByProjectTag implements Cache<List<ProteinBean>, String> {
-	private static final HashMap<String, List<ProteinBean>> map = new HashMap<String, List<ProteinBean>>();
+	private static final Map<String, List<ProteinBean>> map = new THashMap<String, List<ProteinBean>>();
 	private static final Logger log = Logger.getLogger(ServerCacheDefaultViewByProjectTag.class);
 	private static ServerCacheProteinBeansByProjectTag instance;
 	private static final boolean ENABLED = true;
@@ -36,7 +38,9 @@ public class ServerCacheProteinBeansByProjectTag implements Cache<List<ProteinBe
 			if (map.containsKey(key)) {
 				map.get(key).addAll(proteins);
 			} else {
-				map.put(key, proteins);
+				List<ProteinBean> list = new ArrayList<ProteinBean>();
+				list.addAll(proteins);
+				map.put(key, list);
 			}
 		}
 	}
@@ -67,7 +71,7 @@ public class ServerCacheProteinBeansByProjectTag implements Cache<List<ProteinBe
 
 	@Override
 	public Set<List<ProteinBean>> getFromCache(Collection<String> keys) {
-		Set<List<ProteinBean>> ret = new HashSet<List<ProteinBean>>();
+		Set<List<ProteinBean>> ret = new THashSet<List<ProteinBean>>();
 		for (String key : keys) {
 			if (contains(key))
 				ret.add(getFromCache(key));

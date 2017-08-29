@@ -1,8 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,26 +21,28 @@ import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class PSMImpl implements PSM {
-	private final static HashMap<Integer, PTM> ptmMap = new HashMap<Integer, PTM>();
-	private final static HashMap<Integer, Score> psmScoresMap = new HashMap<Integer, Score>();
-	private final static HashMap<Integer, Amount> psmAmountMap = new HashMap<Integer, Amount>();
-	private final static HashMap<Integer, Ratio> psmRatiosMap = new HashMap<Integer, Ratio>();
-	protected final static HashMap<Integer, PSM> psmMap = new HashMap<Integer, PSM>();
+	private final static TIntObjectHashMap<PTM> ptmMap = new TIntObjectHashMap<PTM>();
+	private final static TIntObjectHashMap<Score> psmScoresMap = new TIntObjectHashMap<Score>();
+	private final static TIntObjectHashMap<Amount> psmAmountMap = new TIntObjectHashMap<Amount>();
+	private final static TIntObjectHashMap<Ratio> psmRatiosMap = new TIntObjectHashMap<Ratio>();
+	protected final static TIntObjectHashMap<PSM> psmMap = new TIntObjectHashMap<PSM>();
 	private final Psm hibPSM;
 	private List<PTM> ptms;
 	private MSRun msRun;
-	private final Set<Score> scores = new HashSet<Score>();
-	private final HashSet<Amount> amounts = new HashSet<Amount>();
-	private final Set<Protein> proteins = new HashSet<Protein>();
+	private final Set<Score> scores = new THashSet<Score>();
+	private final Set<Amount> amounts = new THashSet<Amount>();
+	private final Set<Protein> proteins = new THashSet<Protein>();
 
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
 	private PeptideRelation relation;
 	private boolean scoresParsed = false;
 	private boolean psmAmountsParsed = false;
 	private boolean psmRatioParsed = false;
-	private final Set<Condition> conditions = new HashSet<Condition>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
 	private boolean conditionsParsed = false;
 	private Peptide peptide;
 	private boolean peptideParsed = false;

@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,10 +17,12 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.go.GORetriever;
 import edu.scripps.yates.annotations.go.GoEntry;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class FlatFileCache {
 	private final File indexFile;
-	private final static Map<String, Set<GoEntry>> entriesByID = new HashMap<String, Set<GoEntry>>();
+	private final static Map<String, Set<GoEntry>> entriesByID = new THashMap<String, Set<GoEntry>>();
 	private boolean ready = false;
 	private final static Logger log = Logger.getLogger(FlatFileCache.class);
 
@@ -47,7 +47,7 @@ public class FlatFileCache {
 	}
 
 	public synchronized Map<String, Set<GoEntry>> getEntriesByID(Collection<String> ids) {
-		Map<String, Set<GoEntry>> map = new HashMap<String, Set<GoEntry>>();
+		Map<String, Set<GoEntry>> map = new THashMap<String, Set<GoEntry>>();
 		setReady();
 		for (String id : ids) {
 			if (entriesByID.containsKey(id)) {
@@ -84,7 +84,7 @@ public class FlatFileCache {
 	}
 
 	private Set<GoEntry> getNotInIndex(Collection<GoEntry> entries) {
-		Set<GoEntry> notInIndex = new HashSet<GoEntry>();
+		Set<GoEntry> notInIndex = new THashSet<GoEntry>();
 		for (GoEntry goEntry : entries) {
 			if (!entriesByID.containsKey(goEntry.getId())) {
 				notInIndex.add(goEntry);
@@ -199,7 +199,7 @@ public class FlatFileCache {
 		if (ret.containsKey(goEntry.getId())) {
 			ret.get(goEntry.getId()).add(goEntry);
 		} else {
-			Set<GoEntry> set = new HashSet<GoEntry>();
+			Set<GoEntry> set = new THashSet<GoEntry>();
 			set.add(goEntry);
 			ret.put(goEntry.getId(), set);
 		}

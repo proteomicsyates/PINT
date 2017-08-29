@@ -1,7 +1,6 @@
 package edu.scripps.yates.censuschro;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,20 +25,21 @@ import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.util.StringPosition;
+import gnu.trove.set.hash.THashSet;
 
 public class PSMImplFromQuantifiedPSM implements PSM {
 
 	// public static Map<QuantifiedPSMInterface, PSM> map = new
 	// HashMap<QuantifiedPSMInterface, PSM>();
-	private final Set<Protein> proteins = new HashSet<Protein>();
+	private final Set<Protein> proteins = new THashSet<Protein>();
 	private final QuantifiedPSMInterface quantPSM;
 	private MSRun msRun;
-	private final Set<Condition> conditions = new HashSet<Condition>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
 	private PeptideRelation relation;
 	private Peptide peptide;
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
-	private final Set<Amount> amounts = new HashSet<Amount>();
-	private final Set<Score> scores = new HashSet<Score>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
+	private final Set<Amount> amounts = new THashSet<Amount>();
+	private final Set<Score> scores = new THashSet<Score>();
 	private boolean scoresParsed = false;
 	private IsobaricQuantifiedPSM censusChroQuantifiedPSM;
 	private static final String psmScoreName = CVManager

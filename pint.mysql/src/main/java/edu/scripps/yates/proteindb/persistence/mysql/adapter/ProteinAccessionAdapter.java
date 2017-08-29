@@ -2,7 +2,6 @@ package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +11,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import gnu.trove.map.hash.THashMap;
 
 public class ProteinAccessionAdapter implements Adapter<ProteinAccession>, Serializable {
 	/**
@@ -21,7 +21,7 @@ public class ProteinAccessionAdapter implements Adapter<ProteinAccession>, Seria
 	private final Accession accession;
 	private final boolean isPrimaryAccession;
 	public static final String SEPARATOR = "***";
-	private final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession> map = new HashMap<String, edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession>();
+	private final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession> map = new THashMap<String, edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession>();
 
 	public ProteinAccessionAdapter(Accession accession, boolean isPrimaryAccession) {
 		if (accession == null)

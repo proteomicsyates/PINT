@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.psm;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +12,7 @@ import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
+import gnu.trove.map.hash.THashMap;
 
 public class PsmProviderFromProjectCondition implements ProteinProviderFromDB {
 
@@ -27,7 +27,7 @@ public class PsmProviderFromProjectCondition implements ProteinProviderFromDB {
 	@Override
 	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
 		if (psms == null) {
-			psms = new HashMap<String, Set<Psm>>();
+			psms = new THashMap<String, Set<Psm>>();
 			int numPSMs = 0;
 			if (condition != null) {
 				final Set<ConditionProject> conditionProjects = condition.getConditionProjects();

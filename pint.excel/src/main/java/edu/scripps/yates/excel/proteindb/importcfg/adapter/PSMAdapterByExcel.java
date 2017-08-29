@@ -18,7 +18,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomic
 
 public class PSMAdapterByExcel implements Adapter<PSM> {
 	// private final static Map<String, Map<String, PSMEx>> psmMapByMSRunID =
-	// new HashMap<String, Map<String, PSMEx>>();
+	// new THashMap<String, Map<String, PSMEx>>();
 	// private final static Map<String, Set<Ratio>> ratioMap = new
 	// HashMap<String, Set<Ratio>>();
 
@@ -28,8 +28,8 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 	private final MsRunType msRun;
 	private final Condition condition;
 
-	// private static final Map<String, Map<Integer, Set<PSM>>>
-	// psmsByMSRunAndRowIndex = new HashMap<String, Map<Integer, Set<PSM>>>();
+	// private static final Map<String, TIntObjectHashMap< Set<PSM>>>
+	// psmsByMSRunAndRowIndex = new THashMap<String, TIntObjectHashMap< Set<PSM>>>();
 
 	public PSMAdapterByExcel(int rowIndex, IdentificationExcelType excelCfg, ExcelFileReader excelFileReader,
 			MsRunType msRun, Condition condition) {
@@ -59,7 +59,7 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 			// if (psmMapByMSRunID.containsKey(msRun.getId())) {
 			// psmMap = psmMapByMSRunID.get(msRun.getId());
 			// } else {
-			// psmMap = new HashMap<String, PSMEx>();
+			// psmMap = new THashMap<String, PSMEx>();
 			// psmMapByMSRunID.put(msRun.getId(), psmMap);
 			// }
 			if (StaticProteomicsModelStorage.containsPSM(msRun.getId(), null, rowIndex, psmId)) {
@@ -118,7 +118,7 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 	// if (ratioMap.containsKey(psmId)) {
 	// ret = ratioMap.get(psmId);
 	// }
-	// ret = new HashSet<Ratio>();
+	// ret = new THashSet<Ratio>();
 	// // psm ratios
 	// if (psmRatiosCfg != null) {
 	// final List<ExcelAmountRatioType> ratioListCfg = psmRatiosCfg
@@ -158,21 +158,21 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 	// private static void addPSMByMSRunIDAndRowIndex(String msRunRef, int
 	// rowIndex, PSM psm) {
 	// if (psmsByMSRunAndRowIndex.containsKey(msRunRef)) {
-	// final Map<Integer, Set<PSM>> map = psmsByMSRunAndRowIndex.get(msRunRef);
+	// final TIntObjectHashMap< Set<PSM>> map = psmsByMSRunAndRowIndex.get(msRunRef);
 	// addPSMByRowIndex(map, rowIndex, psm);
 	// } else {
-	// Map<Integer, Set<PSM>> map = new HashMap<Integer, Set<PSM>>();
+	// TIntObjectHashMap< Set<PSM>> map = new TIntObjectHashMap< Set<PSM>>();
 	// addPSMByRowIndex(map, rowIndex, psm);
 	// psmsByMSRunAndRowIndex.put(msRunRef, map);
 	// }
 	// }
 	//
-	// private static void addPSMByRowIndex(Map<Integer, Set<PSM>> map, int
+	// private static void addPSMByRowIndex(TIntObjectHashMap< Set<PSM>> map, int
 	// rowIndex, PSM psm) {
 	// if (map.containsKey(rowIndex)) {
 	// map.get(rowIndex).add(psm);
 	// } else {
-	// Set<PSM> set = new HashSet<PSM>();
+	// Set<PSM> set = new THashSet<PSM>();
 	// set.add(psm);
 	// map.put(rowIndex, set);
 	// }
@@ -189,9 +189,9 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 
 	// protected static Set<PSM> getPSMsByMSRunAndRow(int rowIndex, String
 	// msRunRef) {
-	// Set<PSM> ret = new HashSet<PSM>();
+	// Set<PSM> ret = new THashSet<PSM>();
 	// if (psmsByMSRunAndRowIndex.containsKey(msRunRef)) {
-	// final Map<Integer, Set<PSM>> psmsByRowIndex =
+	// final TIntObjectHashMap< Set<PSM>> psmsByRowIndex =
 	// psmsByMSRunAndRowIndex.get(msRunRef);
 	// if (psmsByRowIndex.containsKey(rowIndex)) {
 	// return psmsByRowIndex.get(rowIndex);

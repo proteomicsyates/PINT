@@ -3,8 +3,8 @@ package edu.scripps.yates.client;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
-import edu.scripps.yates.client.exceptions.PintException;
 import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
+import edu.scripps.yates.shared.exceptions.PintException;
 
 @RemoteServiceRelativePath("configuration")
 public interface ConfigurationService extends RemoteService {
@@ -29,10 +29,6 @@ public interface ConfigurationService extends RemoteService {
 	String getDBUserName();
 
 	void setDBUserName(String dbUserName) throws PintException;
-
-	String getProjectFilesPath();
-
-	void setProjectFilesPath(String projectFilesPath) throws PintException;
 
 	String getProjectToPreLoad();
 

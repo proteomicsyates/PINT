@@ -20,7 +20,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
-import edu.scripps.yates.client.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.DataSourceBean;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.ProjectBean;

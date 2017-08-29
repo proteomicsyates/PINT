@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -61,6 +60,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinImplFromUniprotEntry implements Protein {
 	private static Logger log = Logger.getLogger(ProteinImplFromUniprotEntry.class);
@@ -80,11 +80,11 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	private ProteinEvidence evidence;
 	private ProteinGroup proteinGroup;
 	private Organism organism;
-	private final Set<Amount> amounts = new HashSet<Amount>();
-	private final Set<Condition> conditions = new HashSet<Condition>();
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
-	private final Set<Score> scores = new HashSet<Score>();
-	private final Set<PSM> psms = new HashSet<PSM>();
+	private final Set<Amount> amounts = new THashSet<Amount>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
+	private final Set<Score> scores = new THashSet<Score>();
+	private final Set<PSM> psms = new THashSet<PSM>();
 	private boolean organismParsed;
 	private MSRun msRun;
 	private int length = 0;
@@ -92,8 +92,8 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	private double pi;
 	private double mw;
 	private boolean mwParsed;
-	private final Set<Peptide> peptides = new HashSet<Peptide>();
-	private final Set<Gene> genes = new HashSet<Gene>();
+	private final Set<Peptide> peptides = new THashSet<Peptide>();
+	private final Set<Gene> genes = new THashSet<Gene>();
 	private boolean genesParsed;
 
 	public ProteinImplFromUniprotEntry(Entry proteinEntry) {
@@ -200,7 +200,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 
 	@Override
 	public Set<ProteinAnnotation> getAnnotations() {
-		Set<ProteinAnnotation> ret = new HashSet<ProteinAnnotation>();
+		Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
 		// comments (CC):
 		final List<CommentType> comments = entry.getComment();
 		if (comments != null) {

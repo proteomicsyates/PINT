@@ -1,28 +1,33 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.PTMBean;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class PTMBeanAdapter implements Adapter<PTMBean> {
 	private final Ptm ptm;
-	private final static Map<Integer, PTMBean> map = new HashMap<Integer, PTMBean>();
+	private final static ThreadLocal<TIntObjectHashMap<PTMBean>> map = new ThreadLocal<TIntObjectHashMap<PTMBean>>();
 
 	public PTMBeanAdapter(Ptm ptm) {
 		this.ptm = ptm;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new TIntObjectHashMap<PTMBean>());
+		}
 	}
 
 	@Override
 	public PTMBean adapt() {
-		if (map.containsKey(ptm.getId())) {
-			map.get(ptm.getId());
+		if (map.get().containsKey(ptm.getId())) {
+			map.get().get(ptm.getId());
 		}
 		PTMBean ret = new PTMBean();
-		map.put(ptm.getId(), ret);
+		map.get().put(ptm.getId(), ret);
 		ret.setCvId(ptm.getCvId());
 		ret.setMassShift(ptm.getMassShift());
 		ret.setName(ptm.getName());
@@ -36,4 +41,9 @@ public class PTMBeanAdapter implements Adapter<PTMBean> {
 		return ret;
 	}
 
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
+	}
 }

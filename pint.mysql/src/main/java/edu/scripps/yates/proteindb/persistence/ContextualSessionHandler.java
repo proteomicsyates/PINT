@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.persistence;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
@@ -8,8 +7,11 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
@@ -38,7 +40,6 @@ public class ContextualSessionHandler {
 	// ThreadGroupLocal<Session>();
 
 	private static Logger log = Logger.getLogger("log4j.logger.org.proteored");
-	private static int contador = 0;
 	private static Statistics statistics;
 
 	/**
@@ -48,9 +49,9 @@ public class ContextualSessionHandler {
 	 * @param propertiesFile
 	 * @return
 	 */
-	public static SessionFactory getSessionFactory(File propertiesFile) {
+	public static SessionFactory getSessionFactory(String dbUsername, String dbPassword, String dbURL) {
 		if (sessionFactory == null) {
-			sessionFactory = HibernateUtil.getInstance(propertiesFile).getSessionFactory();
+			sessionFactory = HibernateUtil.getInstance(dbUsername, dbPassword, dbURL).getSessionFactory();
 			// enable statistics
 			sessionFactory.getStatistics().setStatisticsEnabled(true);
 		}
@@ -63,7 +64,7 @@ public class ContextualSessionHandler {
 	}
 
 	private static SessionFactory getSessionFactory() {
-		return getSessionFactory(null);
+		return getSessionFactory(null, null, null);
 	}
 
 	/**
@@ -71,27 +72,27 @@ public class ContextualSessionHandler {
 	 * no es SQL es Hibernate Query Languaje (HQL)
 	 */
 	public static Query createQuery(String query) {
-		return getSession().createQuery(query);
+		return getCurrentSession().createQuery(query);
 	}
 
 	public static <T> Criteria createCriteria(Class<?> clazz) {
-		return getSession().createCriteria(clazz);
+		return getCurrentSession().createCriteria(clazz);
 	}
 
 	public static <T> Criteria createCriteria(Class<?> clazz, String alias) {
-		return getSession().createCriteria(clazz, alias);
+		return getCurrentSession().createCriteria(clazz, alias);
 	}
 
 	public static <T> void saveSet(Set<T> set) {
 		for (T object : set) {
-			getSession().save(object);
+			getCurrentSession().save(object);
 		}
 	}
 
 	public static <T> void deleteSet(Set<T> set) {
 		if (set != null) {
 			for (T object : set) {
-				getSession().delete(object);
+				getCurrentSession().delete(object);
 			}
 		}
 	}
@@ -105,7 +106,7 @@ public class ContextualSessionHandler {
 	 * @return
 	 */
 	public static <T> Serializable save(T object) {
-		final Serializable save = getSession().save(object);
+		final Serializable save = getCurrentSession().save(object);
 
 		return save;
 
@@ -119,7 +120,7 @@ public class ContextualSessionHandler {
 	 * @param object
 	 */
 	public static <T> void update(T object) {
-		getSession().update(object);
+		getCurrentSession().update(object);
 	}
 
 	/**
@@ -130,7 +131,7 @@ public class ContextualSessionHandler {
 	 * @param object
 	 */
 	public static <T> void saveOrUpdate(T object) {
-		getSession().saveOrUpdate(object);
+		getCurrentSession().saveOrUpdate(object);
 	}
 
 	/**
@@ -142,12 +143,12 @@ public class ContextualSessionHandler {
 	 */
 	public static <T> void delete(T object) {
 		if (object != null) {
-			getSession().delete(object);
+			getCurrentSession().delete(object);
 		}
 	}
 
 	public static <T> void refresh(T object) {
-		getSession().refresh(object, LockOptions.READ);
+		getCurrentSession().refresh(object, LockOptions.READ);
 	}
 
 	public static <T> void refresh(Set<T> set) {
@@ -169,7 +170,7 @@ public class ContextualSessionHandler {
 	@SuppressWarnings("unchecked")
 	public static <T> T load(Serializable id, Class<?> clazz) {
 		if (id != null) {
-			T objectLoaded = (T) getSession().get(clazz, id);
+			T objectLoaded = (T) getCurrentSession().get(clazz, id);
 			Hibernate.initialize(objectLoaded);
 			return objectLoaded;
 		}
@@ -188,7 +189,7 @@ public class ContextualSessionHandler {
 	 * @return the list of objects of the class = clazz
 	 */
 	public static <T, M> List<T> retrieveList(List<Parameter<M>> listParameter, Class<?> clazz) {
-		Criteria criteria = getSession().createCriteria(clazz);
+		Criteria criteria = getCurrentSession().createCriteria(clazz);
 		for (Parameter<?> parameter : listParameter) {
 			criteria.add(Restrictions.eq(parameter.getKey(), parameter.getValue()));
 		}
@@ -207,10 +208,44 @@ public class ContextualSessionHandler {
 	 * @return the list of objects of the class = clazz
 	 */
 	public static <T> List<T> retrieveList(Class<?> clazz) {
-		Criteria criteria = getSession().createCriteria(clazz);
+		Criteria criteria = getCurrentSession().createCriteria(clazz);
 
 		@SuppressWarnings("unchecked")
 		List<T> result = criteria.list();
+
+		return result;
+	}
+
+	/**
+	 * Function like select * from clazz
+	 *
+	 * @param <T>
+	 *
+	 * @param clazz
+	 * @return the list of objects of the class = clazz
+	 */
+	public static <T> ScrollableResults retrieveReadOnlyIterator(Class<?> clazz) {
+		Criteria criteria = getCurrentSession().createCriteria(clazz).setReadOnly(true);
+
+		@SuppressWarnings("unchecked")
+		ScrollableResults result = criteria.scroll(ScrollMode.FORWARD_ONLY);
+
+		return result;
+	}
+
+	/**
+	 * Function like select * from clazz
+	 *
+	 * @param <T>
+	 *
+	 * @param clazz
+	 * @return the list of objects of the class = clazz
+	 */
+	public static <T> ScrollableResults retrieveIterator(Class<?> clazz) {
+		Criteria criteria = getCurrentSession().createCriteria(clazz).setReadOnly(false);
+
+		@SuppressWarnings("unchecked")
+		ScrollableResults result = criteria.scroll(ScrollMode.FORWARD_ONLY);
 
 		return result;
 	}
@@ -231,7 +266,7 @@ public class ContextualSessionHandler {
 	 */
 	public static <T, M2, M1> List<T> retrieveList(List<Parameter<M1>> listParameter,
 			List<Parameter<M2>> listParameter2, Class<?> clazz) {
-		Criteria criteria = getSession().createCriteria(clazz);
+		Criteria criteria = getCurrentSession().createCriteria(clazz);
 		for (Parameter<?> parameter : listParameter) {
 			criteria.add(Restrictions.eq(parameter.getKey(), parameter.getValue()));
 		}
@@ -260,7 +295,7 @@ public class ContextualSessionHandler {
 	 */
 	public static <M1, M2, M3, T> List<T> retrieveList(List<Parameter<M1>> listParameter,
 			List<Parameter<M2>> listParameter2, List<Parameter<M3>> listParameter3, Class<?> clazz) {
-		Criteria criteria = getSession().createCriteria(clazz);
+		Criteria criteria = getCurrentSession().createCriteria(clazz);
 		for (Parameter<?> parameter : listParameter) {
 			criteria.add(Restrictions.eq(parameter.getKey(), parameter.getValue()));
 		}
@@ -297,8 +332,15 @@ public class ContextualSessionHandler {
 	// session.close();
 	// }
 
-	public static Session getSession() {
-		final Session currentSession = getSessionFactory().getCurrentSession();
+	public static Session getCurrentSession() {
+		Session currentSession = null;
+		try {
+			currentSession = getSessionFactory().getCurrentSession();
+
+		} catch (HibernateException e) {
+			currentSession = openSession();
+		}
+
 		return currentSession;
 	}
 
@@ -306,24 +348,24 @@ public class ContextualSessionHandler {
 
 		// log.info("Closing the session " + contador + " (closing)" +
 		// " from Thread: " + Thread.currentThread().getId());
-		final Session session = getSession();
+		final Session session = getCurrentSession();
 		ManagedSessionContext.unbind(getSessionFactory());
 		session.close();
 
 	}
 
 	public static void beginGoodTransaction() {
-		getSession().beginTransaction();
+		getCurrentSession().beginTransaction();
 
 	}
 
 	private static void commitTransaction() {
-		getSession().getTransaction().commit();
+		getCurrentSession().getTransaction().commit();
 	}
 
 	public static void rollbackTransaction() {
 
-		getSession().getTransaction().rollback();
+		getCurrentSession().getTransaction().rollback();
 	}
 
 	// /////////////////////////////////////////
@@ -401,7 +443,7 @@ public class ContextualSessionHandler {
 	 *
 	 */
 	public static void flush() {
-		getSession().flush();
+		getCurrentSession().flush();
 	}
 
 	/**
@@ -411,11 +453,33 @@ public class ContextualSessionHandler {
 	 *
 	 */
 	public static void clear() {
-		getSession().clear();
+		getCurrentSession().clear();
 	}
 
+	/**
+	 * This open a session, but it will fail if the session factory was not
+	 * created before by calling to openSession(username, password, dbURL)
+	 * 
+	 * @return
+	 */
 	public static Session openSession() {
 		final Session currentSession = getSessionFactory().openSession();
+		ManagedSessionContext.bind(currentSession);
+		return currentSession;
+
+	}
+
+	/**
+	 * Opens a session and if it is necessary creates a new sessionFactory using
+	 * the username password and dbURL provided.
+	 * 
+	 * @param username
+	 * @param password
+	 * @param dbURL
+	 * @return
+	 */
+	public static Session openSession(String username, String password, String dbURL) {
+		final Session currentSession = getSessionFactory(username, password, dbURL).openSession();
 		ManagedSessionContext.bind(currentSession);
 		return currentSession;
 

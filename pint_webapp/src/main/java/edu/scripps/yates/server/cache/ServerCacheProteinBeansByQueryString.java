@@ -2,8 +2,6 @@ package edu.scripps.yates.server.cache;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,9 +9,11 @@ import java.util.Set;
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCacheProteinBeansByQueryString implements Cache<List<ProteinBean>, String> {
-	private static final Map<String, List<ProteinBean>> map = new HashMap<String, List<ProteinBean>>();
+	private static final Map<String, List<ProteinBean>> map = new THashMap<String, List<ProteinBean>>();
 	private static ServerCacheProteinBeansByQueryString instance;
 
 	private ServerCacheProteinBeansByQueryString() {
@@ -78,7 +78,7 @@ public class ServerCacheProteinBeansByQueryString implements Cache<List<ProteinB
 
 	@Override
 	public Set<List<ProteinBean>> getFromCache(Collection<String> keys) {
-		Set<List<ProteinBean>> ret = new HashSet<List<ProteinBean>>();
+		Set<List<ProteinBean>> ret = new THashSet<List<ProteinBean>>();
 		for (String key : keys) {
 			String processedKey = processKey(key);
 			if (contains(processedKey))

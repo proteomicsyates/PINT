@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -54,15 +53,14 @@ import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
-import edu.scripps.yates.client.interfaces.StatusReporter;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
-import edu.scripps.yates.client.util.StatusReportersRegister;
 import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.util.FileDescriptor;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class BrowsePanel extends InitializableComposite implements StatusReporter {
+public class BrowsePanel extends InitializableComposite {
 	private final Label projectTagLabel;
 	private final Label projectTitleLabel;
 	private final Label projectDescriptionLabel;
@@ -93,7 +91,6 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 	private MyDialogBox loadingDialog;
 
 	public BrowsePanel() {
-		StatusReportersRegister.getInstance().registerNewStatusReporter(this);
 		proteinGroupsLink.setStyleName("linkPINT");
 		proteinsLink.setStyleName("linkPINT");
 
@@ -873,31 +870,6 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 		}
 	}
 
-	@Override
-	public void showMessage(String message) {
-		GWT.log("Message: " + message);
-		showLoadingDialog(message, true, false, false);
-	}
-
-	@Override
-	public void showErrorMessage(Throwable throwable) {
-		throwable.printStackTrace();
-
-		String message = throwable.getMessage();
-		if (message == null) {
-			message = "Internal error";
-
-		}
-		showMessage(message);
-
-	}
-
-	@Override
-	public void initialize() {
-		// TODO Auto-generated method stub
-
-	}
-
 	private void showLoadingDialog(String text, boolean autohide, boolean modal, boolean showLoaderBar) {
 		if (loadingDialog == null) {
 			loadingDialog = new MyDialogBox(text, autohide, modal, showLoaderBar);
@@ -908,6 +880,12 @@ public class BrowsePanel extends InitializableComposite implements StatusReporte
 			loadingDialog.setShowLoadingBar(showLoaderBar);
 		}
 		loadingDialog.center();
+
+	}
+
+	@Override
+	public void initialize() {
+		// TODO Auto-generated method stub
 
 	}
 }

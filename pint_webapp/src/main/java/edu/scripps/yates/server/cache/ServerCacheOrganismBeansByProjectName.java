@@ -1,17 +1,17 @@
 package edu.scripps.yates.server.cache;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCacheOrganismBeansByProjectName implements Cache<Set<OrganismBean>, String> {
-	private static final Map<String, Set<OrganismBean>> map = new HashMap<String, Set<OrganismBean>>();
+	private static final Map<String, Set<OrganismBean>> map = new THashMap<String, Set<OrganismBean>>();
 	private static ServerCacheOrganismBeansByProjectName instance;
 
 	private ServerCacheOrganismBeansByProjectName() {
@@ -60,7 +60,7 @@ public class ServerCacheOrganismBeansByProjectName implements Cache<Set<Organism
 
 	@Override
 	public Set<Set<OrganismBean>> getFromCache(Collection<String> keys) {
-		Set<Set<OrganismBean>> ret = new HashSet<Set<OrganismBean>>();
+		Set<Set<OrganismBean>> ret = new THashSet<Set<OrganismBean>>();
 		for (String key : keys) {
 			if (contains(key))
 				ret.add(getFromCache(key));

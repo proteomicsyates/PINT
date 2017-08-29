@@ -48,9 +48,13 @@
 <!-- 	<set-property name="gwt.logging.popupHandler" value="DISABLED" />   -->
 	<set-property name="gwt.logging.consoleHandler" value="DISABLED"/>   
 <!-- 	<set-property name="gwt.logging.firebugHandler" value="ENABLED" />   -->
-
+ 	<set-property name="gwt.logging.simpleRemoteHandler" value="ENABLED"/>
 	
 
+	<!-- enable code compression -->
+	<inherits name="com.google.gwt.precompress.Precompress" />
+	
+	<!-- Reactome -->
 	<inherits name="org.reactome.web.fireworks.Fireworks" />
 	<inherits name="org.reactome.web.diagram.DiagramViewer" />
 

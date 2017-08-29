@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +35,9 @@ import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.ObjectFactory;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.utilities.fasta.FastaParser;
+import edu.scripps.yates.utilities.memory.MemoryUsageReport;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class UniprotProteinLocalRetriever {
 	private static final Logger log = Logger.getLogger(UniprotProteinLocalRetriever.class);
@@ -43,12 +45,14 @@ public class UniprotProteinLocalRetriever {
 
 	private static String defaultUniprotVersion;
 	private final File uniprotReleasesFolder;
-	private Collection<String> missingAccessions = new HashSet<String>();
+	private Collection<String> missingAccessions = new THashSet<String>();
 	private final boolean useIndex;
-	private final static Map<File, UniprotXmlIndex> loadedIndexes = new HashMap<File, UniprotXmlIndex>();
+	private final static Map<File, UniprotXmlIndex> loadedIndexes = new THashMap<File, UniprotXmlIndex>();
 	private static JAXBContext jaxbContext;
-	private boolean cacheEnabled = true;
-	private final Map<String, Entry> cache = new HashMap<String, Entry>();
+	private static boolean cacheEnabled = true;
+	private static final Map<String, Entry> cache = new THashMap<String, Entry>();
+	private boolean retrieveFastaIsoforms = true;
+	private List<String> entryKeys = new ArrayList<String>();
 	// private static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
 
 	/**
@@ -81,7 +85,7 @@ public class UniprotProteinLocalRetriever {
 	public static Set<String> getMissingAccessions(Collection<String> accessionsToQuery,
 			Map<String, ?> proteinsRetrieved) {
 
-		Set<String> missingAccessions = new HashSet<String>();
+		Set<String> missingAccessions = new THashSet<String>();
 		if (proteinsRetrieved.isEmpty()) {
 			for (String accession : accessionsToQuery) {
 				// changed in Dec2016
@@ -117,7 +121,7 @@ public class UniprotProteinLocalRetriever {
 
 	private List<Entry> parseXmlFile(File xmlFile) {
 		log.debug("Parsing file: " + xmlFile.getName());
-		// Map<String, Protein> ret = new HashMap<String, Protein>();
+		// Map<String, Protein> ret = new THashMap<String, Protein>();
 		try {
 
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -167,7 +171,7 @@ public class UniprotProteinLocalRetriever {
 	}
 
 	public Set<String> getUniprotVersionsForProjects(Map<String, Date> uploadedDateByProjectTags) {
-		Set<String> ret = new HashSet<String>();
+		Set<String> ret = new THashSet<String>();
 		if (uniprotReleasesFolder != null) {
 			File uniprotReleasesFile = getUniprotReleasesDatesFile();
 			if (uniprotReleasesFile.exists()) {
@@ -221,7 +225,7 @@ public class UniprotProteinLocalRetriever {
 	// protected static Map<Accession, Set<ProteinAnnotation>>
 	// getProteinAnnotationsFromProteins(
 	// Map<Accession, Protein> queryProteins) {
-	// Map<Accession, Set<ProteinAnnotation>> ret = new HashMap<Accession,
+	// Map<Accession, Set<ProteinAnnotation>> ret = new THashMap<Accession,
 	// Set<ProteinAnnotation>>();
 	//
 	// if (queryProteins != null) {
@@ -255,7 +259,7 @@ public class UniprotProteinLocalRetriever {
 				}
 				final List<Entry> entries = uniprot.getEntry();
 				for (Entry entry : entries) {
-					uniprotIndex.addItem(entry);
+					uniprotIndex.addItem(entry, null);
 				}
 				if (entries.size() > 1) {
 					log.info(entries.size() + " entries added to index of uniprot version " + uniprotVersion);
@@ -298,19 +302,19 @@ public class UniprotProteinLocalRetriever {
 	}
 
 	public Map<String, Entry> getAnnotatedProtein(String uniprotVersion, String accession) {
-		Set<String> accessions = new HashSet<String>();
+		Set<String> accessions = new THashSet<String>();
 		accessions.add(accession);
 		return getAnnotatedProteins(uniprotVersion, accessions);
 	}
 
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions) {
-		return getAnnotatedProteins(uniprotVersion, accessions, true);
+		return getAnnotatedProteins(uniprotVersion, accessions, retrieveFastaIsoforms);
 	}
 
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions,
 			boolean retrieveFastaIsoforms) {
-		Set<String> accsToSearch = new HashSet<String>();
-		Set<String> mainIsoforms = new HashSet<String>();
+		Set<String> accsToSearch = new THashSet<String>();
+		Set<String> mainIsoforms = new THashSet<String>();
 		for (String acc : accessions) {
 			// only search for the uniprot ones
 			if (!FastaParser.isContaminant(acc) && !FastaParser.isReverse(acc)
@@ -334,6 +338,9 @@ public class UniprotProteinLocalRetriever {
 			// look into cache if enabled
 			Iterator<String> iterator = accsToSearch.iterator();
 			while (iterator.hasNext()) {
+				if (Thread.currentThread().isInterrupted()) {
+					throw new RuntimeException("Thread interrupted");
+				}
 				String acc = iterator.next();
 				Entry cachedEntry = cache.get(acc);
 				if (cachedEntry != null) {
@@ -360,7 +367,7 @@ public class UniprotProteinLocalRetriever {
 			uniprotVersion = new Date().toString();
 		}
 		UniprotXmlIndex uniprotIndex = null;
-		Set<String> missingProteinsAccs = new HashSet<String>();
+		Set<String> missingProteinsAccs = new THashSet<String>();
 		File projectFolder = getUniprotAnnotationsFolder(uniprotVersion);
 		if (projectFolder != null && projectFolder.exists() && projectFolder.isDirectory()) {
 
@@ -377,10 +384,13 @@ public class UniprotProteinLocalRetriever {
 					int numEntriesRetrievedFromIndex = 0;
 
 					for (String acc : accsToSearch) {
-
+						if (Thread.currentThread().isInterrupted()) {
+							throw new RuntimeException("Thread interrupted");
+						}
 						final Entry item = uniprotIndex.getItem(acc);
 						if (item != null) {
 							if (cacheEnabled) {
+								checkMemoryForCache(1);
 								addEntryToMap(cache, item);
 							}
 							entries.add(item);
@@ -430,7 +440,7 @@ public class UniprotProteinLocalRetriever {
 					}
 				}
 			}
-			HashMap<String, Entry> queryProteinsMap = new HashMap<String, Entry>();
+			Map<String, Entry> queryProteinsMap = new THashMap<String, Entry>();
 			addEntriesToMap(queryProteinsMap, entries);// noIsoformAccs,
 														// queryProteinsMap,
 														// entries);
@@ -449,6 +459,7 @@ public class UniprotProteinLocalRetriever {
 					Map<String, Entry> annotatedProteins = uprr.getAnnotatedProteins(uniprotVersion,
 							missingProteinsAccs, uniprotIndex);
 					if (cacheEnabled) {
+						checkMemoryForCache(annotatedProteins.size());
 						cache.putAll(annotatedProteins);
 					}
 					queryProteinsMap.putAll(annotatedProteins);
@@ -469,6 +480,9 @@ public class UniprotProteinLocalRetriever {
 			// map main isoforms to the corresponding no isoform entries,
 			// that is an entry like P12345-1 to P12345
 			for (String mainIsoform : mainIsoforms) {
+				if (Thread.currentThread().isInterrupted()) {
+					throw new RuntimeException("Thread interrupted");
+				}
 				final Entry entry = queryProteinsMap.get(FastaParser.getNoIsoformAccession(mainIsoform));
 				if (entry != null) {
 					log.debug("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
@@ -485,7 +499,11 @@ public class UniprotProteinLocalRetriever {
 			return queryProteinsMap;
 		} else {
 			try {
-				log.info("Local information (local index folder) not found");
+				String folderPath = "";
+				if (projectFolder != null) {
+					folderPath = projectFolder.getAbsolutePath();
+				}
+				log.info("Local information (local index folder) not found " + folderPath);
 				log.info("Trying to get it remotely from Uniprot repository");
 				UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever(uniprotReleasesFolder, useIndex);
 				final Map<String, Entry> queryProteinsMap = uprr.getAnnotatedProteins(uniprotVersion, accsToSearch,
@@ -493,6 +511,9 @@ public class UniprotProteinLocalRetriever {
 				// map main isoforms to the corresponding no isoform entries,
 				// that is an entry like P12345-1 to P12345
 				for (String mainIsoform : mainIsoforms) {
+					if (Thread.currentThread().isInterrupted()) {
+						throw new RuntimeException("Thread interrupted");
+					}
 					final Entry entry = queryProteinsMap.get(FastaParser.getNoIsoformAccession(mainIsoform));
 					if (entry != null) {
 						if (cacheEnabled) {
@@ -506,14 +527,49 @@ public class UniprotProteinLocalRetriever {
 			} catch (IllegalArgumentException e) {
 				log.info(e.getMessage());
 				log.info("It is not possible to get information using the argument uniprot version: " + uniprotVersion);
-				return new HashMap<String, Entry>();
+				return new THashMap<String, Entry>();
 			}
+		}
+	}
+
+	private void checkMemoryForCache(int numItems) {
+		double freeMemoryPercentage = MemoryUsageReport.getFreeMemoryPercentage();
+		if (freeMemoryPercentage < MemoryUsageReport.RECOMMENDED_MINIMUM_MEMORY_PERCENTAGE) {
+			// remove one item from cache
+			log.warn("Memory free is under " + MemoryUsageReport.RECOMMENDED_MINIMUM_MEMORY_PERCENTAGE + "%: "
+					+ freeMemoryPercentage + ". Removing old entry from the cache before entering another one.");
+			for (int i = 0; i < numItems; i++) {
+				removeFirstEntryFromCache();
+			}
+		}
+	}
+
+	private void removeFirstEntryFromCache() {
+		Entry entry = cache.get(getFirstEntryKeyFromCache());
+		List<String> accession = entry.getAccession();
+		for (String acc : accession) {
+			cache.remove(acc);
+			entryKeys.remove(acc);
+		}
+	}
+
+	private String getFirstEntryKeyFromCache() {
+		if (!entryKeys.isEmpty()) {
+			return entryKeys.get(0);
+		}
+		return null;
+	}
+
+	private void addEntryKeys(Entry entry) {
+		List<String> accession = entry.getAccession();
+		for (String acc : accession) {
+			entryKeys.add(acc);
 		}
 	}
 
 	private Map<String, Entry> converToOriginalAccessions(HashMap<String, Entry> queryProteins,
 			Map<String, String> isoformMap) {
-		Map<String, Entry> ret = new HashMap<String, Entry>();
+		Map<String, Entry> ret = new THashMap<String, Entry>();
 		for (String nonIsoformAcc : queryProteins.keySet()) {
 			if (isoformMap.containsKey(nonIsoformAcc)) {
 				ret.put(isoformMap.get(nonIsoformAcc), queryProteins.get(nonIsoformAcc));
@@ -624,6 +680,11 @@ public class UniprotProteinLocalRetriever {
 
 	public void setCacheEnabled(boolean cacheEnabled) {
 		this.cacheEnabled = cacheEnabled;
+	}
+
+	public void setRetrieveFastaIsoforms(boolean b) {
+		retrieveFastaIsoforms = b;
+
 	}
 
 }

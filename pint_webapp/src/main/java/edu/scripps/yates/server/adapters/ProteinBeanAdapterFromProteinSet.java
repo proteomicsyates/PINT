@@ -21,11 +21,14 @@ import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
+import edu.scripps.yates.shared.exceptions.PintRuntimeException;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.ProteinBean;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Adapter for creating a single {@link ProteinBean} from a {@link Collection}
@@ -36,7 +39,7 @@ import edu.scripps.yates.shared.model.ProteinBean;
  */
 public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	private final static Logger log = Logger.getLogger(ProteinBeanAdapterFromProteinSet.class);
-	// private final static Map<String, ProteinBean> map = new HashMap<String,
+	// private final static Map<String, ProteinBean> map = new THashMap<String,
 	// ProteinBean>();
 	private final Set<QueriableProteinSet> queriableProteins;
 	// private final String primaryAcc;
@@ -46,7 +49,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 
 		// primaryAcc = primaryAcc;
 		this.hiddenPTMs = hiddenPTMs;
-		queriableProteins = new HashSet<QueriableProteinSet>();
+		queriableProteins = new THashSet<QueriableProteinSet>();
 
 		if (proteins != null) {
 			// for (Protein protein : proteins) {
@@ -81,6 +84,10 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// map.put(primaryAcc, ret);
 		// }
 		for (QueriableProteinSet queriableProtein : queriableProteins) {
+			if (Thread.currentThread().isInterrupted()) {
+				throw new PintRuntimeException(PINT_ERROR_TYPE.THREAD_INTERRUPTED);
+			}
+
 			addProteinInformationToProteinBean(ret, queriableProtein, hiddenPTMs);
 
 		}
@@ -94,13 +101,14 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	 * @param proteinBean
 	 * @param queriableProtein
 	 * @param hiddenPTMs
+	 * @throws InterruptedException
 	 */
 	private void addProteinInformationToProteinBean(ProteinBean proteinBean, QueriableProteinSet queriableProtein,
 			Collection<String> hiddenPTMs) {
-		for (Integer dbId : queriableProtein.getProteinDBIds()) {
+		for (Integer dbId : queriableProtein.getProteinDBIds()._set) {
 			ServerCacheProteinBeansByProteinDBId.getInstance().addtoCache(proteinBean, dbId);
 		}
-		proteinBean.addDbIds(queriableProtein.getProteinDBIds());
+		proteinBean.addDbIds(queriableProtein.getProteinDBIds()._set);
 		ProteinAccession primaryProteinAccession = queriableProtein.getPrimaryProteinAccession();
 		proteinBean.setPrimaryAccession(new AccessionBeanAdapter(primaryProteinAccession).adapt());
 		for (ProteinAccession proteinAccession : queriableProtein.getProteinAccessions()) {
@@ -109,7 +117,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 			}
 		}
 		if (proteinBean.getPrimaryAccession() == null) {
-			log.error("This protein has not primary accession");
+			log.error("This protein has not primary accession ");
 		}
 		// log.debug("Adapting genes for protein DbID: " + protein.getId()
 		// + " with linkToPSMs=" + linkToPSMs);
@@ -188,6 +196,10 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// log.debug("Adapting psms for protein DbID: " + protein.getId());
 		if (queriableProtein.getLinks() != null) {
 			for (LinkBetweenQueriableProteinSetAndPSM link : queriableProtein.getLinks()) {
+				if (Thread.interrupted()) {
+					throw new PintRuntimeException("Thread interrumpted while adapting proteinBean from proteinSet",
+							PINT_ERROR_TYPE.THREAD_INTERRUPTED);
+				}
 				final Psm psm = link.getQueriablePsm().getPsm();
 
 				if (!proteinBean.getPSMDBIds().contains(psm.getId())) {

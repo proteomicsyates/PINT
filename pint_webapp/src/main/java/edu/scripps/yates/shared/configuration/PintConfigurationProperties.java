@@ -9,11 +9,9 @@ public class PintConfigurationProperties implements Serializable {
 	private static final long serialVersionUID = 8891097817678540987L;
 	private String adminPassword;
 	private String omimKey;
-
 	private String db_username;
 	private String db_password;
 	private String db_url;
-	private String projectFilesPath;
 	private Boolean preLoadPublicProjects;
 	private String projectsToPreLoad;
 	private String projectsToNotPreLoad;
@@ -44,14 +42,6 @@ public class PintConfigurationProperties implements Serializable {
 
 	public void setDb_url(String db_url) {
 		this.db_url = db_url;
-	}
-
-	public String getProjectFilesPath() {
-		return projectFilesPath;
-	}
-
-	public void setProjectFilesPath(String projectFilesPath) {
-		this.projectFilesPath = projectFilesPath;
 	}
 
 	public Boolean isPreLoadPublicProjects() {
@@ -128,9 +118,7 @@ public class PintConfigurationProperties implements Serializable {
 		if (this.db_username == null || "".equals(db_username)) {
 			return true;
 		}
-		if (this.projectFilesPath == null || "".equals(projectFilesPath)) {
-			return true;
-		}
+
 		// if (this.projectsToNotPreLoad == null ||
 		// "".equals(projectsToNotPreLoad)) {
 		// return true;

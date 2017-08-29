@@ -55,10 +55,11 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.gui.PopUpPanelYesNo;
+import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.components.ScrolledTabLayoutPanel;
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncPathwaySummaryDataProvider;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 
 public class ReactomePanel extends ResizeLayoutPanel
 		implements NodeSelectedHandler, FireworksLoadedHandler, AnalysisResetHandler, NodeHoverHandler,
@@ -95,6 +96,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		FireworksFactory.CONSOLE_VERBOSE = true;
 		FireworksFactory.SERVER = "./reactome";
 		FireworksFactory.SHOW_INFO = false;
+		FireworksFactory.ILLUSTRATION_SERVER = FireworksFactory.SERVER;
 		// DiagramFactory
 		DiagramFactory.SHOW_FIREWORKS_BTN = true;
 		DiagramFactory.SERVER = "./reactome";
@@ -264,6 +266,11 @@ public class ReactomePanel extends ResizeLayoutPanel
 								"Reactome analysis received with " + result.getPathwaysFound() + " pathways found.");
 
 					}
+
+					@Override
+					public void onAnalysisError(Throwable exception) {
+						reactomeSubmitButton.setEnabled(true);
+					}
 				});
 
 	}
@@ -312,6 +319,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		for (int index = 0; index < speciesComboBox.getItemCount(); index++) {
 			if (speciesComboBox.getValue(index).equals(dataSpecies2.getScientificName())) {
 				speciesComboBox.setItemSelected(index, true);
+				requestFireworks(dataSpecies2, true);
 			} else {
 				speciesComboBox.setItemSelected(index, false);
 			}
@@ -444,8 +452,9 @@ public class ReactomePanel extends ResizeLayoutPanel
 		fireworks.resetHighlight();
 		fireworks.resetSelection();
 		// highlight and select node
-		StatusReportersRegister.getInstance()
-				.notifyStatusReporters("Selecting Pathway stId:" + pathway.getStId() + " dbId:" + pathway.getDbId());
+		StatusReportersRegister.getInstance().notifyStatusReporters(
+				"Selecting Pathway stId:" + pathway.getStId() + " dbId:" + pathway.getDbId(),
+				QueryPanel.class.getName());
 		toSelect = pathway;
 		toHighlight = pathway;
 

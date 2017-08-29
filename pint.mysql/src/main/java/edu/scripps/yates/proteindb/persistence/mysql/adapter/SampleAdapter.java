@@ -1,11 +1,10 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Organism;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class SampleAdapter implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.Sample>, Serializable {
 	/**
@@ -13,7 +12,7 @@ public class SampleAdapter implements Adapter<edu.scripps.yates.proteindb.persis
 	 */
 	private static final long serialVersionUID = 6490277510126371539L;
 	private final edu.scripps.yates.utilities.proteomicsmodel.Sample sample;
-	private final static Map<Integer, edu.scripps.yates.proteindb.persistence.mysql.Sample> map = new HashMap<Integer, Sample>();
+	private final static TIntObjectHashMap<edu.scripps.yates.proteindb.persistence.mysql.Sample> map = new TIntObjectHashMap<Sample>();
 
 	public SampleAdapter(edu.scripps.yates.utilities.proteomicsmodel.Sample sample2) {
 		sample = sample2;

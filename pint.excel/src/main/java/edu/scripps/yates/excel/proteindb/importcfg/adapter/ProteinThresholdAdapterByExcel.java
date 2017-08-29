@@ -1,6 +1,5 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -11,6 +10,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ProteinThresholdType;
 import edu.scripps.yates.utilities.model.factories.ProteinThresholdEx;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinThresholdAdapterByExcel implements Adapter<Set<Threshold>> {
 	private final int rowIndex;
@@ -26,7 +26,7 @@ public class ProteinThresholdAdapterByExcel implements Adapter<Set<Threshold>> {
 
 	@Override
 	public Set<Threshold> adapt() {
-		Set<Threshold> ret = new HashSet<Threshold>();
+		Set<Threshold> ret = new THashSet<Threshold>();
 
 		if (excelCondition.getProteinThresholds() != null) {
 			final List<ProteinThresholdType> proteinThresholdsCfg = excelCondition.getProteinThresholds()

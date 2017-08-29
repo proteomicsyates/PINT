@@ -1,7 +1,6 @@
 package edu.scripps.yates.proteindb.persistence;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +17,8 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 
+import gnu.trove.map.hash.THashMap;
+
 /**
  * This class handles a {@link Session} and a {@link Transaction} by storing
  * them by a custom key.
@@ -27,10 +28,12 @@ import org.hibernate.resource.transaction.spi.TransactionStatus;
  */
 public class SessionPerKey {
 
-	private static final SessionFactory sessionFactory = HibernateUtil.getInstance(null).getSessionFactory();
+	// TODO CHANGE THIS USENAME, PASSW, URL if you want to use it
+	private static final SessionFactory sessionFactory = HibernateUtil.getInstance(null, null, null)
+			.getSessionFactory();
 	// private static final ThreadGroupLocal<Session> threadGroupSession = new
 	// ThreadGroupLocal<Session>();
-	private static final Map<String, Transaction> transactions = new HashMap<String, Transaction>();
+	private static final Map<String, Transaction> transactions = new THashMap<String, Transaction>();
 
 	private static Logger log = Logger.getLogger("log4j.logger.org.proteored");
 	private static int contador = 0;

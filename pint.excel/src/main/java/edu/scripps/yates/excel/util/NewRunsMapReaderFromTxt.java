@@ -7,17 +7,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+
+import gnu.trove.map.hash.THashMap;
 
 public class NewRunsMapReaderFromTxt {
 	private static final File newPathFiles = new File(
 			"C:\\Users\\Salva\\Desktop\\Dropbox\\Scripps\\Sandra\\DtaSelect_ReRun\\newPaths.txt");
-	private static final File newPathFilesInServer = new File(
-			"/home/salvador/PInt/data/newPaths.txt");
+	private static final File newPathFilesInServer = new File("/home/salvador/PInt/data/newPaths.txt");
 
-	private static final HashMap<String, String> map = new HashMap<String, String>();
+	private static final Map<String, String> map = new THashMap<String, String>();
 	private static Logger log = Logger.getLogger(NewRunsMapReaderFromTxt.class);
 
 	private NewRunsMapReaderFromTxt() {
@@ -27,7 +28,7 @@ public class NewRunsMapReaderFromTxt {
 	/**
 	 * @return the map
 	 */
-	public static HashMap<String, String> getMap() {
+	public static Map<String, String> getMap() {
 		if (map.isEmpty())
 			loadData();
 		return map;
@@ -51,8 +52,7 @@ public class NewRunsMapReaderFromTxt {
 			} catch (FileNotFoundException e) {
 				fis = new FileInputStream(newPathFilesInServer);
 			}
-			BufferedReader br = new BufferedReader(new InputStreamReader(fis,
-					Charset.forName("UTF-8")));
+			BufferedReader br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 			String line;
 			while ((line = br.readLine()) != null) {
 				final String[] split = line.split("\t");

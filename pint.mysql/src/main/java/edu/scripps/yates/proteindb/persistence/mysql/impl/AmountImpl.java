@@ -1,34 +1,30 @@
 package edu.scripps.yates.proteindb.persistence.mysql.impl;
 
-import java.util.HashMap;
-
 import edu.scripps.yates.utilities.model.enums.AmountType;
 import edu.scripps.yates.utilities.model.enums.CombinationType;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class AmountImpl implements Amount {
-	protected static HashMap<Integer, Condition> experimentalConditions = new HashMap<Integer, Condition>();
+	protected static TIntObjectHashMap<Condition> experimentalConditions = new TIntObjectHashMap<Condition>();
 	private final edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount hibProteinAmount;
 	private final edu.scripps.yates.proteindb.persistence.mysql.PeptideAmount hibPeptideAmount;
 	private final edu.scripps.yates.proteindb.persistence.mysql.PsmAmount hibPsmAmount;
 
-	public AmountImpl(
-			edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount hibProteinAmount) {
+	public AmountImpl(edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount hibProteinAmount) {
 		this.hibProteinAmount = hibProteinAmount;
 		hibPeptideAmount = null;
 		hibPsmAmount = null;
 	}
 
-	public AmountImpl(
-			edu.scripps.yates.proteindb.persistence.mysql.PeptideAmount hibPeptideAmount) {
+	public AmountImpl(edu.scripps.yates.proteindb.persistence.mysql.PeptideAmount hibPeptideAmount) {
 		this.hibPeptideAmount = hibPeptideAmount;
 		hibProteinAmount = null;
 		hibPsmAmount = null;
 	}
 
-	public AmountImpl(
-			edu.scripps.yates.proteindb.persistence.mysql.PsmAmount hibPsmAmount) {
+	public AmountImpl(edu.scripps.yates.proteindb.persistence.mysql.PsmAmount hibPsmAmount) {
 		this.hibPsmAmount = hibPsmAmount;
 		hibProteinAmount = null;
 		hibPeptideAmount = null;
@@ -36,17 +32,12 @@ public class AmountImpl implements Amount {
 
 	@Override
 	public CombinationType getCombinationType() {
-		if (hibProteinAmount != null
-				&& hibProteinAmount.getCombinationType() != null)
-			return CombinationType.getCombinationType(hibProteinAmount
-					.getCombinationType().getName());
-		if (hibPeptideAmount != null
-				&& hibPeptideAmount.getCombinationType() != null)
-			return CombinationType.getCombinationType(hibPeptideAmount
-					.getCombinationType().getName());
+		if (hibProteinAmount != null && hibProteinAmount.getCombinationType() != null)
+			return CombinationType.getCombinationType(hibProteinAmount.getCombinationType().getName());
+		if (hibPeptideAmount != null && hibPeptideAmount.getCombinationType() != null)
+			return CombinationType.getCombinationType(hibPeptideAmount.getCombinationType().getName());
 		if (hibPsmAmount != null && hibPsmAmount.getCombinationType() != null)
-			return CombinationType.getCombinationType(hibPsmAmount
-					.getCombinationType().getName());
+			return CombinationType.getCombinationType(hibPsmAmount.getCombinationType().getName());
 		return null;
 	}
 
@@ -64,11 +55,9 @@ public class AmountImpl implements Amount {
 	@Override
 	public AmountType getAmountType() {
 		if (hibProteinAmount != null)
-			return AmountType.valueOf(hibProteinAmount.getAmountType()
-					.getName());
+			return AmountType.valueOf(hibProteinAmount.getAmountType().getName());
 		if (hibPeptideAmount != null)
-			return AmountType.valueOf(hibPeptideAmount.getAmountType()
-					.getName());
+			return AmountType.valueOf(hibPeptideAmount.getAmountType().getName());
 		if (hibPsmAmount != null)
 			return AmountType.valueOf(hibPsmAmount.getAmountType().getName());
 		return null;

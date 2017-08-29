@@ -1,11 +1,9 @@
-package edu.scripps.yates.client.util;
+package edu.scripps.yates.client.statusreporter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.Widget;
-
-import edu.scripps.yates.client.interfaces.StatusReporter;
 
 /**
  * Register of objects implementing the {@link StatusReporter} interfaz. This
@@ -35,27 +33,46 @@ public class StatusReportersRegister {
 	}
 
 	public void notifyStatusReporters(String message) {
+		notifyStatusReporters(message, null);
+	}
+
+	public void notifyStatusReporters(String message, String statusReporterKey) {
 		for (StatusReporter statusReporter : statusReporters) {
-			if (statusReporter instanceof Widget) {
-				if (((Widget) statusReporter).isVisible()) {
+			if (statusReporterKey == null
+					|| (statusReporterKey != null && statusReporterKey.equals(statusReporter.getStatusReporterKey()))) {
+				if (statusReporter instanceof Widget) {
+					if (((Widget) statusReporter).isVisible()) {
+						statusReporter.showMessage(message);
+					}
+				} else {
 					statusReporter.showMessage(message);
 				}
-			} else {
-				statusReporter.showMessage(message);
 			}
 		}
 	}
 
 	public void notifyStatusReporters(Throwable throwable) {
+		notifyStatusReporters(throwable, null);
+
+	}
+
+	public void notifyStatusReporters(Throwable throwable, String statusReporterKey) {
 		throwable.printStackTrace();
 		for (StatusReporter statusReporter : statusReporters) {
-			if (statusReporter instanceof Widget) {
-				if (((Widget) statusReporter).isVisible()) {
+			if (statusReporterKey == null
+					|| (statusReporterKey != null && statusReporterKey.equals(statusReporter.getStatusReporterKey()))) {
+				if (statusReporter instanceof Widget) {
+					if (((Widget) statusReporter).isVisible()) {
+						statusReporter.showErrorMessage(throwable);
+					}
+				} else {
 					statusReporter.showErrorMessage(throwable);
 				}
-			} else {
-				statusReporter.showErrorMessage(throwable);
 			}
 		}
+	}
+
+	public void unregisterStatusReporter(StatusReporter statusReporter) {
+		statusReporters.remove(statusReporter);
 	}
 }

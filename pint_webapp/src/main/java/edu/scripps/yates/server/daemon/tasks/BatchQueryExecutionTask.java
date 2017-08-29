@@ -3,7 +3,6 @@ package edu.scripps.yates.server.daemon.tasks;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,6 +11,7 @@ import javax.servlet.ServletContext;
 import edu.scripps.yates.server.DataSet;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.set.hash.THashSet;
 
 public class BatchQueryExecutionTask extends PintServerDaemonTask {
 	private final File queriesFile;
@@ -29,7 +29,7 @@ public class BatchQueryExecutionTask extends PintServerDaemonTask {
 			log.info("Batch execution skipped. Results file already exists at: " + outputFile.getAbsolutePath());
 			return;
 		}
-		Set<String> projects = new HashSet<String>();
+		Set<String> projects = new THashSet<String>();
 		projects.add("DmDshybrids2014");
 		Map<String, Pair<DataSet, String>> results = RemoteServicesTasks.batchQuery(queriesFile, projects, false);
 		FileWriter out = null;

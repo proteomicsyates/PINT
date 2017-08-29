@@ -1,7 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -10,10 +9,11 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAccessionAdapter;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
+import gnu.trove.map.hash.THashMap;
 
 public class AccessionImpl implements Accession {
 	private final ProteinAccession proteinAccession;
-	protected final static Map<String, Accession> accessionMap = new HashMap<String, Accession>();
+	protected final static Map<String, Accession> accessionMap = new THashMap<String, Accession>();
 
 	public AccessionImpl(ProteinAccession proteinAccession) {
 		this.proteinAccession = proteinAccession;
@@ -45,6 +45,7 @@ public class AccessionImpl implements Accession {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -57,6 +58,7 @@ public class AccessionImpl implements Accession {
 	/*
 	 * In order to get called the equals method when containsKey is called in a
 	 * HashMap where the keys are AccessionEx (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -66,6 +68,7 @@ public class AccessionImpl implements Accession {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -79,8 +82,7 @@ public class AccessionImpl implements Accession {
 		String alternativeNames = proteinAccession.getAlternativeNames();
 		if (alternativeNames != null)
 			if (alternativeNames.contains(ProteinAccessionAdapter.SEPARATOR)) {
-				StringTokenizer tokenizer = new StringTokenizer(
-						alternativeNames, ProteinAccessionAdapter.SEPARATOR);
+				StringTokenizer tokenizer = new StringTokenizer(alternativeNames, ProteinAccessionAdapter.SEPARATOR);
 
 				while (tokenizer.hasMoreElements()) {
 					String string = tokenizer.nextToken();

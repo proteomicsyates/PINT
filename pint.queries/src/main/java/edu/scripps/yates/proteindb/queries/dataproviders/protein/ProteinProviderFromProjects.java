@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.protein;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +11,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
+import gnu.trove.map.hash.THashMap;
 
 public class ProteinProviderFromProjects implements ProteinProviderFromDB {
 
@@ -26,7 +26,7 @@ public class ProteinProviderFromProjects implements ProteinProviderFromDB {
 	@Override
 	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
 		if (results == null) {
-			results = new HashMap<String, Set<Protein>>();
+			results = new THashMap<String, Set<Protein>>();
 			int numProteins = 0;
 			if (projectTags != null && !projectTags.isEmpty()) {
 				for (String projectTag : projectTags) {

@@ -1,15 +1,15 @@
 package edu.scripps.yates.server.cache;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.model.ProteinBean;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCacheProteinBeansByProteinBeanUniqueIdentifier implements Cache<ProteinBean, Integer> {
-	private static final HashMap<Integer, ProteinBean> map = new HashMap<Integer, ProteinBean>();
+	private static final TIntObjectHashMap<ProteinBean> map = new TIntObjectHashMap<ProteinBean>();
 
 	private static ServerCacheProteinBeansByProteinBeanUniqueIdentifier instance;
 
@@ -56,7 +56,7 @@ public class ServerCacheProteinBeansByProteinBeanUniqueIdentifier implements Cac
 
 	@Override
 	public Set<ProteinBean> getFromCache(Collection<Integer> keys) {
-		Set<ProteinBean> ret = new HashSet<ProteinBean>();
+		Set<ProteinBean> ret = new THashSet<ProteinBean>();
 		for (Integer key : keys) {
 			if (contains(key))
 				ret.add(getFromCache(key));

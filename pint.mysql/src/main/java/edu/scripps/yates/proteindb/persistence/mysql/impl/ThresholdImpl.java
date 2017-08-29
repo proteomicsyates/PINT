@@ -1,12 +1,11 @@
 package edu.scripps.yates.proteindb.persistence.mysql.impl;
 
-import java.util.HashMap;
-
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ThresholdImpl implements Threshold {
-	protected static HashMap<Integer, Threshold> thresholdsMap = new HashMap<Integer, Threshold>();
+	protected static TIntObjectHashMap<Threshold> thresholdsMap = new TIntObjectHashMap<Threshold>();
 
 	private final ProteinThreshold hibProteinThreshold;
 

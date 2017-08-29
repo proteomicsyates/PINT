@@ -1,29 +1,34 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ProteinRatioBeanAdapter implements Adapter<RatioBean> {
 	private final ProteinRatioValue proteinRatioValue;
-	private final static Map<Integer, RatioBean> map = new HashMap<Integer, RatioBean>();
+	private final static ThreadLocal<TIntObjectHashMap<RatioBean>> map = new ThreadLocal<TIntObjectHashMap<RatioBean>>();
 
 	public ProteinRatioBeanAdapter(ProteinRatioValue proteinRatioValue) {
 		this.proteinRatioValue = proteinRatioValue;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (map.get() == null) {
+			map.set(new TIntObjectHashMap<RatioBean>());
+		}
 	}
 
 	@Override
 	public RatioBean adapt() {
-		if (map.containsKey(proteinRatioValue.getId()))
-			return map.get(proteinRatioValue.getId());
+		if (map.get().containsKey(proteinRatioValue.getId()))
+			return map.get().get(proteinRatioValue.getId());
 		RatioBean ret = new RatioBean();
-		map.put(proteinRatioValue.getId(), ret);
+		map.get().put(proteinRatioValue.getId(), ret);
 		if (proteinRatioValue.getConfidenceScoreValue() != null) {
 			ret.setAssociatedConfidenceScore(
 					new ScoreBeanAdapter(String.valueOf(proteinRatioValue.getConfidenceScoreValue()),
@@ -43,4 +48,9 @@ public class ProteinRatioBeanAdapter implements Adapter<RatioBean> {
 		return ret;
 	}
 
+	public static void clearStaticMap() {
+		if (map.get() != null) {
+			map.get().clear();
+		}
+	}
 }

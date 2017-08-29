@@ -9,7 +9,7 @@ import com.google.gwt.user.cellview.client.Header;
 
 import edu.scripps.yates.client.gui.components.SharingPeptidesPanel;
 import edu.scripps.yates.client.gui.components.WindowBox;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinBean;

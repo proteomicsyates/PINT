@@ -13,7 +13,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,6 +21,7 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.shared.model.ProjectBean;
+import gnu.trove.map.hash.THashMap;
 
 /**
  * This class will be able to register every new Uniprot release with a vertain
@@ -81,7 +81,7 @@ public class UniprotVersionReleasesDates {
 	 * @return
 	 */
 	public Map<String, Date> getUniprotReleaseDatesByVersions() {
-		Map<String, Date> ret = new HashMap<String, Date>();
+		Map<String, Date> ret = new THashMap<String, Date>();
 		final File uniprotReleasesDatesFile = getUniprotReleasesDatesFile();
 		try {
 			List<String> lines = Files.readAllLines(Paths.get(uniprotReleasesDatesFile.getAbsolutePath()),

@@ -1,8 +1,5 @@
 package edu.scripps.yates.server.adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount;
@@ -10,21 +7,35 @@ import edu.scripps.yates.proteindb.persistence.mysql.PsmAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.AmountType;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class AmountBeanAdapter implements Adapter<AmountBean> {
 	private final ProteinAmount proteinAmount;
 	private final PeptideAmount peptideAmount;
 	private final PsmAmount psmAmount;
 	private final MsRun msRun;
-	private static final Map<Integer, AmountBean> mapPep = new HashMap<Integer, AmountBean>();
-	private static final Map<Integer, AmountBean> mapPro = new HashMap<Integer, AmountBean>();
-	private static final Map<Integer, AmountBean> mapPsm = new HashMap<Integer, AmountBean>();
+	private static final ThreadLocal<TIntObjectHashMap<AmountBean>> mapPep = new ThreadLocal<TIntObjectHashMap<AmountBean>>();
+	private static final ThreadLocal<TIntObjectHashMap<AmountBean>> mapPro = new ThreadLocal<TIntObjectHashMap<AmountBean>>();
+	private static final ThreadLocal<TIntObjectHashMap<AmountBean>> mapPsm = new ThreadLocal<TIntObjectHashMap<AmountBean>>();
 
 	public AmountBeanAdapter(ProteinAmount proteinAmount, MsRun msRun) {
 		this.proteinAmount = proteinAmount;
 		peptideAmount = null;
 		psmAmount = null;
 		this.msRun = msRun;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (mapPep.get() == null) {
+			mapPep.set(new TIntObjectHashMap<AmountBean>());
+		}
+		if (mapPro.get() == null) {
+			mapPro.set(new TIntObjectHashMap<AmountBean>());
+		}
+		if (mapPsm.get() == null) {
+			mapPsm.set(new TIntObjectHashMap<AmountBean>());
+		}
 	}
 
 	public AmountBeanAdapter(PeptideAmount peptideAmount, MsRun msRun) {
@@ -32,6 +43,7 @@ public class AmountBeanAdapter implements Adapter<AmountBean> {
 		this.peptideAmount = peptideAmount;
 		psmAmount = null;
 		this.msRun = msRun;
+		initializeMap();
 	}
 
 	public AmountBeanAdapter(PsmAmount psmAmount, MsRun msRun) {
@@ -39,6 +51,7 @@ public class AmountBeanAdapter implements Adapter<AmountBean> {
 		peptideAmount = null;
 		this.psmAmount = psmAmount;
 		this.msRun = msRun;
+		initializeMap();
 	}
 
 	@Override
@@ -47,9 +60,9 @@ public class AmountBeanAdapter implements Adapter<AmountBean> {
 		AmountBean ret = new AmountBean();
 		ret.setMsRun(new MSRunBeanAdapter(msRun).adapt());
 		if (proteinAmount != null) {
-			if (mapPro.containsKey(proteinAmount.getId()))
-				return mapPro.get(proteinAmount.getId());
-			mapPro.put(proteinAmount.getId(), ret);
+			if (mapPro.get().containsKey(proteinAmount.getId()))
+				return mapPro.get().get(proteinAmount.getId());
+			mapPro.get().put(proteinAmount.getId(), ret);
 			ret.setAmountType(AmountType.fromValue(proteinAmount.getAmountType().getName()));
 			ret.setComposed(proteinAmount.getCombinationType() != null);
 			ret.setValue(proteinAmount.getValue());
@@ -58,18 +71,18 @@ public class AmountBeanAdapter implements Adapter<AmountBean> {
 			ret.setManualSPC(proteinAmount.getManualSPC());
 
 		} else if (peptideAmount != null) {
-			if (mapPep.containsKey(peptideAmount.getId()))
-				return mapPep.get(peptideAmount.getId());
-			mapPep.put(peptideAmount.getId(), ret);
+			if (mapPep.get().containsKey(peptideAmount.getId()))
+				return mapPep.get().get(peptideAmount.getId());
+			mapPep.get().put(peptideAmount.getId(), ret);
 			ret.setAmountType(AmountType.fromValue(peptideAmount.getAmountType().getName()));
 			ret.setComposed(peptideAmount.getCombinationType() != null);
 			ret.setValue(peptideAmount.getValue());
 			ret.setExperimentalCondition(new ConditionBeanAdapter(peptideAmount.getCondition()).adapt());
 			// TODO add PeptideBean when peptide bean exist
 		} else if (psmAmount != null) {
-			if (mapPsm.containsKey(psmAmount.getId()))
-				return mapPsm.get(psmAmount.getId());
-			mapPsm.put(psmAmount.getId(), ret);
+			if (mapPsm.get().containsKey(psmAmount.getId()))
+				return mapPsm.get().get(psmAmount.getId());
+			mapPsm.get().put(psmAmount.getId(), ret);
 			ret.setAmountType(AmountType.fromValue(psmAmount.getAmountType().getName()));
 			ret.setComposed(psmAmount.getCombinationType() != null);
 			ret.setValue(psmAmount.getValue());
@@ -80,4 +93,15 @@ public class AmountBeanAdapter implements Adapter<AmountBean> {
 
 	}
 
+	public static void clearStaticMap() {
+		if (mapPep.get() != null) {
+			mapPep.get().clear();
+		}
+		if (mapPro.get() != null) {
+			mapPro.get().clear();
+		}
+		if (mapPsm.get() != null) {
+			mapPsm.get().clear();
+		}
+	}
 }

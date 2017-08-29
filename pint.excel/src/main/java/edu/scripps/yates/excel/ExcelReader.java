@@ -8,10 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
@@ -26,10 +24,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import edu.scripps.yates.excel.util.ColumnIndexManager;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ExcelReader {
 	private final String filePath;
-	private HashMap<Integer, List<String>> columnNames = new HashMap<Integer, List<String>>();
+	private TIntObjectHashMap<List<String>> columnNames = new TIntObjectHashMap<List<String>>();
 	private Workbook wb;
 	private ColumnIndexManager columnIndexManager;
 	private final int minSheetIndex;
@@ -50,9 +50,9 @@ public class ExcelReader {
 		this.minSheetIndex = minSheetIndex;
 		this.maxSheetIndex = maxSheetIndex;
 		this.filePath = filePath;
-		final Set<Integer> sheetNumbers = getColumnNames(minSheetIndex, maxSheetIndex).keySet();
+		final int[] sheetNumbers = getColumnNames(minSheetIndex, maxSheetIndex).keys();
 		if (log.isDebugEnabled()) {
-			for (Integer sheetNum : sheetNumbers) {
+			for (int sheetNum : sheetNumbers) {
 				final List<String> list = getColumnNames(minSheetIndex, maxSheetIndex).get(sheetNum);
 				for (String string : list) {
 					log.debug(string);
@@ -183,7 +183,7 @@ public class ExcelReader {
 
 	public Map<String, String> getColumnValuePairs(int sheetNumber, int rowNumber) throws IOException {
 
-		Map<String, String> ret = new HashMap<String, String>();
+		Map<String, String> ret = new THashMap<String, String>();
 
 		List<String> columnNamesOfTheSheet = getColumnNames(sheetNumber, sheetNumber).get(sheetNumber);
 
@@ -233,13 +233,13 @@ public class ExcelReader {
 	 * @return
 	 * @throws IOException
 	 */
-	public HashMap<Integer, List<String>> getColumnNames() throws IOException {
+	public TIntObjectHashMap<List<String>> getColumnNames() throws IOException {
 		return getColumnNames(minSheetIndex, maxSheetIndex);
 	}
 
-	private HashMap<Integer, List<String>> getColumnNames(int minSheetIndex, int maxSheetIndex) throws IOException {
+	private TIntObjectHashMap<List<String>> getColumnNames(int minSheetIndex, int maxSheetIndex) throws IOException {
 		if (columnNames.isEmpty()) {
-			columnNames = new HashMap<Integer, List<String>>();
+			columnNames = new TIntObjectHashMap<List<String>>();
 			final int numberOfSheets = getWorkbook().getNumberOfSheets();
 			int numColumns = 0;
 			for (int sheetNumber = minSheetIndex; sheetNumber < numberOfSheets; sheetNumber++) {

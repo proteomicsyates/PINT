@@ -1,16 +1,16 @@
 package edu.scripps.yates.server.cache;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.shared.cache.Cache;
 import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ServerCacheHiddenPTMsByProjectTag implements Cache<Set<String>, String> {
-	private static final Map<String, Set<String>> map = new HashMap<String, Set<String>>();
+	private static final Map<String, Set<String>> map = new THashMap<String, Set<String>>();
 	private static ServerCacheHiddenPTMsByProjectTag instance;
 
 	private ServerCacheHiddenPTMsByProjectTag() {
@@ -70,7 +70,7 @@ public class ServerCacheHiddenPTMsByProjectTag implements Cache<Set<String>, Str
 
 	@Override
 	public Set<Set<String>> getFromCache(Collection<String> keys) {
-		Set<Set<String>> ret = new HashSet<Set<String>>();
+		Set<Set<String>> ret = new THashSet<Set<String>>();
 		for (String key : keys) {
 			String processedKey = processKey(key);
 			if (contains(processedKey))

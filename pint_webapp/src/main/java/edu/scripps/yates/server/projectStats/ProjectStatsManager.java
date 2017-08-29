@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,13 +31,14 @@ import edu.scripps.yates.shared.model.projectStats.ProjectStats;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsImpl;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsParent;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsType;
+import gnu.trove.map.hash.THashMap;
 
 public class ProjectStatsManager {
 	private final static Logger log = Logger.getLogger(ProjectStatsManager.class);
 	private static ProjectStatsManager instance;
 	private final File file;
-	private final Map<String, ProjectStatsParent> map = new HashMap<String, ProjectStatsParent>();
-	private final HashMap<Thread, Method> methodsByThread = new HashMap<Thread, Method>();
+	private final Map<String, ProjectStatsParent> map = new THashMap<String, ProjectStatsParent>();
+	private final Map<Thread, Method> methodsByThread = new THashMap<Thread, Method>();
 	private static ProjectStats generalProjectsStats = new ProjectStatsImpl(null, ProjectStatsType.PINT);
 
 	private ProjectStatsManager(File file, Method method) {
@@ -53,9 +53,10 @@ public class ProjectStatsManager {
 		BufferedReader br = null;
 		try {
 			FileInputStream fis = new FileInputStream(file);
-			fileLock = fis.getChannel().lock(0L, Long.MAX_VALUE, true);
 			log.info("Trying to get the lock from Thread " + Thread.currentThread().getId() + " from method "
 					+ methodsByThread.get(Thread.currentThread()).getName());
+
+			fileLock = fis.getChannel().lock(0L, Long.MAX_VALUE, true);
 
 			log.info("Lock acquired from Thread " + Thread.currentThread().getId() + " from method "
 					+ methodsByThread.get(Thread.currentThread()).getName());
@@ -194,11 +195,11 @@ public class ProjectStatsManager {
 
 	private void updateFile(String line) {
 		// wait until someone release the lock
-		FileLock fileLock = null;
+
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(file, true);
-			fileLock = fos.getChannel().lock();
+
 			log.info("Trying to get the lock for update the file from Thread " + Thread.currentThread().getId()
 					+ " from method " + methodsByThread.get(Thread.currentThread()).getName());
 
@@ -217,15 +218,7 @@ public class ProjectStatsManager {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} finally {
-			if (fileLock != null) {
-				try {
-					fileLock.release();
-					log.info("Lock released from Thread " + Thread.currentThread().getId() + " from method "
-							+ methodsByThread.get(Thread.currentThread()).getName());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+
 			if (fos != null) {
 				try {
 					fos.close();

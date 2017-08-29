@@ -8,7 +8,7 @@ import java.util.Set;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
-import edu.scripps.yates.client.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;
@@ -89,7 +89,7 @@ public interface ProteinRetrievalService extends RemoteService {
 	List<RatioDescriptorBean> getRatioDescriptorsFromProjects(Set<String> projectTags) throws PintException;
 
 	// List<ProteinGroupBean> groupProteins(
-	// Set<Integer> proteinBeanUniqueIdentifiers,
+	// TInHashSet proteinBeanUniqueIdentifiers,
 	// boolean separateNonConclusiveProteins) throws PintException;
 
 	ProteinGroupBeanSubList groupProteins(String sessionID, boolean separateNonConclusiveProteins, int pageSize)
@@ -233,4 +233,6 @@ public interface ProteinRetrievalService extends RemoteService {
 	int getNumGenes(String projectTag, SampleBean sample) throws PintException;
 
 	int getNumMSRuns(String projectTag, SampleBean sample) throws PintException;
+
+	void cancelQuery(String sessionID) throws PintException;
 }

@@ -18,8 +18,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +35,8 @@ import edu.scripps.yates.annotations.uniref.xml.PropertyType;
 import edu.scripps.yates.annotations.uniref.xml.UniRef;
 import edu.scripps.yates.annotations.util.PropertiesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * This class is used for retrieving the UniRef90 entries from a given UNIPROT
@@ -55,7 +55,7 @@ public class UnirefRetriever {
 	private static final int MAX_NUM_ENTRIES_PER_QUERY = 250;
 	private static UnirefRetriever instance;
 	private final File mappingFile;
-	private final Map<String, Set<String>> map = new HashMap<String, Set<String>>();
+	private final Map<String, Set<String>> map = new THashMap<String, Set<String>>();
 	private final Integer counterPartNCBITaxID;
 
 	private UnirefRetriever(File outputFile2, Integer counterPartNCBITaxID2) {
@@ -136,7 +136,7 @@ public class UnirefRetriever {
 		// }
 		// }
 		// }
-		Map<String, Set<String>> ret2 = new HashMap<String, Set<String>>();
+		Map<String, Set<String>> ret2 = new THashMap<String, Set<String>>();
 		for (String uniprotAcc : uniprotACCs) {
 			final Set<String> set = map.get(uniprotAcc);
 			if (set != null) {
@@ -152,11 +152,11 @@ public class UnirefRetriever {
 
 	private Map<String, Set<String>> retrieve(Collection<String> uniprotACCs, Integer counterPartNCBITaxID) {
 		final String unirefUrl = unirefProps.getPropertyValue(PropertiesUtil.UNIREF_URL_PROP);
-		Map<String, Set<String>> ret = new HashMap<String, Set<String>>();
+		Map<String, Set<String>> ret = new THashMap<String, Set<String>>();
 		final Iterator<String> uniprotIDIterator = uniprotACCs.iterator();
 		int num = 0;
 		while (num < uniprotACCs.size()) {
-			Set<String> queryIDs = new HashSet<String>();
+			Set<String> queryIDs = new THashSet<String>();
 			for (int i = 0; i < MAX_NUM_ENTRIES_PER_QUERY; i++) {
 				if (uniprotIDIterator.hasNext()) {
 					String uniprotAcc = uniprotIDIterator.next();
@@ -187,7 +187,7 @@ public class UnirefRetriever {
 			}
 			url += "&format=xml";
 			log.info(num + "/" + uniprotACCs.size() + " processed");
-			Map<String, Set<String>> ret2 = new HashMap<String, Set<String>>();
+			Map<String, Set<String>> ret2 = new THashMap<String, Set<String>>();
 			UniRef uniref = sendRequest(url);
 			if (uniref != null && uniref.getEntry() != null) {
 				for (EntryType entry : uniref.getEntry()) {
@@ -235,7 +235,7 @@ public class UnirefRetriever {
 			}
 			final Set<String> missingAccessions = getMissingAccessions(queryIDs, ret2.keySet());
 			for (String missing : missingAccessions) {
-				ret2.put(missing, new HashSet<String>());
+				ret2.put(missing, new THashSet<String>());
 			}
 			appendToFile(ret2);
 		}
@@ -247,14 +247,14 @@ public class UnirefRetriever {
 		if (map.containsKey(uniprotAcc)) {
 			map.get(uniprotAcc).add(otherUniprotAcc);
 		} else {
-			Set<String> set = new HashSet<String>();
+			Set<String> set = new THashSet<String>();
 			set.add(otherUniprotAcc);
 			map.put(uniprotAcc, set);
 		}
 	}
 
 	private static Set<String> getMissingAccessions(Collection<String> queryIDs, Collection<String> retrievedEntries) {
-		Set<String> ret = new HashSet<String>();
+		Set<String> ret = new THashSet<String>();
 		for (String queryID : queryIDs) {
 			if (!retrievedEntries.contains(queryID)) {
 				ret.add(queryID);
@@ -431,7 +431,7 @@ public class UnirefRetriever {
 						if (map.containsKey(oneSpeciesProtAcc)) {
 							map.get(oneSpeciesProtAcc).add(split[i]);
 						} else {
-							Set<String> set = new HashSet<String>();
+							Set<String> set = new THashSet<String>();
 							set.add(split[i]);
 							map.put(oneSpeciesProtAcc, set);
 						}

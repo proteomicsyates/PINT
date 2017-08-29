@@ -1,7 +1,6 @@
 package edu.scripps.yates.server.adapters;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,12 +17,16 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.server.cache.ServerCachePSMBeansByPSMDBId;
 import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
+import edu.scripps.yates.shared.exceptions.PintRuntimeException;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ProteinBean;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Adapter for creating a single {@link ProteinBean} from a {@link Collection}
@@ -104,10 +107,14 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 			}
 		}
 
-		Map<Condition, Set<Psm>> psmsByCondition = new HashMap<Condition, Set<Psm>>();
+		Map<Condition, Set<Psm>> psmsByCondition = new THashMap<Condition, Set<Psm>>();
 		// log.debug("Adapting psms for peptide DbID: " + peptide.getId());
 
 		for (Object obj : peptide.getPsms()) {
+			if (Thread.interrupted()) {
+				throw new PintRuntimeException("Thread interrumpted while adapting peptideBean from peptideSet",
+						PINT_ERROR_TYPE.THREAD_INTERRUPTED);
+			}
 			final Psm psm = (Psm) obj;
 			final PSMBean psmBeanByPSMId = ServerCachePSMBeansByPSMDBId.getInstance().getFromCache(psm.getId());
 			if (psmBeanByPSMId != null) {
@@ -132,7 +139,7 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 					if (psmsByCondition.containsKey(condition)) {
 						psmsByCondition.get(condition).add(psm);
 					} else {
-						Set<Psm> set = new HashSet<Psm>();
+						Set<Psm> set = new THashSet<Psm>();
 						set.add(psm);
 						psmsByCondition.put(condition, set);
 					}

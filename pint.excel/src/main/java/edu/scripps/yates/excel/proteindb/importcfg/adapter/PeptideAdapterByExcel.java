@@ -15,7 +15,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomic
 
 public class PeptideAdapterByExcel implements Adapter<Peptide> {
 	// private final static Map<String, Map<String, PeptideEx>>
-	// peptideMapByMSRunID = new HashMap<String, Map<String, PeptideEx>>();
+	// peptideMapByMSRunID = new THashMap<String, Map<String, PeptideEx>>();
 	// private final static Map<String, Set<Ratio>> ratioMap = new
 	// HashMap<String, Set<Ratio>>();
 
@@ -23,8 +23,8 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 	private final IdentificationExcelType excelCfg;
 	private final ExcelFileReader excelFileReader;
 	private final MsRunType msRun;
-	// public static final Map<Integer, Set<Peptide>> peptideByRowIndex = new
-	// HashMap<Integer, Set<Peptide>>();
+	// public static final TIntObjectHashMap< Set<Peptide>> peptideByRowIndex = new
+	// TIntObjectHashMap< Set<Peptide>>();
 	private final Condition condition;
 
 	public PeptideAdapterByExcel(int rowIndex, IdentificationExcelType excelCfg, ExcelFileReader excelFileReader,
@@ -52,7 +52,7 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 			// if (peptideMapByMSRunID.containsKey(msRun.getId())) {
 			// peptideMap = peptideMapByMSRunID.get(msRun.getId());
 			// } else {
-			// peptideMap = new HashMap<String, PeptideEx>();
+			// peptideMap = new THashMap<String, PeptideEx>();
 			// peptideMapByMSRunID.put(msRun.getId(), peptideMap);
 			// }
 
@@ -102,7 +102,7 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 	// if (ratioMap.containsKey(psmId)) {
 	// ret = ratioMap.get(psmId);
 	// }
-	// ret = new HashSet<Ratio>();
+	// ret = new THashSet<Ratio>();
 	// // psm ratios
 	// if (psmRatiosCfg != null) {
 	// final List<ExcelAmountRatioType> ratioListCfg = psmRatiosCfg
@@ -143,7 +143,7 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 	// if (peptideByRowIndex.containsKey(rowIndex)) {
 	// peptideByRowIndex.get(rowIndex).add(peptide);
 	// } else {
-	// Set<Peptide> set = new HashSet<Peptide>();
+	// Set<Peptide> set = new THashSet<Peptide>();
 	// set.add(peptide);
 	// peptideByRowIndex.put(rowIndex, set);
 	// }

@@ -3,7 +3,6 @@ package edu.scripps.yates.excel.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,13 +17,15 @@ import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.util.StringPosition;
+import gnu.trove.map.hash.TDoubleObjectHashMap;
+import gnu.trove.map.hash.THashMap;
 
 public class ExcelUtils {
 	private final static Logger log = Logger.getLogger(ExcelUtils.class);
 	private final static String BRAKETS_REGEXP = "([^\\[]+)\\[(\\w+?)\\](\\w+?)";
 	private final static String PARENTHESIS_REGEXP = ".*?([^\\(\\)]+)\\((\\S+?)\\)([^\\)\\(]+).*?";
 	private final static String POINTS_REGEXP = "\\w+?\\.(\\S+?)\\.\\w+?";
-	private static final HashMap<MSRun, Map<String, Peptide>> peptidesByMSRun = new HashMap<MSRun, Map<String, Peptide>>();
+	private static final Map<MSRun, Map<String, Peptide>> peptidesByMSRun = new THashMap<MSRun, Map<String, Peptide>>();
 	public static final String MULTIPLE_ITEM_SEPARATOR = ",";
 
 	// private static boolean somethingExtrangeInSequence(String seq) {
@@ -38,7 +39,7 @@ public class ExcelUtils {
 	// }
 
 	public static List<PTM> getPTMsFromRawSequence(String seq) {
-		HashMap<Double, PTM> map = new HashMap<Double, PTM>();
+		TDoubleObjectHashMap<PTM> map = new TDoubleObjectHashMap<PTM>();
 		if (FastaParser.somethingExtrangeInSequence(seq)) {
 			List<StringPosition> massDiffsStrings = FastaParser.getInside(seq);
 			if (!massDiffsStrings.isEmpty()) {
@@ -66,7 +67,7 @@ public class ExcelUtils {
 			}
 		}
 		List<PTM> ret = new ArrayList<PTM>();
-		for (PTM ptm : map.values()) {
+		for (PTM ptm : map.valueCollection()) {
 			ret.add(ptm);
 		}
 		Collections.sort(ret, new Comparator<PTM>() {
@@ -109,7 +110,7 @@ public class ExcelUtils {
 	// if (peptidesByMSRun.containsKey(msRun)) {
 	// peptideSet = peptidesByMSRun.get(msRun);
 	// } else {
-	// peptideSet = new HashMap<String, Peptide>();
+	// peptideSet = new THashMap<String, Peptide>();
 	// peptidesByMSRun.put(msRun, peptideSet);
 	// }
 	// for (String sequence : psmMapBySequence.keySet()) {

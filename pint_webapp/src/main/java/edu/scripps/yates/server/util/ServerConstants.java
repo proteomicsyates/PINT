@@ -42,9 +42,7 @@ public class ServerConstants {
 	public static final String PEPTIDE_PAGE_SIZE = "peptide table page size";
 	public static final String PEPTIDE_COLUMNS = "peptide columns";
 
-	// this file should be located at the WEB-INF folder
+	// this file should be located at the PINT_HOME_FOLDER
 	public static final String PINT_PROPERTIES_FILE_NAME = "pint.properties";
-	public static final String PINT_TEST_PROPERTIES_FILE_NAME = "pint_test.properties";
-	public static final String PINT_SCRIPPS_PROPERTIES_FILE_NAME = "pint_scripps.properties";
 
 }

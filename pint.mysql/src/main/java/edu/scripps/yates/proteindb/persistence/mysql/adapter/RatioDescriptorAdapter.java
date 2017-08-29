@@ -1,7 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
@@ -10,6 +9,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
+import gnu.trove.map.hash.THashMap;
 
 public class RatioDescriptorAdapter
 		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor>, Serializable {
@@ -25,7 +25,7 @@ public class RatioDescriptorAdapter
 	private final Project hibProject;
 	private final PeptideRatioValue hibPeptideRatioValue;
 	private final PsmRatioValue hibPsmRatioValue;
-	private final static Map<String, RatioDescriptor> map = new HashMap<String, RatioDescriptor>();
+	private final static Map<String, RatioDescriptor> map = new THashMap<String, RatioDescriptor>();
 
 	public RatioDescriptorAdapter(String description, Condition condition1, Condition condition2,
 			ProteinRatioValue hibProteinRatioValue, Project hibProject) {

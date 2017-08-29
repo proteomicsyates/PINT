@@ -1,7 +1,6 @@
 package edu.scripps.yates.censuschro;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,23 +35,24 @@ import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinImplFromQuantifiedProtein implements Protein {
 	private final static Logger log = Logger.getLogger(ProteinImplFromQuantifiedProtein.class);
 	private final QuantifiedProteinInterface quantProtein;
 	private Accession primaryAccession;
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
 	private MSRun msRun;
-	private final Set<Condition> conditions = new HashSet<Condition>();
-	private final Set<Amount> amounts = new HashSet<Amount>();
-	private final Set<ProteinAnnotation> annotations = new HashSet<ProteinAnnotation>();
-	private final Set<Threshold> thresholds = new HashSet<Threshold>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
+	private final Set<Amount> amounts = new THashSet<Amount>();
+	private final Set<ProteinAnnotation> annotations = new THashSet<ProteinAnnotation>();
+	private final Set<Threshold> thresholds = new THashSet<Threshold>();
 	private ProteinEvidence evidence;
 	private ProteinGroup proteinGroup;
 	private Organism organism;
-	private final Set<Peptide> peptides = new HashSet<Peptide>();
-	private final Set<PSM> psms = new HashSet<PSM>();
-	private final Set<Score> scores = new HashSet<Score>();
+	private final Set<Peptide> peptides = new THashSet<Peptide>();
+	private final Set<PSM> psms = new THashSet<PSM>();
+	private final Set<Score> scores = new THashSet<Score>();
 	private boolean psmsParsed = false;
 	private boolean peptidesParsed = false;
 	private boolean organismParsed = false;
@@ -62,7 +62,7 @@ public class ProteinImplFromQuantifiedProtein implements Protein {
 	private boolean piParsed = false;
 	private int length;
 	private boolean lengthParsed = false;
-	private final Set<Gene> genes = new HashSet<Gene>();
+	private final Set<Gene> genes = new THashSet<Gene>();
 	private boolean genesParsed = false;
 	private final List<Accession> secondaryAccessions = new ArrayList<Accession>();
 

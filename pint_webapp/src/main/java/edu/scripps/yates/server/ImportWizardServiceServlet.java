@@ -22,7 +22,6 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -44,8 +43,6 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.client.ImportWizardService;
-import edu.scripps.yates.client.exceptions.PintException;
-import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.ExcelSheet;
 import edu.scripps.yates.excel.impl.ExcelFileImpl;
@@ -82,8 +79,9 @@ import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.FileWithFormat;
 import edu.scripps.yates.server.util.RemoteFileWithType;
 import edu.scripps.yates.server.util.ServerConstants;
-import edu.scripps.yates.server.util.ServerUtil;
 import edu.scripps.yates.server.util.ServletCommonInit;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.DataSourceBean;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.ProjectBean;
@@ -106,6 +104,7 @@ import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
 import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
 import edu.scripps.yates.utilities.xml.XMLSchemaValidatorErrorHandler;
 import edu.scripps.yates.utilities.xml.XmlSchemaValidator;
+import gnu.trove.set.hash.THashSet;
 import psidev.psi.tools.validator.ValidatorMessage;
 
 public class ImportWizardServiceServlet extends RemoteServiceServlet implements ImportWizardService {
@@ -793,7 +792,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			}
 			// check ratios
 			boolean someRatio = false;
-			Set<String> conditionsInRatios = new HashSet<String>();
+			Set<String> conditionsInRatios = new THashSet<String>();
 			List<RemoteFilesRatioType> remoteFilesRatioTypes = new ArrayList<RemoteFilesRatioType>();
 			if (pintImportCfg.getProject() != null && pintImportCfg.getProject().getExperimentalConditions() != null) {
 				final RatiosType ratios = pintImportCfg.getProject().getRatios();
@@ -859,7 +858,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 				if (pintImportCfg.getProject().getExperimentalConditions() != null) {
 					if (pintImportCfg.getProject().getExperimentalConditions().getExperimentalCondition() != null) {
 						List<Pair<String, String>> conditionPairsInRatios = new ArrayList<Pair<String, String>>();
-						Set<String> samplesInRatios = new HashSet<String>();
+						Set<String> samplesInRatios = new THashSet<String>();
 						for (ExperimentalConditionType condition : pintImportCfg.getProject()
 								.getExperimentalConditions().getExperimentalCondition()) {
 							if (conditionsInRatios.contains(condition.getId())) {
@@ -1149,7 +1148,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public List<String> getScoreTypes(String sessionID) {
 		if (scoreTypes == null) {
 			scoreTypes = new ArrayList<String>();
-			Set<String> set = new HashSet<String>();
+			Set<String> set = new THashSet<String>();
 			// TODO take the possible values from here?
 			final List<ControlVocabularyTerm> possibleValues = Score.getInstance(cvManager).getPossibleValues();
 			for (ControlVocabularyTerm controlVocabularyTerm : possibleValues) {
@@ -1166,7 +1165,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public List<String> getPTMNames(String sessionID) {
 		if (ptmNames == null) {
 			ptmNames = new ArrayList<String>();
-			Set<String> set = new HashSet<String>();
+			Set<String> set = new THashSet<String>();
 			// TODO take the possible values from here?
 			final List<ControlVocabularyTerm> possibleValues = PeptideModificationName.getInstance(cvManager)
 					.getPossibleValues();
@@ -1240,7 +1239,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public void checkUserLogin(String userName, String encryptedPassword) throws PintException {
 		final String adminPassword = PintConfigurationPropertiesIO
-				.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext())).getAdminPassword();
+				.readProperties(FileManager.getPINTPropertiesFile(getServletContext())).getAdminPassword();
 		if (adminPassword == null || "".equals(adminPassword)) {
 			return;
 		} else if (adminPassword.equals(encryptedPassword)) {

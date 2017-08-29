@@ -1,15 +1,15 @@
 package edu.scripps.yates.proteindb.persistence.mysql.impl;
 
 import java.util.Date;
-import java.util.HashMap;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class MSRunImpl implements MSRun {
 	private final MsRun hibMSRun;
-	protected static HashMap<Integer, MSRun> msRuns = new HashMap<Integer, MSRun>();
+	protected static TIntObjectHashMap<MSRun> msRuns = new TIntObjectHashMap<MSRun>();
 
 	public MSRunImpl(MsRun hibMSRun) {
 		this.hibMSRun = hibMSRun;

@@ -203,10 +203,10 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 	protected static int compareNumbers(Number o1, Number o2) {
 
 		if (o1 == null && o2 != null) {
-			return 1;
+			return -1;
 		}
 		if (o1 != null && o2 == null) {
-			return -1;
+			return 1;
 		}
 		if (o1 == null && o2 == null) {
 			return 0;

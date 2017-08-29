@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.protein;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,11 +9,12 @@ import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
+import gnu.trove.map.hash.THashMap;
 
 public class ProteinProviderFromTaxonomy implements ProteinProviderFromDB {
 	private final String organismName;
 	private final String ncbiTaxID;
-	private HashMap<String, Set<Protein>> proteins;
+	private Map<String, Set<Protein>> proteins;
 	private Set<String> projectTags;
 
 	public ProteinProviderFromTaxonomy(String organismName, String ncbiTaxID) {
@@ -26,7 +26,7 @@ public class ProteinProviderFromTaxonomy implements ProteinProviderFromDB {
 	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
 		if (proteins == null) {
 			int numProteins = 0;
-			proteins = new HashMap<String, Set<Protein>>();
+			proteins = new THashMap<String, Set<Protein>>();
 			if (projectTags == null || projectTags.isEmpty()) {
 				final Map<String, Set<Protein>> proteinsWithTaxonomy = PreparedQueries.getProteinsWithTaxonomy(null,
 						organismName, ncbiTaxID);

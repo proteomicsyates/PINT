@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -23,9 +22,10 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FormatType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServerType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServersType;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
+import gnu.trove.map.hash.THashMap;
 
 public class ExcelFileReader {
-	private final Map<String, ExcelFile> excelFileMap = new HashMap<String, ExcelFile>();
+	private final Map<String, ExcelFile> excelFileMap = new THashMap<String, ExcelFile>();
 	private final String errorMessage = "Column reference not recognized. It must be like 'fileName_sheetName_columnLetter'";
 
 	public ExcelFileReader(FileSetType fileSet, ServersType servers) throws IOException, URISyntaxException {

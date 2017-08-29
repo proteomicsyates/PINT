@@ -130,7 +130,7 @@ public enum ColumnName {
 	PATHWAY_REACTIONS_RATIO("Ratio of found reactions", "R. Ratio", "Ratio of found reactions"), //
 	PATHWAY_ENTITIES_RESOURCE("Pathway resource", "Pathway resource", "Pathway resource"), //
 	PATHWAY_REACTIONS_RESOURCE("Reactions resource", "Reactions resource", "Reactions resource"), //
-	PATHWAY_ENTITIES_FOUND("Entities found", "Foung entities", "Number of entities found"), //
+	PATHWAY_ENTITIES_FOUND("Entities found", "Found entities", "Number of entities found"), //
 	PATHWAY_REACTIONS_FOUND("Reactions found", "Found reactions", "Number of reactions found"), //
 	PATHWAY_ENTITIES_TOTAL("Total entities", "Total entities", "Number of total entities"), //
 	PATHWAY_REACTIONS_TOTAL("Total reactions", "Total reactions", "Number of total reactions"), //

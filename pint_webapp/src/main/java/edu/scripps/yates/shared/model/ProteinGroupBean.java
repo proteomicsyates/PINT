@@ -448,6 +448,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.util.ArrayList#add(java.lang.Object)
 	 */
 	@Override
@@ -467,6 +468,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.util.ArrayList#addAll(java.util.Collection)
 	 */
 	@Override
@@ -718,6 +720,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

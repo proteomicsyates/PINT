@@ -1,14 +1,14 @@
 package edu.scripps.yates.annotations.juniprotapi;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.Gene;
@@ -60,7 +60,7 @@ public class JUniprotAPIInterface {
 			Query query = UniProtQueryBuilder.accessions((Set<String>) accs);
 			return query;
 		} else {
-			Set<String> set = new HashSet<String>();
+			Set<String> set = new THashSet<String>();
 			set.addAll(accs);
 			Query query = UniProtQueryBuilder.accessions(set);
 			return query;
@@ -70,7 +70,7 @@ public class JUniprotAPIInterface {
 
 	public Map<String, String> getProteinDescriptions(Set<String> accs) throws ServiceException {
 		try {
-			Map<String, String> ret = new HashMap<String, String>();
+			Map<String, String> ret = new THashMap<String, String>();
 			ElementChunksIterator iterator = new ElementChunksIterator(chunkSize, accs);
 			int num = 0;
 			while (iterator.hasNext()) {
@@ -93,7 +93,7 @@ public class JUniprotAPIInterface {
 
 	public Map<String, List<Gene>> getGenes(Set<String> accs) throws ServiceException {
 		try {
-			Map<String, List<Gene>> ret = new HashMap<String, List<Gene>>();
+			Map<String, List<Gene>> ret = new THashMap<String, List<Gene>>();
 			ElementChunksIterator iterator = new ElementChunksIterator(chunkSize, accs);
 			int num = 0;
 			while (iterator.hasNext()) {
@@ -116,7 +116,7 @@ public class JUniprotAPIInterface {
 
 	public Map<String, String> getChromosomeNames(Set<String> accs) throws ServiceException {
 		try {
-			Map<String, String> ret = new HashMap<String, String>();
+			Map<String, String> ret = new THashMap<String, String>();
 			ElementChunksIterator iterator = new ElementChunksIterator(chunkSize, accs);
 			int num = 0;
 			while (iterator.hasNext()) {

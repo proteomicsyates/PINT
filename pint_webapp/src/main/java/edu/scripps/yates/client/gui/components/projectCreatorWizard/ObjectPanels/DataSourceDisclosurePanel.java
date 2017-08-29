@@ -32,7 +32,7 @@ import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.Refe
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsDataObject;
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.DataSourceBean;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.interfaces.HasId;

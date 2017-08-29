@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 
 import edu.scripps.yates.utilities.strings.StringUtils;
+import gnu.trove.map.hash.THashMap;
 
 /**
  * This class loads a file comming from HUGO Gene Nomenclature Committee:
@@ -33,15 +33,14 @@ public class GeneReader {
 	private final String geneFileName;
 	private InputStream geneFileInputStream = null;
 	private static Logger log = Logger.getLogger(GeneReader.class);
-	private final Map<String, GeneInformation> mapBySymbol = new HashMap<String, GeneInformation>();
-	private final Map<String, GeneInformation> mapByName = new HashMap<String, GeneInformation>();
+	private final Map<String, GeneInformation> mapBySymbol = new THashMap<String, GeneInformation>();
+	private final Map<String, GeneInformation> mapByName = new THashMap<String, GeneInformation>();
 	private final List<GeneInformation> list = new ArrayList<GeneInformation>();
 
 	private GeneReader(String geneFileName) {
 		this.geneFileName = geneFileName;
 		try {
-			geneFileInputStream = new ClassPathResource(geneFileName)
-					.getInputStream();
+			geneFileInputStream = new ClassPathResource(geneFileName).getInputStream();
 			return;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -62,14 +61,11 @@ public class GeneReader {
 	}
 
 	public static GeneReader getInstance(File geneFile) {
-		if (instance == null
-				|| !instance.geneFileName.equals(FilenameUtils.getName(geneFile
-						.getAbsolutePath()))) {
+		if (instance == null || !instance.geneFileName.equals(FilenameUtils.getName(geneFile.getAbsolutePath()))) {
 			InputStream is;
 			try {
 				is = new FileInputStream(geneFile);
-				instance = new GeneReader(FilenameUtils.getName(geneFile
-						.getAbsolutePath()), is);
+				instance = new GeneReader(FilenameUtils.getName(geneFile.getAbsolutePath()), is);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 				log.error(e);
@@ -91,8 +87,7 @@ public class GeneReader {
 		try {
 			log.info("Loading genes from " + geneFileName);
 
-			br = new BufferedReader(new InputStreamReader(new DataInputStream(
-					geneFileInputStream)));
+			br = new BufferedReader(new InputStreamReader(new DataInputStream(geneFileInputStream)));
 			String line;
 			int numLines = 0;
 			while ((line = br.readLine()) != null) {
@@ -125,10 +120,8 @@ public class GeneReader {
 						if (split.length > 9)
 							gene.setRefSeqIDs(split[9]);
 						// add to maps
-						mapByName.put(gene.getApprovedName().toLowerCase()
-								.trim(), gene);
-						mapBySymbol.put(gene.getApprovedSymbol().toLowerCase()
-								.trim(), gene);
+						mapByName.put(gene.getApprovedName().toLowerCase().trim(), gene);
+						mapBySymbol.put(gene.getApprovedSymbol().toLowerCase().trim(), gene);
 						// add to list
 						list.add(gene);
 					} catch (Exception e) {
@@ -160,8 +153,7 @@ public class GeneReader {
 	 * @param containing
 	 * @return
 	 */
-	public List<GeneInformation> getGenesByName(String geneName,
-			boolean containing) {
+	public List<GeneInformation> getGenesByName(String geneName, boolean containing) {
 		if (list.isEmpty())
 			loadData();
 
@@ -173,8 +165,7 @@ public class GeneReader {
 		} else {
 			// iterate over all list
 			for (String approvedName : mapByName.keySet()) {
-				if (StringUtils.compareStrings(approvedName,
-						geneName.toLowerCase(), true, true, false)) {
+				if (StringUtils.compareStrings(approvedName, geneName.toLowerCase(), true, true, false)) {
 					ret.add(mapByName.get(approvedName));
 				}
 			}
@@ -191,8 +182,7 @@ public class GeneReader {
 	 * @param containing
 	 * @return
 	 */
-	public List<GeneInformation> getGenesBySymbol(String geneSymbol,
-			boolean containing) {
+	public List<GeneInformation> getGenesBySymbol(String geneSymbol, boolean containing) {
 		if (list.isEmpty())
 			loadData();
 		List<GeneInformation> ret = new ArrayList<GeneInformation>();
@@ -203,8 +193,7 @@ public class GeneReader {
 		} else {
 			// iterate over all list
 			for (String approvedSymbol : mapBySymbol.keySet()) {
-				if (StringUtils.compareStrings(approvedSymbol,
-						geneSymbol.toLowerCase(), true, true, false)) {
+				if (StringUtils.compareStrings(approvedSymbol, geneSymbol.toLowerCase(), true, true, false)) {
 					ret.add(mapBySymbol.get(approvedSymbol));
 				}
 			}

@@ -1,7 +1,6 @@
 package edu.scripps.yates.excel.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,12 +12,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.ExcelSheet;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TShortObjectHashMap;
 
 public class ExcelSheetImpl implements ExcelSheet {
 	private final static Logger log = Logger.getLogger(ExcelSheetImpl.class);
 
 	private final String name;
-	private final Map<String, ExcelColumn> columnMap = new HashMap<String, ExcelColumn>();
+	private final Map<String, ExcelColumn> columnMap = new THashMap<String, ExcelColumn>();
 
 	private final List<String> columnKeys = new ArrayList<String>();
 	private final List<String> columnHeaders = new ArrayList<String>();
@@ -28,7 +29,7 @@ public class ExcelSheetImpl implements ExcelSheet {
 	public ExcelSheetImpl(Sheet sheet, int sheetIndex) {
 		name = sheet.getSheetName();
 		this.sheetIndex = sheetIndex;
-		Map<Short, String> columnIndexMap = new HashMap<Short, String>();
+		TShortObjectHashMap<String> columnIndexMap = new TShortObjectHashMap<String>();
 		final int lastRowNum = sheet.getLastRowNum();
 		for (int rowIndex = 0; rowIndex <= lastRowNum; rowIndex++) {
 			final Row row = sheet.getRow(rowIndex);

@@ -3,7 +3,6 @@ package edu.scripps.yates.annotations.uniprot.index;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
@@ -16,6 +15,8 @@ import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.annotations.util.IndexException;
 import edu.scripps.yates.utilities.index.TextFileIndexIO;
+import edu.scripps.yates.utilities.index.TextFileIndexMultiThreadSafeIO;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Extension of {@link TextFileIndexIO} using as start token <entry and as end
@@ -27,7 +28,7 @@ import edu.scripps.yates.utilities.index.TextFileIndexIO;
  * @author Salva
  *
  */
-public class UniprotXmlIndexIO extends TextFileIndexIO {
+public class UniprotXmlIndexIO extends TextFileIndexMultiThreadSafeIO {
 	private final static Logger log = Logger.getLogger(UniprotXmlIndexIO.class);
 	private final static String ENTRY_START_TOKEN = "<entry";
 	private final static String ENTRY_FINAL_TOKEN = "</entry>";
@@ -71,7 +72,7 @@ public class UniprotXmlIndexIO extends TextFileIndexIO {
 		Entry entry = unmarshallFromString(string);
 		if (entry != null) {
 			// ret = convertUniprotEntries2Proteins(uniprot);
-			Set<String> accs = new HashSet<String>();
+			Set<String> accs = new THashSet<String>();
 			if (entry.getAccession() != null) {
 				for (String acc : entry.getAccession()) {
 					accs.add(acc);

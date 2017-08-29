@@ -43,12 +43,12 @@ public class AlzheimerProjectSaver extends PintServerDaemonTask {
 						log.info(++numConditionsSaved + " conditions saved so far");
 					} catch (Exception e) {
 						e.printStackTrace();
-						ContextualSessionHandler.getSession().getTransaction().rollback();
+						ContextualSessionHandler.getCurrentSession().getTransaction().rollback();
 					}
 				}
 			}
 		} finally {
-			ContextualSessionHandler.getSession().close();
+			ContextualSessionHandler.getCurrentSession().close();
 		}
 	}
 

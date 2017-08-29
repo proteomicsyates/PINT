@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,10 +30,11 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServerType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServersType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.TissueSetType;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
+import gnu.trove.map.hash.THashMap;
 
 public class ImportCfgUtil {
 	private final static Logger log = Logger.getLogger(ImportCfgUtil.class);
-	private static final Map<String, DBIndexInterface> dbIndexes = new HashMap<String, DBIndexInterface>();
+	private static final Map<String, DBIndexInterface> dbIndexes = new THashMap<String, DBIndexInterface>();
 
 	public static SampleType getSampleCfg(String sampleRef, SampleSetType sampleSetType) {
 		if (sampleSetType != null) {

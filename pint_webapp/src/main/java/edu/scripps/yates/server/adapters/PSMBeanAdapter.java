@@ -2,10 +2,7 @@ package edu.scripps.yates.server.adapters;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
@@ -22,20 +19,33 @@ import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 import edu.scripps.yates.server.cache.ServerCachePSMBeansByPSMDBId;
 import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.util.SharedConstants;
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class PSMBeanAdapter implements Adapter<PSMBean> {
-	private static Map<String, Integer> staticPsmIdentifierByRunID = new HashMap<String, Integer>();
+	private static ThreadLocal<TObjectIntHashMap<String>> staticPsmIdentifierByRunID = new ThreadLocal<TObjectIntHashMap<String>>();
 	private static int staticPsmIdentifier = 0;
 	private final QueriablePsm queriablePsm;
 	private final Collection<String> hiddenPTMs;
 
-	public static void clearStaticMaps() {
-		staticPsmIdentifierByRunID.clear();
+	public static void clearStaticMap() {
+		if (staticPsmIdentifierByRunID.get() != null) {
+			staticPsmIdentifierByRunID.get().clear();
+		}
 	}
 
 	public PSMBeanAdapter(QueriablePsm queriablePsm, Collection<String> hiddenPTMs) {
 		this.queriablePsm = queriablePsm;
 		this.hiddenPTMs = hiddenPTMs;
+		initializeMap();
+	}
+
+	private void initializeMap() {
+		if (staticPsmIdentifierByRunID.get() == null) {
+			staticPsmIdentifierByRunID.set(new TObjectIntHashMap<String>());
+		}
 	}
 
 	@Override
@@ -89,10 +99,12 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 
 		}
 		if (psm.getPsmScores() != null) {
-			for (Object obj : psm.getPsmScores()) {
-				PsmScore score = (PsmScore) obj;
-				ret.addScore(new ScoreBeanAdapter(String.valueOf(score.getValue()), score.getName(),
-						score.getConfidenceScoreType()).adapt());
+			if (SharedConstants.ADAPT_PSM_SCORES) {
+				for (Object obj : psm.getPsmScores()) {
+					PsmScore score = (PsmScore) obj;
+					ret.addScore(new ScoreBeanAdapter(String.valueOf(score.getValue()), score.getName(),
+							score.getConfidenceScoreType()).adapt());
+				}
 			}
 		}
 		if (psm.getPtms() != null) {
@@ -120,7 +132,10 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 
 		for (LinkBetweenQueriableProteinSetAndPSM link : queriablePsm2.getLinks()) {
 			QueriableProteinSet queriableProtein = link.getQueriableProtein();
-			psmBean.getProteinDBIds().addAll(queriableProtein.getProteinDBIds());
+			TIntIterator iterator = queriableProtein.getProteinDBIds().iterator();
+			while (iterator.hasNext()) {
+				psmBean.getProteinDBIds().add(iterator.next());
+			}
 
 			// final AccessionBean accession = new
 			// AccessionBeanAdapter(queriableProtein.getPrimaryProteinAccession())
@@ -215,22 +230,22 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 	private static String getNextIdentifier(String runID) {
 		if (runID != null && !"".equals(runID)) {
 			Integer integer = 1;
-			if (staticPsmIdentifierByRunID.containsKey(runID)) {
-				integer = staticPsmIdentifierByRunID.get(runID) + 1;
+			if (staticPsmIdentifierByRunID.get().containsKey(runID)) {
+				integer = staticPsmIdentifierByRunID.get().get(runID) + 1;
 			}
-			staticPsmIdentifierByRunID.put(runID, integer);
-			return runID + "_" + staticPsmIdentifierByRunID.get(runID);
+			staticPsmIdentifierByRunID.get().put(runID, integer);
+			return runID + "_" + staticPsmIdentifierByRunID.get().get(runID);
 		}
 		return String.valueOf(++staticPsmIdentifier);
 	}
 
 	public static void main(String[] args) {
 		final String miPTMName = "MI PTM";
-		Set<String> hiddenPTMs2 = new HashSet<String>();
+		Set<String> hiddenPTMs2 = new THashSet<String>();
 		hiddenPTMs2.add(miPTMName);
 		Psm psm2 = new Psm(null, null, "TSNGDDSLFFSNFSLLGTPVLK", "K.TSNGDDSLFFSNFSLLGTPVLK(14.123).D");
-		Set<Ptm> ptms = new HashSet<Ptm>();
-		Set<PtmSite> ptmSites = new HashSet<PtmSite>();
+		Set<Ptm> ptms = new THashSet<Ptm>();
+		Set<PtmSite> ptmSites = new THashSet<PtmSite>();
 		PtmSite ptmSite = new PtmSite(null, "K", 22);
 		ptmSites.add(ptmSite);
 		Ptm ptm = new Ptm(psm2, 123.123, miPTMName, "asdf", ptmSites);

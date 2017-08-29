@@ -51,6 +51,12 @@ public class AsyncPathwaySummaryDataProvider extends AbstractAsyncDataProvider<P
 								retrievingDataFinished();
 							}
 						}
+
+						@Override
+						public void onAnalysisError(Throwable exception) {
+							// TODO Auto-generated method stub
+
+						}
 					});
 		} else {
 			retrievingDataFinished();

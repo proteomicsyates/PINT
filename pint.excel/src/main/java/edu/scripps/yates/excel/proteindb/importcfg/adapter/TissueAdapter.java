@@ -1,15 +1,15 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdDescriptionType;
 import edu.scripps.yates.utilities.model.factories.TissueEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Tissue;
+import gnu.trove.map.hash.THashMap;
 
 public class TissueAdapter implements edu.scripps.yates.utilities.pattern.Adapter<Tissue> {
 	private final IdDescriptionType tissue;
-	private static final Map<String, Tissue> map = new HashMap<String, Tissue>();
+	private static final Map<String, Tissue> map = new THashMap<String, Tissue>();
 
 	public TissueAdapter(IdDescriptionType tissue) {
 		this.tissue = tissue;

@@ -1,8 +1,6 @@
 package edu.scripps.yates.excel.proteindb;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +33,8 @@ import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Tissue;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinSetAdapter implements edu.scripps.yates.utilities.pattern.Adapter<Set<Protein>> {
 	private static final Logger log = Logger.getLogger(ProteinSetAdapter.class);
@@ -72,14 +72,14 @@ public class ProteinSetAdapter implements edu.scripps.yates.utilities.pattern.Ad
 	/**
 	 * List of rows by sheet number
 	 */
-	private final HashMap<Integer, List<Row>> rows = new HashMap<Integer, List<Row>>();
+	private final TIntObjectHashMap<List<Row>> rows = new TIntObjectHashMap<List<Row>>();
 	private final ColumnIndexManager columnManager;
 	private final static DataManagerMemory dataManager = ProteinProviderFromExcel.datamanager;
 	public static Organism humanOrganism;
 	public static Tissue tissue;
 	public static Project generalProject;
 	private final List<MSRun> msRuns = new ArrayList<MSRun>();
-	private final Set<Condition> conditions = new HashSet<Condition>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
 	private final MSRun tmtMSRun = new MSRunEx("TMT analysis run", "not provided");
 
 	static {
@@ -165,14 +165,14 @@ public class ProteinSetAdapter implements edu.scripps.yates.utilities.pattern.Ad
 	}
 
 	// private Set<ProteinAmount> getMockIPsAmounts() {
-	// Set<ProteinAmount> amounts = new HashSet<ProteinAmount>();
+	// Set<ProteinAmount> amounts = new THashSet<ProteinAmount>();
 	//
 	// // 1h 30C Condition
 	// ExperimentalCondition mockIPs_Condition = getExperimentalCondition(
 	// "Mock IPs", "Mock IPs");
 	//
 	// // Protein amounts for each 4 replicates:
-	// // Set<ProteinAmount> replicatesAmounts = new HashSet<ProteinAmount>();
+	// // Set<ProteinAmount> replicatesAmounts = new THashSet<ProteinAmount>();
 	// // ColumnName[] columnNames = { ColumnName.DMSO_031010,
 	// // ColumnName.DMSO_050908, ColumnName.DMSO_051508 };
 	// // replicatesAmounts = getProteinAmounts(columnNames,
@@ -190,14 +190,14 @@ public class ProteinSetAdapter implements edu.scripps.yates.utilities.pattern.Ad
 	// }
 
 	// private Set<ProteinAmount> getNullIPsAmounts() {
-	// Set<ProteinAmount> amounts = new HashSet<ProteinAmount>();
+	// Set<ProteinAmount> amounts = new THashSet<ProteinAmount>();
 	//
 	// // 1h 30C Condition
 	// ExperimentalCondition nullIPs_Condition = getExperimentalCondition(
 	// "Null IPs", "Null IPs");
 	//
 	// // Protein amounts for each 4 replicates:
-	// // Set<ProteinAmount> replicatesAmounts = new HashSet<ProteinAmount>();
+	// // Set<ProteinAmount> replicatesAmounts = new THashSet<ProteinAmount>();
 	// // ColumnName[] columnNames = { ColumnName.DMSO_031010,
 	// // ColumnName.DMSO_050908, ColumnName.DMSO_051508 };
 	// // replicatesAmounts = getProteinAmounts(columnNames,
@@ -263,7 +263,7 @@ public class ProteinSetAdapter implements edu.scripps.yates.utilities.pattern.Ad
 
 	@Override
 	public Set<Protein> adapt() {
-		Set<Protein> ret = new HashSet<Protein>();
+		Set<Protein> ret = new THashSet<Protein>();
 		// iterate over all the possible replicates, and look if there are some
 		// amount for the protein. If yes, create the protein
 
@@ -348,7 +348,7 @@ public class ProteinSetAdapter implements edu.scripps.yates.utilities.pattern.Ad
 
 	private Set<Protein> getProteinsFromColumnNames(ColumnName[] columnNames, ConditionName condition,
 			ColumnName totalColumnName, AmountType amountType) {
-		Set<Protein> ret = new HashSet<Protein>();
+		Set<Protein> ret = new THashSet<Protein>();
 		for (ColumnName columnName : columnNames) {
 			final ProteinImpl2 protein = getProteinFromReplicate(condition, columnName, amountType);
 			if (protein != null) {

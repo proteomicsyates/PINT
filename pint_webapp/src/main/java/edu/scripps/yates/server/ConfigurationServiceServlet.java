@@ -7,12 +7,12 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
 import edu.scripps.yates.client.ConfigurationService;
-import edu.scripps.yates.client.exceptions.PintException;
-import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
-import edu.scripps.yates.server.util.ServerUtil;
+import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServletCommonInit;
 import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 
 public class ConfigurationServiceServlet extends RemoteServiceServlet implements ConfigurationService {
 
@@ -43,7 +43,7 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	@Override
 	public void setOMIMKey(String omimKey) throws PintException {
 		try {
-			PintConfigurationPropertiesIO.writeOmimKey(omimKey, ServerUtil.getPINTPropertiesFile(getServletContext()));
+			PintConfigurationPropertiesIO.writeOmimKey(omimKey, FileManager.getPINTPropertiesFile(getServletContext()));
 		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		}
@@ -53,31 +53,31 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	public String getAdminPassword() {
 
 		PintConfigurationProperties pintConf = PintConfigurationPropertiesIO
-				.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()));
+				.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
 		return pintConf.getAdminPassword();
 	}
 
 	@Override
 	public void setAdminPassword(String adminPassword) throws PintException {
 		PintConfigurationPropertiesIO.writeAdminPassword(adminPassword,
-				ServerUtil.getPINTPropertiesFile(getServletContext()));
+				FileManager.getPINTPropertiesFile(getServletContext()));
 	}
 
 	@Override
 	public PintConfigurationProperties getPintConfigurationProperties() {
-		return PintConfigurationPropertiesIO.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()));
+		return PintConfigurationPropertiesIO.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
 	}
 
 	private String getOmimConfigurationProperty() {
 		PintConfigurationProperties pintConf = PintConfigurationPropertiesIO
-				.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()));
+				.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
 		return pintConf.getOmimKey();
 	}
 
 	@Override
 	public String getDBPassword() {
 		PintConfigurationProperties pintConf = PintConfigurationPropertiesIO
-				.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()));
+				.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
 		return pintConf.getDb_password();
 	}
 
@@ -85,7 +85,7 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	public void setDBPassword(String dbPassword) throws PintException {
 		try {
 			PintConfigurationPropertiesIO.writeDBPassword(dbPassword,
-					ServerUtil.getPINTPropertiesFile(getServletContext()));
+					FileManager.getPINTPropertiesFile(getServletContext()));
 		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
 		}
@@ -94,14 +94,14 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	@Override
 	public String getDBURL() {
 		PintConfigurationProperties pintConf = PintConfigurationPropertiesIO
-				.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()));
+				.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
 		return pintConf.getDb_url();
 	}
 
 	@Override
 	public void setDBURL(String dbURL) throws PintException {
 		try {
-			PintConfigurationPropertiesIO.writeDBURL(dbURL, ServerUtil.getPINTPropertiesFile(getServletContext()));
+			PintConfigurationPropertiesIO.writeDBURL(dbURL, FileManager.getPINTPropertiesFile(getServletContext()));
 		} catch (Exception e) {
 			if (e.getCause() instanceof CommunicationsException) {
 				throw new PintException("Error trying to reach the server with URL '" + dbURL + "'",
@@ -114,7 +114,7 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	@Override
 	public String getDBUserName() {
 		PintConfigurationProperties pintConf = PintConfigurationPropertiesIO
-				.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()));
+				.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
 		return pintConf.getDb_username();
 	}
 
@@ -122,24 +122,7 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	public void setDBUserName(String dbUserName) throws PintException {
 		try {
 			PintConfigurationPropertiesIO.writeDBUserName(dbUserName,
-					ServerUtil.getPINTPropertiesFile(getServletContext()));
-		} catch (Exception e) {
-			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
-		}
-	}
-
-	@Override
-	public String getProjectFilesPath() {
-		PintConfigurationProperties pintConf = PintConfigurationPropertiesIO
-				.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()));
-		return pintConf.getProjectFilesPath();
-	}
-
-	@Override
-	public void setProjectFilesPath(String projectFilesPath) throws PintException {
-		try {
-			PintConfigurationPropertiesIO.writeProjectFilesPath(projectFilesPath,
-					ServerUtil.getPINTPropertiesFile(getServletContext()));
+					FileManager.getPINTPropertiesFile(getServletContext()));
 		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
 		}
@@ -148,7 +131,7 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	@Override
 	public String getProjectToPreLoad() {
 		PintConfigurationProperties pintConf = PintConfigurationPropertiesIO
-				.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()));
+				.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
 		return pintConf.getProjectsToPreLoad();
 	}
 
@@ -156,7 +139,7 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	public void setProjectsToPreload(String projectsToPreload) throws PintException {
 		try {
 			PintConfigurationPropertiesIO.writeProjectsToPreload(projectsToPreload,
-					ServerUtil.getPINTPropertiesFile(getServletContext()));
+					FileManager.getPINTPropertiesFile(getServletContext()));
 		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
 		}
@@ -165,7 +148,7 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	@Override
 	public String getProjectToNotPreLoad() {
 		PintConfigurationProperties pintConf = PintConfigurationPropertiesIO
-				.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()));
+				.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
 		return pintConf.getProjectsToNotPreLoad();
 	}
 
@@ -173,7 +156,7 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	public void setProjectsToNotPreload(String projectsToNotPreload) throws PintException {
 		try {
 			PintConfigurationPropertiesIO.writeProjectsToNotPreload(projectsToNotPreload,
-					ServerUtil.getPINTPropertiesFile(getServletContext()));
+					FileManager.getPINTPropertiesFile(getServletContext()));
 		} catch (Exception e) {
 			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
 		}
@@ -182,13 +165,13 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	@Override
 	public Boolean isPreLoadPublicProjects() {
 		PintConfigurationProperties pintConf = PintConfigurationPropertiesIO
-				.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()));
+				.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
 		return pintConf.isPreLoadPublicProjects();
 	}
 
 	@Override
 	public void setPreLoadPublicProjects(boolean preLoadPublicProjects) {
 		PintConfigurationPropertiesIO.writePreLoadPublicProjects(preLoadPublicProjects,
-				ServerUtil.getPINTPropertiesFile(getServletContext()));
+				FileManager.getPINTPropertiesFile(getServletContext()));
 	}
 }

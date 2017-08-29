@@ -3,7 +3,6 @@ package edu.scripps.yates.proteindb.queries.semantic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +28,9 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * Wrapper class to handle the links between protein and psms
@@ -37,17 +39,17 @@ import edu.scripps.yates.utilities.model.enums.AccessionType;
  *
  */
 public class QueriableProteinSet {
-	private final Set<LinkBetweenQueriableProteinSetAndPSM> links = new HashSet<LinkBetweenQueriableProteinSetAndPSM>();
+	private final Set<LinkBetweenQueriableProteinSetAndPSM> links = new THashSet<LinkBetweenQueriableProteinSetAndPSM>();
 	/**
 	 * Proteins that share the same primary accession
 	 */
-	private final Set<Protein> proteins = new HashSet<Protein>();
+	private final List<Protein> proteins = new ArrayList<Protein>();
 	private final String primaryAcc;
 	private ProteinAccession primaryProteinAcc;
 	private Set<Protein> individualProteins;
 
 	private final static Logger log = Logger.getLogger(QueriableProteinSet.class);
-	private static final Map<String, QueriableProteinSet> map = new HashMap<String, QueriableProteinSet>();
+	private static final Map<String, QueriableProteinSet> map = new THashMap<String, QueriableProteinSet>();
 
 	public static QueriableProteinSet getInstance(Collection<Protein> proteins, boolean forceToCreateNewObject) {
 		final String id = getProteinsID(proteins);
@@ -86,7 +88,7 @@ public class QueriableProteinSet {
 	 *
 	 * @return
 	 */
-	public Set<Protein> getAllProteins() {
+	public List<Protein> getAllProteins() {
 		return proteins;
 	}
 
@@ -100,8 +102,8 @@ public class QueriableProteinSet {
 
 	public Set<Protein> getIndividualProteins() {
 		if (individualProteins == null) {
-			individualProteins = new HashSet<Protein>();
-			final Set<Protein> allProteins = getAllProteins();
+			individualProteins = new THashSet<Protein>();
+			final List<Protein> allProteins = getAllProteins();
 			for (Protein protein : allProteins) {
 				if (!protein.getPsms().isEmpty()) {
 					individualProteins.add(protein);
@@ -170,7 +172,7 @@ public class QueriableProteinSet {
 			boolean removed = protein.getPsms().remove(psm);
 			if (removed) {
 				Set<Psm> psms = protein.getPsms();
-				Set<String> seqs = new HashSet<String>();
+				Set<String> seqs = new THashSet<String>();
 				for (Psm psm2 : psms) {
 					seqs.add(psm2.getSequence());
 				}
@@ -187,6 +189,7 @@ public class QueriableProteinSet {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -206,10 +209,10 @@ public class QueriableProteinSet {
 
 	public Set<Peptide> getPeptides() {
 
-		HashSet<Peptide> peptideSet = new HashSet<Peptide>();
+		Set<Peptide> peptideSet = new THashSet<Peptide>();
 		for (Psm psm : getPsms()) {
 			Peptide peptide = psm.getPeptide();
-			if (!ContextualSessionHandler.getSession().contains(peptide)) {
+			if (!ContextualSessionHandler.getCurrentSession().contains(peptide)) {
 				peptide = (Peptide) ContextualSessionHandler.load(peptide.getId(), Peptide.class);
 			}
 			peptideSet.add(peptide);
@@ -229,11 +232,11 @@ public class QueriableProteinSet {
 
 	public Set<Psm> getPsms() {
 
-		HashSet<Psm> psmSet = new HashSet<Psm>();
+		Set<Psm> psmSet = new THashSet<Psm>();
 		for (Protein protein : getIndividualProteins()) {
 			final Set<Psm> psms = protein.getPsms();
 			for (Psm psm : psms) {
-				if (!ContextualSessionHandler.getSession().contains(psm)) {
+				if (!ContextualSessionHandler.getCurrentSession().contains(psm)) {
 					psm = (Psm) ContextualSessionHandler.load(psm.getId(), Psm.class);
 				}
 				psmSet.add(psm);
@@ -244,7 +247,7 @@ public class QueriableProteinSet {
 	}
 
 	public Set<ProteinAccession> getProteinAccessions() {
-		Set<ProteinAccession> ret = new HashSet<ProteinAccession>();
+		Set<ProteinAccession> ret = new THashSet<ProteinAccession>();
 		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getProteinAccessions());
 		}
@@ -300,12 +303,12 @@ public class QueriableProteinSet {
 	 */
 
 	public Set<ProteinAmount> getProteinAmounts() {
-		Set<ProteinAmount> ret = new HashSet<ProteinAmount>();
+		Set<ProteinAmount> ret = new THashSet<ProteinAmount>();
 		for (Protein protein : getIndividualProteins()) {
 			final Set<ProteinAmount> proteinAmounts = protein.getProteinAmounts();
 			for (ProteinAmount proteinAmount : proteinAmounts) {
-				if (!ContextualSessionHandler.getSession().contains(proteinAmount)) {
-					proteinAmount = (ProteinAmount) ContextualSessionHandler.getSession().merge(proteinAmount);
+				if (!ContextualSessionHandler.getCurrentSession().contains(proteinAmount)) {
+					proteinAmount = (ProteinAmount) ContextualSessionHandler.getCurrentSession().merge(proteinAmount);
 				}
 				ret.add(proteinAmount);
 			}
@@ -319,8 +322,8 @@ public class QueriableProteinSet {
 	 * @return
 	 */
 
-	public Set<Integer> getProteinDBIds() {
-		Set<Integer> ret = new HashSet<Integer>();
+	public TIntHashSet getProteinDBIds() {
+		TIntHashSet ret = new TIntHashSet();
 		for (Protein protein : getIndividualProteins()) {
 			ret.add(protein.getId());
 		}
@@ -337,8 +340,8 @@ public class QueriableProteinSet {
 	public Organism getOrganism() {
 
 		Organism organism = getIndividualProteins().iterator().next().getOrganism();
-		if (!ContextualSessionHandler.getSession().contains(organism)) {
-			organism = (Organism) ContextualSessionHandler.getSession().merge(organism);
+		if (!ContextualSessionHandler.getCurrentSession().contains(organism)) {
+			organism = (Organism) ContextualSessionHandler.getCurrentSession().merge(organism);
 		}
 		return organism;
 	}
@@ -350,7 +353,7 @@ public class QueriableProteinSet {
 	 */
 
 	public Set<ProteinAnnotation> getProteinAnnotations() {
-		Set<ProteinAnnotation> ret = new HashSet<ProteinAnnotation>();
+		Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
 		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getProteinAnnotations());
 		}
@@ -365,12 +368,13 @@ public class QueriableProteinSet {
 	 */
 
 	public Set<ProteinThreshold> getProteinThresholds() {
-		Set<ProteinThreshold> ret = new HashSet<ProteinThreshold>();
+		Set<ProteinThreshold> ret = new THashSet<ProteinThreshold>();
 		for (Protein protein : getIndividualProteins()) {
 			final Set<ProteinThreshold> proteinThresholds = protein.getProteinThresholds();
 			for (ProteinThreshold proteinThreshold : proteinThresholds) {
-				if (!ContextualSessionHandler.getSession().contains(proteinThreshold)) {
-					proteinThreshold = (ProteinThreshold) ContextualSessionHandler.getSession().merge(proteinThreshold);
+				if (!ContextualSessionHandler.getCurrentSession().contains(proteinThreshold)) {
+					proteinThreshold = (ProteinThreshold) ContextualSessionHandler.getCurrentSession()
+							.merge(proteinThreshold);
 				}
 				ret.add(proteinThreshold);
 			}
@@ -379,7 +383,7 @@ public class QueriableProteinSet {
 	}
 
 	public Set<Gene> getGenes() {
-		Set<Gene> ret = new HashSet<Gene>();
+		Set<Gene> ret = new THashSet<Gene>();
 		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getGenes());
 		}
@@ -388,7 +392,7 @@ public class QueriableProteinSet {
 
 	public Set<ProteinRatioValue> getProteinRatiosBetweenTwoConditions(String condition1Name, String condition2Name,
 			String ratioName) {
-		Set<ProteinRatioValue> ret = new HashSet<ProteinRatioValue>();
+		Set<ProteinRatioValue> ret = new THashSet<ProteinRatioValue>();
 		for (Protein protein : getIndividualProteins()) {
 			final Set<ProteinRatioValue> proteinRatiosBetweenTwoConditions = PersistenceUtils
 					.getProteinRatiosBetweenTwoConditions(protein, condition1Name, condition2Name, ratioName);
@@ -398,7 +402,7 @@ public class QueriableProteinSet {
 	}
 
 	public Set<ProteinScore> getProteinScores() {
-		Set<ProteinScore> ret = new HashSet<ProteinScore>();
+		Set<ProteinScore> ret = new THashSet<ProteinScore>();
 		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getProteinScores());
 		}
@@ -420,7 +424,7 @@ public class QueriableProteinSet {
 	}
 
 	public Set<MsRun> getMsRuns() {
-		Set<MsRun> ret = new HashSet<MsRun>();
+		Set<MsRun> ret = new THashSet<MsRun>();
 		for (Protein protein : getIndividualProteins()) {
 			ret.add(protein.getMsRun());
 		}
@@ -428,7 +432,7 @@ public class QueriableProteinSet {
 	}
 
 	public Set<ProteinRatioValue> getProteinRatioValues() {
-		Set<ProteinRatioValue> ret = new HashSet<ProteinRatioValue>();
+		Set<ProteinRatioValue> ret = new THashSet<ProteinRatioValue>();
 		for (Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getProteinRatioValues());
 		}

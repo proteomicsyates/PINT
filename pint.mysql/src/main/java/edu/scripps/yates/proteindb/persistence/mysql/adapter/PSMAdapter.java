@@ -1,8 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -18,6 +16,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class PSMAdapter implements Adapter<Psm>, Serializable {
 	/**
@@ -27,7 +26,7 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 	private static final long serialVersionUID = 8001310054173070297L;
 	private final PSM psm;
 	private final Project hibProject;
-	private final static Map<Integer, Psm> map = new HashMap<Integer, Psm>();
+	private final static TIntObjectHashMap<Psm> map = new TIntObjectHashMap<Psm>();
 
 	public PSMAdapter(PSM psm, Project hibProject) {
 		this.psm = psm;

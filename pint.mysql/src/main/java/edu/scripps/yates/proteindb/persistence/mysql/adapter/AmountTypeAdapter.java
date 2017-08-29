@@ -1,20 +1,19 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.scripps.yates.utilities.model.enums.AmountType;
+import gnu.trove.map.hash.THashMap;
 
-public class AmountTypeAdapter implements
-		Adapter<edu.scripps.yates.proteindb.persistence.mysql.AmountType>,
-		Serializable {
+public class AmountTypeAdapter
+		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.AmountType>, Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5234342951031375094L;
 	private final AmountType amountType;
-	private final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.AmountType> map = new HashMap<String, edu.scripps.yates.proteindb.persistence.mysql.AmountType>();
+	private final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.AmountType> map = new THashMap<String, edu.scripps.yates.proteindb.persistence.mysql.AmountType>();
 
 	public AmountTypeAdapter(AmountType amountType) {
 		this.amountType = amountType;

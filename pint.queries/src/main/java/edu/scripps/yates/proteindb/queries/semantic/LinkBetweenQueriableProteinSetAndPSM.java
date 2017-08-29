@@ -1,6 +1,7 @@
 package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -14,7 +15,7 @@ public class LinkBetweenQueriableProteinSetAndPSM {
 	private final QueriableProteinSet queriableProteinSet;
 	private final QueriablePsm queriablePsm;
 	// private final Map<Boolean, Set<QueriableProtein2PSMLink>>
-	// evaluatedProtein2PSMLinks = new HashMap<Boolean,
+	// evaluatedProtein2PSMLinks = new THashMap<Boolean,
 	// Set<QueriableProtein2PSMLink>>();
 	private Set<LinkBetweenQueriableProteinSetAndPSM> linkSetForSameProtein;
 
@@ -88,6 +89,7 @@ public class LinkBetweenQueriableProteinSetAndPSM {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -134,7 +136,7 @@ public class LinkBetweenQueriableProteinSetAndPSM {
 		final Psm psm = getQueriablePsm().getPsm();
 		final Peptide peptide = psm.getPeptide();
 		// PersistenceUtils.detachPSM(psm, false, false, false);
-		final Set<Protein> allProteins = getQueriableProtein().getAllProteins();
+		final List<Protein> allProteins = getQueriableProtein().getAllProteins();
 		final Set<Protein> proteinsFromPSM = psm.getProteins();
 		for (Protein protein : allProteins) {
 			protein.getPsms().remove(psm);

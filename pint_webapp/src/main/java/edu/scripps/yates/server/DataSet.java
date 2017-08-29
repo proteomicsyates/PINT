@@ -4,15 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
 
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.util.RatioAnalyzer;
@@ -30,6 +28,9 @@ import edu.scripps.yates.shared.util.sublists.PeptideBeanSubList;
 import edu.scripps.yates.shared.util.sublists.ProteinBeanSubList;
 import edu.scripps.yates.shared.util.sublists.ProteinGroupBeanSubList;
 import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class DataSet {
 	private final List<ProteinGroupBean> proteinGroups = new ArrayList<ProteinGroupBean>();
@@ -37,31 +38,29 @@ public class DataSet {
 	private final List<PeptideBean> peptides = new ArrayList<PeptideBean>();
 	private final List<PSMBean> psms = new ArrayList<PSMBean>();
 
-	private final HashMap<Integer, ProteinBean> proteinsByProteinBeanUniqueIdentifier = new HashMap<Integer, ProteinBean>();
-	private final HashMap<String, ProteinBean> proteinsByAccession = new HashMap<String, ProteinBean>();
-	private final HashMap<Integer, PSMBean> psmsByPSMDBId = new HashMap<Integer, PSMBean>();
-	private final HashMap<Integer, PeptideBean> peptidesByPeptideBeanUniqueIdentifier = new HashMap<Integer, PeptideBean>();
-	private final HashMap<String, PeptideBean> peptidesBySequence = new HashMap<String, PeptideBean>();
+	private final TIntObjectHashMap<ProteinBean> proteinsByProteinBeanUniqueIdentifier = new TIntObjectHashMap<ProteinBean>();
+	private final Map<String, ProteinBean> proteinsByAccession = new THashMap<String, ProteinBean>();
+	private final TIntObjectHashMap<PSMBean> psmsByPSMDBId = new TIntObjectHashMap<PSMBean>();
+	private final TIntObjectHashMap<PeptideBean> peptidesByPeptideBeanUniqueIdentifier = new TIntObjectHashMap<PeptideBean>();
+	private final Map<String, PeptideBean> peptidesBySequence = new THashMap<String, PeptideBean>();
 
-	private final Map<String, Set<PSMBean>> psmsBySequence = new HashMap<String, Set<PSMBean>>();
-	private final Map<String, Set<PSMBean>> psmsByRawSequence = new HashMap<String, Set<PSMBean>>();
+	private final Map<String, Set<PSMBean>> psmsBySequence = new THashMap<String, Set<PSMBean>>();
+	private final Map<String, Set<PSMBean>> psmsByRawSequence = new THashMap<String, Set<PSMBean>>();
 	private final RatioAnalyzer ratioAnalyzer = new RatioAnalyzer();
 
 	private boolean separateNonConclusiveProteins = false;
 	private boolean ready;
 	private final String sessionId;
 	private String name;
-	private final Criteria criteria;
+	private Thread activeDatasetThread;
 	private final static Logger log = Logger.getLogger(DataSet.class);
+	private Date latestAccess;
 
 	public DataSet(String sessionID, String name) {
-		this(sessionID, name, null);
-	}
-
-	public DataSet(String sessionID, String name, Criteria criteria) {
 		sessionId = sessionID;
 		setName(name);
-		this.criteria = criteria;
+		this.activeDatasetThread = Thread.currentThread();
+		this.setLatestAccess(new Date());
 	}
 
 	/**
@@ -197,14 +196,14 @@ public class DataSet {
 		if (psmsBySequence.containsKey(psmBean.getSequence())) {
 			psmsBySequence.get(psmBean.getSequence()).add(psmBean);
 		} else {
-			Set<PSMBean> set = new HashSet<PSMBean>();
+			Set<PSMBean> set = new THashSet<PSMBean>();
 			set.add(psmBean);
 			psmsBySequence.put(psmBean.getSequence(), set);
 		}
 		if (psmsByRawSequence.containsKey(psmBean.getFullSequence())) {
 			psmsByRawSequence.get(psmBean.getFullSequence()).add(psmBean);
 		} else {
-			Set<PSMBean> set = new HashSet<PSMBean>();
+			Set<PSMBean> set = new THashSet<PSMBean>();
 			set.add(psmBean);
 			psmsByRawSequence.put(psmBean.getFullSequence(), set);
 		}
@@ -329,7 +328,9 @@ public class DataSet {
 			final Set<RatioBean> ratios = ratioContainer.getRatios();
 			for (RatioBean ratioBean : ratios) {
 				final RatioDistribution ratioDistribution = ratioAnalyzer.getRatioDistribution(ratioBean);
-				ratioContainer.addRatioDistribution(ratioDistribution);
+				if (ratioDistribution != null) {
+					ratioContainer.addRatioDistribution(ratioDistribution);
+				}
 			}
 		}
 	}
@@ -478,14 +479,16 @@ public class DataSet {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "/nDATASET:\nReady:\t" + ready + "\nName: " + name + "\nSessionID: " + sessionId + "\nProtein groups:\t"
-				+ getProteinGroups(false).size() + "\n" + "Proteins:\t" + getProteins().size() + "\n" + "PSMs:\t"
-				+ getPsms().size() + "\n" + "Peptides:\t" + getNumDifferentSequences(false) + "\n"
-				+ "Peptides(ptm sensible):\t" + getNumDifferentSequences(true) + "\n";
+		return "/nDATASET:\nThread holder ID:\t" + this.activeDatasetThread.getId() + "\nReady:\t" + ready + "\nName: "
+				+ name + "\nSessionID: " + sessionId + "\nProtein groups:\t" + getProteinGroups(false).size() + "\n"
+				+ "Proteins:\t" + getProteins().size() + "\n" + "PSMs:\t" + getPsms().size() + "\n" + "Peptides:\t"
+				+ getNumDifferentSequences(false) + "\n" + "Peptides(ptm sensible):\t" + getNumDifferentSequences(true)
+				+ "\n";
 	}
 
 	public void addPeptide(PeptideBean peptideBean) {
@@ -508,15 +511,15 @@ public class DataSet {
 		// TODO
 	}
 
-	public HashMap<Integer, ProteinBean> getProteinBeansByUniqueIdentifier() {
+	public TIntObjectHashMap<ProteinBean> getProteinBeansByUniqueIdentifier() {
 		return proteinsByProteinBeanUniqueIdentifier;
 	}
 
-	public HashMap<Integer, PeptideBean> getPeptideBeansByUniqueIdentifier() {
+	public TIntObjectHashMap<PeptideBean> getPeptideBeansByUniqueIdentifier() {
 		return peptidesByPeptideBeanUniqueIdentifier;
 	}
 
-	public HashMap<Integer, PSMBean> getPSMBeansByUniqueIdentifier() {
+	public TIntObjectHashMap<PSMBean> getPSMBeansByUniqueIdentifier() {
 		return psmsByPSMDBId;
 	}
 
@@ -530,7 +533,7 @@ public class DataSet {
 		final List<ProteinBean> proteinList = getProteins();
 		int initialProteinNumber = proteinList.size();
 
-		Map<String, ProteinBean> map = new HashMap<String, ProteinBean>();
+		Map<String, ProteinBean> map = new THashMap<String, ProteinBean>();
 		int foundDuplicate = 0;
 		final Iterator<ProteinBean> iterator = proteinList.iterator();
 		while (iterator.hasNext()) {
@@ -573,5 +576,24 @@ public class DataSet {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Thread getActiveDatasetThread() {
+		return activeDatasetThread;
+	}
+
+	public Date getLatestAccess() {
+		return latestAccess;
+	}
+
+	public void setLatestAccess(Date latestAccess) {
+		this.latestAccess = latestAccess;
+	}
+
+	public void setActiveDatasetThread(Thread activeDatasetThread) {
+		log.info("Changing thread holder for dataset in session ID '" + sessionId + "' to thread "
+				+ activeDatasetThread.getId());
+
+		this.activeDatasetThread = activeDatasetThread;
 	}
 }

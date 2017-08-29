@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +18,7 @@ import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.strings.StringUtils;
+import gnu.trove.map.hash.THashMap;
 
 /**
  * Implements a {@link Query} from Annotation command:<br>
@@ -61,7 +61,7 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 	public boolean evaluate(Set<ProteinAnnotation> proteinAnnotations) {
 		if (proteinAnnotations != null) {
 			boolean found = false;
-			Map<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType, Integer> map = new HashMap<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType, Integer>();
+			Map<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType, Integer> map = new THashMap<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType, Integer>();
 			// to be included in the result, at least one annotation
 			// will have to be present
 			for (ProteinAnnotation proteinAnnotation : proteinAnnotations) {

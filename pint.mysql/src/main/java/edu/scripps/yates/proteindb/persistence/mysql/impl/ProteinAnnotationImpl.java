@@ -1,17 +1,15 @@
 package edu.scripps.yates.proteindb.persistence.mysql.impl;
 
-import java.util.HashMap;
-
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ProteinAnnotationImpl implements ProteinAnnotation {
 	private final edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation hibProteinAnnotation;
 	private AnnotationType annotationType;
-	protected final static HashMap<Integer, ProteinAnnotation> proteinAnnotationsMap = new HashMap<Integer, ProteinAnnotation>();
+	protected final static TIntObjectHashMap<ProteinAnnotation> proteinAnnotationsMap = new TIntObjectHashMap<ProteinAnnotation>();
 
-	public ProteinAnnotationImpl(
-			edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation proteinAnnotation) {
+	public ProteinAnnotationImpl(edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation proteinAnnotation) {
 		hibProteinAnnotation = proteinAnnotation;
 		proteinAnnotationsMap.put(proteinAnnotation.getId(), this);
 	}
@@ -22,9 +20,7 @@ public class ProteinAnnotationImpl implements ProteinAnnotation {
 			final edu.scripps.yates.proteindb.persistence.mysql.AnnotationType annotationType = hibProteinAnnotation
 					.getAnnotationType();
 			if (annotationType != null) {
-				this.annotationType = AnnotationType
-						.translateStringToAnnotationType(annotationType
-								.getName());
+				this.annotationType = AnnotationType.translateStringToAnnotationType(annotationType.getName());
 			}
 		}
 		return annotationType;

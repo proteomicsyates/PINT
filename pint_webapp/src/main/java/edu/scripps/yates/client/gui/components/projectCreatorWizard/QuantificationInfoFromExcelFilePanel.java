@@ -29,7 +29,7 @@ import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.Proj
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ReferencesDataObject;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsObject;
 import edu.scripps.yates.client.interfaces.ContainsImportJobID;
-import edu.scripps.yates.client.util.StatusReportersRegister;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.excel.util.ExcelUtils;
 import edu.scripps.yates.shared.model.projectCreator.ExcelDataReference;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;

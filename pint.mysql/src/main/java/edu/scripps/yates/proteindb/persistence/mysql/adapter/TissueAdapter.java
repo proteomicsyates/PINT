@@ -1,20 +1,18 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
+import gnu.trove.map.hash.THashMap;
 
-public class TissueAdapter implements
-		Adapter<edu.scripps.yates.proteindb.persistence.mysql.Tissue>,
-		Serializable {
+public class TissueAdapter implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.Tissue>, Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6284922670208575891L;
 	private final edu.scripps.yates.utilities.proteomicsmodel.Tissue tissue;
-	private final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.Tissue> map = new HashMap<String, Tissue>();
+	private final static Map<String, edu.scripps.yates.proteindb.persistence.mysql.Tissue> map = new THashMap<String, Tissue>();
 
 	public TissueAdapter(edu.scripps.yates.utilities.proteomicsmodel.Tissue tissue) {
 		this.tissue = tissue;

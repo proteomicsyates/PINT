@@ -25,6 +25,7 @@ public class SharedConstants {
 	public static final String SEPARATOR = NEW_LINE_JAVA;
 
 	public static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
+	public static final String PINT_HOME_PATH = "PINT_HOME_PATH";
 	public static final int PSM_DEFAULT_PAGE_SIZE = 200;
 	public static final int PEPTIDE_DEFAULT_PAGE_SIZE = 200;
 	public static final int PROTEIN_DEFAULT_PAGE_SIZE = 50;
@@ -51,9 +52,10 @@ public class SharedConstants {
 	public static final int MAX_NUMBER_PARALLEL_PROCESSES = 8;
 
 	// enable send emails
-	public static final boolean EMAIL_ENABLED = false;
+	public static final boolean EMAIL_ENABLED = true;
 
 	// tables selection model
 	public static final boolean TABLE_WITH_MULTIPLE_SELECTION = false;
+	public static final boolean ADAPT_PSM_SCORES = false;
 
 }

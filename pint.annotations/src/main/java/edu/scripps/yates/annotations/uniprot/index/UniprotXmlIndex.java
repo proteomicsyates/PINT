@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,12 +21,13 @@ import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.index.FileIndex;
 import edu.scripps.yates.utilities.index.TextFileIndex;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
 
 public class UniprotXmlIndex implements FileIndex<Entry> {
 	private static final Logger log = Logger.getLogger(TextFileIndex.class);
 	private final File fileToIndex;
 	private final File indexFile;
-	private final HashMap<String, Pair<Long, Long>> indexMap = new HashMap<String, Pair<Long, Long>>();
+	private final Map<String, Pair<Long, Long>> indexMap = new THashMap<String, Pair<Long, Long>>();
 	private final static String INDEX_EXT = ".idx";
 	private static final String TAB = "\t";
 	private static final String NEWLINE = "\n";
@@ -126,21 +126,28 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		}
 		// if index Map is empty, read the index file
 		if (indexMap.isEmpty()) {
-			BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile)));
-			try {
-				String line;
-				while ((line = fr.readLine()) != null) {
-					final String[] split = line.split(TAB);
-					String key = split[0];
-					long start = new Long(split[1]);
-					long end = new Long(split[2]);
-					Pair<Long, Long> pair = new Pair<Long, Long>(start, end);
-					indexMap.put(key, pair);
+			if (indexFile.length() > 0) {
+				BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile)));
+				try {
+					String line;
+					while ((line = fr.readLine()) != null) {
+						if (Thread.currentThread().isInterrupted()) {
+							throw new RuntimeException("Thread interrupted");
+						}
+						final String[] split = line.split(TAB);
+						String key = split[0];
+						long start = new Long(split[1]);
+						long end = new Long(split[2]);
+						Pair<Long, Long> pair = new Pair<Long, Long>(start, end);
+						indexMap.put(key, pair);
+					}
+				} finally {
+					if (!indexMap.isEmpty()) {
+						log.info(indexMap.size() + " entries in the index");
+					}
+					fr.close();
+					status = Status.READY;
 				}
-			} finally {
-				log.info(indexMap.size() + " entries in the index");
-				fr.close();
-				status = Status.READY;
 			}
 		}
 	}
@@ -154,7 +161,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 	 * @throws IOException
 	 */
 	@Override
-	public Map<String, Pair<Long, Long>> addItem(Entry entry) {
+	public Map<String, Pair<Long, Long>> addItem(Entry entry, Set<String> keys) {
 		Map<String, Pair<Long, Long>> itemPositions = null;
 		// load index file
 		try {
@@ -163,8 +170,10 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			String item = marshallEntryToText(entry);
 
 			// look if it is already in the index
-			final Set<String> keys = uniprotFileIndexIO.getKeys(item);
-			Map<String, Pair<Long, Long>> ret = new HashMap<String, Pair<Long, Long>>();
+			if (keys == null || keys.isEmpty()) {
+				keys = uniprotFileIndexIO.getKeys(item);
+			}
+			Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
 			if (keys != null && !keys.isEmpty()) {
 				for (String key : keys) {
 					if (indexMap.containsKey(key)) {
@@ -179,7 +188,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 				return ret;
 			}
 			// add into the file to index
-			itemPositions = uniprotFileIndexIO.addNewItem(item);
+			itemPositions = uniprotFileIndexIO.addNewItem(item, keys);
 
 			// add to the map
 			indexMap.putAll(itemPositions);
@@ -227,6 +236,14 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 
 	public File getIndexFile() {
 		return indexFile;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		if (status == Status.READY && indexMap.isEmpty()) {
+			return true;
+		}
+		return false;
 	}
 
 }

@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,6 +19,7 @@ import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.proteomicsmodel.UniprotLineHeader;
 import edu.scripps.yates.utilities.strings.StringUtils;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Implements a {@link Query} from Annotation command:<br>
@@ -31,7 +31,7 @@ import edu.scripps.yates.utilities.strings.StringUtils;
  */
 public class QueryFromComplexAnnotationCommand extends AbstractQuery {
 	private UniprotLineHeader uniprotLineHeader;
-	private final Set<edu.scripps.yates.utilities.proteomicsmodel.AnnotationType> annotationTypes = new HashSet<edu.scripps.yates.utilities.proteomicsmodel.AnnotationType>();
+	private final Set<edu.scripps.yates.utilities.proteomicsmodel.AnnotationType> annotationTypes = new THashSet<edu.scripps.yates.utilities.proteomicsmodel.AnnotationType>();
 	private String annotationNameString;
 	private String annotationValueString;
 	private NumericalCondition numericalCondition;
@@ -111,7 +111,7 @@ public class QueryFromComplexAnnotationCommand extends AbstractQuery {
 
 	// static void annotateProtein(QueriableProteinInterface protein, String
 	// uniprotVersion) {
-	// Map<String, Set<QueriableProteinInterface>> map = new HashMap<String,
+	// Map<String, Set<QueriableProteinInterface>> map = new THashMap<String,
 	// Set<QueriableProteinInterface>>();
 	// final String primaryAcc = protein.getPrimaryAccession().getAccession();
 	// if (map.containsKey(primaryAcc)) {

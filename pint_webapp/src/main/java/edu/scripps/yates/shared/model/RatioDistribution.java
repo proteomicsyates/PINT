@@ -84,8 +84,8 @@ public class RatioDistribution implements Serializable {
 	public String toString() {
 		final NumberFormat format = NumberFormat.getFormat("#.##");
 		StringBuilder sb = new StringBuilder();
-		sb.append("Ratio distribution in the entire dataset: [").append(format.format(minRatio)).append(",")
-				.append(format.format(maxRatio)).append("]");
+		sb.append("Ratio distribution in the entire dataset: " + ratioKey + " [").append(format.format(minRatio))
+				.append(",").append(format.format(maxRatio)).append("]");
 		return sb.toString();
 	}
 

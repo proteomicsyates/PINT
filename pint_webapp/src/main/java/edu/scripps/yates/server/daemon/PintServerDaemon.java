@@ -1,5 +1,6 @@
 package edu.scripps.yates.server.daemon;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -9,12 +10,16 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
+import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
 import edu.scripps.yates.server.daemon.tasks.PreLoadPublicProjects;
 import edu.scripps.yates.server.daemon.tasks.ProteinUniprotAnnotationUpdater;
+import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerUtil;
+import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
 import edu.scripps.yates.shared.util.SharedConstants;
 
 public class PintServerDaemon implements ServletContextListener {
@@ -28,12 +33,18 @@ public class PintServerDaemon implements ServletContextListener {
 	public void contextInitialized(final ServletContextEvent sce) {
 		// check database connection
 		boolean sessionOpen = false;
+		SessionFactory sessionFactory = null;
 		try {
-			ContextualSessionHandler.getSessionFactory(ServerUtil.getPINTPropertiesFile(sce.getServletContext()));
-			ContextualSessionHandler.openSession();
-			sessionOpen = true;
-			ContextualSessionHandler.beginGoodTransaction();
-			ContextualSessionHandler.finishGoodTransaction();
+			File pintPropertiesFile = FileManager.getPINTPropertiesFile(sce.getServletContext());
+			PintConfigurationProperties properties = PintConfigurationPropertiesIO.readProperties(pintPropertiesFile);
+
+			sessionFactory = ContextualSessionHandler.getSessionFactory(properties.getDb_username(),
+					properties.getDb_password(), properties.getDb_url());
+			// Session session = ContextualSessionHandler.openSession();
+			//
+			// sessionOpen = true;
+			// ContextualSessionHandler.beginGoodTransaction();
+			// ContextualSessionHandler.finishGoodTransaction();
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e);
@@ -42,20 +53,25 @@ public class PintServerDaemon implements ServletContextListener {
 					"Check the database user credentials in the pint.properties file at the WEB-INF folder of the web application");
 
 		} finally {
-			if (sessionOpen) {
-				ContextualSessionHandler.closeSession();
-			}
+			// if (sessionOpen) {
+			// ContextualSessionHandler.closeSession();
+			// }
 		}
 		//
 		log.info("Starting PintServerDaemon...");
 
-		if (SharedConstants.DAEMON_TASKS_ENABLED && !ServerUtil.isTestServer()) {
+		boolean isTestServer = ServerUtil.isTestServer();
+		log.info("Is a test server: " + isTestServer);
+		if (SharedConstants.DAEMON_TASKS_ENABLED && !isTestServer) {
 			// /////////////////////////////////////////////////
 			// REGISTER MAINTENANCE TASKS HERE
-			// pintServerDaemonTasks.add(new
-			// ProteinAccessionsUpdater(servletContext));
+
 			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", sce.getServletContext()));
 			pintServerDaemonTasks.add(new ProteinUniprotAnnotationUpdater(sce.getServletContext()));
+			// disabled because it seems that it has some problems
+			// pintServerDaemonTasks.add(new
+			// ProteinAccessionsUpdaterScroll(sce.getServletContext()));
+
 			// pintServerDaemonTasks.add(new
 			// DeleteHiddenProjects(servletContext));
 			// pintServerDaemonTasks.add(new GeneInformationConsolidation(
@@ -106,6 +122,7 @@ public class PintServerDaemon implements ServletContextListener {
 		// };
 		// th.setDaemon(true);
 		// th.start();
+
 	}
 
 	@Override
@@ -199,7 +216,7 @@ public class PintServerDaemon implements ServletContextListener {
 	// ThreadSessionHandler.beginGoodTransaction();
 	// final Map<String, Set<Protein>> proteins = PreparedQueries
 	// .getProteinsByProjectCondition(projectBean.getTag(), null);
-	// final Set<String> accs = new HashSet<String>();
+	// final Set<String> accs = new THashSet<String>();
 	// for (String acc : proteins.keySet()) {
 	// final ProteinAccession primaryAccession = PersistenceUtils
 	// .getPrimaryAccession(proteins.get(acc).iterator()

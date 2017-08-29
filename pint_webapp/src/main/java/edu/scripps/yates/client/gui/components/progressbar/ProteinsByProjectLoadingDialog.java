@@ -12,7 +12,7 @@ public class ProteinsByProjectLoadingDialog extends ProgressLoadingDialog {
 	private final String uniprotVersion;
 
 	public ProteinsByProjectLoadingDialog(final String sessionID, String projectTag, String uniprotVersion) {
-		super("Loading proteins from project", true);
+		super("Loading proteins from project", true, false);
 		this.sessionID = sessionID;
 		this.projectTag = projectTag;
 		this.uniprotVersion = uniprotVersion;

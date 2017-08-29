@@ -1,6 +1,5 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -24,6 +23,7 @@ import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.model.enums.AmountType;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Implements a {@link Query} from Amount command:<br>
@@ -119,7 +119,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 
 		// for SPC, take the SPC off all the proteins in that condition
 		if (!thereIsProteinAmountManuallyAdded && amountType == AmountType.SPC) {
-			Set<ProteinAmount> specCounts = new HashSet<ProteinAmount>();
+			Set<ProteinAmount> specCounts = new THashSet<ProteinAmount>();
 			final Set<Condition> conditions = queriableProtein.getConditions();
 			for (Condition condition : conditions) {
 				specCounts.add(getSpectralCountProteinAmount(condition, queriableProtein));
@@ -183,7 +183,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 	}
 
 	private Set<PsmAmount> getPsmAmountsByType(QueriablePsm psm) {
-		Set<PsmAmount> ret = new HashSet<PsmAmount>();
+		Set<PsmAmount> ret = new THashSet<PsmAmount>();
 		final Set<PsmAmount> psmAmounts = psm.getPsm().getPsmAmounts();
 		for (PsmAmount psmAmount : psmAmounts) {
 			if (amountType == null) {
@@ -197,7 +197,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 	}
 
 	private Set<ProteinAmount> getProteinAmountsByType(QueriableProteinSet protein) {
-		Set<ProteinAmount> ret = new HashSet<ProteinAmount>();
+		Set<ProteinAmount> ret = new THashSet<ProteinAmount>();
 		final Set<ProteinAmount> proteinAmounts = protein.getProteinAmounts();
 		thereIsProteinAmountManuallyAdded = false;
 		for (ProteinAmount proteinAmount : proteinAmounts) {

@@ -2,6 +2,8 @@ package edu.scripps.yates.server;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,14 +26,11 @@ import org.hibernate.Criteria;
 import org.hibernate.transform.Transformers;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import com.ibm.icu.text.DateFormat;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRemoteRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.client.ProteinRetrievalService;
-import edu.scripps.yates.client.exceptions.PintException;
-import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
@@ -46,10 +45,24 @@ import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueryBinaryTree;
 import edu.scripps.yates.proteindb.queries.semantic.QueryInterface;
 import edu.scripps.yates.proteindb.queries.semantic.QueryResult;
+import edu.scripps.yates.server.adapters.AccessionBeanAdapter;
 import edu.scripps.yates.server.adapters.AlignmentResultAdapter;
+import edu.scripps.yates.server.adapters.AmountBeanAdapter;
+import edu.scripps.yates.server.adapters.ConditionBeanAdapter;
+import edu.scripps.yates.server.adapters.LabelBeanAdapter;
+import edu.scripps.yates.server.adapters.MSRunBeanAdapter;
 import edu.scripps.yates.server.adapters.OrganismBeanAdapter;
 import edu.scripps.yates.server.adapters.PSMBeanAdapter;
+import edu.scripps.yates.server.adapters.PSMRatioBeanAdapter;
+import edu.scripps.yates.server.adapters.PTMBeanAdapter;
+import edu.scripps.yates.server.adapters.PTMSiteBeanAdapter;
+import edu.scripps.yates.server.adapters.PeptideRatioBeanAdapter;
 import edu.scripps.yates.server.adapters.ProjectBeanAdapter;
+import edu.scripps.yates.server.adapters.ProteinAnnotationBeanAdapter;
+import edu.scripps.yates.server.adapters.ProteinRatioBeanAdapter;
+import edu.scripps.yates.server.adapters.SampleBeanAdapter;
+import edu.scripps.yates.server.adapters.ThresholdBeanAdapter;
+import edu.scripps.yates.server.adapters.TissueBeanAdapter;
 import edu.scripps.yates.server.cache.ServerCacheGeneNameProteinProjectionsByProjectTag;
 import edu.scripps.yates.server.cache.ServerCacheOrganismBeansByProjectName;
 import edu.scripps.yates.server.cache.ServerCachePSMBeansByPSMDBId;
@@ -82,6 +95,8 @@ import edu.scripps.yates.server.util.ServletCommonInit;
 import edu.scripps.yates.shared.columns.comparator.PSMComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinComparator;
 import edu.scripps.yates.shared.columns.comparator.ProteinGroupComparator;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.AccessionBean;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;
@@ -124,6 +139,7 @@ import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.UniprotLineHeader;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
+import gnu.trove.map.hash.THashMap;
 
 /**
  * The server-side implementation of the RPC service.
@@ -132,6 +148,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implements ProteinRetrievalService {
 	private static final org.apache.log4j.Logger log = org.apache.log4j.Logger
 			.getLogger(ProteinRetrievalServicesServlet.class);
+	private final static SimpleDateFormat emailDateFormatter = new SimpleDateFormat("EEE, MMM d,''yy 'at' HH:mm:ss z");
 
 	// private final MySQLMultiProjectProteinProvider mySQLProteinProvider =
 	// MySQLMultiProjectProteinProvider
@@ -141,8 +158,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	// FakeProteinProvider(
 	// 100);
 
-	private static final HashMap<String, File> proteinResultFilesByQueryStringInOrder = new HashMap<String, File>();
-	private static final HashMap<String, File> proteinGroupResultFilesByQueryStringInOrder = new HashMap<String, File>();
+	private static final Map<String, File> proteinResultFilesByQueryStringInOrder = new THashMap<String, File>();
+	private static final Map<String, File> proteinGroupResultFilesByQueryStringInOrder = new THashMap<String, File>();
 
 	private static final int MIN_PEPTIDE_ALIGNMENT_LENGTH = 6;
 
@@ -180,6 +197,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public void init(ServletConfig config) throws ServletException {
 
 		super.init(config);
+		log.info("Init from ProteinRetrievalServicesServlet");
 		ServletCommonInit.init(getServletContext());
 	}
 
@@ -225,6 +243,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public Set<String> getProjectTags() throws PintException {
+		logMethodCall(new Object() {
+		}.getClass().getEnclosingMethod());
 		try {
 			Set<String> projectTagSet = new HashSet<String>();
 
@@ -250,6 +270,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public QueryResultSubLists getProteinsFromProjects(String sessionID, Set<String> projectTags, String uniprotVersion,
 			boolean separateNonConclusiveProteins, Integer defaultQueryIndex, boolean testMode) throws PintException {
+
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 		final String projectTagsString = getProjectTagString(projectTags);
 		log.info("GET PROTEINS FROM PROJECT '" + projectTagsString + "' IN SESSION: " + sessionID);
 		log.info(++times + " times getting proteins from project ");
@@ -257,16 +281,13 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			// create a Task
 			task = new GetProteinsFromProjectTask(projectTagsString, uniprotVersion);
-			final Method enclosingMethod = new Object() {
-			}.getClass().getEnclosingMethod();
-			// register task
-			ServerTaskRegister.registerTask(task);
 
-			// SEND TRACKING EMAIL. Testing it...
-			sendTrackingEmail(projectTagsString);
-			// SEND TRACKING EMAIL
+			// register task
+			ServerTaskRegister.getInstance().registerTask(task);
 
 			DataSetsManager.clearDataSet(sessionID);
+			// set current thread as the one holding this dataset
+			DataSetsManager.getDataSet(sessionID, projectTagsString).setActiveDatasetThread(Thread.currentThread());
 
 			if (ServerCacheProteinBeansByProjectTag.getInstance().contains(projectTagsString)
 					&& defaultQueryIndex == null) {
@@ -274,19 +295,21 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 						+ sessionID + "'");
 				final List<ProteinBean> proteinBeansInCache = ServerCacheProteinBeansByProjectTag.getInstance()
 						.getFromCache(projectTagsString);
-				log.info(proteinBeansInCache.size() + " protein beans retrieved from cache");
-				if (!proteinBeansInCache.isEmpty()) {
-					// add to the dataset
-					log.info("Adding them to the dataset in session '" + sessionID + "'");
-					for (ProteinBean proteinBean : proteinBeansInCache) {
-						DataSetsManager.getDataSet(sessionID, projectTagsString).addProtein(proteinBean);
+				if (proteinBeansInCache != null) {
+					log.info(proteinBeansInCache.size() + " protein beans retrieved from cache");
+					if (!proteinBeansInCache.isEmpty()) {
+						// add to the dataset
+						log.info("Adding them to the dataset in session '" + sessionID + "'");
+						for (ProteinBean proteinBean : proteinBeansInCache) {
+							DataSetsManager.getDataSet(sessionID, projectTagsString).addProtein(proteinBean);
+						}
+						log.info("Setting dataset ready in session '" + sessionID + "'");
+						DataSetsManager.getDataSet(sessionID, projectTagsString).setReady(true);
+						log.info(DataSetsManager.getDataSet(sessionID, projectTagsString));
+						QueryResultSubLists ret = getQueryResultSubListsFromDataSet(sessionID, projectTags,
+								separateNonConclusiveProteins);
+						return ret;
 					}
-					log.info("Setting dataset ready in session '" + sessionID + "'");
-					DataSetsManager.getDataSet(sessionID, projectTagsString).setReady(true);
-					log.info(DataSetsManager.getDataSet(sessionID, projectTagsString));
-					QueryResultSubLists ret = getQueryResultSubListsFromDataSet(sessionID, projectTags,
-							separateNonConclusiveProteins);
-					return ret;
 				}
 			}
 			try {
@@ -311,7 +334,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 							querySB.append("COND[,").append(projectTag).append("]");
 						}
 					} catch (Exception e) {
-						final Task runningTask = ServerTaskRegister.getRunningTask(
+						final Task runningTask = ServerTaskRegister.getInstance().getRunningTask(
 								SharedTaskKeyGenerator.getKeyForGetProteinsFromProjectTask(projectTag, uniprotVersion));
 						if (runningTask != null)
 							runningTask.setAsFinished();
@@ -338,10 +361,13 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		} catch (Exception e) {
 			log.error(e);
 			e.printStackTrace();
+			if (e instanceof PintException) {
+				throw (PintException) e;
+			}
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
 			if (task != null) {
-				ServerTaskRegister.endTask(task);
+				ServerTaskRegister.getInstance().endTask(task);
 			}
 		}
 
@@ -410,6 +436,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public Set<String> getExperimentalConditionsFromProject(String projectTag) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			Set<Condition> conditions = RemoteServicesTasks.getExperimentalConditionsFromProject(projectTag);
 			Set<String> names = new HashSet<String>();
 			for (Condition condition : conditions) {
@@ -427,21 +456,21 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public FileDescriptor getDownloadLinkForProteinsFromQuery(String sessionID, String queryText,
 			Set<String> projectTags) throws PintException {
-
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 		final String projectTagCollectionKey = SharedDataUtils.getProjectTagCollectionKey(projectTags);
 
 		// create a Task
 		GetDownloadLinkFromProteinsfromQueryTask task = new GetDownloadLinkFromProteinsfromQueryTask(
 				projectTagCollectionKey);
-		if (ServerTaskRegister.isRunningTask(task)) {
+		if (ServerTaskRegister.getInstance().isRunningTask(task)) {
 			log.info("Task " + task.getKey() + " is already running. Discarding this request.");
 			return null;
 		}
-		final Method enclosingMethod = new Object() {
-		}.getClass().getEnclosingMethod();
 		try {
 			// register tag
-			ServerTaskRegister.registerTask(task);
+			ServerTaskRegister.getInstance().registerTask(task);
 			try {
 				// lock project
 
@@ -494,7 +523,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				throw e;
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
-			ServerTaskRegister.endTask(task);
+			ServerTaskRegister.getInstance().endTask(task);
 
 		}
 	}
@@ -502,20 +531,20 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public FileDescriptor getDownloadLinkForProteinGroupsFromQuery(String sessionID, String queryText,
 			Set<String> projectTags, boolean separateNonConclusiveProteins) throws PintException {
-
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 		final String projectTagCollectionKey = SharedDataUtils.getProjectTagCollectionKey(projectTags);
 		// create a Task
 		GetDownloadLinkFromProteinGroupsFromQueryTask task = new GetDownloadLinkFromProteinGroupsFromQueryTask(
 				projectTagCollectionKey, separateNonConclusiveProteins);
-		if (ServerTaskRegister.isRunningTask(task)) {
+		if (ServerTaskRegister.getInstance().isRunningTask(task)) {
 			log.info("Task " + task.getKey() + " is already running. Discarding this request.");
 			return null;
 		}
-		final Method enclosingMethod = new Object() {
-		}.getClass().getEnclosingMethod();
 		try {
 			// register task
-			ServerTaskRegister.registerTask(task);
+			ServerTaskRegister.getInstance().registerTask(task);
 			try {
 				// lock projects
 
@@ -570,13 +599,15 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
 
-			ServerTaskRegister.endTask(task);
+			ServerTaskRegister.getInstance().endTask(task);
 		}
 	}
 
 	@Override
 	public FileDescriptor getDownloadLinkForProteinsInProject(List<String> projectTags) throws PintException {
-
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 		// check if download is allowed for these project
 		for (String projectTag : projectTags) {
 			if (!PreparedQueries.isDownloadDataAllowed(projectTag))
@@ -587,13 +618,13 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		// create a Task
 		GetDownloadLinkFromProteinsInProjectTask task = new GetDownloadLinkFromProteinsInProjectTask(
 				projectTagCollectionKey);
-		if (ServerTaskRegister.isRunningTask(task)) {
+		if (ServerTaskRegister.getInstance().isRunningTask(task)) {
 			log.info("Task " + task.getKey() + " is already running. Discarding this request.");
 			return null;
 		}
 		try {
 			// register task
-			ServerTaskRegister.registerTask(task);
+			ServerTaskRegister.getInstance().registerTask(task);
 
 			log.info("Getting download link for proteins in project: " + projectTagCollectionKey);
 			if (ServerCacheProteinFileDescriptorByProjectName.getInstance().contains(projectTagCollectionKey)) {
@@ -610,8 +641,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				log.info("File descriptor for proteins is already created: " + ret.getName() + " - " + ret.getSize());
 				return ret;
 			}
-			final Method enclosingMethod = new Object() {
-			}.getClass().getEnclosingMethod();
 			try {
 				// lock project
 				ProjectLocker.lock(projectTags, enclosingMethod);
@@ -636,14 +665,16 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				throw e;
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
-			ServerTaskRegister.endTask(task);
+			ServerTaskRegister.getInstance().endTask(task);
 		}
 	}
 
 	@Override
 	public FileDescriptor getDownloadLinkForProteinGroupsInProject(List<String> projectTags,
 			boolean separateNonConclusiveProteins) throws PintException {
-
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 		// check if download is allowed for these project
 		for (String projectTag : projectTags) {
 			if (!PreparedQueries.isDownloadDataAllowed(projectTag))
@@ -654,13 +685,13 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		// create a Task
 		GetDownloadLinkFromProteinGroupsInProjectTask task = new GetDownloadLinkFromProteinGroupsInProjectTask(
 				projectTagCollectionKey, separateNonConclusiveProteins);
-		if (ServerTaskRegister.isRunningTask(task)) {
+		if (ServerTaskRegister.getInstance().isRunningTask(task)) {
 			log.info("Task " + task.getKey() + " is already running. Discarding this request.");
 			return null;
 		}
 		try {
 			// register task
-			ServerTaskRegister.registerTask(task);
+			ServerTaskRegister.getInstance().registerTask(task);
 
 			log.info("Getting download link for proteins groups in project: " + projectTagCollectionKey);
 
@@ -680,8 +711,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 						+ ret.getSize());
 				return ret;
 			}
-			final Method enclosingMethod = new Object() {
-			}.getClass().getEnclosingMethod();
 			try {
 				// lock projects
 				ProjectLocker.lock(projectTags, enclosingMethod);
@@ -708,13 +737,16 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				throw e;
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
-			ServerTaskRegister.endTask(task);
+			ServerTaskRegister.getInstance().endTask(task);
 		}
 	}
 
 	@Override
 	public Set<String> getUniprotAnnotationsFromProjects(Set<String> projectTags) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			Set<String> ret = new HashSet<String>();
 
 			final String latestVersion = UniprotProteinRemoteRetriever.getCurrentUniprotRemoteVersion();
@@ -739,6 +771,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public List<String> getAnnotationTypes() throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			List<String> ret = new ArrayList<String>();
 
 			AnnotationType[] annotationTypes = AnnotationType.values();
@@ -771,6 +806,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public Map<String, String> getUniprotHeaderLines() throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			final UniprotLineHeader[] values = UniprotLineHeader.values();
 			Map<String, String> ret = new HashMap<String, String>();
 			for (UniprotLineHeader uniprotLineHeader : values) {
@@ -788,6 +826,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public Map<String, String> getCommands() throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			Map<String, String> ret = new HashMap<String, String>();
 			final Command[] values = Command.values();
 			for (Command command : values) {
@@ -805,6 +846,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public Set<String> getThresholdNamesFromProjects(Set<String> projectTags) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			Set<String> ret = new HashSet<String>();
 			for (String projectName : projectTags) {
 				ret.addAll(PreparedQueries.getProteinThresholdNamesByProject(projectName));
@@ -821,6 +865,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public List<String> getPSMScoreNamesFromProjects(Set<String> projectNames) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			List<String> ret = new ArrayList<String>();
 			final List<String> psmScoreNames = PreparedQueries.getPSMScoreNames();
 			for (String scoreName : psmScoreNames) {
@@ -848,6 +895,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public List<String> getPSMScoreTypesFromProjects(Set<String> projectNames) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			List<String> ret = new ArrayList<String>();
 			// for (String projectName : projectNames) {
 			// get the PSM scores from the projects
@@ -875,6 +925,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public List<String> getPTMScoreNamesFromProjects(Set<String> projectNames) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			return RemoteServicesTasks.getPTMScoreNamesFromProjects(projectNames);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -887,6 +940,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public List<String> getPTMScoreTypesFromProjects(Set<String> projectNames) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			List<String> ret = new ArrayList<String>();
 			for (String projectName : projectNames) {
 				// get the PTM scores from the projects
@@ -908,6 +964,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public List<RatioDescriptorBean> getRatioDescriptorsFromProjects(Set<String> projectNames) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			return RemoteServicesTasks.getRatioDescriptorsFromProjects(projectNames);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -919,7 +978,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	// @Override
 	// public List<ProteinGroupBean> groupProteins(
-	// Set<Integer> proteinBeanUniqueIdentifiers, // this is not DB ids
+	// TIntHashSet proteinBeanUniqueIdentifiers, // this is not DB ids
 	// boolean separateNonConclusiveProteins) throws PintException {
 	// try {
 	// Set<ProteinBean> proteins =
@@ -941,6 +1000,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public ProteinGroupBeanSubList groupProteins(String sessionID, boolean separateNonConclusiveProteins, int pageSize)
 			throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 
 			return DataSetsManager.getDataSet(sessionID, null)
 					.getLightProteinGroupBeanSubList(separateNonConclusiveProteins, 0, pageSize);
@@ -957,16 +1019,26 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public QueryResultSubLists getProteinsFromQuery(String sessionID, String queryText, Set<String> projectTags,
 			boolean separateNonConclusiveProteins, boolean lock, boolean testMode) throws PintException {
 		GetProteinsFromQuery task = null;
-
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
 		try {
+
+			logMethodCall(enclosingMethod);
+			if (lock) {
+				ProjectLocker.lock(projectTags, enclosingMethod);
+			}
 			QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode);
 			String queryInOrder = expressionTree.printInOrder();
 			// create task
 			task = new GetProteinsFromQuery(projectTags, queryInOrder);
 			// register task
-			ServerTaskRegister.registerTask(task);
+			ServerTaskRegister.getInstance().registerTask(task);
 			// clear map of current proteins for this sessionID
 			DataSetsManager.clearDataSet(sessionID);
+
+			// set current thread as the one holding this dataset
+			DataSetsManager.getDataSet(sessionID, queryInOrder).setActiveDatasetThread(Thread.currentThread());
+
 			// look into cache
 			// attach the project Tags to the queryInOrder, otherwise, if
 			// someone execute one query in one project, and then another one in
@@ -977,6 +1049,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				log.info("Getting proteinBeans from cache for query: " + key + " in session '" + sessionID + "'");
 				List<ProteinBean> ret = ServerCacheProteinBeansByQueryString.getInstance().getFromCache(key);
 				if (!ret.isEmpty()) {
+					// SEND TRACKING EMAIL. Testing it...
+					sendTrackingEmail(getProjectTagString(projectTags) + "\t" + queryInOrder,
+							"Triggered by query: " + queryText, "Getting dataset from server cache");
+					// SEND TRACKING EMAIL
 					// add to the dataset
 					for (ProteinBean proteinBean : ret) {
 						DataSetsManager.getDataSet(sessionID, queryInOrder).addProtein(proteinBean);
@@ -988,19 +1064,15 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				}
 			}
 
-			final Method enclosingMethod = new Object() {
-			}.getClass().getEnclosingMethod();
 			try {
-				if (lock) {
-					ProjectLocker.lock(projectTags, enclosingMethod);
-				}
+
 				task.setTaskDescription("Performing query...");
 				task.setMaxSteps(2);
 				task.setCurrentStep(1);
 
 				// clear static data by DB identifiers
 				log.info("Clearing static beans objects by DB Identifiers");
-				PSMBeanAdapter.clearStaticMaps();
+				clearThreadLocalStaticMaps();
 				ServerCacheProteinBeansByProteinDBId.getInstance().clearCache();
 				ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
 				// end clearing cache
@@ -1011,8 +1083,12 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				log.info(proteins.size() + " proteins comming from command  '" + queryText + "'");
 				if (!proteins.isEmpty()) {
 					log.info("Creating Protein beans in session '" + sessionID + "'");
+					// RemoteServicesTasks.createProteinBeansFromQueriableProteins(sessionID,
+					// proteins,
+					// getHiddenPTMs(projectTags),
+					// getProjectTagString(projectTags));
 					RemoteServicesTasks.createProteinBeansFromQueriableProteins(sessionID, proteins,
-							getHiddenPTMs(projectTags));
+							getHiddenPTMs(projectTags), getProjectTagString(projectTags));
 					// proteins have to be before creating peptides, because
 					// when peptides are created, the cache of the proteins is
 					// used.
@@ -1037,7 +1113,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					RemoteServicesTasks.annotateProteinsOMIM(
 							DataSetsManager.getDataSet(sessionID, queryInOrder).getProteins(),
 							PintConfigurationPropertiesIO
-									.readProperties(ServerUtil.getPINTPropertiesFile(getServletContext()))
+									.readProperties(FileManager.getPINTPropertiesFile(getServletContext()))
 									.getOmimKey());
 				}
 				// add to cache by query if not empty
@@ -1052,9 +1128,12 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				return ret;
 
 			} finally {
-				if (lock) {
-					ProjectLocker.unlock(projectTags, enclosingMethod);
-				}
+				// clear static data by DB identifiers
+				clearThreadLocalStaticMaps();
+				ServerCacheProteinBeansByProteinDBId.getInstance().clearCache();
+				ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
+				// end clearing cache
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1065,13 +1144,41 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
 			// release task
-			if (task != null)
-				ServerTaskRegister.endTask(task);
+			if (task != null) {
+				ServerTaskRegister.getInstance().endTask(task);
+			}
 			log.warn("Rolling back transaction for not making any change in DB");
 			ContextualSessionHandler.rollbackTransaction();
 			log.warn("Transaction rolled back");
+			if (lock) {
+				ProjectLocker.unlock(projectTags, enclosingMethod);
+			}
 
 		}
+	}
+
+	private void clearThreadLocalStaticMaps() {
+		log.info("Clearing static beans objects by DB Identifiers");
+
+		AccessionBeanAdapter.clearStaticMap();
+		AmountBeanAdapter.clearStaticMap();
+		ConditionBeanAdapter.clearStaticMap();
+		LabelBeanAdapter.clearStaticMap();
+		MSRunBeanAdapter.clearStaticMap();
+		OrganismBeanAdapter.clearStaticMap();
+		PeptideRatioBeanAdapter.clearStaticMap();
+		ProjectBeanAdapter.clearStaticMap();
+		ProteinAnnotationBeanAdapter.clearStaticMap();
+		ProteinRatioBeanAdapter.clearStaticMap();
+		PSMBeanAdapter.clearStaticMap();
+		PSMRatioBeanAdapter.clearStaticMap();
+		PTMBeanAdapter.clearStaticMap();
+		PTMSiteBeanAdapter.clearStaticMap();
+		SampleBeanAdapter.clearStaticMap();
+		ThresholdBeanAdapter.clearStaticMap();
+		TissueBeanAdapter.clearStaticMap();
+		log.info("Static beans objects by DB Identifiers cleared");
+
 	}
 
 	public QueryResult getQueryResultFromQuery(QueryInterface expressionTree, Set<String> projectTags, boolean testMode)
@@ -1080,8 +1187,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 			// look into server cache using the expression
 			String queryInOrder = expressionTree.printInOrder();
-			// SEND TRACKING EMAIL. Testing it...
-			sendTrackingEmail(getProjectTagString(projectTags) + "\t" + queryInOrder);
+			// SEND TRACKING EMAIL.
+			sendTrackingEmail(getProjectTagString(projectTags) + "\t" + queryInOrder,
+					"Triggered by query: " + queryInOrder);
 			// SEND TRACKING EMAIL
 
 			QueryResult result = expressionTree.getQueryResults();
@@ -1163,6 +1271,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public Set<ProjectBean> getProjectBeans() throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			return RemoteServicesTasks.getProjectBeans();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1175,6 +1286,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public ProjectBean getProjectBean(String projectTag) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			if (ServerCacheProjectBeanByProjectTag.getInstance().contains(projectTag)) {
 				return ServerCacheProjectBeanByProjectTag.getInstance().getFromCache(projectTag);
 			} else {
@@ -1198,10 +1312,11 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumExperiments() throws PintException {
 		try {
-			final Method method = new Object() {
+			final Method enclosingMethod = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 
-			return ProjectStatsManager.getInstance(method).getNumProjects();
+			return ProjectStatsManager.getInstance(enclosingMethod).getNumProjects();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
@@ -1215,7 +1330,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
-
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumDifferentProteins();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1230,7 +1345,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
-
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumDifferentPeptides();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1245,7 +1360,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
-
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumPSMs();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1260,7 +1375,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
-
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumConditions();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1273,6 +1388,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public Set<OrganismBean> getOrganismsByProject(String projectTag) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			if (ServerCacheOrganismBeansByProjectName.getInstance().contains(projectTag)) {
 				return ServerCacheOrganismBeansByProjectName.getInstance().getFromCache(projectTag);
 			} else {
@@ -1296,6 +1415,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public Set<String> getHiddenPTMs(String sessionID, String projectTag) throws PintException {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+
 		return RemoteServicesTasks.getHiddenPTMs(projectTag);
 	}
 
@@ -1305,29 +1428,41 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public DefaultView getDefaultViewByProject(String projectTag) throws PintException {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+
 		return RemoteServicesTasks.getDefaultViewByProject(projectTag);
 	}
 
-	public void sendTrackingEmail(String projectTag) {
+	public void sendTrackingEmail(String projectTag, String... annotations) {
 		try {
 			if (SharedConstants.EMAIL_ENABLED) {
 
 				log.info("Trying to send the tracking email");
 				String remoteHost = "";
-				String text = "";
+				StringBuilder text = new StringBuilder();
 				if (getThreadLocalRequest() != null) {
 					remoteHost = HttpUtils.remoteAddr(getThreadLocalRequest());
-					text = "Someone from IP " + remoteHost + " has loaded the project '" + projectTag + "'\n\n";
-					text += "Remote address: " + getThreadLocalRequest().getRemoteAddr() + "\n";
-					text += "Remote host: '" + remoteHost + "'\n";
-					text += "Remote port: '" + getThreadLocalRequest().getRemotePort() + "'\n";
-					text += "Remote user: '" + getThreadLocalRequest().getRemoteUser() + "'\n";
+					text.append("Someone from IP " + remoteHost + " has loaded the project '" + projectTag + "'\n\n");
+					text.append("Remote address: " + getThreadLocalRequest().getRemoteAddr() + "\n");
+					text.append("Remote host: '" + remoteHost + "'\n");
+					text.append("Remote port: '" + getThreadLocalRequest().getRemotePort() + "'\n");
+					text.append("Remote user: '" + getThreadLocalRequest().getRemoteUser() + "'\n");
+					text.append("Timestamp: '" + emailDateFormatter.format(new Date()) + "'\n");
+				}
+				if (annotations != null && annotations.length > 0) {
+					text.append("\n---\n");
+					for (String annotation : annotations) {
+						text.append(annotation + "\n");
+					}
+					text.append("---\n");
 				}
 				String from = "salvador@scripps.edu";
 				String to = "salvador@scripps.edu";
 				String subject = "PINT tracking email at " + DateFormat.getDateInstance().format(new Date());
 				log.info("Trying to send the tracking email with text: " + text);
-				String error = EmailSender.sendEmail(subject, text, to, from);
+				String error = EmailSender.sendEmail(subject, text.toString(), to, from);
 				if (error != null) {
 					log.warn(error);
 				}
@@ -1342,8 +1477,12 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public ProgressStatus getProgressStatus(String sessionID, String taskKey) {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+
 		log.info("Request for progress on task: " + taskKey + " received");
-		final Task runningTask = ServerTaskRegister.getRunningTask(taskKey);
+		final Task runningTask = ServerTaskRegister.getInstance().getRunningTask(taskKey);
 		if (runningTask != null) {
 			log.info("The progress is: " + runningTask.getProgressStatus());
 			return runningTask.getProgressStatus();
@@ -1356,6 +1495,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public ProteinBeanSubList getProteinBeansFromList(String sessionID, int start, int end) throws PintException {
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			// log.info("Getting protein list from " + start + " to " + end + "
@@ -1378,11 +1518,18 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public String login(String clientToken, String userName, String password) throws PintException {
-		String clientIP = getThreadLocalRequest().getRemoteAddr();
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+
+		log.info("LOGIN!!!");
+		String clientIP = HttpUtils.remoteAddr(getThreadLocalRequest());
 		// TODO validate login
 		validateLogin(userName, password);
 		final String id = UUID.randomUUID().toString() + clientIP;
 		log.info("NEW SESSION ID:" + id);
+		sendTrackingEmail(clientIP, "New session detected from IP: " + clientIP);
+
 		// create db session
 		return id;
 	}
@@ -1397,11 +1544,12 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public ProteinBeanSubList getProteinBeansFromListSorted(String sessionID, int start, int end,
 			Comparator<ProteinBean> comparator, boolean ascendant) throws PintException {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 		if (comparator == null) {
 			return getProteinBeansFromList(sessionID, start, end);
 		}
-		final Method enclosingMethod = new Object() {
-		}.getClass().getEnclosingMethod();
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
@@ -1431,12 +1579,17 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}
 	}
 
+	private void logMethodCall(Method enclosingMethod) {
+		log.info("Call to '" + enclosingMethod.getName() + "'");
+	}
+
 	@Override
 	public ProteinGroupBeanSubList getProteinGroupBeansFromList(String sessionID, int start, int end)
 			throws PintException {
 
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
@@ -1463,6 +1616,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
@@ -1484,11 +1638,14 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public ProteinGroupBeanSubList getProteinGroupBeansFromListSorted(String sessionID, int start, int end,
 			Comparator<ProteinGroupBean> comparator, boolean ascendant) throws PintException {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+
 		if (comparator == null) {
 			return getProteinGroupBeansFromList(sessionID, start, end);
 		}
-		final Method enclosingMethod = new Object() {
-		}.getClass().getEnclosingMethod();
+
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
@@ -1520,11 +1677,13 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public PsmBeanSubList getPSMBeansFromListSorted(String sessionID, int start, int end,
 			Comparator<PSMBean> comparator, boolean ascendant) throws PintException {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+
 		if (comparator == null) {
 			return getPSMBeansFromList(sessionID, start, end);
 		}
-		final Method enclosingMethod = new Object() {
-		}.getClass().getEnclosingMethod();
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
@@ -1555,11 +1714,13 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public PsmBeanSubList getPsmBeansFromPsmProviderFromListSorted(String sessionID, ContainsPSMs psmProvider,
 			int start, int end, Comparator<PSMBean> comparator, boolean ascendant) throws PintException {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+
 		if (comparator == null) {
 			return getPsmBeansFromPsmProviderFromList(sessionID, psmProvider, start, end);
 		}
-		final Method enclosingMethod = new Object() {
-		}.getClass().getEnclosingMethod();
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
@@ -1608,9 +1769,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public PsmBeanSubList getPsmBeansFromPsmProviderFromList(String sessionID, ContainsPSMs psmProvider, int start,
 			int end) throws PintException {
-
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
@@ -1643,6 +1804,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public void closeSession(String sessionID) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			ContextualSessionHandler.closeSession();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1658,6 +1823,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		log.info("Getting MsRuns from project " + projectTag);
 
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			return RemoteServicesTasks.getMsRunsFromProject(projectTag);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1672,9 +1841,11 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		log.info("Getting MsRuns from project " + projectTag);
 
 		try {
-			final Method method = new Object() {
+			final Method enclosingMethod = new Object() {
 			}.getClass().getEnclosingMethod();
-			return ProjectStatsManager.getInstance(method).getNumMSRuns(projectTag);
+			logMethodCall(enclosingMethod);
+
+			return ProjectStatsManager.getInstance(enclosingMethod).getNumMSRuns(projectTag);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1689,6 +1860,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			List<PSEAQuantReplicate> replicates, RatioDescriptorBean ratioDescriptor, long numberOfSamplings,
 			PSEAQuantQuantType quantType, PSEAQuantAnnotationDatabase annotationDatabase, PSEAQuantCVTol cvTol,
 			Double cvTolFactor, PSEAQuantLiteratureBias literatureBias) throws PintException {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 
 		PSEAQuantSender pseaQuant = new PSEAQuantSender(email, organism, replicates, ratioDescriptor, numberOfSamplings,
 				quantType, annotationDatabase, cvTol, cvTolFactor, literatureBias, RATIO_AVERAGING.AVERAGE);
@@ -1703,6 +1877,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
@@ -1819,11 +1995,13 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public PeptideBeanSubList getPeptideBeansFromListSorted(String sessionID, int start, int end,
 			Comparator<PeptideBean> comparator, boolean ascendant) throws PintException {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+
 		if (comparator == null) {
 			return getPeptideBeansFromList(sessionID, start, end);
 		}
-		final Method enclosingMethod = new Object() {
-		}.getClass().getEnclosingMethod();
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
@@ -1853,9 +2031,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public PeptideBeanSubList getPeptideBeansFromList(String sessionID, int start, int end) throws PintException {
-
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
@@ -1878,11 +2057,12 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public PeptideBeanSubList getPeptideBeansFromPeptideProviderFromListSorted(String sessionID,
 			ContainsPeptides peptideProvider, int start, int end, Comparator<PeptideBean> comparator,
 			boolean ascendant) {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
 		if (comparator == null) {
 			return getPeptideBeansFromPeptideProviderFromList(sessionID, peptideProvider, start, end);
 		}
-		final Method enclosingMethod = new Object() {
-		}.getClass().getEnclosingMethod();
 		try {
 			ProjectLocker.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null);
@@ -1932,6 +2112,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public PeptideBeanSubList getPeptideBeansFromPeptideProviderFromList(String sessionID,
 			ContainsPeptides peptideProvider, int start, int end) {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1939,6 +2123,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumMSRuns() throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			return PreparedQueries.getNumMSRuns();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1953,6 +2141,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			String projectTag, String conditionName) throws PintException {
 
 		try {
+
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
 			return RemoteServicesTasks.getPSMAmountTypesByCondition(projectTag, conditionName);
 
 		} catch (Exception e) {
@@ -1969,6 +2161,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			String projectTag, String conditionName) throws PintException {
 
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			return RemoteServicesTasks.getPeptideAmountTypesByCondition(projectTag, conditionName);
 
 		} catch (Exception e) {
@@ -1985,6 +2181,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			String projectTag, String conditionName) throws PintException {
 
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			return RemoteServicesTasks.getProteinAmountTypesByCondition(projectTag, conditionName);
 
 		} catch (Exception e) {
@@ -1999,6 +2199,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public FileDescriptor getDownloadLinkForReactomeAnalysisResult(String sessionID) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			File file = DataExporter.exportProteinsForReactome(sessionID, getServletContext());
 			if (file != null && file.exists()) {
 				// prepare the return
@@ -2025,6 +2229,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public List<ProteinProjection> getProteinProjectionsFromProject(String projectTag) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			log.info("Retrieving protein projections for project '" + projectTag + "'");
 			final Criteria cr = PreparedCriteria.getCriteriaForProteinProjectionInProject(projectTag);
 			// transform the results in ProteinProjections
@@ -2051,6 +2259,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public Map<String, Set<ProteinProjection>> getProteinProjectionsByProteinACCFromProject(String projectTag)
 			throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			log.info("Retrieving protein projections by accession for project '" + projectTag + "'");
 			if (ServerCacheProteinACCProteinProjectionsByProjectTag.getInstance().contains(projectTag)) {
 				log.info("Protein projections for protein ACC are in server cache");
@@ -2093,6 +2305,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public Map<String, Set<ProteinProjection>> getProteinProjectionsByGeneNameFromProject(String projectTag)
 			throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			log.info("Retrieving protein projections by gene name for project '" + projectTag + "'");
 			if (ServerCacheGeneNameProteinProjectionsByProjectTag.getInstance().contains(projectTag)) {
 				log.info("Protein projections for protein name are in server cache");
@@ -2135,6 +2351,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	public Map<String, Set<ProteinProjection>> getProteinProjectionsByProteinNameFromProject(String projectTag)
 			throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			log.info("Retrieving protein projections by protein name for project '" + projectTag + "'");
 			if (ServerCacheProteinNameProteinProjectionsByProjectTag.getInstance().contains(projectTag)) {
 				log.info("Protein projections for protein name are in server cache");
@@ -2176,6 +2396,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentProteins(String projectTag) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
 			return ProjectStatsManager.getInstance(method).getNumDifferentProteins(projectTag);
@@ -2191,6 +2415,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumDifferentPeptides(String projectTag) throws PintException {
 		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
 			return ProjectStatsManager.getInstance(method).getNumDifferentPeptides(projectTag);
@@ -2205,8 +2433,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	@Override
 	public int getNumPSMs(String projectTag) throws PintException {
 		try {
+
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumPSMs(projectTag);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2221,6 +2451,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumGenes();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2235,6 +2466,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumGenes(projectTag);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2249,6 +2481,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumDifferentProteins(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2263,6 +2496,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumDifferentPeptides(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2277,6 +2511,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumPSMs(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2291,6 +2526,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumGenes(projectTag, msRun);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2305,6 +2541,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumDifferentProteins(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2319,6 +2556,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumDifferentPeptides(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2333,6 +2571,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumPSMs(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2347,6 +2586,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumGenes(projectTag, condition);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2361,6 +2601,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumMSRuns(projectTag, condition);
 
 		} catch (Exception e) {
@@ -2374,6 +2615,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumDifferentProteins(projectTag, sample);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2388,6 +2630,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumDifferentPeptides(projectTag, sample);
 
 		} catch (Exception e) {
@@ -2403,6 +2646,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumPSMs(projectTag, sample);
 
 		} catch (Exception e) {
@@ -2418,6 +2662,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumGenes(projectTag, sample);
 
 		} catch (Exception e) {
@@ -2433,6 +2678,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumMSRuns(projectTag, sample);
 
 		} catch (Exception e) {
@@ -2446,6 +2692,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumConditions(projectTag);
 
 		} catch (Exception e) {
@@ -2459,6 +2706,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumConditions(projectTag, msRun);
 
 		} catch (Exception e) {
@@ -2472,6 +2720,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		try {
 			final Method method = new Object() {
 			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
 			return ProjectStatsManager.getInstance(method).getNumSamples(projectTag, msRun);
 
 		} catch (Exception e) {
@@ -2497,5 +2746,19 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			servletContext = super.getServletContext();
 		}
 		return servletContext;
+	}
+
+	@Override
+	public void cancelQuery(String sessionID) throws PintException {
+		try {
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
+			log.info("Cancelling request from session ID :" + sessionID);
+			DataSetsManager.clearDataSet(sessionID);
+		} catch (Exception e) {
+			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
+		} finally {
+		}
 	}
 }

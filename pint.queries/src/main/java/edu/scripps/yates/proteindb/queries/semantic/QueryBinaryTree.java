@@ -1,7 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.queries.LogicalOperator;
 import edu.scripps.yates.proteindb.queries.semantic.util.BinaryTree;
+import gnu.trove.set.hash.THashSet;
 
 public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	private final static Logger log = Logger.getLogger(QueryBinaryTree.class);
@@ -156,7 +156,7 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	 * @return
 	 */
 	public Set<? extends AbstractQuery> getAbstractQueries(Class<? extends AbstractQuery> class1) {
-		Set<AbstractQuery> ret = new HashSet<AbstractQuery>();
+		Set<AbstractQuery> ret = new THashSet<AbstractQuery>();
 		for (AbstractQuery abstractQuery : getAbstractQueries()) {
 			if (class1.isInstance(abstractQuery)) {
 				ret.add(abstractQuery);
@@ -186,13 +186,15 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	 * @param class1
 	 * @return
 	 */
-	public Set<? extends AbstractQuery> getPredominantAbstractQueries(Class<? extends AbstractQuery> class1) {
-		return getPredominantAbstractQueries(class1, true);
+	public Set<? extends AbstractQuery> getPredominantAbstractQueries(Class<? extends AbstractQuery> class1,
+			LogicalOperator logicalOperator) {
+		return getPredominantAbstractQueries(class1, true, logicalOperator);
 	}
 
 	/**
 	 * Gets a set of queries of a certain class, which is predominant, which
-	 * means that going up in the query tree, all the logical operators are AND
+	 * means that going up in the query tree, all the logical operators are a
+	 * certain one passed as argument
 	 *
 	 * @param require
 	 *            or not that the query is not negative.
@@ -200,12 +202,12 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	 * @return
 	 */
 	public Set<? extends AbstractQuery> getPredominantAbstractQueries(Class<? extends AbstractQuery> class1,
-			boolean requireNonNegative) {
-		Set<AbstractQuery> ret = new HashSet<AbstractQuery>();
+			boolean requireNonNegative, LogicalOperator logicalOperator) {
+		Set<AbstractQuery> ret = new THashSet<AbstractQuery>();
 		if (element.getLogicalOperator() != null) {
-			if (element.getLogicalOperator() == LogicalOperator.AND) {
-				ret.addAll(getLeftBNode().getPredominantAbstractQueries(class1, requireNonNegative));
-				ret.addAll(getRightBNode().getPredominantAbstractQueries(class1, requireNonNegative));
+			if (element.getLogicalOperator() == logicalOperator) {
+				ret.addAll(getLeftBNode().getPredominantAbstractQueries(class1, requireNonNegative, logicalOperator));
+				ret.addAll(getRightBNode().getPredominantAbstractQueries(class1, requireNonNegative, logicalOperator));
 			}
 			return ret;
 		} else {

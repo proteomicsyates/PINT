@@ -1,14 +1,14 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.LabelType;
 import edu.scripps.yates.utilities.model.factories.LabelEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Label;
+import gnu.trove.map.hash.THashMap;
 
 public class LabelAdapter implements edu.scripps.yates.utilities.pattern.Adapter<Label> {
-	private static final Map<String, Label> map = new HashMap<String, Label>();
+	private static final Map<String, Label> map = new THashMap<String, Label>();
 	private final LabelType labelCfg;
 
 	public LabelAdapter(LabelType labelCfg) {

@@ -352,6 +352,13 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 		this.dbIds.addAll(dbIds);
 	}
 
+	public void addDbIds(int[] dbIds) {
+		for (int dbId : dbIds) {
+			this.dbIds.add(dbId);
+		}
+
+	}
+
 	/**
 	 * @param dbId
 	 *            the dbId to set
@@ -429,6 +436,9 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	}
 
 	private void addtoMap(RatioBean ratioBean) {
+		if (ratioBean == null) {
+			return;
+		}
 		final ExperimentalConditionBean condition1 = ratioBean.getCondition1();
 		final ExperimentalConditionBean condition2 = ratioBean.getCondition2();
 		if (ratiosByExperimentalcondition.containsKey(condition1.getId())) {
@@ -513,6 +523,9 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	}
 
 	public void addProteinRatio(RatioBean proteinRatioBean) {
+		if (proteinRatioBean == null) {
+			return;
+		}
 		ratios.add(proteinRatioBean);
 		addtoMap(proteinRatioBean);
 	}
@@ -661,7 +674,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 				overrideAcc = false;
 			}
 		}
-		if (overrideAcc && primaryAccession != null) {
+		if (this.primaryAccession == null || (overrideAcc && primaryAccession != null)) {
 			this.primaryAccession = primaryAccession;
 			// check whether there are one secondary accession equal to the
 			// primary, and in that case, remove it
@@ -1294,7 +1307,10 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 
 		if (!omimEntries.isEmpty()) {
 			final Set<Integer> keySet = omimEntries.keySet();
-			sortedIds.addAll(keySet);
+			for (Integer i : keySet) {
+				sortedIds.add(i);
+			}
+
 			Collections.sort(sortedIds);
 
 		}

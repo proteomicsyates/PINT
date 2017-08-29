@@ -6,8 +6,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
-import pi.ParIterator;
-import pi.reductions.Reducible;
+import edu.scripps.yates.utilities.pi.ParIterator;
+import edu.scripps.yates.utilities.pi.reductions.Reducible;
 
 public class ProteinPSMLinkParallelProcesor extends Thread {
 	private final static Logger log = Logger.getLogger(ProteinPSMLinkParallelProcesor.class);

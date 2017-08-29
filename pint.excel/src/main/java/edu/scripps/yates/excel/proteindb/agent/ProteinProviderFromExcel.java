@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +38,9 @@ import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinProviderFromExcel implements DataProvider<Protein> {
 	// public final static String defaultFilePath =
@@ -54,8 +55,8 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 	 * create different instances of PSMImpl from the same DTASelectPSM instance
 	 * object
 	 */
-	private static Map<Integer, PSM> dtaSelectPSMsMap = new HashMap<Integer, PSM>();
-	private static Map<Integer, Peptide> dtaSelectPeptideMap = new HashMap<Integer, Peptide>();
+	private static TIntObjectHashMap<PSM> dtaSelectPSMsMap = new TIntObjectHashMap<PSM>();
+	private static TIntObjectHashMap<Peptide> dtaSelectPeptideMap = new TIntObjectHashMap<Peptide>();
 
 	// private final HashMap<String, Protein> proteinSetByPrimaryAcc = new
 	// HashMap<String, Protein>();
@@ -63,21 +64,21 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 	// HashMap<String, Protein>();
 	// private final HashMap<String, Protein> proteinListByIPIAcc = new
 	// HashMap<String, Protein>();
-	// private final HashMap<String, Protein> proteinList = new HashMap<String,
+	// private final HashMap<String, Protein> proteinList = new THashMap<String,
 	// Protein>();
 
 	public static final DataManagerMemory datamanager = new DataManagerMemory();
 	private final int[] sheetsToReadIndexes = { 0, 1 };
-	private final Set<MSRun> msRuns = new HashSet<MSRun>();
+	private final Set<MSRun> msRuns = new THashSet<MSRun>();
 	private int maxNumProteinsToLoad = Integer.MAX_VALUE;
-	private HashSet<Protein> proteinSet = new HashSet<Protein>();
+	private Set<Protein> proteinSet = new THashSet<Protein>();
 	private Map<String, Set<Protein>> proteinMap;
 
 	private Map<String, Set<Protein>> extendedMap;
 
 	private final String actualFilePath;
 	private static String masterProteinListFilePath;
-	public static final Map<MSRun, Condition> conditionsPerRun = new HashMap<MSRun, Condition>();
+	public static final Map<MSRun, Condition> conditionsPerRun = new THashMap<MSRun, Condition>();
 
 	public ProteinProviderFromExcel(File file, File masterFile) {
 		this(false, file, masterFile);
@@ -149,8 +150,8 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 	 *
 	 * @return
 	 */
-	public HashMap<String, List<String>> getMasterProteinList() {
-		HashMap<String, List<String>> ret = new HashMap<String, List<String>>();
+	public Map<String, List<String>> getMasterProteinList() {
+		Map<String, List<String>> ret = new THashMap<String, List<String>>();
 		try {
 			ExcelReader reader = new ExcelReader(ProteinProviderFromExcel.masterProteinListFilePath, 0, 0);
 
@@ -208,7 +209,7 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 						parser = new ProteinDTASelectParser(dtaSelectFile.toURL());
 
 						dtaSelectFile.delete();
-						final HashMap<String, Set<Protein>> proteinsFromDTASelect = parser.getProteins();
+						final Map<String, Set<Protein>> proteinsFromDTASelect = parser.getProteins();
 						log.debug(proteinsFromDTASelect.size() + " proteins parsed");
 						for (String proteinACC : proteinsFromDTASelect.keySet()) {
 							final Set<Protein> proteinSet = proteinsFromDTASelect.get(proteinACC);
@@ -338,7 +339,7 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 	}
 
 	private Set<MSRun> getMSRuns() {
-		Set<MSRun> set = new HashSet<MSRun>();
+		Set<MSRun> set = new THashSet<MSRun>();
 
 		List<ColumnName> list = new ArrayList<ColumnName>();
 		list.addAll(getColumnNames(ProteinImpl2.expression_analysis_TMT__126_label));
@@ -394,7 +395,7 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 	 */
 	private Collection<MSRun> getMSRunsFromList(List<ColumnName> list,
 			edu.scripps.yates.excel.proteindb.enums.ConditionName condition) {
-		Set<MSRun> set = new HashSet<MSRun>();
+		Set<MSRun> set = new THashSet<MSRun>();
 
 		for (ColumnName columnName : list) {
 			final MSRun msRun = datamanager.getMSRun(columnName.name(),
@@ -423,8 +424,8 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 				edu.scripps.yates.excel.proteindb.enums.ConditionName.BACKGROUND, "Background", null);
 	}
 
-	private HashMap<String, Double> readDMSOSumValues(Sheet sheet) {
-		HashMap<String, Double> ret = new HashMap<String, Double>();
+	private Map<String, Double> readDMSOSumValues(Sheet sheet) {
+		Map<String, Double> ret = new THashMap<String, Double>();
 		final int lastRowNum = sheet.getLastRowNum();
 		for (int rownum = 1; rownum <= lastRowNum; rownum++) {
 			Row row = sheet.getRow(rownum);
@@ -446,7 +447,7 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 	@Override
 	public Map<String, Set<Protein>> getProteinMap() {
 		if (proteinMap == null) {
-			proteinMap = new HashMap<String, Set<Protein>>();
+			proteinMap = new THashMap<String, Set<Protein>>();
 			final Set<Protein> proteinSet2 = getProteinSet();
 			ModelUtils.addToMap(proteinMap, proteinSet2);
 		}
@@ -461,7 +462,7 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 	 */
 	private Map<String, Set<Protein>> getExtendedMap() {
 		if (extendedMap == null) {
-			extendedMap = new HashMap<String, Set<Protein>>();
+			extendedMap = new THashMap<String, Set<Protein>>();
 			final Collection<Set<Protein>> proteinSets = getProteinMap().values();
 			for (Set<Protein> proteinSet : proteinSets) {
 				for (Protein protein : proteinSet) {
@@ -470,7 +471,7 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 					if (extendedMap.containsKey(accession)) {
 						extendedMap.get(accession).add(protein);
 					} else {
-						Set<Protein> set = new HashSet<Protein>();
+						Set<Protein> set = new THashSet<Protein>();
 						set.add(protein);
 						extendedMap.put(accession, set);
 					}
@@ -480,7 +481,7 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 						if (extendedMap.containsKey(accession2)) {
 							extendedMap.get(accession2).add(protein);
 						} else {
-							Set<Protein> set = new HashSet<Protein>();
+							Set<Protein> set = new THashSet<Protein>();
 							set.add(protein);
 							extendedMap.put(accession2, set);
 						}
@@ -493,7 +494,7 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 
 	private Set<Protein> getProteinSet() {
 		if (proteinSet == null) {
-			proteinSet = new HashSet<Protein>();
+			proteinSet = new THashSet<Protein>();
 			loadProteinsFromExcel();
 			// for (Protein protein : proteinSetByPrimaryAcc.values()) {
 			// proteinSet.add(protein);
@@ -513,7 +514,7 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 				// ProteinImpl previousProtein = null;
 				ProteinSetAdapter currentProteinSetAdapter = null;
 				String currentIpiAccString = null;
-				final HashMap<String, List<String>> masterProteinList = getMasterProteinList();
+				final Map<String, List<String>> masterProteinList = getMasterProteinList();
 				Sheet firstSheet = workbook.getSheetAt(0);
 				for (int rownum = 1; rownum <= firstSheet.getLastRowNum(); rownum++) {
 					Row row = firstSheet.getRow(rownum);
@@ -567,7 +568,7 @@ public class ProteinProviderFromExcel implements DataProvider<Protein> {
 
 				// read the third sheet, where the DMSO_SUM is located
 				// and add it to the proteins from the replicates of DMSO
-				HashMap<String, Double> dmso_sumValues = readDMSOSumValues(workbook.getSheetAt(2));
+				Map<String, Double> dmso_sumValues = readDMSOSumValues(workbook.getSheetAt(2));
 				for (Protein protein : proteinSet) {
 					final MSRun msRun = protein.getMSRun();
 					if (msRun != null) {

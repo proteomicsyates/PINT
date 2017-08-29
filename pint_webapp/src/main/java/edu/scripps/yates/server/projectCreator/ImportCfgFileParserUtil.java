@@ -9,10 +9,10 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.client.exceptions.PintException;
-import edu.scripps.yates.client.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.PintImportCfg;
 import edu.scripps.yates.server.util.FileManager;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 
 public class ImportCfgFileParserUtil {
 	private static JAXBContext jaxbContext;

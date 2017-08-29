@@ -2,18 +2,19 @@ package edu.scripps.yates.server;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
+import gnu.trove.map.hash.THashMap;
+
 public class ProjectLocker {
-	private static final Map<String, ReentrantLock> projectLocked = new HashMap<String, ReentrantLock>();
+	private static final Map<String, ReentrantLock> projectLocked = new THashMap<String, ReentrantLock>();
 	private static final Logger log = Logger.getLogger(ProjectLocker.class);
 
 	private static ReentrantLock getLock(String projectTag) {
-		if (!projectLocked.containsKey(projectTag)) {
+		if (!projectLocked.containsKey(projectTag) || projectLocked.get(projectTag) == null) {
 			ReentrantLock lock = new ReentrantLock(true);
 			projectLocked.put(projectTag, lock);
 		}
@@ -34,7 +35,8 @@ public class ProjectLocker {
 				+ lock.getQueueLength() + " threads in the queue");
 
 		lock.lock();
-		log.info("Lock acquired by thread " + Thread.currentThread().getId() + " from Method " + method.getName());
+		log.info("Lock acquired by thread " + Thread.currentThread().getId() + " from Method " + method.getName()
+				+ " for project '" + projectTag + "'");
 	}
 
 	/**

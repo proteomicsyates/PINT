@@ -3,8 +3,6 @@ package edu.scripps.yates.proteindb.persistence.mysql.access;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +43,8 @@ import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 import edu.scripps.yates.proteindb.persistence.mysql.Threshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * This class provides the methods for the appropiate deletion of the data in
@@ -56,9 +56,9 @@ import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
  */
 public class MySQLDeleter {
 	private final static Logger log = Logger.getLogger(MySQLDeleter.class);
-	private final HashSet<Psm> deletedPsms = new HashSet<Psm>();
-	private final HashSet<Peptide> deletedPeptides = new HashSet<Peptide>();
-	private final HashSet<Protein> deletedProteins = new HashSet<Protein>();
+	private final Set<Psm> deletedPsms = new THashSet<Psm>();
+	private final Set<Peptide> deletedPeptides = new THashSet<Peptide>();
+	private final Set<Protein> deletedProteins = new THashSet<Protein>();
 
 	private void deleteProtein(edu.scripps.yates.proteindb.persistence.mysql.Protein protein) {
 		if (deletedProteins.contains(protein)) {
@@ -602,8 +602,8 @@ public class MySQLDeleter {
 			Map<MsRun, Set<Condition>> conditionsByMSRun = getConditionsByMSRun(hibProject);
 			Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(conditionsByMSRun);
 			int initialMSRunNumber = 0;
-			Set<MsRun> deletedMSRuns = new HashSet<MsRun>();
-			Set<Condition> deletedConditions = new HashSet<Condition>();
+			Set<MsRun> deletedMSRuns = new THashSet<MsRun>();
+			Set<Condition> deletedConditions = new THashSet<Condition>();
 			while (true) {
 				ContextualSessionHandler.beginGoodTransaction();
 				ContextualSessionHandler.refresh(hibProject);
@@ -762,10 +762,10 @@ public class MySQLDeleter {
 
 	private Map<MsRun, Set<Condition>> getConditionsByMSRun(Project hibProject) {
 		log.info("Getting conditions mapped to MSRuns...");
-		Map<MsRun, Set<Condition>> conditionsByMSRun = new HashMap<MsRun, Set<Condition>>();
+		Map<MsRun, Set<Condition>> conditionsByMSRun = new THashMap<MsRun, Set<Condition>>();
 		final Set<MsRun> msRuns = hibProject.getMsRuns();
 		for (MsRun msRun : msRuns) {
-			// Set<Condition> conditions = new HashSet<Condition>();
+			// Set<Condition> conditions = new THashSet<Condition>();
 			// final Set<Psm> psms = msRun.getPsms();
 			// for (Psm psm : psms) {
 			// conditions.addAll(psm.getConditions());
@@ -788,7 +788,7 @@ public class MySQLDeleter {
 			// peptides.clear();
 			// System.gc();
 			List<Condition> conditions = PreparedCriteria.getConditionsByMSRunCriteria(msRun).list();
-			Set<Condition> set = new HashSet<Condition>();
+			Set<Condition> set = new THashSet<Condition>();
 			set.addAll(conditions);
 			log.info("MSRun " + msRun.getRunId() + " mapped to " + conditions.size() + " conditions");
 			conditionsByMSRun.put(msRun, set);
@@ -814,7 +814,7 @@ public class MySQLDeleter {
 	}
 
 	private Map<Condition, Set<MsRun>> getMSRunsByCondition(Map<MsRun, Set<Condition>> conditionsByMSRun) {
-		Map<Condition, Set<MsRun>> msRunsByCondition = new HashMap<Condition, Set<MsRun>>();
+		Map<Condition, Set<MsRun>> msRunsByCondition = new THashMap<Condition, Set<MsRun>>();
 		log.info("Getting MSRuns mapped to conditions...");
 		final Set<MsRun> msruns = conditionsByMSRun.keySet();
 		for (MsRun msrun : msruns) {
@@ -823,7 +823,7 @@ public class MySQLDeleter {
 				if (msRunsByCondition.containsKey(condition2)) {
 					msRunsByCondition.get(condition2).add(msrun);
 				} else {
-					Set<MsRun> msRunSet = new HashSet<MsRun>();
+					Set<MsRun> msRunSet = new THashSet<MsRun>();
 					msRunSet.add(msrun);
 					msRunsByCondition.put(condition2, msRunSet);
 				}

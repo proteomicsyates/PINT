@@ -1,0 +1,49 @@
+[1mdiff --git a/pint_webapp/src/main/java/edu/scripps/yates/client/Pint.java b/pint_webapp/src/main/java/edu/scripps/yates/client/Pint.java[m
+[1mindex c438961..521a167 100644[m
+[1m--- a/pint_webapp/src/main/java/edu/scripps/yates/client/Pint.java[m
+[1m+++ b/pint_webapp/src/main/java/edu/scripps/yates/client/Pint.java[m
+[36m@@ -84,7 +84,7 @@[m [mpublic class Pint implements EntryPoint {[m
+ [m
+ 	public void startupConfiguration(final boolean forceToShowPanel) {[m
+ [m
+[31m-		showLoadingDialog("Configuring PINT. Please wait...");[m
+[32m+[m		[32mshowLoadingDialog("Configuring PINT. Please wait...", null);[m[41m[m
+ 		ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();[m
+ [m
+ 		service.getPintConfigurationProperties(new AsyncCallback<PintConfigurationProperties>() {[m
+[36m@@ -116,11 +116,14 @@[m [mpublic class Pint implements EntryPoint {[m
+ 		configurationPanel.center();[m
+ 	}[m
+ [m
+[31m-	private void showLoadingDialog(String text) {[m
+[32m+[m	[32mprivate void showLoadingDialog(String text, String buttonText) {[m[41m[m
+ 		if (loadingDialog == null) {[m
+[31m-			loadingDialog = new MyDialogBox(text, true, true, null);[m
+[32m+[m			[32mloadingDialog = new MyDialogBox(text, true, true, null, buttonText);[m[41m[m
+ 		}[m
+ 		loadingDialog.setText(text);[m
+[32m+[m		[32mif (buttonText != null && !"".equals(buttonText)) {[m[41m[m
+[32m+[m			[32mloadingDialog.setButtonText(buttonText);[m[41m[m
+[32m+[m		[32m}[m[41m[m
+ 		loadingDialog.center();[m
+ 	}[m
+ [m
+[36m@@ -174,7 +177,8 @@[m [mpublic class Pint implements EntryPoint {[m
+ 			}[m
+ 			if (decodedProjectTag == null) {[m
+ 				final MyDialogBox instance = new MyDialogBox([m
+[31m-						"PINT doesn't recognize the encrypted code as a valid project identifier", true, true, null);[m
+[32m+[m						[32m"PINT doesn't recognize the encrypted code as a valid project identifier", true, true, null,[m[41m[m
+[32m+[m						[32mnull);[m[41m[m
+ 				instance.setShowLoadingBar(false);[m
+ 				instance.center();[m
+ 				return;[m
+[36m@@ -237,7 +241,7 @@[m [mpublic class Pint implements EntryPoint {[m
+ 	}[m
+ [m
+ 	private void login() {[m
+[31m-		showLoadingDialog("Initializing PINT...");[m
+[32m+[m		[32mshowLoadingDialog("Initializing PINT...", null);[m[41m[m
+ 		ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();[m
+ 		String clientToken = ClientToken.getToken();[m
+ [m
