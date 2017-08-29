@@ -145,7 +145,11 @@ public class ExcelReader {
 				try {
 					return cell.getStringCellValue();
 				} catch (IllegalStateException e) {
-					return String.valueOf(cell.getNumericCellValue());
+					try {
+						return String.valueOf(cell.getNumericCellValue());
+					} catch (IllegalStateException e2) {
+						return String.valueOf(cell.getBooleanCellValue());
+					}
 				}
 			}
 		} catch (IOException e) {
