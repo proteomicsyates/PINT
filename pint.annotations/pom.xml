@@ -127,6 +127,6 @@
   	<groupId>edu.scripps.yates</groupId>
   	<artifactId>pint.parent</artifactId>
   	<version>0.2.0-SNAPSHOT</version>
-  	<relativePath>../pint.parent</relativePath>
+  	<relativePath>..</relativePath>
   </parent>
 </project>

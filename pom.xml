@@ -14,15 +14,6 @@
 			<url>http://sealion.scripps.edu/archiva/repository/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
-  <modules>
-  	<module>pint.excel</module>
-  	<module>pint.mysql</module>
-  	<module>pint.queries</module>
-  	
-  	<module>pint.annotations</module>
-  	<module>pint.model</module>
-  	
-  </modules>
   <name>parent module</name>
   <organization>
   	<name>TSRI</name>
@@ -54,4 +45,11 @@
         </snapshots>
     </repository>
    </repositories>
+   <modules>
+   	<module>pint.excel</module>
+   	<module>pint.model</module>
+   	<module>pint.mysql</module>
+   	<module>pint.queries</module>
+   	<module>pint.annotations</module>
+   </modules>
 </project>
