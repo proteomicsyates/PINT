@@ -756,10 +756,10 @@ public class PreparedQueries {
 		return Collections.emptyList();
 	}
 
-	private static final String NUM_PROJECTS = "select count(*) from Project";
+	private static final String NUM_PROJECTS = "select count(*) from Project project";
 
 	public static int getNumProjects() {
-		final Query query = createQuery(NUM_PROJECTS);
+		final Query query = parseParametersForQuery(NUM_PROJECTS, "project.hidden =: hidden", true);
 		final Long num = (Long) query.uniqueResult();
 		return num.intValue();
 	}
