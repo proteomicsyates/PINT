@@ -759,7 +759,7 @@ public class PreparedQueries {
 	private static final String NUM_PROJECTS = "select count(*) from Project project";
 
 	public static int getNumProjects() {
-		final Query query = parseParametersForQuery(NUM_PROJECTS, "project.hidden =: hidden", true);
+		final Query query = parseParametersForQuery(NUM_PROJECTS, "project.hidden=:hidden", true);
 		final Long num = (Long) query.uniqueResult();
 		return num.intValue();
 	}
