@@ -411,7 +411,14 @@ public class ProteinImplFromDTASelect implements Protein {
 	public void addCondition(Condition condition) {
 		if (!conditions.contains(condition)) {
 			conditions.add(condition);
+			// set condition to amounts
+			for (Amount amount : getAmounts()) {
+				if (amount.getCondition() == null && amount instanceof AmountEx) {
+					((AmountEx) amount).setCondition(condition);
+				}
+			}
 		}
+
 		if (condition.getSample() != null && condition.getSample().getOrganism() != null)
 			setOrganism(condition.getSample().getOrganism());
 	}
