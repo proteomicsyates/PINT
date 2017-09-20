@@ -198,7 +198,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 		super.init(config);
 		log.info("Init from ProteinRetrievalServicesServlet");
-		ServletCommonInit.init(getServletContext());
+		ServletCommonInit.init(config.getServletContext());
 	}
 
 	// @Override

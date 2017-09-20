@@ -26,12 +26,11 @@ public class FileUploadServlet extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException {
 
 		super.init(config);
-		ServletCommonInit.init(getServletContext());
+		ServletCommonInit.init(config.getServletContext());
 	}
 
 	@Override
-	public void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		ServletFileUpload upload = new ServletFileUpload();
 
 		try {

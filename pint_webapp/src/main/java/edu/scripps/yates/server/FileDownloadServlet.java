@@ -33,7 +33,7 @@ public class FileDownloadServlet extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException {
 
 		super.init(config);
-		ServletCommonInit.init(getServletContext());
+		ServletCommonInit.init(config.getServletContext());
 	}
 
 	/**
