@@ -194,21 +194,36 @@ public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteom
 
 	@Override
 	public void setPeptide(Peptide peptide) {
-		this.peptide = peptide;
+		if (peptide != null) {
+			this.peptide = peptide;
+			peptide.addPSM(this);
+			Set<Protein> proteins2 = getProteins();
+			for (Protein protein : proteins2) {
+				peptide.addProtein(protein);
+				protein.addPeptide(peptide);
+			}
+		}
 	}
 
 	@Override
 	public Peptide getPeptide() {
 		if (peptide == null) {
-			final Condition condition = getConditions().iterator().next();
-			if (StaticProteomicsModelStorage.containsPeptide(msRun, condition.getName(), getSequence())) {
-				peptide = StaticProteomicsModelStorage.getSinglePeptide(msRun, condition.getName(), getSequence());
+			String conditionName = null;
+			Condition condition = null;
+			Set<Condition> conditions2 = getConditions();
+			if (!conditions2.isEmpty()) {
+				condition = conditions2.iterator().next();
+				conditionName = condition.getName();
+			}
+			if (StaticProteomicsModelStorage.containsPeptide(msRun, conditionName, getSequence())) {
+				peptide = StaticProteomicsModelStorage.getSinglePeptide(msRun, conditionName, getSequence());
 			} else {
 				peptide = new PeptideEx(getSequence(), msRun);
-				StaticProteomicsModelStorage.addPeptide(peptide, msRun, condition.getName());
+				StaticProteomicsModelStorage.addPeptide(peptide, msRun, conditionName);
 			}
 		}
 		return peptide;
+
 	}
 
 	@Override
@@ -218,7 +233,7 @@ public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteom
 
 	@Override
 	public void addCondition(Condition condition) {
-		if (!conditions.contains(condition))
+		if (condition != null && !conditions.contains(condition))
 			conditions.add(condition);
 	}
 
@@ -249,8 +264,11 @@ public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteom
 
 	@Override
 	public void addProtein(Protein protein) {
-		if (!proteins.contains(protein))
+		if (protein != null && !proteins.contains(protein)) {
 			proteins.add(protein);
+			protein.addPSM(this);
+			protein.addPeptide(this.getPeptide());
+		}
 
 	}
 
@@ -263,20 +281,20 @@ public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteom
 
 	@Override
 	public void addScore(Score score) {
-		if (!scores.contains(score))
+		if (score != null && !scores.contains(score))
 			scores.add(score);
 
 	}
 
 	@Override
 	public void addRatio(Ratio ratio) {
-		if (!ratios.contains(ratio))
+		if (ratio != null && !ratios.contains(ratio))
 			ratios.add(ratio);
 	}
 
 	@Override
 	public void addAmount(Amount amount) {
-		if (!psmAmounts.contains(amount))
+		if (amount != null && !psmAmounts.contains(amount))
 			psmAmounts.add(amount);
 
 	}
