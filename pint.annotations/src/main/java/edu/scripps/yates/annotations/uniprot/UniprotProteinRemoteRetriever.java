@@ -433,12 +433,16 @@ public class UniprotProteinRemoteRetriever {
 			log.info("File unmarshalled succesfully in "
 					+ DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t2));
 			log.debug(uniprot.getEntry().size() + " entries");
+			Thread.sleep(1l);
 			return uniprot;
 		} catch (JAXBException e) {
 			// e.printStackTrace();
 			log.warn(e.getMessage() + "\t" + e.getLinkedException().getMessage());
 		} catch (IOException e2) {
 			e2.printStackTrace();
+
+		} catch (InterruptedException e) {
+			throw new RuntimeException("task cancelled");
 		} finally {
 			if (is != null) {
 				try {

@@ -30,7 +30,7 @@
   	<dependency>
   		<groupId>org.proteored.miape.api</groupId>
   		<artifactId>miape-api</artifactId>
-  		<version>1.9.1-SNAPSHOT</version>
+  		<version>1.9.2-SNAPSHOT</version>
   		<exclusions>
   			<exclusion>
   				<groupId>javax.servlet</groupId>
@@ -92,7 +92,7 @@
   	<dependency>
   		<groupId>edu.scripps.yates</groupId>
   		<artifactId>utilities</artifactId>
-  		<version>1.2-SNAPSHOT</version>
+  		<version>1.5-SNAPSHOT</version>
   	</dependency>
   	<!--  PTM Mapping new library -->
 	<dependency>
@@ -168,6 +168,6 @@
   	<groupId>edu.scripps.yates</groupId>
   	<artifactId>pint.parent</artifactId>
   	<version>0.2.0-SNAPSHOT</version>
-  	<relativePath>../pint.parent</relativePath>
+  	<relativePath>..</relativePath>
   </parent>
 </project>
