@@ -409,7 +409,7 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public void addCondition(Condition condition) {
-		if (!conditions.contains(condition)) {
+		if (condition != null && !conditions.contains(condition)) {
 			conditions.add(condition);
 			// set condition to amounts
 			for (Amount amount : getAmounts()) {
@@ -442,28 +442,35 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public void addScore(Score score) {
-		if (!scores.contains(score))
+		if (score != null && !scores.contains(score))
 			scores.add(score);
 	}
 
 	@Override
 	public void addRatio(Ratio ratio) {
-		if (!ratios.contains(ratio))
+		if (ratio != null && !ratios.contains(ratio))
 			ratios.add(ratio);
 
 	}
 
 	@Override
 	public void addAmount(Amount amount) {
-		if (!amounts.contains(amount)) {
+		if (amount != null && !amounts.contains(amount)) {
 			amounts.add(amount);
 		}
 	}
 
 	@Override
 	public void addPSM(PSM psm) {
-		if (!psms.contains(psm))
+		if (psm != null && !psms.contains(psm)) {
 			psms.add(psm);
+			psm.addProtein(this);
+			Peptide peptide = psm.getPeptide();
+			if (peptide != null) {
+				addPeptide(peptide);
+				peptide.addProtein(this);
+			}
+		}
 
 	}
 
@@ -497,14 +504,21 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public void addPeptide(Peptide peptide) {
-		if (!peptides.contains(peptide))
+		if (peptide != null && !peptides.contains(peptide)) {
 			peptides.add(peptide);
+			peptide.addProtein(this);
+			Set<PSM> psMs2 = peptide.getPSMs();
+			for (PSM psm : psMs2) {
+				addPSM(psm);
+				psm.addProtein(this);
+			}
+		}
 
 	}
 
 	@Override
 	public void addGene(Gene gene) {
-		if (!genes.contains(gene))
+		if (gene != null && !genes.contains(gene))
 			genes.add(gene);
 	}
 
