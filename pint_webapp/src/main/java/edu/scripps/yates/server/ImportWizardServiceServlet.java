@@ -133,7 +133,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public void init(ServletConfig config) throws ServletException {
 
 		super.init(config);
-		ServletCommonInit.init(getServletContext());
+		ServletCommonInit.init(config.getServletContext());
 		final String developerMode = System.getenv().get(SharedConstants.PINT_DEVELOPER_ENV_VAR);
 		if (developerMode != null) {
 			numMaxInSuggestionLists = 10;
@@ -265,10 +265,14 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 	@Override
 	public PintImportCfgBean getPintImportCfgTypeBean(String sessionID, int jobID) throws PintException {
-		final PintImportCfg pintImportCfg = ImportCfgFileParserUtil.getPintImportCfgFromJobID(jobID);
-		PintImportCfgBean ret = new PintImportCfgBeanAdapter(pintImportCfg).adapt();
-		return ret;
-
+		try {
+			final PintImportCfg pintImportCfg = ImportCfgFileParserUtil.getPintImportCfgFromJobID(jobID);
+			PintImportCfgBean ret = new PintImportCfgBeanAdapter(pintImportCfg).adapt();
+			return ret;
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			throw new PintException(e, PINT_ERROR_TYPE.IMPORT_XML_SCHEMA_ERROR);
+		}
 	}
 
 	@Override
@@ -1023,6 +1027,9 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		}
 		if (message.contains("The content of element 'msRuns' is not complete. One of '{msRun}' is expected.")) {
 			return "At least one MS RUN MUST be defined";
+		}
+		if (message.contains("Attribute 'score_type' must appear on element 'ratio_score'.")) {
+			return "Ratio score MUST have a ratio type description";
 		}
 		// if not recognized
 		return message;
