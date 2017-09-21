@@ -2,6 +2,9 @@ package edu.scripps.yates.shared.model;
 
 import java.io.Serializable;
 
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
+import edu.scripps.yates.shared.exceptions.PintRuntimeException;
+
 public enum PeptideRelation implements Serializable {
 
 	UNIQUE("Peptides that can only be assigned to a single protein in the database"),
@@ -30,6 +33,8 @@ public enum PeptideRelation implements Serializable {
 				return relation;
 			}
 		}
-		return null;
+		throw new PintRuntimeException(
+				"The value '" + name + "' is not supported as a valid " + PeptideRelation.class.getCanonicalName(),
+				PINT_ERROR_TYPE.VALUE_NOT_SUPPORTED);
 	}
 }
