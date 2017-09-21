@@ -14,6 +14,8 @@ import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
+import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
+import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
@@ -78,16 +80,19 @@ public class ConditionAdapter
 			final int size = proteins.size();
 			log.info("containing " + size + " proteins");
 
-			int i = 0;
+			ProgressCounter counter = new ProgressCounter(proteins.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
+
 			final Iterator<Protein> iterator = proteins.iterator();
 			while (iterator.hasNext()) {
-				i++;
-				if (i % 100 == 0) {
-					log.debug(i * 100 / size + "% of proteins adapted in condition " + expConditionModel.getName()
+				counter.increment();
+
+				Protein protein = iterator.next();
+				String printIfNecessary = counter.printIfNecessary();
+				// log.info(protein.hashCode());
+				if (printIfNecessary != null && !"".equals(printIfNecessary)) {
+					log.info(printIfNecessary + " of proteins adapted in condition " + expConditionModel.getName()
 							+ " from project: " + hibProject.getTag());
 				}
-				// log.debug(++i + "/" + size + " protein amounts");
-				Protein protein = iterator.next();
 				final Set<Peptide> peptides = protein.getPeptides();
 
 				for (Peptide peptide : peptides) {
