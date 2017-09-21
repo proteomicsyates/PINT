@@ -12,11 +12,13 @@ public interface Cache<T, V> {
 
 	public boolean contains(V key);
 
-	public void removeFromCache(V key);
+	public T removeFromCache(V key);
 
 	boolean containsAll(Collection<V> keys);
 
 	public V processKey(V key);
 
 	public void clearCache();
+
+	public boolean isEmpty();
 }
