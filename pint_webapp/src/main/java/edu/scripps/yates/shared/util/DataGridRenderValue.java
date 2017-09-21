@@ -31,7 +31,6 @@ public class DataGridRenderValue implements Serializable {
 	private String tooltip;
 	private Double actualNonRoundedValue;
 	private static final NumberFormat twoDecimalsFormat = NumberFormat.getFormat("#.##");
-	private static final NumberFormat threeDecimalsFormat = NumberFormat.getFormat("#.##");
 	private static final NumberFormat scientificDecimalsFormat = NumberFormat.getScientificFormat();
 
 	public DataGridRenderValue(String value, Double actualNonRoundedValue, String tooltip) {
