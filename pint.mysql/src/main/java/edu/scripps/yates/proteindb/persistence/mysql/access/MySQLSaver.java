@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.census.read.model.StaticQuantMaps;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.AmountType;
 import edu.scripps.yates.proteindb.persistence.mysql.AnnotationType;
@@ -39,8 +40,10 @@ import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ConditionAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProjectAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import edu.scripps.yates.utilities.memory.MemoryUsageReport;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -983,6 +986,12 @@ public class MySQLSaver {
 		if (hibProject == null) {
 			ProjectAdapter.clearStaticInformation();
 			hibProject = new ProjectAdapter(project).adapt();
+			log.info(MemoryUsageReport.getFreeMemoryDescriptiveString() + " before discarding project");
+			project = null;
+			StaticQuantMaps.clearInfo();
+			StaticProteomicsModelStorage.clearData();
+			System.gc();
+			log.info(MemoryUsageReport.getFreeMemoryDescriptiveString() + " after discarding project");
 			ContextualSessionHandler.save(hibProject);
 			// experiments
 			final Set<Condition> hibExperimentConditions = hibProject.getConditions();
