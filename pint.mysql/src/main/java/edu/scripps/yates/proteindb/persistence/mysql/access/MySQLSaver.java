@@ -39,6 +39,8 @@ import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ConditionAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProjectAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
+import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -889,13 +891,14 @@ public class MySQLSaver {
 		final Set<Protein> proteins = hibExperimentalCondition.getProteins();
 		log.info("Saving " + proteins.size() + " proteins");
 		Set<Protein> discardedProteins = new THashSet<Protein>();
+		ProgressCounter counter = new ProgressCounter(proteins.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
 		if (proteins != null && !proteins.isEmpty()) {
-			int size = proteins.size();
-			int i = 1;
+
 			for (Protein protein : proteins) {
-				i++;
-				if (i % 100 == 0) {
-					log.info(i * 100 / size + "% of proteins saved in condition " + hibExperimentalCondition.getName());
+				counter.increment();
+				String printIfNecessary = counter.printIfNecessary();
+				if (printIfNecessary != null && !"".equals(printIfNecessary)) {
+					log.info(printIfNecessary + " proteins saved in condition " + hibExperimentalCondition.getName());
 				}
 				if (protein.getId() != null) {
 					continue;
@@ -915,7 +918,7 @@ public class MySQLSaver {
 				log.warn("Removing " + discardedProteins.size() + " proteins from condition "
 						+ hibExperimentalCondition.getName() + " condition without PSMs");
 				for (Protein protein : discardedProteins) {
-					final boolean removed = hibExperimentalCondition.getProteins().remove(protein);
+					hibExperimentalCondition.getProteins().remove(protein);
 				}
 				if (hibExperimentalCondition.getProteins().isEmpty()) {
 					throw new IllegalArgumentException("The condition '" + hibExperimentalCondition.getName()
@@ -925,32 +928,33 @@ public class MySQLSaver {
 		} else {
 			log.info("Condition without proteins");
 			final Set<Psm> psms = hibExperimentalCondition.getPsms();
-			int size = psms.size();
-			int i = 1;
+			ProgressCounter counter2 = new ProgressCounter(psms.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
 			for (Psm psm : psms) {
+				counter2.increment();
 				if (psm.getId() != null) {
 					continue;
 				}
-				if (i % 1000 == 0 || i == size) {
-					log.debug("Saving psm " + i + "/" + size);
+				String printIfNecessary = counter2.printIfNecessary();
+				if (printIfNecessary != null && !"".equals(printIfNecessary)) {
+					log.info("Saving psm " + printIfNecessary);
 				}
 				savePSM(psm);
-				i++;
 			}
 		}
 		// save all PSMs
 		final Set<Psm> psms = hibExperimentalCondition.getPsms();
-		int size = psms.size();
-		int i = 1;
+		ProgressCounter counter2 = new ProgressCounter(psms.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
 		for (Psm psm : psms) {
+			counter2.increment();
 			if (psm.getId() != null) {
 				continue;
 			}
-			if (i % 1000 == 0 || i == size) {
-				log.debug("Saving psm " + i + "/" + size);
+			String printIfNecessary = counter2.printIfNecessary();
+			if (printIfNecessary != null && !"".equals(printIfNecessary)) {
+				log.info("Saving psms " + printIfNecessary + " in condition " + hibExperimentalCondition.getName());
 			}
 			savePSM(psm);
-			i++;
+
 		}
 
 		// save all the protein ratios
