@@ -49,14 +49,20 @@ public class PSMRatioValueAdapter
 		// score
 		final Score score = ratio.getAssociatedConfidenceScore();
 		if (score != null) {
-			final Double scoreValue = Double.valueOf(score.getValue());
-			if (!Double.isNaN(scoreValue)) {
-				final ConfidenceScoreType scoreType = new ConfidenceScoreTypeAdapter(score).adapt();
-				ret.setConfidenceScoreType(scoreType);
-				ret.setConfidenceScoreValue(scoreValue);
-				ret.setConfidenceScoreName(score.getScoreName());
-			} else {
-				log.debug("Nan score. Ignoring it");
+			try {
+				final Double scoreValue = Double.valueOf(score.getValue());
+				if (!Double.isNaN(scoreValue)) {
+					final ConfidenceScoreType scoreType = new ConfidenceScoreTypeAdapter(score).adapt();
+					ret.setConfidenceScoreType(scoreType);
+					ret.setConfidenceScoreValue(scoreValue);
+					ret.setConfidenceScoreName(score.getScoreName());
+				} else {
+					log.debug("Nan score. Ignoring it");
+				}
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+				throw new IllegalArgumentException(
+						"Error parsing PSM ratio score: " + score.getScoreName() + " with value: " + score.getValue());
 			}
 		}
 		// combination type

@@ -98,7 +98,8 @@ public class ExcelRatioPanel
 	public ExcelRatioPanel(String sessionID, FileTypeBean excelFileBean,
 			ExcelAmountRatioTypeBean excelAmountRatioTypeBean, RatioDescriptorTypeBean ratioDescriptor) {
 		super(excelFileBean, excelAmountRatioTypeBean);
-		mainPanel.setSize("380px", "799px");
+		// mainPanel.setSize("380px", "799px");
+		mainPanel.setHeight("799px");
 		this.sessionID = sessionID;
 		this.ratioDescriptor = ratioDescriptor;
 		scoreNameSuggestBox.setText("Score name");
@@ -438,6 +439,7 @@ public class ExcelRatioPanel
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see edu.scripps.yates.client.gui.components.projectCreatorWizard.
 	 * ContainsExcelColumnRefPanelAndTable
 	 * #setExcelFileBean(edu.scripps.yates.shared

@@ -93,6 +93,7 @@ public class ProjectSaverServiceImpl extends RemoteServiceServlet implements Pro
 			}
 			log.info("Everything is OK!");
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.error(e);
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		}

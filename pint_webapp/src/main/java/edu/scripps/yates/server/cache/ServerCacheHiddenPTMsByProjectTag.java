@@ -1,27 +1,13 @@
 package edu.scripps.yates.server.cache;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import edu.scripps.yates.shared.cache.Cache;
-import edu.scripps.yates.shared.util.SharedConstants;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public class ServerCacheHiddenPTMsByProjectTag implements Cache<Set<String>, String> {
-	private static final Map<String, Set<String>> map = new THashMap<String, Set<String>>();
+public class ServerCacheHiddenPTMsByProjectTag extends AbstractServerCacheForCollections<String, Set<String>, String> {
 	private static ServerCacheHiddenPTMsByProjectTag instance;
-
-	private ServerCacheHiddenPTMsByProjectTag() {
-
-	}
-
-	@Override
-	public String processKey(String key) {
-		// return key.replaceAll(" ", "");
-		return key;
-	}
 
 	public static ServerCacheHiddenPTMsByProjectTag getInstance() {
 		if (instance == null) {
@@ -31,56 +17,13 @@ public class ServerCacheHiddenPTMsByProjectTag implements Cache<Set<String>, Str
 	}
 
 	@Override
-	public void addtoCache(Set<String> t, String key) {
-		String processedKey = processKey(key);
-		if (SharedConstants.SERVER_CACHE_ENABLED)
-
-			map.put(processedKey, t);
-
+	protected Map<String, Set<String>> createMap() {
+		return new THashMap<String, Set<String>>();
 	}
 
 	@Override
-	public Set<String> getFromCache(String key) {
-		String processedKey = processKey(key);
-		return map.get(processedKey);
+	protected Set<String> createCollection() {
+		return new THashSet<String>();
 	}
 
-	@Override
-	public void removeFromCache(String key) {
-		String processedKey = processKey(key);
-		map.remove(processedKey);
-
-	}
-
-	@Override
-	public boolean contains(String key) {
-		String processedKey = processKey(key);
-		return map.containsKey(processedKey);
-	}
-
-	@Override
-	public boolean containsAll(Collection<String> keys) {
-		for (String key : keys) {
-			String processedKey = processKey(key);
-			if (!contains(processedKey))
-				return false;
-		}
-		return true;
-	}
-
-	@Override
-	public Set<Set<String>> getFromCache(Collection<String> keys) {
-		Set<Set<String>> ret = new THashSet<Set<String>>();
-		for (String key : keys) {
-			String processedKey = processKey(key);
-			if (contains(processedKey))
-				ret.add(getFromCache(processedKey));
-		}
-		return ret;
-	}
-
-	@Override
-	public void clearCache() {
-		map.clear();
-	}
 }

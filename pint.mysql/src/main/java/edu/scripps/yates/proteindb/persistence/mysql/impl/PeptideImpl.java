@@ -181,20 +181,20 @@ public class PeptideImpl implements Peptide {
 
 	@Override
 	public void addRatio(Ratio ratio) {
-		if (!ratios.contains(ratio))
+		if (ratio != null && !ratios.contains(ratio))
 			ratios.add(ratio);
 	}
 
 	@Override
 	public void addCondition(Condition condition) {
-		if (!conditions.contains(condition))
+		if (condition != null && !conditions.contains(condition))
 			conditions.add(condition);
 
 	}
 
 	@Override
 	public void addScore(Score score) {
-		if (!scores.contains(score)) {
+		if (score != null && !scores.contains(score)) {
 			scores.add(score);
 		}
 
@@ -202,14 +202,24 @@ public class PeptideImpl implements Peptide {
 
 	@Override
 	public void addAmount(Amount amount) {
-		if (!amounts.contains(amount))
+		if (amount != null && !amounts.contains(amount))
 			amounts.add(amount);
 	}
 
 	@Override
 	public void addPSM(PSM psm) {
-		if (!psms.contains(psm))
+		if (psm != null && !psms.contains(psm)) {
 			psms.add(psm);
+			psm.setPeptide(this);
+			Set<Protein> proteins2 = psm.getProteins();
+			for (Protein protein : proteins2) {
+				addProtein(protein);
+				protein.addPeptide(this);
+			}
+			for (Protein protein : getProteins()) {
+				protein.addPSM(psm);
+			}
+		}
 
 	}
 
@@ -221,8 +231,14 @@ public class PeptideImpl implements Peptide {
 
 	@Override
 	public void addProtein(Protein protein) {
-		if (!proteins.contains(protein))
+		if (protein != null && !proteins.contains(protein)) {
 			proteins.add(protein);
+			protein.addPeptide(this);
+			for (PSM psm : getPSMs()) {
+				psm.addProtein(protein);
+				protein.addPSM(psm);
+			}
+		}
 
 	}
 

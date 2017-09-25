@@ -61,10 +61,6 @@ public class ProteinPeptideClusterAlignmentResults implements Serializable {
 		return null;
 	}
 
-	private String getKey(String peptide1, String peptide2) {
-		return peptide1 + " vs " + peptide2;
-	}
-
 	/**
 	 * @return the cluster
 	 */

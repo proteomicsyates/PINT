@@ -143,7 +143,13 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 			final Collection<DTASelectProtein> dtaSelectProteins = dtaSelectFilterParser.getDTASelectProteins()
 					.values();
 			for (DTASelectProtein dtaSelectProtein : dtaSelectProteins) {
-				Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun, false);
+				// change on Sept 20, 2017
+				// because getMSRunID in dtaselectpsms is different than the
+				// msrun.getid, and so, they were not added.
+				// Protein protein = new
+				// ProteinImplFromDTASelect(dtaSelectProtein, msrun, false);
+				Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun, true);
+
 				if (protein.getOrganism() == null) {
 					((ProteinImplFromDTASelect) protein).setOrganism(getOrganismFromConfFile());
 				}

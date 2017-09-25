@@ -45,7 +45,13 @@ public class ProteinRatioValueAdapter
 		if (score != null) {
 			final ConfidenceScoreType scoreType = new ConfidenceScoreTypeAdapter(score).adapt();
 			ret.setConfidenceScoreType(scoreType);
-			ret.setConfidenceScoreValue(Double.valueOf(score.getValue()));
+			try {
+				ret.setConfidenceScoreValue(Double.valueOf(score.getValue()));
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+				throw new IllegalArgumentException("Error parsing protein ratio score: " + score.getScoreName()
+						+ " with value: " + score.getValue());
+			}
 			ret.setConfidenceScoreName(score.getScoreName());
 		}
 		// combination type

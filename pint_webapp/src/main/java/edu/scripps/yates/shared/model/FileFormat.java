@@ -1,5 +1,8 @@
 package edu.scripps.yates.shared.model;
 
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
+import edu.scripps.yates.shared.exceptions.PintRuntimeException;
+
 public enum FileFormat {
 
 	EXCEL("Excel (xls,xlsx)", false, false), CENSUS_CHRO_XML("Census chro output (census_chro.xml)", true,
@@ -23,7 +26,9 @@ public enum FileFormat {
 			if (fileFormat.getName().equalsIgnoreCase(string))
 				return fileFormat;
 		}
-		return null;
+		throw new PintRuntimeException(
+				"The value '" + string + "' is not supported as a valid " + FileFormat.class.getCanonicalName(),
+				PINT_ERROR_TYPE.VALUE_NOT_SUPPORTED);
 	}
 
 	/**

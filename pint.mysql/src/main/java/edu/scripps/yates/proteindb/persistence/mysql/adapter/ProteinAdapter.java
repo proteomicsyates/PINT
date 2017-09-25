@@ -311,7 +311,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getGenes();
 			} else {
-				log.info("check it out");
+				log.warn("check it out");
 			}
 		}
 		return null;
@@ -333,7 +333,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getLength();
 			} else {
-				log.info("check it out");
+				log.warn("check it out");
 			}
 		}
 		return null;

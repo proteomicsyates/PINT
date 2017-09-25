@@ -101,7 +101,7 @@ public class UniprotProteinLocalRetriever {
 				// if (!proteinsRetrieved.containsKey(nonIsoFormAcc)) {
 				// missingAccessions.add(nonIsoFormAcc);
 				// }
-				if (!proteinsRetrieved.containsKey(accession)) {
+				if (!proteinsRetrieved.containsKey(accession) || (proteinsRetrieved.get(accession) == null)) {
 					// check first if it is an accession like P12345-1
 					String acc = accession;
 					if ("1".equals(FastaParser.getIsoformVersion(accession))) {

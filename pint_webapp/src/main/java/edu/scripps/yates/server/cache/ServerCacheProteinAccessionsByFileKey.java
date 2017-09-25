@@ -1,23 +1,15 @@
 package edu.scripps.yates.server.cache;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import edu.scripps.yates.shared.cache.Cache;
-import edu.scripps.yates.shared.util.SharedConstants;
 import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
 
-public class ServerCacheProteinAccessionsByFileKey implements Cache<List<String>, String> {
-	private static final Map<String, List<String>> map = new THashMap<String, List<String>>();
+public class ServerCacheProteinAccessionsByFileKey
+		extends AbstractServerCacheForCollections<String, List<String>, String> {
 
 	private static ServerCacheProteinAccessionsByFileKey instance;
-
-	private ServerCacheProteinAccessionsByFileKey() {
-
-	}
 
 	public static ServerCacheProteinAccessionsByFileKey getInstance() {
 		if (instance == null) {
@@ -27,53 +19,12 @@ public class ServerCacheProteinAccessionsByFileKey implements Cache<List<String>
 	}
 
 	@Override
-	public void addtoCache(List<String> proteins, String key) {
-		if (SharedConstants.SERVER_CACHE_ENABLED)
-			map.put(key, proteins);
+	protected Map<String, List<String>> createMap() {
+		return new THashMap<String, List<String>>();
 	}
 
 	@Override
-	public List<String> getFromCache(String key) {
-		return map.get(key);
-	}
-
-	@Override
-	public void removeFromCache(String key) {
-		map.remove(key);
-	}
-
-	@Override
-	public boolean contains(String key) {
-		return map.containsKey(key);
-	}
-
-	@Override
-	public boolean containsAll(Collection<String> keys) {
-		for (String key : keys) {
-			if (!contains(key))
-				return false;
-		}
-		return true;
-	}
-
-	@Override
-	public Set<List<String>> getFromCache(Collection<String> keys) {
-		Set<List<String>> ret = new THashSet<List<String>>();
-		for (String key : keys) {
-			if (contains(key))
-				ret.add(getFromCache(key));
-		}
-		return ret;
-	}
-
-	@Override
-	public String processKey(String key) {
-
-		return key;
-	}
-
-	@Override
-	public void clearCache() {
-		map.clear();
+	protected List<String> createCollection() {
+		return new ArrayList<String>();
 	}
 }

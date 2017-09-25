@@ -92,6 +92,8 @@ public class ProteinImplFromDTASelect implements Protein {
 			max = length2;
 		}
 		createAmounts();
+		// create peptide and psm objects
+		getPeptides();
 	}
 
 	public ProteinImplFromDTASelect(DTASelectProtein dtaSelectProtein2, MSRun msrun2,
@@ -111,6 +113,8 @@ public class ProteinImplFromDTASelect implements Protein {
 			max = length2;
 		}
 		createAmounts();
+		// create peptide and psm objects
+		getPeptides();
 	}
 
 	private void createAmounts() {
@@ -261,9 +265,10 @@ public class ProteinImplFromDTASelect implements Protein {
 						psms.add(psm);
 					} else {
 						psm = new PSMImplFromDTASelect(dtaSelectPSM, msrun);
-						psm.addProtein(this);
-						psms.add(psm);
 						StaticProteomicsModelStorage.addPSM(psm, msrun, null);
+						psms.add(psm);
+						psm.addProtein(this);
+
 					}
 					// create or retrieve the corresponding Peptide
 					final String sequence = dtaSelectPSM.getSequence().getSequence();
@@ -308,7 +313,6 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public Set<Peptide> getPeptides() {
-		// ModelUtils.createPeptides(this);
 		if (!peptidesParsed) {
 
 			for (PSM psm : getPSMs()) {
@@ -318,9 +322,9 @@ public class ProteinImplFromDTASelect implements Protein {
 					peptide = StaticProteomicsModelStorage.getSinglePeptide(msrun, null, sequence);
 				} else {
 					peptide = new PeptideEx(sequence, msrun);
+					StaticProteomicsModelStorage.addPeptide(peptide, msrun, null);
 					peptide.addPSM(psm);
 					psm.setPeptide(peptide);
-					StaticProteomicsModelStorage.addPeptide(peptide, msrun, null);
 				}
 				peptides.add(peptide);
 			}
@@ -409,9 +413,16 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public void addCondition(Condition condition) {
-		if (!conditions.contains(condition)) {
+		if (condition != null && !conditions.contains(condition)) {
 			conditions.add(condition);
+			// set condition to amounts
+			for (Amount amount : getAmounts()) {
+				if (amount.getCondition() == null && amount instanceof AmountEx) {
+					((AmountEx) amount).setCondition(condition);
+				}
+			}
 		}
+
 		if (condition.getSample() != null && condition.getSample().getOrganism() != null)
 			setOrganism(condition.getSample().getOrganism());
 	}
@@ -435,28 +446,37 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public void addScore(Score score) {
-		if (!scores.contains(score))
+		if (score != null && !scores.contains(score))
 			scores.add(score);
 	}
 
 	@Override
 	public void addRatio(Ratio ratio) {
-		if (!ratios.contains(ratio))
+		if (ratio != null && !ratios.contains(ratio))
 			ratios.add(ratio);
 
 	}
 
 	@Override
 	public void addAmount(Amount amount) {
-		if (!amounts.contains(amount)) {
+		if (amount != null && !amounts.contains(amount)) {
 			amounts.add(amount);
 		}
 	}
 
 	@Override
 	public void addPSM(PSM psm) {
-		if (!psms.contains(psm))
+		if (psm != null && !psms.contains(psm)) {
 			psms.add(psm);
+
+			//
+			psm.addProtein(this);
+			Peptide peptide = psm.getPeptide();
+			if (peptide != null) {
+				addPeptide(peptide);
+				peptide.addProtein(this);
+			}
+		}
 
 	}
 
@@ -490,14 +510,21 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public void addPeptide(Peptide peptide) {
-		if (!peptides.contains(peptide))
+		if (peptide != null && !peptides.contains(peptide)) {
 			peptides.add(peptide);
+			peptide.addProtein(this);
+			Set<PSM> psMs2 = peptide.getPSMs();
+			for (PSM psm : psMs2) {
+				addPSM(psm);
+				psm.addProtein(this);
+			}
+		}
 
 	}
 
 	@Override
 	public void addGene(Gene gene) {
-		if (!genes.contains(gene))
+		if (gene != null && !genes.contains(gene))
 			genes.add(gene);
 	}
 

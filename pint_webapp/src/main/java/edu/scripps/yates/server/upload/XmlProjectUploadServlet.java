@@ -49,9 +49,9 @@ public class XmlProjectUploadServlet extends UploadAction {
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		FileManager.getProjectFilesPath(getServletContext());
-
 		super.init(config);
+		FileManager.getProjectFilesPath(config.getServletContext());
+
 	}
 
 	/**

@@ -1,5 +1,8 @@
 package edu.scripps.yates.shared.model;
 
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
+import edu.scripps.yates.shared.exceptions.PintRuntimeException;
+
 public enum AmountType {
 
 	INTENSITY("Peak instensity"), //
@@ -8,7 +11,7 @@ public enum AmountType {
 	XIC("Xtracted Ion Chromatogram"), //
 	SPC("Spectral count"), //
 	NSAF("NSAF value"), //
-	dNSAF("dNSAF value"), //
+	NSAF_NORM("Normalized NSAF value"), dNSAF("dNSAF value"), //
 	EMPAI("EMPAI value"), //
 	EMPAI_COV("EMPAI cov"), //
 	REGRESSION_FACTOR("Regression score");
@@ -27,7 +30,9 @@ public enum AmountType {
 				return amountType;
 			}
 		}
-		return null;
+		throw new PintRuntimeException(
+				"The value '" + name + "' is not supported as a valid " + AmountType.class.getCanonicalName(),
+				PINT_ERROR_TYPE.VALUE_NOT_SUPPORTED);
 	}
 
 	/**

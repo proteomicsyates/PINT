@@ -1,5 +1,8 @@
 package edu.scripps.yates.shared.model;
 
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
+import edu.scripps.yates.shared.exceptions.PintRuntimeException;
+
 public enum SharedAggregationLevel {
 	PSM, PEPTIDE, PROTEIN, PROTEINGROUP;
 
@@ -19,6 +22,7 @@ public enum SharedAggregationLevel {
 			if (aggregationLevel.name().toLowerCase().equals(aggregationLevelString.toLowerCase()))
 				return aggregationLevel;
 		}
-		return null;
+		throw new PintRuntimeException("The value '" + aggregationLevelString + "' is not supported as a valid "
+				+ SharedAggregationLevel.class.getCanonicalName(), PINT_ERROR_TYPE.VALUE_NOT_SUPPORTED);
 	}
 }

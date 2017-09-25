@@ -216,7 +216,8 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 		uploader = new SingleUploader();
 
 		contentPanel.add(uploader);
-		uploader.setServletPath("xmlProject.gupld?" + SharedConstants.JOB_ID_PARAM + "=" + importJobID);
+		String path = "xmlProject.gupld?" + SharedConstants.JOB_ID_PARAM + "=" + importJobID;
+		uploader.setServletPath(path);
 		uploader.addOnFinishUploadHandler(getOnFinishUploaderHandler());
 		uploader.addOnCancelUploadHandler(getOnCancelUploaderHandler());
 		uploader.addOnStartUploadHandler(new OnStartUploaderHandler() {
@@ -329,6 +330,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 													public void onFailure(Throwable caught) {
 														StatusReportersRegister.getInstance()
 																.notifyStatusReporters(caught);
+														hiddeDialog();
 													}
 
 													@Override
@@ -348,6 +350,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 													public void onFailure(Throwable caught) {
 														StatusReportersRegister.getInstance()
 																.notifyStatusReporters(caught);
+														hiddeDialog();
 													}
 
 													@Override
@@ -368,6 +371,8 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 									StatusReportersRegister.getInstance().notifyStatusReporters(caught);
 								}
 							});
+				} else {
+					StatusReportersRegister.getInstance().notifyStatusReporters(uploader.getServerRawResponse());
 				}
 
 			}
@@ -393,7 +398,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 
 	private void loadGUIIfAllRequiredDataIsReceived() {
 		if (projectBeanReceived && dataSourceBeansReceived) {
-			GWT.runAsync(new RunAsyncCallback(){
+			GWT.runAsync(new RunAsyncCallback() {
 
 				@Override
 				public void onFailure(Throwable reason) {
@@ -410,8 +415,9 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 					loadGUI(pintImportCfgTypeBean, dataSourceBeans);
 					setImportJobID(importJobID);
 					hiddeDialog();
-				}});
-			
+				}
+			});
+
 		}
 
 	}
@@ -1444,6 +1450,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 		} else {
 			projectConfigurationPanel.disableDownloadImportCfgFile();
 		}
+		hiddeDialog();
 	}
 
 	private List<RemoteFilesRatioTypeBean> getPSMRemoteFilesRatios() {
@@ -1460,9 +1467,11 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 				if (remoteFilesRatioTypeBean != null) {
 					ret.add(remoteFilesRatioTypeBean);
 				} else {
-					StatusReportersRegister.getInstance()
-							.notifyStatusReporters("Ratio definition is not complete for ratio '"
-									+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
+					// StatusReportersRegister.getInstance()
+					// .notifyStatusReporters("Ratio definition is not complete
+					// for ratio '"
+					// + ratioEditorPanel.getTitle() + "'. Select an input file
+					// on the ratio tab.");
 				}
 			}
 		}
@@ -1483,9 +1492,11 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 				if (remoteFilesRatioTypeBean != null) {
 					ret.add(remoteFilesRatioTypeBean);
 				} else {
-					StatusReportersRegister.getInstance()
-							.notifyStatusReporters("Ratio definition is not complete for ratio '"
-									+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
+					// StatusReportersRegister.getInstance()
+					// .notifyStatusReporters("Ratio definition is not complete
+					// for ratio '"
+					// + ratioEditorPanel.getTitle() + "'. Select an input file
+					// on the ratio tab.");
 				}
 			}
 		}
@@ -1494,6 +1505,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 
 	private List<RemoteFilesRatioTypeBean> getProteinRemoteFilesRatios() {
 		List<RemoteFilesRatioTypeBean> ret = new ArrayList<RemoteFilesRatioTypeBean>();
+
 		for (RatioEditorPanel ratioEditorPanel : ratioEditors) {
 			if (ratioEditorPanel.getAggregationLevels().isEmpty()) {
 				StatusReportersRegister.getInstance()
@@ -1506,9 +1518,11 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 				if (remoteFilesRatioTypeBean != null) {
 					ret.add(remoteFilesRatioTypeBean);
 				} else {
-					StatusReportersRegister.getInstance()
-							.notifyStatusReporters("Ratio definition is not complete for ratio '"
-									+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
+					// StatusReportersRegister.getInstance()
+					// .notifyStatusReporters("Ratio definition is not complete
+					// for ratio '"
+					// + ratioEditorPanel.getTitle() + "'. Select an input file
+					// on the ratio tab.");
 				}
 			}
 		}
@@ -1522,9 +1536,11 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 			if (proteinExcelRatioTypeBean != null) {
 				ret.add(proteinExcelRatioTypeBean);
 			} else {
-				StatusReportersRegister.getInstance()
-						.notifyStatusReporters("Ratio definition is not complete for ratio '"
-								+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
+				// StatusReportersRegister.getInstance()
+				// .notifyStatusReporters("Ratio definition is not complete for
+				// ratio '"
+				// + ratioEditorPanel.getTitle() + "'. Select an input file on
+				// the ratio tab.");
 			}
 		}
 		return ret;
@@ -1537,9 +1553,11 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 			if (peptideExcelRatioTypeBean != null) {
 				ret.add(peptideExcelRatioTypeBean);
 			} else {
-				StatusReportersRegister.getInstance()
-						.notifyStatusReporters("Ratio definition is not complete for ratio '"
-								+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
+				// StatusReportersRegister.getInstance()
+				// .notifyStatusReporters("Ratio definition is not complete for
+				// ratio '"
+				// + ratioEditorPanel.getTitle() + "'. Select an input file on
+				// the ratio tab.");
 			}
 		}
 		return ret;
@@ -1552,9 +1570,11 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 			if (psmExcelRatioTypeBean != null) {
 				ret.add(psmExcelRatioTypeBean);
 			} else {
-				StatusReportersRegister.getInstance()
-						.notifyStatusReporters("Ratio definition is not complete for ratio '"
-								+ ratioEditorPanel.getTitle() + "'. Select an input file on the ratio tab.");
+				// StatusReportersRegister.getInstance()
+				// .notifyStatusReporters("Ratio definition is not complete for
+				// ratio '"
+				// + ratioEditorPanel.getTitle() + "'. Select an input file on
+				// the ratio tab.");
 			}
 		}
 		return ret;

@@ -203,7 +203,15 @@ public class PSMImplFromQuantifiedPSM implements PSM {
 
 	@Override
 	public void setPeptide(Peptide peptide) {
-		this.peptide = peptide;
+		if (peptide != null) {
+			this.peptide = peptide;
+			peptide.addPSM(this);
+			Set<Protein> proteins2 = getProteins();
+			for (Protein protein : proteins2) {
+				peptide.addProtein(protein);
+				protein.addPeptide(peptide);
+			}
+		}
 	}
 
 	@Override
@@ -240,8 +248,15 @@ public class PSMImplFromQuantifiedPSM implements PSM {
 
 	@Override
 	public void addProtein(Protein protein) {
-		if (!proteins.contains(protein))
+		if (protein != null && !proteins.contains(protein)) {
 			proteins.add(protein);
+			protein.addPSM(this);
+			Peptide peptide2 = getPeptide();
+			if (peptide2 != null) {
+				protein.addPeptide(peptide2);
+				peptide2.addProtein(protein);
+			}
+		}
 
 	}
 
@@ -253,27 +268,27 @@ public class PSMImplFromQuantifiedPSM implements PSM {
 
 	@Override
 	public void addCondition(Condition condition) {
-		if (!conditions.contains(condition))
+		if (condition != null && !conditions.contains(condition))
 			conditions.add(condition);
 	}
 
 	@Override
 	public void addRatio(Ratio ratio) {
-		if (!ratios.contains(ratio))
+		if (ratio != null && !ratios.contains(ratio))
 			ratios.add(ratio);
 
 	}
 
 	@Override
 	public void addAmount(Amount amount) {
-		if (!amounts.contains(amount))
+		if (amount != null && !amounts.contains(amount))
 			amounts.add(amount);
 
 	}
 
 	@Override
 	public void addScore(Score score) {
-		if (!scores.contains(score))
+		if (score != null && !scores.contains(score))
 			scores.add(score);
 
 	}

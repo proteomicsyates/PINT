@@ -1,11 +1,14 @@
 package edu.scripps.yates.shared.model;
 
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
+import edu.scripps.yates.shared.exceptions.PintRuntimeException;
+
 public enum UniprotProteinExistence {
 	PROTEIN_LEVEL(1, "Experimental evidence at protein level", "Evidence at protein level",
 			"Protein"), TRANSCRIPT_LEVEL(2, "Experimental evidence at transcript level", "Evidence at transcript level",
 					"Transcript"), HOMOLOGY_INFERRED(3, "Protein inferred from homology", "Inferred from homology",
-							"Homology"), PREDICTED(4, "Protein predicted", "Predicted", "Predicted"), UNCERTAIN(5,
-									"Protein uncertain", "Uncertain", "Uncertain");
+							"Homology"), PREDICTED(4, "Protein predicted", "Predicted",
+									"Predicted"), UNCERTAIN(5, "Protein uncertain", "Uncertain", "Uncertain");
 
 	private final int level;
 	private final String description;
@@ -46,7 +49,8 @@ public enum UniprotProteinExistence {
 				return upe;
 			}
 		}
-		return null;
+		throw new PintRuntimeException("The value '" + value + "' is not supported as a valid "
+				+ UniprotProteinExistence.class.getCanonicalName(), PINT_ERROR_TYPE.VALUE_NOT_SUPPORTED);
 	}
 
 	public String getKey() {
