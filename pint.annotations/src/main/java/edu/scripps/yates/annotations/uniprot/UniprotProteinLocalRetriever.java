@@ -336,6 +336,7 @@ public class UniprotProteinLocalRetriever {
 		if (cacheEnabled && !cache.isEmpty()) {
 			int foundInCache = 0;
 			// look into cache if enabled
+			int toFindInCache = accsToSearch.size();
 			Iterator<String> iterator = accsToSearch.iterator();
 			while (iterator.hasNext()) {
 				if (Thread.currentThread().isInterrupted()) {
@@ -351,7 +352,11 @@ public class UniprotProteinLocalRetriever {
 			}
 
 			log.debug(foundInCache + " entries found in cache");
-
+			if (foundInCache == toFindInCache) {
+				Map<String, Entry> queryProteinsMap = new THashMap<String, Entry>();
+				addEntriesToMap(queryProteinsMap, entries);
+				return queryProteinsMap;
+			}
 		}
 		if (uniprotVersion == null || "".equals(uniprotVersion)) {
 
