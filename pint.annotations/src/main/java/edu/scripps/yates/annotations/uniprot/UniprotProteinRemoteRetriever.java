@@ -68,7 +68,10 @@ public class UniprotProteinRemoteRetriever {
 	private static final String UNIPROT_SERVER = PropertiesUtil.getInstance(PropertiesUtil.UNIPROT_PROPERTIES_FILE)
 			.getPropertyValue(PropertiesUtil.UNIPROT_SERVER_PROP);
 	private static final Logger log = Logger.getLogger(UniprotProteinRemoteRetriever.class);
-	private static final int MAX_NUM_TO_RETRIEVE = 200; // defined by EBI fetch
+	// private static final int MAX_NUM_TO_RETRIEVE = 200; // defined by EBI
+	// fetch
+	private static final int MAX_NUM_TO_RETRIEVE = 100; // defined by EBI
+														// protein service
 	private Set<String> missingAccessions = new THashSet<String>();
 	private final File uniprotReleaseFolder;
 	private final boolean useIndex;
@@ -158,7 +161,9 @@ public class UniprotProteinRemoteRetriever {
 
 			int totalNumAccs = 0;
 			while (totalNumAccs < noIsoformList.size()) {
-				StringBuilder locationBuilder = new StringBuilder(UNIPROT_EBI_SERVER + "&format=xml&id=");
+				// StringBuilder locationBuilder = new
+				// StringBuilder(UNIPROT_EBI_SERVER + "&format=xml&id=");
+				StringBuilder locationBuilder = new StringBuilder(UNIPROT_EBI_SERVER + "&accession=");
 				int numAccs = 0;
 				while (totalNumAccs < noIsoformList.size()) {
 					if (numAccs > 0)
