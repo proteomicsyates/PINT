@@ -148,21 +148,26 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 				// msrun.getid, and so, they were not added.
 				// Protein protein = new
 				// ProteinImplFromDTASelect(dtaSelectProtein, msrun, false);
-				Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun, true);
+				Protein protein = null;
+				final String accession = ProteinImplFromDTASelect
+						.getPrimaryAccessionFromDTASelectProtein(dtaSelectProtein, null).getAccession();
 
+				// look in the static model storage first
+				if (StaticProteomicsModelStorage.containsProtein(msrun.getRunId(), condition.getName(), accession)) {
+					protein = StaticProteomicsModelStorage.getProtein(msrun.getRunId(), condition.getName(), accession)
+							.iterator().next();
+				} else {
+					protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun, true);
+				}
+				StaticProteomicsModelStorage.addProtein(protein, msrun.getRunId(), condition.getName());
 				if (protein.getOrganism() == null) {
 					((ProteinImplFromDTASelect) protein).setOrganism(getOrganismFromConfFile());
 				}
-				// look in the static model storage first
-				if (StaticProteomicsModelStorage.containsProtein(msrun.getRunId(), condition.getName(),
-						protein.getAccession())) {
-					protein = StaticProteomicsModelStorage
-							.getProtein(msrun.getRunId(), condition.getName(), protein.getAccession()).iterator()
-							.next();
-				}
 
-				StaticProteomicsModelStorage.addProtein(protein, msrun.getRunId(), condition.getName());
 				protein.setMSRun(msrun);
+				if (condition == null) {
+					log.info("condition is null");
+				}
 				protein.addCondition(condition);
 				retMap.put(protein.getAccession(), protein);
 				final Set<PSM> psMs = protein.getPSMs();
