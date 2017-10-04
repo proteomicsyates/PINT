@@ -261,6 +261,12 @@ public class RemoteFileReader {
 					for (File file : fileIDByFiles.keySet()) {
 						final String fileID = fileIDByFiles.get(file);
 						final List<RatioDescriptor> ratioDescriptors = ratioDescriptorsByFile.get(fileID);
+						if (ratioDescriptors == null) {
+							// if there is no ratio descriptor for this file is
+							// because maybe it is an excel file and the ratio
+							// descriptor will be in the excel reader
+							continue;
+						}
 						if (ratioDescriptors.size() == 1) {
 							final RatioDescriptor ratioDescriptor = ratioDescriptors.get(0);
 							parser.addFile(file, labelsByConditionsByFileID.get(fileID), ratioDescriptor.getLabel1(),
@@ -292,28 +298,34 @@ public class RemoteFileReader {
 								}
 							}
 							if (labelL == null) {
-								throw new IllegalArgumentException(
-										"Label LIGHT is not defined in a triple label experiment (reading file '"
-												+ fileID
-												+ "')\nEither you have to define the label LIGHT or you have to define LIGHT/MEDIUM and LIGHT/HEAVY ratios");
+								throw new IllegalArgumentException("If this experiment is a triple label experiment:\n"
+										+ "Label LIGHT is not defined in a triple label experiment (reading file '"
+										+ fileID
+										+ "')\nEither you have to define the label LIGHT or you have to define LIGHT/MEDIUM and LIGHT/HEAVY ratios\n"
+										+ "Otherwise, you may have selected the same input file for two different ratios.");
 							}
 							if (labelM == null) {
-								throw new IllegalArgumentException(
-										"Label MEDIUM is not defined in a triple label experiment (reading file '"
-												+ fileID
-												+ "')\nEither you have to define the label MEDIUM or you have to define LIGHT/MEDIUM and MEDIUM/HEAVY ratios");
+								throw new IllegalArgumentException("If this experiment is a triple label experiment:\n"
+										+ "Label MEDIUM is not defined in a triple label experiment (reading file '"
+										+ fileID
+										+ "')\nEither you have to define the label MEDIUM or you have to define LIGHT/MEDIUM and MEDIUM/HEAVY ratios\n"
+										+ "Otherwise, you may have selected the same input file for two different ratios.");
 							}
 							if (labelH == null) {
-								throw new IllegalArgumentException(
-										"Label HEAVY is not defined in a triple label experiment (reading file '"
-												+ fileID
-												+ "')\nEither you have to define the label HEAVY or you have to define LIGHT/HEAVY and MEDIUM/HEAVY ratios");
+								throw new IllegalArgumentException("If this experiment is a triple label experiment:\n"
+										+ "Label HEAVY is not defined in a triple label experiment (reading file '"
+										+ fileID
+										+ "')\nEither you have to define the label HEAVY or you have to define LIGHT/HEAVY and MEDIUM/HEAVY ratios\n"
+										+ "Otherwise, you may have selected the same input file for two different ratios.");
 							}
 							parser.addFile(file, labelsByConditionsByFileID.get(fileID), labelL, labelM, labelH);
 						}
+					} // only return parser if it has at least one file to read
+					if (!parser.getRemoteFileRetrievers().isEmpty()) {
+						censusOutParsers.put(key, parser);
+						return parser;
 					}
-					censusOutParsers.put(key, parser);
-					return parser;
+
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 					log.warn(e.getMessage());
