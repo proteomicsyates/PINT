@@ -78,6 +78,17 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 		this.scoreName = null;
 	}
 
+	public BeanComparator(ColumnName columnName, String experimentalCondition1Name, String experimentalCondition2Name,
+			String projectTag, String ratioName, String ratioScoreName) {
+		this.columnName = columnName;
+		conditionName = experimentalCondition1Name;
+		condition2Name = experimentalCondition2Name;
+		this.projectTag = projectTag;
+		this.ratioName = ratioName;
+		amountType = null;
+		this.scoreName = ratioScoreName;
+	}
+
 	/**
 	 * @return the columnName
 	 */
@@ -293,7 +304,7 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 	}
 
 	protected static int compareRatioScores(ContainsRatios o1, ContainsRatios o2, String condition1Name,
-			String condition2Name, String projectTag, String ratioName, boolean skipInfinities) {
+			String condition2Name, String projectTag, String ratioName, String ratioScoreName, boolean skipInfinities) {
 		try {
 			final List<RatioBean> ratios1 = o1.getRatiosByConditions(condition1Name, condition2Name, projectTag,
 					ratioName, skipInfinities);
@@ -301,12 +312,19 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 					ratioName, skipInfinities);
 			if (!ratios1.isEmpty() && !ratios2.isEmpty()) {
 				final List<ScoreBean> ratioValues1 = SharedDataUtils.getRatioScoreValues(condition1Name, condition2Name,
-						ratios1);
+						ratios1, ratioScoreName);
 				final List<ScoreBean> ratioValues2 = SharedDataUtils.getRatioScoreValues(condition1Name, condition2Name,
-						ratios2);
+						ratios2, ratioScoreName);
+				String value1 = null;
+				String value2 = null;
+				for (ScoreBean scoreBean : ratioValues1) {
+					value1 = scoreBean.getValue();
 
-				final String value1 = ratioValues1.get(0).getValue();
-				final String value2 = ratioValues2.get(0).getValue();
+				}
+
+				for (ScoreBean scoreBean : ratioValues2) {
+					value2 = scoreBean.getValue();
+				}
 				try {
 					return compareNumbers(Double.valueOf(value1), Double.valueOf(value2));
 				} catch (NumberFormatException e) {

@@ -27,6 +27,10 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 		super(columnName);
 	}
 
+	public PeptideComparator(ColumnName columnName, String scoreName) {
+		super(columnName, scoreName);
+	}
+
 	public PeptideComparator(ColumnName columnName, String conditionName, AmountType amountType, String projectTag) {
 		super(columnName, conditionName, amountType, projectTag);
 	}
@@ -36,8 +40,9 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 		super(columnName, condition1Name, condition2Name, projectTag, ratioName);
 	}
 
-	public PeptideComparator(ColumnName columnName, String scoreName) {
-		super(columnName, scoreName);
+	public PeptideComparator(ColumnName columnName, String condition1Name, String condition2Name, String projectTag,
+			String ratioName, String ratioScoreName) {
+		super(columnName, condition1Name, condition2Name, projectTag, ratioName, ratioScoreName);
 	}
 
 	@Override
@@ -68,7 +73,7 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 
 		} else if (columnName == ColumnName.PEPTIDE_RATIO_SCORE) {
-			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
+			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, scoreName, false);
 		} else {
 			try {
 				switch (columnName) {

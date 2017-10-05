@@ -35,6 +35,11 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 		super(columnName, condition1Name, condition2Name, projectTag, ratioName);
 	}
 
+	public PSMComparator(ColumnName columnName, String condition1Name, String condition2Name, String projectTag,
+			String ratioName, String ratioScoreName) {
+		super(columnName, condition1Name, condition2Name, projectTag, ratioName, ratioScoreName);
+	}
+
 	public PSMComparator(ColumnName columnName, String scoreName) {
 		super(columnName, scoreName);
 	}
@@ -67,7 +72,7 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 
 		} else if (columnName == ColumnName.PSM_RATIO_SCORE) {
-			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
+			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, scoreName, false);
 		} else {
 			try {
 				switch (columnName) {
