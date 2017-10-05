@@ -84,11 +84,19 @@ public class PSMColumnManager extends AbstractColumnManager<PSMBean> {
 	}
 
 	@Override
-	public CustomTextColumn<PSMBean> addRatioScoreColumn(ColumnName columnName, boolean visibleState,
-			String condition1Name, String condition1Symbol, String condition2Name, String condition2Symbol,
-			String projectTag, String ratioName, String ratioScore) {
-		// TODO Auto-generated method stub
-		return null;
+	public PSMTextColumn addRatioScoreColumn(ColumnName columnName, boolean visibleState, String condition1Name,
+			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
+			String ratioName, String scoreName) {
+		String headerName = SharedDataUtils.getRatioScoreHeader(scoreName, condition1Symbol, condition2Symbol);
+		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+				SafeHtmlUtils.fromSafeConstant(headerName), SharedDataUtils.getRatioScoreHeaderTooltip(columnName,
+						condition1Name, condition2Name, ratioName, scoreName));
+		final PSMTextColumn column = new PSMTextColumn(columnName, visibleState, header,
+				footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name, projectTag, scoreName),
+				condition1Name, condition2Name, projectTag, scoreName);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, scoreName));
+		addColumn(column);
+		return column;
 	}
 
 }

@@ -85,11 +85,19 @@ public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
 	}
 
 	@Override
-	public CustomTextColumn<PeptideBean> addRatioScoreColumn(ColumnName columnName, boolean visibleState,
-			String condition1Name, String condition1Symbol, String condition2Name, String condition2Symbol,
-			String projectTag, String ratioName, String ratioScore) {
-		// not implemented
-		return null;
+	public PeptideTextColumn addRatioScoreColumn(ColumnName columnName, boolean visibleState, String condition1Name,
+			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
+			String ratioName, String scoreName) {
+		String headerName = SharedDataUtils.getRatioScoreHeader(scoreName, condition1Symbol, condition2Symbol);
+		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+				SafeHtmlUtils.fromSafeConstant(headerName), SharedDataUtils.getRatioScoreHeaderTooltip(columnName,
+						condition1Name, condition2Name, ratioName, scoreName));
+		final PeptideTextColumn column = new PeptideTextColumn(columnName, visibleState, header,
+				footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name, projectTag, scoreName),
+				condition1Name, condition2Name, projectTag, scoreName);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, scoreName));
+		addColumn(column);
+		return column;
 	}
 
 }
