@@ -95,12 +95,15 @@ public class RatioDescriptorAdapter
 		ret.setConditionByExperimentalCondition2Id(hibCondition2);
 		ret.setDescription(description);
 
-		if (hibProteinRatioValue != null)
+		if (hibProteinRatioValue != null) {
 			ret.getProteinRatioValues().add(hibProteinRatioValue);
-		if (hibPeptideRatioValue != null)
+		}
+		if (hibPeptideRatioValue != null) {
 			ret.getPeptideRatioValues().add(hibPeptideRatioValue);
-		if (hibPsmRatioValue != null)
+		}
+		if (hibPsmRatioValue != null) {
 			ret.getPsmRatioValues().add(hibPsmRatioValue);
+		}
 		hibCondition1.getRatioDescriptorsForExperimentalCondition1Id().add(ret);
 		hibCondition2.getRatioDescriptorsForExperimentalCondition2Id().add(ret);
 		return ret;
