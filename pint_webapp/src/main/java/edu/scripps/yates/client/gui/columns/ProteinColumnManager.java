@@ -111,8 +111,9 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName), SharedDataUtils.getRatioScoreHeaderTooltip(columnName,
 						condition1Name, condition2Name, ratioName, scoreName));
-		final ProteinTextColumn column = new ProteinTextColumn(columnName, visibleState, header,
-				footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name, projectTag, scoreName),
+		final ProteinTextColumn column = new ProteinTextColumn(columnName,
+				visibleState, header, footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name,
+						projectTag, ratioName, scoreName),
 				condition1Name, condition2Name, projectTag, ratioName, scoreName);
 		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, scoreName));
 		addColumn(column);

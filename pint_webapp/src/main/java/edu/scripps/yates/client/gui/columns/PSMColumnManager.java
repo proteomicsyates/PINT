@@ -91,8 +91,9 @@ public class PSMColumnManager extends AbstractColumnManager<PSMBean> {
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName), SharedDataUtils.getRatioScoreHeaderTooltip(columnName,
 						condition1Name, condition2Name, ratioName, scoreName));
-		final PSMTextColumn column = new PSMTextColumn(columnName, visibleState, header,
-				footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name, projectTag, scoreName),
+		final PSMTextColumn column = new PSMTextColumn(columnName,
+				visibleState, header, footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name,
+						projectTag, ratioName, scoreName),
 				condition1Name, condition2Name, projectTag, ratioName, scoreName);
 		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, scoreName));
 		addColumn(column);
