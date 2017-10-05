@@ -1,6 +1,7 @@
 package edu.scripps.yates.dtaselect;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,6 +92,7 @@ public class ProteinImplFromDTASelect implements Protein {
 			log.debug(getPrimaryAccession().getAccession() + " length=" + length2);
 			max = length2;
 		}
+
 		createAmounts();
 		// create peptide and psm objects
 		getPeptides();
@@ -111,6 +113,9 @@ public class ProteinImplFromDTASelect implements Protein {
 		if (length2 > max) {
 			log.info(getPrimaryAccession().getAccession() + " length=" + length2);
 			max = length2;
+		}
+		if (dtaSelectProtein.getLocus().contains("IPI00776201.1")) {
+			log.info(getAccession());
 		}
 		createAmounts();
 		// create peptide and psm objects
@@ -153,26 +158,32 @@ public class ProteinImplFromDTASelect implements Protein {
 	public Accession getPrimaryAccession() {
 
 		if (primaryAccession == null) {
-			primaryAccession = ProteinDTASelectParser.getProteinAccessionFromDTASelectProtein(dtaSelectProtein);
-			final Pair<String, String> acc = FastaParser.getACC(primaryAccession.getAccession());
-			if (acc.getSecondElement().equals("IPI")) {
-				Pair<Accession, Set<Accession>> pair = IPI2UniprotACCMap.getInstance()
-						.getPrimaryAndSecondaryAccessionsFromIPI(primaryAccession);
-				if (pair.getFirstelement() != null) {
-					primaryAccession = pair.getFirstelement();
-				}
-				if (pair.getSecondElement() != null) {
-					secondaryAccessions.addAll(pair.getSecondElement());
-				}
-			} else if (acc.getSecondElement().equals("UNIPROT")) {
-				List<String> ipis = IPI2UniprotACCMap.getInstance().map2IPI(acc.getFirstelement());
+			primaryAccession = getPrimaryAccessionFromDTASelectProtein(dtaSelectProtein, secondaryAccessions);
+		}
+		return primaryAccession;
+	}
 
-				if (ipis != null) {
-					for (String ipi : ipis) {
-						secondaryAccessions.add(new AccessionEx(ipi, AccessionType.IPI));
-					}
+	public static Accession getPrimaryAccessionFromDTASelectProtein(DTASelectProtein protein,
+			Collection<Accession> secondaryAccessions) {
+		Accession primaryAccession = ProteinDTASelectParser.getProteinAccessionFromDTASelectProtein(protein);
+		final Pair<String, String> acc = FastaParser.getACC(primaryAccession.getAccession());
+		if (acc.getSecondElement().equals("IPI")) {
+			Pair<Accession, Set<Accession>> pair = IPI2UniprotACCMap.getInstance()
+					.getPrimaryAndSecondaryAccessionsFromIPI(primaryAccession);
+			if (pair.getFirstelement() != null) {
+				primaryAccession = pair.getFirstelement();
+			}
+			if (secondaryAccessions != null && pair.getSecondElement() != null) {
+				secondaryAccessions.addAll(pair.getSecondElement());
+			}
+		} else if (acc.getSecondElement().equals("UNIPROT")) {
+			List<String> ipis = IPI2UniprotACCMap.getInstance().map2IPI(acc.getFirstelement());
 
+			if (secondaryAccessions != null && ipis != null) {
+				for (String ipi : ipis) {
+					secondaryAccessions.add(new AccessionEx(ipi, AccessionType.IPI));
 				}
+
 			}
 		}
 		return primaryAccession;
