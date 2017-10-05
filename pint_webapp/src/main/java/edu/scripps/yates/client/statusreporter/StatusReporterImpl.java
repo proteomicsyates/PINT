@@ -2,6 +2,7 @@ package edu.scripps.yates.client.statusreporter;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 
 import edu.scripps.yates.client.gui.PopUpPanelYesNo;
 
@@ -35,9 +36,13 @@ public class StatusReporterImpl implements StatusReporter {
 
 	@Override
 	public void showErrorMessage(Throwable throwable) {
+		String message = throwable.getLocalizedMessage();
+		final String exceptionString = "Exception:";
+		if (message.contains(exceptionString)) {
+			message = message.substring(message.lastIndexOf(exceptionString) + exceptionString.length()).trim();
+		}
 		// show pop up dialog
-		PopUpPanelYesNo popUpDialog = new PopUpPanelYesNo(true, true, true, errorTitle, throwable.getMessage(), "OK",
-				null);
+		PopUpPanelYesNo popUpDialog = new PopUpPanelYesNo(true, true, true, errorTitle, message, "OK", null);
 		popUpDialog.addButton1ClickHandler(new ClickHandler() {
 
 			@Override
@@ -46,6 +51,8 @@ public class StatusReporterImpl implements StatusReporter {
 
 			}
 		});
+		// align message to left
+		popUpDialog.alignMessage(HasHorizontalAlignment.ALIGN_LEFT);
 		popUpDialog.show();
 
 	}
