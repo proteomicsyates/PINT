@@ -20,7 +20,6 @@ import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
-import edu.scripps.yates.shared.util.NumberFormat;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 
@@ -639,21 +638,21 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	@Override
 	public List<ScoreBean> getRatioScoresByConditions(String condition1Name, String condition2Name, String projectTag,
-			String ratioName) {
+			String ratioName, String ratioScoreName) {
 		final List<RatioBean> ratiosByConditions = getRatiosByConditions(condition1Name, condition2Name, projectTag,
 				ratioName, false);
 		final List<ScoreBean> ratioScores = SharedDataUtils.getRatioScoreValues(condition1Name, condition2Name,
-				ratiosByConditions);
+				ratiosByConditions, ratioScoreName);
 		return ratioScores;
 	}
 
 	@Override
 	public String getRatioScoreStringByConditions(String condition1Name, String condition2Name, String projectTag,
-			String ratioName, boolean skipInfinities) {
+			String ratioName, String ratioScoreName, boolean skipInfinities) {
 		StringBuilder sb = new StringBuilder();
 
 		final List<ScoreBean> ratioScores = getRatioScoresByConditions(condition1Name, condition2Name, projectTag,
-				ratioName);
+				ratioName, ratioScoreName);
 		for (ScoreBean ratioScore : ratioScores) {
 			try {
 				Double doubleValue = Double.valueOf(ratioScore.getValue());
@@ -663,7 +662,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 					sb.append(String.valueOf(doubleValue.intValue()));
 				} else {
 					try {
-						final String format = NumberFormat.getFormat("#.##").format(doubleValue);
+						final String format = SharedDataUtils.formatNumber(doubleValue, 2, true);
 						if (!"".equals(sb.toString()))
 							sb.append(SharedConstants.SEPARATOR);
 						sb.append(format);
