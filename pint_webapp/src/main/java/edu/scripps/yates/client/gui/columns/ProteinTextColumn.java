@@ -110,16 +110,16 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 	}
 
 	public ProteinTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
-			String ratioName, String ratioScoreName) {
+			String condition1Name, String condition2Name, String projectTag, String ratioName, String ratioScoreName) {
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
 		comparator = new ProteinComparator(columnName, ratioScoreName);
 		defaultWidth = getDefaultWidth(columnName);
-		conditionName = null;
-		condition2Name = null;
+		conditionName = condition1Name;
+		this.condition2Name = condition2Name;
 		amountType = null;
-		projectTag = null;
+		this.projectTag = projectTag;
 		this.ratioName = ratioName;
 		this.scoreName = ratioScoreName;
 		this.footer = footer;
@@ -284,7 +284,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 
 			final String extendedRatioScoreStringByConditions = ClientSafeHtmlUtils
 					.getExtendedRatioScoreStringByConditions(p, conditionName, condition2Name, projectTag, ratioName,
-							false);
+							scoreName, false);
 			sb.append(template.startToolTip(extendedRatioScoreStringByConditions));
 
 			super.render(context, p, sb);

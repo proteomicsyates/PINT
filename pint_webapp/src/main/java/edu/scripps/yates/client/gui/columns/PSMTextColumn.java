@@ -108,18 +108,18 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 	}
 
 	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
-			String ratioName, String ratioScoreName) {
+			String condition1Name, String condition2Name, String projectTag, String ratioName, String ratioScoreName) {
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
-		comparator = new PSMComparator(columnName, ratioScoreName);
+		comparator = new PSMComparator(columnName, condition1Name, condition2Name, projectTag, ratioName);
 		defaultWidth = getDefaultWidth(columnName);
-		conditionName = null;
-		condition2Name = null;
+		conditionName = condition1Name;
+		this.condition2Name = condition2Name;
 		amountType = null;
-		projectTag = null;
 		this.ratioName = ratioName;
-		this.scoreName = ratioScoreName;
+		this.projectTag = projectTag;
+		scoreName = ratioScoreName;
 		this.footer = footer;
 		this.header = header;
 		this.visibleState = visibleState;
@@ -218,7 +218,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 
 			final String extendedRatioScoreStringByConditions = ClientSafeHtmlUtils
 					.getExtendedRatioScoreStringByConditions(psm, conditionName, condition2Name, projectTag, ratioName,
-							false);
+							scoreName, false);
 			sb.append(template.startToolTip(extendedRatioScoreStringByConditions));
 
 			super.render(context, psm, sb);
