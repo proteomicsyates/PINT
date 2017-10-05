@@ -75,6 +75,10 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 	private Button showFastaDigestionButton;
 	private WindowBox windowBox;
 	private Button checkAccessButton;
+	private Boolean previousFileNameEnabled;
+	private Boolean previousRelativePath;
+	private Boolean previousServerRefComboEnabled;
+	private Boolean previousUploaderEnabled;
 
 	public DataSourceDisclosurePanel(final String sessionID, int importJobID) {
 		super(sessionID, importJobID, "Input data file " + numDataSource++, true);
@@ -136,7 +140,8 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 					uploader.setEnabled(false);
 				}
 				fireModificationEvent();
-				registerFileNameWithTypeBeanOnServer();
+				// change on Oct 3, 2017
+				// registerFileNameWithTypeBeanOnServer();
 			}
 		});
 
@@ -166,7 +171,8 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 				checkAccessButton.setEnabled(true);
 				statusLabel.setText(SELECT_A_SERVER_AND_THE_PATH);
 				statusLabel.setStyleName("DataSourceDisclosurePanelRedLabel");
-				registerFileNameWithTypeBeanOnServer();
+				// change on 3 oct 2017
+				// registerFileNameWithTypeBeanOnServer();
 
 				// if servercombo only have one server, select it
 				// black + item1
@@ -185,7 +191,8 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 			@Override
 			public void onChange(ChangeEvent event) {
 				setServerToDataSourceFromComboSelection();
-				registerFileNameWithTypeBeanOnServer();
+				// change on 3 oct 2017
+				// registerFileNameWithTypeBeanOnServer();
 				fireModificationEvent();
 			}
 		});
@@ -257,7 +264,8 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 					statusLabel.setText(FILE_UPLOADED_IN_SERVER);
 					statusLabel.setStyleName("DataSourceDisclosurePanelGreenLabel");
 				}
-				registerFileNameWithTypeBeanOnServer();
+				// change on 3 oct 2017
+				// registerFileNameWithTypeBeanOnServer();
 			}
 		});
 		addWidget(uploadFileRadioButton);
@@ -292,11 +300,14 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 					newFile.setFileName(fileName.getText());
 					newFile.setId(newID);
 
+					// disable disclosure panel
+					fullEnableEdition(false);
 					service.moveDataFile(sessionID, DataSourceDisclosurePanel.this.importJobID, oldFile, newFile,
 							new AsyncCallback<Void>() {
 
 								@Override
 								public void onFailure(Throwable caught) {
+									fullEnableEdition(true);
 									StatusReportersRegister.getInstance().notifyStatusReporters(caught);
 									// keep the old id
 									setId(oldID);
@@ -306,9 +317,12 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 
 								@Override
 								public void onSuccess(Void result) {
+									fullEnableEdition(true);
 									GWT.log("ID of the file changed on server");
 									setId(newID);
 									updateUploaderServletPath();
+									// change on 3 oct 2017
+									registerFileNameWithTypeBeanOnServer();
 								}
 							});
 				}
@@ -423,14 +437,29 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 	 * Disable the edition of the panel, so the user can only change the ID and
 	 * the format
 	 */
-	private void disableEdition() {
-		fileName.setEnabled(false);
-		relativePath.setEnabled(false);
-		locatedInServerRadioButton.setEnabled(false);
-		relativePath.setEnabled(false);
-		serverRefCombo.setEnabled(false);
-		uploadFileRadioButton.setEnabled(false);
-		uploader.setEnabled(false);
+	private void fullEnableEdition(boolean enable) {
+		super.enableIDAndTitle(enable);
+		if (enable) {
+			fileName.setEnabled(previousFileNameEnabled != null ? previousFileNameEnabled : enable);
+			relativePath.setEnabled(previousRelativePath != null ? previousRelativePath : enable);
+			locatedInServerRadioButton.setEnabled(enable);
+			relativePath.setEnabled(enable);
+			serverRefCombo.setEnabled(previousServerRefComboEnabled != null ? previousServerRefComboEnabled : enable);
+			uploadFileRadioButton.setEnabled(enable);
+			uploader.setEnabled(previousUploaderEnabled != null ? previousUploaderEnabled : enable);
+		} else {
+			previousFileNameEnabled = fileName.isEnabled();
+			fileName.setEnabled(enable);
+			previousRelativePath = relativePath.isEnabled();
+			relativePath.setEnabled(enable);
+			locatedInServerRadioButton.setEnabled(enable);
+			relativePath.setEnabled(enable);
+			previousServerRefComboEnabled = serverRefCombo.isEnabled();
+			serverRefCombo.setEnabled(enable);
+			previousUploaderEnabled = uploader.isEnabled();
+			uploadFileRadioButton.setEnabled(enable);
+			uploader.setEnabled(enable);
+		}
 	}
 
 	/**
