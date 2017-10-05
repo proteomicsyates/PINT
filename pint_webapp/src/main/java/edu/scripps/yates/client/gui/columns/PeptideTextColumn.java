@@ -125,6 +125,28 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 			width = 0;
 	}
 
+	public PeptideTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
+			String ratioName, String ratioScoreName) {
+		super(columnName);
+		setSortable(true);
+		this.columnName = columnName;
+		comparator = new PeptideComparator(columnName, ratioScoreName);
+		defaultWidth = getDefaultWidth(columnName);
+		conditionName = null;
+		condition2Name = null;
+		amountType = null;
+		projectTag = null;
+		this.ratioName = ratioName;
+		this.scoreName = ratioScoreName;
+		this.footer = footer;
+		this.header = header;
+		this.visibleState = visibleState;
+		if (visibleState)
+			width = defaultWidth;
+		else
+			width = 0;
+	}
+
 	@Override
 	public String getValue(PeptideBean p) {
 		final String value = PeptideColumns.getInstance().getValue(columnName, p, conditionName, condition2Name,
@@ -143,6 +165,7 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * com.google.gwt.user.cellview.client.Column#render(com.google.gwt.cell
 	 * .client.Cell.Context, java.lang.Object,

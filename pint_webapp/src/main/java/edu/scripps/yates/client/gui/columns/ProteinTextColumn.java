@@ -43,7 +43,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 	private final Header<?> header;
 	private boolean visibleState;
 	private Set<String> currentExperimentalConditions = new HashSet<String>();
-
+	private final String scoreName;
 	private String ratioName;
 
 	public ProteinTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer) {
@@ -54,6 +54,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		defaultWidth = getDefaultWidth(columnName);
 		conditionName = null;
 		condition2Name = null;
+		this.scoreName = null;
 		amountType = null;
 		projectTag = null;
 		this.footer = footer;
@@ -74,6 +75,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		defaultWidth = getDefaultWidth(columnName);
 		this.conditionName = conditionName;
 		condition2Name = null;
+		this.scoreName = null;
 		this.amountType = amountType;
 		this.projectTag = projectTag;
 		this.footer = footer;
@@ -94,9 +96,32 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		defaultWidth = getDefaultWidth(columnName);
 		conditionName = condition1Name;
 		this.condition2Name = condition2Name;
+		scoreName = null;
 		amountType = null;
 		this.ratioName = ratioName;
 		this.projectTag = projectTag;
+		this.footer = footer;
+		this.header = header;
+		this.visibleState = visibleState;
+		if (visibleState)
+			width = defaultWidth;
+		else
+			width = 0;
+	}
+
+	public ProteinTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
+			String ratioName, String ratioScoreName) {
+		super(columnName);
+		setSortable(true);
+		this.columnName = columnName;
+		comparator = new ProteinComparator(columnName, ratioScoreName);
+		defaultWidth = getDefaultWidth(columnName);
+		conditionName = null;
+		condition2Name = null;
+		amountType = null;
+		projectTag = null;
+		this.ratioName = ratioName;
+		this.scoreName = ratioScoreName;
 		this.footer = footer;
 		this.header = header;
 		this.visibleState = visibleState;
@@ -486,7 +511,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 
 	@Override
 	public String getScoreName() {
-		return null;
+		return scoreName;
 	}
 
 	@Override
