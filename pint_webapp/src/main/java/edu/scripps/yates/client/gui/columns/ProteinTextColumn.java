@@ -114,7 +114,8 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
-		comparator = new ProteinComparator(columnName, ratioScoreName);
+		comparator = new ProteinComparator(columnName, condition1Name, condition2Name, projectTag, ratioName,
+				ratioScoreName);
 		defaultWidth = getDefaultWidth(columnName);
 		conditionName = condition1Name;
 		this.condition2Name = condition2Name;

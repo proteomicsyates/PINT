@@ -112,7 +112,8 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
-		comparator = new PSMComparator(columnName, condition1Name, condition2Name, projectTag, ratioName);
+		comparator = new PSMComparator(columnName, condition1Name, condition2Name, projectTag, ratioName,
+				ratioScoreName);
 		defaultWidth = getDefaultWidth(columnName);
 		conditionName = condition1Name;
 		this.condition2Name = condition2Name;
