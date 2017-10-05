@@ -54,22 +54,25 @@ public class SharedDataUtils {
 	 *
 	 * @param condition1Name
 	 * @param condition2Name
-	 * @param ratios1
+	 * @param ratios
+	 * @param ratioScoreName
 	 * @return
 	 */
 	public static List<ScoreBean> getRatioScoreValues(String condition1Name, String condition2Name,
-			List<RatioBean> ratios1) {
+			List<RatioBean> ratios, String ratioScoreName) {
 		List<ScoreBean> ret = new ArrayList<ScoreBean>();
-		for (RatioBean ratio : ratios1) {
+		for (RatioBean ratio : ratios) {
 			if (ratio.getCondition1().getId().equalsIgnoreCase(condition1Name)
 					&& ratio.getCondition2().getId().equalsIgnoreCase(condition2Name)) {
-				if (ratio.getAssociatedConfidenceScore() != null) {
+				if (ratio.getAssociatedConfidenceScore() != null
+						&& ratio.getAssociatedConfidenceScore().getScoreName().equals(ratioScoreName)) {
 					ret.add(ratio.getAssociatedConfidenceScore());
 				}
 
 			} else if (ratio.getCondition1().getId().equalsIgnoreCase(condition2Name)
 					&& ratio.getCondition2().getId().equalsIgnoreCase(condition1Name)) {
-				if (ratio.getAssociatedConfidenceScore() != null) {
+				if (ratio.getAssociatedConfidenceScore() != null
+						&& ratio.getAssociatedConfidenceScore().getScoreName().equals(ratioScoreName)) {
 					ret.add(ratio.getAssociatedConfidenceScore());
 				}
 			}
@@ -1278,4 +1281,34 @@ public class SharedDataUtils {
 		return ret;
 	}
 
+	/**
+	 * Formats a number as a decimal number with a certain number of decimals.
+	 * 
+	 * @param number
+	 * @param maxDecimals
+	 * @param scientificNotationIfSmaller
+	 *            if true and lets say that maxDecimal=3 and the number is
+	 *            smaller than 0.001, then the number will be formated with
+	 *            scientific notation
+	 * @return
+	 */
+	public static String formatNumber(double number, int maxDecimals, boolean scientificNotationIfSmaller) {
+		if (maxDecimals <= 0) {
+			return NumberFormat.getFormat("#").format(number);
+		}
+		StringBuilder pattern = new StringBuilder("#.");
+		StringBuilder numberThresholdStringBuilder = new StringBuilder("0.");
+		for (int i = 0; i < maxDecimals; i++) {
+			pattern.append("#");
+			numberThresholdStringBuilder.append("0");
+		}
+		final String numberThresholdString = numberThresholdStringBuilder.toString();
+		double numberThreshold = Double.valueOf(numberThresholdString.substring(0, numberThresholdString.length() - 1));
+		if (scientificNotationIfSmaller && number >= numberThreshold) {
+			return NumberFormat.getScientificFormat(maxDecimals, 3).format(number);
+
+		} else {
+			return NumberFormat.getFormat(pattern.toString()).format(number);
+		}
+	}
 }
