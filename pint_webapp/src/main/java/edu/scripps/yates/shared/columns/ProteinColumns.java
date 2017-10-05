@@ -152,7 +152,7 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 
 		case PROTEIN_RATIO_SCORE:
 			return parseEmptyString(p.getRatioScoreStringByConditions(conditionName, condition2Name, projectTag,
-					ratioName, skipRatioInfinities));
+					ratioName, scoreName, skipRatioInfinities));
 		case PROTEIN_LENGTH:
 			return parseEmptyString(String.valueOf(p.getLength()));
 		case ALTERNATIVE_NAMES:

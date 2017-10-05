@@ -201,6 +201,9 @@ public class PSMColumns implements ColumnProvider<PSMBean> {
 					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
 		case LINK_TO_PRIDE_CLUSTER:
 			return "+";
+		case PSM_RATIO_SCORE:
+			return parseEmptyString(p.getRatioScoreStringByConditions(conditionName, condition2Name, projectTag,
+					ratioName, scoreName, skipRatioInfinities));
 		default:
 
 			return parseEmptyString("");

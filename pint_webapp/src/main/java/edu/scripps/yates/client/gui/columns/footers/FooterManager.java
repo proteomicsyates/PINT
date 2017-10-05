@@ -28,7 +28,7 @@ public abstract class FooterManager<T> {
 			final String projectTag, String ratioName);
 
 	public abstract Header<String> getRatioScoreFooterByConditions(final String condition1Name,
-			final String condition2Name, final String projectTag, String ratioName);
+			final String condition2Name, final String projectTag, String ratioName, String ratioScoreName);
 
 	public abstract Header<String> getScoreFooterByScore(String scoreName);
 }
