@@ -10,6 +10,7 @@ import edu.scripps.yates.dtaselectparser.util.DTASelectModification;
 import edu.scripps.yates.dtaselectparser.util.DTASelectPSM;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.PeptideRelation;
+import edu.scripps.yates.utilities.model.factories.AmountEx;
 import edu.scripps.yates.utilities.model.factories.MSRunEx;
 import edu.scripps.yates.utilities.model.factories.PeptideEx;
 import edu.scripps.yates.utilities.model.factories.ScoreEx;
@@ -233,8 +234,17 @@ public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteom
 
 	@Override
 	public void addCondition(Condition condition) {
-		if (condition != null && !conditions.contains(condition))
+		if (condition != null && !conditions.contains(condition)) {
 			conditions.add(condition);
+			// set condition to amounts
+			for (Amount amount : getAmounts()) {
+				if (amount.getCondition() == null) {
+					if (amount instanceof AmountEx) {
+						((AmountEx) amount).setCondition(condition);
+					}
+				}
+			}
+		}
 	}
 
 	@Override
