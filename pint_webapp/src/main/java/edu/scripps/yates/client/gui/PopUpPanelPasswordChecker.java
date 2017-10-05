@@ -180,4 +180,8 @@ public class PopUpPanelPasswordChecker extends VerticalPanel {
 		popup.hide();
 	}
 
+	public void focusOnPassword() {
+		passwordTextBox.setFocus(true);
+	}
+
 }
