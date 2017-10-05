@@ -21,6 +21,7 @@ public class PopUpPanelYesNo extends VerticalPanel {
 	private Label titleLabel;
 	private Button button1;
 	private Button button2;
+	private HTML message;
 
 	public PopUpPanelYesNo(boolean autoHide, boolean modal, boolean glassEnabled, String title, String messageText) {
 		this(autoHide, modal, glassEnabled, title, messageText, "Yes", "No");
@@ -49,7 +50,7 @@ public class PopUpPanelYesNo extends VerticalPanel {
 		popup.setAutoHideOnHistoryEventsEnabled(true);
 		popup.setAnimationEnabled(true);
 		popup.getElement().getStyle().setProperty("borderRadius", 10, Unit.PX);
-		HTML message = new HTML(new SafeHtmlBuilder().appendEscapedLines(messageText).toSafeHtml());
+		message = new HTML(new SafeHtmlBuilder().appendEscapedLines(messageText).toSafeHtml());
 		message.setStyleName("checkLoginPopUp-message");
 		this.add(message);
 
@@ -72,6 +73,10 @@ public class PopUpPanelYesNo extends VerticalPanel {
 		statusLabel.setStyleName("checkLoginPopUp-status");
 		popup.setWidget(this);
 		popup.setGlassEnabled(glassEnabled);
+	}
+
+	public void alignMessage(HorizontalAlignmentConstant align) {
+		message.setHorizontalAlignment(align);
 	}
 
 	public void addButton1ClickHandler(ClickHandler clickHandler) {
