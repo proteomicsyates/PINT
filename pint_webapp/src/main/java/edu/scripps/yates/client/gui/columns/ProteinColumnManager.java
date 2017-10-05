@@ -113,7 +113,7 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 						condition1Name, condition2Name, ratioName, scoreName));
 		final ProteinTextColumn column = new ProteinTextColumn(columnName, visibleState, header,
 				footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name, projectTag, scoreName),
-				condition1Name, condition2Name, projectTag, scoreName);
+				condition1Name, condition2Name, projectTag, ratioName, scoreName);
 		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, scoreName));
 		addColumn(column);
 		return column;

@@ -94,7 +94,7 @@ public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
 						condition1Name, condition2Name, ratioName, scoreName));
 		final PeptideTextColumn column = new PeptideTextColumn(columnName, visibleState, header,
 				footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name, projectTag, scoreName),
-				condition1Name, condition2Name, projectTag, scoreName);
+				condition1Name, condition2Name, projectTag, ratioName, scoreName);
 		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, scoreName));
 		addColumn(column);
 		return column;
