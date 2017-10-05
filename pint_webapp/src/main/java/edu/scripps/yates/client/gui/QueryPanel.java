@@ -377,10 +377,25 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				boolean showProteinAmounts = proteinColumnNamesPanel.isSelected(ColumnName.PROTEIN_AMOUNT);
 				boolean showPeptideAmounts = peptideColumnNamesPanel.isSelected(ColumnName.PEPTIDE_AMOUNT);
 				boolean showPSMAmounts = psmColumnNamesPanel.isSelected(ColumnName.PSM_AMOUNT);
+
 				boolean showProteinGroupRatios = proteinGroupColumnNamesPanel.isSelected(ColumnName.PROTEIN_RATIO);
+				boolean showProteinGroupRatioScores = proteinGroupColumnNamesPanel
+						.isSelected(ColumnName.PROTEIN_RATIO_SCORE);
+				boolean showProteinGroupRatioGraphs = proteinGroupColumnNamesPanel
+						.isSelected(ColumnName.PROTEIN_RATIO_GRAPH);
+
 				boolean showProteinRatios = proteinColumnNamesPanel.isSelected(ColumnName.PROTEIN_RATIO);
+				boolean showProteinRatioScores = proteinColumnNamesPanel.isSelected(ColumnName.PROTEIN_RATIO_SCORE);
+				boolean showProteinRatioGraphs = proteinColumnNamesPanel.isSelected(ColumnName.PROTEIN_RATIO_GRAPH);
+
 				boolean showPeptideRatios = peptideColumnNamesPanel.isSelected(ColumnName.PEPTIDE_RATIO);
+				boolean showPeptideRatioScores = peptideColumnNamesPanel.isSelected(ColumnName.PEPTIDE_RATIO_SCORE);
+				boolean showPeptideRatioGraphs = peptideColumnNamesPanel.isSelected(ColumnName.PEPTIDE_RATIO_GRAPH);
+
 				boolean showPsmRatios = psmColumnNamesPanel.isSelected(ColumnName.PSM_RATIO);
+				boolean showPsmRatioScores = psmColumnNamesPanel.isSelected(ColumnName.PSM_RATIO_SCORE);
+				boolean showPsmRatioGraphs = psmColumnNamesPanel.isSelected(ColumnName.PSM_RATIO_GRAPH);
+
 				final ListBox listbox = (ListBox) event.getSource();
 				if (!(showProteinGroupAmounts || showProteinGroupRatios || showProteinAmounts || showProteinRatios
 						|| showPSMAmounts || showPsmRatios || showPeptideAmounts || showPeptideRatios))
@@ -408,6 +423,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					// iterate over the map
 					for (String projectName : conditionNamesByProjectName.keySet()) {
 						final Set<String> conditionNames = conditionNamesByProjectName.get(projectName);
+						// PROTEIN GROUPS
 						if (showProteinGroupAmounts) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
 									conditionNames, projectName, true);
@@ -415,11 +431,16 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showProteinGroupRatios) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
 									conditionNames, projectName, true);
+						}
+						if (showProteinGroupRatioGraphs) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_GRAPH,
 									conditionNames, projectName, true);
+						}
+						if (showProteinGroupRatioScores) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
 									conditionNames, projectName, true);
 						}
+						// PROTEINS
 						if (showProteinAmounts) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
 									conditionNames, projectName, true);
@@ -427,11 +448,16 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showProteinRatios) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
 									conditionNames, projectName, true);
+						}
+						if (showProteinRatioGraphs) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_GRAPH,
 									conditionNames, projectName, true);
+						}
+						if (showProteinRatioScores) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
 									conditionNames, projectName, true);
 						}
+						// PEPTIDES
 						if (showPeptideAmounts) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
 									conditionNames, projectName, true);
@@ -439,11 +465,16 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showPeptideRatios) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO,
 									conditionNames, projectName, true);
+						}
+						if (showPeptideRatioGraphs) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_GRAPH,
 									conditionNames, projectName, true);
+						}
+						if (showPeptideRatioScores) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_SCORE,
 									conditionNames, projectName, true);
 						}
+						// PSMs
 						if (showPSMAmounts) {
 							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT, conditionNames,
 									projectName, true);
@@ -455,7 +486,15 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									projectName, true);
 							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO,
 									conditionNames, projectName, true);
+						}
+						if (showPsmRatioGraphs) {
+							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_GRAPH,
+									conditionNames, projectName, true);
 							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_GRAPH,
+									conditionNames, projectName, true);
+						}
+						if (showPsmRatioScores) {
+							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_SCORE,
 									conditionNames, projectName, true);
 							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_SCORE,
 									conditionNames, projectName, true);
@@ -487,6 +526,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					// iterate over the map
 					for (String projectName : conditionNamesByProjectName.keySet()) {
 						Set<String> conditionNames = conditionNamesByProjectName.get(projectName);
+						// PROTEIN GROUPS
 						if (showProteinGroupAmounts) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
 									conditionNames, projectName, false);
@@ -494,11 +534,16 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showProteinGroupRatios) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
 									conditionNames, projectName, false);
+						}
+						if (showProteinGroupRatioGraphs) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_GRAPH,
 									conditionNames, projectName, false);
+						}
+						if (showProteinGroupRatioScores) {
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
 									conditionNames, projectName, false);
 						}
+						// PROTEINS
 						if (showProteinAmounts) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
 									conditionNames, projectName, false);
@@ -506,11 +551,16 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showProteinRatios) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO,
 									conditionNames, projectName, false);
+						}
+						if (showProteinRatioGraphs) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_GRAPH,
 									conditionNames, projectName, false);
+						}
+						if (showProteinRatioScores) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
 									conditionNames, projectName, false);
 						}
+						// PEPTIDES
 						if (showPeptideAmounts) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
 									conditionNames, projectName, false);
@@ -518,11 +568,16 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showPeptideRatios) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO,
 									conditionNames, projectName, false);
+						}
+						if (showPeptideRatioGraphs) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_GRAPH,
 									conditionNames, projectName, false);
+						}
+						if (showPeptideRatioScores) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_SCORE,
 									conditionNames, projectName, false);
 						}
+						// PSMs
 						if (showPSMAmounts) {
 							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_AMOUNT, conditionNames,
 									projectName, false);
@@ -532,13 +587,17 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showPsmRatios) {
 							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO, conditionNames,
 									projectName, false);
-							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_GRAPH,
-									conditionNames, projectName, false);
-							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_SCORE,
-									conditionNames, projectName, false);
 							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO,
 									conditionNames, projectName, false);
+						}
+						if (showPsmRatioGraphs) {
+							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_GRAPH,
+									conditionNames, projectName, false);
 							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_GRAPH,
+									conditionNames, projectName, false);
+						}
+						if (showPsmRatioScores) {
+							psmTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_SCORE,
 									conditionNames, projectName, false);
 							psmOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PSM_RATIO_SCORE,
 									conditionNames, projectName, false);
@@ -551,6 +610,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// COMMANDS PANEL
 		commandsPanel = new MyVerticalListBoxPanel(false);
 		commandsPanel.addDoubleClickHandler(new DoubleClickHandler() {
+
 			@Override
 			public void onDoubleClick(DoubleClickEvent event) {
 				Set<String> commandNames = ProjectCreatorWizardUtil
@@ -583,7 +643,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// PROTEIN GROUP PANEL
 
 		final Label emptyWidget = new Label("Click on 'Group Proteins' button under 'Protein inference' left menu");
-		emptyWidget.addMouseOverHandler(getSelectProteinGroupingMenuHandler());
+		emptyWidget.addMouseOverHandler(
+
+				getSelectProteinGroupingMenuHandler());
 		proteinGroupTablePanel = new ProteinGroupTablePanel(sessionID, emptyWidget,
 				new AsyncProteinGroupBeanListDataProvider(sessionID), false);
 
@@ -2337,11 +2399,15 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						// remove the previous columns related to ratios
 						proteinTablePanel.removeColumn(ColumnName.PROTEIN_RATIO);
 						proteinGroupTablePanel.removeColumn(ColumnName.PROTEIN_RATIO);
+						proteinTablePanel.removeColumn(ColumnName.PROTEIN_RATIO_SCORE);
+
 						psmTablePanel.removeColumn(ColumnName.PSM_RATIO);
 						psmOnlyTablePanel.removeColumn(ColumnName.PSM_RATIO);
+						psmTablePanel.removeColumn(ColumnName.PSM_RATIO_SCORE);
+						psmOnlyTablePanel.removeColumn(ColumnName.PSM_RATIO_SCORE);
+
 						peptideTablePanel.removeColumn(ColumnName.PEPTIDE_RATIO);
-						// also the ones
-						proteinTablePanel.removeColumn(ColumnName.PROTEIN_RATIO_SCORE);
+						peptideTablePanel.removeColumn(ColumnName.PEPTIDE_RATIO_SCORE);
 
 						// create the columns related to the ratio descriptors
 						if (!result.isEmpty()) {
@@ -2390,6 +2456,21 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											proteinGroupColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 													ColumnName.PROTEIN_RATIO, condition1, condition2, projectTag,
 													conditionsPanel);
+											final String proteinGroupRatioScoreName = ratioDescriptor
+													.getProteinScoreName();
+											if (proteinGroupRatioScoreName != null) {
+												proteinGroupTablePanel.addColumnForConditionRatioScore(
+														ColumnName.PROTEIN_RATIO_SCORE,
+														ProteinColumns.getInstance()
+																.getColumn(ColumnName.PROTEIN_RATIO_SCORE).isVisible(),
+														condition1, letter1, condition2, letter2, projectTag, ratioName,
+														proteinGroupRatioScoreName);
+												proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(
+														ColumnName.PROTEIN_RATIO_SCORE, proteinGroupRatioScoreName);
+												proteinGroupColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
+														ColumnName.PROTEIN_RATIO_SCORE, condition1, condition2,
+														projectTag, conditionsPanel);
+											}
 											break;
 										case PROTEIN:
 											// add checkbox for ProteinRatio for
@@ -2410,16 +2491,16 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											proteinColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 													ColumnName.PROTEIN_RATIO, condition1, condition2, projectTag,
 													conditionsPanel);
-											final String proteinScoreName = ratioDescriptor.getProteinScoreName();
-											if (proteinScoreName != null) {
+											final String proteinRatioScoreName = ratioDescriptor.getProteinScoreName();
+											if (proteinRatioScoreName != null) {
 												proteinTablePanel.addColumnForConditionRatioScore(
 														ColumnName.PROTEIN_RATIO_SCORE,
 														ProteinColumns.getInstance()
 																.getColumn(ColumnName.PROTEIN_RATIO_SCORE).isVisible(),
 														condition1, letter1, condition2, letter2, projectTag, ratioName,
-														proteinScoreName);
+														proteinRatioScoreName);
 												proteinColumnNamesPanel.addColumnCheckBoxByKeyName(
-														ColumnName.PROTEIN_RATIO_SCORE, proteinScoreName);
+														ColumnName.PROTEIN_RATIO_SCORE, proteinRatioScoreName);
 												proteinColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 														ColumnName.PROTEIN_RATIO_SCORE, condition1, condition2,
 														projectTag, conditionsPanel);
@@ -2446,16 +2527,16 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											peptideColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 													ColumnName.PEPTIDE_RATIO, condition1, condition2, projectTag,
 													conditionsPanel);
-											final String peptideScoreName = ratioDescriptor.getPeptideScoreName();
-											if (peptideScoreName != null) {
+											final String peptideRatioScoreName = ratioDescriptor.getPeptideScoreName();
+											if (peptideRatioScoreName != null) {
 												peptideTablePanel.addColumnForConditionRatioScore(
 														ColumnName.PEPTIDE_RATIO_SCORE,
 														PeptideColumns.getInstance()
 																.getColumn(ColumnName.PEPTIDE_RATIO_SCORE).isVisible(),
 														condition1, letter1, condition2, letter2, projectTag, ratioName,
-														peptideScoreName);
+														peptideRatioScoreName);
 												peptideColumnNamesPanel.addColumnCheckBoxByKeyName(
-														ColumnName.PEPTIDE_RATIO_SCORE, peptideScoreName);
+														ColumnName.PEPTIDE_RATIO_SCORE, peptideRatioScoreName);
 												peptideColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 														ColumnName.PEPTIDE_RATIO_SCORE, condition1, condition2,
 														projectTag, conditionsPanel);
@@ -2489,16 +2570,16 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											psmColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 													ColumnName.PSM_RATIO, condition1, condition2, projectTag,
 													conditionsPanel);
-											final String psmScoreName = ratioDescriptor.getPsmScoreName();
-											if (psmScoreName != null) {
+											final String psmRatioScoreName = ratioDescriptor.getPsmScoreName();
+											if (psmRatioScoreName != null) {
 												psmTablePanel.addColumnForConditionRatioScore(
 														ColumnName.PSM_RATIO_SCORE,
 														PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_SCORE)
 																.isVisible(),
 														condition1, letter1, condition2, letter2, projectTag, ratioName,
-														psmScoreName);
+														psmRatioScoreName);
 												psmColumnNamesPanel.addColumnCheckBoxByKeyName(
-														ColumnName.PSM_RATIO_SCORE, psmScoreName);
+														ColumnName.PSM_RATIO_SCORE, psmRatioScoreName);
 												psmColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
 														ColumnName.PSM_RATIO_SCORE, condition1, condition2, projectTag,
 														conditionsPanel);
