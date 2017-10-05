@@ -108,6 +108,28 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 	}
 
 	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
+			String ratioName, String ratioScoreName) {
+		super(columnName);
+		setSortable(true);
+		this.columnName = columnName;
+		comparator = new PSMComparator(columnName, ratioScoreName);
+		defaultWidth = getDefaultWidth(columnName);
+		conditionName = null;
+		condition2Name = null;
+		amountType = null;
+		projectTag = null;
+		this.ratioName = ratioName;
+		this.scoreName = ratioScoreName;
+		this.footer = footer;
+		this.header = header;
+		this.visibleState = visibleState;
+		if (visibleState)
+			width = defaultWidth;
+		else
+			width = 0;
+	}
+
+	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
 			String scoreName) {
 		super(columnName);
 		setSortable(true);
@@ -146,6 +168,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * com.google.gwt.user.cellview.client.Column#render(com.google.gwt.cell
 	 * .client.Cell.Context, java.lang.Object,
