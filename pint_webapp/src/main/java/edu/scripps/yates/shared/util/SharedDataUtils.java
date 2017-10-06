@@ -1306,7 +1306,7 @@ public class SharedDataUtils {
 		final String numberThresholdString = numberThresholdStringBuilder.toString();
 		double numberThreshold = Double
 				.valueOf(numberThresholdString.substring(0, numberThresholdString.length() - 1) + "1");
-		if (scientificNotationIfSmaller && number >= numberThreshold) {
+		if (scientificNotationIfSmaller && Math.abs(number) < numberThreshold) {
 			return NumberFormat.getScientificFormat(maxDecimals, 3).format(number);
 
 		} else {
