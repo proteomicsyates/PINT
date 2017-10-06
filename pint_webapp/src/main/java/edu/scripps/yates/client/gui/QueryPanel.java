@@ -634,7 +634,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 		// PSM COLUMN NAMES
 		psmTablePanel = new PSMTablePanel(sessionID, "Select one protein to load PSMs", null,
-				asyncDataProviderForPSMsOfSelectedProtein, SharedConstants.TABLE_WITH_MULTIPLE_SELECTION);
+				asyncDataProviderForPSMsOfSelectedProtein, SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, "PSM table");
 		layoutPanel = new LayoutPanel();
 		layoutPanel.add(psmTablePanel);
 		layoutPanel.setWidgetBottomHeight(psmTablePanel, 0, Unit.PCT, 50, Unit.PCT);
@@ -654,7 +654,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 		// PSM ONLY TAB
 		psmOnlyTablePanel = new PSMTablePanel(sessionID, null, this, new AsyncPSMBeanListDataProvider(sessionID),
-				SharedConstants.TABLE_WITH_MULTIPLE_SELECTION);
+				SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, "PSM ONLY table");
 		psmColumnNamesPanel.addColumnManager(psmOnlyTablePanel.getColumnManager());
 
 		// PEPTIDE ONLY TAB
@@ -1375,6 +1375,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					public void onSuccess(Set<AmountType> result) {
 						if (result != null) {
 							for (AmountType amountType : result) {
+								final String checkBoxName = MyVerticalCheckBoxListPanel
+										.getCheckBoxNameForAmount(amountType, conditionSymbol);
 								final ColumnWithVisibility psmAmountColumn = PSMColumns.getInstance()
 										.getColumn(ColumnName.PSM_AMOUNT);
 								psmTablePanel.addColumnForConditionAmount(ColumnName.PSM_AMOUNT,
@@ -1384,17 +1386,19 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 										psmAmountColumn.isVisible(), conditionName, conditionSymbol, amountType,
 										projectTag);
 								// add checkbox for PSMAmount of that type
-								psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PSM_AMOUNT,
-										amountType.name());
-							}
-							if (!result.isEmpty()) {
+								psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PSM_AMOUNT, checkBoxName,
+										MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PSM_AMOUNT, conditionName,
+												conditionSymbol, amountType.name(), projectTag));
 
-								// add handlers related to that
-								// condition, for the psm and
-								// the protein tables
-								psmColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(ColumnName.PSM_AMOUNT,
-										conditionName, projectTag, conditionsPanel);
+								if (!result.isEmpty()) {
 
+									// add handlers related to that
+									// condition, for the psm and
+									// the protein tables
+									// psmColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(ColumnName.PSM_AMOUNT,
+									// checkBoxName, conditionName, projectTag,
+									// conditionsPanel);
+								}
 							}
 						}
 					}
@@ -1419,6 +1423,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					public void onSuccess(Set<AmountType> result) {
 						if (result != null) {
 							for (AmountType amountType : result) {
+								final String checkBoxName = MyVerticalCheckBoxListPanel
+										.getCheckBoxNameForAmount(amountType, conditionSymbol);
 								final ColumnWithVisibility peptideAmountColumn = PeptideColumns.getInstance()
 										.getColumn(ColumnName.PEPTIDE_AMOUNT);
 								peptideTablePanel.addColumnForConditionAmount(ColumnName.PEPTIDE_AMOUNT,
@@ -1426,16 +1432,20 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 										projectTag);
 								// add checkbox for PeptideAmount of that type
 								peptideColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PEPTIDE_AMOUNT,
-										amountType.name());
+										checkBoxName, MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PEPTIDE_AMOUNT,
+												conditionName, conditionSymbol, amountType.name(), projectTag));
 
-							}
-							if (!result.isEmpty()) {
-								// add handlers related to that
-								// condition, for the psm and
-								// the protein tables
-								peptideColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
-										ColumnName.PEPTIDE_AMOUNT, conditionName, projectTag, conditionsPanel);
+								if (!result.isEmpty()) {
+									// add handlers related to that
+									// condition, for the psm and
+									// the protein tables
 
+									// peptideColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
+									// ColumnName.PEPTIDE_AMOUNT, checkBoxName,
+									// conditionName, projectTag,
+									// conditionsPanel);
+
+								}
 							}
 						}
 					}
@@ -1469,19 +1479,29 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 										proteinAmountColumn.isVisible(), conditionName, conditionSymbol, amountType,
 										projectTag);
 								// add checkbox for ProteinAmount of that type
+								final String checkBoxName = MyVerticalCheckBoxListPanel
+										.getCheckBoxNameForAmount(amountType, conditionSymbol);
 								proteinColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_AMOUNT,
-										amountType.name());
+										checkBoxName, MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PROTEIN_AMOUNT,
+												conditionName, conditionSymbol, amountType.name(), projectTag));
 								proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_AMOUNT,
-										amountType.name());
-							}
-							if (!result.isEmpty()) {// add handlers related to
-													// that
-								// condition, for the psm and
-								// the protein tables
-								proteinColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
-										ColumnName.PROTEIN_AMOUNT, conditionName, projectTag, conditionsPanel);
-								proteinGroupColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
-										ColumnName.PROTEIN_AMOUNT, conditionName, projectTag, conditionsPanel);
+										checkBoxName, MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PROTEIN_AMOUNT,
+												conditionName, conditionSymbol, amountType.name(), projectTag));
+
+								if (!result.isEmpty()) {// add handlers related
+														// to
+														// that
+									// condition, for the psm and
+									// the protein tables
+									// proteinColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
+									// ColumnName.PROTEIN_AMOUNT, checkBoxName,
+									// conditionName, projectTag,
+									// conditionsPanel);
+									// proteinGroupColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
+									// ColumnName.PROTEIN_AMOUNT, conditionName,
+									// checkBoxName, projectTag,
+									// conditionsPanel);
+								}
 							}
 						}
 					}
@@ -2433,6 +2453,14 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 										final ColumnWithVisibility proteinRatioColumn = ProteinColumns.getInstance()
 												.getColumn(ColumnName.PROTEIN_RATIO);
 										final String ratioName = ratioDescriptor.getRatioName();
+										final String keyName = MyVerticalCheckBoxListPanel.getKeyName(
+												ColumnName.PROTEIN_RATIO, condition1, letter1, condition2, letter2,
+												projectTag, ratioName);
+										final String ratioCheckBoxName = MyVerticalCheckBoxListPanel
+												.getCheckBoxNameForRatio(ratioName, letter1, letter2);
+										final String proteinRatioGraphCheckBoxName = MyVerticalCheckBoxListPanel
+												.getCheckBoxNameForRatioGraph(ColumnName.PROTEIN_RATIO_GRAPH,
+														ratioName);
 										switch (ratioDescriptor.getAggregationLevel()) {
 										// addcolumn for pairs of conditions of
 										// the ratio descriptors
@@ -2441,21 +2469,26 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 										case PROTEINGROUP:
 											// add checkbox for ProteinRatio for
 											// that ratio
-											proteinGroupColumnNamesPanel
-													.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_RATIO, ratioName);
 											proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(
-													ColumnName.PROTEIN_RATIO_GRAPH,
-													ColumnName.PROTEIN_RATIO_GRAPH.getName() + " (" + ratioName + ")");
+													ColumnName.PROTEIN_RATIO, ratioCheckBoxName, keyName);
+
+											proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(
+													ColumnName.PROTEIN_RATIO_GRAPH, proteinRatioGraphCheckBoxName,
+													MyVerticalCheckBoxListPanel.getKeyName(
+															ColumnName.PEPTIDE_RATIO_GRAPH, condition1, letter1,
+															condition2, letter2, projectTag, ratioName));
 											proteinGroupTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO,
 													proteinRatioColumn.isVisible(), condition1, letter1, condition2,
 													letter2, projectTag, ratioName);
+
 											proteinGroupTablePanel.addColumnForConditionRatio(
 													ColumnName.PROTEIN_RATIO_GRAPH, proteinRatioColumn.isVisible(),
-													condition1, letter1, condition2, letter2, projectTag,
-													ColumnName.PROTEIN_RATIO_GRAPH.getName() + " (" + ratioName + ")");
-											proteinGroupColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
-													ColumnName.PROTEIN_RATIO, condition1, condition2, projectTag,
-													conditionsPanel);
+													condition1, letter1, condition2, letter2, projectTag, ratioName);
+											// proteinGroupColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+											// ColumnName.PROTEIN_RATIO,
+											// ratioCheckBoxName, condition1,
+											// condition2,
+											// projectTag, conditionsPanel);
 											final String proteinGroupRatioScoreName = ratioDescriptor
 													.getProteinScoreName();
 											if (proteinGroupRatioScoreName != null) {
@@ -2466,31 +2499,46 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 														condition1, letter1, condition2, letter2, projectTag, ratioName,
 														proteinGroupRatioScoreName);
 												proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(
-														ColumnName.PROTEIN_RATIO_SCORE, proteinGroupRatioScoreName);
-												proteinGroupColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
-														ColumnName.PROTEIN_RATIO_SCORE, condition1, condition2,
-														projectTag, conditionsPanel);
+														ColumnName.PROTEIN_RATIO_SCORE, proteinGroupRatioScoreName,
+														MyVerticalCheckBoxListPanel.getKeyName(
+																ColumnName.PROTEIN_RATIO_SCORE, condition1, letter1,
+																condition2, letter2, projectTag, ratioName,
+																proteinGroupRatioScoreName));
+												final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
+														.getCheckBoxNameForRatioScore(proteinGroupRatioScoreName,
+																ratioName);
+												// proteinGroupColumnNamesPanel
+												// .addRatioConditionRelatedColumnCheckBoxHandler(
+												// ColumnName.PROTEIN_RATIO_SCORE,
+												// ratioScoreCheckBoxName,
+												// condition1, condition2,
+												// projectTag, conditionsPanel);
 											}
 											break;
 										case PROTEIN:
 											// add checkbox for ProteinRatio for
 											// that ratio
 											proteinColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_RATIO,
-													ratioName);
+													ratioCheckBoxName, keyName);
+
 											proteinColumnNamesPanel.addColumnCheckBoxByKeyName(
-													ColumnName.PROTEIN_RATIO_GRAPH,
-													ColumnName.PROTEIN_RATIO_GRAPH.getName() + " (" + ratioName + ")");
+													ColumnName.PROTEIN_RATIO_GRAPH, proteinRatioGraphCheckBoxName,
+													MyVerticalCheckBoxListPanel.getKeyName(
+															ColumnName.PROTEIN_RATIO_GRAPH, condition1, letter1,
+															condition2, letter2, projectTag, ratioName));
 											proteinTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO,
 													proteinRatioColumn.isVisible(), condition1, letter1, condition2,
 													letter2, projectTag, ratioName);
+
 											proteinTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO_GRAPH,
 													ProteinColumns.getInstance()
 															.getColumn(ColumnName.PROTEIN_RATIO_GRAPH).isVisible(),
-													condition1, letter1, condition2, letter2, projectTag,
-													ColumnName.PROTEIN_RATIO_GRAPH.getName() + " (" + ratioName + ")");
-											proteinColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
-													ColumnName.PROTEIN_RATIO, condition1, condition2, projectTag,
-													conditionsPanel);
+													condition1, letter1, condition2, letter2, projectTag, ratioName);
+											// proteinColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+											// ColumnName.PROTEIN_RATIO,
+											// ratioCheckBoxName, condition1,
+											// condition2,
+											// projectTag, conditionsPanel);
 											final String proteinRatioScoreName = ratioDescriptor.getProteinScoreName();
 											if (proteinRatioScoreName != null) {
 												proteinTablePanel.addColumnForConditionRatioScore(
@@ -2499,21 +2547,37 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 																.getColumn(ColumnName.PROTEIN_RATIO_SCORE).isVisible(),
 														condition1, letter1, condition2, letter2, projectTag, ratioName,
 														proteinRatioScoreName);
+												final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
+														.getCheckBoxNameForRatioScore(proteinRatioScoreName, ratioName);
 												proteinColumnNamesPanel.addColumnCheckBoxByKeyName(
-														ColumnName.PROTEIN_RATIO_SCORE, proteinRatioScoreName);
-												proteinColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
-														ColumnName.PROTEIN_RATIO_SCORE, condition1, condition2,
-														projectTag, conditionsPanel);
+														ColumnName.PROTEIN_RATIO_SCORE, ratioScoreCheckBoxName,
+														MyVerticalCheckBoxListPanel.getKeyName(
+																ColumnName.PROTEIN_RATIO_SCORE, condition1, letter1,
+																condition2, letter2, projectTag, ratioName,
+																proteinRatioScoreName));
+												// proteinColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+												// ColumnName.PROTEIN_RATIO_SCORE,
+												// ratioScoreCheckBoxName,
+												// condition1, condition2,
+												// projectTag, conditionsPanel);
 											}
 											break;
 										case PEPTIDE:
 											// add checkbox for ProteinRatio for
 											// that ratio
 											peptideColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PEPTIDE_RATIO,
-													ratioName);
+													ratioCheckBoxName,
+													MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PEPTIDE_RATIO,
+															condition1, letter1, condition2, letter2, projectTag,
+															ratioName));
+											final String peptideRatioGraphCheckBoxName = MyVerticalCheckBoxListPanel
+													.getCheckBoxNameForRatioGraph(ColumnName.PEPTIDE_RATIO_GRAPH,
+															ratioName);
 											peptideColumnNamesPanel.addColumnCheckBoxByKeyName(
-													ColumnName.PEPTIDE_RATIO_GRAPH,
-													ColumnName.PEPTIDE_RATIO_GRAPH.getName() + " (" + ratioName + ")");
+													ColumnName.PEPTIDE_RATIO_GRAPH, peptideRatioGraphCheckBoxName,
+													MyVerticalCheckBoxListPanel.getKeyName(
+															ColumnName.PEPTIDE_RATIO_GRAPH, condition1, letter1,
+															condition2, letter2, projectTag, ratioName));
 											final ColumnWithVisibility peptideRatioColumn = PeptideColumns.getInstance()
 													.getColumn(ColumnName.PEPTIDE_RATIO);
 											peptideTablePanel.addColumnForConditionRatio(ColumnName.PEPTIDE_RATIO,
@@ -2522,11 +2586,12 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											peptideTablePanel.addColumnForConditionRatio(ColumnName.PEPTIDE_RATIO_GRAPH,
 													PeptideColumns.getInstance()
 															.getColumn(ColumnName.PEPTIDE_RATIO_GRAPH).isVisible(),
-													condition1, letter1, condition2, letter2, projectTag,
-													ColumnName.PEPTIDE_RATIO_GRAPH.getName() + " (" + ratioName + ")");
-											peptideColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
-													ColumnName.PEPTIDE_RATIO, condition1, condition2, projectTag,
-													conditionsPanel);
+													condition1, letter1, condition2, letter2, projectTag, ratioName);
+											// peptideColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+											// ColumnName.PEPTIDE_RATIO,
+											// ratioCheckBoxName, condition1,
+											// condition2,
+											// projectTag, conditionsPanel);
 											final String peptideRatioScoreName = ratioDescriptor.getPeptideScoreName();
 											if (peptideRatioScoreName != null) {
 												peptideTablePanel.addColumnForConditionRatioScore(
@@ -2535,20 +2600,37 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 																.getColumn(ColumnName.PEPTIDE_RATIO_SCORE).isVisible(),
 														condition1, letter1, condition2, letter2, projectTag, ratioName,
 														peptideRatioScoreName);
+												final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
+														.getCheckBoxNameForRatioScore(peptideRatioScoreName, ratioName);
 												peptideColumnNamesPanel.addColumnCheckBoxByKeyName(
-														ColumnName.PEPTIDE_RATIO_SCORE, peptideRatioScoreName);
-												peptideColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
-														ColumnName.PEPTIDE_RATIO_SCORE, condition1, condition2,
-														projectTag, conditionsPanel);
+														ColumnName.PEPTIDE_RATIO_SCORE, ratioScoreCheckBoxName,
+														MyVerticalCheckBoxListPanel.getKeyName(
+																ColumnName.PEPTIDE_RATIO_SCORE, condition1, letter1,
+																condition2, letter2, projectTag, ratioName,
+																peptideRatioScoreName));
+												// peptideColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+												// ColumnName.PEPTIDE_RATIO_SCORE,
+												// ratioScoreCheckBoxName,
+												// condition1, condition2,
+												// projectTag, conditionsPanel);
 											}
 											break;
 										case PSM:
 											// add checkbox for ProteinRatio for
 											// that ratio
 											psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PSM_RATIO,
-													ratioName);
+													ratioCheckBoxName,
+													MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PSM_RATIO,
+															condition1, letter1, condition2, letter2, projectTag,
+															ratioName));
+											final String psmRatioGraphCheckBoxName = MyVerticalCheckBoxListPanel
+													.getCheckBoxNameForRatioGraph(ColumnName.PSM_RATIO_GRAPH,
+															ratioName);
 											psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PSM_RATIO_GRAPH,
-													ColumnName.PSM_RATIO_GRAPH.getName() + " (" + ratioName + ")");
+													psmRatioGraphCheckBoxName,
+													MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PSM_RATIO_GRAPH,
+															condition1, letter1, condition2, letter2, projectTag,
+															ratioName));
 											psmTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO,
 													PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO)
 															.isVisible(),
@@ -2556,8 +2638,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											psmTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO_GRAPH,
 													PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_GRAPH)
 															.isVisible(),
-													condition1, letter1, condition2, letter2, projectTag,
-													ColumnName.PSM_RATIO_GRAPH.getName() + " (" + ratioName + ")");
+													condition1, letter1, condition2, letter2, projectTag, ratioName);
 											psmOnlyTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO,
 													PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO)
 															.isVisible(),
@@ -2565,11 +2646,12 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											psmOnlyTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO_GRAPH,
 													PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_GRAPH)
 															.isVisible(),
-													condition1, letter1, condition2, letter2, projectTag,
-													ColumnName.PSM_RATIO_GRAPH.getName() + " (" + ratioName + ")");
-											psmColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
-													ColumnName.PSM_RATIO, condition1, condition2, projectTag,
-													conditionsPanel);
+													condition1, letter1, condition2, letter2, projectTag, ratioName);
+											// psmColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+											// ColumnName.PSM_RATIO,
+											// ratioCheckBoxName, condition1,
+											// condition2,
+											// projectTag, conditionsPanel);
 											final String psmRatioScoreName = ratioDescriptor.getPsmScoreName();
 											if (psmRatioScoreName != null) {
 												psmTablePanel.addColumnForConditionRatioScore(
@@ -2578,11 +2660,26 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 																.isVisible(),
 														condition1, letter1, condition2, letter2, projectTag, ratioName,
 														psmRatioScoreName);
+												psmOnlyTablePanel.addColumnForConditionRatioScore(
+														ColumnName.PSM_RATIO_SCORE,
+														PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_SCORE)
+																.isVisible(),
+														condition1, letter1, condition2, letter2, projectTag, ratioName,
+														psmRatioScoreName);
+												final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
+														.getCheckBoxNameForRatioScore(psmRatioScoreName, ratioName);
 												psmColumnNamesPanel.addColumnCheckBoxByKeyName(
-														ColumnName.PSM_RATIO_SCORE, psmRatioScoreName);
-												psmColumnNamesPanel.addConditionRelatedColumnCheckBoxHandler(
-														ColumnName.PSM_RATIO_SCORE, condition1, condition2, projectTag,
-														conditionsPanel);
+														ColumnName.PSM_RATIO_SCORE, ratioScoreCheckBoxName,
+														MyVerticalCheckBoxListPanel.getKeyName(
+																ColumnName.PSM_RATIO_SCORE, condition1, letter1,
+																condition2, letter2, projectTag, ratioName,
+																psmRatioScoreName));
+												// psmColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+												// ColumnName.PSM_RATIO_SCORE,
+												// ratioScoreCheckBoxName,
+												// condition1,
+												// condition2, projectTag,
+												// conditionsPanel);
 											}
 											break;
 										default:

@@ -210,8 +210,8 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 			break;
 		case PSM_RATIO:
 			sb.append(template.startToolTip("Ratio type: " + ratioName + "\nConditions: " + conditionName + " / "
-					+ condition2Name + "\nValue: "
-					+ psm.getRatioStringByConditions(conditionName, condition2Name, projectTag, ratioName, false)));
+					+ condition2Name + "\nValue: " + psm.getRatioStringByConditions(conditionName, condition2Name,
+							projectTag, ratioName, false, false)));
 			super.render(context, psm, sb);
 			sb.append(template.endToolTip());
 			break;

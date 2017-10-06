@@ -46,6 +46,27 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 	private final String scoreName;
 	private String ratioName;
 
+	public ProteinTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
+			String scoreName) {
+		super(columnName);
+		setSortable(true);
+		this.columnName = columnName;
+		comparator = new ProteinComparator(columnName, scoreName);
+		defaultWidth = getDefaultWidth(columnName);
+		conditionName = null;
+		condition2Name = null;
+		amountType = null;
+		projectTag = null;
+		this.scoreName = scoreName;
+		this.footer = footer;
+		this.header = header;
+		this.visibleState = visibleState;
+		if (visibleState)
+			width = defaultWidth;
+		else
+			width = 0;
+	}
+
 	public ProteinTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer) {
 		super(columnName);
 		setSortable(true);
@@ -276,8 +297,8 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		case PROTEIN_RATIO:
 
 			sb.append(template.startToolTip("Ratio type: " + ratioName + "\nConditions: " + conditionName + " / "
-					+ condition2Name + "\nValue: "
-					+ p.getRatioStringByConditions(conditionName, condition2Name, projectTag, ratioName, false)));
+					+ condition2Name + "\nValue: " + p.getRatioStringByConditions(conditionName, condition2Name,
+							projectTag, ratioName, false, false)));
 			super.render(context, p, sb);
 			sb.append(template.endToolTip());
 			break;

@@ -207,8 +207,8 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 			break;
 		case PEPTIDE_RATIO:
 			sb.append(template.startToolTip("Ratio type: " + ratioName + "\nConditions: " + conditionName + " / "
-					+ condition2Name + "\nValue: "
-					+ pep.getRatioStringByConditions(conditionName, condition2Name, projectTag, ratioName, false)));
+					+ condition2Name + "\nValue: " + pep.getRatioStringByConditions(conditionName, condition2Name,
+							projectTag, ratioName, false, false)));
 			super.render(context, pep, sb);
 			sb.append(template.endToolTip());
 			break;

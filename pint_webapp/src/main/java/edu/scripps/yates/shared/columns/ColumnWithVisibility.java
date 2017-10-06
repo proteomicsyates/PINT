@@ -17,8 +17,6 @@ public class ColumnWithVisibility implements Serializable {
 	public ColumnWithVisibility(ColumnName column, boolean visible) {
 		super();
 		this.column = column;
-		if (column == null)
-			System.out.println("ASDF");
 		this.visible = visible;
 	}
 
@@ -26,8 +24,6 @@ public class ColumnWithVisibility implements Serializable {
 	 * @return the column
 	 */
 	public ColumnName getColumn() {
-		if (column == null)
-			System.out.println("ASDF");
 		return column;
 	}
 

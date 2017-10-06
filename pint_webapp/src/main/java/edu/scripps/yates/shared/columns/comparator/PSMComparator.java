@@ -6,6 +6,7 @@ import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PTMBean;
+import edu.scripps.yates.shared.model.PeptideRelation;
 import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedDataUtils;
@@ -129,7 +130,17 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 				case CONDITION:
 					return compareStrings(o1.getConditionsString(), o2.getConditionsString(), true);
 				case PEPTIDE_EVIDENCE:
-					return o1.getRelation().name().compareTo(o2.getRelation().name());
+					final PeptideRelation relation = o1.getRelation();
+					final PeptideRelation relation2 = o2.getRelation();
+					String relationName1 = "";
+					String relationName2 = "";
+					if (relation != null) {
+						relationName1 = relation.name();
+					}
+					if (relation2 != null) {
+						relationName2 = relation.name();
+					}
+					return relationName1.compareTo(relationName2);
 				case PEPTIDE_ACTIVE_SITE:
 				case PEPTIDE_DOMAIN_FAMILIES:
 				case PEPTIDE_NATURAL_VARIATIONS:

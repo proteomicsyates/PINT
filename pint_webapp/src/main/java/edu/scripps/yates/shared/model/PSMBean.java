@@ -560,7 +560,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 
 	@Override
 	public String getRatioStringByConditions(String condition1Name, String condition2Name, String projectTag,
-			String ratioName, boolean skipInfinities) {
+			String ratioName, boolean skipInfinities, boolean formatNumber) {
 		StringBuilder sb = new StringBuilder();
 
 		final List<RatioBean> ratiosByConditions = getRatiosByConditions(condition1Name, condition2Name, projectTag,
@@ -570,7 +570,12 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		for (Double value : ratioValues) {
 
 			try {
-				final String format = SharedDataUtils.formatNumber(value, 2, true);
+				String format = null;
+				if (formatNumber) {
+					format = SharedDataUtils.formatNumber(value, 2, true);
+				} else {
+					format = String.valueOf(value);
+				}
 				if (!"".equals(sb.toString()))
 					sb.append(SharedConstants.SEPARATOR);
 				sb.append(format);
@@ -895,21 +900,26 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 
 	@Override
 	public String getRatioScoreStringByConditions(String condition1Name, String condition2Name, String projectTag,
-			String ratioName, String ratioScoreName, boolean skipInfinities) {
+			String ratioName, String ratioScoreName, boolean skipInfinities, boolean formatNumber) {
 		StringBuilder sb = new StringBuilder();
 
 		final List<ScoreBean> ratioScores = getRatioScoresByConditions(condition1Name, condition2Name, projectTag,
 				ratioName, ratioScoreName);
 		for (ScoreBean ratioScore : ratioScores) {
 			try {
-				Double doubleValue = Double.valueOf(ratioScore.getValue());
-				if (doubleValue.toString().endsWith(".0")) {
+				Double value = Double.valueOf(ratioScore.getValue());
+				if (value.toString().endsWith(".0")) {
 					if (!"".equals(sb.toString()))
 						sb.append(SharedConstants.SEPARATOR);
-					sb.append(String.valueOf(doubleValue.intValue()));
+					sb.append(String.valueOf(value.intValue()));
 				} else {
 					try {
-						final String format = SharedDataUtils.formatNumber(doubleValue, 2, true);
+						String format = null;
+						if (formatNumber) {
+							format = SharedDataUtils.formatNumber(value, 3, true);
+						} else {
+							format = String.valueOf(value);
+						}
 						if (!"".equals(sb.toString()))
 							sb.append(SharedConstants.SEPARATOR);
 						sb.append(format);

@@ -62,14 +62,16 @@ public abstract class AbstractDataTable<T> extends Composite
 	private final FooterManager<T> footerManager;
 	private final Widget emptyWidget;
 	protected final String sessionID;
+	protected final String tableName;
 
 	public AbstractDataTable(String sessionID, String emptyLabel, AbstractAsyncDataProvider<T> asyncDataListProvider,
-			boolean multipleSelectionModel) {
-		this(sessionID, new Label(emptyLabel), asyncDataListProvider, multipleSelectionModel);
+			boolean multipleSelectionModel, String tableName) {
+		this(sessionID, new Label(emptyLabel), asyncDataListProvider, multipleSelectionModel, tableName);
 	}
 
 	public AbstractDataTable(String sessionID, Widget emptyWidget, AbstractAsyncDataProvider<T> asyncDataListProvider,
-			boolean multipleSelectionModel) {
+			boolean multipleSelectionModel, String tableName) {
+		this.tableName = tableName;
 		this.sessionID = sessionID;
 		if (emptyWidget != null) {
 			setEmptyTableWidget(emptyWidget);
@@ -117,7 +119,7 @@ public abstract class AbstractDataTable<T> extends Composite
 		// add the selection manager
 		if (multipleSelectionModel) {
 			selectionModel = new MultiSelectionModel<T>();
-			dataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<T> createCheckboxManager());
+			dataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<T>createCheckboxManager());
 		} else {
 			selectionModel = new SingleSelectionModel<T>();
 			dataGrid.setSelectionModel(selectionModel);
@@ -151,9 +153,10 @@ public abstract class AbstractDataTable<T> extends Composite
 					&& columnName != ColumnName.PROTEIN_RATIO_SCORE && columnName != ColumnName.PROTEIN_RATIO_GRAPH
 					&& columnName != ColumnName.PSM_AMOUNT && columnName != ColumnName.PSM_SCORE
 					&& columnName != ColumnName.PTM_SCORE && columnName != ColumnName.PSM_RATIO
-					&& columnName != ColumnName.PSM_RATIO_GRAPH && columnName != ColumnName.PEPTIDE_AMOUNT
-					&& columnName != ColumnName.PEPTIDE_SCORE && columnName != ColumnName.PEPTIDE_RATIO
-					&& columnName != ColumnName.PEPTIDE_RATIO_GRAPH) {
+					&& columnName != ColumnName.PSM_RATIO_GRAPH && columnName != ColumnName.PSM_RATIO_SCORE
+					&& columnName != ColumnName.PEPTIDE_AMOUNT && columnName != ColumnName.PEPTIDE_SCORE
+					&& columnName != ColumnName.PEPTIDE_RATIO && columnName != ColumnName.PEPTIDE_RATIO_GRAPH
+					&& columnName != ColumnName.PEPTIDE_RATIO_SCORE) {
 				final boolean visible = getColumnManager().isVisible(columnName);
 				if (visible) {
 					final Header<String> footer = getColumnManager().getFooter(columnName);
@@ -177,7 +180,7 @@ public abstract class AbstractDataTable<T> extends Composite
 
 	public final void clearTable() {
 		getAsyncDataProvider().updateRowCount(0, true);
-		getAsyncDataProvider().updateRowData(0, Collections.<T> emptyList());
+		getAsyncDataProvider().updateRowData(0, Collections.<T>emptyList());
 		setEmptyTableWidget(emptyWidget);
 		refreshData();
 	}
@@ -280,6 +283,9 @@ public abstract class AbstractDataTable<T> extends Composite
 	public final void addColumnForConditionRatio(ColumnName columnName, boolean isVisible, String condition1Name,
 			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
 			String ratioName) {
+		if (columnName == ColumnName.PSM_RATIO) {
+			GWT.log("Adding column for ratio " + ratioName + " cond1:" + condition1Name + " cond2:" + condition2Name);
+		}
 		// check first if the column is already present or not
 		if (!columnManager.containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName)) {
 			CustomTextColumn<T> column = columnManager.addRatioColumn(columnName, isVisible, condition1Name,
@@ -303,8 +309,12 @@ public abstract class AbstractDataTable<T> extends Composite
 	public final void addColumnForConditionRatioScore(ColumnName columnName, boolean isVisible, String condition1Name,
 			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
 			String ratioName, String scoreName) {
+		if (columnName == ColumnName.PSM_RATIO) {
+			GWT.log("Adding column for ratio " + ratioName + " and ratio score " + scoreName);
+		}
 		// check first if the column is already present or not
-		if (!getColumnManager().containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName)) {
+		if (!getColumnManager().containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName,
+				scoreName)) {
 			CustomTextColumn<T> column = getColumnManager().addRatioScoreColumn(columnName, isVisible, condition1Name,
 					condition1Symbol, condition2Name, condition2Symbol, projectTag, ratioName, scoreName);
 			if (column.isVisible()) {
@@ -440,10 +450,11 @@ public abstract class AbstractDataTable<T> extends Composite
 			if (mycolumn instanceof MyIdColumn) {
 				MyIdColumn<T> idColumn = (MyIdColumn<T>) mycolumn;
 				final Column<T, String> column = (Column<T, String>) mycolumn;
-				GWT.log(idColumn.getColumnName().name() + " " + idColumn.getKeyName() + " <-> " + keyName);
 				if (idColumn.getKeyName() != null && idColumn.getKeyName().equals(keyName)) {
 					found = true;
 					if (show) {
+						GWT.log(idColumn.getColumnName().name() + " " + idColumn.getKeyName() + " <-> " + keyName);
+
 						dataGrid.addColumnToTable(column, getColumnManager());
 
 					} else {

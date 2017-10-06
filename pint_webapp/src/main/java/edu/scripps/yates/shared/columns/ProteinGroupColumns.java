@@ -99,7 +99,10 @@ public class ProteinGroupColumns implements ColumnProvider<ProteinGroupBean> {
 			return parseEmptyString(p.getAmountString(conditionName, projectTag));
 		case PROTEIN_RATIO:
 			return parseEmptyString(p.getRatioStringByConditions(conditionName, condition2Name, projectTag, ratioName,
-					skipRatioInfinities));
+					skipRatioInfinities, true));
+		case PROTEIN_RATIO_SCORE:
+			return parseEmptyString(p.getRatioScoreStringByConditions(conditionName, condition2Name, projectTag,
+					ratioName, scoreName, skipRatioInfinities, true));
 		case NUM_PROTEIN_GROUP_MEMBERS:
 			return parseEmptyString(String.valueOf(p.getDifferentPrimaryAccessions().size()));
 

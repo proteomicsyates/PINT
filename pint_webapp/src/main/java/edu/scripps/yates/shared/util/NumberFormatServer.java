@@ -19,7 +19,7 @@ class NumberFormatServer extends NumberFormat {
 		}
 		String decimals = getRepeatedString("0", maxNumFractionDigits);
 
-		return new NumberFormatServer("0." + decimals + "E2");
+		return new NumberFormatServer("0." + decimals + "E0");
 
 	}
 

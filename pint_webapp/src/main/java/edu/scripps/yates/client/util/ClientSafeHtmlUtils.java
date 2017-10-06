@@ -845,7 +845,9 @@ public class ClientSafeHtmlUtils {
 					sb.append("Value: " + String.valueOf(doubleValue.intValue()));
 				} else {
 					try {
-						String format = SharedDataUtils.formatNumber(doubleValue, 3, true);
+						// no formatting because this is the tooltip, we want to
+						// show everything
+						String format = String.valueOf(doubleValue);
 						sb.append("Score value: " + format);
 					} catch (NumberFormatException e2) {
 

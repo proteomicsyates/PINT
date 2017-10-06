@@ -28,9 +28,11 @@ public class MyDataGrid<T> extends CellTable<T> {
 	private final Map<ColumnName, Set<Column<T, ?>>> columnMapByColumnName = new HashMap<ColumnName, Set<Column<T, ?>>>();
 	private boolean forceToRefresh;
 	private boolean forceToReload;
+	private final String tableName;
 
-	public MyDataGrid(ProvidesKey<T> keyProvider) {
+	public MyDataGrid(ProvidesKey<T> keyProvider, String tableName) {
 		super(keyProvider);
+		this.tableName = tableName;
 		setStyleName("MyDataGrid");
 		setWidth("100%");
 		// Set the width of the table and put the table in fixed width mode.
@@ -55,7 +57,8 @@ public class MyDataGrid<T> extends CellTable<T> {
 
 	public void addColumn(ColumnName columnName, Column<T, ?> myColumn, Header<?> safeHtmlHeader,
 			Header<String> footer) {
-
+		GWT.log("Adding column " + ((MyColumn) myColumn).getColumnName() + " to table " + tableName + " with header "
+				+ safeHtmlHeader.getValue());
 		addColumnToMap(columnName, myColumn);
 		super.addColumn(myColumn, safeHtmlHeader, footer);
 
@@ -74,6 +77,8 @@ public class MyDataGrid<T> extends CellTable<T> {
 	}
 
 	public void addColumn(ColumnName columnName, Column<T, ?> myColumn, String headerString) {
+		GWT.log("Adding column " + ((MyColumn) myColumn).getColumnName() + " to table " + tableName + " with header "
+				+ headerString);
 		addColumnToMap(columnName, myColumn);
 		addColumn(myColumn, new TextHeader(headerString));
 	}
@@ -176,6 +181,13 @@ public class MyDataGrid<T> extends CellTable<T> {
 
 	}
 
+	@Override
+	public void insertColumn(int beforeIndex, Column<T, ?> col, Header<?> header) {
+		GWT.log("Adding column " + ((MyColumn) col).getColumnName() + " to table " + tableName + " with header "
+				+ header.getValue());
+		super.insertColumn(beforeIndex, col, header);
+	}
+
 	private int getIndexForColumnInTable(MyColumn myColumn, AbstractColumnManager<T> columnManager) {
 		int index = 0;
 		for (index = 0; index < getColumnCount(); index++) {
@@ -206,15 +218,27 @@ public class MyDataGrid<T> extends CellTable<T> {
 		if (containsColumn(col)) {
 			return;
 		}
-
+		GWT.log("Adding column " + ((MyColumn) col).getColumnName() + " to table " + tableName + " with header "
+				+ header.getValue());
 		addColumnToMap(col);
 		addColumn(col, header, null);
 	}
 
 	private boolean containsColumn(Column<T, ?> col) {
 		for (int i = 0; i < getColumnCount(); i++) {
-			if (getColumn(i).equals(col)) {
+			if (col.equals(getColumn(i))) {
 				return true;
+			}
+		}
+		if (col instanceof MyColumn){
+			final MyColumn myCol = (MyColumn)col;
+			if (columnMapByColumnName.containsKey(myCol.getColumnName())){
+				final Set<Column<T, ?>> set = columnMapByColumnName.get(myCol.getColumnName());
+				for (Column<T, ?> column : set) {
+					 if (column.equals(col)){
+						 return true;
+					 }
+				}
 			}
 		}
 		return false;
@@ -231,6 +255,8 @@ public class MyDataGrid<T> extends CellTable<T> {
 		if (containsColumn(col)) {
 			return;
 		}
+		GWT.log("Adding column " + ((MyColumn) col).getColumnName() + " to table " + tableName + " with header "
+				+ headerString);
 		addColumnToMap(col);
 
 		addColumn(col, new TextHeader(headerString));
@@ -248,6 +274,8 @@ public class MyDataGrid<T> extends CellTable<T> {
 		if (containsColumn(col)) {
 			return;
 		}
+		GWT.log("Adding column " + ((MyColumn) col).getColumnName() + " to table " + tableName + " with header "
+				+ headerHtml.asString());
 		addColumnToMap(col);
 
 		addColumn(col, headerHtml, null);
@@ -265,6 +293,8 @@ public class MyDataGrid<T> extends CellTable<T> {
 		if (containsColumn(col)) {
 			return;
 		}
+		GWT.log("Adding column " + ((MyColumn) col).getColumnName() + " to table " + tableName + " with header "
+				+ headerString);
 		addColumnToMap(col);
 
 		addColumn(col, new TextHeader(headerString), new TextHeader(footerString));
@@ -283,6 +313,8 @@ public class MyDataGrid<T> extends CellTable<T> {
 		if (containsColumn(col)) {
 			return;
 		}
+		GWT.log("Adding column " + ((MyColumn) col).getColumnName() + " to table " + tableName + " with header "
+				+ headerHtml.asString());
 		addColumnToMap(col);
 
 		addColumn(col, new SafeHtmlHeader(headerHtml), new SafeHtmlHeader(footerHtml));

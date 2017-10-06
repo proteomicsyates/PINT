@@ -135,7 +135,7 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 						// try to convert to double the amountString
 						try {
 							ratioValue = Double.valueOf(item.getRatioStringByConditions(condition1Name, condition2Name,
-									projectTag, ratioName, true));
+									projectTag, ratioName, true, false));
 							validRatio = true;
 						} catch (NumberFormatException e) {
 							double subSum = 0.0;
@@ -325,7 +325,7 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 						// try to convert to double the amountString
 						try {
 							ratioValue = Double.valueOf(item.getRatioScoreStringByConditions(condition1Name,
-									condition2Name, projectTag, ratioName, ratioScoreName, true));
+									condition2Name, projectTag, ratioName, ratioScoreName, true, false));
 							validRatio = true;
 						} catch (NumberFormatException e) {
 							double subSum = 0.0;

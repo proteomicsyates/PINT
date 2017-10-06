@@ -955,9 +955,10 @@ public class SharedDataUtils {
 		return ratioName + " (" + condition1ID + " / " + condition2ID + ")";
 	}
 
-	public static String getRatioScoreHeader(String scoreName, String condition1ID, String condition2ID) {
+	public static String getRatioScoreHeader(String scoreName, String ratioName, String condition1ID,
+			String condition2ID) {
 
-		return scoreName + " (" + condition1ID + " / " + condition2ID + ")";
+		return scoreName + " (" + ratioName + "#" + condition1ID + " / " + condition2ID + ")";
 	}
 
 	public static String getRatioHeaderTooltip(ColumnName columnName, String condition1Name, String condition2Name,
@@ -1303,7 +1304,8 @@ public class SharedDataUtils {
 			numberThresholdStringBuilder.append("0");
 		}
 		final String numberThresholdString = numberThresholdStringBuilder.toString();
-		double numberThreshold = Double.valueOf(numberThresholdString.substring(0, numberThresholdString.length() - 1));
+		double numberThreshold = Double
+				.valueOf(numberThresholdString.substring(0, numberThresholdString.length() - 1) + "1");
 		if (scientificNotationIfSmaller && number >= numberThreshold) {
 			return NumberFormat.getScientificFormat(maxDecimals, 3).format(number);
 

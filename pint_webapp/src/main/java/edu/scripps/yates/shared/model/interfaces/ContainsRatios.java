@@ -59,7 +59,7 @@ public interface ContainsRatios {
 	 * @return
 	 */
 	public String getRatioScoreStringByConditions(String condition1Name, String condition2Name, String projectTag,
-			String ratioName, String ratioScore, boolean skipInfinities);
+			String ratioName, String ratioScore, boolean skipInfinities, boolean formatNumber);
 
 	/**
 	 * Gets a string with the ratio values
@@ -72,7 +72,7 @@ public interface ContainsRatios {
 	 * @return
 	 */
 	public String getRatioStringByConditions(String condition1Name, String condition2Name, String projectTag,
-			String ratioName, boolean skipInfinities);
+			String ratioName, boolean skipInfinities, boolean formatNumber);
 
 	public Map<String, RatioDistribution> getRatioDistributions();
 
