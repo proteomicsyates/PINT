@@ -109,10 +109,15 @@ public class DataSet {
 	}
 
 	public List<ProteinBean> getProteins(int start, int end) {
-		if (getProteins().isEmpty())
+		if (getProteins().isEmpty()) {
 			return proteins;
-		if (end > proteins.size())
+		}
+		if (end > proteins.size()) {
 			end = proteins.size();
+		}
+		if (start > end) {
+			start = end - 1;
+		}
 		return proteins.subList(start, end);
 	}
 
@@ -121,6 +126,9 @@ public class DataSet {
 			return peptides;
 		if (end > peptides.size())
 			end = peptides.size();
+		if (start > end) {
+			start = end - 1;
+		}
 		return peptides.subList(start, end);
 	}
 
@@ -137,6 +145,9 @@ public class DataSet {
 			return psms;
 		if (end > psms.size())
 			end = psms.size();
+		if (start > end) {
+			start = end - 1;
+		}
 		return psms.subList(start, end);
 	}
 
