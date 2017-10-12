@@ -418,12 +418,14 @@ public class BrowsePanel extends InitializableComposite {
 
 									@Override
 									public void onFailure(Throwable caught) {
+										hiddeLoadingDialog();
 										StatusReportersRegister.getInstance().notifyStatusReporters(caught);
 
 									}
 
 									@Override
 									public void onSuccess(String message) {
+										hiddeLoadingDialog();
 										StatusReportersRegister.getInstance().notifyStatusReporters(message);
 										loadProjectList();
 									}
@@ -881,6 +883,12 @@ public class BrowsePanel extends InitializableComposite {
 		}
 		loadingDialog.center();
 
+	}
+
+	private void hiddeLoadingDialog() {
+		if (loadingDialog != null) {
+			loadingDialog.setVisible(false);
+		}
 	}
 
 	@Override
