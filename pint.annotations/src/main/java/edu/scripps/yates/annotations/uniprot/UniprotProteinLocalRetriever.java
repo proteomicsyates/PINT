@@ -34,6 +34,7 @@ import edu.scripps.yates.annotations.uniprot.index.UniprotXmlIndex;
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.ObjectFactory;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
+import edu.scripps.yates.annotations.util.UniprotEntryCache;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.memory.MemoryUsageReport;
 import gnu.trove.map.hash.THashMap;
@@ -50,7 +51,8 @@ public class UniprotProteinLocalRetriever {
 	private final static Map<File, UniprotXmlIndex> loadedIndexes = new THashMap<File, UniprotXmlIndex>();
 	private static JAXBContext jaxbContext;
 	private static boolean cacheEnabled = true;
-	private static final Map<String, Entry> cache = new THashMap<String, Entry>();
+
+	private static final UniprotEntryCache cache = new UniprotEntryCache();
 	private boolean retrieveFastaIsoforms = true;
 	private List<String> entryKeys = new ArrayList<String>();
 	// private static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
@@ -343,7 +345,7 @@ public class UniprotProteinLocalRetriever {
 					throw new RuntimeException("Thread interrupted");
 				}
 				String acc = iterator.next();
-				Entry cachedEntry = cache.get(acc);
+				Entry cachedEntry = cache.getFromCache(acc);
 				if (cachedEntry != null) {
 					entries.add(cachedEntry);
 					iterator.remove();
@@ -396,7 +398,7 @@ public class UniprotProteinLocalRetriever {
 						if (item != null) {
 							if (cacheEnabled) {
 								checkMemoryForCache(1);
-								addEntryToMap(cache, item);
+								addEntryToCache(cache, item);
 							}
 							entries.add(item);
 							numEntriesRetrievedFromIndex++;
@@ -465,7 +467,7 @@ public class UniprotProteinLocalRetriever {
 							missingProteinsAccs, uniprotIndex);
 					if (cacheEnabled) {
 						checkMemoryForCache(annotatedProteins.size());
-						cache.putAll(annotatedProteins);
+						cache.addtoCache(annotatedProteins);
 					}
 					queryProteinsMap.putAll(annotatedProteins);
 					missingAccessions = uprr.getMissingAccessions();
@@ -493,7 +495,7 @@ public class UniprotProteinLocalRetriever {
 					log.debug("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
 					queryProteinsMap.put(mainIsoform, entry);
 					if (cacheEnabled) {
-						cache.put(mainIsoform, entry);
+						cache.addtoCache(entry, mainIsoform);
 					}
 				}
 			}
@@ -522,7 +524,7 @@ public class UniprotProteinLocalRetriever {
 					final Entry entry = queryProteinsMap.get(FastaParser.getNoIsoformAccession(mainIsoform));
 					if (entry != null) {
 						if (cacheEnabled) {
-							cache.put(mainIsoform, entry);
+							cache.addtoCache(entry, mainIsoform);
 						}
 						log.info("Mapping back " + mainIsoform + " to entry " + entry.getAccession().get(0));
 						queryProteinsMap.put(mainIsoform, entry);
@@ -550,10 +552,10 @@ public class UniprotProteinLocalRetriever {
 	}
 
 	private void removeFirstEntryFromCache() {
-		Entry entry = cache.get(getFirstEntryKeyFromCache());
+		Entry entry = cache.getFromCache(getFirstEntryKeyFromCache());
 		List<String> accession = entry.getAccession();
 		for (String acc : accession) {
-			cache.remove(acc);
+			cache.removeFromCache(acc);
 			entryKeys.remove(acc);
 		}
 	}
@@ -661,11 +663,17 @@ public class UniprotProteinLocalRetriever {
 		return uniprot.getEntry();
 	}
 
+	protected static void addEntriesToMap(UniprotEntryCache map, List<Entry> entries) {
+		for (Entry entry : entries) {
+			addEntryToCache(map, entry);
+		}
+
+	}
+
 	protected static void addEntriesToMap(Map<String, Entry> map, List<Entry> entries) {
 		for (Entry entry : entries) {
 			addEntryToMap(map, entry);
 		}
-
 	}
 
 	protected static void addEntryToMap(Map<String, Entry> map, Entry entry) {
@@ -679,12 +687,23 @@ public class UniprotProteinLocalRetriever {
 
 	}
 
+	protected static void addEntryToCache(UniprotEntryCache cache, Entry entry) {
+
+		final List<String> accessions = entry.getAccession();
+		for (String accession : accessions) {
+			// String nonIsoFormAcc = getNoIsoformAccession(accession);
+			// if (accessionsToQuery.contains(nonIsoFormAcc))
+			cache.addtoCache(entry, accession);
+		}
+
+	}
+
 	public boolean isCacheEnabled() {
 		return cacheEnabled;
 	}
 
 	public void setCacheEnabled(boolean cacheEnabled) {
-		this.cacheEnabled = cacheEnabled;
+		UniprotProteinLocalRetriever.cacheEnabled = cacheEnabled;
 	}
 
 	public void setRetrieveFastaIsoforms(boolean b) {
