@@ -20,6 +20,10 @@ public class ProteinGroupComparator extends BeanComparator<ProteinGroupBean> {
 		super(columnName);
 	}
 
+	public ProteinGroupComparator(ColumnName columnName, String scoreName) {
+		super(columnName, scoreName);
+	}
+
 	public ProteinGroupComparator(ColumnName columnName, String experimentalConditionName, AmountType amountType,
 			String projectTag) {
 		super(columnName, experimentalConditionName, amountType, projectTag);
@@ -28,6 +32,11 @@ public class ProteinGroupComparator extends BeanComparator<ProteinGroupBean> {
 	public ProteinGroupComparator(ColumnName columnName, String experimentalCondition1Name,
 			String experimentalCondition2Name, String projectTag, String ratioName) {
 		super(columnName, experimentalCondition1Name, experimentalCondition2Name, projectTag, ratioName);
+	}
+
+	public ProteinGroupComparator(ColumnName columnName, String condition1Name, String condition2Name,
+			String projectTag, String ratioName, String ratioScoreName) {
+		super(columnName, condition1Name, condition2Name, projectTag, ratioName, ratioScoreName);
 	}
 
 	@Override

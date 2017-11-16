@@ -63,6 +63,7 @@ public class CustomClickableImageColumnOpenLinkToPRIDECluster<T> extends Absctra
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * com.google.gwt.user.cellview.client.Column#render(com.google.gwt.cell.
 	 * client.Cell.Context, java.lang.Object,
@@ -100,7 +101,7 @@ public class CustomClickableImageColumnOpenLinkToPRIDECluster<T> extends Absctra
 
 	@Override
 	public String getTitle(T object) {
-		return "Search " + getSearchTypeTerm(object) + "'" + getSearchTerm(object) + "' in PRIDE CLUSTER (EBI)";
+		return "Search " + getSearchTypeTerm(object) + " '" + getSearchTerm(object) + "' in PRIDE CLUSTER (EBI)";
 	}
 
 }

@@ -106,7 +106,11 @@ public class ImportCfgFileReader {
 	public static final String SINGLETON_INTENSITY_RATIO = "Singleton intensity ratio";
 	private final Map<String, Set<Protein>> proteinMap = new THashMap<String, Set<Protein>>();
 	private Pattern discardDecoyRegexp;
+
 	public static boolean ALLOW_PROTEINS_IN_EXCEL_NOT_FOUND_BEFORE = false;
+
+	// JUST FOR TESTING:
+	public static boolean ignoreNotFoundProteins = false;
 
 	public ImportCfgFileReader() {
 		try {
@@ -362,6 +366,23 @@ public class ImportCfgFileReader {
 					}
 				}
 			}
+			if (cfg.getProject().getRatios().getPeptideAmountRatios() != null
+					&& cfg.getProject().getRatios().getPeptideAmountRatios().getRemoteFilesRatio() != null) {
+				for (RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPeptideAmountRatios()
+						.getRemoteFilesRatio()) {
+
+					final String fileRef = remoteFileRatio.getFileRef();
+					RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
+							labelsByConditionsByFile.get(fileRef));
+					if (ret.containsKey(fileRef)) {
+						ret.get(fileRef).add(ratioDescriptor);
+					} else {
+						List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
+						list.add(ratioDescriptor);
+						ret.put(fileRef, list);
+					}
+				}
+			}
 			if (cfg.getProject().getRatios().getProteinAmountRatios() != null
 					&& cfg.getProject().getRatios().getProteinAmountRatios().getRemoteFilesRatio() != null) {
 				for (RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getProteinAmountRatios()
@@ -378,6 +399,7 @@ public class ImportCfgFileReader {
 					}
 				}
 			}
+
 		}
 
 		return ret;
@@ -1822,28 +1844,32 @@ public class ImportCfgFileReader {
 									}
 									Set<Protein> proteins1 = StaticProteomicsModelStorage.getProtein(msRunRefs,
 											condition1Ref, uniprotAcc);
-									if (proteins1.isEmpty()) {
-										throw new IllegalArgumentException(
-												"Protein  " + uniprotAcc + " in row " + rowIndex
-														+ " from the Excel file is not found to assign a ratio to it between condition "
-														+ condition1Ref + " and " + condition2Ref + " in msRuns "
-														+ getStringFromCollection(msRunRefs));
+									if (proteins1.isEmpty() && !ignoreNotFoundProteins) {
+										throw new IllegalArgumentException("Protein  " + uniprotAcc + " in row "
+												+ rowIndex
+												+ " from the Excel file is not found to assign a ratio to it between condition "
+												+ condition1Ref + " and " + condition2Ref + " in msRuns "
+												+ getStringFromCollection(msRunRefs) + "\n"
+												+ "You may have proteins in your excel file that are not present in the identification set files");
 									}
 									Set<Protein> proteins2 = StaticProteomicsModelStorage.getProtein(msRunRefs,
 											condition2Ref, uniprotAcc);
-									if (proteins2.isEmpty()) {
-										throw new IllegalArgumentException(
-												"Protein " + uniprotAcc + " in row  " + rowIndex
-														+ " from the Excel file is not found to assign a ratio to it between condition "
-														+ condition1Ref + " and " + condition2Ref + " in msRuns "
-														+ getStringFromCollection(msRunRefs));
+									if (proteins2.isEmpty() && !ignoreNotFoundProteins) {
+										throw new IllegalArgumentException("Protein " + uniprotAcc + " in row  "
+												+ rowIndex
+												+ " from the Excel file is not found to assign a ratio to it between condition "
+												+ condition1Ref + " and " + condition2Ref + " in msRuns "
+												+ getStringFromCollection(msRunRefs) + "\n"
+												+ "You may have proteins in your excel file that are not present in the identification set files");
 									}
 
 									Set<Protein> rowProteins = ModelUtils.getProteinIntersection(proteins1, proteins2);
-									if (rowProteins.isEmpty()) {
+									if (rowProteins.isEmpty() && !ignoreNotFoundProteins) {
 										throw new IllegalArgumentException("Protein " + proteinAcc
 												+ " from the Excel file is not found to assign a ratio to it between condition "
-												+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRefs);
+												+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRefs
+												+ "\n"
+												+ "You may have proteins in your excel file that are not present in the identification set files");
 									}
 									for (Protein protein : rowProteins) {
 										protein.addRatio(ratio);

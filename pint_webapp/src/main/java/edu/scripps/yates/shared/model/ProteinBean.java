@@ -832,7 +832,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 
 	@Override
 	public String getRatioStringByConditions(String condition1Name, String condition2Name, String projectTag,
-			String ratioName, boolean skipInfinities) {
+			String ratioName, boolean skipInfinities, boolean formatNumber) {
 		StringBuilder sb = new StringBuilder();
 
 		final List<RatioBean> ratiosByConditions = getRatiosByConditions(condition1Name, condition2Name, projectTag,
@@ -847,7 +847,12 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 				sb.append(String.valueOf(value.intValue()));
 			} else {
 				try {
-					final String format = NumberFormat.getFormat("#.##").format(value);
+					String format = null;
+					if (formatNumber) {
+						format = SharedDataUtils.formatNumber(value, 2, true);
+					} else {
+						format = String.valueOf(value);
+					}
 					if (!"".equals(sb.toString()))
 						sb.append(SharedConstants.SEPARATOR);
 					sb.append(format);
@@ -862,21 +867,26 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 
 	@Override
 	public String getRatioScoreStringByConditions(String condition1Name, String condition2Name, String projectTag,
-			String ratioName, boolean skipInfinities) {
+			String ratioName, String ratioScoreName, boolean skipInfinities, boolean formatNumber) {
 		StringBuilder sb = new StringBuilder();
 
 		final List<ScoreBean> ratioScores = getRatioScoresByConditions(condition1Name, condition2Name, projectTag,
-				ratioName);
+				ratioName, ratioScoreName);
 		for (ScoreBean ratioScore : ratioScores) {
 			try {
-				Double doubleValue = Double.valueOf(ratioScore.getValue());
-				if (doubleValue.toString().endsWith(".0")) {
+				Double value = Double.valueOf(ratioScore.getValue());
+				if (value.toString().endsWith(".0")) {
 					if (!"".equals(sb.toString()))
 						sb.append(SharedConstants.SEPARATOR);
-					sb.append(String.valueOf(doubleValue.intValue()));
+					sb.append(String.valueOf(value.intValue()));
 				} else {
 					try {
-						final String format = NumberFormat.getFormat("#.##").format(doubleValue);
+						String format = null;
+						if (formatNumber) {
+							format = SharedDataUtils.formatNumber(value, 3, true);
+						} else {
+							format = String.valueOf(value);
+						}
 						if (!"".equals(sb.toString()))
 							sb.append(SharedConstants.SEPARATOR);
 						sb.append(format);
@@ -1231,11 +1241,11 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 
 	@Override
 	public List<ScoreBean> getRatioScoresByConditions(String condition1Name, String condition2Name, String projectTag,
-			String ratioName) {
+			String ratioName, String ratioScoreName) {
 		final List<RatioBean> ratiosByConditions = getRatiosByConditions(condition1Name, condition2Name, projectTag,
 				ratioName, false);
 		final List<ScoreBean> ratioScores = SharedDataUtils.getRatioScoreValues(condition1Name, condition2Name,
-				ratiosByConditions);
+				ratiosByConditions, ratioScoreName);
 		return ratioScores;
 	}
 

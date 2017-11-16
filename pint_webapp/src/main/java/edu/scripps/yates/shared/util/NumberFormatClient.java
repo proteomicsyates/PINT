@@ -18,10 +18,11 @@ class NumberFormatClient extends NumberFormat {
 		return new NumberFormatClient(pattern);
 	}
 
-	public static edu.scripps.yates.shared.util.NumberFormat getScientificFormat() {
+	public static edu.scripps.yates.shared.util.NumberFormat getScientificFormat(int minNumFractionDigits,
+			int maxNumFractionDigits) {
 
-		return new NumberFormatClient(
-				com.google.gwt.i18n.client.NumberFormat.getScientificFormat().overrideFractionDigits(2, 3));
+		return new NumberFormatClient(com.google.gwt.i18n.client.NumberFormat.getScientificFormat()
+				.overrideFractionDigits(minNumFractionDigits, maxNumFractionDigits));
 	}
 
 	@Override

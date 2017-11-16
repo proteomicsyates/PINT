@@ -29,13 +29,14 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 
 	public PeptideTablePanel(String sessionID, String emptyLabel, ShowHiddePanel showhiddePSMPanel,
 			AbstractAsyncDataProvider<PeptideBean> asyncDataListProvider, boolean multipleSelectionModel) {
-		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel);
+		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel, "peptide table");
 		peptideLoaderFromProjects = showhiddePSMPanel;
 
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see edu.scripps.yates.client.gui.components.AbstractDataTable#
 	 * createColumnManager()
 	 */
@@ -46,6 +47,7 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see edu.scripps.yates.client.gui.components.AbstractDataTable#
 	 * createFooterManager()
 	 */
@@ -65,7 +67,7 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 				return item == null ? null : item.getSequence();
 			}
 		};
-		MyDataGrid<PeptideBean> dataGrid = new MyDataGrid<PeptideBean>(KEY_PROVIDER);
+		MyDataGrid<PeptideBean> dataGrid = new MyDataGrid<PeptideBean>(KEY_PROVIDER, tableName);
 
 		return dataGrid;
 	}

@@ -267,14 +267,49 @@ public abstract class AbstractColumnManager<T> {
 
 	public boolean containsColumn(ColumnName columnName, String condition1Name, String condition2Name,
 			String projectTag, String ratioName) {
-		for (MyColumn<T> column : getColumnsByColumnName(columnName)) {
+		final Set<MyColumn<T>> columnsByColumnName2 = getColumnsByColumnName(columnName);
+		for (MyColumn<T> column : columnsByColumnName2) {
 			if (column instanceof MyIdColumn) {
 				MyIdColumn idColumn = (MyIdColumn) column;
-				if (condition1Name.equalsIgnoreCase(idColumn.getExperimentalConditionName())
-						&& condition2Name.equalsIgnoreCase(idColumn.getExperimentalCondition2Name())
-						&& projectTag.equalsIgnoreCase(idColumn.getProjectTag())
-						&& ratioName.equalsIgnoreCase(idColumn.getRatioName())) {
-					return true;
+				final String experimentalConditionName = idColumn.getExperimentalConditionName();
+				if (condition1Name.equalsIgnoreCase(experimentalConditionName)) {
+					final String experimentalCondition2Name = idColumn.getExperimentalCondition2Name();
+					if (condition2Name.equalsIgnoreCase(experimentalCondition2Name)) {
+						final String projectTag2 = idColumn.getProjectTag();
+						if (projectTag.equalsIgnoreCase(projectTag2)) {
+							final String ratioName2 = idColumn.getRatioName();
+							if (ratioName.equalsIgnoreCase(ratioName2)) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean containsColumn(ColumnName columnName, String condition1Name, String condition2Name,
+			String projectTag, String ratioName, String ratioScoreName) {
+		final Set<MyColumn<T>> columnsByColumnName2 = getColumnsByColumnName(columnName);
+		for (MyColumn<T> column : columnsByColumnName2) {
+			if (column instanceof MyIdColumn) {
+				MyIdColumn idColumn = (MyIdColumn) column;
+				final String experimentalConditionName = idColumn.getExperimentalConditionName();
+				if (condition1Name.equalsIgnoreCase(experimentalConditionName)) {
+					final String experimentalCondition2Name = idColumn.getExperimentalCondition2Name();
+					if (condition2Name.equalsIgnoreCase(experimentalCondition2Name)) {
+						final String projectTag2 = idColumn.getProjectTag();
+						if (projectTag.equalsIgnoreCase(projectTag2)) {
+							final String ratioName2 = idColumn.getRatioName();
+							if (ratioName.equalsIgnoreCase(ratioName2)) {
+								final String scoreName = idColumn.getScoreName();
+								if (scoreName.equalsIgnoreCase(ratioScoreName)) {
+									return true;
+								}
+							}
+						}
+					}
 				}
 			}
 		}

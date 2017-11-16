@@ -14,11 +14,11 @@ public abstract class NumberFormat {
 
 	}
 
-	public static NumberFormat getScientificFormat() {
+	public static NumberFormat getScientificFormat(int minNumFractionDigits, int maxNumFractionDigits) {
 		if (!com.google.gwt.core.shared.GWT.isClient())
-			return NumberFormatServer.getScientificFormat();
+			return NumberFormatServer.getScientificFormat(minNumFractionDigits, maxNumFractionDigits);
 		else
-			return NumberFormatClient.getScientificFormat();
+			return NumberFormatClient.getScientificFormat(minNumFractionDigits, maxNumFractionDigits);
 
 	}
 

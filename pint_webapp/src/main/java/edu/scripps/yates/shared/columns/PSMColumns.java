@@ -161,7 +161,7 @@ public class PSMColumns implements ColumnProvider<PSMBean> {
 			return parseEmptyString(p.getChargeState());
 		case PSM_RATIO:
 			return parseEmptyString(p.getRatioStringByConditions(conditionName, condition2Name, projectTag, ratioName,
-					skipRatioInfinities));
+					skipRatioInfinities, true));
 		case PEPTIDE_LENGTH:
 			if (p.getSequence() != null)
 				return parseEmptyString(String.valueOf(p.getSequence().length()));
@@ -201,6 +201,9 @@ public class PSMColumns implements ColumnProvider<PSMBean> {
 					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
 		case LINK_TO_PRIDE_CLUSTER:
 			return "+";
+		case PSM_RATIO_SCORE:
+			return parseEmptyString(p.getRatioScoreStringByConditions(conditionName, condition2Name, projectTag,
+					ratioName, scoreName, skipRatioInfinities, true));
 		default:
 
 			return parseEmptyString("");

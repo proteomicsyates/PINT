@@ -100,9 +100,12 @@ public class PeptideColumns implements ColumnProvider<PeptideBean> {
 		case PEPTIDE_AMOUNT:
 			return parseEmptyString(DataGridRenderValue
 					.getAmountDataGridRenderValue(p, conditionName, amountType, projectTag).getValue());
+		case PEPTIDE_RATIO_SCORE:
+			return parseEmptyString(p.getRatioScoreStringByConditions(conditionName, condition2Name, projectTag,
+					ratioName, scoreName, skipRatioInfinities, true));
 		case PEPTIDE_RATIO:
 			return parseEmptyString(p.getRatioStringByConditions(conditionName, condition2Name, projectTag, ratioName,
-					skipRatioInfinities));
+					skipRatioInfinities, true));
 		case PEPTIDE_LENGTH:
 			if (p.getSequence() != null)
 				return parseEmptyString(String.valueOf(p.getSequence().length()));

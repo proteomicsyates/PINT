@@ -13,8 +13,22 @@ class NumberFormatServer extends NumberFormat {
 		return new NumberFormatServer(pattern);
 	}
 
-	public static NumberFormat getScientificFormat() {
-		return new NumberFormatServer("0.0E0");
+	public static NumberFormat getScientificFormat(int minNumFractionDigits, int maxNumFractionDigits) {
+		if (maxNumFractionDigits <= 0) {
+			return new NumberFormatServer("#");
+		}
+		String decimals = getRepeatedString("0", maxNumFractionDigits);
+
+		return new NumberFormatServer("0." + decimals + "E0");
+
+	}
+
+	private static String getRepeatedString(String string, int numDecimals) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < numDecimals; i++) {
+			sb.append(string);
+		}
+		return sb.toString();
 	}
 
 	@Override

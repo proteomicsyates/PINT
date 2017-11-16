@@ -59,8 +59,15 @@ public class ExcelRatioPanel
 	private final SimpleRadioButton radioButtonFromSameRow;
 	private final SimpleRadioButton radioButtonFromExternalSource;
 	private final static String TAG = "###";
-	private final String ratio1Text = "Assign ratio values to " + TAG + " in the same row";
-	private final String ratio2Text = "Assign ratio values to " + TAG + " not from Excel file";
+	private final String ratio1Text = "Column for " + TAG + " was already selected before";
+	private final String ratio2Text = "Select column for " + TAG;
+	private final String ratio2Title = "Select this option if you want to select the " + TAG + " column here,\n"
+			+ "so the ratios in each row will be assigned to the " + TAG + " in each row.";
+
+	private final String ratio1Title = " Select this option if you already selected a column for " + TAG
+			+ " in the same excel sheet that are the ratios.\n"
+			+ "In that case, ratios in each row will be assigned to " + TAG + " in the same row.";
+
 	private final FlowPanel proteinAccessionContainer;
 	private final Label labelPSMAccession;
 	private final Label labelPeptideAccession;
@@ -79,6 +86,14 @@ public class ExcelRatioPanel
 
 	private String getRatio2Text(SharedAggregationLevel level) {
 		return getRatioText(level, ratio2Text);
+	}
+
+	private String getRatio1Title(SharedAggregationLevel level) {
+		return getRatioText(level, ratio1Title);
+	}
+
+	private String getRatio2Title(SharedAggregationLevel level) {
+		return getRatioText(level, ratio2Title);
 	}
 
 	private String getRatioText(SharedAggregationLevel level, String text) {
@@ -129,20 +144,26 @@ public class ExcelRatioPanel
 		flexTable.getFlexCellFormatter().setColSpan(4, 0, 2);
 
 		labelRatio1 = new Label(getRatio1Text(SharedAggregationLevel.PSM));
+
+		labelRatio1.setTitle(getRatio1Title(SharedAggregationLevel.PSM));
 		labelRatio1.setWidth("270px");
 		flexTable.setWidget(2, 0, labelRatio1);
 
 		radioButtonFromSameRow = new SimpleRadioButton("new name" + hashCode());
+		radioButtonFromSameRow.setTitle(getRatio1Title(SharedAggregationLevel.PSM));
 		radioButtonFromSameRow.setValue(true);
 		flexTable.setWidget(2, 1, radioButtonFromSameRow);
 		flexTable.getCellFormatter().setHorizontalAlignment(2, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		flexTable.getCellFormatter().setHorizontalAlignment(3, 1, HasHorizontalAlignment.ALIGN_LEFT);
 
 		labelRatio2 = new Label(getRatio2Text(SharedAggregationLevel.PSM));
+
+		labelRatio2.setTitle(getRatio2Title(SharedAggregationLevel.PSM));
 		labelRatio2.setWidth("270px");
 		flexTable.setWidget(3, 0, labelRatio2);
 
 		radioButtonFromExternalSource = new SimpleRadioButton("new name" + hashCode());
+		radioButtonFromExternalSource.setTitle(getRatio2Title(SharedAggregationLevel.PSM));
 		flexTable.setWidget(3, 1, radioButtonFromExternalSource);
 		Label lblAddAssociatedScore = new Label("Add associated score:");
 		flexTable.setWidget(5, 0, lblAddAssociatedScore);
@@ -209,22 +230,21 @@ public class ExcelRatioPanel
 			mainPanel.remove(widget);
 		}
 		if (level != null) {
+			labelRatio1.setText(getRatio1Text(level));
+			labelRatio1.setTitle(getRatio1Title(level));
+			labelRatio2.setText(getRatio2Text(level));
+			labelRatio2.setTitle(getRatio2Title(level));
+
 			switch (level) {
 			case PSM:
-				labelRatio1.setText(getRatio1Text(SharedAggregationLevel.PSM));
-				labelRatio2.setText(getRatio2Text(SharedAggregationLevel.PSM));
 				label = labelPSMAccession;
 				widget = psmIdColumnRefPanel;
 				break;
 			case PEPTIDE:
-				labelRatio1.setText(getRatio1Text(SharedAggregationLevel.PEPTIDE));
-				labelRatio2.setText(getRatio2Text(SharedAggregationLevel.PEPTIDE));
 				label = labelPeptideAccession;
 				widget = peptideColumnRefPanel;
 				break;
 			case PROTEIN:
-				labelRatio1.setText(getRatio1Text(SharedAggregationLevel.PROTEIN));
-				labelRatio2.setText(getRatio2Text(SharedAggregationLevel.PROTEIN));
 				label = labelProteinAccession;
 				widget = proteinAccessionContainer;
 				break;

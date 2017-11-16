@@ -272,8 +272,11 @@ public class ProteinImplFromUniprotEntry implements Protein {
 				// the the description as the annotation name if available.
 				// Otherwise, take the type
 				String annotName = feature.getDescription();
-				if (annotName == null) {
+				if (annotName == null || "".equals(annotName)) {
 					annotName = feature.getType();
+					if (annotName == null || "".equals(annotName)) {
+						continue;
+					}
 				}
 				ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType, annotName,
 						getValueFromFeature(feature));

@@ -108,6 +108,29 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 	}
 
 	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
+			String condition1Name, String condition2Name, String projectTag, String ratioName, String ratioScoreName) {
+		super(columnName);
+		setSortable(true);
+		this.columnName = columnName;
+		comparator = new PSMComparator(columnName, condition1Name, condition2Name, projectTag, ratioName,
+				ratioScoreName);
+		defaultWidth = getDefaultWidth(columnName);
+		conditionName = condition1Name;
+		this.condition2Name = condition2Name;
+		amountType = null;
+		this.ratioName = ratioName;
+		this.projectTag = projectTag;
+		scoreName = ratioScoreName;
+		this.footer = footer;
+		this.header = header;
+		this.visibleState = visibleState;
+		if (visibleState)
+			width = defaultWidth;
+		else
+			width = 0;
+	}
+
+	public PSMTextColumn(ColumnName columnName, boolean visibleState, Header<?> header, Header<String> footer,
 			String scoreName) {
 		super(columnName);
 		setSortable(true);
@@ -146,6 +169,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * com.google.gwt.user.cellview.client.Column#render(com.google.gwt.cell
 	 * .client.Cell.Context, java.lang.Object,
@@ -186,8 +210,8 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 			break;
 		case PSM_RATIO:
 			sb.append(template.startToolTip("Ratio type: " + ratioName + "\nConditions: " + conditionName + " / "
-					+ condition2Name + "\nValue: "
-					+ psm.getRatioStringByConditions(conditionName, condition2Name, projectTag, ratioName, false)));
+					+ condition2Name + "\nValue: " + psm.getRatioStringByConditions(conditionName, condition2Name,
+							projectTag, ratioName, false, false)));
 			super.render(context, psm, sb);
 			sb.append(template.endToolTip());
 			break;
@@ -195,7 +219,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 
 			final String extendedRatioScoreStringByConditions = ClientSafeHtmlUtils
 					.getExtendedRatioScoreStringByConditions(psm, conditionName, condition2Name, projectTag, ratioName,
-							false);
+							scoreName, false);
 			sb.append(template.startToolTip(extendedRatioScoreStringByConditions));
 
 			super.render(context, psm, sb);

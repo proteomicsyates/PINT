@@ -19,6 +19,9 @@ public enum FileFormat {
 	}
 
 	public static FileFormat getFileFormatFromString(String string) {
+		if ("".equals(string)) {
+			return null;
+		}
 		final FileFormat[] values = values();
 		for (FileFormat fileFormat : values) {
 			if (fileFormat.name().equalsIgnoreCase(string))

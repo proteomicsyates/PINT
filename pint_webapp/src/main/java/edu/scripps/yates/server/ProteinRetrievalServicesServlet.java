@@ -1528,7 +1528,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		validateLogin(userName, password);
 		final String id = UUID.randomUUID().toString() + clientIP;
 		log.info("NEW SESSION ID:" + id);
-		sendTrackingEmail(clientIP, "New session detected from IP: " + clientIP);
+		sendTrackingEmail(userName, "New session detected from IP: " + clientIP, "New session ID: " + id);
 
 		// create db session
 		return id;

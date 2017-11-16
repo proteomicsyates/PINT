@@ -301,7 +301,33 @@ public class DataExporter {
 							if (actualprojectTag.equals(projectTag)) {
 								final String ratioStringByConditions = psmBean.getRatioStringByConditions(
 										ratioDescriptor.getCondition1Name(), ratioDescriptor.getCondition2Name(),
-										ratioDescriptor.getProjectTag(), ratioDescriptor.getRatioName(), false);
+										ratioDescriptor.getProjectTag(), ratioDescriptor.getRatioName(), false, false);
+								String parsedValue = parseValue(ratioStringByConditions);
+								if ("".equals(parsedValue)) {
+									parsedValue = EMPTY;
+								}
+								fw.write(parsedValue);
+								fw.write(TAB);
+							} else {
+								fw.write(EMPTY);
+								fw.write(TAB);
+							}
+						}
+					}
+				}
+			} else if (columnWithOrder.getColumn() == ColumnName.PSM_RATIO_SCORE) {
+				// iterate over projects
+				for (String projectTag : projectTags) {
+					List<RatioDescriptorBean> ratioDescriptors = ratioDescriptorsByProjects.get(projectTag);
+					if (ratioDescriptors != null) {
+						// iterate over ratioDescriptors
+						for (RatioDescriptorBean ratioDescriptor : ratioDescriptors) {
+							final String psmScoreName = ratioDescriptor.getPsmScoreName();
+							if (actualprojectTag.equals(projectTag) && psmScoreName != null) {
+								final String ratioStringByConditions = psmBean.getRatioScoreStringByConditions(
+										ratioDescriptor.getCondition1Name(), ratioDescriptor.getCondition2Name(),
+										ratioDescriptor.getProjectTag(), ratioDescriptor.getRatioName(), psmScoreName,
+										false, false);
 								String parsedValue = parseValue(ratioStringByConditions);
 								if ("".equals(parsedValue)) {
 									parsedValue = EMPTY;
@@ -413,10 +439,33 @@ public class DataExporter {
 						// iterate over ratioDescriptors
 						for (RatioDescriptorBean ratioDescriptor : ratioDescriptors) {
 							if (projectTag.equals(actualprojectTag)) {
-								fw.write(parseValue(proteinBean.getRatioStringByConditions(
-										ratioDescriptor.getCondition1Name(), ratioDescriptor.getCondition2Name(),
-										ratioDescriptor.getProjectTag(), ratioDescriptor.getRatioName(), false)));
+								fw.write(parseValue(
+										proteinBean.getRatioStringByConditions(ratioDescriptor.getCondition1Name(),
+												ratioDescriptor.getCondition2Name(), ratioDescriptor.getProjectTag(),
+												ratioDescriptor.getRatioName(), false, false)));
 								fw.write(TAB);
+							} else {
+								fw.write(EMPTY);
+								fw.write(TAB);
+							}
+						}
+					}
+				}
+			} else if (columnWithOrder.getColumn() == ColumnName.PROTEIN_RATIO_SCORE) {
+				// iterate over projects
+				for (String projectTag : projectTags) {
+					List<RatioDescriptorBean> ratioDescriptors = ratioDescriptorsByProjects.get(projectTag);
+					if (ratioDescriptors != null) {
+						// iterate over ratioDescriptors
+						for (RatioDescriptorBean ratioDescriptor : ratioDescriptors) {
+							final String proteinScoreName = ratioDescriptor.getProteinScoreName();
+							if (proteinScoreName != null && projectTag.equals(actualprojectTag)) {
+								fw.write(parseValue(
+										proteinBean.getRatioScoreStringByConditions(ratioDescriptor.getCondition1Name(),
+												ratioDescriptor.getCondition2Name(), ratioDescriptor.getProjectTag(),
+												ratioDescriptor.getRatioName(), proteinScoreName, false, false)));
+								fw.write(TAB);
+
 							} else {
 								fw.write(EMPTY);
 								fw.write(TAB);
@@ -488,9 +537,31 @@ public class DataExporter {
 						// iterate over ratioDescriptors
 						for (RatioDescriptorBean ratioDescriptor : ratioDescriptors) {
 							if (projectTag.equals(actualprojectTag)) {
-								fw.write(parseValue(proteinGroup.getRatioStringByConditions(
+								fw.write(parseValue(
+										proteinGroup.getRatioStringByConditions(ratioDescriptor.getCondition1Name(),
+												ratioDescriptor.getCondition2Name(), ratioDescriptor.getProjectTag(),
+												ratioDescriptor.getRatioName(), false, false)));
+								fw.write(TAB);
+							} else {
+								fw.write(EMPTY);
+								fw.write(TAB);
+							}
+						}
+					}
+				}
+			} else if (columnWithOrder.getColumn() == ColumnName.PROTEIN_RATIO_SCORE) {
+				// iterate over projects
+				for (String projectTag : projectTags) {
+					List<RatioDescriptorBean> ratioDescriptors = ratioDescriptorsByProjects.get(projectTag);
+					if (ratioDescriptors != null) {
+						// iterate over ratioDescriptors
+						for (RatioDescriptorBean ratioDescriptor : ratioDescriptors) {
+							final String proteinScoreName = ratioDescriptor.getProteinScoreName();
+							if (proteinScoreName != null && projectTag.equals(actualprojectTag)) {
+								fw.write(parseValue(proteinGroup.getRatioScoreStringByConditions(
 										ratioDescriptor.getCondition1Name(), ratioDescriptor.getCondition2Name(),
-										ratioDescriptor.getProjectTag(), ratioDescriptor.getRatioName(), false)));
+										ratioDescriptor.getProjectTag(), ratioDescriptor.getRatioName(),
+										proteinScoreName, false, false)));
 								fw.write(TAB);
 							} else {
 								fw.write(EMPTY);

@@ -582,6 +582,10 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 		for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean : psmRemoteFileRatios) {
 			if (remoteFilesRatioTypeBeanMap.containsKey(remoteFilesRatioTypeBean)) {
 				remoteFilesRatioTypeBeanMap.get(remoteFilesRatioTypeBean).add(SharedAggregationLevel.PSM);
+			} else {
+				Set<SharedAggregationLevel> set = new HashSet<SharedAggregationLevel>();
+				set.add(SharedAggregationLevel.PSM);
+				remoteFilesRatioTypeBeanMap.put(remoteFilesRatioTypeBean, set);
 			}
 		}
 		final List<RemoteFilesRatioTypeBean> peptideRemoteFileRatios = projectConfigurationPanel
@@ -589,6 +593,10 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 		for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean : peptideRemoteFileRatios) {
 			if (remoteFilesRatioTypeBeanMap.containsKey(remoteFilesRatioTypeBean)) {
 				remoteFilesRatioTypeBeanMap.get(remoteFilesRatioTypeBean).add(SharedAggregationLevel.PEPTIDE);
+			} else {
+				Set<SharedAggregationLevel> set = new HashSet<SharedAggregationLevel>();
+				set.add(SharedAggregationLevel.PEPTIDE);
+				remoteFilesRatioTypeBeanMap.put(remoteFilesRatioTypeBean, set);
 			}
 		}
 		final List<RemoteFilesRatioTypeBean> proteinRemoteFileRatios = projectConfigurationPanel
@@ -596,6 +604,10 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 		for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean : proteinRemoteFileRatios) {
 			if (remoteFilesRatioTypeBeanMap.containsKey(remoteFilesRatioTypeBean)) {
 				remoteFilesRatioTypeBeanMap.get(remoteFilesRatioTypeBean).add(SharedAggregationLevel.PROTEIN);
+			} else {
+				Set<SharedAggregationLevel> set = new HashSet<SharedAggregationLevel>();
+				set.add(SharedAggregationLevel.PROTEIN);
+				remoteFilesRatioTypeBeanMap.put(remoteFilesRatioTypeBean, set);
 			}
 		}
 		for (RemoteFilesRatioTypeBean remoteFilesRatioTypeBean : remoteFilesRatioTypeBeanMap.keySet()) {
@@ -1344,7 +1356,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 
 		// check first the login
 		final PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
-				"enter PINT master password for project submission:");
+				"Enter PINT master password for project submission:");
 		loginPanel.addCloseHandler(new CloseHandler<PopupPanel>() {
 
 			@Override
@@ -1361,6 +1373,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 									@Override
 									public void onFailure(Throwable caught) {
 										StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+										hiddeDialog();
 									}
 
 									@Override
@@ -1387,7 +1400,7 @@ public class ProjectCreatorWizard extends InitializableComposite implements Cont
 			}
 		});
 		loginPanel.show();
-
+		loginPanel.focusOnPassword();
 	}
 
 	private ClickHandler getSaveConfigurationClickHandler() {

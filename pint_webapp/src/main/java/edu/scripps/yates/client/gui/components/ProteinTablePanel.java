@@ -27,7 +27,7 @@ public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
 
 	public ProteinTablePanel(String sessionID, String emptyLabel,
 			AbstractAsyncDataProvider<ProteinBean> asyncProteinBeanListDataProvider, boolean multipleSelectionModel) {
-		super(sessionID, emptyLabel, asyncProteinBeanListDataProvider, multipleSelectionModel);
+		super(sessionID, emptyLabel, asyncProteinBeanListDataProvider, multipleSelectionModel, "protein table");
 
 		dataGrid.redraw();
 	}
@@ -41,7 +41,7 @@ public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
 				return item == null ? null : item.getProteinDBString();
 			}
 		};
-		MyDataGrid<ProteinBean> dataGrid = new MyDataGrid<ProteinBean>(KEY_PROVIDER);
+		MyDataGrid<ProteinBean> dataGrid = new MyDataGrid<ProteinBean>(KEY_PROVIDER, tableName);
 		dataGrid.setEmptyTableWidget(new Label(cwDataGridEmpty));
 
 		return dataGrid;

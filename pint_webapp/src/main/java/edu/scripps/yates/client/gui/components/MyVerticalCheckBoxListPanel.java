@@ -17,6 +17,7 @@ import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
 import edu.scripps.yates.client.interfaces.ItemList;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
+import edu.scripps.yates.shared.model.AmountType;
 
 public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements ItemList {
 	private final List<CheckBox> listCheckBox = new ArrayList<CheckBox>();
@@ -32,7 +33,7 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 
 		for (ColumnName columnName : columns) {
 			final boolean visible = columnManager.isVisible(columnName);
-			addCheckBox(columnName, columnName.getName(), visible);
+			addCheckBox(columnName, columnName.getName(), getKeyName(columnName, columnName.getName()), visible);
 		}
 	}
 
@@ -40,9 +41,8 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 		this.columnManagers.add(columnManager);
 	}
 
-	private CheckBox addCheckBox(ColumnName column, String checkBoxName, boolean selected) {
+	private CheckBox addCheckBox(ColumnName column, String checkBoxName, String keyName, boolean selected) {
 
-		final String keyName = getKeyName(column, checkBoxName);
 		if (checkBoxByKeyName.containsKey(keyName)) {
 			return checkBoxByKeyName.get(keyName);
 		}
@@ -73,25 +73,31 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 		return checkBox;
 	}
 
-	public void addConditionRelatedColumnCheckBoxHandler(ColumnName columnName, String condition1Name,
-			String condition2Name, String projectTag, MyVerticalConditionsListBoxPanel conditionsPanel) {
-		for (CheckBox checkBox : listCheckBox) {
-			if (checkBox.getText().equals(columnName.getName())) {
-				checkBox.addClickHandler(getConditionRelatedColumnClickHandler(columnName, condition1Name,
-						condition2Name, projectTag, conditionsPanel));
-			}
-		}
-	}
+	// public void addRatioConditionRelatedColumnCheckBoxHandler(ColumnName
+	// columnName, String checkBoxName,
+	// String condition1Name, String condition2Name, String projectTag,
+	// MyVerticalConditionsListBoxPanel conditionsPanel) {
+	// for (CheckBox checkBox : listCheckBox) {
+	// if (checkBox.getText().equals(checkBoxName)) {
+	// checkBox.addClickHandler(getRatioConditionRelatedColumnClickHandler(columnName,
+	// condition1Name,
+	// condition2Name, projectTag, conditionsPanel));
+	// }
+	// }
+	// }
 
-	public void addConditionRelatedColumnCheckBoxHandler(ColumnName columnName, String conditionName, String projectTag,
-			MyVerticalConditionsListBoxPanel conditionsPanel) {
-		for (CheckBox checkBox : listCheckBox) {
-			if (checkBox.getText().equals(columnName.getName())) {
-				checkBox.addClickHandler(
-						getConditionRelatedColumnClickHandler(columnName, conditionName, projectTag, conditionsPanel));
-			}
-		}
-	}
+	// public void addConditionRelatedColumnCheckBoxHandler(ColumnName
+	// columnName, String checkBoxName,
+	// String conditionName, String projectTag, MyVerticalConditionsListBoxPanel
+	// conditionsPanel) {
+	// for (CheckBox checkBox : listCheckBox) {
+	// if (checkBox.getText().equals(checkBoxName)) {
+	// checkBox.addClickHandler(
+	// getConditionRelatedColumnClickHandler(columnName, conditionName,
+	// projectTag, conditionsPanel));
+	// }
+	// }
+	// }
 
 	/**
 	 * This {@link ClickHandler} gets the selection from the {@link CheckBox}
@@ -117,60 +123,66 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 		return handler;
 	}
 
-	private ClickHandler getConditionRelatedColumnClickHandler(final ColumnName columnName, final String conditionName,
-			final String projectTag, final MyVerticalConditionsListBoxPanel conditionsPanel) {
+	// private ClickHandler getConditionRelatedColumnClickHandler(final
+	// ColumnName columnName, final String conditionName,
+	// final String projectTag, final MyVerticalConditionsListBoxPanel
+	// conditionsPanel) {
+	//
+	// ClickHandler handler = new ClickHandler() {
+	// @Override
+	// public void onClick(ClickEvent event) {
+	//
+	// CheckBox checkbox = (CheckBox) event.getSource();
+	// final Boolean setVisible = checkbox.getValue();
+	// boolean visibility = false;
+	// if (setVisible
+	// // && conditionsPanel.isSelected(conditionName,
+	// // projectTag)
+	// ) {
+	// visibility = true;
+	// }
+	// // else if (!setVisible
+	// // && !conditionsPanel.isSelected(conditionName,
+	// // projectTag)) {
+	// // visibility = true;
+	// // }
+	// //
+	// for (AbstractColumnManager<T> columnManager : columnManagers) {
+	// columnManager.setVisible(columnName, conditionName, projectTag,
+	// visibility);
+	// }
+	//
+	// }
+	// };
+	// return handler;
+	// }
 
-		ClickHandler handler = new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-
-				CheckBox checkbox = (CheckBox) event.getSource();
-				final Boolean setVisible = checkbox.getValue();
-				boolean visibility = false;
-				if (setVisible
-				// && conditionsPanel.isSelected(conditionName,
-				// projectTag)
-				) {
-					visibility = true;
-				}
-				// else if (!setVisible
-				// && !conditionsPanel.isSelected(conditionName,
-				// projectTag)) {
-				// visibility = true;
-				// }
-				//
-				for (AbstractColumnManager<T> columnManager : columnManagers) {
-					columnManager.setVisible(columnName, conditionName, projectTag, visibility);
-				}
-
-			}
-		};
-		return handler;
-	}
-
-	private ClickHandler getConditionRelatedColumnClickHandler(final ColumnName columnName, final String condition1Name,
-			final String condition2Name, final String projectTag,
-			final MyVerticalConditionsListBoxPanel conditionsPanel) {
-
-		ClickHandler handler = new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-
-				CheckBox checkbox = (CheckBox) event.getSource();
-				final Boolean setVisible = checkbox.getValue();
-				boolean visibility = false;
-				if (setVisible) {
-					visibility = true;
-				}
-
-				for (AbstractColumnManager<T> columnManager : columnManagers) {
-					columnManager.setVisible(columnName, condition1Name, condition2Name, projectTag, visibility);
-				}
-
-			}
-		};
-		return handler;
-	}
+	// private ClickHandler getRatioConditionRelatedColumnClickHandler(final
+	// ColumnName columnName,
+	// final String condition1Name, final String condition2Name, final String
+	// projectTag,
+	// final MyVerticalConditionsListBoxPanel conditionsPanel) {
+	//
+	// ClickHandler handler = new ClickHandler() {
+	// @Override
+	// public void onClick(ClickEvent event) {
+	//
+	// CheckBox checkbox = (CheckBox) event.getSource();
+	// final Boolean setVisible = checkbox.getValue();
+	// boolean visibility = false;
+	// if (setVisible) {
+	// visibility = true;
+	// }
+	//
+	// for (AbstractColumnManager<T> columnManager : columnManagers) {
+	// columnManager.setVisible(columnName, condition1Name, condition2Name,
+	// projectTag, visibility);
+	// }
+	//
+	// }
+	// };
+	// return handler;
+	// }
 
 	public boolean isSelected(ColumnName column) {
 		if (checkBoxByKeyName.containsKey(column))
@@ -228,20 +240,31 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 		}
 	}
 
-	public void addColumnCheckBoxByKeyName(ColumnName columnName, String name) {
+	public void addColumnCheckBoxByKeyName(ColumnName columnName, String checkBoxName, String keyName) {
 		for (AbstractColumnManager<T> columnManager : columnManagers) {
 			final boolean visible = columnManager.isVisible(columnName);
-			addCheckBox(columnName, name, visible);
+			addCheckBox(columnName, checkBoxName, keyName, visible);
 		}
-		addCheckBoxClickHandlerByKeyName(columnName, name);
+		addCheckBoxClickHandlerByKeyName(keyName);
 	}
 
-	public static String getKeyName(ColumnName column, String checkBoxName) {
-		return column.name() + checkBoxName;
+	public static String getKeyName(ColumnName column, String... names) {
+		StringBuilder sb = new StringBuilder(column.name());
+		if (names != null) {
+			for (String string : names) {
+				sb.append(",").append(string);
+			}
+		}
+		return sb.toString();
 	}
 
-	private void addCheckBoxClickHandlerByKeyName(ColumnName column, String checkBoxName) {
-		String keyName = getKeyName(column, checkBoxName);
+	// private void addCheckBoxClickHandlerByKeyName(ColumnName column,
+	// String... names) {
+	// String keyName = getKeyName(column, names);
+	// addCheckBoxClickHandlerByKeyName(keyName);
+	// }
+
+	private void addCheckBoxClickHandlerByKeyName(String keyName) {
 		if (checkBoxByKeyName.containsKey(keyName)) {
 			CheckBox checkBox = checkBoxByKeyName.get(keyName);
 			ClickHandler handler = new ClickHandler() {
@@ -263,6 +286,22 @@ public class MyVerticalCheckBoxListPanel<T> extends VerticalPanel implements Ite
 			};
 			checkBox.addClickHandler(handler);
 		}
+	}
+
+	public static String getCheckBoxNameForAmount(AmountType amountType, String conditionSymbol) {
+		return amountType.name() + " (" + conditionSymbol + ")";
+	}
+
+	public static String getCheckBoxNameForRatio(String ratioName, String conditionSymbol1, String conditionSymbol2) {
+		return ratioName + " (" + conditionSymbol1 + "/" + conditionSymbol2 + ")";
+	}
+
+	public static String getCheckBoxNameForRatioScore(String ratioScore, String ratioName) {
+		return ratioScore + " (" + ratioName + ")";
+	}
+
+	public static String getCheckBoxNameForRatioGraph(ColumnName columnName, String ratioName) {
+		return columnName + " (" + ratioName + ")";
 	}
 
 }

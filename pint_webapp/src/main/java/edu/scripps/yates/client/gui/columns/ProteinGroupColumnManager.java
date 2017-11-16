@@ -68,7 +68,8 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 		final ProteinGroupTextColumn column = new ProteinGroupTextColumn(ColumnName.PROTEIN_AMOUNT, visibleState,
 				header, footerManager.getAmountFooterByCondition(conditionName, amountType, projectName), conditionName,
 				amountType, projectName);
-		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, amountType.name()));
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, conditionName, conditionSymbol,
+				amountType.name(), projectName));
 		super.addColumn(column);
 		return column;
 	}
@@ -84,7 +85,8 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 		final ProteinGroupTextColumn column = new ProteinGroupTextColumn(ColumnName.PROTEIN_RATIO, visibleState, header,
 				footerManager.getRatioFooterByConditions(condition1Name, condition2Name, projectTag, ratioName),
 				condition1Name, condition2Name, projectTag, ratioName);
-		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, ratioName));
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, condition1Name, condition1Symbol,
+				condition2Name, condition2Symbol, projectTag, ratioName));
 		super.addColumn(column);
 		return column;
 	}
@@ -92,16 +94,32 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 	@Override
 	public CustomTextColumn<ProteinGroupBean> addScoreColumn(ColumnName columnName, boolean visibleState,
 			String scoreName) {
-		// not implemented
-		return null;
+		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+				SafeHtmlUtils.fromSafeConstant(scoreName), scoreName);
+		final ProteinGroupTextColumn column = new ProteinGroupTextColumn(columnName, visibleState, header,
+				footerManager.getScoreFooterByScore(scoreName), scoreName);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, scoreName));
+		super.addColumn(column);
+		return column;
 	}
 
 	@Override
 	public CustomTextColumn<ProteinGroupBean> addRatioScoreColumn(ColumnName columnName, boolean visibleState,
 			String condition1Name, String condition1Symbol, String condition2Name, String condition2Symbol,
 			String projectTag, String ratioName, String ratioScore) {
-		// not implemented
-		return null;
+		String headerName = SharedDataUtils.getRatioScoreHeader(ratioScore, ratioName, condition1Symbol,
+				condition2Symbol);
+		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+				SafeHtmlUtils.fromSafeConstant(headerName), SharedDataUtils.getRatioScoreHeaderTooltip(columnName,
+						condition1Name, condition2Name, ratioName, ratioScore));
+		final ProteinGroupTextColumn column = new ProteinGroupTextColumn(columnName,
+				visibleState, header, footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name,
+						projectTag, ratioName, ratioScore),
+				condition1Name, condition2Name, projectTag, ratioName, ratioScore);
+		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, condition1Name, condition1Symbol,
+				condition2Name, condition2Symbol, projectTag, ratioName, ratioScore));
+		addColumn(column);
+		return column;
 	}
 
 	private FieldUpdater<ProteinGroupBean, ImageResource> getMyFieldUpdater(

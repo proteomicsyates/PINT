@@ -826,11 +826,11 @@ public class ClientSafeHtmlUtils {
 	 * @return
 	 */
 	public static String getExtendedRatioScoreStringByConditions(ContainsRatios p, String condition1Name,
-			String condition2Name, String projectTag, String ratioName, boolean skipInfinities) {
+			String condition2Name, String projectTag, String ratioName, String ratioScoreName, boolean skipInfinities) {
 		StringBuilder sb = new StringBuilder();
 
 		final List<ScoreBean> ratioScores = p.getRatioScoresByConditions(condition1Name, condition2Name, projectTag,
-				ratioName);
+				ratioName, ratioScoreName);
 		for (ScoreBean ratioScore : ratioScores) {
 			try {
 
@@ -845,7 +845,9 @@ public class ClientSafeHtmlUtils {
 					sb.append("Value: " + String.valueOf(doubleValue.intValue()));
 				} else {
 					try {
-						final String format = NumberFormat.getFormat("#.##").format(doubleValue);
+						// no formatting because this is the tooltip, we want to
+						// show everything
+						String format = String.valueOf(doubleValue);
 						sb.append("Score value: " + format);
 					} catch (NumberFormatException e2) {
 
@@ -1116,4 +1118,5 @@ public class ClientSafeHtmlUtils {
 				reactome.getDescription());
 		return link;
 	}
+
 }

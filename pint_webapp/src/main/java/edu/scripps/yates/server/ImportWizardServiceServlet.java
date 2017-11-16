@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1207,16 +1208,24 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public void moveDataFile(String sessionID, int jobID, FileNameWithTypeBean fileOLD, FileNameWithTypeBean fileNew)
 			throws PintException {
+
 		final File oldDataFile = FileManager.getDataFile(jobID, fileOLD.getFileName(), fileOLD.getId(),
 				fileOLD.getFileFormat());
 		final File newDataFile = FileManager.getDataFile(jobID, fileNew.getFileName(), fileNew.getId(),
 				fileNew.getFileFormat());
-
+		final Method method = new Object() {
+		}.getClass().getEnclosingMethod();
 		try {
+
+			ProjectLocker.lock(sessionID, method);
+			// move the file
+			if (!oldDataFile.exists()) {
+				return;
+			}
 			if (newDataFile.exists()) {
 				newDataFile.delete();
 			}
-			// move the file
+
 			FileUtils.moveFile(oldDataFile, newDataFile);
 			// remove oldDataFile parent folder if empty recursively
 			File parentFile = oldDataFile.getParentFile();
@@ -1239,6 +1248,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.MOVING_FILE_ERROR);
+		} finally {
+			ProjectLocker.unlock(sessionID, method);
 		}
 
 	}

@@ -6,6 +6,7 @@ import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PTMBean;
+import edu.scripps.yates.shared.model.PeptideRelation;
 import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedDataUtils;
@@ -33,6 +34,11 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 	public PSMComparator(ColumnName columnName, String condition1Name, String condition2Name, String projectTag,
 			String ratioName) {
 		super(columnName, condition1Name, condition2Name, projectTag, ratioName);
+	}
+
+	public PSMComparator(ColumnName columnName, String condition1Name, String condition2Name, String projectTag,
+			String ratioName, String ratioScoreName) {
+		super(columnName, condition1Name, condition2Name, projectTag, ratioName, ratioScoreName);
 	}
 
 	public PSMComparator(ColumnName columnName, String scoreName) {
@@ -67,7 +73,7 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 
 		} else if (columnName == ColumnName.PSM_RATIO_SCORE) {
-			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
+			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, scoreName, false);
 		} else {
 			try {
 				switch (columnName) {
@@ -124,7 +130,17 @@ public class PSMComparator extends BeanComparator<PSMBean> {
 				case CONDITION:
 					return compareStrings(o1.getConditionsString(), o2.getConditionsString(), true);
 				case PEPTIDE_EVIDENCE:
-					return o1.getRelation().name().compareTo(o2.getRelation().name());
+					final PeptideRelation relation = o1.getRelation();
+					final PeptideRelation relation2 = o2.getRelation();
+					String relationName1 = "";
+					String relationName2 = "";
+					if (relation != null) {
+						relationName1 = relation.name();
+					}
+					if (relation2 != null) {
+						relationName2 = relation.name();
+					}
+					return relationName1.compareTo(relationName2);
 				case PEPTIDE_ACTIVE_SITE:
 				case PEPTIDE_DOMAIN_FAMILIES:
 				case PEPTIDE_NATURAL_VARIATIONS:

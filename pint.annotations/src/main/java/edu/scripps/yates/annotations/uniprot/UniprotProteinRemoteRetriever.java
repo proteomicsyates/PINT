@@ -68,11 +68,15 @@ public class UniprotProteinRemoteRetriever {
 	private static final String UNIPROT_SERVER = PropertiesUtil.getInstance(PropertiesUtil.UNIPROT_PROPERTIES_FILE)
 			.getPropertyValue(PropertiesUtil.UNIPROT_SERVER_PROP);
 	private static final Logger log = Logger.getLogger(UniprotProteinRemoteRetriever.class);
-	private static final int MAX_NUM_TO_RETRIEVE = 200; // defined by EBI fetch
+	// private static final int MAX_NUM_TO_RETRIEVE = 200; // defined by EBI
+	// fetch
+	private static final int MAX_NUM_TO_RETRIEVE = 100; // defined by EBI
+														// protein service
 	private Set<String> missingAccessions = new THashSet<String>();
 	private final File uniprotReleaseFolder;
 	private final boolean useIndex;
 	private boolean lookForIsoforms = false;
+	private final static Set<String> doNotFound = new THashSet<String>();
 	private static Unmarshaller unmarshaller;
 	private static Marshaller marshaller;
 	private static JAXBContext jaxbContext;
@@ -157,7 +161,9 @@ public class UniprotProteinRemoteRetriever {
 
 			int totalNumAccs = 0;
 			while (totalNumAccs < noIsoformList.size()) {
-				StringBuilder locationBuilder = new StringBuilder(UNIPROT_EBI_SERVER + "&format=xml&id=");
+				// StringBuilder locationBuilder = new
+				// StringBuilder(UNIPROT_EBI_SERVER + "&format=xml&id=");
+				StringBuilder locationBuilder = new StringBuilder(UNIPROT_EBI_SERVER + "&accession=");
 				int numAccs = 0;
 				while (totalNumAccs < noIsoformList.size()) {
 					if (numAccs > 0)
@@ -782,7 +788,13 @@ public class UniprotProteinRemoteRetriever {
 			log.debug("Current uniprot release matches with the provided: " + uniprotVersion);
 			log.debug("Attemping to retrieve " + accessions.size() + " accessions");
 			long t1 = System.currentTimeMillis();
-			final Uniprot proteins = getProteins(accessions, uniprotVersion, uniprotLocalIndex);
+			Set<String> toSearch = new THashSet<String>();
+			for (String acc : accessions) {
+				if (!doNotFound.contains(acc)) {
+					toSearch.add(acc);
+				}
+			}
+			final Uniprot proteins = getProteins(toSearch, uniprotVersion, uniprotLocalIndex);
 
 			long t2 = System.currentTimeMillis();
 
@@ -791,7 +803,7 @@ public class UniprotProteinRemoteRetriever {
 			// long t3 = System.currentTimeMillis();
 			Map<String, Entry> map = new THashMap<String, Entry>();
 			UniprotProteinLocalRetriever.addEntriesToMap(map, proteins.getEntry());
-			checkIfSomeProteinIsMissing(accessions, map, uniprotVersion, uniprotLocalIndex);
+			checkIfSomeProteinIsMissing(toSearch, map, uniprotVersion, uniprotLocalIndex);
 
 			return map;
 		}
@@ -821,7 +833,8 @@ public class UniprotProteinRemoteRetriever {
 					break;
 				}
 			}
-			log.debug("Still missing: " + missingAccessions.size() + " accessions: " + allMissing.toString());
+			log.info("Still missing: " + missingAccessions.size() + " accessions: " + allMissing.toString());
+			doNotFound.addAll(missingAccessions);
 		} else {
 			log.debug("No missing proteins. All were retrieved.");
 		}

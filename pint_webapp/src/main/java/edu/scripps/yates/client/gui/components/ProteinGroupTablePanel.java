@@ -26,7 +26,7 @@ public class ProteinGroupTablePanel extends AbstractDataTable<ProteinGroupBean> 
 
 	public ProteinGroupTablePanel(String sessionID, Widget emptyWidget,
 			AbstractAsyncDataProvider<ProteinGroupBean> asyncDataProvider, boolean multipleSelectionModel) {
-		super(sessionID, emptyWidget, asyncDataProvider, multipleSelectionModel);
+		super(sessionID, emptyWidget, asyncDataProvider, multipleSelectionModel, "protein group table");
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class ProteinGroupTablePanel extends AbstractDataTable<ProteinGroupBean> 
 				return item == null ? null : item.getProteinDBString();
 			}
 		};
-		MyDataGrid<ProteinGroupBean> dataGrid = new MyDataGrid<ProteinGroupBean>(KEY_PROVIDER);
+		MyDataGrid<ProteinGroupBean> dataGrid = new MyDataGrid<ProteinGroupBean>(KEY_PROVIDER, tableName);
 
 		return dataGrid;
 	}

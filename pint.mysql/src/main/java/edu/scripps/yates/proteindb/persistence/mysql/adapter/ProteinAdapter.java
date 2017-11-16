@@ -289,7 +289,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getOrganism();
 			} else {
-				log.info("check it out");
+				log.debug("check it out");
 			}
 		}
 		return null;
@@ -311,7 +311,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getGenes();
 			} else {
-				log.warn("check it out");
+				log.debug("check it out");
 			}
 		}
 		return null;
@@ -333,7 +333,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getLength();
 			} else {
-				log.warn("check it out");
+				log.debug("check it out");
 			}
 		}
 		return null;
@@ -355,7 +355,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
 				return annotatedProtein.get(nonIsoFormaAcc).getMW();
 			} else {
-				log.info("check it out");
+				log.debug("check it out");
 			}
 		}
 		return null;

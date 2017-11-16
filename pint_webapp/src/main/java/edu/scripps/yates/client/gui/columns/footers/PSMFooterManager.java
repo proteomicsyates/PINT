@@ -147,7 +147,7 @@ public class PSMFooterManager extends FooterManager<PSMBean> {
 						// try to convert to double the amountString
 						try {
 							ratioValue = Double.valueOf(item.getRatioStringByConditions(condition1Name, condition2Name,
-									projectTag, ratioName, true));
+									projectTag, ratioName, true, false));
 							validRatioValue = true;
 						} catch (NumberFormatException e) {
 
@@ -357,7 +357,7 @@ public class PSMFooterManager extends FooterManager<PSMBean> {
 
 	@Override
 	public Header<String> getRatioScoreFooterByConditions(final String condition1Name, final String condition2Name,
-			final String projectTag, final String ratioName) {
+			final String projectTag, final String ratioName, final String ratioScoreName) {
 		Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
@@ -376,7 +376,7 @@ public class PSMFooterManager extends FooterManager<PSMBean> {
 						// try to convert to double the amountString
 						try {
 							ratioScoreValue = Double.valueOf(item.getRatioScoreStringByConditions(condition1Name,
-									condition2Name, projectTag, ratioName, true));
+									condition2Name, projectTag, ratioName, ratioScoreName, true, false));
 							validRatio = true;
 						} catch (NumberFormatException e) {
 							double subSum = 0.0;

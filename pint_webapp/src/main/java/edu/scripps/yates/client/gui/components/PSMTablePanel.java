@@ -29,8 +29,9 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 	private final ShowHiddePanel psmLoaderFromProjects;
 
 	public PSMTablePanel(String sessionID, String emptyLabel, ShowHiddePanel showhiddePSMPanel,
-			AbstractAsyncDataProvider<PSMBean> asyncDataListProvider, boolean multipleSelectionModel) {
-		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel);
+			AbstractAsyncDataProvider<PSMBean> asyncDataListProvider, boolean multipleSelectionModel,
+			String tableName) {
+		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel, tableName);
 		psmLoaderFromProjects = showhiddePSMPanel;
 
 	}
@@ -46,7 +47,7 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 				return item == null ? null : item.getPsmID();
 			}
 		};
-		MyDataGrid<PSMBean> dataGrid = new MyDataGrid<PSMBean>(KEY_PROVIDER);
+		MyDataGrid<PSMBean> dataGrid = new MyDataGrid<PSMBean>(KEY_PROVIDER, tableName);
 
 		return dataGrid;
 	}

@@ -22,6 +22,10 @@ public class ProteinComparator extends BeanComparator<ProteinBean> {
 		super(columnName);
 	}
 
+	public ProteinComparator(ColumnName columnName, String scoreName) {
+		super(columnName, scoreName);
+	}
+
 	public ProteinComparator(ColumnName columnName, String experimentalConditionName, AmountType amountType,
 			String projectTag) {
 		super(columnName, experimentalConditionName, amountType, projectTag);
@@ -30,6 +34,12 @@ public class ProteinComparator extends BeanComparator<ProteinBean> {
 	public ProteinComparator(ColumnName columnName, String experimentalCondition1Name,
 			String experimentalCondition2Name, String projectTag, String ratioName) {
 		super(columnName, experimentalCondition1Name, experimentalCondition2Name, projectTag, ratioName);
+	}
+
+	public ProteinComparator(ColumnName columnName, String experimentalCondition1Name,
+			String experimentalCondition2Name, String projectTag, String ratioName, String ratioScoreName) {
+		super(columnName, experimentalCondition1Name, experimentalCondition2Name, projectTag, ratioName,
+				ratioScoreName);
 	}
 
 	@Override
@@ -57,7 +67,7 @@ public class ProteinComparator extends BeanComparator<ProteinBean> {
 		} else if (columnName == ColumnName.PROTEIN_RATIO || columnName == ColumnName.PROTEIN_RATIO_GRAPH) {
 			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 		} else if (columnName == ColumnName.PROTEIN_RATIO_SCORE) {
-			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
+			return compareRatioScores(o1, o2, conditionName, condition2Name, projectTag, ratioName, scoreName, false);
 		}
 		switch (columnName) {
 		case ACC:

@@ -33,8 +33,7 @@ import edu.scripps.yates.client.interfaces.ContainsImportJobID;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
-public abstract class ClosableWithTitlePanel extends Composite implements
-		RepresentsDataObject, ContainsImportJobID {
+public abstract class ClosableWithTitlePanel extends Composite implements RepresentsDataObject, ContainsImportJobID {
 	private FlowPanel disclosurePanel;
 	private Label label;
 	protected SuggestBox textBox;
@@ -48,6 +47,7 @@ public abstract class ClosableWithTitlePanel extends Composite implements
 	private final List<ExecutableTaskOnChangeID> methodsToExecuteOnChangeID = new ArrayList<ExecutableTaskOnChangeID>();
 	private boolean textBoxIsShown = false;
 	protected final String sessionID;
+	private boolean clickToEditEnabled = true;
 
 	/**
 	 * @wbp.parser.constructor
@@ -56,8 +56,7 @@ public abstract class ClosableWithTitlePanel extends Composite implements
 		this(sessionID, importJobID, "Mi editable disclosure panel", true);
 	}
 
-	public ClosableWithTitlePanel(String sessionID, int importJobID,
-			String title, boolean isOpen) {
+	public ClosableWithTitlePanel(String sessionID, int importJobID, String title, boolean isOpen) {
 		this.importJobID = importJobID;
 		this.sessionID = sessionID;
 		// get new ID
@@ -68,6 +67,14 @@ public abstract class ClosableWithTitlePanel extends Composite implements
 		// Init Disclosure GUI
 		initDisclosurePanelWidget(title, isOpen);
 		initWidget(disclosurePanel);
+	}
+
+	/**
+	 * Disable ID and title
+	 */
+	protected void enableIDAndTitle(boolean enable) {
+		this.textBox.setEnabled(enable);
+		this.clickToEditEnabled = enable;
 	}
 
 	/**
@@ -138,23 +145,16 @@ public abstract class ClosableWithTitlePanel extends Composite implements
 
 		lblclickToEdit = new Label("(click to edit the name)");
 		lblclickToEdit.setStyleName("EditableDisclosurePanelHeader-smallFont");
-		lblclickToEdit
-				.setTitle("Click here to edit the header of the item. Click on the button to remove this item.");
+		lblclickToEdit.setTitle("Click here to edit the header of the item. Click on the button to remove this item.");
 		headerPanel.setWidget(0, 1, lblclickToEdit);
 
-		headerPanel.getCellFormatter().setVerticalAlignment(0, 0,
-				HasVerticalAlignment.ALIGN_MIDDLE);
-		headerPanel.getCellFormatter().setVerticalAlignment(0, 1,
-				HasVerticalAlignment.ALIGN_MIDDLE);
-		headerPanel.getCellFormatter().setVerticalAlignment(0, 2,
-				HasVerticalAlignment.ALIGN_MIDDLE);
+		headerPanel.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+		headerPanel.getCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_MIDDLE);
+		headerPanel.getCellFormatter().setVerticalAlignment(0, 2, HasVerticalAlignment.ALIGN_MIDDLE);
 
-		headerPanel.getCellFormatter().setHorizontalAlignment(0, 0,
-				HasHorizontalAlignment.ALIGN_LEFT);
-		headerPanel.getCellFormatter().setHorizontalAlignment(0, 1,
-				HasHorizontalAlignment.ALIGN_CENTER);
-		headerPanel.getCellFormatter().setHorizontalAlignment(0, 2,
-				HasHorizontalAlignment.ALIGN_RIGHT);
+		headerPanel.getCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
+		headerPanel.getCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_CENTER);
+		headerPanel.getCellFormatter().setHorizontalAlignment(0, 2, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		// textbox
 		textBox = new SuggestBox();
@@ -173,8 +173,7 @@ public abstract class ClosableWithTitlePanel extends Composite implements
 			public void onBlur(BlurEvent event) {
 				// if suggestion display is shown, not trigger the
 				// methodsToExecuteOnChangeID
-				final SuggestionDisplay suggestionDisplay = textBox
-						.getSuggestionDisplay();
+				final SuggestionDisplay suggestionDisplay = textBox.getSuggestionDisplay();
 				if (suggestionDisplay instanceof DefaultSuggestionDisplay) {
 					DefaultSuggestionDisplay defaultSuggestionDisplay = (DefaultSuggestionDisplay) suggestionDisplay;
 					if (defaultSuggestionDisplay.isSuggestionListShowing())
@@ -199,15 +198,12 @@ public abstract class ClosableWithTitlePanel extends Composite implements
 			public void executeTask(String oldID, String newID) {
 				if (oldID.equals(newID))
 					return;
-				if (ProjectCreatorRegister
-						.containsAnyObjectRepresenterWithId(newID)) {
+				if (ProjectCreatorRegister.containsAnyObjectRepresenterWithId(newID)) {
 					label.setText(oldID);
 					textBox.setText(oldID);
 					updateRepresentedObject();
 					StatusReportersRegister.getInstance()
-							.notifyStatusReporters(
-									"'" + newID
-											+ "' identifier is already in use");
+							.notifyStatusReporters("'" + newID + "' identifier is already in use");
 
 				}
 			}
@@ -223,8 +219,7 @@ public abstract class ClosableWithTitlePanel extends Composite implements
 	 *            {@link ClosableWithTitlePanel}.close() method is called or
 	 *            not.
 	 */
-	public void addCloseClickHandler(ClickHandler handler,
-			boolean executeAlsoWhenCloseMethodIsCalled) {
+	public void addCloseClickHandler(ClickHandler handler, boolean executeAlsoWhenCloseMethodIsCalled) {
 		button.addClickHandler(handler);
 		if (executeAlsoWhenCloseMethodIsCalled) {
 			methodsToExecuteWhenClose.add(handler);
@@ -252,13 +247,11 @@ public abstract class ClosableWithTitlePanel extends Composite implements
 	private void keyEventMethod(int keyCode) {
 
 		if (keyCode == KeyCodes.KEY_ENTER) {
-			GWT.log("enter key detected. Change ID from " + label.getText()
-					+ " to " + textBox.getText());
+			GWT.log("enter key detected. Change ID from " + label.getText() + " to " + textBox.getText());
 			// execute if any the ExecutableTaskOnChangeID
 			if (!label.getText().equals(textBox.getText())) {
 				for (ExecutableTaskOnChangeID executableTaskOnChangeID : methodsToExecuteOnChangeID) {
-					executableTaskOnChangeID.executeTask(label.getText(),
-							textBox.getText());
+					executableTaskOnChangeID.executeTask(label.getText(), textBox.getText());
 				}
 			}
 			showLabel();
@@ -291,7 +284,7 @@ public abstract class ClosableWithTitlePanel extends Composite implements
 			@Override
 			public void onClick(ClickEvent event) {
 				GWT.log("click on label");
-				if (!textBoxIsShown) {
+				if (!textBoxIsShown && clickToEditEnabled) {
 					showTextBox();
 					textBox.getValueBox().selectAll();
 					// set the focus on textbox
@@ -388,8 +381,7 @@ public abstract class ClosableWithTitlePanel extends Composite implements
 	 * @param suggestionsforName
 	 */
 	protected void addSuggestions(Collection<String> suggestionsforName) {
-		MultiWordSuggestOracle oracle = (MultiWordSuggestOracle) textBox
-				.getSuggestOracle();
+		MultiWordSuggestOracle oracle = (MultiWordSuggestOracle) textBox.getSuggestOracle();
 		oracle.addAll(suggestionsforName);
 	}
 

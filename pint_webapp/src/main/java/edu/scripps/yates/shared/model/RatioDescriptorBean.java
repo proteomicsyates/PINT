@@ -12,6 +12,9 @@ public class RatioDescriptorBean implements Serializable {
 	private String projectTag;
 	private String ratioName;
 	private SharedAggregationLevel aggregationLevel;
+	private String proteinScoreName;
+	private String peptideScoreName;
+	private String psmScoreName;
 
 	public RatioDescriptorBean() {
 
@@ -19,6 +22,7 @@ public class RatioDescriptorBean implements Serializable {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -107,6 +111,30 @@ public class RatioDescriptorBean implements Serializable {
 	 */
 	public void setAggregationLevel(SharedAggregationLevel aggregationLevel) {
 		this.aggregationLevel = aggregationLevel;
+	}
+
+	public String getProteinScoreName() {
+		return proteinScoreName;
+	}
+
+	public void setProteinScoreName(String proteinScoreName) {
+		this.proteinScoreName = proteinScoreName;
+	}
+
+	public String getPeptideScoreName() {
+		return peptideScoreName;
+	}
+
+	public void setPeptideScoreName(String peptideScoreName) {
+		this.peptideScoreName = peptideScoreName;
+	}
+
+	public String getPsmScoreName() {
+		return psmScoreName;
+	}
+
+	public void setPsmScoreName(String psmScoreName) {
+		this.psmScoreName = psmScoreName;
 	}
 
 }

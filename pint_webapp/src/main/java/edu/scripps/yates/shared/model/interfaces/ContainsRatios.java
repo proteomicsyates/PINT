@@ -38,13 +38,14 @@ public interface ContainsRatios {
 	 * @param ratioName
 	 *            if null, all ratios will be returned. If some value here, only
 	 *            the ratios with that name will be returned
+	 * @param ratioScore
 	 * @param skipInfinities
 	 *            if true, the ratios with values equals to +INFINITY or
 	 *            -INFINITY will not be returned
 	 * @return
 	 */
 	public List<ScoreBean> getRatioScoresByConditions(String conditionName, String condition2Name, String projectTag,
-			String ratioName);
+			String ratioName, String ratioScore);
 
 	/**
 	 * Gets a string with the scores associated with the ratios
@@ -53,11 +54,12 @@ public interface ContainsRatios {
 	 * @param condition2Name
 	 * @param projectTag
 	 * @param ratioName
+	 * @param ratioScore
 	 * @param skipInfinities
 	 * @return
 	 */
 	public String getRatioScoreStringByConditions(String condition1Name, String condition2Name, String projectTag,
-			String ratioName, boolean skipInfinities);
+			String ratioName, String ratioScore, boolean skipInfinities, boolean formatNumber);
 
 	/**
 	 * Gets a string with the ratio values
@@ -70,7 +72,7 @@ public interface ContainsRatios {
 	 * @return
 	 */
 	public String getRatioStringByConditions(String condition1Name, String condition2Name, String projectTag,
-			String ratioName, boolean skipInfinities);
+			String ratioName, boolean skipInfinities, boolean formatNumber);
 
 	public Map<String, RatioDistribution> getRatioDistributions();
 

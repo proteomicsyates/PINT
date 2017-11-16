@@ -25,7 +25,8 @@ public class ReactomePathwaysTablePanel extends AbstractDataTable<PathwaySummary
 
 	public ReactomePathwaysTablePanel(String sessionID,
 			AbstractAsyncDataProvider<PathwaySummary> asyncDataListProvider) {
-		super(sessionID, "Submit the analysis in order to populate the table", asyncDataListProvider, false);
+		super(sessionID, "Submit the analysis in order to populate the table", asyncDataListProvider, false,
+				"Reactome table");
 
 		// flowPanelTable.setSize("100%", "80%");
 		// ResizeLayoutPanel resizePanel = new ResizeLayoutPanel();
@@ -83,7 +84,7 @@ public class ReactomePathwaysTablePanel extends AbstractDataTable<PathwaySummary
 				return item == null ? null : item.getDbId();
 			}
 		};
-		final MyDataGrid<PathwaySummary> dataGrid = new MyDataGrid<PathwaySummary>(KEY_PROVIDER);
+		final MyDataGrid<PathwaySummary> dataGrid = new MyDataGrid<PathwaySummary>(KEY_PROVIDER, tableName);
 		return dataGrid;
 	}
 }
