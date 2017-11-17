@@ -257,6 +257,9 @@ public class UniprotProteinRemoteRetriever {
 								if (proteinSequence != null) {
 									Entry clonedEntry = cloneEntry(noIsoformEntry);
 									// override the protein sequence
+									if (clonedEntry.getSequence() == null) {
+										clonedEntry.setSequence(new SequenceType());
+									}
 									clonedEntry.getSequence().setValue(proteinSequence);
 									// override main accession
 									clonedEntry.getAccession().clear();
