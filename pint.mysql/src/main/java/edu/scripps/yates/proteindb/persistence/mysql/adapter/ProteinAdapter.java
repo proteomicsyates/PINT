@@ -133,6 +133,9 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		final Set<Amount> amounts = protein.getAmounts();
 		if (amounts != null) {
 			for (Amount amount : amounts) {
+				if (amount.getCondition() == null) {
+					throw new IllegalArgumentException("Error. An amount with no condition stated is found");
+				}
 				if (!Double.isNaN(amount.getValue())) {
 					if (amount.getAmountType() == AmountType.SPC) {
 						hasSPCAmount = true;
