@@ -210,6 +210,18 @@ public class PreparedQueries {
 		return parseParametersForQuery(PSM_SCORES).list();
 	}
 
+	private final static String PROTEIN_SCORES = "select distinct name from ProteinScore";
+
+	/**
+	 *
+	 * @param projectTag
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<String> getProteinScoreNames() {
+		return parseParametersForQuery(PROTEIN_SCORES).list();
+	}
+
 	private final static String PSM_SCORES_TYPES = "select distinct confidenceScoreType from PsmScore";
 
 	/**
