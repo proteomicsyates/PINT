@@ -78,6 +78,16 @@
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>pint.queries</artifactId>
     	<version>${pint.modules.version}</version>
+    	<exclusions>
+    		<exclusion>
+    			<artifactId>logback-classic</artifactId>
+    			<groupId>ch.qos.logback</groupId>
+    		</exclusion>
+    		<exclusion>
+    			<artifactId>logback-core</artifactId>
+    			<groupId>ch.qos.logback</groupId>
+    		</exclusion>
+    	</exclusions>
     </dependency>
     
     <dependency>
@@ -142,6 +152,16 @@
         <groupId>org.reactome.web</groupId>
         <artifactId>diagram</artifactId>
         <version>3.2.1</version>
+        <exclusions>
+        	<exclusion>
+        		<artifactId>logback-classic</artifactId>
+        		<groupId>ch.qos.logback</groupId>
+        	</exclusion>
+        	<exclusion>
+        		<artifactId>logback-core</artifactId>
+        		<groupId>ch.qos.logback</groupId>
+        	</exclusion>
+        </exclusions>
     </dependency>
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
@@ -166,6 +186,14 @@
     			<groupId>org.jboss.logging</groupId>
     			<artifactId>jboss-logging</artifactId>
     		</exclusion>
+    		<exclusion>
+    			<artifactId>logback-classic</artifactId>
+    			<groupId>ch.qos.logback</groupId>
+    		</exclusion>
+    		<exclusion>
+    			<artifactId>logback-core</artifactId>
+    			<groupId>ch.qos.logback</groupId>
+    		</exclusion>
     	</exclusions>
     </dependency>
     <dependency>
@@ -177,6 +205,16 @@
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>pint.model</artifactId>
     	<version>1.0.0-SNAPSHOT</version>
+    	<exclusions>
+    		<exclusion>
+    			<artifactId>logback-classic</artifactId>
+    			<groupId>ch.qos.logback</groupId>
+    		</exclusion>
+    		<exclusion>
+    			<artifactId>logback-core</artifactId>
+    			<groupId>ch.qos.logback</groupId>
+    		</exclusion>
+    	</exclusions>
     </dependency>
    
   </dependencies>
