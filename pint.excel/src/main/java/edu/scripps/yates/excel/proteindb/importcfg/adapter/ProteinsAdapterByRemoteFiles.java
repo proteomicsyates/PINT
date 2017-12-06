@@ -23,10 +23,14 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdDescriptionType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.MsRunType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.OrganismSetType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteInfoType;
+import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.ipi.UniprotEntry;
+import edu.scripps.yates.utilities.model.factories.AmountEx;
 import edu.scripps.yates.utilities.model.factories.OrganismEx;
+import edu.scripps.yates.utilities.model.factories.ProteinEx;
+import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.Organism;
@@ -152,16 +156,27 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 				final String accession = ProteinImplFromDTASelect
 						.getPrimaryAccessionFromDTASelectProtein(dtaSelectProtein, null).getAccession();
 
+				// create protein impl from dtaselect, even if later it is in
+				// the static storage
+				// because if may contain the PSMs that the one in the static
+				// storage doesn't have
+				protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun, true);
 				// look in the static model storage first
+
 				if (StaticProteomicsModelStorage.containsProtein(msrun.getRunId(), condition.getName(), accession)) {
-					protein = StaticProteomicsModelStorage.getProtein(msrun.getRunId(), condition.getName(), accession)
-							.iterator().next();
-				} else {
-					protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun, true);
+					Protein proteinFromStaticStorage = StaticProteomicsModelStorage
+							.getProtein(msrun.getRunId(), condition.getName(), accession).iterator().next();
+					ImportCfgUtil.mergeProteins(proteinFromStaticStorage, protein);
+					protein = proteinFromStaticStorage;
 				}
+
 				StaticProteomicsModelStorage.addProtein(protein, msrun.getRunId(), condition.getName());
 				if (protein.getOrganism() == null) {
-					((ProteinImplFromDTASelect) protein).setOrganism(getOrganismFromConfFile());
+					if (protein instanceof ProteinImplFromDTASelect) {
+						((ProteinImplFromDTASelect) protein).setOrganism(getOrganismFromConfFile());
+					} else if (protein instanceof ProteinEx) {
+						((ProteinEx) protein).setOrganism(getOrganismFromConfFile());
+					}
 				}
 
 				protein.setMSRun(msrun);
@@ -169,6 +184,17 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 					log.info("condition is null");
 				}
 				protein.addCondition(condition);
+				// set condition to amounts
+				if (protein.getAmounts() != null) {
+					for (Amount amount : protein.getAmounts()) {
+						if (amount instanceof AmountEx) {
+							((AmountEx) amount).setCondition(condition);
+						} else {
+							log.info(amount.getClass());
+						}
+					}
+				}
+
 				retMap.put(protein.getAccession(), protein);
 				final Set<PSM> psMs = protein.getPSMs();
 				if (psMs != null) {

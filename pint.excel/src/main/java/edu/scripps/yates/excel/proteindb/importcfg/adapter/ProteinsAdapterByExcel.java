@@ -296,7 +296,6 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 
 		final ProteinAccessionType proteinAccessionCfg = excelCfg.getProteinAccession();
 		final ProteinDescriptionType proteinDescriptionCfg = excelCfg.getProteinDescription();
-
 		final ExcelColumn proteinAccColumn = excelFileReader
 				.getExcelColumnFromReference(proteinAccessionCfg.getColumnRef());
 		ExcelColumn proteinDescriptionColumn = null;
@@ -548,6 +547,9 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 				for (String proteinAcc : annotatedProteins.keySet()) {
 					// accessions/descriptions
 					final Protein annotatedProtein = annotatedProteins.get(proteinAcc);
+					if (annotatedProtein == null) {
+						continue;
+					}
 					if (protein.getPrimaryAccession().getAccession().equals(proteinAcc)) {
 						// update the description
 						((AccessionEx) protein.getPrimaryAccession())

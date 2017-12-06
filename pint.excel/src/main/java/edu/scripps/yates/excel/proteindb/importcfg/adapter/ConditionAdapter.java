@@ -41,13 +41,11 @@ import edu.scripps.yates.utilities.model.factories.ProteinEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
-import edu.scripps.yates.utilities.proteomicsmodel.Gene;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
-import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import gnu.trove.map.hash.THashMap;
@@ -113,7 +111,9 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 				&& !expConditionCfg.getIdentificationInfo().getExcelIdentInfo().isEmpty()) {
 			log.info("containing " + expConditionCfg.getIdentificationInfo().getExcelIdentInfo().size()
 					+ "  excel information");
-
+			if (expConditionCfg.getId().equals("CAMK2_Immunoprecipitation")) {
+				log.info("asdf");
+			}
 			for (IdentificationExcelType excelInfo : expConditionCfg.getIdentificationInfo().getExcelIdentInfo()) {
 				if (excelFileReader != null) {
 
@@ -553,7 +553,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					Protein otherProtein = otherProteins.get(otherProteinAccPrimitive);
 					for (Protein originalProtein : originalProteinsMap.get(otherProteinAcc)) {
 						// merge protein
-						mergeProteins(originalProtein, otherProtein);
+						ImportCfgUtil.mergeProteins(originalProtein, otherProtein);
 					}
 					numValid++;
 				} else if (addProteinsNotInOriginalProteinSet) {
@@ -590,76 +590,6 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 		Set<Protein> proteins = new THashSet<Protein>();
 		proteins.add(otherProtein);
 		addProteinsByRunID(projectTag, msRunID, proteins);
-	}
-
-	private void mergeProteins(Protein originalProtein, Protein otherProtein) {
-		if (originalProtein.hashCode() == otherProtein.hashCode())
-			return;
-		// scores
-		if (otherProtein.getScores() != null) {
-			for (Score score : otherProtein.getScores()) {
-				originalProtein.addScore(score);
-			}
-		}
-
-		// psms
-		if (otherProtein.getPSMs() != null) {
-			for (PSM psm : otherProtein.getPSMs()) {
-				// add if different psmID
-				boolean found = false;
-				for (PSM originalPSM : originalProtein.getPSMs()) {
-					if (originalPSM.getPSMIdentifier().equals(psm.getPSMIdentifier())) {
-						found = true;
-						break;
-					}
-				}
-				if (!found)
-					originalProtein.addPSM(psm);
-				// else
-				// log.info("Skipping this");
-			}
-		}
-
-		// peptides
-		if (otherProtein.getPeptides() != null) {
-			for (Peptide peptide : otherProtein.getPeptides()) {
-				originalProtein.addPeptide(peptide);
-			}
-		}
-		// length
-		if (originalProtein.getLength() <= 0)
-			originalProtein.setLength(otherProtein.getLength());
-
-		// pi
-		if (originalProtein.getPi() <= 0)
-			originalProtein.setPi(otherProtein.getPi());
-
-		// mw
-		if (originalProtein.getMW() <= 0)
-			originalProtein.setMw(otherProtein.getMW());
-
-		// organism
-		if (originalProtein.getOrganism() == null)
-			originalProtein.setOrganism(otherProtein.getOrganism());
-
-		// conditions
-		if (otherProtein.getConditions() != null) {
-			for (Condition condition : otherProtein.getConditions()) {
-				originalProtein.addCondition(condition);
-			}
-		}
-
-		// msrun
-		if (originalProtein.getMSRun() == null)
-			originalProtein.setMSRun(otherProtein.getMSRun());
-
-		// genes
-		if (otherProtein.getGenes() != null) {
-			for (Gene gene : otherProtein.getGenes()) {
-				originalProtein.addGene(gene);
-			}
-		}
-
 	}
 
 	public static Condition getConditionById(String projectTag, String conditionId) {

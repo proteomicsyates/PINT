@@ -29,6 +29,13 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SampleType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServerType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServersType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.TissueSetType;
+import edu.scripps.yates.utilities.proteomicsmodel.Amount;
+import edu.scripps.yates.utilities.proteomicsmodel.Condition;
+import edu.scripps.yates.utilities.proteomicsmodel.Gene;
+import edu.scripps.yates.utilities.proteomicsmodel.PSM;
+import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
+import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 import gnu.trove.map.hash.THashMap;
 
@@ -289,4 +296,80 @@ public class ImportCfgUtil {
 		}
 		return null;
 	}
+
+	public static void mergeProteins(Protein originalProtein, Protein otherProtein) {
+		if (originalProtein.hashCode() == otherProtein.hashCode())
+			return;
+		// scores
+		if (otherProtein.getScores() != null) {
+			for (Score score : otherProtein.getScores()) {
+				originalProtein.addScore(score);
+			}
+		}
+
+		// psms
+		if (otherProtein.getPSMs() != null) {
+			for (PSM psm : otherProtein.getPSMs()) {
+				// add if different psmID
+				boolean found = false;
+				for (PSM originalPSM : originalProtein.getPSMs()) {
+					if (originalPSM.getPSMIdentifier().equals(psm.getPSMIdentifier())) {
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					originalProtein.addPSM(psm);
+				// else
+				// log.info("Skipping this");
+			}
+		}
+
+		// peptides
+		if (otherProtein.getPeptides() != null) {
+			for (Peptide peptide : otherProtein.getPeptides()) {
+				originalProtein.addPeptide(peptide);
+			}
+		}
+		// length
+		if (originalProtein.getLength() <= 0)
+			originalProtein.setLength(otherProtein.getLength());
+
+		// pi
+		if (originalProtein.getPi() <= 0)
+			originalProtein.setPi(otherProtein.getPi());
+
+		// mw
+		if (originalProtein.getMW() <= 0)
+			originalProtein.setMw(otherProtein.getMW());
+
+		// organism
+		if (originalProtein.getOrganism() == null)
+			originalProtein.setOrganism(otherProtein.getOrganism());
+
+		// conditions
+		if (otherProtein.getConditions() != null) {
+			for (Condition condition : otherProtein.getConditions()) {
+				originalProtein.addCondition(condition);
+			}
+		}
+
+		// msrun
+		if (originalProtein.getMSRun() == null)
+			originalProtein.setMSRun(otherProtein.getMSRun());
+
+		// genes
+		if (otherProtein.getGenes() != null) {
+			for (Gene gene : otherProtein.getGenes()) {
+				originalProtein.addGene(gene);
+			}
+		}
+		// amounts
+		if (otherProtein.getAmounts() != null) {
+			for (Amount amount : otherProtein.getAmounts()) {
+				originalProtein.addAmount(amount);
+			}
+		}
+	}
+
 }
