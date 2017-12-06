@@ -1,6 +1,7 @@
 package edu.scripps.yates.client;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -17,6 +18,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 
+import edu.scripps.yates.client.cache.ClientCacheGeneralObjects;
+import edu.scripps.yates.client.cache.GeneralObject;
 import edu.scripps.yates.client.gui.AboutPanel;
 import edu.scripps.yates.client.gui.BrowsePanel;
 import edu.scripps.yates.client.gui.HelpPanel;
@@ -52,6 +55,7 @@ public class Pint implements EntryPoint {
 	private ConfigurationPanel configurationPanel;
 	private boolean testMode = false;
 	private Logger log = Logger.getLogger("");
+	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
 
 	@Override
 	public void onModuleLoad() {
@@ -303,8 +307,70 @@ public class Pint implements EntryPoint {
 					public void onSuccess(String sessionID) {
 						GWT.log("New session id:" + sessionID);
 						Pint.this.sessionID = sessionID;
-						loadGUI();
-						startupConfiguration(false);
+						loadScoreTypes();
+
+					}
+
+					private void loadScoreTypes() {
+						Pint.this.service.getScoreTypes(sessionID, new AsyncCallback<List<String>>() {
+
+							@Override
+							public void onFailure(Throwable caught) {
+								StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+								GWT.log("Error loading score types: " + caught.getMessage());
+								loadingDialog.hide();
+							}
+
+							@Override
+							public void onSuccess(List<String> result) {
+								ClientCacheGeneralObjects.getInstance().addtoCache(result, GeneralObject.SCORE_TYPES);
+								loadPTMNames();
+
+							}
+
+							private void loadPTMNames() {
+								Pint.this.service.getPTMNames(sessionID, new AsyncCallback<List<String>>() {
+
+									@Override
+									public void onFailure(Throwable caught) {
+										StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+										GWT.log("Error loading PTM names: " + caught.getMessage());
+										loadingDialog.hide();
+									}
+
+									@Override
+									public void onSuccess(List<String> result) {
+										ClientCacheGeneralObjects.getInstance().addtoCache(result,
+												GeneralObject.PTM_NAMES);
+										loadTissueList();
+
+									}
+
+									private void loadTissueList() {
+										Pint.this.service.getTissueList(sessionID, new AsyncCallback<List<String>>() {
+
+											@Override
+											public void onFailure(Throwable caught) {
+												StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+												GWT.log("Error loading Tissue list: " + caught.getMessage());
+												loadingDialog.hide();
+											}
+
+											@Override
+											public void onSuccess(List<String> result) {
+												ClientCacheGeneralObjects.getInstance().addtoCache(result,
+														GeneralObject.TISSUE_LIST);
+												loadGUI();
+												startupConfiguration(false);
+											}
+
+										});
+									}
+								});
+
+							}
+						});
+
 					}
 
 					@Override
@@ -390,7 +456,9 @@ public class Pint implements EntryPoint {
 						}
 					});
 				}
-				if (historyToken.contains(TargetHistory.HOME.getTargetHistory())) {
+				if (historyToken.contains(TargetHistory.HOME.getTargetHistory()))
+
+				{
 					GWT.runAsync(new RunAsyncCallback() {
 
 						@Override
@@ -407,11 +475,15 @@ public class Pint implements EntryPoint {
 						}
 					});
 				}
-				if (historyToken.contains(TargetHistory.RELOAD.getTargetHistory())) {
+				if (historyToken.contains(TargetHistory.RELOAD.getTargetHistory()))
+
+				{
 					parseProjectValues(historyToken);
 
 				}
-				if (historyToken.equals(TargetHistory.SUBMIT.getTargetHistory())) {
+				if (historyToken.equals(TargetHistory.SUBMIT.getTargetHistory()))
+
+				{
 					GWT.runAsync(new RunAsyncCallback() {
 
 						@Override
@@ -434,7 +506,9 @@ public class Pint implements EntryPoint {
 					// createProjectPanel = new ProjectCreator();
 					// loadPanel(createProjectPanel);
 				}
-				if (historyToken.equals(TargetHistory.HELP.getTargetHistory())) {
+				if (historyToken.equals(TargetHistory.HELP.getTargetHistory()))
+
+				{
 					GWT.runAsync(new RunAsyncCallback() {
 
 						@Override
@@ -451,7 +525,9 @@ public class Pint implements EntryPoint {
 						}
 					});
 				}
-				if (historyToken.equals(TargetHistory.ABOUT.getTargetHistory())) {
+				if (historyToken.equals(TargetHistory.ABOUT.getTargetHistory()))
+
+				{
 					GWT.runAsync(new RunAsyncCallback() {
 
 						@Override
@@ -468,11 +544,15 @@ public class Pint implements EntryPoint {
 						}
 					});
 				}
-				if (historyToken.startsWith(TargetHistory.LOAD_PROJECT.getTargetHistory())) {
+				if (historyToken.startsWith(TargetHistory.LOAD_PROJECT.getTargetHistory()))
+
+				{
 					parseProjectValues(historyToken);
 
 				}
-				if (historyToken.contains(TargetHistory.PSEAQUANT.getTargetHistory())) {
+				if (historyToken.contains(TargetHistory.PSEAQUANT.getTargetHistory()))
+
+				{
 					GWT.runAsync(new RunAsyncCallback() {
 
 						@Override
@@ -487,6 +567,7 @@ public class Pint implements EntryPoint {
 						}
 					});
 				}
+
 			}
 
 		});
