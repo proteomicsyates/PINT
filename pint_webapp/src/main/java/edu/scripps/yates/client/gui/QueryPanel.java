@@ -876,25 +876,25 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 								proteinGroupTablePanel.getDataGrid().getPageSize(),
 								new AsyncCallback<ProteinGroupBeanSubList>() {
 
-									@Override
-									public void onFailure(Throwable caught) {
-										updateStatus(caught);
-										// remove PendingTask
-										PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, "");
-									}
+							@Override
+							public void onFailure(Throwable caught) {
+								updateStatus(caught);
+								// remove PendingTask
+								PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, "");
+							}
 
-									@Override
-									public void onSuccess(ProteinGroupBeanSubList proteinGroupSubList) {
-										if (proteinGroupSubList != null) {
-											updateStatus("Proteins grouped into " + proteinGroupSubList.getTotalNumber()
-													+ " groups");
-											loadProteinGroupsOnGrid(0, proteinGroupSubList);
-										}
-										// remove PendingTask
-										PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, "");
-									}
+							@Override
+							public void onSuccess(ProteinGroupBeanSubList proteinGroupSubList) {
+								if (proteinGroupSubList != null) {
+									updateStatus("Proteins grouped into " + proteinGroupSubList.getTotalNumber()
+											+ " groups");
+									loadProteinGroupsOnGrid(0, proteinGroupSubList);
+								}
+								// remove PendingTask
+								PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, "");
+							}
 
-								});
+						});
 
 					}
 				});
@@ -1549,7 +1549,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 			@Override
 			public void onSuccess(List<String> result) {
-				addPSMScoreTypes(result);
+				addScoreTypes(result);
 			}
 		});
 		proteinRetrievingService.getPTMScoreTypesFromProjects(selectedProjects, new AsyncCallback<List<String>>() {
@@ -1561,13 +1561,28 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 			@Override
 			public void onSuccess(List<String> result) {
-				addPSMScoreTypes(result);
+				addScoreTypes(result);
 			}
 		});
 
 	}
 
-	private void addPSMScoreTypes(List<String> result) {
+	private void addProteinScoreNames(List<String> result) {
+		if (!result.isEmpty()) {
+			Collections.sort(result);
+			for (String scoreName : result) {
+				scoreNamesPanel.getListBox().addItem(scoreName);
+				proteinTablePanel.addColumnForScore(scoreName, ColumnName.PROTEIN_SCORE);
+				proteinColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_SCORE, scoreName,
+						MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PROTEIN_SCORE, scoreName));
+			}
+			// add to suggestions in the query editor
+			queryEditorPanel.addSuggestionsToComplexQuery(result);
+			updateStatus(result.size() + " protein scores loaded.");
+		}
+	}
+
+	private void addScoreTypes(List<String> result) {
 		if (!result.isEmpty()) {
 			Collections.sort(result);
 			for (String scoreType : result) {
@@ -1945,6 +1960,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				peptideTablePanel.removeColumn(ColumnName.PEPTIDE_SCORE);
 				psmTablePanel.removeColumn(ColumnName.PTM_SCORE);
 				psmOnlyTablePanel.removeColumn(ColumnName.PTM_SCORE);
+				// remove the score columns for proteins
+				proteinTablePanel.removeColumn(ColumnName.PROTEIN_SCORE);
 
 				scoreNamesPanel.clearList();
 				scoreTypesPanel.clearList();
@@ -1992,9 +2009,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 												+ " protein groups received.");
 
 										addPSMScoreNames(result.getPSMScoreNames());
+										addProteinScoreNames(result.getProteinScoreNames());
 										addPTMScoreNames(result.getPTMScoreNames());
-										addPSMScoreTypes(result.getPSMScoreTypes());
-
+										addScoreTypes(result.getPSMScoreTypes());
+										addScoreTypes(result.getProteinScoreTypes());
 										// apply default views
 										final String projectTag = loadedProjects.iterator().next();
 										if (!loadedProjects.isEmpty() && ClientCacheDefaultViewByProjectTag

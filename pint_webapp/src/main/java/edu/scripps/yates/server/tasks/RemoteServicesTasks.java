@@ -380,6 +380,30 @@ public class RemoteServicesTasks {
 	}
 
 	/**
+	 * Gets a list of score names associated to a collection of proteins in a
+	 * collection of projects.
+	 *
+	 * @param projectNames
+	 * @return a non repeated and alphabethically sorted list of score names
+	 * @throws IllegalArgumentException
+	 */
+	public static List<String> getProteinScoreNamesFromProjects(Collection<String> projectNames)
+			throws IllegalArgumentException {
+		List<String> ret = new ArrayList<String>();
+		// for (String projectName : projectNames) {
+		// get the PSM scores from the projects
+		final List<String> psmScoresByProject = PreparedQueries.getProteinScoreNames();
+		for (String psmScore : psmScoresByProject) {
+			if (!ret.contains(psmScore))
+				ret.add(psmScore);
+		}
+		// }
+		Collections.sort(ret);
+		return ret;
+
+	}
+
+	/**
 	 * Gets a list of score type names associated to a collection of PSMs in a
 	 * collection of projects.
 	 *
@@ -638,7 +662,7 @@ public class RemoteServicesTasks {
 
 	public static List<String> getRandomProteinAccessionsFromCensusOut(int jobID,
 			RemoteSSHFileReference remoteSSHCensusRef, FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues)
-			throws FileNotFoundException {
+					throws FileNotFoundException {
 		log.info("Getting " + numRandomValues + " accessions from census out file at: "
 				+ remoteSSHCensusRef.getHostName() + " " + remoteSSHCensusRef.getRemotePath());
 
@@ -727,7 +751,7 @@ public class RemoteServicesTasks {
 
 	public static List<String> getRandomProteinAccessionsFromCensusChro(int jobID,
 			RemoteSSHFileReference remoteSSHCensusRef, FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues)
-			throws FileNotFoundException {
+					throws FileNotFoundException {
 		log.info("Getting " + numRandomValues + " accessions from census chro file at: "
 				+ remoteSSHCensusRef.getHostName() + " " + remoteSSHCensusRef.getRemotePath());
 
@@ -817,7 +841,7 @@ public class RemoteServicesTasks {
 
 	public static List<String> getRandomProteinAccessionsFromDTASelectFile(int jobID,
 			RemoteSSHFileReference dtaSelectFilterFile, FileNameWithTypeBean fileNameWithTypeFasta, int numRandomValues)
-			throws IOException {
+					throws IOException {
 		log.info("Getting " + numRandomValues + " accessions from DTASelect-filter file at: "
 				+ dtaSelectFilterFile.getHostName() + " - " + dtaSelectFilterFile.getRemotePath());
 		return getRandomProteinAccessionsFromDTASelectFile(jobID, dtaSelectFilterFile.getRemoteFile(),

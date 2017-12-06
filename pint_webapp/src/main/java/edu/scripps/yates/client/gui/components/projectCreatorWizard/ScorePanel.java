@@ -8,7 +8,6 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -19,15 +18,16 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.ValueBoxBase.TextAlignment;
 
 import edu.scripps.yates.client.ImportWizardServiceAsync;
+import edu.scripps.yates.client.cache.ClientCacheGeneralObjects;
+import edu.scripps.yates.client.cache.GeneralObject;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsObject;
-import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ScoreTypeBean;
 import edu.scripps.yates.shared.util.Pair;
 
 public class ScorePanel extends ContainsExcelColumnRefPanelAndTable<Pair<String, ScoreTypeBean>, ScoreTypeBean>
 		implements RepresentsObject<ScoreTypeBean> {
-	private final ListBox comboBoxProteinScoreType;
+	private final ListBox comboBoxScoreType;
 	private TextBox scoreNameTextBox;
 	private final TextArea textAreaDescription;
 	private CustomColumn<Pair<String, ScoreTypeBean>> column;
@@ -63,8 +63,8 @@ public class ScorePanel extends ContainsExcelColumnRefPanelAndTable<Pair<String,
 		Label lblType = new Label("Score type:");
 		flexTable.setWidget(4, 0, lblType);
 
-		comboBoxProteinScoreType = new ListBox();
-		flexTable.setWidget(4, 1, comboBoxProteinScoreType);
+		comboBoxScoreType = new ListBox();
+		flexTable.setWidget(4, 1, comboBoxScoreType);
 		flexTable.getFlexCellFormatter().setColSpan(2, 0, 2);
 		flexTable.getCellFormatter().setHorizontalAlignment(4, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		flexTable.getCellFormatter().setHorizontalAlignment(4, 1, HasHorizontalAlignment.ALIGN_LEFT);
@@ -86,8 +86,9 @@ public class ScorePanel extends ContainsExcelColumnRefPanelAndTable<Pair<String,
 		flexTable.getCellFormatter().setHorizontalAlignment(5, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		addHandlers();
-		getScoreTypes();
-		if (scoreTypeBean != null) {
+		loadScoreTypes();
+
+		if (representedObject != null) {
 			updateGUIFromObjectData();
 		} else {
 			updateRepresentedObject();
@@ -100,24 +101,25 @@ public class ScorePanel extends ContainsExcelColumnRefPanelAndTable<Pair<String,
 	/**
 	 * Calls to getScoreTypes using the webservice
 	 */
-	private void getScoreTypes() {
-		service.getScoreTypes(sessionID, new AsyncCallback<List<String>>() {
+	private void loadScoreTypes() {
+		// look into general objects cache first
+		if (ClientCacheGeneralObjects.getInstance().contains(GeneralObject.SCORE_TYPES)) {
+			loadScoreTypesInCombo(ClientCacheGeneralObjects.getInstance().getFromCache(GeneralObject.SCORE_TYPES));
 
-			@Override
-			public void onSuccess(List<String> scoreTypes) {
-				if (scoreTypes != null) {
-					for (String scoreType : scoreTypes) {
-						comboBoxProteinScoreType.addItem(scoreType, scoreType);
-					}
-				}
+			return;
+		}
+
+	}
+
+	private void loadScoreTypesInCombo(List<String> scoreTypes) {
+		if (scoreTypes != null) {
+			if (comboBoxScoreType.getItemCount() == 0) {
+				comboBoxScoreType.addItem("", "");
 			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+			for (String scoreType : scoreTypes) {
+				comboBoxScoreType.addItem(scoreType, scoreType);
 			}
-		});
-
+		}
 	}
 
 	private void addHandlers() {
@@ -186,9 +188,8 @@ public class ScorePanel extends ContainsExcelColumnRefPanelAndTable<Pair<String,
 			representedObject.setScoreName(scoreNameTextBox.getText());
 		else
 			representedObject.setScoreName(null);
-		if (comboBoxProteinScoreType.getSelectedIndex() > -1)
-			representedObject
-					.setScoreType(comboBoxProteinScoreType.getValue(comboBoxProteinScoreType.getSelectedIndex()));
+		if (comboBoxScoreType.getSelectedIndex() > -1)
+			representedObject.setScoreType(comboBoxScoreType.getValue(comboBoxScoreType.getSelectedIndex()));
 		else
 			representedObject.setScoreType(null);
 
@@ -213,8 +214,10 @@ public class ScorePanel extends ContainsExcelColumnRefPanelAndTable<Pair<String,
 
 	@Override
 	public void updateGUIFromObjectData(ScoreTypeBean dataObject) {
+
 		setRepresentedObject(dataObject);
 		updateGUIFromObjectData();
+
 	}
 
 	@Override
@@ -223,7 +226,9 @@ public class ScorePanel extends ContainsExcelColumnRefPanelAndTable<Pair<String,
 		if (representedObject != null) {
 			super.getExcelColumnRefPanel().selectExcelColumn(representedObject.getColumnRef());
 			scoreNameTextBox.setValue(representedObject.getScoreName());
-			ProjectCreatorWizardUtil.selectInCombo(comboBoxProteinScoreType, representedObject.getScoreType());
+
+			ProjectCreatorWizardUtil.selectInCombo(comboBoxScoreType, representedObject.getScoreType());
+
 			textAreaDescription.setValue(representedObject.getDescription());
 		} else {
 			scoreNameTextBox.setValue("");

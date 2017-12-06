@@ -169,6 +169,8 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			return 80;
 		case PROTEIN_PI:
 			return 60;
+		case PROTEIN_SCORE:
+			return 100;
 		case SEQUENCE_COUNT:
 			return 60;
 		case PROTEIN_AMOUNT:
@@ -225,7 +227,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 	public String getValue(ProteinBean p) {
 
 		final String value = ProteinColumns.getInstance().getValue(columnName, p, conditionName, condition2Name,
-				projectTag, amountType, null, ratioName, false);
+				projectTag, amountType, scoreName, ratioName, false);
 		// if (width == 0) {
 		// // if it is text, not a number, return ""
 		// try {
@@ -418,7 +420,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			break;
 		default:
 			sb.append(template.startToolTip(ProteinColumns.getInstance().getValue(columnName, p, conditionName,
-					condition2Name, projectTag, amountType, null, ratioName, false)));
+					condition2Name, projectTag, amountType, scoreName, ratioName, false)));
 			super.render(context, p, sb);
 			sb.append(template.endToolTip());
 			break;
@@ -495,6 +497,8 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		case PROTEIN_FUNCTION:
 			return Unit.PCT;
 		case GENE:
+			return Unit.PCT;
+		case PROTEIN_SCORE:
 			return Unit.PCT;
 		case ACC:
 			return Unit.PCT;

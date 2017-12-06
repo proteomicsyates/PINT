@@ -3,6 +3,7 @@ package edu.scripps.yates.shared.columns.comparator;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinBean;
+import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 import edu.scripps.yates.shared.util.UniprotFeatures;
@@ -64,6 +65,18 @@ public class ProteinComparator extends BeanComparator<ProteinBean> {
 			} catch (NumberFormatException e) {
 				return compareStrings(amountString1, amountString2, true);
 			}
+		} else if (columnName == ColumnName.PROTEIN_SCORE && scoreName != null) {
+			final ScoreBean score1 = o1.getScoreByName(scoreName);
+			final ScoreBean score2 = o2.getScoreByName(scoreName);
+			String value1 = null;
+			String value2 = null;
+			if (score1 != null)
+				value1 = score1.getValue();
+			if (score2 != null)
+				value2 = score2.getValue();
+
+			return compareNumberStrings(value1, value2, true);
+
 		} else if (columnName == ColumnName.PROTEIN_RATIO || columnName == ColumnName.PROTEIN_RATIO_GRAPH) {
 			return compareRatios(o1, o2, conditionName, condition2Name, projectTag, ratioName, false);
 		} else if (columnName == ColumnName.PROTEIN_RATIO_SCORE) {

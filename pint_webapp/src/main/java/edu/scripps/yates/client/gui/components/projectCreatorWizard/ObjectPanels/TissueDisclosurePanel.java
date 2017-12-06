@@ -4,13 +4,13 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.TextBox;
 
 import edu.scripps.yates.client.ImportWizardServiceAsync;
-import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
+import edu.scripps.yates.client.cache.ClientCacheGeneralObjects;
+import edu.scripps.yates.client.cache.GeneralObject;
 import edu.scripps.yates.shared.model.interfaces.HasId;
 import edu.scripps.yates.shared.model.projectCreator.excel.TissueTypeBean;
 
@@ -34,23 +34,23 @@ public class TissueDisclosurePanel extends ClosableWithTitlePanel {
 			}
 		});
 		addWidget(descriptionTextBox);
-		service.getTissueList(sessionID, new AsyncCallback<List<String>>() {
-
-			@Override
-			public void onSuccess(List<String> result) {
-				final MultiWordSuggestOracle suggestOracle = (MultiWordSuggestOracle) textBox.getSuggestOracle();
-				suggestOracle.addAll(result);
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-			}
-		});
+		// look into general objects cache first
+		if (ClientCacheGeneralObjects.getInstance().contains(GeneralObject.TISSUE_LIST)) {
+			loadTissueListInSuggestionBox(
+					ClientCacheGeneralObjects.getInstance().getFromCache(GeneralObject.TISSUE_LIST));
+			return;
+		}
 
 		updateRepresentedObject();
 
 		fireModificationEvent();
+	}
+
+	private void loadTissueListInSuggestionBox(List<String> result) {
+		if (result != null) {
+			final MultiWordSuggestOracle suggestOracle = (MultiWordSuggestOracle) textBox.getSuggestOracle();
+			suggestOracle.addAll(result);
+		}
 	}
 
 	@Override

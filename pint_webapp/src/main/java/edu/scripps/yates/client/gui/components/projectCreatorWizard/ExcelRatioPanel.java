@@ -11,7 +11,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -26,8 +25,9 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.ImportWizardService;
 import edu.scripps.yates.client.ImportWizardServiceAsync;
+import edu.scripps.yates.client.cache.ClientCacheGeneralObjects;
+import edu.scripps.yates.client.cache.GeneralObject;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsObject;
-import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExcelAmountRatioTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
@@ -260,25 +260,22 @@ public class ExcelRatioPanel
 	}
 
 	private void loadScoreTypes() {
-		service.getScoreTypes(sessionID, new AsyncCallback<List<String>>() {
+		// look into general objects cache first
+		if (ClientCacheGeneralObjects.getInstance().contains(GeneralObject.SCORE_TYPES)) {
+			loadScoreTypesInSuggestionBoxes(
+					ClientCacheGeneralObjects.getInstance().getFromCache(GeneralObject.SCORE_TYPES));
+			return;
+		}
 
-			@Override
-			public void onSuccess(List<String> result) {
-				if (result != null) {
-					MultiWordSuggestOracle suggestedWords = (MultiWordSuggestOracle) scoreTypeSuggestoBox
-							.getSuggestOracle();
-					suggestedWords.addAll(result);
-					MultiWordSuggestOracle suggestedWords2 = (MultiWordSuggestOracle) scoreNameSuggestBox
-							.getSuggestOracle();
-					suggestedWords2.addAll(result);
-				}
-			}
+	}
 
-			@Override
-			public void onFailure(Throwable caught) {
-				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-			}
-		});
+	private void loadScoreTypesInSuggestionBoxes(List<String> scoreTypes) {
+		if (scoreTypes != null) {
+			MultiWordSuggestOracle suggestedWords = (MultiWordSuggestOracle) scoreTypeSuggestoBox.getSuggestOracle();
+			suggestedWords.addAll(scoreTypes);
+			MultiWordSuggestOracle suggestedWords2 = (MultiWordSuggestOracle) scoreNameSuggestBox.getSuggestOracle();
+			suggestedWords2.addAll(scoreTypes);
+		}
 	}
 
 	private void addHandlers() {

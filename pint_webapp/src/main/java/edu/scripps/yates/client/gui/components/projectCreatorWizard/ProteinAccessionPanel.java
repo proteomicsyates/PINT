@@ -88,20 +88,7 @@ public class ProteinAccessionPanel
 
 		flexTable.setWidget(5, 1, groupSeparatorTextBox);
 
-		// get protein accessions
-		getProteinAccessionTypes();
-
 		updateGUIFromObjectData();
-	}
-
-	private void getProteinAccessionTypes() {
-
-		// final AccessionTypeBean[] values = AccessionTypeBean.values();
-		// for (AccessionTypeBean accessionType : values) {
-		// comboBoxProteinAccessionType.addItem(accessionType.name(),
-		// accessionType.name());
-		// }
-
 	}
 
 	@Override

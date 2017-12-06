@@ -15,6 +15,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
+import edu.scripps.yates.proteindb.persistence.mysql.ProteinScore;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
@@ -157,6 +158,14 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 			for (Object obj : queriableProtein.getProteinRatioValues()) {
 				ProteinRatioValue proteinRatioValue = (ProteinRatioValue) obj;
 				proteinBean.addProteinRatio(new ProteinRatioBeanAdapter(proteinRatioValue).adapt());
+			}
+		}
+
+		if (queriableProtein.getProteinScores() != null) {
+			for (Object obj : queriableProtein.getProteinScores()) {
+				ProteinScore proteinScore = (ProteinScore) obj;
+				proteinBean.addScore(new ScoreBeanAdapter(String.valueOf(proteinScore.getValue()),
+						proteinScore.getName(), proteinScore.getConfidenceScoreType()).adapt());
 			}
 		}
 		// log.debug("Adapting annorations for protein DbID: " +

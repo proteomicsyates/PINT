@@ -197,10 +197,12 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 	protected static int compareNumberStrings(String string1, String string2, boolean ignoreCase) {
 		String tmp1 = string1;
 		String tmp2 = string2;
-		if ("".equals(string1) || string1 == null)
-			tmp1 = "0";
-		if ("".equals(string2) || string2 == null)
-			tmp2 = "0";
+		if ("".equals(string1) || string1 == null) {
+			return -1;
+		}
+		if ("".equals(string2) || string2 == null) {
+			return 1;
+		}
 		try {
 			Double d1 = Double.valueOf(tmp1);
 			Double d2 = Double.valueOf(tmp2);

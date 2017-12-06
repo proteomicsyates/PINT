@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinBean;
+import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.util.NumberFormat;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 import edu.scripps.yates.shared.util.UniprotFeatures;
@@ -66,6 +67,8 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 			col = new ColumnWithVisibility(ColumnName.SEQUENCE_COUNT, true);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.SPECTRUM_COUNT, true);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PROTEIN_SCORE, false);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_AMOUNT, false);
 			columns.add(col);
@@ -141,7 +144,21 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 			final String format = NumberFormat.getFormat("#.###").format(mw);
 			final String parseZeroAndEmptyString = parseEmptyString(format);
 			return parseZeroAndEmptyString;
+		case PROTEIN_SCORE:
+			final ScoreBean scoreByName = p.getScoreByName(scoreName);
+			if (scoreByName != null) {
+				try {
+					final Double valueOf = Double.valueOf(scoreByName.getValue());
+					if (valueOf > 0.01)
+						return NumberFormat.getFormat("#.###").format(valueOf);
+					else
+						return scoreByName.getValue();
+				} catch (NumberFormatException e) {
+					return scoreByName.getValue();
+				}
 
+			}
+			return parseEmptyString("");
 		case SEQUENCE_COUNT:
 			return parseEmptyString(String.valueOf(p.getNumPeptides()));
 		case PROTEIN_AMOUNT:

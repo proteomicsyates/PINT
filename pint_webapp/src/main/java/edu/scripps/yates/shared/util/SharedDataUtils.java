@@ -1060,6 +1060,32 @@ public class SharedDataUtils {
 	}
 
 	/**
+	 * Gets a alphabetically sorted list of score names associated to proteins
+	 *
+	 * @param protein
+	 * @return
+	 */
+	public static List<String> getProteinScoreNamesFromProteins(Collection<ProteinBean> proteins) {
+		List<String> ret = new ArrayList<String>();
+		if (proteins != null) {
+			for (ProteinBean protein : proteins) {
+
+				final Map<String, ScoreBean> scores = protein.getScores();
+				if (scores != null) {
+					final Set<String> scoreNames = scores.keySet();
+					for (String scoreName : scoreNames) {
+						if (!ret.contains(scoreName))
+							ret.add(scoreName);
+					}
+				}
+
+			}
+		}
+		Collections.sort(ret);
+		return ret;
+	}
+
+	/**
 	 * Gets a alphabetically sorted list of score names associated to PTMs of
 	 * psms
 	 *
@@ -1271,7 +1297,7 @@ public class SharedDataUtils {
 			if (
 			// it starts in the range
 			startingPosition >= positionStart && startingPosition <= positionEnd ||
-			// it ends in the range
+					// it ends in the range
 					endingPosition >= positionStart && endingPosition <= positionEnd) {
 				if (startingPosition >= positionStart && endingPosition <= positionEnd) {
 					return SEQUENCE_OVERLAPPING.TOTALLY_COVERED;

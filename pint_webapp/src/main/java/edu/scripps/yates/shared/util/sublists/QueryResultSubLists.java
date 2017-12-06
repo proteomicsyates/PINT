@@ -11,6 +11,7 @@ import java.util.Set;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PTMBean;
 import edu.scripps.yates.shared.model.PTMSiteBean;
+import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ScoreBean;
 
 public class QueryResultSubLists implements Serializable {
@@ -138,11 +139,42 @@ public class QueryResultSubLists implements Serializable {
 		return list;
 	}
 
+	public List<String> getProteinScoreNames() {
+		Set<String> ret = new HashSet<String>();
+		final List<ProteinBean> dataList = getProteinSubList().getDataList();
+		for (ProteinBean proteinBean : dataList) {
+			ret.addAll(proteinBean.getScores().keySet());
+		}
+		List<String> list = new ArrayList<String>();
+		list.addAll(ret);
+		Collections.sort(list);
+		return list;
+	}
+
 	public List<String> getPSMScoreTypes() {
 		Set<String> ret = new HashSet<String>();
 		final List<PSMBean> dataList = getPsmSubList().getDataList();
 		for (PSMBean psmBean : dataList) {
 			final Collection<ScoreBean> scores = psmBean.getScores().values();
+			if (scores != null) {
+				for (ScoreBean scoreBean : scores) {
+					if (scoreBean.getScoreType() != null) {
+						ret.add(scoreBean.getScoreType());
+					}
+				}
+			}
+		}
+		List<String> list = new ArrayList<String>();
+		list.addAll(ret);
+		Collections.sort(list);
+		return list;
+	}
+
+	public List<String> getProteinScoreTypes() {
+		Set<String> ret = new HashSet<String>();
+		final List<ProteinBean> dataList = getProteinSubList().getDataList();
+		for (ProteinBean proteinBean : dataList) {
+			final Collection<ScoreBean> scores = proteinBean.getScores().values();
 			if (scores != null) {
 				for (ScoreBean scoreBean : scores) {
 					if (scoreBean.getScoreType() != null) {

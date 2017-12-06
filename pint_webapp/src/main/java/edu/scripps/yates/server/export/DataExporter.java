@@ -82,10 +82,11 @@ public class DataExporter {
 			final Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects = getRatioDescriptorsByProjects(
 					projectTags);
 			List<String> psmScoreNames = RemoteServicesTasks.getPSMScoreNamesFromProjects(projectTags);
+			List<String> proteinScoreNames = RemoteServicesTasks.getProteinScoreNamesFromProjects(projectTags);
 			final List<String> ptmScoreNames = RemoteServicesTasks.getPTMScoreNamesFromProjects(projectTags);
 			// HEADERS
 			writeHeader(fw, projectTags, conditionsByProject, ratioDescriptorsByProjects, psmScoreNames, ptmScoreNames,
-					ProteinColumns.getInstance(), PSMColumns.getInstance());
+					proteinScoreNames, ProteinColumns.getInstance(), PSMColumns.getInstance());
 
 			for (String projectTag : projectTags) {
 				log.info("Exporting proteins from project: " + projectTag);
@@ -113,7 +114,7 @@ public class DataExporter {
 				for (ProteinBean proteinBean : proteinBeans) {
 					// log.info(++i + "/" + total + " protein");
 					writeProteinRow(fw, proteinBean, projectTag, projectTags, conditionsByProject,
-							ratioDescriptorsByProjects);
+							ratioDescriptorsByProjects, proteinScoreNames);
 					final Set<Integer> psmIds = proteinBean.getPSMDBIds();
 					if (psmIds != null && !psmIds.isEmpty()) {
 						List<PSMBean> psms = proteinBean.getPsms();
@@ -178,9 +179,11 @@ public class DataExporter {
 					projectTags);
 			List<String> psmScoreNames = RemoteServicesTasks.getPSMScoreNamesFromProjects(projectTags);
 			final List<String> ptmScoreNames = RemoteServicesTasks.getPTMScoreNamesFromProjects(projectTags);
+			List<String> proteinScoreNames = RemoteServicesTasks.getProteinScoreNamesFromProjects(projectTags);
+
 			// HEADERS
 			writeHeader(fw, projectTags, conditionsByProject, ratioDescriptorsByProjects, psmScoreNames, ptmScoreNames,
-					ProteinGroupColumns.getInstance(), PSMColumns.getInstance());
+					proteinScoreNames, ProteinGroupColumns.getInstance(), PSMColumns.getInstance());
 
 			for (String projectTag : projectTags) {
 				Set<ProteinBean> proteinBeans = null;
@@ -385,7 +388,8 @@ public class DataExporter {
 
 	private static void writeProteinRow(FileWriter fw, ProteinBean proteinBean, String actualprojectTag,
 			List<String> projectTags, Map<String, List<String>> conditionsByProject,
-			Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects) throws IOException, PintException {
+			Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects, List<String> proteinScoreNames)
+					throws IOException, PintException {
 		// log.info("writing row for "
 		// + proteinBean.getPrimaryAccession().getAccession());
 		// line identifier: PROT
@@ -471,6 +475,17 @@ public class DataExporter {
 								fw.write(TAB);
 							}
 						}
+					}
+				}
+			} else if (columnWithOrder.getColumn() == ColumnName.PROTEIN_SCORE) {
+				// iterate over scoreNames
+				for (String proteinScoreName : proteinScoreNames) {
+					final ScoreBean scoreByName = proteinBean.getScoreByName(proteinScoreName);
+					if (scoreByName != null) {
+						fw.write(scoreByName.getParsedValue() + TAB);
+					} else {
+						fw.write(EMPTY);
+						fw.write(TAB);
 					}
 				}
 			} else {
@@ -589,8 +604,8 @@ public class DataExporter {
 	private static void writeHeader(FileWriter fw, List<String> projectTags,
 			Map<String, List<String>> conditionsByProject,
 			Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects, List<String> psmScoreNames,
-			List<String> ptmScoreNames, ColumnProvider proteinColumnProvider, ColumnProvider psmColumnProvider)
-			throws IOException, PintException {
+			List<String> ptmScoreNames, List<String> proteinScoreNames, ColumnProvider proteinColumnProvider,
+			ColumnProvider psmColumnProvider) throws IOException, PintException {
 		int numProjects = projectTags.size();
 		// line identifier: PEP, PROT, PG
 		fw.write("ROW TYPE" + TAB);
@@ -707,6 +722,11 @@ public class DataExporter {
 				for (String psmScoreName : psmScoreNames) {
 					fw.write(psmScoreName + TAB);
 				}
+			} else if (columnWithOrder.getColumn() == ColumnName.PROTEIN_SCORE) {
+				// iterate over scoreNames
+				for (String proteinScoreName : proteinScoreNames) {
+					fw.write(proteinScoreName + TAB);
+				}
 			} else if (columnWithOrder.getColumn() == ColumnName.PTM_SCORE) {
 				// iterate over scoreNames
 				if (ptmScoreNames.isEmpty()) {
@@ -781,14 +801,15 @@ public class DataExporter {
 			Map<String, List<String>> conditionsByProject = SharedDataUtils.getConditionsByProjects(proteins);
 			final Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects = SharedDataUtils
 					.getRatioDescriptorsByProjectsFromProteins(proteins);
-			List<String> psmScoreNames = SharedDataUtils.getPSMScoreNamesFromProteins(proteins);
+			final List<String> psmScoreNames = SharedDataUtils.getPSMScoreNamesFromProteins(proteins);
+			final List<String> proteinScoreNames = SharedDataUtils.getProteinScoreNamesFromProteins(proteins);
 			final List<String> ptmScoreNames = SharedDataUtils.getPTMScoreNamesFromProteins(proteins);
 			// HEADERS
 			List<String> projectTags = new ArrayList<String>();
 			projectTags.addAll(conditionsByProject.keySet());
 			Collections.sort(projectTags);
 			writeHeader(fw, projectTags, conditionsByProject, ratioDescriptorsByProjects, psmScoreNames, ptmScoreNames,
-					ProteinColumns.getInstance(), PSMColumns.getInstance());
+					proteinScoreNames, ProteinColumns.getInstance(), PSMColumns.getInstance());
 
 			for (String projectTag : projectTags) {
 				log.info("Exporting proteins from project: " + projectTag);
@@ -802,7 +823,7 @@ public class DataExporter {
 				for (ProteinBean proteinBean : proteinsFromProject) {
 					// log.info(++i + "/" + total + " protein");
 					writeProteinRow(fw, proteinBean, projectTag, projectTags, conditionsByProject,
-							ratioDescriptorsByProjects);
+							ratioDescriptorsByProjects, proteinScoreNames);
 					final Set<Integer> psmIds = proteinBean.getPSMDBIds();
 					if (psmIds != null && !psmIds.isEmpty()) {
 						List<PSMBean> psms = proteinBean.getPsms();
@@ -854,6 +875,7 @@ public class DataExporter {
 			final Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects = SharedDataUtils
 					.getRatioDescriptorsByProjectsFromProteins(proteins);
 			List<String> psmScoreNames = SharedDataUtils.getPSMScoreNamesFromProteins(proteins);
+			List<String> proteinScoreNames = SharedDataUtils.getProteinScoreNamesFromProteins(proteins);
 			final List<String> ptmScoreNames = SharedDataUtils.getPTMScoreNamesFromProteins(proteins);
 			// HEADERS
 			List<String> projectTags = new ArrayList<String>();
@@ -861,7 +883,7 @@ public class DataExporter {
 			Collections.sort(projectTags);
 			// HEADERS
 			writeHeader(fw, projectTags, conditionsByProject, ratioDescriptorsByProjects, psmScoreNames, ptmScoreNames,
-					ProteinGroupColumns.getInstance(), PSMColumns.getInstance());
+					proteinScoreNames, ProteinGroupColumns.getInstance(), PSMColumns.getInstance());
 
 			Set<String> hiddenPTMs = RemoteServicesTasks.getHiddenPTMs(projectTags);
 			final List<ProteinGroupBean> proteinGroups = RemoteServicesTasks.groupProteins(proteins,

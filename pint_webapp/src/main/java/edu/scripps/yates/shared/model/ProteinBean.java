@@ -21,12 +21,14 @@ import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
+import edu.scripps.yates.shared.model.interfaces.ContainsScores;
 import edu.scripps.yates.shared.util.NumberFormat;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 
-public class ProteinBean implements Comparable<ProteinBean>, Serializable, ContainsRatios, ContainsAmounts, ContainsId,
-		ContainsGenes, ContainsPrimaryAccessions, ContainsPSMs, ContainsPeptides, ContainsConditions, Cloneable {
+public class ProteinBean
+		implements Comparable<ProteinBean>, Serializable, ContainsRatios, ContainsAmounts, ContainsId, ContainsGenes,
+		ContainsPrimaryAccessions, ContainsPSMs, ContainsPeptides, ContainsConditions, ContainsScores, Cloneable {
 	/**
 	 *
 	 */
@@ -76,6 +78,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 	private Map<String, List<UniprotFeatureBean>> uniprotFeatures = new HashMap<String, List<UniprotFeatureBean>>();
 	private List<ReactomePathwayRef> reactomePathways = new ArrayList<ReactomePathwayRef>();
 	private Set<Integer> peptideDBIds = new HashSet<Integer>();
+	private Map<String, ScoreBean> scores = new HashMap<String, ScoreBean>();
 
 	public ProteinBean() {
 		proteinBeanUniqueIdentifier = hashCode();
@@ -1216,6 +1219,7 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 			// ret.psmIdsByCondition.putAll(getPsmIdsByCondition());
 			// ret.psmIdsbyMSRun.putAll(getPsmIdsbyMSRun());
 			lightVersion.ratios.addAll(getRatios());
+			lightVersion.scores.putAll(getScores());
 			lightVersion.ratiosByExperimentalcondition.putAll(getRatiosByExperimentalcondition());
 			lightVersion.secondaryAccessions.addAll(getSecondaryAccessions());
 			lightVersion.thresholds.addAll(getThresholds());
@@ -1510,5 +1514,28 @@ public class ProteinBean implements Comparable<ProteinBean>, Serializable, Conta
 
 	public void setUniprotFeatures(Map<String, List<UniprotFeatureBean>> uniprotFeatures) {
 		this.uniprotFeatures = uniprotFeatures;
+	}
+
+	@Override
+	public Map<String, ScoreBean> getScores() {
+		return scores;
+	}
+
+	@Override
+	public void setScores(Map<String, ScoreBean> scores) {
+		this.scores = scores;
+	}
+
+	@Override
+	public void addScore(ScoreBean score) {
+		if (scores == null)
+			scores = new HashMap<String, ScoreBean>();
+
+		scores.put(score.getScoreName(), score);
+	}
+
+	@Override
+	public ScoreBean getScoreByName(String scoreName) {
+		return scores.get(scoreName);
 	}
 }

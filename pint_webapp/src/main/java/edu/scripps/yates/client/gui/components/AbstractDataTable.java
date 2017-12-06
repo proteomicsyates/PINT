@@ -119,7 +119,7 @@ public abstract class AbstractDataTable<T> extends Composite
 		// add the selection manager
 		if (multipleSelectionModel) {
 			selectionModel = new MultiSelectionModel<T>();
-			dataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<T>createCheckboxManager());
+			dataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<T> createCheckboxManager());
 		} else {
 			selectionModel = new SingleSelectionModel<T>();
 			dataGrid.setSelectionModel(selectionModel);
@@ -150,13 +150,13 @@ public abstract class AbstractDataTable<T> extends Composite
 			// don't do anything with amount because the conditions
 			// are not loaded yet
 			if (columnName != ColumnName.PROTEIN_AMOUNT && columnName != ColumnName.PROTEIN_RATIO
-					&& columnName != ColumnName.PROTEIN_RATIO_SCORE && columnName != ColumnName.PROTEIN_RATIO_GRAPH
-					&& columnName != ColumnName.PSM_AMOUNT && columnName != ColumnName.PSM_SCORE
-					&& columnName != ColumnName.PTM_SCORE && columnName != ColumnName.PSM_RATIO
-					&& columnName != ColumnName.PSM_RATIO_GRAPH && columnName != ColumnName.PSM_RATIO_SCORE
-					&& columnName != ColumnName.PEPTIDE_AMOUNT && columnName != ColumnName.PEPTIDE_SCORE
-					&& columnName != ColumnName.PEPTIDE_RATIO && columnName != ColumnName.PEPTIDE_RATIO_GRAPH
-					&& columnName != ColumnName.PEPTIDE_RATIO_SCORE) {
+					&& columnName != ColumnName.PROTEIN_SCORE && columnName != ColumnName.PROTEIN_RATIO_SCORE
+					&& columnName != ColumnName.PROTEIN_RATIO_GRAPH && columnName != ColumnName.PSM_AMOUNT
+					&& columnName != ColumnName.PSM_SCORE && columnName != ColumnName.PTM_SCORE
+					&& columnName != ColumnName.PSM_RATIO && columnName != ColumnName.PSM_RATIO_GRAPH
+					&& columnName != ColumnName.PSM_RATIO_SCORE && columnName != ColumnName.PEPTIDE_AMOUNT
+					&& columnName != ColumnName.PEPTIDE_SCORE && columnName != ColumnName.PEPTIDE_RATIO
+					&& columnName != ColumnName.PEPTIDE_RATIO_GRAPH && columnName != ColumnName.PEPTIDE_RATIO_SCORE) {
 				final boolean visible = getColumnManager().isVisible(columnName);
 				if (visible) {
 					final Header<String> footer = getColumnManager().getFooter(columnName);
@@ -180,7 +180,7 @@ public abstract class AbstractDataTable<T> extends Composite
 
 	public final void clearTable() {
 		getAsyncDataProvider().updateRowCount(0, true);
-		getAsyncDataProvider().updateRowData(0, Collections.<T>emptyList());
+		getAsyncDataProvider().updateRowData(0, Collections.<T> emptyList());
 		setEmptyTableWidget(emptyWidget);
 		refreshData();
 	}

@@ -15,15 +15,16 @@ import edu.scripps.yates.shared.model.interfaces.ContainsConditions;
 import edu.scripps.yates.shared.model.interfaces.ContainsId;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
+import edu.scripps.yates.shared.model.interfaces.ContainsScores;
 import edu.scripps.yates.shared.model.interfaces.ContainsSequence;
 import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 
 public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, ContainsId, ContainsConditions,
-		ContainsPrimaryAccessions, ContainsSequence {
+		ContainsPrimaryAccessions, ContainsSequence, ContainsScores {
 	/**
-	 *
+	 * 
 	 */
 	private static final long serialVersionUID = -1713998292042049510L;
 	private String psmID;
@@ -258,14 +259,17 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	 *
 	 * @return
 	 */
+	@Override
 	public Map<String, ScoreBean> getScores() {
 		return scores;
 	}
 
+	@Override
 	public void setScores(Map<String, ScoreBean> scores) {
 		this.scores = scores;
 	}
 
+	@Override
 	public void addScore(ScoreBean score) {
 		if (scores == null)
 			scores = new HashMap<String, ScoreBean>();
@@ -468,6 +472,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		return proteinDescriptionString;
 	}
 
+	@Override
 	public ScoreBean getScoreByName(String scoreName) {
 		return scores.get(scoreName);
 	}

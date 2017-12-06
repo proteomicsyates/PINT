@@ -8,7 +8,6 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -21,7 +20,8 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.ValueBoxBase.TextAlignment;
 
 import edu.scripps.yates.client.ImportWizardServiceAsync;
-import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
+import edu.scripps.yates.client.cache.ClientCacheGeneralObjects;
+import edu.scripps.yates.client.cache.GeneralObject;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.PtmScoreTypeBean;
 import edu.scripps.yates.shared.util.Pair;
@@ -31,7 +31,7 @@ public class PTMScorePanel
 
 	private final String tableHeader;
 	private TextBox scoreNameTextBox;
-	private final ListBox comboBoxProteinScoreType;
+	private final ListBox comboBoxScoreType;
 	private final TextArea textAreaDescription;
 	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
 	private final SuggestBox suggestBoxModificationName;
@@ -69,9 +69,9 @@ public class PTMScorePanel
 		Label lblType = new Label("Score type:");
 		flexTable.setWidget(4, 0, lblType);
 
-		comboBoxProteinScoreType = new ListBox();
-		reloadTableIfChange(comboBoxProteinScoreType);
-		flexTable.setWidget(4, 1, comboBoxProteinScoreType);
+		comboBoxScoreType = new ListBox();
+		reloadTableIfChange(comboBoxScoreType);
+		flexTable.setWidget(4, 1, comboBoxScoreType);
 		flexTable.getFlexCellFormatter().setColSpan(2, 0, 2);
 		flexTable.getCellFormatter().setHorizontalAlignment(4, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		flexTable.getCellFormatter().setHorizontalAlignment(4, 1, HasHorizontalAlignment.ALIGN_LEFT);
@@ -103,8 +103,8 @@ public class PTMScorePanel
 		flexTable.getCellFormatter().setHorizontalAlignment(6, 1, HasHorizontalAlignment.ALIGN_LEFT);
 
 		addHandlers();
-		getScoreTypes();
-		getModificationNamesSuggestions();
+		loadScoreTypes();
+		loadModificationNamesSuggestions();
 
 		if (ptmScoreTypeBean != null) {
 			updateGUIFromObjectData();
@@ -117,44 +117,41 @@ public class PTMScorePanel
 
 	}
 
-	private void getModificationNamesSuggestions() {
-		service.getPTMNames(sessionID, new AsyncCallback<List<String>>() {
+	private void loadModificationNamesSuggestions() {
+		// look into general objects cache first
+		if (ClientCacheGeneralObjects.getInstance().contains(GeneralObject.PTM_NAMES)) {
+			loadPTMNamesInSuggestionBox(ClientCacheGeneralObjects.getInstance().getFromCache(GeneralObject.PTM_NAMES));
+			return;
+		}
 
-			@Override
-			public void onFailure(Throwable caught) {
-				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-			}
+	}
 
-			@Override
-			public void onSuccess(List<String> result) {
-				if (result != null)
-					oracle.addAll(result);
-
-			}
-		});
+	private void loadPTMNamesInSuggestionBox(List<String> ptmNames) {
+		if (ptmNames != null)
+			oracle.addAll(ptmNames);
 	}
 
 	/**
 	 * Calls to getScoreTypes using the webservice
 	 */
-	private void getScoreTypes() {
-		service.getScoreTypes(sessionID, new AsyncCallback<List<String>>() {
+	private void loadScoreTypes() {
+		// look into general objects cache first
+		if (ClientCacheGeneralObjects.getInstance().contains(GeneralObject.SCORE_TYPES)) {
+			loadScoreTypesInCombo(ClientCacheGeneralObjects.getInstance().getFromCache(GeneralObject.SCORE_TYPES));
+			return;
+		}
 
-			@Override
-			public void onSuccess(List<String> scoreTypes) {
-				if (scoreTypes != null) {
-					for (String scoreType : scoreTypes) {
-						comboBoxProteinScoreType.addItem(scoreType, scoreType);
-					}
-				}
+	}
+
+	private void loadScoreTypesInCombo(List<String> scoreTypes) {
+		if (scoreTypes != null) {
+			if (comboBoxScoreType.getItemCount() == 0) {
+				comboBoxScoreType.addItem("", "");
 			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+			for (String scoreType : scoreTypes) {
+				comboBoxScoreType.addItem(scoreType, scoreType);
 			}
-		});
-
+		}
 	}
 
 	private void addHandlers() {
@@ -222,9 +219,8 @@ public class PTMScorePanel
 		representedObject.setModificationName(suggestBoxModificationName.getValue());
 
 		representedObject.setScoreName(scoreNameTextBox.getValue());
-		if (comboBoxProteinScoreType.getSelectedIndex() > -1)
-			representedObject
-					.setScoreType(comboBoxProteinScoreType.getValue(comboBoxProteinScoreType.getSelectedIndex()));
+		if (comboBoxScoreType.getSelectedIndex() > -1)
+			representedObject.setScoreType(comboBoxScoreType.getValue(comboBoxScoreType.getSelectedIndex()));
 		else
 			representedObject.setScoreType(null);
 	}
@@ -252,6 +248,7 @@ public class PTMScorePanel
 
 	@Override
 	public void updateGUIFromObjectData(PtmScoreTypeBean dataObject) {
+
 		setRepresentedObject(dataObject);
 		updateGUIFromObjectData();
 
@@ -261,7 +258,9 @@ public class PTMScorePanel
 	public void updateGUIFromObjectData() {
 		if (representedObject != null) {
 			scoreNameTextBox.setValue(representedObject.getScoreName());
-			ProjectCreatorWizardUtil.selectInCombo(comboBoxProteinScoreType, representedObject.getScoreType());
+
+			ProjectCreatorWizardUtil.selectInCombo(comboBoxScoreType, representedObject.getScoreType());
+
 			suggestBoxModificationName.setValue(representedObject.getModificationName());
 			textAreaDescription.setValue(representedObject.getDescription());
 			getExcelColumnRefPanel().selectExcelColumn(representedObject.getColumnRef());
@@ -269,7 +268,7 @@ public class PTMScorePanel
 			scoreNameTextBox.setValue("");
 			suggestBoxModificationName.setValue("");
 			textAreaDescription.setValue("");
-			ProjectCreatorWizardUtil.selectInCombo(comboBoxProteinScoreType, null);
+			ProjectCreatorWizardUtil.selectInCombo(comboBoxScoreType, null);
 			getExcelColumnRefPanel().selectExcelColumn(null);
 		}
 
