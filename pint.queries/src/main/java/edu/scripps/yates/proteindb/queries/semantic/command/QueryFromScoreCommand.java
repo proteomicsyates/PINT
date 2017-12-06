@@ -210,6 +210,9 @@ public class QueryFromScoreCommand extends AbstractQuery {
 									&& numericalCondition.getOperator() == NumericalconditionOperator.NOT_EQUAL) {
 								return true;
 							} else {
+								if (numericalCondition.matches(score.getValue())) {
+									return true;
+								}
 								continue;
 							}
 						}
