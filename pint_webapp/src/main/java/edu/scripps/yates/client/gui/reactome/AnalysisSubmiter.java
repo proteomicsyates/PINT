@@ -26,6 +26,8 @@ public class AnalysisSubmiter {
 			+ SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE;
 	private static final String POST_ANALYSIS_EXTERNAL_URL = "./reactome/AnalysisService/identifiers/url/?page=1&pageSize="
 			+ SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE;
+	private static final String POST_ANALYSIS_EXTERNAL_URL_PROJECTED_TO_HUMAN = "./reactome/AnalysisService/identifiers/url/projection?page=1&pageSize="
+			+ SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE;
 
 	private static final ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 
@@ -65,7 +67,7 @@ public class AnalysisSubmiter {
 		}
 	}
 
-	public static void analysisExternalURL(String sessionID, final Boolean includeInteractors,
+	public static void analysisExternalURL(String sessionID, final Boolean includeInteractors, boolean projectToHuman,
 			final edu.scripps.yates.client.gui.reactome.AnalysisPerformedHandler handler) {
 
 		service.getDownloadLinkForReactomeAnalysisResult(sessionID, new AsyncCallback<FileDescriptor>() {
@@ -86,7 +88,7 @@ public class AnalysisSubmiter {
 					StatusReportersRegister.getInstance()
 							.notifyStatusReporters("WARNING: Dataset is not ready or is empty");
 				} else {
-					submitReactomeAnalysis(dataURL, includeInteractors, handler);
+					submitReactomeAnalysis(dataURL, includeInteractors, projectToHuman, handler);
 				}
 			}
 
@@ -98,12 +100,15 @@ public class AnalysisSubmiter {
 
 	}
 
-	protected static void submitReactomeAnalysis(String dataURL, Boolean includeInteractors,
+	protected static void submitReactomeAnalysis(String dataURL, Boolean includeInteractors, boolean projectToHuman,
 			final AnalysisPerformedHandler handler) {
 		// TODO for tests purposes
 		// dataURL =
 		// "http://sealion.scripps.edu/pint/pint/download?filetodownload=Reactome.txt&fileType=reactomeAnalysisResultFile";
 		String postURL = POST_ANALYSIS_EXTERNAL_URL;
+		if (projectToHuman) {
+			postURL = POST_ANALYSIS_EXTERNAL_URL_PROJECTED_TO_HUMAN;
+		}
 		if (includeInteractors != null) {
 			postURL += "&interactors=" + includeInteractors;
 		}
@@ -114,8 +119,9 @@ public class AnalysisSubmiter {
 			// String externalURL = Window.Location.getProtocol() + "//"
 			// + Window.Location.getHost() + dataURL;
 			String externalURL = dataURL;
-			StatusReportersRegister.getInstance()
-					.notifyStatusReporters("Submitting analysis to Reactome as '" + postURL + "'");
+			// StatusReportersRegister.getInstance()
+			// .notifyStatusReporters("Submitting analysis to Reactome as '" +
+			// postURL + "'");
 
 			// externalURL =
 			// "http://sealion.scripps.edu/pint/Reactome.txt";
@@ -129,8 +135,6 @@ public class AnalysisSubmiter {
 						try {
 							AnalysisResult result = AnalysisModelFactory.getModelObject(AnalysisResult.class,
 									response.getText());
-							StatusReportersRegister.getInstance()
-									.notifyStatusReporters("Analysis result received from Reactome.");
 							handler.onAnalysisPerformed(result);
 						} catch (AnalysisModelException e) {
 							StatusReportersRegister.getInstance().notifyStatusReporters(e);
