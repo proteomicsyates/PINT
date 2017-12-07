@@ -33,6 +33,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -87,6 +89,9 @@ public class ReactomePanel extends ResizeLayoutPanel
 	private final ListBox speciesComboBox;
 	private ReactomeSupportedSpecies dataSpecies;
 	private final Button reactomeSubmitButton;
+	private SimpleCheckBox projectToHumanCheckBox;
+	private String currentProjectSpecies;
+
 	static {
 		// RESTFulClient
 		RESTFulClient.SERVER = "./reactome";
@@ -147,12 +152,45 @@ public class ReactomePanel extends ResizeLayoutPanel
 		submissionButtonPanel.add(table);
 		table.setWidget(0, 0, labelIncludeInteractors);
 		includeInteractorsCheckBox = new SimpleCheckBox();
+		includeInteractorsCheckBox.setTitle(title);
 		table.setWidget(0, 1, includeInteractorsCheckBox);
+		final Label labelProjectToHuman = new Label("Project the result to Homo Sapiens:");
+		String titleProjectToHuman = "Analyse the identifiers in the file over the different \n"
+				+ "species and projects the result to Homo Sapiens.\n"
+				+ "The projection is calculated by the orthologous \n" + "slot in the Reactome database. ";
+		labelProjectToHuman.setTitle(titleProjectToHuman);
+		table.setWidget(1, 0, labelProjectToHuman);
+		projectToHumanCheckBox = new SimpleCheckBox();
+		projectToHumanCheckBox.setTitle(titleProjectToHuman);
+		projectToHumanCheckBox.setValue(true);// selected by default
+		// capture if it is selected or not, to change the selection in the
+		// species comboBox
+		// if it is selected, select Human in the comboBox
+		projectToHumanCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event) {
+				// if selected, change to human the species comboBox
+				if (event.getValue() != null && event.getValue() == true) {
+					if (speciesComboBox != null) {
+						GWT.log("Selecting Homo_sapiens");
+						selectSpecies(ReactomeSupportedSpecies.Homo_sapiens);
+					}
+				}
+
+			}
+		});
+		table.setWidget(1, 1, projectToHumanCheckBox);
 		submissionButtonPanel.add(reactomeSubmitButton);
 		reactomeSubmitButton.addClickHandler(new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
+				// check if project to human is selected, in that case, set
+				// species to human
+				if (projectToHumanCheckBox.getValue() == true) {
+					selectSpecies(ReactomeSupportedSpecies.Homo_sapiens);
+				}
 				requestFireworks(getSelectedSpecies(), false);
 				reactomeSubmitButton.setEnabled(false);
 				reactomeTable.setVisible(false);
@@ -161,9 +199,10 @@ public class ReactomePanel extends ResizeLayoutPanel
 				if (dataSpecies != null && dataSpecies != getSelectedSpecies()) {
 					PopUpPanelYesNo yesNo = new PopUpPanelYesNo(false, true, true, "Pathway browser taxonomy",
 							"The taxonomy of the proteins that are going to be analyzed ('"
-									+ dataSpecies.getScientificName()
-									+ "') is different from the selected species in the Reactome fireworks view. The view will be changed now to show pathways for '"
-									+ dataSpecies.getScientificName() + "'",
+									+ dataSpecies.getScientificName() + "')\n"
+									+ "is different from the selected species in the Reactome fireworks view.\n"
+									+ "The view will be changed now to show pathways for '"
+									+ dataSpecies.getScientificName() + "'.",
 							"OK", null);
 					yesNo.addButton1ClickHandler(new ClickHandler() {
 
@@ -250,7 +289,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 
 	private void submitReactomeAnalysis() {
 		AnalysisSubmiter.analysisExternalURL(sessionID, includeInteractorsCheckBox.getValue(),
-				new AnalysisPerformedHandler() {
+				projectToHumanCheckBox.getValue(), new AnalysisPerformedHandler() {
 
 					@Override
 					public void onAnalysisPerformed(AnalysisResult result) {
@@ -348,7 +387,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		fireworks.addNodeSelectedHandler(this);
 		fireworksContainer.clear();
 		fireworksContainer.add(fireworks);
-
+		fireworks.onResize();
 		fireworks.showAll();
 		fireWorksLoaded = true;
 		// diagram.setVisible(false);
@@ -576,5 +615,10 @@ public class ReactomePanel extends ResizeLayoutPanel
 		hp.setSpacing(5);
 
 		return hp;
+	}
+
+	public void setProjectDataSpecies(String speciesName) {
+		this.currentProjectSpecies = speciesName;
+
 	}
 }
