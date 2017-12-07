@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
 
 import edu.scripps.yates.client.gui.reactome.ReactomePanel;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.util.SharedConstants;
@@ -98,14 +99,15 @@ public class OrganismsItemPanel extends AbstractItemPanel<ProjectBean, OrganismB
 					// set the species in the reactome panel
 					if (!result.isEmpty()) {
 						String speciesName = result.iterator().next().getId();
+						ReactomePanel.getInstance(null).setProjectDataSpecies(speciesName);
 						ReactomePanel.getInstance(null).setDataSpecies(speciesName);
 					}
 				}
 
 				@Override
 				public void onFailure(Throwable caught) {
-					// TODO Auto-generated method stub
-
+					StatusReportersRegister.getInstance()
+							.notifyStatusReporters("Error retrieving the organism for this project");
 				}
 			});
 		}
