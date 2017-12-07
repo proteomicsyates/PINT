@@ -133,7 +133,10 @@ public class ServerDataUtils {
 				if (string.contains(":")) {
 					final String[] split2 = string.split(":");
 					String type = split2[0].trim();
-					String tmp = split2[1].trim();
+					String tmp = "";
+					if (split2.length > 1) {
+						tmp = split2[1].trim();
+					}
 					if (type.equals(ProteinImplFromUniprotEntry.STATUS)) {
 						ret.setStatus(tmp);
 					} else if (type.equals(ProteinImplFromUniprotEntry.REF)) {
