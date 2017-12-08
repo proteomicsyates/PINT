@@ -26,6 +26,8 @@ import org.reactome.web.fireworks.model.Node;
 import org.reactome.web.pwp.model.client.RESTFulClient;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -106,7 +108,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		DiagramFactory.SHOW_FIREWORKS_BTN = true;
 		DiagramFactory.SERVER = "./reactome";
 		DiagramFactory.CONSOLE_VERBOSE = true;
-		DiagramFactory.SHOW_INFO = false;
+		DiagramFactory.SHOW_INFO = true;
 
 	}
 
@@ -186,17 +188,30 @@ public class ReactomePanel extends ResizeLayoutPanel
 
 			@Override
 			public void onClick(ClickEvent event) {
-				// check if project to human is selected, in that case, set
-				// species to human
-				if (projectToHumanCheckBox.getValue() == true) {
-					selectSpecies(ReactomeSupportedSpecies.Homo_sapiens);
-				}
-				requestFireworks(getSelectedSpecies(), false);
+
 				reactomeSubmitButton.setEnabled(false);
 				reactomeTable.setVisible(false);
 				// if taxonomy of the data is different from selected, change to
 				// the selected
-				if (dataSpecies != null && dataSpecies != getSelectedSpecies()) {
+				// but only if projection to human is not selected, in that
+				// case, the dataSpecies should be Human
+				if (projectToHumanCheckBox.getValue() == true
+						&& getSelectedSpecies() != ReactomeSupportedSpecies.Homo_sapiens) {
+					PopUpPanelYesNo yesNo = new PopUpPanelYesNo(false, true, true, "Pathway browser taxonomy",
+							"Selecting the analysis projection to Human requires to load the Human pathways.\n"
+									+ "The view will automatically change to show Human pathways.",
+							"OK", null);
+					yesNo.addButton1ClickHandler(new ClickHandler() {
+
+						@Override
+						public void onClick(ClickEvent event) {
+							selectSpecies(ReactomeSupportedSpecies.Homo_sapiens);
+							submitReactomeAnalysis();
+							yesNo.hide();
+						}
+					});
+					yesNo.show();
+				} else if (dataSpecies != null && dataSpecies != getSelectedSpecies()) {
 					PopUpPanelYesNo yesNo = new PopUpPanelYesNo(false, true, true, "Pathway browser taxonomy",
 							"The taxonomy of the proteins that are going to be analyzed ('"
 									+ dataSpecies.getScientificName() + "')\n"
@@ -209,7 +224,6 @@ public class ReactomePanel extends ResizeLayoutPanel
 						@Override
 						public void onClick(ClickEvent event) {
 							selectSpecies(dataSpecies);
-							requestFireworks(dataSpecies, true);
 							submitReactomeAnalysis();
 							yesNo.hide();
 						}
@@ -239,7 +253,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 			@Override
 			public void onSelection(SelectionEvent<Integer> event) {
 				if (event.getSelectedItem() == 1) {
-					requestFireworks(getSelectedSpecies(), false);
+					// requestFireworks(getSelectedSpecies(), false);
 				} else if (event.getSelectedItem() == 0) {
 					// refresh table
 					reactomeTable.refreshData();
@@ -270,9 +284,15 @@ public class ReactomePanel extends ResizeLayoutPanel
 
 			@Override
 			public void onFireworksOpened(FireworksOpenedEvent event) {
+				GWT.log("from ReactomePanel onFireworksOpened:" + event.toDebugString());
+
 				fireworksContainer.setVisible(true);
-				fireworks.onResize();
-				fireworks.selectNode(fireworks.getSelected().getDbId());
+				fireworks.showAll();
+
+				Node nodeSelected = fireworks.getSelected();
+				if (nodeSelected != null) {
+					fireworks.selectNode(nodeSelected.getDbId());
+				}
 				diagramContainer.setVisible(false);
 			}
 		};
@@ -296,13 +316,14 @@ public class ReactomePanel extends ResizeLayoutPanel
 						reactomeTable.setVisible(true);
 						reactomeSubmitButton.setEnabled(true);
 						final String token = result.getSummary().getToken();
-						fireworks.showAll();
+
 						fireworks.setAnalysisToken(token, "TOTAL");
 						// set the token to the asyncDataListProvider
 						asyncDataListProvider.setToken(token);
 						loadAnalysisOnTable(result);
-						StatusReportersRegister.getInstance().notifyStatusReporters(
-								"Reactome analysis received with " + result.getPathwaysFound() + " pathways found.");
+						StatusReportersRegister.getInstance()
+								.notifyStatusReporters("Reactome analysis received with " + result.getPathwaysFound()
+										+ " pathways found.\n" + "Click on a pathway to open the pathway browser.");
 
 					}
 
@@ -371,7 +392,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 	}
 
 	private void loadFireworks(String json) {
-
+		GWT.log("**********Creating new Canvas for firworksViewer");
 		fireworks = FireworksFactory.createFireworksViewer(json);
 		fireworks.asWidget().setStyleName("reactome_fireworks");
 		fireworks.addAnalysisResetHandler(this);
@@ -387,9 +408,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		fireworks.addNodeSelectedHandler(this);
 		fireworksContainer.clear();
 		fireworksContainer.add(fireworks);
-		fireworks.onResize();
-		fireworks.showAll();
-		fireWorksLoaded = true;
+
 		// diagram.setVisible(false);
 	}
 
@@ -398,56 +417,70 @@ public class ReactomePanel extends ResizeLayoutPanel
 	}
 
 	private void requestFireworks(ReactomeSupportedSpecies species, boolean forceRequest) {
-		if (requestingFireworks) {
-			return;
-		}
-		if (!forceRequest && fireWorksLoaded) {
-			// fireworks.setVisible(true);
-			// fireworks.onResize();
-			fireworks.showAll();
-
-			return;
-		}
-		fireworksContainer.clear();
-		fireworksContainer.add(getLoadingMessage(species));
-		String url = "./reactome/download/current/fireworks/" + species.toJSonString();
-		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-		requestBuilder.setHeader("Accept", "application/json");
 		try {
-			requestingFireworks = true;
-			requestBuilder.sendRequest(null, new RequestCallback() {
-				@Override
-				public void onResponseReceived(Request request, Response response) {
-					try {
-						switch (response.getStatusCode()) {
-						case Response.SC_OK:
-							String json = response.getText();
-							loadFireworks(json);
-							break;
-						default:
-							String errorMsg = "A problem has occurred while loading the pathways overview data. "
-									+ response.getStatusText();
-							onFireworksLoadError(errorMsg);
-						}
-					} finally {
-						requestingFireworks = false;
-					}
-				}
+			GWT.log("requestFireworks START");
+			if (requestingFireworks) {
+				GWT.log("requestingFireworks is true");
+				return;
+			}
+			if (!forceRequest && fireWorksLoaded) {
+				GWT.log("calling to showAll");
+				fireworks.showAll();
+				GWT.log("showAll back");
+				return;
+			}
+			GWT.log("Actually requesting fireworks remotelly");
+			fireworksContainer.clear();
+			fireworksContainer.add(getLoadingMessage(species));
+			String url = "./reactome/download/current/fireworks/" + species.toJSonString();
+			RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+			requestBuilder.setHeader("Accept", "application/json");
+			try {
+				requestingFireworks = true;
+				requestBuilder.sendRequest(null, new RequestCallback() {
+					@Override
+					public void onResponseReceived(Request request, Response response) {
+						try {
+							GWT.log("Response received from requestFireworks");
 
-				@Override
-				public void onError(Request request, Throwable exception) {
-					try {
-						String errorMsg = "A problem has occurred while loading the pathways overview data. "
-								+ exception.getMessage();
-						onFireworksLoadError(errorMsg);
-					} finally {
-						requestingFireworks = false;
+							switch (response.getStatusCode()) {
+							case Response.SC_OK:
+								String json = response.getText();
+								GWT.log("Calling loadFireworks");
+
+								loadFireworks(json);
+								GWT.log("loadFireworks back");
+
+								break;
+							default:
+								String errorMsg = "A problem has occurred while loading the pathways overview data. "
+										+ response.getStatusText();
+								onFireworksLoadError(errorMsg);
+							}
+						} finally {
+							requestingFireworks = false;
+						}
 					}
-				}
-			});
-		} catch (RequestException ex) {
-			String errorMsg = "A problem has occurred while connecting to the server. " + ex.getMessage();
-			onFireworksLoadError(errorMsg);
+
+					@Override
+					public void onError(Request request, Throwable exception) {
+						try {
+							String errorMsg = "A problem has occurred while loading the pathways overview data. "
+									+ exception.getMessage();
+							onFireworksLoadError(errorMsg);
+						} finally {
+							requestingFireworks = false;
+						}
+					}
+				});
+				GWT.log("fireworks remotelly requested");
+
+			} catch (RequestException ex) {
+				String errorMsg = "A problem has occurred while connecting to the server. " + ex.getMessage();
+				onFireworksLoadError(errorMsg);
+			}
+		} finally {
+			GWT.log("requestFireworks END");
 		}
 	}
 
@@ -460,9 +493,8 @@ public class ReactomePanel extends ResizeLayoutPanel
 			GWT.log("Selected node: " + event.getNode().getStId());
 			// we want to make a zoom to the pathway node in the fireworks
 			// fireworks.openPathway(event.getNode().getStId());
-			fireworks.selectNode(event.getNode().getDbId());
+			// fireworks.selectNode(event.getNode().getDbId());
 			selectedNodeInFireWorks = event.getNode();
-			// fireworks.setVisible(false);
 			// diagram.setVisible(true);
 			// diagram.onResize();
 			// diagramLoader.load(event.getNode().getStId());
@@ -485,29 +517,41 @@ public class ReactomePanel extends ResizeLayoutPanel
 
 	public void selectPathWay(PathwaySummary pathway) {
 		GWT.log("Selecting pathway: " + pathway.getStId() + "\t" + pathway.getDbId());
-		// select tab for graphics
-		selectGraphicTab();
-		// reset selections and highlights
-		fireworks.resetHighlight();
-		fireworks.resetSelection();
-		// highlight and select node
-		StatusReportersRegister.getInstance().notifyStatusReporters(
-				"Selecting Pathway stId:" + pathway.getStId() + " dbId:" + pathway.getDbId(),
-				QueryPanel.class.getName());
-		toSelect = pathway;
-		toHighlight = pathway;
 
-		applyCarriedActions();
-		// fireworks.highlightNode(stId);
-		// fireworks.selectNode(stId);
-		// fireworks.openPathway(stId);
-		// fireworks.highlightNode(dbId);
-		// fireworks.selectNode(dbId);
-		// fireworks.openPathway(dbId);
-		if (fireworks.getSelected() == null) {
-			StatusReportersRegister.getInstance().notifyStatusReporters(
-					"Pathway stId:" + pathway.getStId() + " dbId:" + pathway.getDbId() + " not found");
-		}
+		selectGraphicTab();
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				fireworks.onResize();
+				// reset selections and highlights
+				GWT.log("Calling to resetHighlight");
+				fireworks.resetHighlight();
+				GWT.log("resetHighlight back");
+
+				GWT.log("Calling to resetSelection");
+				fireworks.resetSelection();
+				GWT.log("resetSelection back");
+
+				GWT.log("Calling to showAll");
+				fireworks.showAll();
+				GWT.log("showAll back");
+
+				// highlight and select node
+				StatusReportersRegister.getInstance().notifyStatusReporters(
+						"Selecting Pathway stId:" + pathway.getStId() + " dbId:" + pathway.getDbId(),
+						QueryPanel.class.getName());
+				toHighlight = pathway;
+				toSelect = pathway;
+				// toOpen = pathway;
+				applyCarriedActions();
+
+				if (fireworks.getSelected() == null) {
+					StatusReportersRegister.getInstance().notifyStatusReporters(
+							"Pathway stId:" + pathway.getStId() + " dbId:" + pathway.getDbId() + " not found");
+				}
+			}
+		});
 
 	}
 
@@ -519,18 +563,28 @@ public class ReactomePanel extends ResizeLayoutPanel
 	private void applyCarriedActions() {
 		// ORDER IS IMPORTANT IN THE FOLLOWING CONDITIONS
 		if (toOpen != null) {
+			GWT.log("Calling to openPahtway");
 			fireworks.openPathway(toOpen.getDbId());
+			GWT.log("openPahtway back");
+
 			toOpen = null;
 			toSelect = null;
 			toHighlight = null;
 		}
 		if (toSelect != null) {
 			final Long dbId = toSelect.getDbId();
+			GWT.log("Calling to selectNode");
 			fireworks.selectNode(dbId);
+			GWT.log("selectNode back");
+
 			toSelect = null;
 		}
 		if (toHighlight != null) {
+			GWT.log("Calling to highlightNode");
+
 			fireworks.highlightNode(toHighlight.getDbId());
+			GWT.log("highlightNode back");
+
 			toHighlight = null;
 		}
 
@@ -543,9 +597,19 @@ public class ReactomePanel extends ResizeLayoutPanel
 
 	@Override
 	public void onFireworksLoaded(FireworksLoadedEvent event) {
-		GWT.log("on fireworks loaded");
-		fireworks.onResize();
-		fireworks.showAll();
+		GWT.log("on fireworks loaded START");
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				fireworks.onResize();
+				GWT.log("calling showAll in loadFireworks");
+				fireworks.showAll();
+				GWT.log("showAll in loadFireworks back");
+				fireWorksLoaded = true;
+				GWT.log("on fireworks loaded END");
+			}
+		});
 
 	}
 
@@ -559,6 +623,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 
 	@Override
 	public void onNodeOpened(NodeOpenedEvent event) {
+		GWT.log("onNodeOpened START");
 		if (event.getNode() != null) {
 			fireworksContainer.setVisible(false);
 			diagramContainer.setVisible(true);
@@ -572,7 +637,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		// // presenter.showPathwayDiagram(event.getNode().getDbId());
 		// // hide the fireworks container
 		//
-		GWT.log("onNodeOpened");
+		GWT.log("onNodeOpened END");
 	}
 
 	@Override
