@@ -173,7 +173,7 @@ public class DiagramLoader implements DatabaseObjectCreatedHandler, AncestorsCre
 
 	@Override
 	public void onFireworksOpened(FireworksOpenedEvent event) {
-		GWT.log("onFireworksOpened:" + event.toDebugString());
+		GWT.log("from DiagramLoader onFireworksOpened:" + event.toDebugString());
 	}
 
 	@Override
