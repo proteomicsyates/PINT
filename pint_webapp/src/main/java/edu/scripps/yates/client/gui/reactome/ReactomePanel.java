@@ -108,7 +108,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		DiagramFactory.SHOW_FIREWORKS_BTN = true;
 		DiagramFactory.SERVER = "./reactome";
 		DiagramFactory.CONSOLE_VERBOSE = true;
-		DiagramFactory.SHOW_INFO = true;
+		DiagramFactory.SHOW_INFO = false;
 
 	}
 
