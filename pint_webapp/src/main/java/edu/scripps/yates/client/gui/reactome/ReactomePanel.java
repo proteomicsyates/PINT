@@ -198,8 +198,10 @@ public class ReactomePanel extends ResizeLayoutPanel
 				if (projectToHumanCheckBox.getValue() == true
 						&& getSelectedSpecies() != ReactomeSupportedSpecies.Homo_sapiens) {
 					PopUpPanelYesNo yesNo = new PopUpPanelYesNo(false, true, true, "Pathway browser taxonomy",
-							"Selecting the analysis projection to Human requires to load the Human pathways.\n"
-									+ "The view will automatically change to show Human pathways.",
+							"Selecting the analysis projection to Human requires to load the '"
+									+ ReactomeSupportedSpecies.Homo_sapiens.getScientificName() + "' pathways.\n"
+									+ "The view will automatically change to show '"
+									+ ReactomeSupportedSpecies.Homo_sapiens.getScientificName() + "' pathways.",
 							"OK", null);
 					yesNo.addButton1ClickHandler(new ClickHandler() {
 
@@ -215,7 +217,8 @@ public class ReactomePanel extends ResizeLayoutPanel
 					PopUpPanelYesNo yesNo = new PopUpPanelYesNo(false, true, true, "Pathway browser taxonomy",
 							"The taxonomy of the proteins that are going to be analyzed ('"
 									+ dataSpecies.getScientificName() + "')\n"
-									+ "is different from the selected species in the Reactome fireworks view.\n"
+									+ "is different from the selected species in the Reactome fireworks view '"
+									+ getSelectedSpecies().getScientificName() + "'.\n"
 									+ "The view will be changed now to show pathways for '"
 									+ dataSpecies.getScientificName() + "'.",
 							"OK", null);
