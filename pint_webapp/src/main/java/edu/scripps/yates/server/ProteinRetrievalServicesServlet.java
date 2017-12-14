@@ -33,9 +33,7 @@ import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.client.ProteinRetrievalService;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
-import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
@@ -863,105 +861,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	@Override
-	public List<String> getPSMScoreNamesFromProjects(Set<String> projectNames) throws PintException {
-		try {
-			final Method enclosingMethod = new Object() {
-			}.getClass().getEnclosingMethod();
-			logMethodCall(enclosingMethod);
-			List<String> ret = new ArrayList<String>();
-			final List<String> psmScoreNames = PreparedQueries.getPSMScoreNames();
-			for (String scoreName : psmScoreNames) {
-				if (scoreName != null && !ret.contains(scoreName)) {
-					ret.add(scoreName);
-				}
-			}
-
-			final List<String> ptmScoreNames = PreparedQueries.getPTMScoreNames();
-			for (String scoreName : ptmScoreNames) {
-				if (scoreName != null && !ret.contains(scoreName)) {
-					ret.add(scoreName);
-				}
-			}
-			Collections.sort(ret);
-			return ret;
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e instanceof PintException)
-				throw e;
-			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
-		}
-	}
-
-	@Override
-	public List<String> getPSMScoreTypesFromProjects(Set<String> projectNames) throws PintException {
-		try {
-			final Method enclosingMethod = new Object() {
-			}.getClass().getEnclosingMethod();
-			logMethodCall(enclosingMethod);
-			List<String> ret = new ArrayList<String>();
-			// for (String projectName : projectNames) {
-			// get the PSM scores from the projects
-			final List<ConfidenceScoreType> psmScoresByProject = PreparedQueries.getPTMScoreTypeNames();
-			for (ConfidenceScoreType psmScore : psmScoresByProject) {
-				if (!ret.contains(psmScore.getName()))
-					ret.add(psmScore.getName());
-			}
-
-			final List<ConfidenceScoreType> psmScoreTypesByProject = PreparedQueries.getPSMScoreTypeNames();
-			for (ConfidenceScoreType psmScore : psmScoreTypesByProject) {
-				if (!ret.contains(psmScore.getName()))
-					ret.add(psmScore.getName());
-			}
-			// }
-			return ret;
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e instanceof PintException)
-				throw e;
-			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
-		}
-	}
-
-	@Override
-	public List<String> getPTMScoreNamesFromProjects(Set<String> projectNames) throws PintException {
-		try {
-			final Method enclosingMethod = new Object() {
-			}.getClass().getEnclosingMethod();
-			logMethodCall(enclosingMethod);
-			return RemoteServicesTasks.getPTMScoreNamesFromProjects(projectNames);
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e instanceof PintException)
-				throw e;
-			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
-		}
-	}
-
-	@Override
-	public List<String> getPTMScoreTypesFromProjects(Set<String> projectNames) throws PintException {
-		try {
-			final Method enclosingMethod = new Object() {
-			}.getClass().getEnclosingMethod();
-			logMethodCall(enclosingMethod);
-			List<String> ret = new ArrayList<String>();
-			for (String projectName : projectNames) {
-				// get the PTM scores from the projects
-				final List<PtmSite> ptmSitesByProject = PreparedQueries.getPTMSitesWithScoresByProject(projectName);
-				for (PtmSite ptmSite : ptmSitesByProject) {
-					if (!ret.contains(ptmSite.getConfidenceScoreType().getName()))
-						ret.add(ptmSite.getConfidenceScoreType().getName());
-				}
-			}
-			return ret;
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e instanceof PintException)
-				throw e;
-			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
-		}
-	}
-
-	@Override
 	public List<RatioDescriptorBean> getRatioDescriptorsFromProjects(Set<String> projectNames) throws PintException {
 		try {
 			final Method enclosingMethod = new Object() {
@@ -975,26 +874,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		}
 	}
-
-	// @Override
-	// public List<ProteinGroupBean> groupProteins(
-	// TIntHashSet proteinBeanUniqueIdentifiers, // this is not DB ids
-	// boolean separateNonConclusiveProteins) throws PintException {
-	// try {
-	// Set<ProteinBean> proteins =
-	// ServerCacheProteinBeansByProteinBeanUniqueIdentifier
-	// .getInstance().getFromCache(proteinBeanUniqueIdentifiers);
-	//
-	// return RemoteServicesTasks.groupProteins(proteins,
-	// separateNonConclusiveProteins);
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// if (e instanceof PintException)
-	// throw e;
-	// throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
-	// }
-	//
-	// }
 
 	@Override
 	public ProteinGroupBeanSubList groupProteins(String sessionID, boolean separateNonConclusiveProteins, int pageSize)
@@ -1220,10 +1099,11 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		peptidesPageSize = defaultViewByProject.getPeptidePageSize();
 
 		log.info("Checking if there is more than one protein in the same dataset with the same primary accession");
-		DataSetsManager.getDataSet(sessionID, projectTagString).fixPrimaryAccessionDuplicates();
+		DataSet dataSet = DataSetsManager.getDataSet(sessionID, projectTagString);
+		dataSet.fixPrimaryAccessionDuplicates();
 
 		log.info("Getting query result sub lists from dataset:");
-		log.info(DataSetsManager.getDataSet(sessionID, projectTagString));
+		log.info(dataSet);
 		log.info("Sorting dataset according to default view of the project in session '" + sessionID + "'");
 
 		ProteinGroupComparator proteinGroupComparator = new ProteinGroupComparator(
@@ -1237,27 +1117,22 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				+ defaultViewByProject.getPsmsSortedBy().getName());
 
 		// sort by default views
-		DataSetsManager.getDataSet(sessionID, projectTagString).sortProteinGroups(proteinGroupComparator,
-				separateNonConclusiveProteins);
-		DataSetsManager.getDataSet(sessionID, projectTagString).sortProteins(proteinComparator);
-		DataSetsManager.getDataSet(sessionID, projectTagString).sortPsms(psmComparator);
+		dataSet.sortProteinGroups(proteinGroupComparator, separateNonConclusiveProteins);
+		dataSet.sortProteins(proteinComparator);
+		dataSet.sortPsms(psmComparator);
 		log.info("Data set sorted");
 
 		// get sublists
 		log.info("Getting sublists of the data");
-		final ProteinBeanSubList proteinBeanSubList = DataSetsManager.getDataSet(sessionID, projectTagString)
-				.getLightProteinBeanSubList(0, proteinsPageSize);
-		final PsmBeanSubList psmBeanSubList = DataSetsManager.getDataSet(sessionID, projectTagString)
-				.getLightPsmBeanSubList(0, psmsPageSize);
-		final ProteinGroupBeanSubList proteinGroupBeanSubList = DataSetsManager.getDataSet(sessionID, projectTagString)
+		final ProteinBeanSubList proteinBeanSubList = dataSet.getLightProteinBeanSubList(0, proteinsPageSize);
+		final PsmBeanSubList psmBeanSubList = dataSet.getLightPsmBeanSubList(0, psmsPageSize);
+		final ProteinGroupBeanSubList proteinGroupBeanSubList = dataSet
 				.getLightProteinGroupBeanSubList(separateNonConclusiveProteins, 0, proteinGroupsPageSize);
-		final PeptideBeanSubList peptideSubList = DataSetsManager.getDataSet(sessionID, projectTagString)
-				.getLightPeptideBeanSubList(0, peptidesPageSize);
-		final int numDifferentSequencesDistinguishingModifieds = DataSetsManager.getDataSet(sessionID, projectTagString)
-				.getNumDifferentSequences(true);
-		final int numDifferentSequences = DataSetsManager.getDataSet(sessionID, projectTagString)
-				.getNumDifferentSequences(false);
-		QueryResultSubLists ret = new QueryResultSubLists();
+		final PeptideBeanSubList peptideSubList = dataSet.getLightPeptideBeanSubList(0, peptidesPageSize);
+		final int numDifferentSequencesDistinguishingModifieds = dataSet.getNumDifferentSequences(true);
+		final int numDifferentSequences = dataSet.getNumDifferentSequences(false);
+		QueryResultSubLists ret = new QueryResultSubLists(dataSet.getProteinScores(), dataSet.getPeptideScores(),
+				dataSet.getPsmScores(), dataSet.getPtmScores(), dataSet.getScoreTypes());
 		ret.setProteinGroupSubList(proteinGroupBeanSubList);
 		ret.setProteinSubList(proteinBeanSubList);
 		ret.setPsmSubList(psmBeanSubList);
