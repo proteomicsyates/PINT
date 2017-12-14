@@ -9,17 +9,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.util.RatioAnalyzer;
 import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PTMBean;
+import edu.scripps.yates.shared.model.PTMSiteBean;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDistribution;
+import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
@@ -35,8 +39,13 @@ import gnu.trove.set.hash.THashSet;
 public class DataSet {
 	private final List<ProteinGroupBean> proteinGroups = new ArrayList<ProteinGroupBean>();
 	private final List<ProteinBean> proteins = new ArrayList<ProteinBean>();
+	private final Set<String> proteinScores = new THashSet<String>();
 	private final List<PeptideBean> peptides = new ArrayList<PeptideBean>();
+	private final Set<String> peptideScores = new THashSet<String>();
 	private final List<PSMBean> psms = new ArrayList<PSMBean>();
+	private final Set<String> psmScores = new THashSet<String>();
+	private final Set<String> ptmScores = new THashSet<String>();
+	private final Set<String> scoreTypes = new THashSet<String>();
 
 	private final TIntObjectHashMap<ProteinBean> proteinsByProteinBeanUniqueIdentifier = new TIntObjectHashMap<ProteinBean>();
 	private final Map<String, ProteinBean> proteinsByAccession = new THashMap<String, ProteinBean>();
@@ -70,7 +79,10 @@ public class DataSet {
 		if (!ready)
 			return Collections.EMPTY_LIST;
 		if (proteins.isEmpty()) {
-			proteins.addAll(SharedDataUtils.getProteinBeansFromPSMBeans(psms));
+			List<ProteinBean> proteinBeansFromPSMBeans = SharedDataUtils.getProteinBeansFromPSMBeans(psms);
+			for (ProteinBean proteinBean : proteinBeansFromPSMBeans) {
+				addProtein(proteinBean);
+			}
 		}
 		return proteins;
 	}
@@ -197,6 +209,8 @@ public class DataSet {
 		}
 		// add ratios to ratioAnalyzer
 		ratioAnalyzer.addRatios(proteinBean.getRatios());
+		// add protein scores
+		addScores(proteinScores, proteinBean.getScores());
 	}
 
 	public void addPsm(PSMBean psmBean) {
@@ -221,6 +235,23 @@ public class DataSet {
 		psmsByPSMDBId.put(psmBean.getDbID(), psmBean);
 		// add ratios to ratioAnalyzer
 		ratioAnalyzer.addRatios(psmBean.getRatios());
+		// add psm scores
+		addScores(psmScores, psmBean.getScores());
+		// add ptm scores
+		List<PTMBean> ptms = psmBean.getPtms();
+		if (ptms != null) {
+			for (PTMBean ptm : ptms) {
+				List<PTMSiteBean> ptmSites = ptm.getPtmSites();
+				if (ptmSites != null) {
+					for (PTMSiteBean ptmSiteBean : ptmSites) {
+						ScoreBean score = ptmSiteBean.getScore();
+						if (score != null) {
+							addScore(ptmScores, score);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public int getNumDifferentSequences(boolean distinguisModifiedPeptides) {
@@ -515,6 +546,32 @@ public class DataSet {
 		peptidesByPeptideBeanUniqueIdentifier.put(peptideBean.getPeptideBeanUniqueIdentifier(), peptideBean);
 		// add ratios to ratioAnalyzer
 		ratioAnalyzer.addRatios(peptideBean.getRatios());
+		// add peptide scores
+		addScores(peptideScores, peptideBean.getScores());
+	}
+
+	private void addScores(Set<String> scoreNamesSet, Map<String, ScoreBean> scores) {
+		if (scores != null) {
+			addScores(scoreNamesSet, scores.values());
+		}
+	}
+
+	private void addScores(Set<String> scoreNamesSet, Collection<ScoreBean> scores) {
+		for (ScoreBean score : scores) {
+			addScore(scoreNamesSet, score);
+
+		}
+	}
+
+	private void addScore(Set<String> scoreNamesSet, ScoreBean score) {
+		if (score != null) {
+			if (score.getScoreName() != null) {
+				scoreNamesSet.add(score.getScoreName());
+			}
+			if (score.getScoreType() != null) {
+				scoreTypes.add(score.getScoreType());
+			}
+		}
 	}
 
 	private void mergePeptideBeans(PeptideBean peptideBean, PeptideBean peptideBean2) {
@@ -606,5 +663,32 @@ public class DataSet {
 				+ activeDatasetThread.getId());
 
 		this.activeDatasetThread = activeDatasetThread;
+	}
+
+	public List<String> getProteinScores() {
+		getProteins();
+		return proteinScores.stream().collect(Collectors.toList()).stream().sorted().collect(Collectors.toList());
+	}
+
+	public List<String> getPeptideScores() {
+		getPeptides();
+		return peptideScores.stream().collect(Collectors.toList()).stream().sorted().collect(Collectors.toList());
+	}
+
+	public List<String> getPsmScores() {
+		getPsms();
+		return psmScores.stream().collect(Collectors.toList()).stream().sorted().collect(Collectors.toList());
+	}
+
+	public List<String> getPtmScores() {
+		getPsms();
+		return ptmScores.stream().collect(Collectors.toList()).stream().sorted().collect(Collectors.toList());
+	}
+
+	public List<String> getScoreTypes() {
+		getProteins();
+		getPeptides();
+		getPsms();
+		return scoreTypes.stream().collect(Collectors.toList()).stream().sorted().collect(Collectors.toList());
 	}
 }
