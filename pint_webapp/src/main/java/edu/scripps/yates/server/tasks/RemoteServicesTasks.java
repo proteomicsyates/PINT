@@ -1317,6 +1317,7 @@ public class RemoteServicesTasks {
 				cleanUpPeptidesFromSession(peptidesToRelease);
 				peptidesToRelease.clear();
 				if (MemoryUsageReport.getFreeMemoryPercentage() < 10.0) {
+					log.info("calling to Garbage collector");
 					System.gc();
 					log.info(MemoryUsageReport.getMemoryUsageReport());
 				}
