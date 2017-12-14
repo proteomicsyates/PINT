@@ -78,14 +78,6 @@ public interface ProteinRetrievalService extends RemoteService {
 
 	Set<String> getThresholdNamesFromProjects(Set<String> projectTags) throws PintException;
 
-	List<String> getPSMScoreNamesFromProjects(Set<String> projectTags) throws PintException;
-
-	List<String> getPSMScoreTypesFromProjects(Set<String> projectTags) throws PintException;
-
-	List<String> getPTMScoreNamesFromProjects(Set<String> projectTags) throws PintException;
-
-	List<String> getPTMScoreTypesFromProjects(Set<String> projectTags) throws PintException;
-
 	List<RatioDescriptorBean> getRatioDescriptorsFromProjects(Set<String> projectTags) throws PintException;
 
 	// List<ProteinGroupBean> groupProteins(
@@ -171,7 +163,7 @@ public interface ProteinRetrievalService extends RemoteService {
 
 	PeptideBeanSubList getPeptideBeansFromPeptideProviderFromListSorted(String sessionID,
 			ContainsPeptides peptideProvider, int start, int end, Comparator<PeptideBean> comparator, boolean ascending)
-			throws PintException;
+					throws PintException;
 
 	PeptideBeanSubList getPeptideBeansFromPeptideProviderFromList(String sessionID, ContainsPeptides peptideProvider,
 			int start, int end) throws PintException;
