@@ -146,12 +146,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	private WindowBox welcomeToProjectWindowBox;
 	private final AsyncPSMBeanListFromPsmProvider asyncDataProviderForPSMsOfSelectedProtein;
-	private final AsyncPSMBeanListFromPsmProvider asyncDataProviderForPSMsOfSelectedPeptide;
 	private String sessionID;
 	private ProjectInformationPanel projectInformationPanel;
 	private ScrollPanel scrollQueryPanel;
 	private ScrollPanel scrollProjectInformationPanel;
-	private boolean defaultViewsApplied;
 
 	/**
 	 * Returns true if the projects contained in the loadedProjects set is the
@@ -201,7 +199,6 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		this.sessionID = sessionID;
 		reactomePanel = ReactomePanel.getInstance(sessionID);
 		asyncDataProviderForPSMsOfSelectedProtein = new AsyncPSMBeanListFromPsmProvider(sessionID);
-		asyncDataProviderForPSMsOfSelectedPeptide = new AsyncPSMBeanListFromPsmProvider(sessionID);
 		DockLayoutPanel mainPanel = new DockLayoutPanel(Unit.PX);
 		mainPanel.setStyleName("MainPanel");
 		initWidget(mainPanel);
@@ -1509,67 +1506,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	}
 
-	private void loadPSMScoreNames(Set<String> selectedProjects) {
-		scoreTypesPanel.clearList();
-		proteinRetrievingService.getPSMScoreNamesFromProjects(selectedProjects, new AsyncCallback<List<String>>() {
-
-			@Override
-			public void onFailure(Throwable caught) {
-				updateStatus(caught);
-			}
-
-			@Override
-			public void onSuccess(List<String> result) {
-				addPSMScoreNames(result);
-			}
-		});
-		proteinRetrievingService.getPTMScoreNamesFromProjects(selectedProjects, new AsyncCallback<List<String>>() {
-
-			@Override
-			public void onFailure(Throwable caught) {
-				updateStatus(caught);
-			}
-
-			@Override
-			public void onSuccess(List<String> result) {
-				addPTMScoreNames(result);
-			}
-		});
-
-	}
-
-	private void loadPSMScoreTypes(Set<String> selectedProjects) {
-		scoreTypesPanel.clearList();
-		proteinRetrievingService.getPSMScoreTypesFromProjects(selectedProjects, new AsyncCallback<List<String>>() {
-
-			@Override
-			public void onFailure(Throwable caught) {
-				updateStatus(caught);
-			}
-
-			@Override
-			public void onSuccess(List<String> result) {
-				addScoreTypes(result);
-			}
-		});
-		proteinRetrievingService.getPTMScoreTypesFromProjects(selectedProjects, new AsyncCallback<List<String>>() {
-
-			@Override
-			public void onFailure(Throwable caught) {
-				updateStatus(caught);
-			}
-
-			@Override
-			public void onSuccess(List<String> result) {
-				addScoreTypes(result);
-			}
-		});
-
-	}
-
 	private void addProteinScoreNames(List<String> result) {
-		if (!result.isEmpty()) {
-			Collections.sort(result);
+		if (result != null && !result.isEmpty()) {
 			for (String scoreName : result) {
 				scoreNamesPanel.getListBox().addItem(scoreName);
 				proteinTablePanel.addColumnForScore(scoreName, ColumnName.PROTEIN_SCORE);
@@ -1583,8 +1521,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	}
 
 	private void addScoreTypes(List<String> result) {
-		if (!result.isEmpty()) {
-			Collections.sort(result);
+		if (result != null && !result.isEmpty()) {
 			for (String scoreType : result) {
 				scoreTypesPanel.getListBox().addItem(scoreType);
 			}
@@ -1594,13 +1531,28 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		}
 	}
 
+	private void addPeptideScoreNames(List<String> result) {
+		if (result != null && !result.isEmpty()) {
+			for (String scoreName : result) {
+				scoreNamesPanel.getListBox().addItem(scoreName);
+				peptideTablePanel.addColumnForScore(scoreName, ColumnName.PEPTIDE_SCORE);
+				peptideColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PEPTIDE_SCORE, scoreName,
+						MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PEPTIDE_SCORE, scoreName));
+			}
+			// add to suggestions in the query editor
+			queryEditorPanel.addSuggestionsToComplexQuery(result);
+			updateStatus(result.size() + " peptide scores loaded.");
+		}
+	}
+
 	private void addPSMScoreNames(List<String> result) {
-		if (!result.isEmpty()) {
-			Collections.sort(result);
+		if (result != null && !result.isEmpty()) {
 			for (String scoreName : result) {
 				scoreNamesPanel.getListBox().addItem(scoreName);
 				psmTablePanel.addColumnForScore(scoreName, ColumnName.PSM_SCORE);
 				psmOnlyTablePanel.addColumnForScore(scoreName, ColumnName.PSM_SCORE);
+				psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PSM_SCORE, scoreName,
+						MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PSM_SCORE, scoreName));
 			}
 			// add to suggestions in the query editor
 			queryEditorPanel.addSuggestionsToComplexQuery(result);
@@ -1609,12 +1561,13 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	}
 
 	private void addPTMScoreNames(List<String> result) {
-		if (!result.isEmpty()) {
-			Collections.sort(result);
+		if (result != null && !result.isEmpty()) {
 			for (String scoreName : result) {
 				scoreNamesPanel.getListBox().addItem(scoreName);
 				psmTablePanel.addColumnForScore(scoreName, ColumnName.PTM_SCORE);
 				psmOnlyTablePanel.addColumnForScore(scoreName, ColumnName.PTM_SCORE);
+				psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PTM_SCORE, scoreName,
+						MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PTM_SCORE, scoreName));
 			}
 			// add to suggestions in the query editor
 			queryEditorPanel.addSuggestionsToComplexQuery(result);
@@ -2008,11 +1961,11 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 										updateStatus(result.getProteinGroupSubList().getTotalNumber()
 												+ " protein groups received.");
 
-										addPSMScoreNames(result.getPSMScoreNames());
-										addProteinScoreNames(result.getProteinScoreNames());
-										addPTMScoreNames(result.getPTMScoreNames());
-										addScoreTypes(result.getPSMScoreTypes());
-										addScoreTypes(result.getProteinScoreTypes());
+										addPSMScoreNames(result.getPsmScores());
+										addProteinScoreNames(result.getProteinScores());
+										addPeptideScoreNames(result.getPeptideScores());
+										addPTMScoreNames(result.getPsmScores());
+										addScoreTypes(result.getScoreTypes());
 										// apply default views
 										final String projectTag = loadedProjects.iterator().next();
 										if (!loadedProjects.isEmpty() && ClientCacheDefaultViewByProjectTag
@@ -2287,7 +2240,6 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		if (changeToDataTab) {
 			changeToDataTab(defaultViews);
 		}
-		defaultViewsApplied = true;
 	}
 
 	@Override
@@ -2713,7 +2665,6 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						}
 						// set to false in order to force its application again
 						// when performing a query
-						defaultViewsApplied = false;
 					}
 
 				});
