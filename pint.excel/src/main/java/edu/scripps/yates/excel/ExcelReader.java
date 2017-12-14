@@ -15,6 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.POIXMLException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -132,6 +133,10 @@ public class ExcelReader {
 		return null;
 	}
 
+	public String getStringValue(int sheetNumber, int numRow, String colLetter) {
+		return getStringValue(sheetNumber, numRow, CellReference.convertColStringToIndex(colLetter));
+	}
+
 	public String getStringValue(int sheetNumber, int numRow, int numCol) {
 		try {
 			final Sheet sheetAt = getWorkbook().getSheetAt(sheetNumber);
@@ -156,6 +161,10 @@ public class ExcelReader {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public String getNumberValue(int sheetNumber, int numRow, String colLetter) {
+		return getNumberValue(sheetNumber, numRow, CellReference.convertColStringToIndex(colLetter));
 	}
 
 	public String getNumberValue(int sheetNumber, int numRow, int numCol) {
