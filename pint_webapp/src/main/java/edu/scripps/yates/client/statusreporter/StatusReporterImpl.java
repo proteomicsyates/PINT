@@ -1,5 +1,6 @@
 package edu.scripps.yates.client.statusreporter;
 
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -36,7 +37,25 @@ public class StatusReporterImpl implements StatusReporter {
 
 	@Override
 	public void showErrorMessage(Throwable throwable) {
+		GWT.log("Error captured", throwable);
 		String message = throwable.getLocalizedMessage();
+		if (message == null) {
+			message = throwable.getMessage();
+		}
+		if (message == null) {
+			if (throwable.getCause() != null) {
+				message = throwable.getCause().getLocalizedMessage();
+				if (message == null) {
+					message = throwable.getCause().getMessage();
+				}
+			}
+
+		}
+
+		if (message == null) {
+			// do not show it to the user
+			return;
+		}
 		final String exceptionString = "Exception:";
 		if (message.contains(exceptionString)) {
 			message = message.substring(message.lastIndexOf(exceptionString) + exceptionString.length()).trim();
