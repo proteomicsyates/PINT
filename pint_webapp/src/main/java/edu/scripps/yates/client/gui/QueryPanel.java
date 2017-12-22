@@ -764,7 +764,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		queryEditorPanel = new MyQueryEditorPanel(sendQueryclickHandler, sendSimpleQueryByProteinNameClickHandler,
 				sendSimpleQueryByAccClickHandler, sendSimpleQueryByGeneNameClickHandler);
 
-		projectInformationPanel = new ProjectInformationPanel();
+		projectInformationPanel = new ProjectInformationPanel(this, testMode);
 		scrollProjectInformationPanel = new ScrollPanel(projectInformationPanel);
 		firstLevelTabPanel.add(scrollProjectInformationPanel, "Project information");
 		scrollQueryPanel = new ScrollPanel(queryEditorPanel);
@@ -1189,7 +1189,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// peptideTablePanel.clearTable();
 		if ("".equals(queryText)) {
 			updateStatus("Empty query. Loading whole project...");
-			loadProteinsFromProject(uniprotVersion, null, testMode);
+			loadProteinsFromProject(uniprotVersion, null, null, testMode);
 			return;
 		}
 
@@ -1728,7 +1728,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							psmTablePanel.setEmptyTableWidget(emptyLabelString);
 
 						} else {
-							loadProteinsFromProject(null, null, testMode);
+							loadProteinsFromProject(null, null, null, testMode);
 						}
 					}
 				}
@@ -1863,8 +1863,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	 * @param defaultQueryIndex
 	 *            if not null, it will ask for the default query defined at that
 	 *            index in the array of default queries
+	 * @param string
 	 */
-	public void loadProteinsFromProject(final String uniprotVersion, Integer defaultQueryIndex,
+	public void loadProteinsFromProject(final String uniprotVersion, Integer defaultQueryIndex, String queryName,
 			final boolean testMode) {
 		// emtpy protein group panel
 		proteinGroupTablePanel.clearTable();
@@ -1885,7 +1886,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				plural = "s";
 			String logMessage = "Getting proteins from project" + plural;
 			if (defaultQueryIndex != null) {
-				logMessage = "Getting proteins from query";
+				logMessage = "Getting proteins from query '" + queryName + "'";
 			}
 			logMessage += "...";
 
@@ -2099,6 +2100,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					public void onSuccess(DefaultView defaultViews) {
 						GWT.log("Default view of project " + projectTag + " received");
 						if (defaultViews != null) {
+							GWT.log("Default view of project " + projectTag + " has "
+									+ defaultViews.getProjectNamedQueries().size() + " recommended queries");
 							// only apply default views of the projectBean in
 							// the parameters
 							if (projectBean.getTag().equals(projectTag)) {
@@ -2219,8 +2222,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 					welcomeToProjectWindowBox = new WindowBox(true, true, true, true, false);
 					welcomeToProjectWindowBox.setAnimationEnabled(true);
-					welcomeToProjectWindowBox
-							.setWidget(new MyWelcomeProjectPanel(projectBean, defaultViews, QueryPanel.this, testMode));
+					welcomeToProjectWindowBox.setWidget(new MyWelcomeProjectPanel(welcomeToProjectWindowBox,
+							projectBean, defaultViews, QueryPanel.this, testMode));
 					welcomeToProjectWindowBox.setText("Project '" + defaultViews.getProjectTag() + "'");
 					DoSomethingTask<Void> doSomething = new DoSomethingTask<Void>() {
 						@Override
