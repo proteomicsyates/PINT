@@ -154,7 +154,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			boolean defaultOne = true;
 			for (ProjectNamedQuery recommendedQueries : recommendedQueries) {
 				ret.add(MyWelcomeProjectPanel.getLinkToDataView(null, recommendedQueries, defaultOne, queryPanel,
-						testMode, null));
+						testMode, "defaultQueryLinkSmall"));
 				defaultOne = false;
 			}
 		}

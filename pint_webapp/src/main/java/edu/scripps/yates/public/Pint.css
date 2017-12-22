@@ -696,6 +696,13 @@
 	font-size:medium;
 }
 
+.defaultQueryLinkSmall {
+	color: black;
+	cursor:pointer;
+	cursor:hand;
+	font-weight:bold;
+}
+
 .defaultQueryLink:hover {
 	color: #203FF5; /* blue */
 	cursor:pointer;cursor:hand
