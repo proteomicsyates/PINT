@@ -2212,14 +2212,12 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 			// TODO only show the dialog if some information is present in the
 			// defaultViews
-			GWT.log("Showing Welcome frame for project '" + defaultViews.getProjectTag() + "'");
 
 			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
 				@Override
 				public void execute() {
 					// TODO Auto-generated method stub
-
 					welcomeToProjectWindowBox = new WindowBox(true, true, true, true, false);
 					welcomeToProjectWindowBox.setAnimationEnabled(true);
 					welcomeToProjectWindowBox.setWidget(new MyWelcomeProjectPanel(welcomeToProjectWindowBox,
@@ -2236,7 +2234,6 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					welcomeToProjectWindowBox.addCloseEventDoSomethingTask(doSomething);
 					welcomeToProjectWindowBox.setGlassEnabled(true);
 					welcomeToProjectWindowBox.center();
-					GWT.log("Showing welcome window for project END");
 				}
 			});
 		}
