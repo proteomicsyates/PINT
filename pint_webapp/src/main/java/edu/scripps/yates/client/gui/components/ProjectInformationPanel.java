@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
+import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.components.projectItems.ConditionsItemPanel;
 import edu.scripps.yates.client.gui.components.projectItems.MSRunsItemPanel;
 import edu.scripps.yates.client.gui.components.projectItems.OrganismsItemPanel;
@@ -40,8 +41,16 @@ public class ProjectInformationPanel extends Composite {
 
 	private final Map<ProjectBean, DefaultView> defaultViewsByProjectBean = new HashMap<ProjectBean, DefaultView>();
 	private FlowPanel selectedPanel;
+	private final boolean testMode;
+	private final QueryPanel queryPanel;
 
-	public ProjectInformationPanel() {
+	/**
+	 * The parameters are for the recommended queries
+	 * 
+	 * @param queryPanel
+	 * @param testMode
+	 */
+	public ProjectInformationPanel(QueryPanel queryPanel, boolean testMode) {
 		FlowPanel mainPanel = new FlowPanel();
 		initWidget(mainPanel);
 		setStyleName("ProjectInformationPanel");
@@ -64,6 +73,8 @@ public class ProjectInformationPanel extends Composite {
 		dockPanel.add(gridInCenter, DockPanel.CENTER);
 		gridInCenter.setSize("100%", "100%");
 
+		this.queryPanel = queryPanel;
+		this.testMode = testMode;
 	}
 
 	public void addProjectView(ProjectBean projectBean, DefaultView defaultView) {
@@ -153,7 +164,7 @@ public class ProjectInformationPanel extends Composite {
 			gridInCenter.getColumnFormatter().setWidth(1, "400px");
 			// projectStats
 			ProjectStatsFromProjectItemPanel projectStatsItemPanel = ProjectStatsFromProjectItemPanel
-					.getInstance(projectBean);
+					.getInstance(queryPanel, testMode, projectBean, defaultView.getProjectNamedQueries());
 			gridInCenter.setWidget(0, 0, projectStatsItemPanel);
 			gridInCenter.getFlexCellFormatter().setColSpan(0, 0, 2);
 
