@@ -41,21 +41,22 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 
 	private final QueryPanel queryPanel;
 	private final CaptionPanel cptnpnlBigProject;
-	private final ProjectBean projectBean;
 	private final boolean testMode;
+	private final WindowBox parentWindow;
 
 	/**
 	 *
+	 * @param parentWindow
 	 * @param defaultView
 	 * @param queryPanel
 	 *            provide it for call to loadProteins when clicking on the
 	 *            query.
 	 */
-	public MyWelcomeProjectPanel(ProjectBean projectBean, DefaultView defaultView, QueryPanel queryPanel,
-			boolean testMode) {
+	public MyWelcomeProjectPanel(WindowBox parentWindow, ProjectBean projectBean, DefaultView defaultView,
+			QueryPanel queryPanel, boolean testMode) {
+		this.parentWindow = parentWindow;
 		this.testMode = testMode;
 		this.queryPanel = queryPanel;
-		this.projectBean = projectBean;
 		setStyleName("WelcomeProjectPanel");
 
 		cptnpnlBigProject = new CaptionPanel("Important notice");
@@ -129,7 +130,7 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 		cptnpnlDataViewComments.setContentWidget(projectViewCommentsHtml);
 		projectViewCommentsHtml.setSize("100%", "100%");
 
-		CaptionPanel availableQueriesCaptionPanel = new CaptionPanel("Available Views of the project");
+		CaptionPanel availableQueriesCaptionPanel = new CaptionPanel("REcommended queries for this project");
 		availableQueriesCaptionPanel.setStyleName("WelcomeProjectPanelInternalPanel");
 		add(availableQueriesCaptionPanel);
 
@@ -139,14 +140,14 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 		if (!projectBean.isBig()) {
 			if (projectNamedQueries.isEmpty()) {
 				availableQueriesString
-						.append("The project will be fully loaded by default. No data views were defined.");
+						.append("The project will be fully loaded by default. No recommended queries were defined.");
 			} else {
 				if (projectNamedQueries.size() == 1) {
-					availableQueriesString.append("Default view defined for this project:\n");
+					availableQueriesString.append("Recommended query for this project:\n");
 
 				} else {
 					availableQueriesString.append(
-							"Several views were defined for this project. The one marked with (*) will be automatically loaded. Click on any other to load that view:\n");
+							"Several recommended queries were defined for this project. The one marked with (*) will be automatically loaded. Click on any other to load that view:\n");
 				}
 				for (int index = 0; index < projectNamedQueries.size(); index++) {
 					ProjectNamedQuery projectNamedQuery = projectNamedQueries.get(index);
@@ -154,7 +155,8 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 					if (index == 0 && projectNamedQueries.size() > 1) {
 						defaultOne = true;
 					}
-					clickableLabels.add(getLinkToDataView(projectNamedQuery, defaultOne));
+					clickableLabels.add(getLinkToDataView(this.parentWindow, projectNamedQuery, defaultOne, queryPanel,
+							testMode, "defaultQueryLink"));
 				}
 			}
 		} else {
@@ -181,7 +183,8 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 	 *            print an '*' before the query name
 	 * @return
 	 */
-	private Panel getLinkToDataView(final ProjectNamedQuery projectNamedQuery, boolean defaultOne) {
+	public static Panel getLinkToDataView(WindowBox parentWindowBox, final ProjectNamedQuery projectNamedQuery,
+			boolean defaultOne, QueryPanel queryPanel, boolean testMode, String styleName) {
 		Panel ret = new HorizontalPanel();
 		ret.getElement().setAttribute("cellpadding", "5");
 		String queryName = projectNamedQuery.getName();
@@ -190,7 +193,9 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 		}
 		final Label nameLabel = new Label(queryName);
 		nameLabel.setWidth("100%");
-		nameLabel.setStyleName("defaultQueryLink");
+		if (styleName != null) {
+			nameLabel.setStyleName(styleName);
+		}
 		nameLabel.getElement().getStyle().setFontWeight(FontWeight.BOLD);
 		nameLabel.setTitle("Click here to load this data view:\n\t" + projectNamedQuery.getName() + ": '"
 				+ projectNamedQuery.getQuery() + "'");
@@ -198,7 +203,12 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				queryPanel.loadProteinsFromProject(null, projectNamedQuery.getIndex(), testMode);
+				// close this panel first
+				if (parentWindowBox != null) {
+					parentWindowBox.hide();
+				}
+				queryPanel.loadProteinsFromProject(null, projectNamedQuery.getIndex(), projectNamedQuery.getName(),
+						testMode);
 			}
 		});
 		ret.add(nameLabel);
