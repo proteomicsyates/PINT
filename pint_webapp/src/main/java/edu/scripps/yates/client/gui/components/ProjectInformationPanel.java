@@ -3,6 +3,7 @@ package edu.scripps.yates.client.gui.components;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
@@ -146,6 +147,7 @@ public class ProjectInformationPanel extends Composite {
 
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
+				GWT.log("On mouse over event");
 				loadDefaultView(projectBean, defaultView);
 
 			}
@@ -167,7 +169,6 @@ public class ProjectInformationPanel extends Composite {
 					.getInstance(queryPanel, testMode, projectBean, defaultView.getProjectNamedQueries());
 			gridInCenter.setWidget(0, 0, projectStatsItemPanel);
 			gridInCenter.getFlexCellFormatter().setColSpan(0, 0, 2);
-
 			// conditions
 			final ConditionsItemPanel conditionsItemPanel = ConditionsItemPanel.getInstance(projectBean);
 			gridInCenter.setWidget(1, 0, conditionsItemPanel);

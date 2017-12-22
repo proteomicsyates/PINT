@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -32,9 +33,13 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	public static ProjectStatsFromProjectItemPanel getInstance(QueryPanel queryPanel, boolean testMode, ProjectBean t,
 			List<ProjectNamedQuery> recommendedQueries) {
 		if (instance == null) {
+			GWT.log("creating project stats from project item panel");
 			instance = new ProjectStatsFromProjectItemPanel(queryPanel, testMode, t, recommendedQueries);
+			GWT.log("project stats from project item panel created");
 		} else {
+			GWT.log("Updating parent with project");
 			instance.updateParent(t);
+			GWT.log("setting recommended queries");
 			instance.setRecommendedQueries(recommendedQueries);
 		}
 		return instance;
@@ -58,22 +63,28 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	private ProjectStatsFromProjectItemPanel(QueryPanel queryPanel, boolean testMode, ProjectBean projectBean,
 			List<ProjectNamedQuery> recommendedQueries) {
 		super("'" + projectBean.getTag() + "' summary", projectBean, true);
+		GWT.log("after super in constructor of ProjectStatsFromProjectItemPanel");
 		this.recommendedQueries = recommendedQueries;
 		this.queryPanel = queryPanel;
 		this.testMode = testMode;
 		super.updateParent(projectBean);
+
 	}
 
 	private FlexTable getProjectGeneralInformationPanel(ProjectBean projectBean) {
+		GWT.log("getting project general information panel: " + projectBean);
+
 		FlexTable table = new FlexTable();
 		// status
+
 		final Label label1 = new Label("Project status:");
 		label1.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectStatus, 0, label1);
-		table.setWidget(rowProjectStatus, 1, getProjectStatus(projectBean));
+		Label projectStatus = getProjectStatus(projectBean);
+		table.setWidget(rowProjectStatus, 1, projectStatus);
 		table.getCellFormatter().setAlignment(rowProjectStatus, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		table.getCellFormatter().setAlignment(rowProjectStatus, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+		table.getCellFormatter().setAlignment(rowProjectStatus, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		// title
 		final Label label2 = new Label("Title:");
@@ -82,7 +93,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		table.setWidget(rowProjectTitle, 1, getEscapedString(projectBean.getId(), true));
 		table.getCellFormatter().setAlignment(rowProjectTitle, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		table.getCellFormatter().setAlignment(rowProjectTitle, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+		table.getCellFormatter().setAlignment(rowProjectTitle, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		// date
 		final Label label3 = new Label("Experiment date:");
@@ -91,7 +102,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		table.setWidget(rowProjectDate, 1, getProjectDate(projectBean.getReleaseDate()));
 		table.getCellFormatter().setAlignment(rowProjectDate, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		table.getCellFormatter().setAlignment(rowProjectDate, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+		table.getCellFormatter().setAlignment(rowProjectDate, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		// upload date
 		final Label label4 = new Label("Uploaded date:");
@@ -100,7 +111,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		table.setWidget(rowProjectUploadDate, 1, getProjectDate(projectBean.getReleaseDate()));
 		table.getCellFormatter().setAlignment(rowProjectUploadDate, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		table.getCellFormatter().setAlignment(rowProjectUploadDate, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+		table.getCellFormatter().setAlignment(rowProjectUploadDate, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		// description
 		final Label label5 = new Label("Description:");
@@ -109,7 +120,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		table.setWidget(rowProjectDescription, 1, getEscapedString(projectBean.getDescription(), true));
 		table.getCellFormatter().setAlignment(rowProjectDescription, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		table.getCellFormatter().setAlignment(rowProjectDescription, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+		table.getCellFormatter().setAlignment(rowProjectDescription, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		// publication link
 		final Label label6 = new Label("Publication link:");
@@ -118,7 +129,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		table.setWidget(rowProjectPublicationLink, 1, getPublicationLink(projectBean));
 		table.getCellFormatter().setAlignment(rowProjectPublicationLink, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		table.getCellFormatter().setAlignment(rowProjectPublicationLink, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+		table.getCellFormatter().setAlignment(rowProjectPublicationLink, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		// default queries
 		final Label label7 = new Label("Recommended queries:");
@@ -127,13 +138,13 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		table.getCellFormatter().setAlignment(rowProjectRecommendedQueries, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		int row = rowProjectRecommendedQueries;
-		for (Panel panel : getDefaultQueriesPanels()) {
+		List<Panel> defaultQueriesPanels = getDefaultQueriesPanels();
+		for (Panel panel : defaultQueriesPanels) {
 			table.setWidget(row, 1, panel);
-			table.getCellFormatter().setAlignment(row, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+			table.getCellFormatter().setAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT,
 					HasVerticalAlignment.ALIGN_TOP);
 			row++;
 		}
-
 		return table;
 	}
 
@@ -340,6 +351,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 
 	@Override
 	public void afterUpdateParent(ProjectBean projectBean) {
+		GWT.log("afterUpdateParent beginning projectBan: " + projectBean);
 		// add the general description panel to the left
 		FlexTable leftPanel = getProjectGeneralInformationPanel(projectBean);
 		setUniqueItemToList(leftPanel);
