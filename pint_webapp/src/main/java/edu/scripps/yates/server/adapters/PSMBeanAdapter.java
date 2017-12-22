@@ -22,7 +22,6 @@ import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.util.SharedConstants;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import gnu.trove.set.hash.THashSet;
 
 public class PSMBeanAdapter implements Adapter<PSMBean> {
 	private static ThreadLocal<TObjectIntHashMap<String>> staticPsmIdentifierByRunID = new ThreadLocal<TObjectIntHashMap<String>>();
@@ -65,7 +64,8 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 		ret.setChargeState(psm.getChargeState());
 		ret.setCalculatedMH(psm.getCalMh());
 		ret.setExperimentalMH(psm.getMh());
-		ret.setFullSequence(getFullSequence(psm, hiddenPTMs));
+		Set<Ptm> ptms = psm.getPtms();
+		ret.setFullSequence(getFullSequence(psm, ptms, hiddenPTMs));
 		ret.setIonProportion(psm.getIonProportion());
 		ret.setMassErrorPPM(psm.getPpmError());
 		final MSRunBean msRunBean = new MSRunBeanAdapter(psm.getMsRun()).adapt();
@@ -107,8 +107,9 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 				}
 			}
 		}
-		if (psm.getPtms() != null) {
-			for (Object obj : psm.getPtms()) {
+
+		if (ptms != null) {
+			for (Object obj : ptms) {
 				Ptm ptm = (Ptm) obj;
 				// skip PTMs in the list of hidden PTMs
 				if (hiddenPTMs != null && hiddenPTMs.contains(ptm.getName()))
@@ -165,10 +166,10 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 	 * @param hiddenPTMs2
 	 * @return
 	 */
-	public static String getFullSequence(Psm psm, Collection<String> hiddenPTMs) {
+	private String getFullSequence(Psm psm, Set<Ptm> ptms, Collection<String> hiddenPTMs) {
 		try {
 			final String fullSequence = psm.getFullSequence();
-			final Set<Ptm> ptms = psm.getPtms();
+
 			if (ptms == null || ptms.isEmpty() || hiddenPTMs == null || hiddenPTMs.isEmpty())
 				return fullSequence;
 
@@ -239,19 +240,4 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 		return String.valueOf(++staticPsmIdentifier);
 	}
 
-	public static void main(String[] args) {
-		final String miPTMName = "MI PTM";
-		Set<String> hiddenPTMs2 = new THashSet<String>();
-		hiddenPTMs2.add(miPTMName);
-		Psm psm2 = new Psm(null, null, "TSNGDDSLFFSNFSLLGTPVLK", "K.TSNGDDSLFFSNFSLLGTPVLK(14.123).D");
-		Set<Ptm> ptms = new THashSet<Ptm>();
-		Set<PtmSite> ptmSites = new THashSet<PtmSite>();
-		PtmSite ptmSite = new PtmSite(null, "K", 22);
-		ptmSites.add(ptmSite);
-		Ptm ptm = new Ptm(psm2, 123.123, miPTMName, "asdf", ptmSites);
-		ptms.add(ptm);
-		psm2.setPtms(ptms);
-		final String fullSequence = PSMBeanAdapter.getFullSequence(psm2, hiddenPTMs2);
-		System.out.println(fullSequence);
-	}
 }
