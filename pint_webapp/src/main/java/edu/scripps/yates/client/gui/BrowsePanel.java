@@ -416,20 +416,20 @@ public class BrowsePanel extends InitializableComposite {
 						ProjectSaverServiceAsync.Util.getInstance().deleteProject(projectTag,
 								new AsyncCallback<String>() {
 
-									@Override
-									public void onFailure(Throwable caught) {
-										hiddeLoadingDialog();
-										StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+							@Override
+							public void onFailure(Throwable caught) {
+								hiddeLoadingDialog();
+								StatusReportersRegister.getInstance().notifyStatusReporters(caught);
 
-									}
+							}
 
-									@Override
-									public void onSuccess(String message) {
-										hiddeLoadingDialog();
-										StatusReportersRegister.getInstance().notifyStatusReporters(message);
-										loadProjectList();
-									}
-								});
+							@Override
+							public void onSuccess(String message) {
+								hiddeLoadingDialog();
+								StatusReportersRegister.getInstance().notifyStatusReporters(message);
+								loadProjectList();
+							}
+						});
 					}
 				}
 			}
@@ -471,6 +471,10 @@ public class BrowsePanel extends InitializableComposite {
 
 					@Override
 					public int compare(ProjectBean o1, ProjectBean o2) {
+						if (Boolean.compare(o1.isPublicAvailable(), o2.isPublicAvailable()) != 0) {
+							return Boolean.compare(o1.isPublicAvailable(), o2.isPublicAvailable());
+						}
+
 						if (o1.getUploadedDate() != null) {
 							if (o1.getUploadedDate().equals(o2.getUploadedDate())) {
 								return o1.getId().compareTo(o2.getId());
