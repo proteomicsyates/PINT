@@ -1,6 +1,8 @@
 package edu.scripps.yates.client.gui.components.projectItems;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
@@ -13,23 +15,33 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 
+import edu.scripps.yates.client.gui.QueryPanel;
+import edu.scripps.yates.client.gui.components.MyWelcomeProjectPanel;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.projectStats.ProjectStats;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsFromProjectBean;
+import edu.scripps.yates.shared.util.ProjectNamedQuery;
 
 public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPanel<ProjectBean> {
 	private static ProjectStatsFromProjectItemPanel instance;
 
-	public static ProjectStatsFromProjectItemPanel getInstance(ProjectBean t) {
+	public static ProjectStatsFromProjectItemPanel getInstance(QueryPanel queryPanel, boolean testMode, ProjectBean t,
+			List<ProjectNamedQuery> recommendedQueries) {
 		if (instance == null) {
-			instance = new ProjectStatsFromProjectItemPanel(t);
+			instance = new ProjectStatsFromProjectItemPanel(queryPanel, testMode, t, recommendedQueries);
 		} else {
 			instance.updateParent(t);
+			instance.setRecommendedQueries(recommendedQueries);
 		}
 		return instance;
+	}
+
+	private void setRecommendedQueries(List<ProjectNamedQuery> recommendedQueries) {
+		this.recommendedQueries = recommendedQueries;
 	}
 
 	private static final int rowProjectStatus = 0;
@@ -38,10 +50,18 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	private static final int rowProjectUploadDate = 3;
 	private static final int rowProjectDescription = 4;
 	private static final int rowProjectPublicationLink = 5;
+	private static final int rowProjectRecommendedQueries = 6;
+	private List<ProjectNamedQuery> recommendedQueries;
+	private final QueryPanel queryPanel;
+	private boolean testMode;
 
-	private ProjectStatsFromProjectItemPanel(ProjectBean projectBean) {
+	private ProjectStatsFromProjectItemPanel(QueryPanel queryPanel, boolean testMode, ProjectBean projectBean,
+			List<ProjectNamedQuery> recommendedQueries) {
 		super("'" + projectBean.getTag() + "' summary", projectBean, true);
-
+		this.recommendedQueries = recommendedQueries;
+		this.queryPanel = queryPanel;
+		this.testMode = testMode;
+		super.updateParent(projectBean);
 	}
 
 	private FlexTable getProjectGeneralInformationPanel(ProjectBean projectBean) {
@@ -100,7 +120,34 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 				HasVerticalAlignment.ALIGN_TOP);
 		table.getCellFormatter().setAlignment(rowProjectPublicationLink, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
 				HasVerticalAlignment.ALIGN_TOP);
+		// default queries
+		final Label label7 = new Label("Recommended queries:");
+		label7.setStyleName("ProjectItemIndividualItemTitle");
+		table.setWidget(rowProjectRecommendedQueries, 0, label7);
+		table.getCellFormatter().setAlignment(rowProjectRecommendedQueries, 0, HasHorizontalAlignment.ALIGN_LEFT,
+				HasVerticalAlignment.ALIGN_TOP);
+		int row = rowProjectRecommendedQueries;
+		for (Panel panel : getDefaultQueriesPanels()) {
+			table.setWidget(row, 1, panel);
+			table.getCellFormatter().setAlignment(row, 1, HasHorizontalAlignment.ALIGN_JUSTIFY,
+					HasVerticalAlignment.ALIGN_TOP);
+			row++;
+		}
+
 		return table;
+	}
+
+	private List<Panel> getDefaultQueriesPanels() {
+		List<Panel> ret = new ArrayList<Panel>();
+		if (recommendedQueries != null) {
+			boolean defaultOne = true;
+			for (ProjectNamedQuery recommendedQueries : recommendedQueries) {
+				ret.add(MyWelcomeProjectPanel.getLinkToDataView(null, recommendedQueries, defaultOne, queryPanel,
+						testMode, null));
+				defaultOne = false;
+			}
+		}
+		return ret;
 	}
 
 	private Widget getPublicationLink(ProjectBean projectBean) {
