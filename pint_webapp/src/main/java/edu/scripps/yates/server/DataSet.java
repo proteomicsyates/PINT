@@ -472,14 +472,24 @@ public class DataSet {
 			if (proteinsByProteinBeanUniqueIdentifier.containsKey(uniqueId)) {
 				final List<PSMBean> psms2 = proteinsByProteinBeanUniqueIdentifier.get(uniqueId).getPsms();
 				if (psms2 != null && !psms2.isEmpty()) {
-					log.info("Protein " + protein.getPrimaryAccession().getAccession() + " contains " + psms2.size()
+					log.warn("Protein " + protein.getPrimaryAccession().getAccession() + " contains " + psms2.size()
 							+ " PSMs");
 					return psms2;
+				} else {
+					log.warn("Protein with unique identifier: " + protein.getProteinBeanUniqueIdentifier()
+							+ " has no psms...returning empty PSM list");
+					return Collections.emptyList();
 				}
+			} else {
+				log.warn("Protein not found with unique identifier: " + protein.getProteinBeanUniqueIdentifier()
+						+ " ...returning empty PSM list");
+				return Collections.emptyList();
 			}
+		} else {
+			log.warn("Protein is null...returning empty PSM list");
+			return Collections.emptyList();
 		}
-		log.info("Protein is null...returning empty PSM list");
-		return Collections.EMPTY_LIST;
+
 	}
 
 	public List<PSMBean> getPsmsFromPeptide(PeptideBean peptide) {
