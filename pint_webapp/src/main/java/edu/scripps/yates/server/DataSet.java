@@ -77,7 +77,7 @@ public class DataSet {
 	 */
 	public List<ProteinBean> getProteins() {
 		if (!ready)
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		if (proteins.isEmpty()) {
 			List<ProteinBean> proteinBeansFromPSMBeans = SharedDataUtils.getProteinBeansFromPSMBeans(psms);
 			for (ProteinBean proteinBean : proteinBeansFromPSMBeans) {
@@ -92,7 +92,7 @@ public class DataSet {
 	 */
 	public List<PeptideBean> getPeptides() {
 		if (!ready)
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		if (peptides.isEmpty()) {
 
 			final List<PeptideBean> peptideBeansFromProteinBeans = SharedDataUtils
@@ -109,7 +109,7 @@ public class DataSet {
 	 */
 	public List<PSMBean> getPsms() {
 		if (!ready)
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		if (psms.isEmpty()) {
 			final List<PSMBean> psmBeansFromProteinBeans = SharedDataUtils.getPSMBeansFromProteinBeans(proteins);
 			log.info("Getting " + psmBeansFromProteinBeans.size() + " PSMs from " + proteins.size() + " proteins");
@@ -410,7 +410,7 @@ public class DataSet {
 			log.info("psmProvider is a peptide");
 			return getPsmsFromPeptide((PeptideBean) psmProvider);
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
 	public List<PeptideBean> getPeptidesFromPeptideProvider(ContainsPeptides peptideProvider) {
@@ -422,7 +422,7 @@ public class DataSet {
 			log.info("peptideProvider is a ProteinGroup");
 			return getPeptidesFromProteinGroup((ProteinGroupBean) peptideProvider);
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
 	public List<PSMBean> getPsmsFromProteinGroup(ProteinGroupBean proteinGroup) {
@@ -441,7 +441,7 @@ public class DataSet {
 			return ret;
 		}
 		log.info("ProteinGroup is null...returning empty PSM list");
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
 	public List<PeptideBean> getPeptidesFromProteinGroup(ProteinGroupBean proteinGroup) {
@@ -461,7 +461,7 @@ public class DataSet {
 			return ret;
 		}
 		log.info("ProteinGroup is null...returning empty PSM list");
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
 	public List<PSMBean> getPsmsFromProtein(ProteinBean protein) {
@@ -508,7 +508,7 @@ public class DataSet {
 			}
 		}
 		log.info("Peptide is null...returning empty PSM list");
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
 	public List<PeptideBean> getPeptidesFromProtein(ProteinBean protein) {
@@ -526,7 +526,7 @@ public class DataSet {
 			}
 		}
 		log.info("Protein is null...returning empty Peptide list");
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
 	/*
