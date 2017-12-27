@@ -695,7 +695,10 @@
 	font-weight:bold;
 	font-size:medium;
 }
-
+.defaultQueryLink:hover {
+	color: #203FF5; /* blue */
+	cursor:pointer;cursor:hand
+}
 .defaultQueryLinkSmall {
 	color: black;
 	cursor:pointer;
@@ -703,7 +706,7 @@
 	font-weight:bold;
 }
 
-.defaultQueryLink:hover {
+.defaultQueryLinkSmall:hover {
 	color: #203FF5; /* blue */
 	cursor:pointer;cursor:hand
 }
