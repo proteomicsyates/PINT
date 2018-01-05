@@ -472,7 +472,7 @@ public class BrowsePanel extends InitializableComposite {
 					@Override
 					public int compare(ProjectBean o1, ProjectBean o2) {
 						if (Boolean.compare(o1.isPublicAvailable(), o2.isPublicAvailable()) != 0) {
-							return Boolean.compare(o1.isPublicAvailable(), o2.isPublicAvailable());
+							return Boolean.compare(!o1.isPublicAvailable(), !o2.isPublicAvailable());
 						}
 
 						if (o1.getUploadedDate() != null) {
