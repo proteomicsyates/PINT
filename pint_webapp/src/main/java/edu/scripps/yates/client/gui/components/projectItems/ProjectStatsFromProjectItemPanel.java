@@ -151,9 +151,11 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			final Label label9 = new Label("Data description:");
 			label9.setStyleName("ProjectItemIndividualItemTitle");
 			table.setWidget(rowProjectDataDescription2, 0, label9);
-			Label escapedString = getEscapedString(defaultView.getProjectInstructions().replace("\n", "<br>"), true);
-			escapedString.setStyleName("justifiedText");
-			table.setWidget(rowProjectDataDescription2, 1, escapedString);
+			SafeHtml safeHtml2 = new SafeHtmlBuilder()
+					.appendHtmlConstant(defaultView.getProjectInstructions().replace("\n", "<br>")).toSafeHtml();
+			HTMLPanel htmlPanel2 = new HTMLPanel(safeHtml2);
+			htmlPanel2.setStyleName("justifiedText");
+			table.setWidget(rowProjectDataDescription2, 1, htmlPanel2);
 			table.getCellFormatter().setAlignment(rowProjectDataDescription2, 0, HasHorizontalAlignment.ALIGN_LEFT,
 					HasVerticalAlignment.ALIGN_TOP);
 			table.getCellFormatter().setAlignment(rowProjectDataDescription2, 1, HasHorizontalAlignment.ALIGN_LEFT,
@@ -164,9 +166,11 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			final Label label10 = new Label("Data view comments:");
 			label10.setStyleName("ProjectItemIndividualItemTitle");
 			table.setWidget(rowProjectDataDescription3, 0, label10);
-			Label escapedString = getEscapedString(defaultView.getProjectViewComments().replace("\n", "<br>"), true);
-			escapedString.setStyleName("justifiedText");
-			table.setWidget(rowProjectDataDescription3, 1, escapedString);
+			SafeHtml safeHtml2 = new SafeHtmlBuilder()
+					.appendHtmlConstant(defaultView.getProjectViewComments().replace("\n", "<br>")).toSafeHtml();
+			HTMLPanel htmlPanel2 = new HTMLPanel(safeHtml2);
+			htmlPanel2.setStyleName("justifiedText");
+			table.setWidget(rowProjectDataDescription3, 1, htmlPanel2);
 			table.getCellFormatter().setAlignment(rowProjectDataDescription3, 0, HasHorizontalAlignment.ALIGN_LEFT,
 					HasVerticalAlignment.ALIGN_TOP);
 			table.getCellFormatter().setAlignment(rowProjectDataDescription3, 1, HasHorizontalAlignment.ALIGN_LEFT,
