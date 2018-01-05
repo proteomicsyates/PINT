@@ -166,7 +166,7 @@ public class ProjectInformationPanel extends Composite {
 			gridInCenter.getColumnFormatter().setWidth(1, "400px");
 			// projectStats
 			ProjectStatsFromProjectItemPanel projectStatsItemPanel = ProjectStatsFromProjectItemPanel
-					.getInstance(queryPanel, testMode, projectBean, defaultView.getProjectNamedQueries());
+					.getInstance(queryPanel, testMode, projectBean, defaultView);
 			gridInCenter.setWidget(0, 0, projectStatsItemPanel);
 			gridInCenter.getFlexCellFormatter().setColSpan(0, 0, 2);
 			// conditions

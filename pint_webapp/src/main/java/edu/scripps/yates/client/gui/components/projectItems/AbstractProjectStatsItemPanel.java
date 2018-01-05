@@ -53,7 +53,11 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 	}
 
 	protected AbstractProjectStatsItemPanel(String title, T parent, boolean keepLeftPanel) {
-		super(title, parent, keepLeftPanel, false);
+		this(title, parent, keepLeftPanel, false);
+	}
+
+	protected AbstractProjectStatsItemPanel(String title, T parent, boolean keepLeftPanel, Boolean smallList) {
+		super(title, parent, keepLeftPanel, smallList);
 		// add description panel in the right
 		rightPanel = new FlexTable();
 		Label label1 = new Label("Number of experimental conditions:");

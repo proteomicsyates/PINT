@@ -1726,6 +1726,22 @@ table td{
 	border-radius:0px 0px 10px 10px;
 	max-width: 400px;
 }
+.ProjectItemListPanel-big{
+	overflow-y: auto;
+	display:block;
+	border-radius:10px;
+//  max-height: 150px;
+	min-height: 150px;
+	min-width: 130px;
+	max-width: 800px;
+	vertical-align: top;
+	white-space: normal;
+	word-spacing: normal;
+	
+}
+.justifiedText{
+	text-align: justify;
+}
 .ProjectItemListPanel{
 	overflow-y: auto;
 	display:block;
@@ -1735,15 +1751,22 @@ table td{
 	min-width: 130px;
 	max-width: 800px;
 	vertical-align: top;
+	white-space: normal;
+	word-spacing: normal;
+	
 }
 .ProjectItemListPanel-small{ 
 	overflow-y: auto;
 	display:block;
 	border-radius:10px;
 	max-height: 150px;
+//	min-height: 150px;
 	min-width: 130px;
 	max-width: 800px;
 	vertical-align: top;
+	white-space: normal;
+	word-spacing: normal;
+	
 }
 .ProjectItemPanel{
 	display:block;

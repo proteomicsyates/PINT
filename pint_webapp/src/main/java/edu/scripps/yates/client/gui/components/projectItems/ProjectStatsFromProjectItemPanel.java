@@ -8,10 +8,13 @@ import java.util.Set;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DateLabel;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Image;
@@ -25,28 +28,29 @@ import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.projectStats.ProjectStats;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsFromProjectBean;
+import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.ProjectNamedQuery;
 
 public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPanel<ProjectBean> {
 	private static ProjectStatsFromProjectItemPanel instance;
 
 	public static ProjectStatsFromProjectItemPanel getInstance(QueryPanel queryPanel, boolean testMode, ProjectBean t,
-			List<ProjectNamedQuery> recommendedQueries) {
+			DefaultView defaultView) {
 		if (instance == null) {
 			GWT.log("creating project stats from project item panel");
-			instance = new ProjectStatsFromProjectItemPanel(queryPanel, testMode, t, recommendedQueries);
+			instance = new ProjectStatsFromProjectItemPanel(queryPanel, testMode, t, defaultView);
 			GWT.log("project stats from project item panel created");
 		} else {
 			GWT.log("Updating parent with project");
 			instance.updateParent(t);
-			GWT.log("setting recommended queries");
-			instance.setRecommendedQueries(recommendedQueries);
+			GWT.log("setting recommended queries nd default view");
+			instance.setDefaultView(defaultView);
 		}
 		return instance;
 	}
 
-	private void setRecommendedQueries(List<ProjectNamedQuery> recommendedQueries) {
-		this.recommendedQueries = recommendedQueries;
+	private void setDefaultView(DefaultView defaultView) {
+		this.defaultView = defaultView;
 	}
 
 	private static final int rowProjectStatus = 0;
@@ -54,17 +58,19 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	private static final int rowProjectDate = 2;
 	private static final int rowProjectUploadDate = 3;
 	private static final int rowProjectDescription = 4;
-	private static final int rowProjectPublicationLink = 5;
-	private static final int rowProjectRecommendedQueries = 6;
-	private List<ProjectNamedQuery> recommendedQueries;
+	private static final int rowProjectDataDescription1 = 5;
+	private static final int rowProjectDataDescription2 = 6;
+	private static final int rowProjectDataDescription3 = 7;
+	private static final int rowProjectPublicationLink = 8;
+	private static final int rowProjectRecommendedQueries = 9;
 	private final QueryPanel queryPanel;
 	private boolean testMode;
+	private DefaultView defaultView;
 
 	private ProjectStatsFromProjectItemPanel(QueryPanel queryPanel, boolean testMode, ProjectBean projectBean,
-			List<ProjectNamedQuery> recommendedQueries) {
-		super("'" + projectBean.getTag() + "' summary", projectBean, true);
-		GWT.log("after super in constructor of ProjectStatsFromProjectItemPanel");
-		this.recommendedQueries = recommendedQueries;
+			DefaultView defaultView) {
+		super("'" + projectBean.getTag() + "' summary", projectBean, true, null);
+		this.defaultView = defaultView;
 		this.queryPanel = queryPanel;
 		this.testMode = testMode;
 		super.updateParent(projectBean);
@@ -114,14 +120,58 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		table.getCellFormatter().setAlignment(rowProjectUploadDate, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		// description
-		final Label label5 = new Label("Description:");
+		final Label label5 = new Label("General description:");
 		label5.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectDescription, 0, label5);
-		table.setWidget(rowProjectDescription, 1, getEscapedString(projectBean.getDescription(), true));
+		SafeHtml safeHtml = new SafeHtmlBuilder().appendHtmlConstant(projectBean.getDescription()).toSafeHtml();
+		HTMLPanel htmlPanel = new HTMLPanel(safeHtml);
+		htmlPanel.setStyleName("justifiedText");
+		table.setWidget(rowProjectDescription, 1, htmlPanel);
 		table.getCellFormatter().setAlignment(rowProjectDescription, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		table.getCellFormatter().setAlignment(rowProjectDescription, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
+		// project detailed description
+		if (defaultView != null && defaultView.getProjectDescription() != null) {
+			final Label label8 = new Label("Detailed description:");
+			label8.setStyleName("ProjectItemIndividualItemTitle");
+			table.setWidget(rowProjectDataDescription1, 0, label8);
+			SafeHtml safeHtml2 = new SafeHtmlBuilder()
+					.appendHtmlConstant(defaultView.getProjectDescription().replace("\n", "<br>")).toSafeHtml();
+			HTMLPanel htmlPanel2 = new HTMLPanel(safeHtml2);
+			htmlPanel2.setStyleName("justifiedText");
+			table.setWidget(rowProjectDataDescription1, 1, htmlPanel2);
+			table.getCellFormatter().setAlignment(rowProjectDataDescription1, 0, HasHorizontalAlignment.ALIGN_LEFT,
+					HasVerticalAlignment.ALIGN_TOP);
+			table.getCellFormatter().setAlignment(rowProjectDataDescription1, 1, HasHorizontalAlignment.ALIGN_LEFT,
+					HasVerticalAlignment.ALIGN_TOP);
+		}
+		// project data description
+		if (defaultView != null && defaultView.getProjectInstructions() != null) {
+			final Label label9 = new Label("Data description:");
+			label9.setStyleName("ProjectItemIndividualItemTitle");
+			table.setWidget(rowProjectDataDescription2, 0, label9);
+			Label escapedString = getEscapedString(defaultView.getProjectInstructions().replace("\n", "<br>"), true);
+			escapedString.setStyleName("justifiedText");
+			table.setWidget(rowProjectDataDescription2, 1, escapedString);
+			table.getCellFormatter().setAlignment(rowProjectDataDescription2, 0, HasHorizontalAlignment.ALIGN_LEFT,
+					HasVerticalAlignment.ALIGN_TOP);
+			table.getCellFormatter().setAlignment(rowProjectDataDescription2, 1, HasHorizontalAlignment.ALIGN_LEFT,
+					HasVerticalAlignment.ALIGN_TOP);
+		}
+		// project data view comments
+		if (defaultView != null && defaultView.getProjectViewComments() != null) {
+			final Label label10 = new Label("Data view comments:");
+			label10.setStyleName("ProjectItemIndividualItemTitle");
+			table.setWidget(rowProjectDataDescription3, 0, label10);
+			Label escapedString = getEscapedString(defaultView.getProjectViewComments().replace("\n", "<br>"), true);
+			escapedString.setStyleName("justifiedText");
+			table.setWidget(rowProjectDataDescription3, 1, escapedString);
+			table.getCellFormatter().setAlignment(rowProjectDataDescription3, 0, HasHorizontalAlignment.ALIGN_LEFT,
+					HasVerticalAlignment.ALIGN_TOP);
+			table.getCellFormatter().setAlignment(rowProjectDataDescription3, 1, HasHorizontalAlignment.ALIGN_LEFT,
+					HasVerticalAlignment.ALIGN_TOP);
+		}
 		// publication link
 		final Label label6 = new Label("Publication link:");
 		label6.setStyleName("ProjectItemIndividualItemTitle");
@@ -150,9 +200,9 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 
 	private List<Panel> getDefaultQueriesPanels() {
 		List<Panel> ret = new ArrayList<Panel>();
-		if (recommendedQueries != null) {
+		if (defaultView != null && defaultView.getProjectNamedQueries() != null) {
 			boolean defaultOne = true;
-			for (ProjectNamedQuery recommendedQueries : recommendedQueries) {
+			for (ProjectNamedQuery recommendedQueries : defaultView.getProjectNamedQueries()) {
 				ret.add(MyWelcomeProjectPanel.getLinkToDataView(null, recommendedQueries, defaultOne, queryPanel,
 						testMode, "defaultQueryLinkSmall"));
 				defaultOne = false;

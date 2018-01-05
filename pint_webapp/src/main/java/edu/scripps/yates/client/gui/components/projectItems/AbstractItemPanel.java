@@ -73,11 +73,12 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 	 *            if false, there will not be an item list and only the right
 	 *            panel will be shown
 	 * @param smallList
-	 *            if true, the panel height will be limited according to CSS
-	 *            rule ProjectItemListPanel-small
+	 *            if true, there will be not minimum height<br>
+	 *            if false, there will be a minimum height<br>
+	 *            if null, there will be not a maximum height
 	 *
 	 */
-	public AbstractItemPanel(String title, Y parent, boolean includeList, boolean smallList) {
+	public AbstractItemPanel(String title, Y parent, boolean includeList, Boolean smallList) {
 		this.includeList = includeList;
 		currentParent = parent;
 		captionPanel = new CaptionPanel(title);
@@ -93,7 +94,9 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 
 		captionPanel.add(flexTable);
 		listPanel = new FlowPanel();
-		if (smallList) {
+		if (smallList == null) {
+			listPanel.setStyleName("ProjectItemListPanel-big");
+		} else if (smallList) {
 			listPanel.setStyleName("ProjectItemListPanel-small");
 		} else {
 			listPanel.setStyleName("ProjectItemListPanel");
