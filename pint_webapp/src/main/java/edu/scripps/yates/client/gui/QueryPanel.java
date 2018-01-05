@@ -179,6 +179,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	private final ReactomePanel reactomePanel;
 	private Timer timer;
+	private final QueryHelpPanel helpPanel;
 
 	public QueryPanel(String sessionID, Set<String> projectTags, boolean testMode) {
 		this(sessionID, testMode);
@@ -188,7 +189,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		ScrollPanel pseaQuantScrollPanel = new ScrollPanel(pseaQuantFormPanel);
 		firstLevelTabPanel.add(pseaQuantScrollPanel, "PSEA-Quant");
 		firstLevelTabPanel.add(reactomePanel, "Reactome");
-
+		firstLevelTabPanel.add(helpPanel, "Help");
 	}
 
 	/**
@@ -197,7 +198,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	private QueryPanel(String sessionID, final boolean testMode) {
 		PendingTasksManager.registerPendingTaskController(this);
 		this.sessionID = sessionID;
+		// reactome panel
 		reactomePanel = ReactomePanel.getInstance(sessionID);
+		// help panel
+		helpPanel = QueryHelpPanel.getInstance(sessionID);
 		asyncDataProviderForPSMsOfSelectedProtein = new AsyncPSMBeanListFromPsmProvider(sessionID);
 		DockLayoutPanel mainPanel = new DockLayoutPanel(Unit.PX);
 		mainPanel.setStyleName("MainPanel");
@@ -2227,6 +2231,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						@Override
 						public Void doSomething() {
 							onTaskRemovedOrAdded();
+							// show project information tab when closing
+							selectProjectInfoTab();
 							return null;
 						}
 					};
