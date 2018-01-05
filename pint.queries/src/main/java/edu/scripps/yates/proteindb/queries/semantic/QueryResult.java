@@ -8,9 +8,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
-import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.Psm;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -21,108 +18,13 @@ public class QueryResult {
 	private Map<String, Set<QueriablePsm>> psmMap;
 	private Set<QueriablePsm> psmSet;
 	private Map<String, Set<Peptide>> peptideMap;
-	private Set<Psm> individualPSMs;
-	private final Collection<LinkBetweenQueriableProteinSetAndPSM> invalidLinks;
 
 	public QueryResult(Collection<LinkBetweenQueriableProteinSetAndPSM> validLinks,
 			Collection<LinkBetweenQueriableProteinSetAndPSM> invalidLinks) {
 		this.validLinks = validLinks;
-		this.invalidLinks = invalidLinks;
 		for (LinkBetweenQueriableProteinSetAndPSM invalidLink : invalidLinks) {
 			invalidLink.invalidateLink();
 		}
-	}
-
-	public QueryResult(Collection<LinkBetweenQueriableProteinSetAndPSM> links, boolean b) {
-		validLinks = links;
-		invalidLinks = links;
-		log.info("Polishing results from " + links.size() + " links");
-		Set<Psm> validPSMs = getIndividualPSMs();
-		// go for all items at protein level and remove all the psms not in the
-		// valid psmSet
-		log.info("Collecting psms to detach...");
-		Set<Psm> psmsToDetach = new THashSet<Psm>();
-		for (LinkBetweenQueriableProteinSetAndPSM link : links) {
-			final Set<Protein> proteins = link.getIndividualProteins();
-			for (Protein protein : proteins) {
-				final Iterator<Psm> psmIterator = protein.getPsms().iterator();
-				while (psmIterator.hasNext()) {
-					final Psm psm = psmIterator.next();
-					if (!validPSMs.contains(psm)) {
-						psmsToDetach.add(psm);
-					}
-				}
-			}
-		}
-		log.info(psmsToDetach.size() + " psms to detach.");
-		// detach PSMs
-		log.info("Detaching " + psmsToDetach.size() + " PSMs");
-		int num = 0;
-		for (Psm psmToDetach : psmsToDetach) {
-			log.info("Detaching " + ++num + "/" + psmsToDetach.size() + " PSMs");
-			PersistenceUtils.detachPSM(psmToDetach, false, false, false);
-		}
-		log.info("Detached PSMs finished");
-
-		log.info("Collecting proteins to detach...");
-		Set<Protein> proteinsToDetach = new THashSet<Protein>();
-		Set<Protein> validProteins = getProteinSetFromLinks(links);
-		for (Psm psm : validPSMs) {
-			final Set<Protein> proteins = psm.getProteins();
-			for (Protein protein : proteins) {
-				if (!validProteins.contains(protein)) {
-					proteinsToDetach.add(protein);
-				}
-			}
-		}
-		log.info(proteinsToDetach.size() + " proteins to detach."); // detach
-																	// proteins
-		log.info("Detaching " + proteinsToDetach.size() + " proteins");
-		num = 0;
-		for (Protein protein : proteinsToDetach) {
-			log.info("Detaching " + ++num + "/" + proteinsToDetach.size() + " proteins");
-			PersistenceUtils.detachProtein(protein, false, false, false);
-		}
-		log.info("Detached proteins finished");
-		log.info("Removing links now...");
-		int linksRemovedBecauseOfProteinsWithNoPSMs = 0;
-		int linksRemovedBecauseOfPSMsWithNoProteins = 0;
-		Iterator<LinkBetweenQueriableProteinSetAndPSM> linksIterator = links.iterator();
-		while (linksIterator.hasNext()) {
-			LinkBetweenQueriableProteinSetAndPSM link = linksIterator.next();
-			if (link.getQueriableProtein().getPsms().isEmpty()) {
-				// remove the link
-				linksIterator.remove();
-				linksRemovedBecauseOfProteinsWithNoPSMs++;
-			}
-			if (link.getQueriablePsm().getPsm().getProteins().isEmpty()) {
-				// remove the link
-				linksIterator.remove();
-				linksRemovedBecauseOfPSMsWithNoProteins++;
-			}
-		}
-		log.info(linksRemovedBecauseOfProteinsWithNoPSMs + linksRemovedBecauseOfPSMsWithNoProteins + " links removed");
-		log.info(linksRemovedBecauseOfProteinsWithNoPSMs + " proteins with no PSMs");
-		log.info(linksRemovedBecauseOfPSMsWithNoProteins + " PSMs with no Proteins");
-
-	}
-
-	private Set<Protein> getProteinSetFromLinks(Collection<LinkBetweenQueriableProteinSetAndPSM> links2) {
-		Set<Protein> ret = new THashSet<Protein>();
-		log.info("Getting proteins from " + links2.size() + " links");
-
-		for (LinkBetweenQueriableProteinSetAndPSM link : links2) {
-			for (Protein protein : link.getIndividualProteins()) {
-				if (protein.getPsms().isEmpty()) {
-					log.info("Protein with no psms: Protein id: " + protein.getId());
-				} else {
-					ret.add(protein);
-				}
-			}
-		}
-		log.info(ret.size() + " proteins collected");
-
-		return ret;
 	}
 
 	/**
@@ -212,35 +114,6 @@ public class QueryResult {
 			}
 		}
 		return psmSet;
-	}
-
-	/**
-	 * An individual {@link Protein} is valid if contains at least one Psm in
-	 * the Set of individual psms
-	 *
-	 * @param protein
-	 * @return
-	 */
-	private boolean isValidIndividualProtein(Protein protein) {
-		final Iterator<Psm> iterator = protein.getPsms().iterator();
-		while (iterator.hasNext()) {
-			if (getIndividualPSMs().contains(iterator.next())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private Set<Psm> getIndividualPSMs() {
-		if (individualPSMs == null) {
-			log.info("Getting individual PSMs from " + validLinks.size() + " links");
-			individualPSMs = new THashSet<Psm>();
-			for (QueriablePsm queriablePSM : getPsms()) {
-				individualPSMs.add(queriablePSM.getPsm());
-			}
-			log.info(individualPSMs.size() + " PSMs collected");
-		}
-		return individualPSMs;
 	}
 
 }

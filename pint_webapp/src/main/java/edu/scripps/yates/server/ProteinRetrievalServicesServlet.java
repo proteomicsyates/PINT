@@ -952,8 +952,12 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				// clear static data by DB identifiers
 				log.info("Clearing static beans objects by DB Identifiers");
 				clearThreadLocalStaticMaps();
-				ServerCacheProteinBeansByProteinDBId.getInstance().clearCache();
-				ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
+
+				// just clear this cache if the query is not about conditions
+				if (!expressionTree.isProteinLevelQuery()) {
+					ServerCacheProteinBeansByProteinDBId.getInstance().clearCache();
+					ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
+				}
 				// end clearing cache
 
 				QueryResult result = getQueryResultFromQuery(expressionTree, projectTags, testMode);
@@ -967,12 +971,14 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					// getHiddenPTMs(projectTags),
 					// getProjectTagString(projectTags));
 					RemoteServicesTasks.createProteinBeansFromQueriableProteins(sessionID, proteins,
-							getHiddenPTMs(projectTags), getProjectTagString(projectTags));
+							getHiddenPTMs(projectTags), getProjectTagString(projectTags),
+							expressionTree.isProteinLevelQuery());
 					// proteins have to be before creating peptides, because
 					// when peptides are created, the cache of the proteins is
 					// used.
 					log.info("Creating Peptide beans in session '" + sessionID + "'");
-					RemoteServicesTasks.createPeptideBeansFromPeptideMap(sessionID, result.getPeptides());
+					RemoteServicesTasks.createPeptideBeansFromPeptideMap(sessionID, result.getPeptides(),
+							expressionTree.isProteinLevelQuery());
 					log.info("Setting dataset ready in session '" + sessionID + "'");
 					DataSetsManager.getDataSet(sessionID, queryInOrder).setReady(true);
 

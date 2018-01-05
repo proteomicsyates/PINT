@@ -232,6 +232,10 @@ public class QueryInterface {
 		return null;
 	}
 
+	public boolean isProteinLevelQuery() {
+		return allQueriesAreTheSameAggregationLevel(queryBinaryTree, AggregationLevel.PROTEIN);
+	}
+
 	private ProteinProviderFromDB getDominantProteinProviderFromAnnotationQueries(
 			Set<? extends AbstractQuery> annotationQueries, LogicalOperator logicalOperator) {
 		String uniprotKBVersion = null;
@@ -417,6 +421,18 @@ public class QueryInterface {
 			if (level == null) {
 				level = aggregationLevel;
 			} else if (level != aggregationLevel) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean allQueriesAreTheSameAggregationLevel(QueryBinaryTree queryBinaryTree2, AggregationLevel level) {
+
+		final List<AbstractQuery> abstractQueries = queryBinaryTree2.getAbstractQueries();
+		for (AbstractQuery abstractQuery : abstractQueries) {
+			final AggregationLevel aggregationLevel = abstractQuery.getAggregationLevel();
+			if (level != aggregationLevel) {
 				return false;
 			}
 		}

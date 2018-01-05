@@ -66,6 +66,7 @@ import edu.scripps.yates.server.adapters.ProteinAnnotationBeanAdapter;
 import edu.scripps.yates.server.adapters.ProteinBeanAdapterFromProteinSet;
 import edu.scripps.yates.server.adapters.RatioDescriptorAdapter;
 import edu.scripps.yates.server.cache.ServerCacheDefaultViewByProjectTag;
+import edu.scripps.yates.server.cache.ServerCachePSMBeansByPSMDBId;
 import edu.scripps.yates.server.cache.ServerCacheProjectBeanByProjectTag;
 import edu.scripps.yates.server.cache.ServerCacheProteinAccessionsByFileKey;
 import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
@@ -1204,10 +1205,12 @@ public class RemoteServicesTasks {
 	 * @param sessionID
 	 * @param proteins
 	 * @param hiddenPTMs
+	 * @param b
 	 * @return
 	 */
 	public static Set<ProteinBean> createProteinBeansFromQueriableProteins(String sessionID,
-			Map<String, Set<QueriableProteinSet>> proteins, Set<String> hiddenPTMs, String projectTagString) {
+			Map<String, Set<QueriableProteinSet>> proteins, Set<String> hiddenPTMs, String projectTagString,
+			boolean proteinLevelQuery) {
 		log.info("Creating protein beans from " + proteins.size() + " different Proteins");
 		Set<ProteinBean> ret = new THashSet<ProteinBean>();
 		int numProteins = 0;
@@ -1223,7 +1226,15 @@ public class RemoteServicesTasks {
 				break;
 
 			final Set<QueriableProteinSet> proteinSet = proteins.get(proteinAcc);
-			final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs).adapt();
+			ProteinBean proteinBeanAdapted = null;
+			// added in Jan 2018 to reuse the proteinBeans in the cache that
+			// will survive there if the query is all about protein level.
+			Integer proteinDBId = proteinSet.iterator().next().getIndividualProteins().iterator().next().getId();
+			if (proteinLevelQuery && ServerCacheProteinBeansByProteinDBId.getInstance().contains(proteinDBId)) {
+				proteinBeanAdapted = ServerCacheProteinBeansByProteinDBId.getInstance().getFromCache(proteinDBId);
+			} else {
+				proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs).adapt();
+			}
 			if (sessionID != null) {
 				DataSetsManager.getDataSet(sessionID, projectTagString).addProtein(proteinBeanAdapted);
 			}
@@ -1291,16 +1302,18 @@ public class RemoteServicesTasks {
 	 *
 	 * @param sessionID
 	 * @param peptideMap
+	 * @param proteinLevelQuery
+	 * @param b
 	 * @return
 	 */
 	public static Set<PeptideBean> createPeptideBeansFromPeptideMap(String sessionID,
-			Map<String, Set<Peptide>> peptideMap) {
+			Map<String, Set<Peptide>> peptideMap, boolean proteinLevelQuery) {
 		if (ServerCacheProteinBeansByProteinDBId.getInstance().isEmpty()) {
 			throw new IllegalArgumentException(
 					"ServerCacheProteinBeansByProteinDBId is empty. That is going to be needed when creating the peptide beans, so call before to createProteinBeansFromQueriableProteins");
 		}
 		Set<PeptideBean> ret = new THashSet<PeptideBean>();
-		// create a PeptideBean for each peptide set ssharing
+		// create a PeptideBean for each peptide set sharing
 		// the same sequence:
 		log.info("Creating PeptideBeans from " + peptideMap.size() + " different peptides");
 
@@ -1310,7 +1323,18 @@ public class RemoteServicesTasks {
 		for (String sequence : peptideMap.keySet()) {
 			numPeptides++;
 			Set<Peptide> peptideSet = peptideMap.get(sequence);
-			final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(peptideSet).adapt();
+			// changed in Jan 2018
+			// the psmBeans when is a protein level query, they will be
+			// available in the cache
+			PeptideBean peptideBeanAdapted = null;
+			Integer psmID = ((Psm) peptideSet.iterator().next().getPsms().iterator().next()).getId();
+			if (proteinLevelQuery && ServerCachePSMBeansByPSMDBId.getInstance().contains(psmID)) {
+				PSMBean psmBean = ServerCachePSMBeansByPSMDBId.getInstance().getFromCache(psmID);
+				peptideBeanAdapted = psmBean.getPeptideBean();
+			}
+			if (peptideBeanAdapted == null) {
+				peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(peptideSet).adapt();
+			}
 			ret.add(peptideBeanAdapted);
 			peptidesToRelease.addAll(peptideSet);
 			if (peptidesToRelease.size() >= CHUNK_TO_RELEASE) {
