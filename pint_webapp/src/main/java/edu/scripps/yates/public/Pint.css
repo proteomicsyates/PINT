@@ -1816,3 +1816,17 @@ table td{
 .no-wrap{
 	white-space: nowrap;
 }
+
+.queryPanelHelp{
+	padding: 100px;
+}
+
+.queryPanelHelpEmail{
+	font-size: 20px;
+    font-weight: bold;
+    color: #808040;
+}
+
+.queryPanelHelpText{
+	font-size: 20px;
+}
