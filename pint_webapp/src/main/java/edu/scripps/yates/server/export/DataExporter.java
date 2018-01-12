@@ -488,6 +488,24 @@ public class DataExporter {
 						fw.write(TAB);
 					}
 				}
+			} else if (columnWithOrder.getColumn() == ColumnName.SPC_PER_CONDITION) {
+				// iterate over projects
+				for (String projectTag : projectTags) {
+					List<String> conditions = conditionsByProject.get(projectTag);
+					// iterate over conditions
+					for (String conditionName : conditions) {
+						if (projectTag.equals(actualprojectTag)) {
+							fw.write(parseValue(DataGridRenderValue
+									.getSPCPerConditionDataGridRenderValue(proteinBean, conditionName, projectTag)
+									.getValue()));
+							fw.write(TAB);
+						} else {
+							fw.write(EMPTY);
+							fw.write(TAB);
+						}
+
+					}
+				}
 			} else {
 				final String value = ProteinColumns.getInstance().getValue(columnWithOrder.getColumn(), proteinBean,
 						null, null, actualprojectTag, null, null, null, false);
@@ -585,6 +603,24 @@ public class DataExporter {
 						}
 					}
 				}
+			} else if (columnWithOrder.getColumn() == ColumnName.SPC_PER_CONDITION) {
+				// iterate over projects
+				for (String projectTag : projectTags) {
+					List<String> conditions = conditionsByProject.get(projectTag);
+					// iterate over conditions
+					for (String conditionName : conditions) {
+						if (projectTag.equals(actualprojectTag)) {
+							fw.write(parseValue(DataGridRenderValue
+									.getSPCPerConditionDataGridRenderValue(proteinGroup, conditionName, projectTag)
+									.getValue()));
+							fw.write(TAB);
+						} else {
+							fw.write(EMPTY);
+							fw.write(TAB);
+						}
+
+					}
+				}
 			} else {
 				final String value = ProteinGroupColumns.getInstance().getValue(columnWithOrder.getColumn(),
 						proteinGroup, null, null, actualprojectTag, null, null, null, false);
@@ -638,7 +674,7 @@ public class DataExporter {
 							}
 						});
 						for (AmountType amountType : amountTypeList) {
-							fw.write(SharedDataUtils.getAmountHeader(amountType, conditionName));
+							fw.write(SharedDataUtils.getAmountHeader(amountType, projectTagString + conditionName));
 							// fw.write(parseValue(proteinBean.getAmountString(
 							// condition, projectTag)));
 							fw.write(TAB);
@@ -656,9 +692,22 @@ public class DataExporter {
 						// iterate over ratioDescriptors
 						for (RatioDescriptorBean ratioDescriptor : ratioDescriptors) {
 							fw.write(SharedDataUtils.getRatioHeader(ratioDescriptor.getRatioName(),
-									ratioDescriptor.getCondition1Name(), ratioDescriptor.getCondition2Name()));
+									projectTagString + ratioDescriptor.getCondition1Name(),
+									projectTagString + ratioDescriptor.getCondition2Name()));
 							fw.write(TAB);
 						}
+					}
+				}
+			} else if (columnWithOrder.getColumn() == ColumnName.SPC_PER_CONDITION) {
+
+				// iterate over projects
+				for (String projectTag : projectTags) {
+					String projectTagString = numProjects > 1 ? projectTag + ":" : "";
+					List<String> conditions = conditionsByProject.get(projectTag);
+					// iterate over conditions
+					for (String conditionName : conditions) {
+						fw.write(SharedDataUtils.getAmountHeader(AmountType.SPC, projectTagString + conditionName));
+						fw.write(TAB);
 					}
 				}
 			} else {

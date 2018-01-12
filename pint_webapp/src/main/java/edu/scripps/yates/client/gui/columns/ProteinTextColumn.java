@@ -161,6 +161,8 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			return 300;
 		case SPECTRUM_COUNT:
 			return 60;
+		case SPC_PER_CONDITION:
+			return 60;
 		case COVERAGE:
 			return 60;
 		case GENE:
@@ -293,6 +295,12 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			data = DataGridRenderValue.getAmountDataGridRenderValue(p, conditionName, amountType, projectTag);
 			sb.append(template.startToolTip(data.getTooltip()));
 			// super.render(context, p, sb);
+			sb.append(data.getValueAsSafeHtml());
+			sb.append(template.endToolTip());
+			break;
+		case SPC_PER_CONDITION:
+			data = DataGridRenderValue.getSPCPerConditionDataGridRenderValue(p, conditionName, projectTag);
+			sb.append(template.startToolTip(data.getTooltip()));
 			sb.append(data.getValueAsSafeHtml());
 			sb.append(template.endToolTip());
 			break;

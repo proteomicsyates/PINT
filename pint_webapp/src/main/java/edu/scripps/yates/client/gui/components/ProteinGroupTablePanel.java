@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 
+import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
 import edu.scripps.yates.client.gui.columns.ProteinGroupColumnManager;
@@ -25,8 +26,9 @@ import edu.scripps.yates.shared.util.SharedConstants;
 public class ProteinGroupTablePanel extends AbstractDataTable<ProteinGroupBean> {
 
 	public ProteinGroupTablePanel(String sessionID, Widget emptyWidget,
-			AbstractAsyncDataProvider<ProteinGroupBean> asyncDataProvider, boolean multipleSelectionModel) {
-		super(sessionID, emptyWidget, asyncDataProvider, multipleSelectionModel, "protein group table");
+			AbstractAsyncDataProvider<ProteinGroupBean> asyncDataProvider, boolean multipleSelectionModel,
+			QueryPanel queryPanel) {
+		super(sessionID, emptyWidget, asyncDataProvider, multipleSelectionModel, "protein group table", queryPanel);
 	}
 
 	/**

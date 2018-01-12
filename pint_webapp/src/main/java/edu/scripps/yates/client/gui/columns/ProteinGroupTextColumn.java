@@ -226,6 +226,13 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 			sb.append(data.getValueAsSafeHtml());
 			sb.append(template.endToolTip());
 			break;
+		case SPC_PER_CONDITION:
+			data = DataGridRenderValue.getSPCPerConditionDataGridRenderValue(p, conditionName, projectTag);
+			sb.append(template.startToolTip(data.getTooltip()));
+			sb.append(data.getValueAsSafeHtml());
+			sb.append(template.endToolTip());
+			break;
+
 		case PROTEIN_RATIO:
 
 			template = GWT.create(HtmlTemplates.class);

@@ -46,6 +46,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import edu.scripps.yates.client.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.cache.ClientCacheConditionsByProject;
 import edu.scripps.yates.client.cache.ClientCacheDefaultViewByProjectTag;
+import edu.scripps.yates.client.gui.components.AbstractDataTable;
 import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.components.MyQueryEditorPanel;
 import edu.scripps.yates.client.gui.components.MyVerticalCheckBoxListPanel;
@@ -85,6 +86,7 @@ import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.PSMColumns;
 import edu.scripps.yates.shared.columns.PeptideColumns;
 import edu.scripps.yates.shared.columns.ProteinColumns;
+import edu.scripps.yates.shared.columns.ProteinGroupColumns;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
@@ -379,6 +381,11 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				boolean showPeptideAmounts = peptideColumnNamesPanel.isSelected(ColumnName.PEPTIDE_AMOUNT);
 				boolean showPSMAmounts = psmColumnNamesPanel.isSelected(ColumnName.PSM_AMOUNT);
 
+				boolean showProteinGroupSPCPercondition = proteinGroupColumnNamesPanel
+						.isSelected(ColumnName.SPC_PER_CONDITION);
+				boolean showProteinSPCPercondition = proteinColumnNamesPanel.isSelected(ColumnName.SPC_PER_CONDITION);
+				boolean showPeptideSPCPercondition = peptideColumnNamesPanel.isSelected(ColumnName.SPC_PER_CONDITION);
+
 				boolean showProteinGroupRatios = proteinGroupColumnNamesPanel.isSelected(ColumnName.PROTEIN_RATIO);
 				boolean showProteinGroupRatioScores = proteinGroupColumnNamesPanel
 						.isSelected(ColumnName.PROTEIN_RATIO_SCORE);
@@ -441,6 +448,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
 									conditionNames, projectName, true);
 						}
+						if (showProteinGroupSPCPercondition) {
+							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.SPC_PER_CONDITION,
+									conditionNames, projectName, true);
+						}
 						// PROTEINS
 						if (showProteinAmounts) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
@@ -458,6 +469,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
 									conditionNames, projectName, true);
 						}
+						if (showProteinSPCPercondition) {
+							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.SPC_PER_CONDITION,
+									conditionNames, projectName, true);
+						}
 						// PEPTIDES
 						if (showPeptideAmounts) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
@@ -473,6 +488,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						}
 						if (showPeptideRatioScores) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_SCORE,
+									conditionNames, projectName, true);
+						}
+						if (showPeptideSPCPercondition) {
+							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.SPC_PER_CONDITION,
 									conditionNames, projectName, true);
 						}
 						// PSMs
@@ -544,6 +563,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
 									conditionNames, projectName, false);
 						}
+						if (showProteinGroupSPCPercondition) {
+							proteinGroupTablePanel.showOrHideExperimentalConditionColumn(ColumnName.SPC_PER_CONDITION,
+									conditionNames, projectName, false);
+						}
 						// PROTEINS
 						if (showProteinAmounts) {
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_AMOUNT,
@@ -561,6 +584,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PROTEIN_RATIO_SCORE,
 									conditionNames, projectName, false);
 						}
+						if (showProteinSPCPercondition) {
+							proteinTablePanel.showOrHideExperimentalConditionColumn(ColumnName.SPC_PER_CONDITION,
+									conditionNames, projectName, false);
+						}
 						// PEPTIDES
 						if (showPeptideAmounts) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
@@ -576,6 +603,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						}
 						if (showPeptideRatioScores) {
 							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_SCORE,
+									conditionNames, projectName, false);
+						}
+						if (showPeptideSPCPercondition) {
+							peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.SPC_PER_CONDITION,
 									conditionNames, projectName, false);
 						}
 						// PSMs
@@ -629,13 +660,14 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				createStartGroupingButtonClickHandler());
 
 		proteinTablePanel = new ProteinTablePanel(sessionID, null, new AsyncProteinBeanListDataProvider(sessionID),
-				SharedConstants.TABLE_WITH_MULTIPLE_SELECTION);
+				SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, this);
 
 		proteinColumnNamesPanel = new MyVerticalCheckBoxListPanel<ProteinBean>(proteinTablePanel.getColumnManager());
 
 		// PSM COLUMN NAMES
 		psmTablePanel = new PSMTablePanel(sessionID, "Select one protein to load PSMs", null,
-				asyncDataProviderForPSMsOfSelectedProtein, SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, "PSM table");
+				asyncDataProviderForPSMsOfSelectedProtein, SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, "PSM table",
+				this);
 		layoutPanel = new LayoutPanel();
 		layoutPanel.add(psmTablePanel);
 		layoutPanel.setWidgetBottomHeight(psmTablePanel, 0, Unit.PCT, 50, Unit.PCT);
@@ -648,19 +680,19 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 				getSelectProteinGroupingMenuHandler());
 		proteinGroupTablePanel = new ProteinGroupTablePanel(sessionID, emptyWidget,
-				new AsyncProteinGroupBeanListDataProvider(sessionID), false);
+				new AsyncProteinGroupBeanListDataProvider(sessionID), false, this);
 
 		proteinGroupColumnNamesPanel = new MyVerticalCheckBoxListPanel<ProteinGroupBean>(
 				proteinGroupTablePanel.getColumnManager());
 
 		// PSM ONLY TAB
 		psmOnlyTablePanel = new PSMTablePanel(sessionID, null, this, new AsyncPSMBeanListDataProvider(sessionID),
-				SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, "PSM ONLY table");
+				SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, "PSM ONLY table", this);
 		psmColumnNamesPanel.addColumnManager(psmOnlyTablePanel.getColumnManager());
 
 		// PEPTIDE ONLY TAB
 		peptideTablePanel = new PeptideTablePanel(sessionID, null, this,
-				new AsyncPeptideBeanListDataProvider(sessionID), SharedConstants.TABLE_WITH_MULTIPLE_SELECTION);
+				new AsyncPeptideBeanListDataProvider(sessionID), SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, this);
 		peptideColumnNamesPanel = new MyVerticalCheckBoxListPanel<PeptideBean>(peptideTablePanel.getColumnManager());
 		peptideColumnNamesPanel.addColumnManager(peptideTablePanel.getColumnManager());
 		// DATA PANEL: this panel will contain the protein/protein groups in the
@@ -1297,10 +1329,13 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				}
 			}
 			proteinGroupTablePanel.removeColumn(ColumnName.PROTEIN_AMOUNT);
+			proteinGroupTablePanel.removeColumn(ColumnName.SPC_PER_CONDITION);
 			proteinTablePanel.removeColumn(ColumnName.PROTEIN_AMOUNT);
+			proteinTablePanel.removeColumn(ColumnName.SPC_PER_CONDITION);
 			psmTablePanel.removeColumn(ColumnName.PSM_AMOUNT);
 			psmOnlyTablePanel.removeColumn(ColumnName.PSM_AMOUNT);
 			peptideTablePanel.removeColumn(ColumnName.PEPTIDE_AMOUNT);
+			peptideTablePanel.removeColumn(ColumnName.SPC_PER_CONDITION);
 			if (!notCachedProject.isEmpty()) {
 				for (final String projectTag : notCachedProject) {
 
@@ -1357,6 +1392,36 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		addPSMAmountColumns(projectTag, conditionName, conditionSymbol);
 		addPeptideAmountColumns(projectTag, conditionName, conditionSymbol);
 		addProteinAmountColumns(projectTag, conditionName, conditionSymbol);
+		addSPCByCondition(projectTag, conditionName, conditionSymbol);
+	}
+
+	private void addSPCByCondition(String projectTag, String conditionName, String conditionSymbol) {
+
+		final String checkBoxName = MyVerticalCheckBoxListPanel.getCheckBoxNameForAmount(AmountType.SPC,
+				conditionSymbol);
+		// to peptides
+		final ColumnWithVisibility peptideColumn = PeptideColumns.getInstance().getColumn(ColumnName.SPC_PER_CONDITION);
+		peptideTablePanel.addColumnForConditionAmount(ColumnName.SPC_PER_CONDITION, peptideColumn.isVisible(),
+				conditionName, conditionSymbol, AmountType.SPC, projectTag);
+		peptideColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.SPC_PER_CONDITION, checkBoxName,
+				MyVerticalCheckBoxListPanel.getKeyName(ColumnName.SPC_PER_CONDITION, conditionName, conditionSymbol,
+						AmountType.SPC.name(), projectTag));
+		// to proteins
+		final ColumnWithVisibility proteinColumn = ProteinColumns.getInstance().getColumn(ColumnName.SPC_PER_CONDITION);
+		proteinTablePanel.addColumnForConditionAmount(ColumnName.SPC_PER_CONDITION, proteinColumn.isVisible(),
+				conditionName, conditionSymbol, AmountType.SPC, projectTag);
+		proteinColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.SPC_PER_CONDITION, checkBoxName,
+				MyVerticalCheckBoxListPanel.getKeyName(ColumnName.SPC_PER_CONDITION, conditionName, conditionSymbol,
+						AmountType.SPC.name(), projectTag));
+		// o protein groups
+		final ColumnWithVisibility proteinGroupColumn = ProteinGroupColumns.getInstance()
+				.getColumn(ColumnName.SPC_PER_CONDITION);
+		proteinGroupTablePanel.addColumnForConditionAmount(ColumnName.SPC_PER_CONDITION, proteinGroupColumn.isVisible(),
+				conditionName, conditionSymbol, AmountType.SPC, projectTag);
+		proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.SPC_PER_CONDITION, checkBoxName,
+				MyVerticalCheckBoxListPanel.getKeyName(ColumnName.SPC_PER_CONDITION, conditionName, conditionSymbol,
+						AmountType.SPC.name(), projectTag));
+
 	}
 
 	private void addPSMAmountColumns(final String projectTag, final String conditionName,
@@ -2054,9 +2119,12 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	}
 
-	private void selectDataTab(Widget widget) {
-		firstLevelTabPanel.selectTab(layoutPanel);
-		secondLevelTabPanel.selectTab(widget);
+	public void selectDataTab(AbstractDataTable table) {
+		if (table == psmOnlyTablePanel || table == peptideTablePanel || table == proteinGroupTablePanel
+				|| table == proteinTablePanel) {
+			firstLevelTabPanel.selectTab(layoutPanel);
+			secondLevelTabPanel.selectTab(table);
+		}
 	}
 
 	/**

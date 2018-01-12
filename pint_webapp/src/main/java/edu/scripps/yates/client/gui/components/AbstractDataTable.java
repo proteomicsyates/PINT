@@ -31,6 +31,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionModel.AbstractSelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 
+import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
 import edu.scripps.yates.client.gui.columns.CustomTextColumn;
 import edu.scripps.yates.client.gui.columns.MyColumn;
@@ -63,16 +64,18 @@ public abstract class AbstractDataTable<T> extends Composite
 	private final Widget emptyWidget;
 	protected final String sessionID;
 	protected final String tableName;
+	private final QueryPanel queryPanel;
 
 	public AbstractDataTable(String sessionID, String emptyLabel, AbstractAsyncDataProvider<T> asyncDataListProvider,
-			boolean multipleSelectionModel, String tableName) {
-		this(sessionID, new Label(emptyLabel), asyncDataListProvider, multipleSelectionModel, tableName);
+			boolean multipleSelectionModel, String tableName, QueryPanel queryPanel) {
+		this(sessionID, new Label(emptyLabel), asyncDataListProvider, multipleSelectionModel, tableName, queryPanel);
 	}
 
 	public AbstractDataTable(String sessionID, Widget emptyWidget, AbstractAsyncDataProvider<T> asyncDataListProvider,
-			boolean multipleSelectionModel, String tableName) {
+			boolean multipleSelectionModel, String tableName, QueryPanel queryPanel) {
 		this.tableName = tableName;
 		this.sessionID = sessionID;
+		this.queryPanel = queryPanel;
 		if (emptyWidget != null) {
 			setEmptyTableWidget(emptyWidget);
 		}
@@ -149,14 +152,15 @@ public abstract class AbstractDataTable<T> extends Composite
 			ColumnName columnName = myColumn.getColumnName();
 			// don't do anything with amount because the conditions
 			// are not loaded yet
-			if (columnName != ColumnName.PROTEIN_AMOUNT && columnName != ColumnName.PROTEIN_RATIO
-					&& columnName != ColumnName.PROTEIN_SCORE && columnName != ColumnName.PROTEIN_RATIO_SCORE
-					&& columnName != ColumnName.PROTEIN_RATIO_GRAPH && columnName != ColumnName.PSM_AMOUNT
-					&& columnName != ColumnName.PSM_SCORE && columnName != ColumnName.PTM_SCORE
-					&& columnName != ColumnName.PSM_RATIO && columnName != ColumnName.PSM_RATIO_GRAPH
-					&& columnName != ColumnName.PSM_RATIO_SCORE && columnName != ColumnName.PEPTIDE_AMOUNT
-					&& columnName != ColumnName.PEPTIDE_SCORE && columnName != ColumnName.PEPTIDE_RATIO
-					&& columnName != ColumnName.PEPTIDE_RATIO_GRAPH && columnName != ColumnName.PEPTIDE_RATIO_SCORE) {
+			if (columnName != ColumnName.PROTEIN_AMOUNT && columnName != ColumnName.SPC_PER_CONDITION
+					&& columnName != ColumnName.PROTEIN_RATIO && columnName != ColumnName.PROTEIN_SCORE
+					&& columnName != ColumnName.PROTEIN_RATIO_SCORE && columnName != ColumnName.PROTEIN_RATIO_GRAPH
+					&& columnName != ColumnName.PSM_AMOUNT && columnName != ColumnName.PSM_SCORE
+					&& columnName != ColumnName.PTM_SCORE && columnName != ColumnName.PSM_RATIO
+					&& columnName != ColumnName.PSM_RATIO_GRAPH && columnName != ColumnName.PSM_RATIO_SCORE
+					&& columnName != ColumnName.PEPTIDE_AMOUNT && columnName != ColumnName.PEPTIDE_SCORE
+					&& columnName != ColumnName.PEPTIDE_RATIO && columnName != ColumnName.PEPTIDE_RATIO_GRAPH
+					&& columnName != ColumnName.PEPTIDE_RATIO_SCORE) {
 				final boolean visible = getColumnManager().isVisible(columnName);
 				if (visible) {
 					final Header<String> footer = getColumnManager().getFooter(columnName);
@@ -393,6 +397,7 @@ public abstract class AbstractDataTable<T> extends Composite
 			mycolumn.setVisible(show);
 			if (show) {
 				dataGrid.addColumnToTable(column, getColumnManager());
+				Scheduler.get().scheduleDeferred(getShowTableCommand());
 			} else {
 				dataGrid.removeColumn(column);
 			}
@@ -406,6 +411,18 @@ public abstract class AbstractDataTable<T> extends Composite
 			}
 		});
 
+	}
+
+	private ScheduledCommand getShowTableCommand() {
+		return new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				if (queryPanel != null) {
+					queryPanel.selectDataTab(AbstractDataTable.this);
+				}
+			}
+		};
 	}
 
 	@Override
@@ -425,7 +442,7 @@ public abstract class AbstractDataTable<T> extends Composite
 
 						if (show) {
 							dataGrid.addColumnToTable(column, getColumnManager());
-
+							Scheduler.get().scheduleDeferred(getShowTableCommand());
 						} else {
 							dataGrid.removeColumn(column);
 						}
@@ -454,9 +471,8 @@ public abstract class AbstractDataTable<T> extends Composite
 					found = true;
 					if (show) {
 						GWT.log(idColumn.getColumnName().name() + " " + idColumn.getKeyName() + " <-> " + keyName);
-
 						dataGrid.addColumnToTable(column, getColumnManager());
-
+						Scheduler.get().scheduleDeferred(getShowTableCommand());
 					} else {
 						dataGrid.removeColumn(column);
 					}

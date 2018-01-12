@@ -82,7 +82,9 @@ public class ProteinGroupComparator extends BeanComparator<ProteinGroupBean> {
 			return description1.compareToIgnoreCase(description2);
 		case SPECTRUM_COUNT:
 			return Integer.compare(o1.getNumPSMs(), o2.getNumPSMs());
-
+		case SPC_PER_CONDITION:
+			return Integer.compare(o1.getNumPSMsByCondition(projectTag, conditionName),
+					o2.getNumPSMsByCondition(projectTag, conditionName));
 		case COVERAGE:
 			return compareNumbers(o1.get(0).getCoverage(), o2.get(0).getCoverage());
 		case PROTEIN_SEQUENCE_COVERAGE_IMG:

@@ -15,5 +15,9 @@ public interface ContainsPSMs {
 
 	public Map<ExperimentalConditionBean, Set<Integer>> getPSMDBIdsByCondition();
 
+	public Map<ExperimentalConditionBean, Integer> getNumPSMsByCondition();
+
+	public int getNumPSMsByCondition(String projectTag, String conditionName);
+
 	public Map<MSRunBean, Set<Integer>> getPSMDBIdsbyMSRun();
 }

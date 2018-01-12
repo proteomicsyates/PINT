@@ -121,7 +121,6 @@ public class ReactomePanel extends ResizeLayoutPanel
 
 	private ReactomePanel(final String sessionID) {
 		this.sessionID = sessionID;
-
 		this.setStyleName("queryPanelDataTablesPanel");
 		tabPanel = new ScrolledTabLayoutPanel();
 		tabPanel.setHeight("100%");

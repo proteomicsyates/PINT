@@ -253,22 +253,18 @@ public enum ColumnName {
 																	// link to
 																	// Complex
 																	// portal
-																	LINK_TO_COMPLEX_PORTAL(
-																			"Link to Complex Portal (EBI)", "Complex",
-																			"Link to information in Complex Portal Database (EBI)",
-																			HorizontalAlignmentSharedConstant.ALIGN_CENTER),
-																			// link
-																			// to
-																			// Reactome
-																			REACTOME_ID_LINK(
-																					"Link to Reactome Pathways",
-																					"Pathways",
-																					"Link to Reactome Pathways",
-																					HorizontalAlignmentSharedConstant.ALIGN_LEFT), //
-																					PROTEIN_SCORE("Protein scores",
-																							"Protein sc.",
-																							"Protein scores", false,
-																							HorizontalAlignmentSharedConstant.ALIGN_CENTER),;
+	LINK_TO_COMPLEX_PORTAL("Link to Complex Portal (EBI)", "Complex",
+			"Link to information in Complex Portal Database (EBI)", HorizontalAlignmentSharedConstant.ALIGN_CENTER),
+			// link
+			// to
+			// Reactome
+	REACTOME_ID_LINK("Link to Reactome Pathways", "Pathways", "Link to Reactome Pathways",
+			HorizontalAlignmentSharedConstant.ALIGN_LEFT), //
+			PROTEIN_SCORE("Protein scores", "Protein sc.", "Protein scores", false,
+					HorizontalAlignmentSharedConstant.ALIGN_CENTER), //
+
+	SPC_PER_CONDITION("SPC per Condition", "SPC/Cond", "Spectral count per experimental condition", false)//
+	;
 	private final String name;
 	private final String abr;
 	private final String description;

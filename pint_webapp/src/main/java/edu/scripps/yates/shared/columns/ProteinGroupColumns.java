@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
+import edu.scripps.yates.shared.util.DataGridRenderValue;
 
 public class ProteinGroupColumns implements ColumnProvider<ProteinGroupBean> {
 	private static ProteinGroupColumns instance;
@@ -63,6 +64,8 @@ public class ProteinGroupColumns implements ColumnProvider<ProteinGroupBean> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.SPECTRUM_COUNT, true);
 			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
+			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_AMOUNT, false);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_RATIO, false);
@@ -83,6 +86,10 @@ public class ProteinGroupColumns implements ColumnProvider<ProteinGroupBean> {
 			return parseEmptyString(p.getDescriptionsString());
 		case SPECTRUM_COUNT:
 			return parseEmptyString(String.valueOf(p.getNumPSMs()));
+		case SPC_PER_CONDITION:
+			return parseEmptyString(
+					DataGridRenderValue.getSPCPerConditionDataGridRenderValue(p, conditionName, projectTag).getValue());
+
 		case COVERAGE:
 			// TODO calculate coverage depending on the PSMs, depending on which
 			// runs are coming, from which conditions

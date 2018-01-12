@@ -26,7 +26,7 @@ public class ReactomePathwaysTablePanel extends AbstractDataTable<PathwaySummary
 	public ReactomePathwaysTablePanel(String sessionID,
 			AbstractAsyncDataProvider<PathwaySummary> asyncDataListProvider) {
 		super(sessionID, "Submit the analysis in order to populate the table", asyncDataListProvider, false,
-				"Reactome table");
+				"Reactome table", null);
 
 		// flowPanelTable.setSize("100%", "80%");
 		// ResizeLayoutPanel resizePanel = new ResizeLayoutPanel();

@@ -98,6 +98,9 @@ public class PeptideComparator extends BeanComparator<PeptideBean> {
 					return compareStrings(o1.getRelation().name(), o2.getRelation().name(), true);
 				case SPECTRUM_COUNT:
 					return Integer.compare(o1.getNumPSMs(), o2.getNumPSMs());
+				case SPC_PER_CONDITION:
+					return Integer.compare(o1.getNumPSMsByCondition(projectTag, conditionName),
+							o2.getNumPSMsByCondition(projectTag, conditionName));
 				case PEPTIDE_DOMAIN_FAMILIES:
 				case PEPTIDE_NATURAL_VARIATIONS:
 				case PEPTIDE_SECONDARY_STRUCTURE:

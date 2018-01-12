@@ -15,6 +15,7 @@ import edu.scripps.yates.client.util.ClientMaths;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.interfaces.ContainsAmounts;
+import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 
 /**
  * Represents the value and the tooltip of a datagrid cell
@@ -143,6 +144,24 @@ public class DataGridRenderValue implements Serializable {
 			}
 		}
 		return new DataGridRenderValue("-", null, "");
+	}
+
+	public static DataGridRenderValue getSPCPerConditionDataGridRenderValue(ContainsPSMs p, String conditionName,
+			String projectTag) {
+
+		StringBuilder tooltip = new StringBuilder();
+
+		tooltip.append("Experimental condition: " + conditionName);
+
+		int spc = p.getNumPSMsByCondition(projectTag, conditionName);
+		if (spc > 0) {
+			tooltip.append(SharedConstants.SEPARATOR + AmountType.SPC);
+			tooltip.append(SharedConstants.SEPARATOR + spc);
+			return new DataGridRenderValue(String.valueOf(spc), Integer.valueOf(spc).doubleValue(), tooltip.toString());
+		} else {
+			return new DataGridRenderValue("-", null, "");
+		}
+
 	}
 
 	private static Map<AmountType, Set<AmountBean>> getAmountsByType(List<AmountBean> amounts) {

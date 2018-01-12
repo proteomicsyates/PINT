@@ -202,6 +202,13 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 			// super.render(context, psm, sb);
 			// sb.append(template.endToolTip());
 			break;
+		case SPC_PER_CONDITION:
+			data = DataGridRenderValue.getSPCPerConditionDataGridRenderValue(pep, conditionName, projectTag);
+			sb.append(template.startToolTip(data.getTooltip()));
+			sb.append(data.getValueAsSafeHtml());
+			sb.append(template.endToolTip());
+			break;
+
 		case TAXONOMY:
 			sb.append(new SafeHtmlBuilder().appendEscapedLines(pep.getOrganismsString()).toSafeHtml());
 			break;
@@ -337,6 +344,10 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 			return 150;
 		case PEPTIDE_SECONDARY_STRUCTURE:
 			return 150;
+		case SPC_PER_CONDITION:
+			return 60;
+		case SPECTRUM_COUNT:
+			return 60;
 		default:
 			return 100;
 

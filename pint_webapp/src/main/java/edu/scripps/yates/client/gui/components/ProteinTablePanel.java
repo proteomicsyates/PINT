@@ -8,6 +8,7 @@ import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ProvidesKey;
 
+import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
 import edu.scripps.yates.client.gui.columns.ProteinColumnManager;
@@ -26,8 +27,10 @@ public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
 	private static final String cwDataGridEmpty = "No proteins shown";
 
 	public ProteinTablePanel(String sessionID, String emptyLabel,
-			AbstractAsyncDataProvider<ProteinBean> asyncProteinBeanListDataProvider, boolean multipleSelectionModel) {
-		super(sessionID, emptyLabel, asyncProteinBeanListDataProvider, multipleSelectionModel, "protein table");
+			AbstractAsyncDataProvider<ProteinBean> asyncProteinBeanListDataProvider, boolean multipleSelectionModel,
+			QueryPanel queryPanel) {
+		super(sessionID, emptyLabel, asyncProteinBeanListDataProvider, multipleSelectionModel, "protein table",
+				queryPanel);
 
 		dataGrid.redraw();
 	}

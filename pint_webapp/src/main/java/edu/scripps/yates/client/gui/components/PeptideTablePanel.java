@@ -7,6 +7,7 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.view.client.ProvidesKey;
 
+import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
 import edu.scripps.yates.client.gui.columns.PeptideColumnManager;
@@ -28,8 +29,9 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 	private final ShowHiddePanel peptideLoaderFromProjects;
 
 	public PeptideTablePanel(String sessionID, String emptyLabel, ShowHiddePanel showhiddePSMPanel,
-			AbstractAsyncDataProvider<PeptideBean> asyncDataListProvider, boolean multipleSelectionModel) {
-		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel, "peptide table");
+			AbstractAsyncDataProvider<PeptideBean> asyncDataListProvider, boolean multipleSelectionModel,
+			QueryPanel queryPanel) {
+		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel, "peptide table", queryPanel);
 		peptideLoaderFromProjects = showhiddePSMPanel;
 
 	}

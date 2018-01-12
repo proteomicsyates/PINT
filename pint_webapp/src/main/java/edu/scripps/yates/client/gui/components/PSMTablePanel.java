@@ -7,6 +7,7 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.view.client.ProvidesKey;
 
+import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.columns.AbstractColumnManager;
 import edu.scripps.yates.client.gui.columns.MyDataGrid;
 import edu.scripps.yates.client.gui.columns.PSMColumnManager;
@@ -29,9 +30,9 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 	private final ShowHiddePanel psmLoaderFromProjects;
 
 	public PSMTablePanel(String sessionID, String emptyLabel, ShowHiddePanel showhiddePSMPanel,
-			AbstractAsyncDataProvider<PSMBean> asyncDataListProvider, boolean multipleSelectionModel,
-			String tableName) {
-		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel, tableName);
+			AbstractAsyncDataProvider<PSMBean> asyncDataListProvider, boolean multipleSelectionModel, String tableName,
+			QueryPanel queryPanel) {
+		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel, tableName, queryPanel);
 		psmLoaderFromProjects = showhiddePSMPanel;
 
 	}

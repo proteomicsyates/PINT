@@ -46,6 +46,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	private Map<String, RatioDistribution> ratioDistributions;
 
+	private Map<ExperimentalConditionBean, Integer> numPSMsByCondition;
+
 	public ProteinGroupBean() {
 
 	}
@@ -606,7 +608,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 			// ret.psmDBIds.addAll(getPSMDBIds());
 			// lightVersion.setNumPeptides(sequences.size());
 			lightVersion.setNumPSMs(getPSMDBIds().size());
-
+			lightVersion.getNumPSMsByCondition().putAll(getNumPSMsByCondition());
 			// create the amounts for each condition:
 			final Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition = new HashMap<ExperimentalConditionBean, Set<Integer>>();
 			for (ProteinBean proteinBean : this) {
@@ -773,5 +775,32 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	@Override
 	public Set<Integer> getPeptideDBIds() {
 		return peptideDBIds;
+	}
+
+	@Override
+	public int getNumPSMsByCondition(String projectTag, String conditionName) {
+		Map<ExperimentalConditionBean, Integer> numPSMsByCondition = getNumPSMsByCondition();
+		if (!numPSMsByCondition.isEmpty()) {
+			for (ExperimentalConditionBean conditionBean : numPSMsByCondition.keySet()) {
+				if (conditionBean.getId().equals(conditionName)) {
+					if (conditionBean.getProject().getTag().equals(projectTag)) {
+						return numPSMsByCondition.get(conditionBean);
+					}
+				}
+			}
+		}
+		return 0;
+	}
+
+	@Override
+	public Map<ExperimentalConditionBean, Integer> getNumPSMsByCondition() {
+		if (numPSMsByCondition == null) {
+			numPSMsByCondition = new HashMap<ExperimentalConditionBean, Integer>();
+			Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition = getPSMDBIdsByCondition();
+			for (ExperimentalConditionBean conditionBean : psmdbIdsByCondition.keySet()) {
+				numPSMsByCondition.put(conditionBean, psmdbIdsByCondition.get(conditionBean).size());
+			}
+		}
+		return numPSMsByCondition;
 	}
 }

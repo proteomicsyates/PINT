@@ -93,7 +93,9 @@ public class ProteinComparator extends BeanComparator<ProteinBean> {
 
 		case SPECTRUM_COUNT:
 			return Integer.compare(o1.getNumPSMs(), o2.getNumPSMs());
-
+		case SPC_PER_CONDITION:
+			return Integer.compare(o1.getNumPSMsByCondition(projectTag, conditionName),
+					o2.getNumPSMsByCondition(projectTag, conditionName));
 		case COVERAGE:
 			return compareNumbers(o1.getCoverage(), o2.getCoverage());
 		case PROTEIN_SEQUENCE_COVERAGE_IMG:

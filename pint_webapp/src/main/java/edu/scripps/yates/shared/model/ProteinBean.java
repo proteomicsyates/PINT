@@ -79,6 +79,7 @@ public class ProteinBean
 	private List<ReactomePathwayRef> reactomePathways = new ArrayList<ReactomePathwayRef>();
 	private Set<Integer> peptideDBIds = new HashSet<Integer>();
 	private Map<String, ScoreBean> scores = new HashMap<String, ScoreBean>();
+	private Map<ExperimentalConditionBean, Integer> numPSMsByCondition;
 
 	public ProteinBean() {
 		proteinBeanUniqueIdentifier = hashCode();
@@ -303,6 +304,9 @@ public class ProteinBean
 	private void addPSMToMapByconditions(PSMBean psmBean) {
 		// add to psm ids by conditions
 		final Set<ExperimentalConditionBean> conditions2 = psmBean.getConditions();
+		if (conditions2.isEmpty()) {
+			return;
+		}
 		for (ExperimentalConditionBean experimentalConditionBean : conditions2) {
 			if (psmIdsByCondition.containsKey(experimentalConditionBean)) {
 				psmIdsByCondition.get(experimentalConditionBean).add(psmBean.getDbID());
@@ -1216,6 +1220,8 @@ public class ProteinBean
 			lightVersion.proteinBeanUniqueIdentifier = getProteinBeanUniqueIdentifier();
 			// ret.psmIds.addAll(psmIds);
 			lightVersion.setNumPSMs(getPSMDBIds().size());
+
+			lightVersion.getNumPSMsByCondition().putAll(getNumPSMsByCondition());
 			// ret.psmIdsByCondition.putAll(getPsmIdsByCondition());
 			// ret.psmIdsbyMSRun.putAll(getPsmIdsbyMSRun());
 			lightVersion.ratios.addAll(getRatios());
@@ -1537,5 +1543,31 @@ public class ProteinBean
 	@Override
 	public ScoreBean getScoreByName(String scoreName) {
 		return scores.get(scoreName);
+	}
+
+	@Override
+	public int getNumPSMsByCondition(String projectTag, String conditionName) {
+		if (!numPSMsByCondition.isEmpty()) {
+			for (ExperimentalConditionBean conditionBean : numPSMsByCondition.keySet()) {
+				if (conditionBean.getId().equals(conditionName)) {
+					if (conditionBean.getProject().getTag().equals(projectTag)) {
+						return numPSMsByCondition.get(conditionBean);
+					}
+				}
+			}
+		}
+		return 0;
+	}
+
+	@Override
+	public Map<ExperimentalConditionBean, Integer> getNumPSMsByCondition() {
+		if (numPSMsByCondition == null) {
+			numPSMsByCondition = new HashMap<ExperimentalConditionBean, Integer>();
+			Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition = getPSMDBIdsByCondition();
+			for (ExperimentalConditionBean conditionBean : psmdbIdsByCondition.keySet()) {
+				numPSMsByCondition.put(conditionBean, psmdbIdsByCondition.get(conditionBean).size());
+			}
+		}
+		return numPSMsByCondition;
 	}
 }

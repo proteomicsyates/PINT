@@ -53,6 +53,8 @@ public class PeptideColumns implements ColumnProvider<PeptideBean> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.SPECTRUM_COUNT, true);
 			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
+			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.TAXONOMY, false);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PEPTIDE_AMOUNT, false);
@@ -98,8 +100,12 @@ public class PeptideColumns implements ColumnProvider<PeptideBean> {
 		case ACC:
 			return parseEmptyString(p.getProteinAccessionString());
 		case PEPTIDE_AMOUNT:
+
 			return parseEmptyString(DataGridRenderValue
 					.getAmountDataGridRenderValue(p, conditionName, amountType, projectTag).getValue());
+		case SPC_PER_CONDITION:
+			return parseEmptyString(
+					DataGridRenderValue.getSPCPerConditionDataGridRenderValue(p, conditionName, projectTag).getValue());
 		case PEPTIDE_RATIO_SCORE:
 			return parseEmptyString(p.getRatioScoreStringByConditions(conditionName, condition2Name, projectTag,
 					ratioName, scoreName, skipRatioInfinities, true));

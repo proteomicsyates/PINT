@@ -64,6 +64,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	private PeptideBean lightVersion;
 	private PeptideRelation relation;
 	private Map<String, RatioDistribution> ratioDistributions;
+	private Map<ExperimentalConditionBean, Integer> numPSMsByCondition;
 
 	public PeptideBean() {
 
@@ -124,7 +125,8 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		addMSRun(psm.getMsRun());
 		// set M+H
 		setCalculatedMH(psm.getCalcMH());
-
+		// map to conditions
+		addPSMToMapByconditions(psm);
 		// set Proteins
 		final Set<ProteinBean> proteins2 = psm.getProteins();
 		for (ProteinBean proteinBean : proteins2) {
@@ -139,6 +141,23 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		final Set<ProteinBean> proteins3 = getProteins();
 		for (ProteinBean proteinBean : proteins3) {
 			psm.addProteinToPSM(proteinBean);
+		}
+	}
+
+	private void addPSMToMapByconditions(PSMBean psmBean) {
+		// add to psm ids by conditions
+		final Set<ExperimentalConditionBean> conditions2 = psmBean.getConditions();
+		if (conditions2.isEmpty()) {
+			return;
+		}
+		for (ExperimentalConditionBean experimentalConditionBean : conditions2) {
+			if (psmIdsByCondition.containsKey(experimentalConditionBean)) {
+				psmIdsByCondition.get(experimentalConditionBean).add(psmBean.getDbID());
+			} else {
+				Set<Integer> set = new HashSet<Integer>();
+				set.add(psmBean.getDbID());
+				psmIdsByCondition.put(experimentalConditionBean, set);
+			}
 		}
 	}
 
@@ -921,7 +940,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 			// ret.setPsms(getPsms());
 
 			lightVersion.setNumPSMs(getNumPSMs());
-
+			lightVersion.getNumPSMsByCondition().putAll(getNumPSMsByCondition());
 			lightVersion.setRatios(getRatios());
 			lightVersion.setRatiosByExperimentalcondition(getRatiosByExperimentalcondition());
 			lightVersion.setScores(getScores());
@@ -1009,5 +1028,30 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	public RatioDistribution getRatioDistribution(RatioBean ratio) {
 		return ratioDistributions.get(SharedDataUtils.getRatioKey(ratio));
 
+	}
+
+	@Override
+	public int getNumPSMsByCondition(String projectTag, String conditionName) {
+		if (!numPSMsByCondition.isEmpty()) {
+			for (ExperimentalConditionBean conditionBean : numPSMsByCondition.keySet()) {
+				if (conditionBean.getId().equals(conditionName)) {
+					if (conditionBean.getProject().getTag().equals(projectTag)) {
+						return numPSMsByCondition.get(conditionBean);
+					}
+				}
+			}
+		}
+		return 0;
+	}
+
+	@Override
+	public Map<ExperimentalConditionBean, Integer> getNumPSMsByCondition() {
+		if (numPSMsByCondition == null) {
+			numPSMsByCondition = new HashMap<ExperimentalConditionBean, Integer>();
+			for (ExperimentalConditionBean conditionBean : psmIdsByCondition.keySet()) {
+				numPSMsByCondition.put(conditionBean, psmIdsByCondition.get(conditionBean).size());
+			}
+		}
+		return numPSMsByCondition;
 	}
 }
