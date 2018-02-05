@@ -227,6 +227,7 @@ public abstract class AbstractDataTable<T> extends Composite
 	@Override
 	public final void refreshData() {
 		// dataGrid.redrawVisibleItems();
+		this.setVisible(true);
 		dataGrid.setForceToRefresh(true);
 		RangeChangeEvent.fire(dataGrid, dataGrid.getVisibleRange());
 	}
@@ -397,7 +398,7 @@ public abstract class AbstractDataTable<T> extends Composite
 			mycolumn.setVisible(show);
 			if (show) {
 				dataGrid.addColumnToTable(column, getColumnManager());
-				Scheduler.get().scheduleDeferred(getShowTableCommand());
+				// Scheduler.get().scheduleDeferred(getShowTableCommand());
 			} else {
 				dataGrid.removeColumn(column);
 			}
@@ -442,7 +443,7 @@ public abstract class AbstractDataTable<T> extends Composite
 
 						if (show) {
 							dataGrid.addColumnToTable(column, getColumnManager());
-							Scheduler.get().scheduleDeferred(getShowTableCommand());
+							// Scheduler.get().scheduleDeferred(getShowTableCommand());
 						} else {
 							dataGrid.removeColumn(column);
 						}
@@ -472,7 +473,7 @@ public abstract class AbstractDataTable<T> extends Composite
 					if (show) {
 						GWT.log(idColumn.getColumnName().name() + " " + idColumn.getKeyName() + " <-> " + keyName);
 						dataGrid.addColumnToTable(column, getColumnManager());
-						Scheduler.get().scheduleDeferred(getShowTableCommand());
+						// Scheduler.get().scheduleDeferred(getShowTableCommand());
 					} else {
 						dataGrid.removeColumn(column);
 					}

@@ -2122,8 +2122,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	public void selectDataTab(AbstractDataTable table) {
 		if (table == psmOnlyTablePanel || table == peptideTablePanel || table == proteinGroupTablePanel
 				|| table == proteinTablePanel) {
+			GWT.log("Changing tab to " + table.getClass().getName());
 			firstLevelTabPanel.selectTab(layoutPanel);
 			secondLevelTabPanel.selectTab(table);
+			table.refreshData();
 		}
 	}
 
