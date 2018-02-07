@@ -24,8 +24,11 @@ public class HibernateFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
+		long numCall = 0;
+		synchronized (this) {
+			numCall = ++numRPCCalls;
+		}
 
-		final long numCall = ++numRPCCalls;
 		try {
 			log.info("Entering in the Hibernate filter in " + numCall + ". Num calls that are ongoing: " + numRPCCalls);
 
@@ -55,13 +58,16 @@ public class HibernateFilter implements Filter {
 				throw new ServletException(ex);
 			}
 		} finally {
-			numRPCCalls--;
+			synchronized (this) {
+				numRPCCalls--;
+			}
 
 			log.warn("Closing session from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
 					+ numRPCCalls);
 
 			try {
 				// Close the Session
+				ContextualSessionHandler.printStatistics();
 				ContextualSessionHandler.closeSession();
 				ContextualSessionHandler.printStatistics();
 			} catch (Exception e) {
