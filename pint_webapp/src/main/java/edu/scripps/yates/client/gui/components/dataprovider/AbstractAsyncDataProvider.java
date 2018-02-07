@@ -141,6 +141,7 @@ public abstract class AbstractAsyncDataProvider<T> extends AsyncDataProvider<T> 
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see com.google.gwt.view.client.AsyncDataProvider#updateRowCount(int,
 	 * boolean)
 	 */
@@ -198,32 +199,32 @@ public abstract class AbstractAsyncDataProvider<T> extends AsyncDataProvider<T> 
 
 				if (!retrievingData) {
 					final ColumnSortList columnSortList = getColumnSortList(display);
-					if (columnSortList.size() > 0) {
-						if (forceToReload || sortingChanged || newProvider || rangeChanged
-								|| (!rangeChanged && !containsData)) {
-							if (display instanceof MyDataGrid) {
-								((MyDataGrid) display).setForceToRefresh(false);
-							}
-
-							ColumnSortInfo columnSortInfo = null;
-							MyColumn<T> column = null;
-							if (columnSortList.size() > 0) {
-								columnSortInfo = columnSortList.get(0);
-								setCurrentSortInfo(columnSortInfo);
-								column = (MyColumn<T>) columnSortInfo.getColumn();
-							}
-							// display.setVisibleRangeAndClearData(display.getVisibleRange(),
-							// true);
-							retrievingData = true;
-							retrieveData(column, start, end, columnSortInfo, range);
-
-						} else if (forceToRefresh) {
-							refresh();
+					// if (columnSortList.size() > 0) {
+					if (forceToReload || sortingChanged || newProvider || rangeChanged
+							|| (!rangeChanged && !containsData)) {
+						if (display instanceof MyDataGrid) {
+							((MyDataGrid) display).setForceToRefresh(false);
 						}
-						if (rangeChanged) {
-							setRange(range);
+
+						ColumnSortInfo columnSortInfo = null;
+						MyColumn<T> column = null;
+						if (columnSortList.size() > 0) {
+							columnSortInfo = columnSortList.get(0);
+							setCurrentSortInfo(columnSortInfo);
+							column = (MyColumn<T>) columnSortInfo.getColumn();
 						}
+						// display.setVisibleRangeAndClearData(display.getVisibleRange(),
+						// true);
+						retrievingData = true;
+						retrieveData(column, start, end, columnSortInfo, range);
+
+					} else if (forceToRefresh) {
+						refresh();
 					}
+					if (rangeChanged) {
+						setRange(range);
+					}
+					// }
 				}
 			}
 		} finally {
