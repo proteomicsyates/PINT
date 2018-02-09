@@ -115,19 +115,24 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsPeptid
 
 	@Override
 	public void render(Context context, T object, SafeHtmlBuilder sb) {
-		String className = "protein";
-		if (object instanceof ProteinGroupBean) {
-			className = "protein group";
-		}
-		sb.append(template.startToolTip("Show peptides explaining " + className));
+
+		sb.append(template.startToolTip(getToolTip(object)));
 
 		super.render(context, object, sb);
 		sb.append(template.endToolTip());
 	}
 
+	private String getToolTip(T object) {
+		String className = "protein";
+		if (object instanceof ProteinGroupBean) {
+			className = "protein group";
+		}
+		return "Show peptides explaining " + className;
+	}
+
 	@Override
 	public String getTitle(T object) {
-		return null;
+		return getToolTip(object);
 	}
 
 }
