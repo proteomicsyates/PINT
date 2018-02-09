@@ -20,6 +20,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -84,6 +87,7 @@ public class UniprotProteinRemoteRetriever {
 	private static String currentUniprotVersion;
 	private static boolean notTryUntilNextDay;
 	protected static final Set<String> entriesWithNoFASTA = new THashSet<String>();
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	// service
 
 	/**
@@ -386,6 +390,7 @@ public class UniprotProteinRemoteRetriever {
 	}
 
 	private static int executors = 0;
+	ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
 	private List<Entry> parseResponse(InputStream is, String uniprotVersion, Set<String> accessionsSent) {
 
@@ -396,30 +401,49 @@ public class UniprotProteinRemoteRetriever {
 
 			if (uniprotReleaseFolder != null) {
 				log.info("Launching parallel process to write entries in index");
-
-				ExecutorService executor = Executors.newSingleThreadExecutor();
-
-				executor.submit(() -> {
+				WriteLock writeLock = lock.writeLock();
+				writeLock.lock();
+				try {
 					log.info(++executors + " executors already");
+				} finally {
+					writeLock.unlock();
+				}
+				executor.submit(() -> {
+
 					try {
 						long t1 = System.currentTimeMillis();
-						log.info("Saving entries to local index...");
+						log.info("Saving " + uniprot.getEntry().size() + " entries to local index...");
 						UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(uniprotReleaseFolder,
 								useIndex);
 						uplr.saveUniprotToLocalFilesystem(uniprot, uniprotVersion, useIndex);
-						log.info("Entries saved to local index in "
-								+ DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
+						ReadLock readLock = lock.readLock();
+						readLock.lock();
+						try {
+							log.info("Executor " + executors + ": Entries saved to local index in "
+									+ DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
+						} finally {
+							readLock.unlock();
+						}
 					} catch (JAXBException e) {
 						e.printStackTrace();
+						log.warn(e);
 					}
-					executors--;
+					WriteLock writeLock2 = lock.writeLock();
+					writeLock2.lock();
+					try {
+						executors--;
+					} finally {
+						writeLock2.unlock();
+					}
 				});
 
 			}
 
 			log.debug("Response parsed succesfully");
 			return uniprot.getEntry();
-		} else {
+		} else
+
+		{
 			return new ArrayList<Entry>();
 		}
 
