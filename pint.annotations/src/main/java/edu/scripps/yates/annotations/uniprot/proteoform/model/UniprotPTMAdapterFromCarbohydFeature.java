@@ -1,4 +1,4 @@
-package edu.scripps.yates.annotations.uniprot.variant.model;
+package edu.scripps.yates.annotations.uniprot.proteoform.model;
 
 import org.apache.log4j.Logger;
 
@@ -17,7 +17,7 @@ public class UniprotPTMAdapterFromCarbohydFeature implements Adapter<UniprotPTM>
 
 	@Override
 	public UniprotPTM adapt() {
-		int positionInProtein = Integer.valueOf(VariantsUtil.getLocationString(feature));
+		int positionInProtein = Integer.valueOf(ProteoformUtil.getLocationString(feature));
 		String modificationName = "";
 		if (feature.getCarbohydLinkType() != null) {
 			modificationName = feature.getCarbohydLinkType().getValue();

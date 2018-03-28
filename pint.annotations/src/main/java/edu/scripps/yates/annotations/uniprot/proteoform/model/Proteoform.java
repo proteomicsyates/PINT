@@ -1,18 +1,18 @@
-package edu.scripps.yates.annotations.uniprot.variant.model;
+package edu.scripps.yates.annotations.uniprot.proteoform.model;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Variant {
+public class Proteoform {
 	private final String id;
 	private final String seq;
 	private final String description;
 	private final boolean original;
-	private final VariantType variantType;
+	private final ProteoformType variantType;
 	private List<UniprotPTM> ptms = new ArrayList<UniprotPTM>();
 
-	public Variant(String id, String seq, String description, VariantType variantType, boolean original) {
+	public Proteoform(String id, String seq, String description, ProteoformType variantType, boolean original) {
 		this.id = id;
 		this.seq = seq;
 		this.description = description;
@@ -20,7 +20,7 @@ public class Variant {
 		this.original = original;
 	}
 
-	public Variant(String id, String seq, String description, VariantType variantType) {
+	public Proteoform(String id, String seq, String description, ProteoformType variantType) {
 		this(id, seq, description, variantType, false);
 	}
 
@@ -45,7 +45,7 @@ public class Variant {
 		return original;
 	}
 
-	public VariantType getVariantType() {
+	public ProteoformType getVariantType() {
 		return variantType;
 	}
 

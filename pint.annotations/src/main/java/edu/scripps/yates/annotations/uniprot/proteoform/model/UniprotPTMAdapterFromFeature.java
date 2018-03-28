@@ -1,4 +1,4 @@
-package edu.scripps.yates.annotations.uniprot.variant.model;
+package edu.scripps.yates.annotations.uniprot.proteoform.model;
 
 import org.apache.log4j.Logger;
 
@@ -17,8 +17,8 @@ public class UniprotPTMAdapterFromFeature implements Adapter<UniprotPTM> {
 
 	@Override
 	public UniprotPTM adapt() {
-		int positionInProtein = Integer.valueOf(VariantsUtil.getLocationString(feature));
-		String modificationName = VariantsUtil.getDescription(feature);
+		int positionInProtein = Integer.valueOf(ProteoformUtil.getLocationString(feature));
+		String modificationName = ProteoformUtil.getDescription(feature);
 		// sometimes it has an additional description after the name and a
 		// semicolon as
 		// "Phosphotyrosine; by FYN"

@@ -1,4 +1,4 @@
-package edu.scripps.yates.annotations.uniprot.variant;
+package edu.scripps.yates.annotations.uniprot.proteoform;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -15,14 +15,14 @@ import java.util.Set;
 import edu.scripps.yates.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.annotations.uniprot.UniprotFastaRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
-import edu.scripps.yates.annotations.uniprot.variant.model.UniprotPTM;
-import edu.scripps.yates.annotations.uniprot.variant.model.UniprotPTMAdapterFromCarbohydFeature;
-import edu.scripps.yates.annotations.uniprot.variant.model.UniprotPTMAdapterFromFeature;
-import edu.scripps.yates.annotations.uniprot.variant.model.Variant;
-import edu.scripps.yates.annotations.uniprot.variant.model.VariantAdapterFromConflictFeature;
-import edu.scripps.yates.annotations.uniprot.variant.model.VariantAdapterFromMutagenFeature;
-import edu.scripps.yates.annotations.uniprot.variant.model.VariantAdapterFromNaturalVariant;
-import edu.scripps.yates.annotations.uniprot.variant.model.VariantType;
+import edu.scripps.yates.annotations.uniprot.proteoform.model.UniprotPTM;
+import edu.scripps.yates.annotations.uniprot.proteoform.model.UniprotPTMAdapterFromCarbohydFeature;
+import edu.scripps.yates.annotations.uniprot.proteoform.model.UniprotPTMAdapterFromFeature;
+import edu.scripps.yates.annotations.uniprot.proteoform.model.Proteoform;
+import edu.scripps.yates.annotations.uniprot.proteoform.model.ProteoFormAdapterFromConflictFeature;
+import edu.scripps.yates.annotations.uniprot.proteoform.model.ProteoformAdapterFromMutagenFeature;
+import edu.scripps.yates.annotations.uniprot.proteoform.model.ProteoformAdapterFromNaturalVariant;
+import edu.scripps.yates.annotations.uniprot.proteoform.model.ProteoformType;
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
@@ -51,12 +51,12 @@ import uk.ac.ebi.uniprot.dataservice.query.Query;
  * @author Salva
  *
  */
-public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
+public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetriever {
 	private UniProtService service;
 	private final UniprotProteinLocalRetriever uplr;
 	private boolean retrievePTMs = true;
 
-	public UniprotVariantJAPIRetriever(UniprotProteinLocalRetriever uplr) {
+	public UniprotProteoformJAPIRetriever(UniprotProteinLocalRetriever uplr) {
 		this.uplr = uplr;
 	}
 
@@ -76,8 +76,8 @@ public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 	}
 
 	@Override
-	public List<Variant> getVariantsFromOneEntry(String uniprotACC) {
-		Map<String, List<Variant>> variants = getVariants(uniprotACC);
+	public List<Proteoform> getVariantsFromOneEntry(String uniprotACC) {
+		Map<String, List<Proteoform>> variants = getVariants(uniprotACC);
 		if (!variants.isEmpty()) {
 			return variants.get(uniprotACC);
 		}
@@ -85,8 +85,8 @@ public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 	}
 
 	@Override
-	public Map<String, List<Variant>> getVariants(Set<String> uniprotACCs) {
-		Map<String, List<Variant>> ret = new HashMap<String, List<Variant>>();
+	public Map<String, List<Proteoform>> getVariants(Set<String> uniprotACCs) {
+		Map<String, List<Proteoform>> ret = new HashMap<String, List<Proteoform>>();
 
 		try {
 			// start service
@@ -105,10 +105,10 @@ public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 				// original variant
 				String acc = mainEntry.getPrimaryUniProtAccession().getValue();
 				if (!ret.containsKey(acc)) {
-					List<Variant> list = new ArrayList<Variant>();
+					List<Proteoform> list = new ArrayList<Proteoform>();
 					ret.put(acc, list);
 				}
-				Variant originalvariant = new Variant(acc, originalSequence,
+				Proteoform originalvariant = new Proteoform(acc, originalSequence,
 						mainEntry.getProteinDescription().getRecommendedName().getFields().get(0).getValue(), null,
 						true);
 				ret.get(acc).add(originalvariant);
@@ -117,7 +117,7 @@ public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 				Collection<Feature> features = mainEntry.getFeatures(FeatureType.VARIANT);
 				for (Feature feature : features) {
 					VariantFeature varSeq = (VariantFeature) feature;
-					Variant variant = new VariantAdapterFromNaturalVariant(varSeq, originalSequence).adapt();
+					Proteoform variant = new ProteoformAdapterFromNaturalVariant(varSeq, originalSequence).adapt();
 					ret.get(acc).add(variant);
 				}
 				// alternative products
@@ -148,9 +148,9 @@ public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 						}
 						String isoformSequence = isoformEntry.getSequence().getValue();
 
-						Variant variant = new Variant(isoformACC, isoformSequence,
+						Proteoform variant = new Proteoform(isoformACC, isoformSequence,
 								mainEntry.getProteinDescription().getRecommendedName().getFields().get(0).getValue(),
-								VariantType.ISOFORM);
+								ProteoformType.ISOFORM);
 						ret.get(acc).add(variant);
 					}
 				} else {
@@ -160,8 +160,8 @@ public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 							Entry isoformEntry = entries.get(isoformACC);
 							String isoformSequence = UniprotEntryUtil.getProteinSequence(isoformEntry);
 							String description = UniprotEntryUtil.getProteinDescription(isoformEntry);
-							Variant variant = new Variant(isoformACC, isoformSequence, description,
-									VariantType.ISOFORM);
+							Proteoform variant = new Proteoform(isoformACC, isoformSequence, description,
+									ProteoformType.ISOFORM);
 							ret.get(acc).add(variant);
 						}
 					}
@@ -171,14 +171,14 @@ public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 				for (Feature feature : conflicts) {
 
 					ConflictFeature conflictFeature = (ConflictFeature) feature;
-					Variant variant = new VariantAdapterFromConflictFeature(conflictFeature, originalSequence).adapt();
+					Proteoform variant = new ProteoFormAdapterFromConflictFeature(conflictFeature, originalSequence).adapt();
 					ret.get(acc).add(variant);
 				}
 				// mutagens
 				Collection<Feature> mutagens = mainEntry.getFeatures(FeatureType.MUTAGEN);
 				for (Feature feature : mutagens) {
 					MutagenFeature mutagenFeature = (MutagenFeature) feature;
-					Variant variant = new VariantAdapterFromMutagenFeature(mutagenFeature, originalSequence).adapt();
+					Proteoform variant = new ProteoformAdapterFromMutagenFeature(mutagenFeature, originalSequence).adapt();
 					ret.get(acc).add(variant);
 				}
 				// ptms
@@ -225,7 +225,7 @@ public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 	}
 
 	@Override
-	public Map<String, List<Variant>> getVariants(String... uniprotACCs) {
+	public Map<String, List<Proteoform>> getVariants(String... uniprotACCs) {
 		List<String> asList = Arrays.asList(uniprotACCs);
 		return getVariants(new HashSet<String>(asList));
 	}

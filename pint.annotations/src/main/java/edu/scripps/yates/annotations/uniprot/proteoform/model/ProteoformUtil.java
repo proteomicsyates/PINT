@@ -1,4 +1,4 @@
-package edu.scripps.yates.annotations.uniprot.variant.model;
+package edu.scripps.yates.annotations.uniprot.proteoform.model;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import uk.ac.ebi.kraken.interfaces.uniprot.features.HasFeatureStatus;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.MutagenFeature;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.VariantFeature;
 
-public class VariantsUtil {
+public class ProteoformUtil {
 	public static String translateSequence(HasAlternativeSequence hasAlternativeSequence, String wholeOriginalSeq) {
 		List<FeatureSequence> alternativeSequences = hasAlternativeSequence.getAlternativeSequences();
 		String newSeq = "";
