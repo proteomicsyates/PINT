@@ -36,6 +36,23 @@ public class UniprotPTMCVReader {
 		return ptmsByIDMap.get(id);
 	}
 
+	public UniprotPTMCVTerm getPtmsByIDStart(String id2) {
+		final String pattern = "...)";
+		for (String id : ptmsByIDMap.keySet()) {
+			String tmp = id;
+			// only if id2 does not contains ...)
+			if (!id2.contains(pattern)) {
+				if (tmp.contains(pattern)) {
+					tmp = tmp.replace(pattern, "");
+				}
+			}
+			if (tmp.startsWith(id2) || id2.startsWith(tmp)) {
+				return ptmsByIDMap.get(id);
+			}
+		}
+		return null;
+	}
+
 	private UniprotPTMCVReader() {
 
 		String line = null;

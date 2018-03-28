@@ -11,8 +11,11 @@ public class Proteoform {
 	private final boolean original;
 	private final ProteoformType variantType;
 	private List<UniprotPTM> ptms = new ArrayList<UniprotPTM>();
+	private final String originalACC;
 
-	public Proteoform(String id, String seq, String description, ProteoformType variantType, boolean original) {
+	public Proteoform(String originalACC, String id, String seq, String description, ProteoformType variantType,
+			boolean original) {
+		this.originalACC = originalACC;
 		this.id = id;
 		this.seq = seq;
 		this.description = description;
@@ -20,8 +23,8 @@ public class Proteoform {
 		this.original = original;
 	}
 
-	public Proteoform(String id, String seq, String description, ProteoformType variantType) {
-		this(id, seq, description, variantType, false);
+	public Proteoform(String originalACC, String id, String seq, String description, ProteoformType variantType) {
+		this(originalACC, id, seq, description, variantType, false);
 	}
 
 	public String getId() {
@@ -61,5 +64,9 @@ public class Proteoform {
 	private void sortByPTMPosition() {
 		ptms = ptms.stream().sorted((e1, e2) -> Integer.compare(e1.getPositionInProtein(), e2.getPositionInProtein()))
 				.collect(Collectors.toList());
+	}
+
+	public String getOriginalACC() {
+		return originalACC;
 	}
 }

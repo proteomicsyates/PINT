@@ -562,7 +562,7 @@ public class UniprotProteinRemoteRetriever {
 		return ret;
 	}
 
-	public Map<String, Entry> getFASTASequencesInParallel(Set<String> accessions) {
+	public static Map<String, Entry> getFASTASequencesInParallel(Set<String> accessions) {
 		Set<String> validToLook = new THashSet<String>();
 		for (String acc : accessions) {
 			if (!entriesWithNoFASTA.contains(acc)) {

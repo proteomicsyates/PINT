@@ -6,10 +6,13 @@ import uk.ac.ebi.kraken.interfaces.uniprot.features.ConflictFeature;
 public class ProteoFormAdapterFromConflictFeature implements Adapter<Proteoform> {
 	private final ConflictFeature conflictFeature;
 	private final String wholeOriginalSeq;
+	private final String originalACC;
 
-	public ProteoFormAdapterFromConflictFeature(ConflictFeature conflictFeature, String wholeOriginalSeq) {
+	public ProteoFormAdapterFromConflictFeature(String originalACC, ConflictFeature conflictFeature,
+			String wholeOriginalSeq) {
 		this.conflictFeature = conflictFeature;
 		this.wholeOriginalSeq = wholeOriginalSeq;
+		this.originalACC = originalACC;
 	}
 
 	@Override
@@ -18,7 +21,7 @@ public class ProteoFormAdapterFromConflictFeature implements Adapter<Proteoform>
 
 		String seq = ProteoformUtil.translateSequence(conflictFeature, wholeOriginalSeq);
 		String description = ProteoformUtil.getDescription(conflictFeature);
-		Proteoform variant = new Proteoform(id, seq, description, ProteoformType.SEQUENCE_CONFLICT);
+		Proteoform variant = new Proteoform(originalACC, id, seq, description, ProteoformType.SEQUENCE_CONFLICT);
 		return variant;
 	}
 

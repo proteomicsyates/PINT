@@ -7,9 +7,9 @@ import java.util.Set;
 import edu.scripps.yates.annotations.uniprot.proteoform.model.Proteoform;
 
 public interface UniprotProteoformRetriever {
-	public List<Proteoform> getVariantsFromOneEntry(String uniprotACC);
+	public List<Proteoform> getProteoformsFromOneEntry(String uniprotACC);
 
-	public Map<String, List<Proteoform>> getVariants(Set<String> uniprotACCs);
+	public Map<String, List<Proteoform>> getProteoform(Set<String> uniprotACCs);
 
-	public Map<String, List<Proteoform>> getVariants(String... uniprotACCs);
+	public Map<String, List<Proteoform>> getProteoform(String... uniprotACCs);
 }
