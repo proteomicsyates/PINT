@@ -15,6 +15,9 @@ import java.util.Set;
 import edu.scripps.yates.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.annotations.uniprot.UniprotFastaRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
+import edu.scripps.yates.annotations.uniprot.variant.model.UniprotPTM;
+import edu.scripps.yates.annotations.uniprot.variant.model.UniprotPTMAdapterFromCarbohydFeature;
+import edu.scripps.yates.annotations.uniprot.variant.model.UniprotPTMAdapterFromFeature;
 import edu.scripps.yates.annotations.uniprot.variant.model.Variant;
 import edu.scripps.yates.annotations.uniprot.variant.model.VariantAdapterFromConflictFeature;
 import edu.scripps.yates.annotations.uniprot.variant.model.VariantAdapterFromMutagenFeature;
@@ -27,10 +30,13 @@ import uk.ac.ebi.kraken.interfaces.uniprot.comments.AlternativeProductsComment;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.AlternativeProductsIsoform;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.Comment;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.CommentType;
+import uk.ac.ebi.kraken.interfaces.uniprot.features.CarbohydFeature;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.ConflictFeature;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.Feature;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType;
+import uk.ac.ebi.kraken.interfaces.uniprot.features.ModResFeature;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.MutagenFeature;
+import uk.ac.ebi.kraken.interfaces.uniprot.features.SiteFeature;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.VariantFeature;
 import uk.ac.ebi.uniprot.dataservice.client.Client;
 import uk.ac.ebi.uniprot.dataservice.client.QueryResult;
@@ -48,6 +54,7 @@ import uk.ac.ebi.uniprot.dataservice.query.Query;
 public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 	private UniProtService service;
 	private final UniprotProteinLocalRetriever uplr;
+	private boolean retrievePTMs = true;
 
 	public UniprotVariantJAPIRetriever(UniprotProteinLocalRetriever uplr) {
 		this.uplr = uplr;
@@ -88,7 +95,9 @@ public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 			Query query = UniProtQueryBuilder.accessions(uniprotACCs)
 					.and(UniProtQueryBuilder.or(UniProtQueryBuilder.featuresType(FeatureType.VARIANT),
 							UniProtQueryBuilder.commentsType(CommentType.ALTERNATIVE_PRODUCTS),
-							UniProtQueryBuilder.featuresType(FeatureType.CONFLICT)));
+							UniProtQueryBuilder.featuresType(FeatureType.CONFLICT),
+							UniProtQueryBuilder.featuresType(FeatureType.MOD_RES),
+							UniProtQueryBuilder.featuresType(FeatureType.SITE)));
 			QueryResult<UniProtEntry> result = service.getEntries(query);
 			while (result.hasNext()) {
 				UniProtEntry mainEntry = result.next();
@@ -165,45 +174,50 @@ public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 					Variant variant = new VariantAdapterFromConflictFeature(conflictFeature, originalSequence).adapt();
 					ret.get(acc).add(variant);
 				}
-				// sequence conflicts
+				// mutagens
 				Collection<Feature> mutagens = mainEntry.getFeatures(FeatureType.MUTAGEN);
 				for (Feature feature : mutagens) {
-
 					MutagenFeature mutagenFeature = (MutagenFeature) feature;
 					Variant variant = new VariantAdapterFromMutagenFeature(mutagenFeature, originalSequence).adapt();
 					ret.get(acc).add(variant);
 				}
+				// ptms
+				if (retrievePTMs) {
+					Collection<Feature> modifiedResiduesFeatures = mainEntry.getFeatures(FeatureType.MOD_RES);
+					for (Feature feature : modifiedResiduesFeatures) {
+						ModResFeature modResFeature = (ModResFeature) feature;
+						UniprotPTM uniprotPTM = new UniprotPTMAdapterFromFeature(modResFeature).adapt();
+						if (uniprotPTM != null) {
+							originalvariant.addPTM(uniprotPTM);
+						}
+					}
+					Collection<Feature> siteFeatures = mainEntry.getFeatures(FeatureType.SITE);
+					for (Feature feature : siteFeatures) {
+						SiteFeature siteFeature = (SiteFeature) feature;
+						UniprotPTM uniprotPTM = new UniprotPTMAdapterFromFeature(siteFeature).adapt();
+						if (uniprotPTM != null) {
+							originalvariant.addPTM(uniprotPTM);
+						}
+					}
+					Collection<Feature> carbohydFeatures = mainEntry.getFeatures(FeatureType.CARBOHYD);
+					for (Feature feature : carbohydFeatures) {
+						CarbohydFeature carboHydFeature = (CarbohydFeature) feature;
+						UniprotPTM uniprotPTM = new UniprotPTMAdapterFromCarbohydFeature(carboHydFeature).adapt();
+						if (uniprotPTM != null) {
+							originalvariant.addPTM(uniprotPTM);
+						}
+					}
+				}
 			}
-		} catch (
-
-		ServiceException e)
-
-		{
+		} catch (ServiceException e) {
 			e.printStackTrace();
-		} catch (
-
-		URISyntaxException e)
-
-		{
-			// TODO Auto-generated catch block
+		} catch (URISyntaxException e) {
 			e.printStackTrace();
-		} catch (
-
-		IOException e)
-
-		{
-			// TODO Auto-generated catch block
+		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (
-
-		InterruptedException e)
-
-		{
-			// TODO Auto-generated catch block
+		} catch (InterruptedException e) {
 			e.printStackTrace();
-		} finally
-
-		{
+		} finally {
 			stopService();
 		}
 		return ret;
@@ -214,6 +228,14 @@ public class UniprotVariantJAPIRetriever implements UniprotVariantRetriever {
 	public Map<String, List<Variant>> getVariants(String... uniprotACCs) {
 		List<String> asList = Arrays.asList(uniprotACCs);
 		return getVariants(new HashSet<String>(asList));
+	}
+
+	public boolean isRetrievePTMs() {
+		return retrievePTMs;
+	}
+
+	public void setRetrievePTMs(boolean retrievePTMs) {
+		this.retrievePTMs = retrievePTMs;
 	}
 
 }

@@ -61,7 +61,7 @@ public class UniprotPTMCVReader {
 					ptmsByIDMap.put(term.getSingleValue(UniprotCVTermCode.ID), term);
 				}
 			}
-			log.info(ptmsByIDMap.size() + " PTM CV terms readed from Uniprot PTM mappring file " + ptmFileName);
+			log.info(ptmsByIDMap.size() + " PTM CV terms readed from Uniprot PTM mapping file '" + ptmFileName + "'");
 		} catch (IOException e) {
 			e.printStackTrace();
 
