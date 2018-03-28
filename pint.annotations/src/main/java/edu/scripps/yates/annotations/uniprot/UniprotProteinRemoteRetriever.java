@@ -562,7 +562,7 @@ public class UniprotProteinRemoteRetriever {
 		return ret;
 	}
 
-	private Map<String, Entry> getFASTASequencesInParallel(Set<String> accessions) {
+	public Map<String, Entry> getFASTASequencesInParallel(Set<String> accessions) {
 		Set<String> validToLook = new THashSet<String>();
 		for (String acc : accessions) {
 			if (!entriesWithNoFASTA.contains(acc)) {
@@ -860,7 +860,7 @@ public class UniprotProteinRemoteRetriever {
 					break;
 				}
 			}
-			log.info("Still missing: " + missingAccessions.size() + " accessions: " + allMissing.toString());
+			log.debug("Still missing: " + missingAccessions.size() + " accessions: " + allMissing.toString());
 			doNotFound.addAll(missingAccessions);
 		} else {
 			log.debug("No missing proteins. All were retrieved.");

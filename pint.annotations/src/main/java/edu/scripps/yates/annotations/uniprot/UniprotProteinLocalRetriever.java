@@ -376,7 +376,7 @@ public class UniprotProteinLocalRetriever {
 		UniprotXmlIndex uniprotIndex = null;
 		Set<String> missingProteinsAccs = new THashSet<String>();
 		File projectFolder = getUniprotAnnotationsFolder(uniprotVersion);
-		if (projectFolder != null && projectFolder.exists() && projectFolder.isDirectory()) {
+		if (projectFolder != null) {
 
 			if (useIndex) {
 				File uniprotXmlFile = getUniprotAnnotationsFile(uniprotVersion);

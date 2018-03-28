@@ -40,6 +40,9 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 	private Status status = Status.NOT_READY;
 
 	public UniprotXmlIndex(File file) throws IOException, JAXBException {
+		if (!file.exists()) {
+			file.getParentFile().mkdirs();
+		}
 		fileToIndex = file;
 		// create the index file
 		indexFile = new File(getIndexPathName(file));
