@@ -3,11 +3,15 @@ package edu.scripps.yates.annotations.uniprot;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.scripps.yates.annotations.uniprot.xml.CommentType;
 import edu.scripps.yates.annotations.uniprot.xml.DbReferenceType;
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.annotations.uniprot.xml.EvidencedStringType;
+import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.annotations.uniprot.xml.GeneNameType;
 import edu.scripps.yates.annotations.uniprot.xml.GeneType;
 import edu.scripps.yates.annotations.uniprot.xml.PropertyType;
+import edu.scripps.yates.annotations.uniprot.xml.ProteinType.SubmittedName;
 
 public class UniprotEntryUtil {
 	public static String getENSGID(Entry entry) {
@@ -84,8 +88,8 @@ public class UniprotEntryUtil {
 	}
 
 	/**
-	 * <dbReference type="Proteomes" id="UP000005640">
-	 * <property type="component" value="Chromosome 1"/> </dbReference>
+	 * <dbReference type="Proteomes" id="UP000005640"> <property type=
+	 * "component" value="Chromosome 1"/> </dbReference>
 	 * 
 	 * @param entry
 	 * @return
@@ -125,9 +129,53 @@ public class UniprotEntryUtil {
 					if (entry.getProtein().getRecommendedName().getFullName() != null) {
 						return entry.getProtein().getRecommendedName().getFullName().getValue();
 					}
+				} else {
+					if (entry.getProtein().getSubmittedName() != null) {
+						for (SubmittedName submittedName : entry.getProtein().getSubmittedName()) {
+							EvidencedStringType fullName = submittedName.getFullName();
+							if (fullName != null) {
+								String fullNameValue = fullName.getValue();
+								if (fullNameValue != null && !"".equals(fullNameValue)) {
+									return fullNameValue;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
 		return null;
+	}
+
+	public static List<CommentType> getComments(Entry entry,
+			uk.ac.ebi.kraken.interfaces.uniprot.comments.CommentType type) {
+		List<CommentType> ret = new ArrayList<CommentType>();
+		String typeString = type.toXmlDisplayName();
+		if (entry != null) {
+			if (entry.getComment() != null) {
+				for (CommentType comment : entry.getComment()) {
+					if (comment.getType().equals(typeString)) {
+						ret.add(comment);
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static List<FeatureType> getFeatures(Entry entry,
+			uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType type) {
+		List<FeatureType> ret = new ArrayList<FeatureType>();
+		String typeString = type.getValue();
+		if (entry != null) {
+			if (entry.getFeature() != null) {
+				for (FeatureType feature : entry.getFeature()) {
+					if (feature.getType().equals(typeString)) {
+						ret.add(feature);
+					}
+				}
+			}
+		}
+		return ret;
 	}
 }

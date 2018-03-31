@@ -1,4 +1,4 @@
-package edu.scripps.yates.annotations.uniprot.proteoform.model;
+package edu.scripps.yates.annotations.uniprot.proteoform.xml;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,14 +7,16 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.UniprotPTMCVReader;
 import edu.scripps.yates.annotations.uniprot.UniprotPTMCVTerm;
+import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformUtil;
+import edu.scripps.yates.annotations.uniprot.proteoform.UniprotPTM;
+import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.utilities.pattern.Adapter;
-import uk.ac.ebi.kraken.interfaces.uniprot.features.CrosslinkFeature;
 
 public class UniprotPTMAdapterFromCrosslinkFeature implements Adapter<List<UniprotPTM>> {
 	private final static Logger log = Logger.getLogger(UniprotPTMAdapterFromCrosslinkFeature.class);
-	private final CrosslinkFeature feature;
+	private final FeatureType feature;
 
-	public UniprotPTMAdapterFromCrosslinkFeature(CrosslinkFeature feature) {
+	public UniprotPTMAdapterFromCrosslinkFeature(FeatureType feature) {
 		this.feature = feature;
 	}
 

@@ -1,9 +1,11 @@
-package edu.scripps.yates.annotations.uniprot.proteoform.model;
+package edu.scripps.yates.annotations.uniprot.proteoform.japi;
 
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.UniprotPTMCVReader;
 import edu.scripps.yates.annotations.uniprot.UniprotPTMCVTerm;
+import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformUtil;
+import edu.scripps.yates.annotations.uniprot.proteoform.UniprotPTM;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.HasFeatureDescription;
 

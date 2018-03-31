@@ -1,5 +1,8 @@
-package edu.scripps.yates.annotations.uniprot.proteoform.model;
+package edu.scripps.yates.annotations.uniprot.proteoform.japi;
 
+import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
+import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformType;
+import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformUtil;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.ConflictFeature;
 
@@ -17,7 +20,7 @@ public class ProteoFormAdapterFromConflictFeature implements Adapter<Proteoform>
 
 	@Override
 	public Proteoform adapt() {
-		String id = "Conflict in " + ProteoformUtil.getLocationString(conflictFeature);
+		String id = originalACC + "_conflict_" + ProteoformUtil.getShortDescription(conflictFeature);
 
 		String seq = ProteoformUtil.translateSequence(conflictFeature, wholeOriginalSeq);
 		String description = ProteoformUtil.getDescription(conflictFeature);

@@ -1,4 +1,4 @@
-package edu.scripps.yates.annotations.uniprot.proteoform.model;
+package edu.scripps.yates.annotations.uniprot.proteoform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,17 +9,17 @@ public class Proteoform {
 	private final String seq;
 	private final String description;
 	private final boolean original;
-	private final ProteoformType variantType;
+	private final ProteoformType proteoformType;
 	private List<UniprotPTM> ptms = new ArrayList<UniprotPTM>();
 	private final String originalACC;
 
-	public Proteoform(String originalACC, String id, String seq, String description, ProteoformType variantType,
+	public Proteoform(String originalACC, String id, String seq, String description, ProteoformType proteoformType,
 			boolean original) {
 		this.originalACC = originalACC;
 		this.id = id;
 		this.seq = seq;
 		this.description = description;
-		this.variantType = variantType;
+		this.proteoformType = proteoformType;
 		this.original = original;
 	}
 
@@ -48,8 +48,8 @@ public class Proteoform {
 		return original;
 	}
 
-	public ProteoformType getVariantType() {
-		return variantType;
+	public ProteoformType getProteoformType() {
+		return proteoformType;
 	}
 
 	public List<UniprotPTM> getPtms() {

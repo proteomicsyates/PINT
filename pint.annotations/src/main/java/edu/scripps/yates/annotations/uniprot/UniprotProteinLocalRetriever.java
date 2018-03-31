@@ -244,6 +244,9 @@ public class UniprotProteinLocalRetriever {
 			throws JAXBException {
 		if (uniprotReleasesFolder == null)
 			return null;
+		if (uniprot == null || uniprot.getEntry() == null || uniprot.getEntry().isEmpty()) {
+			return null;
+		}
 		if (useIndex) {
 			// using index
 			final File projectFolder = getUniprotAnnotationsFolder(uniprotVersion);

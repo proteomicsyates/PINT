@@ -1,4 +1,4 @@
-package edu.scripps.yates.annotations.uniprot.proteoform.model;
+package edu.scripps.yates.annotations.uniprot.proteoform;
 
 import java.util.Map;
 import java.util.Set;

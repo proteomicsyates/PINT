@@ -1,4 +1,4 @@
-package edu.scripps.yates.annotations.uniprot.proteoform;
+package edu.scripps.yates.annotations.uniprot.proteoform.japi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,15 +15,10 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRemoteRetriever;
-import edu.scripps.yates.annotations.uniprot.proteoform.model.ProteoFormAdapterFromConflictFeature;
-import edu.scripps.yates.annotations.uniprot.proteoform.model.Proteoform;
-import edu.scripps.yates.annotations.uniprot.proteoform.model.ProteoformAdapterFromMutagenFeature;
-import edu.scripps.yates.annotations.uniprot.proteoform.model.ProteoformAdapterFromNaturalVariant;
-import edu.scripps.yates.annotations.uniprot.proteoform.model.ProteoformType;
-import edu.scripps.yates.annotations.uniprot.proteoform.model.UniprotPTM;
-import edu.scripps.yates.annotations.uniprot.proteoform.model.UniprotPTMAdapterFromCarbohydFeature;
-import edu.scripps.yates.annotations.uniprot.proteoform.model.UniprotPTMAdapterFromCrosslinkFeature;
-import edu.scripps.yates.annotations.uniprot.proteoform.model.UniprotPTMAdapterFromFeature;
+import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
+import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformType;
+import edu.scripps.yates.annotations.uniprot.proteoform.UniprotPTM;
+import edu.scripps.yates.annotations.uniprot.proteoform.UniprotProteoformRetriever;
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
@@ -83,7 +78,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 
 	@Override
 	public List<Proteoform> getProteoformsFromOneEntry(String uniprotACC) {
-		Map<String, List<Proteoform>> variants = getProteoform(uniprotACC);
+		Map<String, List<Proteoform>> variants = getProteoforms(uniprotACC);
 		if (!variants.isEmpty()) {
 			return variants.get(uniprotACC);
 		}
@@ -91,7 +86,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 	}
 
 	@Override
-	public Map<String, List<Proteoform>> getProteoform(Set<String> uniprotACCs) {
+	public Map<String, List<Proteoform>> getProteoforms(Set<String> uniprotACCs) {
 		return getProteoforms(uniprotACCs, defaultChunkSize);
 	}
 
@@ -119,7 +114,8 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 						int from = index;
 						int to = Math.min(from + chunkSize, uniprotAccList.size());
 						toQuery2.addAll(toQuery.subList(from, to));
-						log.info("Querying " + toQuery2.size() + " proteins from " + from + " to " + to);
+						log.info("Querying " + toQuery2.size() + " proteins from " + from + " to " + to + " out of "
+								+ uniprotAccList.size());
 						Query query = UniProtQueryBuilder.accessions(toQuery2)
 								.and(UniProtQueryBuilder.commentsType(CommentType.ALTERNATIVE_PRODUCTS));
 						QueryResult<UniProtEntry> result = service.getEntries(query);
@@ -150,7 +146,8 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 				int from = index;
 				int to = Math.min(from + chunkSize, uniprotAccList.size());
 				toQuery.addAll(uniprotAccList.subList(from, to));
-				log.info("Querying " + toQuery.size() + " proteins from " + from + " to " + to);
+				log.info("Querying " + toQuery.size() + " proteins from " + from + " to " + to + " out of "
+						+ uniprotAccList.size());
 
 				Query query = UniProtQueryBuilder.accessions(toQuery)
 						.and(UniProtQueryBuilder.or(UniProtQueryBuilder.featuresType(FeatureType.VARIANT),
@@ -172,9 +169,20 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 						List<Proteoform> list = new ArrayList<Proteoform>();
 						ret.put(acc, list);
 					}
-					Proteoform originalvariant = new Proteoform(acc, acc, originalSequence,
-							mainEntry.getProteinDescription().getRecommendedName().getFields().get(0).getValue(), null,
-							true);
+					String description = acc;
+					if (mainEntry.getProteinDescription() != null) {
+						if (mainEntry.getProteinDescription().getRecommendedName() != null) {
+							if (mainEntry.getProteinDescription().getRecommendedName().getFields() != null) {
+								if (!mainEntry.getProteinDescription().getRecommendedName().getFields().isEmpty()) {
+									description = mainEntry.getProteinDescription().getRecommendedName().getFields()
+											.get(0).getValue();
+								} else {
+									description = "Unknown";
+								}
+							}
+						}
+					}
+					Proteoform originalvariant = new Proteoform(acc, acc, originalSequence, description, null, true);
 					ret.get(acc).add(originalvariant);
 
 					// query for variants
@@ -227,8 +235,8 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 								if (entries.containsKey(isoformACC)) {
 									Entry isoformEntry = entries.get(isoformACC);
 									String isoformSequence = UniprotEntryUtil.getProteinSequence(isoformEntry);
-									String description = UniprotEntryUtil.getProteinDescription(isoformEntry);
-									Proteoform variant = new Proteoform(acc, isoformACC, isoformSequence, description,
+									String description2 = UniprotEntryUtil.getProteinDescription(isoformEntry);
+									Proteoform variant = new Proteoform(acc, isoformACC, isoformSequence, description2,
 											ProteoformType.ISOFORM);
 									ret.get(acc).add(variant);
 								}
@@ -317,9 +325,9 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 	}
 
 	@Override
-	public Map<String, List<Proteoform>> getProteoform(String... uniprotACCs) {
+	public Map<String, List<Proteoform>> getProteoforms(String... uniprotACCs) {
 		List<String> asList = Arrays.asList(uniprotACCs);
-		return getProteoform(new HashSet<String>(asList));
+		return getProteoforms(new HashSet<String>(asList));
 	}
 
 	public boolean isRetrievePTMs() {

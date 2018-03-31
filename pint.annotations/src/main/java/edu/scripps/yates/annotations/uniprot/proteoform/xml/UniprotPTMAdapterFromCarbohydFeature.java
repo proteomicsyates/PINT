@@ -1,17 +1,19 @@
-package edu.scripps.yates.annotations.uniprot.proteoform.model;
+package edu.scripps.yates.annotations.uniprot.proteoform.xml;
 
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.UniprotPTMCVReader;
 import edu.scripps.yates.annotations.uniprot.UniprotPTMCVTerm;
+import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformUtil;
+import edu.scripps.yates.annotations.uniprot.proteoform.UniprotPTM;
+import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.utilities.pattern.Adapter;
-import uk.ac.ebi.kraken.interfaces.uniprot.features.CarbohydFeature;
 
 public class UniprotPTMAdapterFromCarbohydFeature implements Adapter<UniprotPTM> {
 	private final static Logger log = Logger.getLogger(UniprotPTMAdapterFromCarbohydFeature.class);
-	private final CarbohydFeature feature;
+	private final FeatureType feature;
 
-	public UniprotPTMAdapterFromCarbohydFeature(CarbohydFeature feature) {
+	public UniprotPTMAdapterFromCarbohydFeature(FeatureType feature) {
 		this.feature = feature;
 	}
 
@@ -19,15 +21,10 @@ public class UniprotPTMAdapterFromCarbohydFeature implements Adapter<UniprotPTM>
 	public UniprotPTM adapt() {
 		int positionInProtein = Integer.valueOf(ProteoformUtil.getLocationString(feature));
 		String modificationName = "";
-		if (feature.getCarbohydLinkType() != null) {
-			modificationName = feature.getCarbohydLinkType().getValue();
+		if (feature.getDescription() != null) {
+			modificationName = feature.getDescription();
 		}
-		if (feature.getLinkedSugar() != null) {
-			if (!"".equals(modificationName)) {
-				modificationName += " ";
-			}
-			modificationName += feature.getLinkedSugar().getValue();
-		}
+
 		// sometimes it has an additional description after the name and a
 		// semicolon as
 		// "Phosphotyrosine; by FYN"
