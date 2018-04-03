@@ -10,19 +10,34 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 	private final VariantFeature varSeq;
 	private final String wholeOriginalSeq;
 	private final String originalACC;
+	private final String gene;
+	private final String taxonomy;
+	private final String originalDescription;
 
-	public ProteoformAdapterFromNaturalVariant(String originalACC, VariantFeature varSeq, String wholeOriginalSeq) {
+	public ProteoformAdapterFromNaturalVariant(String originalACC, String originalDescription, VariantFeature varSeq,
+			String wholeOriginalSeq, String taxonomy, String gene) {
 		this.varSeq = varSeq;
 		this.wholeOriginalSeq = wholeOriginalSeq;
 		this.originalACC = originalACC;
+		this.taxonomy = taxonomy;
+		this.gene = gene;
+		this.originalDescription = originalDescription;
 	}
 
 	@Override
 	public Proteoform adapt() {
-		String id = originalACC + "_" + varSeq.getFeatureId().getValue();
+		String featureID = varSeq.getFeatureId().getValue();
+
+		String id = originalACC;
+		if (featureID != null) {
+			id += "_" + featureID;
+		} else {
+			System.out.println(featureID);
+		}
 		String seq = ProteoformUtil.translateSequence(varSeq, wholeOriginalSeq);
-		String description = ProteoformUtil.getDescription(varSeq);
-		Proteoform variant = new Proteoform(originalACC, id, seq, description, ProteoformType.NATURAL_VARIANT);
+		String description = ProteoformUtil.getDescription(varSeq, originalDescription);
+		Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
+				ProteoformType.NATURAL_VARIANT);
 		return variant;
 	}
 

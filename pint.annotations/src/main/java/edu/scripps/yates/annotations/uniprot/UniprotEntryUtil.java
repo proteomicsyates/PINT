@@ -178,4 +178,26 @@ public class UniprotEntryUtil {
 		}
 		return ret;
 	}
+
+	public static String getPrimaryAccession(Entry entry) {
+		if (entry != null) {
+			if (entry.getAccession() != null) {
+				if (!entry.getAccession().isEmpty()) {
+					return entry.getAccession().get(0);
+				}
+			}
+		}
+		return null;
+	}
+
+	public static String getTaxonomy(Entry entry) {
+		if (entry != null) {
+			if (entry.getOrganism() != null && entry.getOrganism().getName() != null) {
+				if (!entry.getOrganism().getName().isEmpty()) {
+					return entry.getOrganism().getName().get(0).getValue();
+				}
+			}
+		}
+		return null;
+	}
 }

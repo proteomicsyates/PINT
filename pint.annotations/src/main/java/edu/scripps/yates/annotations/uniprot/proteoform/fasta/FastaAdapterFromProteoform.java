@@ -15,7 +15,14 @@ public class FastaAdapterFromProteoform implements Adapter<Fasta> {
 
 	@Override
 	public Fasta adapt() {
-		Fasta fasta = new FastaImpl(">" + proteoform.getId() + " " + proteoform.getDescription(), proteoform.getSeq());
+		String defline = ">sp|" + proteoform.getId() + "| " + proteoform.getDescription();
+		if (proteoform.getGene() != null) {
+			defline += " GN=" + proteoform.getGene();
+		}
+		if (proteoform.getTaxonomy() != null) {
+			defline += " OS=" + proteoform.getTaxonomy();
+		}
+		Fasta fasta = new FastaImpl(defline, proteoform.getSeq());
 		return fasta;
 	}
 

@@ -12,19 +12,24 @@ public class Proteoform {
 	private final ProteoformType proteoformType;
 	private List<UniprotPTM> ptms = new ArrayList<UniprotPTM>();
 	private final String originalACC;
+	private final String gene;
+	private final String taxonomy;
 
-	public Proteoform(String originalACC, String id, String seq, String description, ProteoformType proteoformType,
-			boolean original) {
+	public Proteoform(String originalACC, String id, String seq, String description, String gene, String taxonomy,
+			ProteoformType proteoformType, boolean original) {
 		this.originalACC = originalACC;
 		this.id = id;
 		this.seq = seq;
 		this.description = description;
+		this.gene = gene;
+		this.taxonomy = taxonomy;
 		this.proteoformType = proteoformType;
 		this.original = original;
 	}
 
-	public Proteoform(String originalACC, String id, String seq, String description, ProteoformType variantType) {
-		this(originalACC, id, seq, description, variantType, false);
+	public Proteoform(String originalACC, String id, String seq, String description, String gene, String taxonomy,
+			ProteoformType variantType) {
+		this(originalACC, id, seq, description, gene, taxonomy, variantType, false);
 	}
 
 	public String getId() {
@@ -68,5 +73,13 @@ public class Proteoform {
 
 	public String getOriginalACC() {
 		return originalACC;
+	}
+
+	public String getGene() {
+		return gene;
+	}
+
+	public String getTaxonomy() {
+		return taxonomy;
 	}
 }

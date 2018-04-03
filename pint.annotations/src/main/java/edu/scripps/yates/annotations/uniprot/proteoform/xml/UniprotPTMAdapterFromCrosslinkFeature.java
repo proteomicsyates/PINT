@@ -24,7 +24,7 @@ public class UniprotPTMAdapterFromCrosslinkFeature implements Adapter<List<Unipr
 	public List<UniprotPTM> adapt() {
 		List<UniprotPTM> ret = new ArrayList<UniprotPTM>();
 		String locationString = ProteoformUtil.getLocationString(feature);
-		String modificationName = ProteoformUtil.getDescription(feature);
+		String modificationName = ProteoformUtil.getDescription(feature, null);
 		// sometimes it has an additional description after the name and a
 		// semicolon as
 		// "Phosphotyrosine; by FYN"

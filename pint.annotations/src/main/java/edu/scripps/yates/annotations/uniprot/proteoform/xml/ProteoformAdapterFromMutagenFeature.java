@@ -10,19 +10,27 @@ public class ProteoformAdapterFromMutagenFeature implements Adapter<Proteoform> 
 	private final FeatureType feature;
 	private final String wholeOriginalSeq;
 	private final String originalACC;
+	private final String taxonomy;
+	private final String gene;
+	private final String originalDescription;
 
-	public ProteoformAdapterFromMutagenFeature(String originalACC, FeatureType varSeq, String wholeOriginalSeq) {
+	public ProteoformAdapterFromMutagenFeature(String originalACC, String originalDescription, FeatureType varSeq,
+			String wholeOriginalSeq, String gene, String taxonomy) {
 		this.feature = varSeq;
 		this.wholeOriginalSeq = wholeOriginalSeq;
 		this.originalACC = originalACC;
+		this.taxonomy = taxonomy;
+		this.gene = gene;
+		this.originalDescription = originalDescription;
 	}
 
 	@Override
 	public Proteoform adapt() {
 		String id = originalACC + "_mutated_" + ProteoformUtil.getShortDescription(feature);
 		String seq = ProteoformUtil.translateSequence(feature, wholeOriginalSeq);
-		String description = ProteoformUtil.getDescription(feature);
-		Proteoform variant = new Proteoform(originalACC, id, seq, description, ProteoformType.NATURAL_VARIANT);
+		String description = ProteoformUtil.getDescription(feature, originalDescription);
+		Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
+				ProteoformType.NATURAL_VARIANT);
 		return variant;
 	}
 

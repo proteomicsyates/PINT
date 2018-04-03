@@ -82,14 +82,20 @@ public class ProteoformUtil {
 		return sb.toString();
 	}
 
-	public static String getDescription(Feature feature) {
+	public static String getDescription(Feature feature, String originalDescription) {
 		StringBuilder sb = new StringBuilder();
+		if (originalDescription != null) {
+			sb.append(originalDescription);
+		}
 		if (feature instanceof HasAlternativeSequence) {
 			HasAlternativeSequence alternativeSequenceHolder = (HasAlternativeSequence) feature;
 			String from = alternativeSequenceHolder.getOriginalSequence().getValue();
 			String to = null;
 			if (!alternativeSequenceHolder.getAlternativeSequences().isEmpty()) {
 				to = alternativeSequenceHolder.getAlternativeSequences().get(0).getValue();
+			}
+			if (!"".equals(sb.toString())) {
+				sb.append(", ");
 			}
 			if (!"".equals(from)) {
 				sb.append(from).append(" -> ");
@@ -171,9 +177,11 @@ public class ProteoformUtil {
 		return sb.toString();
 	}
 
-	public static String getDescription(FeatureType feature) {
+	public static String getDescription(FeatureType feature, String originalDescription) {
 		StringBuilder sb = new StringBuilder();
-
+		if (originalDescription != null) {
+			sb.append(originalDescription);
+		}
 		if (feature.getDescription() != null && !"".equals(feature.getDescription())) {
 			String descriptionValue = feature.getDescription();
 			if (!"".equals(descriptionValue) && !"".equals(sb.toString())) {
@@ -226,4 +234,5 @@ public class ProteoformUtil {
 		}
 		return sb.toString();
 	}
+
 }

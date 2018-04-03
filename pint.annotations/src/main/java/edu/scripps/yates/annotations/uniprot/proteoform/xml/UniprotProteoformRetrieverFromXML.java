@@ -107,8 +107,14 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 						ret.put(acc, list);
 					}
 					String description = UniprotEntryUtil.getProteinDescription(entry);
-
-					Proteoform originalvariant = new Proteoform(acc, acc, originalSequence, description, null, true);
+					String taxonomy = UniprotEntryUtil.getTaxonomy(entry);
+					List<String> genes = UniprotEntryUtil.getGeneName(entry, true, true);
+					String gene = null;
+					if (genes != null && !genes.isEmpty()) {
+						gene = genes.get(0);
+					}
+					Proteoform originalvariant = new Proteoform(acc, acc, originalSequence, description, gene, taxonomy,
+							null, true);
 					ret.get(acc).add(originalvariant);
 
 					// query for variants
@@ -116,8 +122,8 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 							uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.VARIANT);
 					for (FeatureType feature : features) {
 
-						Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, feature, originalSequence)
-								.adapt();
+						Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, description, feature,
+								originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}
 					// alternative products
@@ -146,8 +152,14 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								Entry isoformEntry = entries.get(isoformACC);
 								String isoformSequence = UniprotEntryUtil.getProteinSequence(isoformEntry);
 								String description2 = UniprotEntryUtil.getProteinDescription(isoformEntry);
+								String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
+								List<String> genes2 = UniprotEntryUtil.getGeneName(isoformEntry, true, true);
+								String gene2 = null;
+								if (genes2 != null && !genes2.isEmpty()) {
+									gene2 = genes2.get(0);
+								}
 								Proteoform variant = new Proteoform(acc, isoformACC, isoformSequence, description2,
-										ProteoformType.ISOFORM);
+										gene2, taxonomy2, ProteoformType.ISOFORM);
 								ret.get(acc).add(variant);
 							}
 						}
@@ -157,16 +169,16 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					Collection<FeatureType> conflicts = UniprotEntryUtil.getFeatures(entry,
 							uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CONFLICT);
 					for (FeatureType feature : conflicts) {
-						Proteoform variant = new ProteoFormAdapterFromConflictFeature(acc, feature, originalSequence)
-								.adapt();
+						Proteoform variant = new ProteoformAdapterFromConflictFeature(acc, description, feature,
+								originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}
 					// mutagens
 					Collection<FeatureType> mutagens = UniprotEntryUtil.getFeatures(entry,
 							uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.MUTAGEN);
 					for (FeatureType feature : mutagens) {
-						Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, feature, originalSequence)
-								.adapt();
+						Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, description, feature,
+								originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}
 					// ptms

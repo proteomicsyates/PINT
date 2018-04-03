@@ -22,6 +22,7 @@ import edu.scripps.yates.annotations.uniprot.proteoform.UniprotProteoformRetriev
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
+import uk.ac.ebi.kraken.interfaces.uniprot.Gene;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.AlternativeProductsComment;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.AlternativeProductsIsoform;
@@ -182,15 +183,29 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 							}
 						}
 					}
-					Proteoform originalvariant = new Proteoform(acc, acc, originalSequence, description, null, true);
+					String gene = null;
+					if (mainEntry.getGenes() != null && !mainEntry.getGenes().isEmpty()) {
+						Gene geneObj = mainEntry.getGenes().get(0);
+						if (geneObj.getGeneName() != null) {
+							gene = geneObj.getGeneName().getValue();
+						}
+					}
+					String taxonomy = null;
+					if (mainEntry.getOrganism() != null) {
+						if (mainEntry.getOrganism().getScientificName() != null) {
+							taxonomy = mainEntry.getOrganism().getScientificName().getValue();
+						}
+					}
+					Proteoform originalvariant = new Proteoform(acc, acc, originalSequence, description, gene, taxonomy,
+							null, true);
 					ret.get(acc).add(originalvariant);
 
 					// query for variants
 					Collection<Feature> features = mainEntry.getFeatures(FeatureType.VARIANT);
 					for (Feature feature : features) {
 						VariantFeature varSeq = (VariantFeature) feature;
-						Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, varSeq, originalSequence)
-								.adapt();
+						Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, description, varSeq,
+								originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}
 					// alternative products
@@ -222,11 +237,17 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 									continue;
 								}
 								String isoformSequence = isoformEntry.getSequence().getValue();
+								List<String> geneNames = UniprotEntryUtil.getGeneName(isoformEntry, true, true);
+								String gene2 = null;
+								if (geneNames.isEmpty()) {
+									gene2 = geneNames.get(0);
+								}
+								String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
 
-								Proteoform variant = new Proteoform(acc,
-										isoformACC, isoformSequence, mainEntry.getProteinDescription()
-												.getRecommendedName().getFields().get(0).getValue(),
-										ProteoformType.ISOFORM);
+								Proteoform variant = new Proteoform(acc, isoformACC,
+										isoformSequence, mainEntry.getProteinDescription().getRecommendedName()
+												.getFields().get(0).getValue(),
+										gene2, taxonomy2, ProteoformType.ISOFORM);
 								ret.get(acc).add(variant);
 							}
 						} else {
@@ -236,8 +257,14 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 									Entry isoformEntry = entries.get(isoformACC);
 									String isoformSequence = UniprotEntryUtil.getProteinSequence(isoformEntry);
 									String description2 = UniprotEntryUtil.getProteinDescription(isoformEntry);
+									List<String> geneNames = UniprotEntryUtil.getGeneName(isoformEntry, true, true);
+									String gene2 = null;
+									if (geneNames.isEmpty()) {
+										gene2 = geneNames.get(0);
+									}
+									String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
 									Proteoform variant = new Proteoform(acc, isoformACC, isoformSequence, description2,
-											ProteoformType.ISOFORM);
+											gene2, taxonomy2, ProteoformType.ISOFORM);
 									ret.get(acc).add(variant);
 								}
 							}
@@ -248,16 +275,16 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 					for (Feature feature : conflicts) {
 
 						ConflictFeature conflictFeature = (ConflictFeature) feature;
-						Proteoform variant = new ProteoFormAdapterFromConflictFeature(acc, conflictFeature,
-								originalSequence).adapt();
+						Proteoform variant = new ProteoFormAdapterFromConflictFeature(acc, description, conflictFeature,
+								originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}
 					// mutagens
 					Collection<Feature> mutagens = mainEntry.getFeatures(FeatureType.MUTAGEN);
 					for (Feature feature : mutagens) {
 						MutagenFeature mutagenFeature = (MutagenFeature) feature;
-						Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, mutagenFeature,
-								originalSequence).adapt();
+						Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, description, mutagenFeature,
+								originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}
 					// ptms

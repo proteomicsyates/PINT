@@ -44,6 +44,9 @@ public class ProteoFormFastaReader extends FastaReader {
 				loader.load(fastaFileName);
 				while ((protein = loader.nextProtein()) != null) {
 					String accession = protein.getHeader().getAccession();
+					if (accession == null) {
+						accession = protein.getHeader().getAccessionOrRest();
+					}
 					String uniprotAccession = FastaParser.getUniProtACC(accession);
 					if (uniprotAccession != null) {
 						uniprotACCs.add(uniprotAccession);
