@@ -88,6 +88,9 @@ public class UniprotProteinRemoteRetriever {
 	private static boolean notTryUntilNextDay;
 	protected static final Set<String> entriesWithNoFASTA = new THashSet<String>();
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	// it cannot be multithread to write in a file
+	// private final ExecutorService executor = Executors.newCachedThreadPool();
+
 	// service
 
 	/**
@@ -458,7 +461,7 @@ public class UniprotProteinRemoteRetriever {
 			long t1 = System.currentTimeMillis();
 			File file = FileUtils.getFileFromInputStream(is);
 			file.deleteOnExit();
-			log.info("Input stream saved as file " + FileUtils.getDescriptiveSizeFromBytes(file.length()) + " in "
+			log.debug("Input stream saved as file " + FileUtils.getDescriptiveSizeFromBytes(file.length()) + " in "
 					+ DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
 			long t2 = System.currentTimeMillis();
 			Uniprot uniprot = (Uniprot) unmarshaller.unmarshal(file);
