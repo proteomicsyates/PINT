@@ -56,7 +56,7 @@ public class UniprotProteinLocalRetriever {
 
 	private static final UniprotEntryCache cache = new UniprotEntryCache();
 	private boolean retrieveFastaIsoforms = true;
-	private List<String> entryKeys = new ArrayList<>();
+	private final List<String> entryKeys = new ArrayList<>();
 	// private static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
 
 	/**
@@ -72,7 +72,7 @@ public class UniprotProteinLocalRetriever {
 		if (jaxbContext == null) {
 			try {
 				jaxbContext = JAXBContext.newInstance(Uniprot.class);
-			} catch (JAXBException e) {
+			} catch (final JAXBException e) {
 				e.printStackTrace();
 			}
 		}
@@ -89,9 +89,9 @@ public class UniprotProteinLocalRetriever {
 	public static Set<String> getMissingAccessions(Collection<String> accessionsToQuery,
 			Map<String, ?> proteinsRetrieved) {
 
-		Set<String> missingAccessions = new THashSet<>();
+		final Set<String> missingAccessions = new THashSet<>();
 		if (proteinsRetrieved.isEmpty()) {
-			for (String accession : accessionsToQuery) {
+			for (final String accession : accessionsToQuery) {
 				// changed in Dec2016
 				// String nonIsoFormAcc = getNoIsoformAccession(accession);
 				// missingAccessions.add(nonIsoFormAcc);
@@ -99,7 +99,7 @@ public class UniprotProteinLocalRetriever {
 			}
 		} else {
 
-			for (String accession : accessionsToQuery) {
+			for (final String accession : accessionsToQuery) {
 
 				// String nonIsoFormAcc = getNoIsoformAccession(accession);
 				// if (!proteinsRetrieved.containsKey(nonIsoFormAcc)) {
@@ -128,11 +128,11 @@ public class UniprotProteinLocalRetriever {
 		// Map<String, Protein> ret = new THashMap<String, Protein>();
 		try {
 
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Uniprot uniprot = (Uniprot) unmarshaller.unmarshal(xmlFile);
+			final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			final Uniprot uniprot = (Uniprot) unmarshaller.unmarshal(xmlFile);
 			// ret = convertUniprotEntries2Proteins(uniprot);
 			return uniprot.getEntry();
-		} catch (JAXBException e) {
+		} catch (final JAXBException e) {
 			e.printStackTrace();
 			log.warn(e.getMessage());
 		}
@@ -175,33 +175,33 @@ public class UniprotProteinLocalRetriever {
 	}
 
 	public Set<String> getUniprotVersionsForProjects(Map<String, Date> uploadedDateByProjectTags) {
-		Set<String> ret = new THashSet<>();
+		final Set<String> ret = new THashSet<>();
 		if (uniprotReleasesFolder != null) {
-			File uniprotReleasesFile = getUniprotReleasesDatesFile();
+			final File uniprotReleasesFile = getUniprotReleasesDatesFile();
 			if (uniprotReleasesFile.exists()) {
 				Map<Object, Object> mapLines;
 				try {
 					mapLines = Files.lines(Paths.get(uniprotReleasesFile.toURI())).collect(Collectors
 							.toMap(line -> line.toString().split("\t")[1], line -> line.toString().split("\t")[0]));
 
-					for (String projectTag : uploadedDateByProjectTags.keySet()) {
-						Date uploadDate = uploadedDateByProjectTags.get(projectTag);
+					for (final String projectTag : uploadedDateByProjectTags.keySet()) {
+						final Date uploadDate = uploadedDateByProjectTags.get(projectTag);
 
-						for (Object key : mapLines.keySet()) {
-							DateFormat df = new SimpleDateFormat("yyyy MM dd");
+						for (final Object key : mapLines.keySet()) {
+							final DateFormat df = new SimpleDateFormat("yyyy MM dd");
 							Date uniprotReleaseDate;
 							try {
 								uniprotReleaseDate = df.parse(key.toString());
 								if (uploadDate.before(uniprotReleaseDate) || uploadDate.equals(uniprotReleaseDate)) {
 									ret.add(mapLines.get(key).toString());
 								}
-							} catch (ParseException e) {
+							} catch (final ParseException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
 					}
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -257,7 +257,7 @@ public class UniprotProteinLocalRetriever {
 				if (created)
 					log.info(projectFolder.getAbsoluteFile() + " created in the local file system");
 			}
-			File file = getUniprotAnnotationsFile(uniprotVersion);
+			final File file = getUniprotAnnotationsFile(uniprotVersion);
 			try {
 				UniprotXmlIndex uniprotIndex = null;
 				if (loadedIndexes.containsKey(file)) {
@@ -267,17 +267,17 @@ public class UniprotProteinLocalRetriever {
 					loadedIndexes.put(file, uniprotIndex);
 				}
 				final List<Entry> entries = uniprot.getEntry();
-				for (Entry entry : entries) {
+				for (final Entry entry : entries) {
 					uniprotIndex.addItem(entry, null);
 				}
 				if (entries.size() > 1) {
 					log.info(entries.size() + " entries added to index of uniprot version " + uniprotVersion);
 				} else {
-					log.info(entries.get(0).getAccession().get(0) + " entry added to index of uniprot version "
+					log.debug(entries.get(0).getAccession().get(0) + " entry added to index of uniprot version "
 							+ uniprotVersion);
 				}
 				return uniprotIndex.getIndexedFile();
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 				log.error(e.getMessage());
 			}
@@ -296,8 +296,8 @@ public class UniprotProteinLocalRetriever {
 		final boolean created = projectFolder.mkdirs();
 		if (created)
 			log.info(projectFolder.getAbsoluteFile() + " created in the local file system");
-		String fileName = getAvailableFileName(projectFolder);
-		File filetoCreate = new File(projectFolder + File.separator + fileName);
+		final String fileName = getAvailableFileName(projectFolder);
+		final File filetoCreate = new File(projectFolder + File.separator + fileName);
 		final Marshaller marshaller = jaxbContext.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
 		marshaller.marshal(uniprot, filetoCreate);
@@ -311,7 +311,7 @@ public class UniprotProteinLocalRetriever {
 	}
 
 	public Map<String, Entry> getAnnotatedProtein(String uniprotVersion, String accession) {
-		Set<String> accessions = new THashSet<>();
+		final Set<String> accessions = new THashSet<>();
 		accessions.add(accession);
 		return getAnnotatedProteins(uniprotVersion, accessions);
 	}
@@ -322,14 +322,14 @@ public class UniprotProteinLocalRetriever {
 
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions,
 			boolean retrieveFastaIsoforms) {
-		Set<String> accsToSearch = new THashSet<>();
-		Set<String> mainIsoforms = new THashSet<>();
-		for (String acc : accessions) {
+		final Set<String> accsToSearch = new THashSet<>();
+		final Set<String> mainIsoforms = new THashSet<>();
+		for (final String acc : accessions) {
 			// only search for the uniprot ones
 			if (!FastaParser.isContaminant(acc) && !FastaParser.isReverse(acc)
 					&& FastaParser.getUniProtACC(acc) != null) {
 				if ("1".equals(FastaParser.getIsoformVersion(acc))) {
-					String noIsoAcc = FastaParser.getNoIsoformAccession(acc);
+					final String noIsoAcc = FastaParser.getNoIsoformAccession(acc);
 					if (noIsoAcc != null) {
 						log.debug("Registered main isoform accession: " + acc);
 						accsToSearch.add(noIsoAcc);
@@ -341,18 +341,18 @@ public class UniprotProteinLocalRetriever {
 			}
 		}
 
-		List<Entry> entries = new ArrayList<>();
+		final List<Entry> entries = new ArrayList<>();
 		if (cacheEnabled && !cache.isEmpty()) {
 			int foundInCache = 0;
 			// look into cache if enabled
-			int toFindInCache = accsToSearch.size();
-			Iterator<String> iterator = accsToSearch.iterator();
+			final int toFindInCache = accsToSearch.size();
+			final Iterator<String> iterator = accsToSearch.iterator();
 			while (iterator.hasNext()) {
 				if (Thread.currentThread().isInterrupted()) {
 					throw new RuntimeException("Thread interrupted");
 				}
-				String acc = iterator.next();
-				Entry cachedEntry = cache.getFromCache(acc);
+				final String acc = iterator.next();
+				final Entry cachedEntry = cache.getFromCache(acc);
 				if (cachedEntry != null) {
 					entries.add(cachedEntry);
 					iterator.remove();
@@ -362,7 +362,7 @@ public class UniprotProteinLocalRetriever {
 
 			log.debug(foundInCache + " entries found in cache");
 			if (foundInCache == toFindInCache) {
-				Map<String, Entry> queryProteinsMap = new THashMap<>();
+				final Map<String, Entry> queryProteinsMap = new THashMap<>();
 				addEntriesToMap(queryProteinsMap, entries);
 				return queryProteinsMap;
 			}
@@ -382,11 +382,11 @@ public class UniprotProteinLocalRetriever {
 		}
 		UniprotXmlIndex uniprotIndex = null;
 		Set<String> missingProteinsAccs = new THashSet<>();
-		File projectFolder = getUniprotAnnotationsFolder(uniprotVersion);
+		final File projectFolder = getUniprotAnnotationsFolder(uniprotVersion);
 		if (projectFolder != null) {
 
 			if (useIndex) {
-				File uniprotXmlFile = getUniprotAnnotationsFile(uniprotVersion);
+				final File uniprotXmlFile = getUniprotAnnotationsFile(uniprotVersion);
 				try {
 
 					if (loadedIndexes.containsKey(uniprotXmlFile)) {
@@ -399,11 +399,11 @@ public class UniprotProteinLocalRetriever {
 					if (!uniprotIndex.isEmpty()) {
 						log.info("Looking " + accsToSearch.size() + " entries in the local index of annotations at "
 								+ uniprotXmlFile.getAbsolutePath());
-						ProgressCounter counter = new ProgressCounter(accsToSearch.size(),
+						final ProgressCounter counter = new ProgressCounter(accsToSearch.size(),
 								ProgressPrintingType.PERCENTAGE_STEPS, 0);
-						for (String acc : accsToSearch) {
+						for (final String acc : accsToSearch) {
 							counter.increment();
-							String printIfNecessary = counter.printIfNecessary();
+							final String printIfNecessary = counter.printIfNecessary();
 							if (!"".equals(printIfNecessary)) {
 								log.info(printIfNecessary);
 							}
@@ -425,10 +425,10 @@ public class UniprotProteinLocalRetriever {
 						}
 					}
 
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 					log.error(e.getMessage());
-				} catch (JAXBException e) {
+				} catch (final JAXBException e) {
 					e.printStackTrace();
 					log.error(e.getMessage());
 				}
@@ -453,7 +453,7 @@ public class UniprotProteinLocalRetriever {
 							if (mergedEntries != null) {
 								entries.addAll(mergedEntries);
 							}
-						} catch (JAXBException e) {
+						} catch (final JAXBException e) {
 							e.printStackTrace();
 							log.warn("Error trying to unify the uniprot xml files");
 						}
@@ -464,7 +464,7 @@ public class UniprotProteinLocalRetriever {
 					}
 				}
 			}
-			Map<String, Entry> queryProteinsMap = new THashMap<>();
+			final Map<String, Entry> queryProteinsMap = new THashMap<>();
 			addEntriesToMap(queryProteinsMap, entries);// noIsoformAccs,
 														// queryProteinsMap,
 														// entries);
@@ -475,12 +475,12 @@ public class UniprotProteinLocalRetriever {
 
 			if (!missingProteinsAccs.isEmpty()) {
 				try {
-					UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever(uniprotReleasesFolder,
+					final UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever(uniprotReleasesFolder,
 							useIndex);
 					uprr.setLookForIsoforms(retrieveFastaIsoforms);
 					log.debug("Trying to retrieve  " + missingProteinsAccs.size()
 							+ " proteins that were not present in the local system");
-					Map<String, Entry> annotatedProteins = uprr.getAnnotatedProteins(uniprotVersion,
+					final Map<String, Entry> annotatedProteins = uprr.getAnnotatedProteins(uniprotVersion,
 							missingProteinsAccs, uniprotIndex, cache);
 					if (cacheEnabled) {
 						checkMemoryForCache(annotatedProteins.size());
@@ -488,7 +488,7 @@ public class UniprotProteinLocalRetriever {
 					}
 					queryProteinsMap.putAll(annotatedProteins);
 					missingAccessions = uprr.getMissingAccessions();
-				} catch (IllegalArgumentException e) {
+				} catch (final IllegalArgumentException e) {
 					log.warn(e.getMessage());
 					log.warn("It is not possible to get remote information using the argument uniprot version: "
 							+ uniprotVersion);
@@ -503,7 +503,7 @@ public class UniprotProteinLocalRetriever {
 
 			// map main isoforms to the corresponding no isoform entries,
 			// that is an entry like P12345-1 to P12345
-			for (String mainIsoform : mainIsoforms) {
+			for (final String mainIsoform : mainIsoforms) {
 				if (Thread.currentThread().isInterrupted()) {
 					throw new RuntimeException("Thread interrupted");
 				}
@@ -529,12 +529,13 @@ public class UniprotProteinLocalRetriever {
 				}
 				log.info("Local information (local index folder) not found " + folderPath);
 				log.info("Trying to get it remotely from Uniprot repository");
-				UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever(uniprotReleasesFolder, useIndex);
+				final UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever(uniprotReleasesFolder,
+						useIndex);
 				final Map<String, Entry> queryProteinsMap = uprr.getAnnotatedProteins(uniprotVersion, accsToSearch,
 						uniprotIndex, cache);
 				// map main isoforms to the corresponding no isoform entries,
 				// that is an entry like P12345-1 to P12345
-				for (String mainIsoform : mainIsoforms) {
+				for (final String mainIsoform : mainIsoforms) {
 					if (Thread.currentThread().isInterrupted()) {
 						throw new RuntimeException("Thread interrupted");
 					}
@@ -548,7 +549,7 @@ public class UniprotProteinLocalRetriever {
 					}
 				}
 				return queryProteinsMap;
-			} catch (IllegalArgumentException e) {
+			} catch (final IllegalArgumentException e) {
 				log.info(e.getMessage());
 				log.info("It is not possible to get information using the argument uniprot version: " + uniprotVersion);
 				return new THashMap<>();
@@ -557,7 +558,7 @@ public class UniprotProteinLocalRetriever {
 	}
 
 	private void checkMemoryForCache(int numItems) {
-		double freeMemoryPercentage = MemoryUsageReport.getFreeMemoryPercentage();
+		final double freeMemoryPercentage = MemoryUsageReport.getFreeMemoryPercentage();
 		if (freeMemoryPercentage < MemoryUsageReport.RECOMMENDED_MINIMUM_MEMORY_PERCENTAGE) {
 			// remove one item from cache
 			log.warn("Memory free is under " + MemoryUsageReport.RECOMMENDED_MINIMUM_MEMORY_PERCENTAGE + "%: "
@@ -569,9 +570,9 @@ public class UniprotProteinLocalRetriever {
 	}
 
 	private void removeFirstEntryFromCache() {
-		Entry entry = cache.getFromCache(getFirstEntryKeyFromCache());
-		List<String> accession = entry.getAccession();
-		for (String acc : accession) {
+		final Entry entry = cache.getFromCache(getFirstEntryKeyFromCache());
+		final List<String> accession = entry.getAccession();
+		for (final String acc : accession) {
 			cache.removeFromCache(acc);
 			entryKeys.remove(acc);
 		}
@@ -585,16 +586,16 @@ public class UniprotProteinLocalRetriever {
 	}
 
 	private void addEntryKeys(Entry entry) {
-		List<String> accession = entry.getAccession();
-		for (String acc : accession) {
+		final List<String> accession = entry.getAccession();
+		for (final String acc : accession) {
 			entryKeys.add(acc);
 		}
 	}
 
 	private Map<String, Entry> converToOriginalAccessions(HashMap<String, Entry> queryProteins,
 			Map<String, String> isoformMap) {
-		Map<String, Entry> ret = new THashMap<>();
-		for (String nonIsoformAcc : queryProteins.keySet()) {
+		final Map<String, Entry> ret = new THashMap<>();
+		for (final String nonIsoformAcc : queryProteins.keySet()) {
 			if (isoformMap.containsKey(nonIsoformAcc)) {
 				ret.put(isoformMap.get(nonIsoformAcc), queryProteins.get(nonIsoformAcc));
 			} else {
@@ -606,16 +607,16 @@ public class UniprotProteinLocalRetriever {
 
 	public String getLatestUniprotVersionFolderName() {
 		if (uniprotReleasesFolder != null) {
-			String regexp = "(\\d+)_(\\d+)";
-			Pattern pattern = Pattern.compile(regexp);
+			final String regexp = "(\\d+)_(\\d+)";
+			final Pattern pattern = Pattern.compile(regexp);
 			final String uniprotReleasesPath = uniprotReleasesFolder.getAbsolutePath();
-			File folder = new File(uniprotReleasesPath);
+			final File folder = new File(uniprotReleasesPath);
 			if (folder.exists()) {
 				final File[] listFiles = folder.listFiles();
 				int year = 0;
 				int month = 0;
 				Date releaseDate = null;
-				for (File file : listFiles) {
+				for (final File file : listFiles) {
 					if (file.isDirectory()) {
 						final String folderName = FilenameUtils.getName(file.getAbsolutePath());
 
@@ -623,7 +624,7 @@ public class UniprotProteinLocalRetriever {
 						if (matcher.find()) {
 							year = Integer.valueOf(matcher.group(1));
 							month = Integer.valueOf(matcher.group(2));
-							Date releaseDateTmp = new Date(year, month, 1);
+							final Date releaseDateTmp = new Date(year, month, 1);
 							if (releaseDate == null || releaseDate.compareTo(releaseDateTmp) == -1) {
 								releaseDate = releaseDateTmp;
 							}
@@ -631,10 +632,10 @@ public class UniprotProteinLocalRetriever {
 					}
 				}
 				if (releaseDate != null) {
-					DecimalFormat twoDigits = new DecimalFormat("00");
-					String monthString = twoDigits.format(month);
-					DecimalFormat fourDigits = new DecimalFormat("0000");
-					String yearString = fourDigits.format(year);
+					final DecimalFormat twoDigits = new DecimalFormat("00");
+					final String monthString = twoDigits.format(month);
+					final DecimalFormat fourDigits = new DecimalFormat("0000");
+					final String yearString = fourDigits.format(year);
 					final String ret = yearString + "_" + monthString;
 					return ret;
 				}
@@ -656,8 +657,8 @@ public class UniprotProteinLocalRetriever {
 	private List<Entry> mergeXMLFiles(String[] xmlfilesNames, File projectFolder, String uniprotVersion)
 			throws JAXBException {
 		log.info("Merging " + xmlfilesNames.length + " xml files into one single file");
-		Uniprot uniprot = new ObjectFactory().createUniprot();
-		for (String xmlFileName : xmlfilesNames) {
+		final Uniprot uniprot = new ObjectFactory().createUniprot();
+		for (final String xmlFileName : xmlfilesNames) {
 			final List<Entry> entries = parseXmlFile(
 					new File(projectFolder.getAbsolutePath() + File.separator + xmlFileName));
 			if (entries != null) {
@@ -668,27 +669,27 @@ public class UniprotProteinLocalRetriever {
 		}
 
 		// remove all the rest of the files
-		for (String xmlFileName : xmlfilesNames) {
+		for (final String xmlFileName : xmlfilesNames) {
 			final File file2 = new File(projectFolder.getAbsolutePath() + File.separator + xmlFileName);
 			log.info("Deleting " + file2.getAbsolutePath() + "...");
 			final boolean deleted = file2.delete();
 			log.info(file2.getAbsolutePath() + " deleted = " + deleted);
 		}
 
-		File file = saveUniprotToLocalFilesystem(uniprot, uniprotVersion, useIndex);
+		final File file = saveUniprotToLocalFilesystem(uniprot, uniprotVersion, useIndex);
 
 		return uniprot.getEntry();
 	}
 
 	protected static void addEntriesToMap(UniprotEntryCache map, List<Entry> entries) {
-		for (Entry entry : entries) {
+		for (final Entry entry : entries) {
 			addEntryToCache(map, entry);
 		}
 
 	}
 
 	protected static void addEntriesToMap(Map<String, Entry> map, List<Entry> entries) {
-		for (Entry entry : entries) {
+		for (final Entry entry : entries) {
 			addEntryToMap(map, entry);
 		}
 	}
@@ -696,7 +697,7 @@ public class UniprotProteinLocalRetriever {
 	protected static void addEntryToMap(Map<String, Entry> map, Entry entry) {
 
 		final List<String> accessions = entry.getAccession();
-		for (String accession : accessions) {
+		for (final String accession : accessions) {
 			// String nonIsoFormAcc = getNoIsoformAccession(accession);
 			// if (accessionsToQuery.contains(nonIsoFormAcc))
 			map.put(accession, entry);
@@ -707,7 +708,7 @@ public class UniprotProteinLocalRetriever {
 	protected static void addEntryToCache(UniprotEntryCache cache, Entry entry) {
 
 		final List<String> accessions = entry.getAccession();
-		for (String accession : accessions) {
+		for (final String accession : accessions) {
 			// String nonIsoFormAcc = getNoIsoformAccession(accession);
 			// if (accessionsToQuery.contains(nonIsoFormAcc))
 			cache.addtoCache(entry, accession);

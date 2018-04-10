@@ -51,7 +51,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 	}
 
 	private String getIndexPathName(File file) {
-		String pathName = file.getParent() + File.separator + FilenameUtils.getBaseName(file.getAbsolutePath())
+		final String pathName = file.getParent() + File.separator + FilenameUtils.getBaseName(file.getAbsolutePath())
 				+ INDEX_EXT;
 		return pathName;
 	}
@@ -62,15 +62,15 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 
 	private void indexFile() throws IOException {
 		log.info("Indexing file " + FilenameUtils.getName(fileToIndex.getAbsolutePath()) + "...");
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 		// read the index, getting the positions of the items
 		final Map<String, Pair<Long, Long>> indexMap = uniprotFileIndexIO.getIndexMap();
 		// add to the map
 		this.indexMap.putAll(indexMap);
-		long t2 = System.currentTimeMillis();
+		final long t2 = System.currentTimeMillis();
 		// write the index file without appending
 		writePositionsInIndex(this, indexMap, false);
-		long t3 = System.currentTimeMillis();
+		final long t3 = System.currentTimeMillis();
 
 		log.info(DatesUtil.getDescriptiveTimeFromMillisecs(t2 - t1) + " to read the input file");
 		log.info(DatesUtil.getDescriptiveTimeFromMillisecs(t3 - t2) + " to write the index to "
@@ -80,10 +80,10 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 	private static synchronized void writePositionsInIndex(UniprotXmlIndex index,
 			Map<String, Pair<Long, Long>> itemPositions, boolean appendOnIndexFile) throws IOException {
 		// write the positions in the index
-		FileWriter fw = new FileWriter(index.indexFile, appendOnIndexFile);
-		StringBuilder sb = new StringBuilder();
+		final FileWriter fw = new FileWriter(index.indexFile, appendOnIndexFile);
+		final StringBuilder sb = new StringBuilder();
 		try {
-			for (String key : itemPositions.keySet()) {
+			for (final String key : itemPositions.keySet()) {
 				final Pair<Long, Long> pair = itemPositions.get(key);
 				sb.append(key + TAB + pair.getFirstelement() + TAB + pair.getSecondElement() + NEWLINE);
 				log.debug("Writing in index: " + key + " positions:[" + pair.getFirstelement() + ","
@@ -107,12 +107,12 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			// look for the provided key
 			if (indexMap.containsKey(key)) {
 				final Pair<Long, Long> pair = indexMap.get(key);
-				String item = uniprotFileIndexIO.getItem(pair.getFirstelement(), pair.getSecondElement());
+				final String item = uniprotFileIndexIO.getItem(pair.getFirstelement(), pair.getSecondElement());
 
-				Entry entry = uniprotFileIndexIO.unmarshallFromString(item);
+				final Entry entry = uniprotFileIndexIO.unmarshallFromString(item);
 				return entry;
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
 		}
@@ -130,7 +130,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		// if index Map is empty, read the index file
 		if (indexMap.isEmpty()) {
 			if (indexFile.length() > 0) {
-				BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile)));
+				final BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile)));
 				try {
 					String line;
 					while ((line = fr.readLine()) != null) {
@@ -138,10 +138,10 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 							throw new RuntimeException("Thread interrupted");
 						}
 						final String[] split = line.split(TAB);
-						String key = split[0];
-						long start = new Long(split[1]);
-						long end = new Long(split[2]);
-						Pair<Long, Long> pair = new Pair<>(start, end);
+						final String key = split[0];
+						final long start = new Long(split[1]);
+						final long end = new Long(split[2]);
+						final Pair<Long, Long> pair = new Pair<>(start, end);
 						indexMap.put(key, pair);
 					}
 				} finally {
@@ -170,15 +170,15 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		try {
 			loadIndexFile();
 
-			String item = marshallEntryToText(entry);
+			final String item = marshallEntryToText(entry);
 
 			// look if it is already in the index
 			if (keys == null || keys.isEmpty()) {
 				keys = uniprotFileIndexIO.getKeys(entry);
 			}
-			Map<String, Pair<Long, Long>> ret = new THashMap<>();
+			final Map<String, Pair<Long, Long>> ret = new THashMap<>();
 			if (keys != null && !keys.isEmpty()) {
-				for (String key : keys) {
+				for (final String key : keys) {
 					if (indexMap.containsKey(key)) {
 						final Pair<Long, Long> pair = indexMap.get(key);
 
@@ -201,7 +201,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 
 			// return the positions
 			return itemPositions;
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
 		}
@@ -209,7 +209,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 	}
 
 	private String marshallEntryToText(Entry entry) {
-		OutputStream output = new OutputStream() {
+		final OutputStream output = new OutputStream() {
 			private final StringBuilder string = new StringBuilder();
 
 			@Override
@@ -243,6 +243,13 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 
 	@Override
 	public boolean isEmpty() {
+		if (status == Status.NOT_READY) {
+			try {
+				loadIndexFile();
+			} catch (final IOException e) {
+				e.printStackTrace();
+			}
+		}
 		if (indexMap.isEmpty()) {
 			return true;
 		}
