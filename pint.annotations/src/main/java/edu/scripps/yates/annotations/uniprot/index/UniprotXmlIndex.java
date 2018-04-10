@@ -174,7 +174,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 
 			// look if it is already in the index
 			if (keys == null || keys.isEmpty()) {
-				keys = uniprotFileIndexIO.getKeys(item);
+				keys = uniprotFileIndexIO.getKeys(entry);
 			}
 			Map<String, Pair<Long, Long>> ret = new THashMap<>();
 			if (keys != null && !keys.isEmpty()) {

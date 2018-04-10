@@ -72,16 +72,24 @@ public class UniprotXmlIndexIO extends TextFileIndexMultiThreadSafeIO {
 		Entry entry = unmarshallFromString(string);
 		if (entry != null) {
 			// ret = convertUniprotEntries2Proteins(uniprot);
-			Set<String> accs = new THashSet<String>();
-			if (entry.getAccession() != null) {
-				for (String acc : entry.getAccession()) {
-					accs.add(acc);
-				}
-			}
+			Set<String> accs = getKeys(entry);
 			return accs;
 		}
 
 		return null;
+	}
+
+	protected Set<String> getKeys(Entry entry) {
+
+		// ret = convertUniprotEntries2Proteins(uniprot);
+		Set<String> accs = new THashSet<String>();
+		if (entry.getAccession() != null) {
+			for (String acc : entry.getAccession()) {
+				accs.add(acc);
+			}
+		}
+		return accs;
+
 	}
 
 	protected Entry unmarshallFromString(String string) {

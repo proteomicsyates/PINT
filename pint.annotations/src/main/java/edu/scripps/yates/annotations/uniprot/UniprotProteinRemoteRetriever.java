@@ -91,6 +91,9 @@ public class UniprotProteinRemoteRetriever {
 	private static boolean notTryUntilNextDay;
 	protected static final Set<String> entriesWithNoFASTA = new THashSet<>();
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	// it cannot be multithread to write in a file
+	// private final ExecutorService executor = Executors.newCachedThreadPool();
+
 	// service
 
 	/**
