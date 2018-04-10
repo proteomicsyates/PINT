@@ -27,7 +27,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 	private static final Logger log = Logger.getLogger(TextFileIndex.class);
 	private final File fileToIndex;
 	private final File indexFile;
-	private final Map<String, Pair<Long, Long>> indexMap = new THashMap<String, Pair<Long, Long>>();
+	private final Map<String, Pair<Long, Long>> indexMap = new THashMap<>();
 	private final static String INDEX_EXT = ".idx";
 	private static final String TAB = "\t";
 	private static final String NEWLINE = "\n";
@@ -141,7 +141,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 						String key = split[0];
 						long start = new Long(split[1]);
 						long end = new Long(split[2]);
-						Pair<Long, Long> pair = new Pair<Long, Long>(start, end);
+						Pair<Long, Long> pair = new Pair<>(start, end);
 						indexMap.put(key, pair);
 					}
 				} finally {
@@ -176,7 +176,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			if (keys == null || keys.isEmpty()) {
 				keys = uniprotFileIndexIO.getKeys(item);
 			}
-			Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
+			Map<String, Pair<Long, Long>> ret = new THashMap<>();
 			if (keys != null && !keys.isEmpty()) {
 				for (String key : keys) {
 					if (indexMap.containsKey(key)) {
@@ -243,7 +243,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 
 	@Override
 	public boolean isEmpty() {
-		if (status == Status.READY && indexMap.isEmpty()) {
+		if (indexMap.isEmpty()) {
 			return true;
 		}
 		return false;
