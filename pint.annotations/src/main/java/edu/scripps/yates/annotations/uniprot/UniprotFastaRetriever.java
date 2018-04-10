@@ -27,12 +27,13 @@ public class UniprotFastaRetriever {
 	 */
 	public static Entry getFastaEntry(String uniprotACC) throws URISyntaxException, IOException, InterruptedException {
 
-		StringBuilder locationBuilder = new StringBuilder("http://www.uniprot.org/uniprot/" + uniprotACC + ".fasta");
+		final StringBuilder locationBuilder = new StringBuilder(
+				"http://www.uniprot.org/uniprot/" + uniprotACC + ".fasta");
 		String location = locationBuilder.toString();
 		location = location.replace(" ", "%20");
-		URL url = new URL(location).toURI().toURL();
+		final URL url = new URL(location).toURI().toURL();
 		log.info("Submitting " + locationBuilder + " from thread " + Thread.currentThread().getId() + "...");
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		HttpURLConnection.setFollowRedirects(true);
 		conn.setDoInput(true);
@@ -41,7 +42,7 @@ public class UniprotFastaRetriever {
 		int status = conn.getResponseCode();
 		while (true) {
 			int wait = 0;
-			String header = conn.getHeaderField("Retry-After");
+			final String header = conn.getHeaderField("Retry-After");
 			if (header != null)
 				wait = Integer.valueOf(header);
 			if (wait == 0)
@@ -55,9 +56,9 @@ public class UniprotFastaRetriever {
 			status = conn.getResponseCode();
 		}
 		if (status == HttpURLConnection.HTTP_OK) {
-			long t2 = System.currentTimeMillis();
-			log.info("Got a OK reply in " + DatesUtil.getDescriptiveTimeFromMillisecs(t2 - t1));
-			InputStream is = conn.getInputStream();
+			final long t2 = System.currentTimeMillis();
+			log.debug("Got a OK reply in " + DatesUtil.getDescriptiveTimeFromMillisecs(t2 - t1));
+			final InputStream is = conn.getInputStream();
 			URLConnection.guessContentTypeFromStream(is);
 			final Entry fastaEntry = UniprotProteinRemoteRetriever.parseFASTAResponse(is, uniprotACC);
 			if (fastaEntry != null) {
