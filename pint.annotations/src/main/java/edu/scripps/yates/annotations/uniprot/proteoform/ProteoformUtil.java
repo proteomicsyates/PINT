@@ -35,7 +35,11 @@ public class ProteoformUtil {
 		}
 		String ret = "";
 		if (start > 0) {
-			ret = wholeOriginalSeq.substring(0, start - 1);
+			if (wholeOriginalSeq.length() >= start) {
+				ret = wholeOriginalSeq.substring(0, start - 1);
+			} else {
+				System.out.println(feature);
+			}
 		}
 		ret += newSeq;
 
