@@ -3,6 +3,7 @@ package edu.scripps.yates.annotations.uniprot.proteoform.japi;
 import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
 import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformType;
 import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformUtil;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.MutagenFeature;
 
@@ -16,7 +17,7 @@ public class ProteoformAdapterFromMutagenFeature implements Adapter<Proteoform> 
 
 	public ProteoformAdapterFromMutagenFeature(String originalACC, String originalDescription, MutagenFeature varSeq,
 			String wholeOriginalSeq, String gene, String taxonomy) {
-		this.feature = varSeq;
+		feature = varSeq;
 		this.wholeOriginalSeq = wholeOriginalSeq;
 		this.originalACC = originalACC;
 		this.gene = gene;
@@ -26,10 +27,10 @@ public class ProteoformAdapterFromMutagenFeature implements Adapter<Proteoform> 
 
 	@Override
 	public Proteoform adapt() {
-		String id = originalACC + "_mutated_" + ProteoformUtil.getShortDescription(feature);
-		String seq = ProteoformUtil.translateSequence(feature, wholeOriginalSeq);
-		String description = ProteoformUtil.getDescription(feature, originalDescription);
-		Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
+		final String id = originalACC + FastaParser.mutated + ProteoformUtil.getShortDescription(feature);
+		final String seq = ProteoformUtil.translateSequence(feature, wholeOriginalSeq);
+		final String description = ProteoformUtil.getDescription(feature, originalDescription);
+		final Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
 				ProteoformType.NATURAL_VARIANT);
 		return variant;
 	}

@@ -20,7 +20,7 @@ public class UniprotPTMAdapterFromFeature implements Adapter<UniprotPTM> {
 	@Override
 	public UniprotPTM adapt() {
 		try {
-			int positionInProtein = Integer.valueOf(ProteoformUtil.getLocationString(feature));
+			final int positionInProtein = Integer.valueOf(ProteoformUtil.getLocationString(feature));
 
 			String modificationName = ProteoformUtil.getDescription(feature, null);
 			// sometimes it has an additional description after the name and a
@@ -29,13 +29,13 @@ public class UniprotPTMAdapterFromFeature implements Adapter<UniprotPTM> {
 			if (modificationName.contains(";")) {
 				modificationName = modificationName.split(";")[0];
 			}
-			UniprotPTMCVTerm ptmCVTerm = UniprotPTMCVReader.getInstance().getPtmsByID(modificationName);
+			final UniprotPTMCVTerm ptmCVTerm = UniprotPTMCVReader.getInstance().getPtmsByID(modificationName);
 			if (ptmCVTerm != null) {
-				UniprotPTM ret = new UniprotPTM(positionInProtein, ptmCVTerm);
+				final UniprotPTM ret = new UniprotPTM(positionInProtein, ptmCVTerm);
 				return ret;
 			}
-			log.warn("PTM not recognized from PTMList.txt from uniprot: " + modificationName);
-		} catch (NumberFormatException e) {
+			log.debug("PTM not recognized from PTMList.txt from uniprot: " + modificationName);
+		} catch (final NumberFormatException e) {
 			// do nothing
 		}
 		return null;

@@ -3,6 +3,7 @@ package edu.scripps.yates.annotations.uniprot.proteoform.japi;
 import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
 import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformType;
 import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformUtil;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.VariantFeature;
 
@@ -26,17 +27,16 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 
 	@Override
 	public Proteoform adapt() {
-		String featureID = varSeq.getFeatureId().getValue();
+		final String featureID = varSeq.getFeatureId().getValue();
 
-		String id = originalACC;
+		String id = originalACC + FastaParser.variant;
+
 		if (featureID != null) {
-			id += "_" + featureID;
-		} else {
-			System.out.println(featureID);
+			id += featureID;
 		}
-		String seq = ProteoformUtil.translateSequence(varSeq, wholeOriginalSeq);
-		String description = ProteoformUtil.getDescription(varSeq, originalDescription);
-		Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
+		final String seq = ProteoformUtil.translateSequence(varSeq, wholeOriginalSeq);
+		final String description = ProteoformUtil.getDescription(varSeq, originalDescription);
+		final Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
 				ProteoformType.NATURAL_VARIANT);
 		return variant;
 	}

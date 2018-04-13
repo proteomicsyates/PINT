@@ -4,6 +4,7 @@ import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
 import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformType;
 import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformUtil;
 import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.pattern.Adapter;
 
 public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> {
@@ -16,7 +17,7 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 
 	public ProteoformAdapterFromNaturalVariant(String originalACC, String originalDescription, FeatureType feature,
 			String wholeOriginalSeq, String gene, String taxonomy) {
-		this.varSeq = feature;
+		varSeq = feature;
 		this.wholeOriginalSeq = wholeOriginalSeq;
 		this.originalACC = originalACC;
 		this.taxonomy = taxonomy;
@@ -26,10 +27,10 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 
 	@Override
 	public Proteoform adapt() {
-		String id = getID(originalACC, varSeq);
-		String seq = ProteoformUtil.translateSequence(varSeq, wholeOriginalSeq);
-		String description = ProteoformUtil.getDescription(varSeq, originalDescription);
-		Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
+		final String id = getID(originalACC, varSeq);
+		final String seq = ProteoformUtil.translateSequence(varSeq, wholeOriginalSeq);
+		final String description = ProteoformUtil.getDescription(varSeq, originalDescription);
+		final Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
 				ProteoformType.NATURAL_VARIANT);
 		return variant;
 	}
@@ -39,14 +40,15 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 		if (originalACC != null) {
 			ret += originalACC;
 		}
+		ret += FastaParser.variant;
 		if (feature.getId() != null) {
-			ret += "_" + feature.getId();
+			ret += feature.getId();
 		} else {
-			ret += "_variant";
 			if (feature.getVariation() != null && !feature.getVariation().isEmpty()) {
-				ret += "_" + feature.getVariation().get(0);
+				ret += feature.getVariation().get(0) + "_" + ProteoformUtil.getLocationString(feature);
+			} else {
+				ret += ProteoformUtil.getLocationString(feature);
 			}
-			ret += "_" + ProteoformUtil.getLocationString(feature);
 		}
 		return ret;
 	}

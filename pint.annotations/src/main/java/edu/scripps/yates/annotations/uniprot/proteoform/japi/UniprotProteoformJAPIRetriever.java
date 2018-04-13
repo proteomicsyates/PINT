@@ -56,7 +56,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 	private final UniprotProteinLocalRetriever uplr;
 	private boolean retrievePTMs = true;
 	private boolean retrieveIsoforms = true;
-	private int defaultChunkSize = 100;
+	private final int defaultChunkSize = 100;
 
 	public UniprotProteoformJAPIRetriever(UniprotProteinLocalRetriever uplr) {
 		this.uplr = uplr;
@@ -79,7 +79,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 
 	@Override
 	public List<Proteoform> getProteoformsFromOneEntry(String uniprotACC) {
-		Map<String, List<Proteoform>> variants = getProteoforms(uniprotACC);
+		final Map<String, List<Proteoform>> variants = getProteoforms(uniprotACC);
 		if (!variants.isEmpty()) {
 			return variants.get(uniprotACC);
 		}
@@ -87,22 +87,22 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 	}
 
 	@Override
-	public Map<String, List<Proteoform>> getProteoforms(Set<String> uniprotACCs) {
+	public Map<String, List<Proteoform>> getProteoforms(Collection<String> uniprotACCs) {
 		return getProteoforms(uniprotACCs, defaultChunkSize);
 	}
 
-	public Map<String, List<Proteoform>> getProteoforms(Set<String> uniprotACCs, int chunkSize) {
-		Map<String, List<Proteoform>> ret = new HashMap<String, List<Proteoform>>();
-		List<String> uniprotAccList = new ArrayList<String>();
+	public Map<String, List<Proteoform>> getProteoforms(Collection<String> uniprotACCs, int chunkSize) {
+		final Map<String, List<Proteoform>> ret = new HashMap<String, List<Proteoform>>();
+		final List<String> uniprotAccList = new ArrayList<String>();
 		uniprotAccList.addAll(uniprotACCs);
 		try {
 			// start service
 			startService();
 			if (retrieveIsoforms) {
-				Set<String> isoformsACCs = new HashSet<String>();
-				List<String> toQuery = new ArrayList<String>();
-				for (String acc : uniprotAccList) {
-					String isoformVersion = FastaParser.getIsoformVersion(acc);
+				final Set<String> isoformsACCs = new HashSet<String>();
+				final List<String> toQuery = new ArrayList<String>();
+				for (final String acc : uniprotAccList) {
+					final String isoformVersion = FastaParser.getIsoformVersion(acc);
 					if (isoformVersion == null || "1".equals(isoformVersion)) {
 						toQuery.add(acc);
 					} else {
@@ -111,24 +111,24 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 				}
 				if (!toQuery.isEmpty()) {
 					for (int index = 0; index < uniprotAccList.size(); index += chunkSize) {
-						Set<String> toQuery2 = new HashSet<String>();
-						int from = index;
-						int to = Math.min(from + chunkSize, uniprotAccList.size());
+						final Set<String> toQuery2 = new HashSet<String>();
+						final int from = index;
+						final int to = Math.min(from + chunkSize, uniprotAccList.size());
 						toQuery2.addAll(toQuery.subList(from, to));
 						log.info("Querying " + toQuery2.size() + " proteins from " + from + " to " + to + " out of "
 								+ uniprotAccList.size());
-						Query query = UniProtQueryBuilder.accessions(toQuery2)
+						final Query query = UniProtQueryBuilder.accessions(toQuery2)
 								.and(UniProtQueryBuilder.commentsType(CommentType.ALTERNATIVE_PRODUCTS));
-						QueryResult<UniProtEntry> result = service.getEntries(query);
+						final QueryResult<UniProtEntry> result = service.getEntries(query);
 						while (result.hasNext()) {
-							UniProtEntry mainEntry = result.next();
-							List<Comment> comments = mainEntry.getComments(CommentType.ALTERNATIVE_PRODUCTS);
+							final UniProtEntry mainEntry = result.next();
+							final List<Comment> comments = mainEntry.getComments(CommentType.ALTERNATIVE_PRODUCTS);
 							// store isoforms ACCs
-							for (Comment comment : comments) {
-								AlternativeProductsComment alternativeProducts = (AlternativeProductsComment) comment;
-								List<AlternativeProductsIsoform> isoforms = alternativeProducts.getIsoforms();
-								for (AlternativeProductsIsoform alternativeProductsIsoform : isoforms) {
-									String isoformACC = alternativeProductsIsoform.getIds().get(0).getValue();
+							for (final Comment comment : comments) {
+								final AlternativeProductsComment alternativeProducts = (AlternativeProductsComment) comment;
+								final List<AlternativeProductsIsoform> isoforms = alternativeProducts.getIsoforms();
+								for (final AlternativeProductsIsoform alternativeProductsIsoform : isoforms) {
+									final String isoformACC = alternativeProductsIsoform.getIds().get(0).getValue();
 									if ("1".equals(FastaParser.getIsoformVersion(isoformACC))) {
 										// no isoform
 										continue;
@@ -143,14 +143,14 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 				retrieveIsoformsFirst(isoformsACCs);
 			}
 			for (int index = 0; index < uniprotAccList.size(); index += chunkSize) {
-				Set<String> toQuery = new HashSet<String>();
-				int from = index;
-				int to = Math.min(from + chunkSize, uniprotAccList.size());
+				final Set<String> toQuery = new HashSet<String>();
+				final int from = index;
+				final int to = Math.min(from + chunkSize, uniprotAccList.size());
 				toQuery.addAll(uniprotAccList.subList(from, to));
 				log.info("Querying " + toQuery.size() + " proteins from " + from + " to " + to + " out of "
 						+ uniprotAccList.size());
 
-				Query query = UniProtQueryBuilder.accessions(toQuery)
+				final Query query = UniProtQueryBuilder.accessions(toQuery)
 						.and(UniProtQueryBuilder.or(UniProtQueryBuilder.featuresType(FeatureType.VARIANT),
 								UniProtQueryBuilder.commentsType(CommentType.ALTERNATIVE_PRODUCTS),
 								UniProtQueryBuilder.featuresType(FeatureType.CONFLICT),
@@ -160,14 +160,14 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 								UniProtQueryBuilder.featuresType(FeatureType.CARBOHYD),
 								UniProtQueryBuilder.featuresType(FeatureType.CROSSLNK)));
 
-				QueryResult<UniProtEntry> result = service.getEntries(query);
+				final QueryResult<UniProtEntry> result = service.getEntries(query);
 				while (result.hasNext()) {
-					UniProtEntry mainEntry = result.next();
-					String originalSequence = mainEntry.getSequence().getValue();
+					final UniProtEntry mainEntry = result.next();
+					final String originalSequence = mainEntry.getSequence().getValue();
 					// original variant
-					String acc = mainEntry.getPrimaryUniProtAccession().getValue();
+					final String acc = mainEntry.getPrimaryUniProtAccession().getValue();
 					if (!ret.containsKey(acc)) {
-						List<Proteoform> list = new ArrayList<Proteoform>();
+						final List<Proteoform> list = new ArrayList<Proteoform>();
 						ret.put(acc, list);
 					}
 					String description = acc;
@@ -185,7 +185,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 					}
 					String gene = null;
 					if (mainEntry.getGenes() != null && !mainEntry.getGenes().isEmpty()) {
-						Gene geneObj = mainEntry.getGenes().get(0);
+						final Gene geneObj = mainEntry.getGenes().get(0);
 						if (geneObj.getGeneName() != null) {
 							gene = geneObj.getGeneName().getValue();
 						}
@@ -196,27 +196,27 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 							taxonomy = mainEntry.getOrganism().getScientificName().getValue();
 						}
 					}
-					Proteoform originalvariant = new Proteoform(acc, acc, originalSequence, description, gene, taxonomy,
-							null, true);
+					final Proteoform originalvariant = new Proteoform(acc, acc, originalSequence, description, gene,
+							taxonomy, null, true);
 					ret.get(acc).add(originalvariant);
 
 					// query for variants
-					Collection<Feature> features = mainEntry.getFeatures(FeatureType.VARIANT);
-					for (Feature feature : features) {
-						VariantFeature varSeq = (VariantFeature) feature;
-						Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, description, varSeq,
+					final Collection<Feature> features = mainEntry.getFeatures(FeatureType.VARIANT);
+					for (final Feature feature : features) {
+						final VariantFeature varSeq = (VariantFeature) feature;
+						final Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, description, varSeq,
 								originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}
 					// alternative products
-					List<Comment> comments = mainEntry.getComments(CommentType.ALTERNATIVE_PRODUCTS);
+					final List<Comment> comments = mainEntry.getComments(CommentType.ALTERNATIVE_PRODUCTS);
 					// store isoforms ACCs
-					Set<String> isoformsACCs = new HashSet<String>();
-					for (Comment comment : comments) {
-						AlternativeProductsComment alternativeProducts = (AlternativeProductsComment) comment;
-						List<AlternativeProductsIsoform> isoforms = alternativeProducts.getIsoforms();
-						for (AlternativeProductsIsoform alternativeProductsIsoform : isoforms) {
-							String isoformACC = alternativeProductsIsoform.getIds().get(0).getValue();
+					final Set<String> isoformsACCs = new HashSet<String>();
+					for (final Comment comment : comments) {
+						final AlternativeProductsComment alternativeProducts = (AlternativeProductsComment) comment;
+						final List<AlternativeProductsIsoform> isoforms = alternativeProducts.getIsoforms();
+						for (final AlternativeProductsIsoform alternativeProductsIsoform : isoforms) {
+							final String isoformACC = alternativeProductsIsoform.getIds().get(0).getValue();
 							if ("1".equals(FastaParser.getIsoformVersion(isoformACC))) {
 								// no isoform
 								continue;
@@ -228,98 +228,100 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 					// retrieve isoform sequences
 					if (retrieveIsoforms) {
 						// if there is no UPLR, get isoform fasta from internet,
-						if (this.uplr == null) {
-							Map<String, Entry> isoformEntries = UniprotProteinRemoteRetriever
+						if (uplr == null) {
+							final Map<String, Entry> isoformEntries = UniprotProteinRemoteRetriever
 									.getFASTASequencesInParallel(isoformsACCs);
-							for (String isoformACC : isoformsACCs) {
-								Entry isoformEntry = isoformEntries.get(isoformACC);
+							for (final String isoformACC : isoformsACCs) {
+								final Entry isoformEntry = isoformEntries.get(isoformACC);
 								if (isoformEntry == null || isoformEntry.getSequence() == null) {
 									continue;
 								}
-								String isoformSequence = isoformEntry.getSequence().getValue();
-								List<String> geneNames = UniprotEntryUtil.getGeneName(isoformEntry, true, true);
+								final String isoformSequence = isoformEntry.getSequence().getValue();
+								final List<String> geneNames = UniprotEntryUtil.getGeneName(isoformEntry, true, true);
 								String gene2 = null;
 								if (geneNames.isEmpty()) {
 									gene2 = geneNames.get(0);
 								}
-								String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
+								final String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
 
-								Proteoform variant = new Proteoform(acc, isoformACC,
+								final Proteoform variant = new Proteoform(acc, isoformACC,
 										isoformSequence, mainEntry.getProteinDescription().getRecommendedName()
 												.getFields().get(0).getValue(),
 										gene2, taxonomy2, ProteoformType.ISOFORM);
 								ret.get(acc).add(variant);
 							}
 						} else {
-							Map<String, Entry> entries = uplr.getAnnotatedProteins(null, isoformsACCs);
-							for (String isoformACC : isoformsACCs) {
+							final Map<String, Entry> entries = uplr.getAnnotatedProteins(null, isoformsACCs);
+							for (final String isoformACC : isoformsACCs) {
 								if (entries.containsKey(isoformACC)) {
-									Entry isoformEntry = entries.get(isoformACC);
-									String isoformSequence = UniprotEntryUtil.getProteinSequence(isoformEntry);
-									String description2 = UniprotEntryUtil.getProteinDescription(isoformEntry);
-									List<String> geneNames = UniprotEntryUtil.getGeneName(isoformEntry, true, true);
+									final Entry isoformEntry = entries.get(isoformACC);
+									final String isoformSequence = UniprotEntryUtil.getProteinSequence(isoformEntry);
+									final String description2 = UniprotEntryUtil.getProteinDescription(isoformEntry);
+									final List<String> geneNames = UniprotEntryUtil.getGeneName(isoformEntry, true,
+											true);
 									String gene2 = null;
 									if (geneNames.isEmpty()) {
 										gene2 = geneNames.get(0);
 									}
-									String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
-									Proteoform variant = new Proteoform(acc, isoformACC, isoformSequence, description2,
-											gene2, taxonomy2, ProteoformType.ISOFORM);
+									final String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
+									final Proteoform variant = new Proteoform(acc, isoformACC, isoformSequence,
+											description2, gene2, taxonomy2, ProteoformType.ISOFORM);
 									ret.get(acc).add(variant);
 								}
 							}
 						}
 					}
 					// sequence conflicts
-					Collection<Feature> conflicts = mainEntry.getFeatures(FeatureType.CONFLICT);
-					for (Feature feature : conflicts) {
+					final Collection<Feature> conflicts = mainEntry.getFeatures(FeatureType.CONFLICT);
+					for (final Feature feature : conflicts) {
 
-						ConflictFeature conflictFeature = (ConflictFeature) feature;
-						Proteoform variant = new ProteoFormAdapterFromConflictFeature(acc, description, conflictFeature,
-								originalSequence, gene, taxonomy).adapt();
+						final ConflictFeature conflictFeature = (ConflictFeature) feature;
+						final Proteoform variant = new ProteoFormAdapterFromConflictFeature(acc, description,
+								conflictFeature, originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}
 					// mutagens
-					Collection<Feature> mutagens = mainEntry.getFeatures(FeatureType.MUTAGEN);
-					for (Feature feature : mutagens) {
-						MutagenFeature mutagenFeature = (MutagenFeature) feature;
-						Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, description, mutagenFeature,
-								originalSequence, gene, taxonomy).adapt();
+					final Collection<Feature> mutagens = mainEntry.getFeatures(FeatureType.MUTAGEN);
+					for (final Feature feature : mutagens) {
+						final MutagenFeature mutagenFeature = (MutagenFeature) feature;
+						final Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, description,
+								mutagenFeature, originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}
 					// ptms
 					if (retrievePTMs) {
-						Collection<Feature> modifiedResiduesFeatures = mainEntry.getFeatures(FeatureType.MOD_RES);
-						for (Feature feature : modifiedResiduesFeatures) {
-							ModResFeature modResFeature = (ModResFeature) feature;
-							UniprotPTM uniprotPTM = new UniprotPTMAdapterFromFeature(modResFeature).adapt();
+						final Collection<Feature> modifiedResiduesFeatures = mainEntry.getFeatures(FeatureType.MOD_RES);
+						for (final Feature feature : modifiedResiduesFeatures) {
+							final ModResFeature modResFeature = (ModResFeature) feature;
+							final UniprotPTM uniprotPTM = new UniprotPTMAdapterFromFeature(modResFeature).adapt();
 							if (uniprotPTM != null) {
 								originalvariant.addPTM(uniprotPTM);
 							}
 						}
-						Collection<Feature> siteFeatures = mainEntry.getFeatures(FeatureType.SITE);
-						for (Feature feature : siteFeatures) {
-							SiteFeature siteFeature = (SiteFeature) feature;
-							UniprotPTM uniprotPTM = new UniprotPTMAdapterFromFeature(siteFeature).adapt();
+						final Collection<Feature> siteFeatures = mainEntry.getFeatures(FeatureType.SITE);
+						for (final Feature feature : siteFeatures) {
+							final SiteFeature siteFeature = (SiteFeature) feature;
+							final UniprotPTM uniprotPTM = new UniprotPTMAdapterFromFeature(siteFeature).adapt();
 							if (uniprotPTM != null) {
 								originalvariant.addPTM(uniprotPTM);
 							}
 						}
-						Collection<Feature> carbohydFeatures = mainEntry.getFeatures(FeatureType.CARBOHYD);
-						for (Feature feature : carbohydFeatures) {
-							CarbohydFeature carboHydFeature = (CarbohydFeature) feature;
-							UniprotPTM uniprotPTM = new UniprotPTMAdapterFromCarbohydFeature(carboHydFeature).adapt();
-							if (uniprotPTM != null) {
-								originalvariant.addPTM(uniprotPTM);
-							}
-						}
-						Collection<Feature> crosslinkFeatures = mainEntry.getFeatures(FeatureType.CROSSLNK);
-						for (Feature feature : crosslinkFeatures) {
-							CrosslinkFeature crosslinkFeature = (CrosslinkFeature) feature;
-							List<UniprotPTM> uniprotPTMs = new UniprotPTMAdapterFromCrosslinkFeature(crosslinkFeature)
+						final Collection<Feature> carbohydFeatures = mainEntry.getFeatures(FeatureType.CARBOHYD);
+						for (final Feature feature : carbohydFeatures) {
+							final CarbohydFeature carboHydFeature = (CarbohydFeature) feature;
+							final UniprotPTM uniprotPTM = new UniprotPTMAdapterFromCarbohydFeature(carboHydFeature)
 									.adapt();
+							if (uniprotPTM != null) {
+								originalvariant.addPTM(uniprotPTM);
+							}
+						}
+						final Collection<Feature> crosslinkFeatures = mainEntry.getFeatures(FeatureType.CROSSLNK);
+						for (final Feature feature : crosslinkFeatures) {
+							final CrosslinkFeature crosslinkFeature = (CrosslinkFeature) feature;
+							final List<UniprotPTM> uniprotPTMs = new UniprotPTMAdapterFromCrosslinkFeature(
+									crosslinkFeature).adapt();
 							if (uniprotPTMs != null) {
-								for (UniprotPTM uniprotPTM : uniprotPTMs) {
+								for (final UniprotPTM uniprotPTM : uniprotPTMs) {
 									originalvariant.addPTM(uniprotPTM);
 								}
 
@@ -328,7 +330,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 					}
 				}
 			}
-		} catch (ServiceException e) {
+		} catch (final ServiceException e) {
 			e.printStackTrace();
 		} finally {
 			stopService();
@@ -338,14 +340,15 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 	}
 
 	private void retrieveIsoformsFirst(Set<String> isoformsACCs) {
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 		log.info("Retrieving isoform fasta sequences all at once first");
 		// if there is no UPLR, get isoform fasta from internet,
-		if (this.uplr == null) {
-			Map<String, Entry> isoformEntries = UniprotProteinRemoteRetriever.getFASTASequencesInParallel(isoformsACCs);
+		if (uplr == null) {
+			final Map<String, Entry> isoformEntries = UniprotProteinRemoteRetriever
+					.getFASTASequencesInParallel(isoformsACCs);
 			log.info(isoformEntries.size() + " entries retrieved.");
 		} else {
-			Map<String, Entry> entries = uplr.getAnnotatedProteins(null, isoformsACCs);
+			final Map<String, Entry> entries = uplr.getAnnotatedProteins(null, isoformsACCs);
 			log.info(entries.size() + " entries retrieved.");
 		}
 		log.info("It took " + DatesUtil.getDescriptiveTimeFromMillisecs((System.currentTimeMillis() - t1)));
@@ -353,7 +356,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 
 	@Override
 	public Map<String, List<Proteoform>> getProteoforms(String... uniprotACCs) {
-		List<String> asList = Arrays.asList(uniprotACCs);
+		final List<String> asList = Arrays.asList(uniprotACCs);
 		return getProteoforms(new HashSet<String>(asList));
 	}
 

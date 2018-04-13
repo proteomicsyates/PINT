@@ -17,8 +17,9 @@ import uk.ac.ebi.kraken.interfaces.uniprot.features.MutagenFeature;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.VariantFeature;
 
 public class ProteoformUtil {
+
 	public static String translateSequence(FeatureType feature, String wholeOriginalSeq) {
-		List<String> alternativeSequences = feature.getVariation();
+		final List<String> alternativeSequences = feature.getVariation();
 		String newSeq = "";
 		if (!alternativeSequences.isEmpty()) {
 			newSeq = alternativeSequences.get(0);
@@ -48,13 +49,13 @@ public class ProteoformUtil {
 	}
 
 	public static String translateSequence(HasAlternativeSequence hasAlternativeSequence, String wholeOriginalSeq) {
-		List<FeatureSequence> alternativeSequences = hasAlternativeSequence.getAlternativeSequences();
+		final List<FeatureSequence> alternativeSequences = hasAlternativeSequence.getAlternativeSequences();
 		String newSeq = "";
 		if (!alternativeSequences.isEmpty()) {
 			newSeq = alternativeSequences.get(0).getValue();
 		}
-		int start = hasAlternativeSequence.getFeatureLocation().getStart();
-		int end = hasAlternativeSequence.getFeatureLocation().getEnd();
+		final int start = hasAlternativeSequence.getFeatureLocation().getStart();
+		final int end = hasAlternativeSequence.getFeatureLocation().getEnd();
 		String ret = "";
 		if (start > 0) {
 			ret = wholeOriginalSeq.substring(0, start - 1);
@@ -65,10 +66,10 @@ public class ProteoformUtil {
 	}
 
 	public static String getShortDescription(Feature feature) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		if (feature instanceof HasAlternativeSequence) {
-			HasAlternativeSequence alternativeSequenceHolder = (HasAlternativeSequence) feature;
-			String from = alternativeSequenceHolder.getOriginalSequence().getValue();
+			final HasAlternativeSequence alternativeSequenceHolder = (HasAlternativeSequence) feature;
+			final String from = alternativeSequenceHolder.getOriginalSequence().getValue();
 			String to = null;
 			if (!alternativeSequenceHolder.getAlternativeSequences().isEmpty()) {
 				to = alternativeSequenceHolder.getAlternativeSequences().get(0).getValue();
@@ -87,13 +88,13 @@ public class ProteoformUtil {
 	}
 
 	public static String getDescription(Feature feature, String originalDescription) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		if (originalDescription != null) {
 			sb.append(originalDescription);
 		}
 		if (feature instanceof HasAlternativeSequence) {
-			HasAlternativeSequence alternativeSequenceHolder = (HasAlternativeSequence) feature;
-			String from = alternativeSequenceHolder.getOriginalSequence().getValue();
+			final HasAlternativeSequence alternativeSequenceHolder = (HasAlternativeSequence) feature;
+			final String from = alternativeSequenceHolder.getOriginalSequence().getValue();
 			String to = null;
 			if (!alternativeSequenceHolder.getAlternativeSequences().isEmpty()) {
 				to = alternativeSequenceHolder.getAlternativeSequences().get(0).getValue();
@@ -113,7 +114,7 @@ public class ProteoformUtil {
 
 		}
 		if (feature instanceof HasFeatureDescription) {
-			String descriptionValue = ((HasFeatureDescription) feature).getFeatureDescription().getValue();
+			final String descriptionValue = ((HasFeatureDescription) feature).getFeatureDescription().getValue();
 			if (!"".equals(descriptionValue) && !"".equals(sb.toString())) {
 				sb.append(", ");
 			}
@@ -129,8 +130,8 @@ public class ProteoformUtil {
 			report = getReport(((MutagenFeature) feature).getMutagenReport());
 		} else if (feature instanceof ConflictFeature) {
 
-			List<ConflictReport> conflictReports = ((ConflictFeature) feature).getConflictReports();
-			for (ConflictReport conflictReport : conflictReports) {
+			final List<ConflictReport> conflictReports = ((ConflictFeature) feature).getConflictReports();
+			for (final ConflictReport conflictReport : conflictReports) {
 				if (!"".equals(report)) {
 					report += ", ";
 				}
@@ -148,7 +149,7 @@ public class ProteoformUtil {
 		}
 
 		if (feature instanceof HasFeatureStatus) {
-			HasFeatureStatus featureStatusHolder = feature;
+			final HasFeatureStatus featureStatusHolder = feature;
 			return featureStatusHolder.getFeatureStatus().getName() + "\nstart:"
 					+ feature.getFeatureLocation().getStart() + "\tend:" + feature.getFeatureLocation().getEnd()
 					+ "\tstart modif:" + feature.getFeatureLocation().getStartModifier() + "\tend modif:"
@@ -159,10 +160,10 @@ public class ProteoformUtil {
 	}
 
 	public static String getShortDescription(FeatureType feature) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		if (feature.getVariation() != null && !feature.getVariation().isEmpty()) {
 
-			String from = feature.getOriginal();
+			final String from = feature.getOriginal();
 			String to = null;
 			if (!feature.getVariation().isEmpty()) {
 				to = feature.getVariation().get(0);
@@ -175,19 +176,21 @@ public class ProteoformUtil {
 			if (to != null) {
 				sb.append(to);
 			}
-			sb.append("_at_" + getLocationString(feature));
 
+		} else {
+			sb.append("missing");
 		}
+		sb.append("_at_" + getLocationString(feature));
 		return sb.toString();
 	}
 
 	public static String getDescription(FeatureType feature, String originalDescription) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		if (originalDescription != null) {
 			sb.append(originalDescription);
 		}
 		if (feature.getDescription() != null && !"".equals(feature.getDescription())) {
-			String descriptionValue = feature.getDescription();
+			final String descriptionValue = feature.getDescription();
 			if (!"".equals(descriptionValue) && !"".equals(sb.toString())) {
 				sb.append(", ");
 			}
@@ -206,11 +209,11 @@ public class ProteoformUtil {
 	}
 
 	public static String getLocationString(Feature feature) {
-		FeatureLocation featureLocation = feature.getFeatureLocation();
+		final FeatureLocation featureLocation = feature.getFeatureLocation();
 		if (featureLocation == null) {
 			return null;
 		}
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		if (featureLocation.getStart() == featureLocation.getEnd()) {
 			sb.append(featureLocation.getStart());
 		} else {
@@ -220,11 +223,11 @@ public class ProteoformUtil {
 	}
 
 	public static String getLocationString(FeatureType feature) {
-		LocationType featureLocation = feature.getLocation();
+		final LocationType featureLocation = feature.getLocation();
 		if (featureLocation == null) {
 			return null;
 		}
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		if (featureLocation.getBegin() != null && featureLocation.getEnd() != null) {
 			if (featureLocation.getBegin().getPosition().intValue() == featureLocation.getEnd().getPosition()
 					.intValue()) {
