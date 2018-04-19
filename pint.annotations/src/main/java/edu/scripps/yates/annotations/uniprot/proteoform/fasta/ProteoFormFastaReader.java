@@ -63,7 +63,7 @@ public class ProteoFormFastaReader extends FastaReader {
 		return uniprotACCs;
 	}
 
-	private Iterator<Fasta> getProteoFormFastaIterator() throws IOException {
+	public Iterator<Fasta> getProteoFormFastaIterator() throws IOException {
 
 		final List<String> uniprotACCs = getUniprotACCs();
 
