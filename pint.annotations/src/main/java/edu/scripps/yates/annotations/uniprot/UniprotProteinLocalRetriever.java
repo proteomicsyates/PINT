@@ -398,7 +398,7 @@ public class UniprotProteinLocalRetriever {
 						loadedIndexes.put(uniprotXmlFile, uniprotIndex);
 					}
 					int numEntriesRetrievedFromIndex = 0;
-					if (!uniprotIndex.isEmpty()) {
+					if (!uniprotIndex.isEmpty() && !accsToSearch.isEmpty()) {
 						log.info("Looking " + accsToSearch.size() + " entries in the local index of annotations at "
 								+ uniprotXmlFile.getAbsolutePath());
 						final ProgressCounter counter = new ProgressCounter(accsToSearch.size(),
