@@ -1,6 +1,7 @@
 package edu.scripps.yates.annotations.uniprot.proteoform;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.annotations.uniprot.xml.LocationType;
@@ -240,6 +241,31 @@ public class ProteoformUtil {
 			sb.append(featureLocation.getPosition().getPosition().intValue());
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Filters the input list of proteoforms by returning all proteoforms that
+	 * are NOT the type of the proteoformType
+	 * 
+	 * @param isoformType
+	 * @param proteoforms
+	 * @return
+	 */
+	public static List<Proteoform> getProteoformsDifferentThan(ProteoformType proteoformType,
+			List<Proteoform> proteoforms) {
+		return proteoforms.stream().filter(p -> p.getProteoformType() != proteoformType).collect(Collectors.toList());
+	}
+
+	/**
+	 * Filters the input list of proteoforms by returning all proteoforms that
+	 * ARE the type of the proteoformType
+	 * 
+	 * @param isoformType
+	 * @param proteoforms
+	 * @return
+	 */
+	public static List<Proteoform> getProteoformsAs(ProteoformType proteoformType, List<Proteoform> proteoforms) {
+		return proteoforms.stream().filter(p -> p.getProteoformType() == proteoformType).collect(Collectors.toList());
 	}
 
 }
