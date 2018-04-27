@@ -14,10 +14,15 @@ public class Proteoform {
 	private final String originalACC;
 	private final String gene;
 	private final String taxonomy;
+	private final String originalSeq;
 
-	public Proteoform(String originalACC, String id, String seq, String description, String gene, String taxonomy,
-			ProteoformType proteoformType, boolean original) {
+	public Proteoform(String originalACC, String originalSeq, String id, String seq, String description, String gene,
+			String taxonomy, ProteoformType proteoformType, boolean original) {
+		if (proteoformType == null) {
+			System.out.println("asdf");
+		}
 		this.originalACC = originalACC;
+		this.originalSeq = originalSeq;
 		this.id = id;
 		this.seq = seq;
 		this.description = description;
@@ -27,9 +32,9 @@ public class Proteoform {
 		this.original = original;
 	}
 
-	public Proteoform(String originalACC, String id, String seq, String description, String gene, String taxonomy,
-			ProteoformType variantType) {
-		this(originalACC, id, seq, description, gene, taxonomy, variantType, false);
+	public Proteoform(String originalACC, String originalSeq, String id, String seq, String description, String gene,
+			String taxonomy, ProteoformType variantType) {
+		this(originalACC, originalSeq, id, seq, description, gene, taxonomy, variantType, false);
 	}
 
 	public String getId() {
@@ -62,7 +67,7 @@ public class Proteoform {
 	}
 
 	public void addPTM(UniprotPTM ptm) {
-		this.ptms.add(ptm);
+		ptms.add(ptm);
 		sortByPTMPosition();
 	}
 
@@ -81,5 +86,9 @@ public class Proteoform {
 
 	public String getTaxonomy() {
 		return taxonomy;
+	}
+
+	public String getOriginalSeq() {
+		return originalSeq;
 	}
 }
