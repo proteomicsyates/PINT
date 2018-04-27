@@ -37,9 +37,11 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 	private final UniprotProteinLocalRetriever uplr;
 	private boolean retrievePTMs = true;
 	private boolean retrieveIsoforms = true;
+	private final String uniprotVersion;
 
-	public UniprotProteoformRetrieverFromXML(UniprotProteinLocalRetriever uplr) {
+	public UniprotProteoformRetrieverFromXML(UniprotProteinLocalRetriever uplr, String uniprotVersion) {
 		this.uplr = uplr;
+		this.uniprotVersion = uniprotVersion;
 	}
 
 	@Override
@@ -71,7 +73,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					}
 				}
 				if (!mainIsoforms.isEmpty()) {
-					annotatedProteins = uplr.getAnnotatedProteins(null, mainIsoforms, true);
+					annotatedProteins = uplr.getAnnotatedProteins(uniprotVersion, mainIsoforms, true);
 					for (final String acc : mainIsoforms) {
 						if (annotatedProteins.containsKey(acc)) {
 							final Entry mainEntry = annotatedProteins.get(acc);
@@ -106,6 +108,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 			final Set<String> accSet = new HashSet<String>();
 
 			for (String acc : uniprotAccList) {
+				final Map<String, String> isoformSequenceReferences = new HashMap<String, String>();
 				final String isoformVersion = FastaParser.getIsoformVersion(acc);
 				if (isoformVersion != null && !"1".equals(isoformVersion)) {
 					acc = FastaParser.getNoIsoformAccession(acc);
@@ -130,8 +133,8 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					if (genes != null && !genes.isEmpty()) {
 						gene = genes.get(0);
 					}
-					final Proteoform originalvariant = new Proteoform(acc, acc, originalSequence, description, gene,
-							taxonomy, null, true);
+					final Proteoform originalvariant = new Proteoform(acc, originalSequence, acc, originalSequence,
+							description, gene, taxonomy, ProteoformType.MAIN_ENTRY, true);
 					ret.get(acc).add(originalvariant);
 
 					// query for variants
@@ -156,6 +159,11 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								// no isoform
 								continue;
 							}
+							if (alternativeProductsIsoform.getSequence() != null
+									&& alternativeProductsIsoform.getSequence().getRef() != null) {
+								isoformSequenceReferences.put(isoformACC,
+										alternativeProductsIsoform.getSequence().getRef());
+							}
 							isoformsACCs.add(isoformACC);
 
 						}
@@ -173,8 +181,9 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								if (genes2 != null && !genes2.isEmpty()) {
 									gene2 = genes2.get(0);
 								}
-								final Proteoform variant = new Proteoform(acc, isoformACC, isoformSequence,
-										description2, gene2, taxonomy2, ProteoformType.ISOFORM);
+
+								final Proteoform variant = new Proteoform(acc, originalSequence, isoformACC,
+										isoformSequence, description2, gene2, taxonomy2, ProteoformType.ISOFORM);
 								ret.get(acc).add(variant);
 							}
 						}
@@ -246,18 +255,18 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 
 	private Map<String, Entry> retrieveIsoformsFirst(Set<String> isoformsACCs) {
 		final long t1 = System.currentTimeMillis();
-		log.info("Retrieving isoform fasta sequences all at once first");
+		log.debug("Retrieving isoform fasta sequences all at once first");
 		// if there is no UPLR, get isoform fasta from internet,
 		if (uplr == null) {
 			final Map<String, Entry> isoformEntries = UniprotProteinRemoteRetriever
 					.getFASTASequencesInParallel(isoformsACCs);
-			log.info(isoformEntries.size() + " entries retrieved.");
-			log.info("It took " + DatesUtil.getDescriptiveTimeFromMillisecs((System.currentTimeMillis() - t1)));
+			log.info(isoformEntries.size() + " isoform fasta sequences entries retrieved.");
+			log.debug("It took " + DatesUtil.getDescriptiveTimeFromMillisecs((System.currentTimeMillis() - t1)));
 			return isoformEntries;
 		} else {
 			final Map<String, Entry> entries = uplr.getAnnotatedProteins(null, isoformsACCs);
-			log.info(entries.size() + " entries retrieved.");
-			log.info("It took " + DatesUtil.getDescriptiveTimeFromMillisecs((System.currentTimeMillis() - t1)));
+			log.info(entries.size() + " isoform fasta sequences entries retrieved.");
+			log.debug("It took " + DatesUtil.getDescriptiveTimeFromMillisecs((System.currentTimeMillis() - t1)));
 			return entries;
 		}
 
@@ -266,6 +275,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 	@Override
 	public Map<String, List<Proteoform>> getProteoforms(String... uniprotACCs) {
 		final List<String> asList = Arrays.asList(uniprotACCs);
+
 		return getProteoforms(new HashSet<String>(asList));
 	}
 

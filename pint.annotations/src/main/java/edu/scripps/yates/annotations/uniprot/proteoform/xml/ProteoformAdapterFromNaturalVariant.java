@@ -30,7 +30,7 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 		final String id = getID(originalACC, varSeq);
 		final String seq = ProteoformUtil.translateSequence(varSeq, wholeOriginalSeq);
 		final String description = ProteoformUtil.getDescription(varSeq, originalDescription);
-		final Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
+		final Proteoform variant = new Proteoform(originalACC, wholeOriginalSeq, id, seq, description, gene, taxonomy,
 				ProteoformType.NATURAL_VARIANT);
 		return variant;
 	}
@@ -40,10 +40,15 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 		if (originalACC != null) {
 			ret += originalACC;
 		}
-		ret += FastaParser.variant;
+
 		if (feature.getId() != null) {
+			if (!"".equals(ret)) {
+				ret += "_";
+			}
 			ret += feature.getId();
+			ret += "_" + ProteoformUtil.getShortDescription(feature);
 		} else {
+			ret += FastaParser.variant;
 			if (feature.getVariation() != null && !feature.getVariation().isEmpty()) {
 				ret += feature.getVariation().get(0) + "_" + ProteoformUtil.getLocationString(feature);
 			} else {

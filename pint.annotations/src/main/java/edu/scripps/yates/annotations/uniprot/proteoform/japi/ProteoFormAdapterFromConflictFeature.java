@@ -32,7 +32,7 @@ public class ProteoFormAdapterFromConflictFeature implements Adapter<Proteoform>
 		final String seq = ProteoformUtil.translateSequence(conflictFeature, wholeOriginalSeq);
 		final String description = ProteoformUtil.getDescription(conflictFeature, originalDescription);
 
-		final Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
+		final Proteoform variant = new Proteoform(originalACC, wholeOriginalSeq, id, seq, description, gene, taxonomy,
 				ProteoformType.SEQUENCE_CONFLICT);
 		return variant;
 	}

@@ -30,8 +30,8 @@ public class ProteoformAdapterFromMutagenFeature implements Adapter<Proteoform> 
 		final String id = originalACC + FastaParser.mutated + ProteoformUtil.getShortDescription(feature);
 		final String seq = ProteoformUtil.translateSequence(feature, wholeOriginalSeq);
 		final String description = ProteoformUtil.getDescription(feature, originalDescription);
-		final Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
-				ProteoformType.NATURAL_VARIANT);
+		final Proteoform variant = new Proteoform(originalACC, wholeOriginalSeq, id, seq, description, gene, taxonomy,
+				ProteoformType.MUTAGENESIS_SITE);
 		return variant;
 	}
 

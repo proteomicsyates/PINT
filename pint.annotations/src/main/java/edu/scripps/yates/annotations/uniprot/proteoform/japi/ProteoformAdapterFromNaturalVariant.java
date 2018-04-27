@@ -36,7 +36,7 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 		}
 		final String seq = ProteoformUtil.translateSequence(varSeq, wholeOriginalSeq);
 		final String description = ProteoformUtil.getDescription(varSeq, originalDescription);
-		final Proteoform variant = new Proteoform(originalACC, id, seq, description, gene, taxonomy,
+		final Proteoform variant = new Proteoform(originalACC, wholeOriginalSeq, id, seq, description, gene, taxonomy,
 				ProteoformType.NATURAL_VARIANT);
 		return variant;
 	}

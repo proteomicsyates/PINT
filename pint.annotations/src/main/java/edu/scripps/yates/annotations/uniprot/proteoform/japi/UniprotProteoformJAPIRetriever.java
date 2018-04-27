@@ -196,8 +196,8 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 							taxonomy = mainEntry.getOrganism().getScientificName().getValue();
 						}
 					}
-					final Proteoform originalvariant = new Proteoform(acc, acc, originalSequence, description, gene,
-							taxonomy, null, true);
+					final Proteoform originalvariant = new Proteoform(acc, originalSequence, acc, originalSequence,
+							description, gene, taxonomy, ProteoformType.MAIN_ENTRY, true);
 					ret.get(acc).add(originalvariant);
 
 					// query for variants
@@ -244,7 +244,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 								}
 								final String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
 
-								final Proteoform variant = new Proteoform(acc, isoformACC,
+								final Proteoform variant = new Proteoform(acc, originalSequence, isoformACC,
 										isoformSequence, mainEntry.getProteinDescription().getRecommendedName()
 												.getFields().get(0).getValue(),
 										gene2, taxonomy2, ProteoformType.ISOFORM);
@@ -264,8 +264,8 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 										gene2 = geneNames.get(0);
 									}
 									final String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
-									final Proteoform variant = new Proteoform(acc, isoformACC, isoformSequence,
-											description2, gene2, taxonomy2, ProteoformType.ISOFORM);
+									final Proteoform variant = new Proteoform(acc, originalSequence, isoformACC,
+											isoformSequence, description2, gene2, taxonomy2, ProteoformType.ISOFORM);
 									ret.get(acc).add(variant);
 								}
 							}
