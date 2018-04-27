@@ -64,7 +64,7 @@ public class UniprotFastaRetriever {
 			if (fastaEntry != null) {
 				return fastaEntry;
 			} else {
-				log.info("Adding " + uniprotACC + " to the list of proteins with no FASTA sequence available.");
+				log.debug("Adding " + uniprotACC + " to the list of proteins with no FASTA sequence available.");
 				UniprotProteinRemoteRetriever.entriesWithNoFASTA.add(uniprotACC);
 			}
 		}
