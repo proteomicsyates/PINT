@@ -265,7 +265,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 			return isoformEntries;
 		} else {
 			final Map<String, Entry> entries = uplr.getAnnotatedProteins(null, isoformsACCs);
-			log.info(entries.size() + " isoform fasta sequences entries retrieved.");
+			log.debug(entries.size() + " isoform fasta sequences entries retrieved.");
 			log.debug("It took " + DatesUtil.getDescriptiveTimeFromMillisecs((System.currentTimeMillis() - t1)));
 			return entries;
 		}

@@ -407,7 +407,7 @@ public class UniprotProteinLocalRetriever {
 							counter.increment();
 							final String printIfNecessary = counter.printIfNecessary();
 							if (accsToSearch.size() > 1 && !"".equals(printIfNecessary)) {
-								log.info(printIfNecessary);
+								log.debug(printIfNecessary);
 							}
 							if (Thread.currentThread().isInterrupted()) {
 								throw new RuntimeException("Thread interrupted");

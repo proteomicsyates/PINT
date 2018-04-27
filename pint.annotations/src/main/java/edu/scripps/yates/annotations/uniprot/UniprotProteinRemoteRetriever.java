@@ -650,7 +650,9 @@ public class UniprotProteinRemoteRetriever {
 
 		};
 		final Map<String, Entry> ret = reducibleEntryMap.reduce(entryReduction);
-		log.info("Retrieved " + ret.size() + " FASTA entries in paralell");
+		if (!ret.isEmpty()) {
+			log.info("Retrieved " + ret.size() + " FASTA entries in paralell");
+		}
 		return ret;
 	}
 
