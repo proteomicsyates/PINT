@@ -17,6 +17,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.annotations.util.IndexException;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.index.FileIndex;
 import edu.scripps.yates.utilities.index.TextFileIndex;
@@ -112,11 +113,14 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 				final Entry entry = uniprotFileIndexIO.unmarshallFromString(item);
 				return entry;
 			}
+		} catch (final IndexException e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
 		} catch (final IOException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
 		}
-		log.debug("Item with key '" + key + "' is not in the index");
+		log.warn("Item with key '" + key + "' is not in the index");
 		return null;
 	}
 
