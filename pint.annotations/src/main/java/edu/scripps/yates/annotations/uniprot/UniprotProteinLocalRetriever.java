@@ -399,14 +399,14 @@ public class UniprotProteinLocalRetriever {
 					}
 					int numEntriesRetrievedFromIndex = 0;
 					if (!uniprotIndex.isEmpty() && !accsToSearch.isEmpty()) {
-						log.info("Looking " + accsToSearch.size() + " entries in the local index of annotations at "
+						log.debug("Looking " + accsToSearch.size() + " entries in the local index of annotations at "
 								+ uniprotXmlFile.getAbsolutePath());
 						final ProgressCounter counter = new ProgressCounter(accsToSearch.size(),
 								ProgressPrintingType.PERCENTAGE_STEPS, 0);
 						for (final String acc : accsToSearch) {
 							counter.increment();
 							final String printIfNecessary = counter.printIfNecessary();
-							if (!"".equals(printIfNecessary)) {
+							if (accsToSearch.size() > 1 && !"".equals(printIfNecessary)) {
 								log.info(printIfNecessary);
 							}
 							if (Thread.currentThread().isInterrupted()) {
@@ -573,10 +573,14 @@ public class UniprotProteinLocalRetriever {
 
 	private void removeFirstEntryFromCache() {
 		final Entry entry = cache.getFromCache(getFirstEntryKeyFromCache());
-		final List<String> accession = entry.getAccession();
-		for (final String acc : accession) {
-			cache.removeFromCache(acc);
-			entryKeys.remove(acc);
+		if (entry != null) {
+			final List<String> accession = entry.getAccession();
+			for (final String acc : accession) {
+				cache.removeFromCache(acc);
+				entryKeys.remove(acc);
+			}
+		} else {
+			log.warn("?");
 		}
 	}
 
