@@ -1,5 +1,6 @@
 package edu.scripps.yates.annotations.uniprot.proteoform;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -253,6 +254,9 @@ public class ProteoformUtil {
 	 */
 	public static List<Proteoform> getProteoformsDifferentThan(ProteoformType proteoformType,
 			List<Proteoform> proteoforms) {
+		if (proteoforms == null) {
+			return Collections.emptyList();
+		}
 		return proteoforms.stream().filter(p -> p.getProteoformType() != proteoformType).collect(Collectors.toList());
 	}
 
@@ -265,6 +269,9 @@ public class ProteoformUtil {
 	 * @return
 	 */
 	public static List<Proteoform> getProteoformsAs(ProteoformType proteoformType, List<Proteoform> proteoforms) {
+		if (proteoforms == null) {
+			return Collections.EMPTY_LIST;
+		}
 		return proteoforms.stream().filter(p -> p.getProteoformType() == proteoformType).collect(Collectors.toList());
 	}
 
