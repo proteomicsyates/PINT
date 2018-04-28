@@ -18,9 +18,6 @@ public class Proteoform {
 
 	public Proteoform(String originalACC, String originalSeq, String id, String seq, String description, String gene,
 			String taxonomy, ProteoformType proteoformType, boolean original) {
-		if (proteoformType == null) {
-			System.out.println("asdf");
-		}
 		this.originalACC = originalACC;
 		this.originalSeq = originalSeq;
 		this.id = id;
