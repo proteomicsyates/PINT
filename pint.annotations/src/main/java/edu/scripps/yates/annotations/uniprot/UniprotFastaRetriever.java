@@ -32,7 +32,7 @@ public class UniprotFastaRetriever {
 		String location = locationBuilder.toString();
 		location = location.replace(" ", "%20");
 		final URL url = new URL(location).toURI().toURL();
-		log.info("Submitting " + locationBuilder + " from thread " + Thread.currentThread().getId() + "...");
+		log.debug("Submitting " + locationBuilder + " from thread " + Thread.currentThread().getId() + "...");
 		final long t1 = System.currentTimeMillis();
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		HttpURLConnection.setFollowRedirects(true);
