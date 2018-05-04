@@ -24,11 +24,11 @@ public class UniprotFastaRetrieverThread extends Thread {
 
 	@Override
 	public void run() {
-		Map<String, Entry> ret = new THashMap<String, Entry>();
+		final Map<String, Entry> ret = new THashMap<String, Entry>();
 		reducibleMap.set(ret);
 
 		while (iterator.hasNext()) {
-			String accession = iterator.next();
+			final String accession = iterator.next();
 			try {
 				if (UniprotProteinRemoteRetriever.entriesWithNoFASTA.contains(accession)) {
 					continue;
@@ -42,19 +42,19 @@ public class UniprotFastaRetrieverThread extends Thread {
 					UniprotProteinRemoteRetriever.entriesWithNoFASTA.add(accession);
 				}
 
-			} catch (MalformedURLException e) {
+			} catch (final MalformedURLException e) {
 				e.printStackTrace();
 				log.warn(e.getMessage());
 				iterator.register(e);
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 				log.warn(e.getMessage());
 				iterator.register(e);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				e.printStackTrace();
 				log.warn(e.getMessage());
 				iterator.register(e);
-			} catch (URISyntaxException e) {
+			} catch (final URISyntaxException e) {
 				e.printStackTrace();
 				log.warn(e.getMessage());
 				iterator.register(e);
