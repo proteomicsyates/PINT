@@ -120,7 +120,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			e.printStackTrace();
 			log.error(e.getMessage());
 		}
-		log.warn("Item with key '" + key + "' is not in the index");
+		log.debug("Item with key '" + key + "' is not in the index");
 		return null;
 	}
 
@@ -251,6 +251,8 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			try {
 				loadIndexFile();
 			} catch (final IOException e) {
+				e.printStackTrace();
+			} catch (final Exception e) {
 				e.printStackTrace();
 			}
 		}
