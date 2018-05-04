@@ -129,7 +129,9 @@ public class UniprotProteinRemoteRetriever {
 		final Set<String> isoformList = new THashSet<>();
 		final ProgressCounter counter = new ProgressCounter(accessions.size(), ProgressPrintingType.PERCENTAGE_STEPS,
 				0);
-		log.info("Looking for " + accessions.size() + " proteins in the index of annotations");
+		if (accessions.size() > 1) {
+			log.info("Looking for " + accessions.size() + " proteins in the index of annotations");
+		}
 		for (final String acc : accessions) {
 			if (entriesWithNoInfo.contains(acc)) {
 				// do not try again
@@ -137,7 +139,7 @@ public class UniprotProteinRemoteRetriever {
 			}
 			counter.increment();
 			final String printIfNecessary = counter.printIfNecessary();
-			if (!"".equals(printIfNecessary)) {
+			if (accessions.size() > 1 && !"".equals(printIfNecessary)) {
 				log.info(printIfNecessary);
 			}
 			if (Thread.currentThread().isInterrupted()) {
@@ -212,8 +214,10 @@ public class UniprotProteinRemoteRetriever {
 
 				final String location = locationBuilder.toString();
 				final URL url = new URL(location).toURI().toURL();
-				log.info("Submitting " + numAccs + " (" + totalNumAccs + "/" + noIsoformList.size() + ") at '"
-						+ location + "'...");
+				if (numAccs > 1) {
+					log.info("Submitting " + numAccs + " (" + totalNumAccs + "/" + noIsoformList.size() + ") at '"
+							+ location + "'...");
+				}
 				final long t1 = System.currentTimeMillis();
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 				HttpURLConnection.setFollowRedirects(true);
@@ -448,7 +452,13 @@ public class UniprotProteinRemoteRetriever {
 
 					try {
 						final long t1 = System.currentTimeMillis();
-						log.info("Saving " + uniprot.getEntry().size() + " entries to local index...");
+						if (accessionsSent.size() == 1) {
+							log.info("Saving " + uniprot.getEntry().size()
+									+ " entries to local index corresponding to protein  "
+									+ accessionsSent.iterator().next() + "...");
+						} else {
+							log.info("Saving " + uniprot.getEntry().size() + " entries to local index...");
+						}
 						final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(uniprotReleaseFolder,
 								useIndex);
 						uplr.saveUniprotToLocalFilesystem(uniprot, uniprotVersion, useIndex);
@@ -488,11 +498,11 @@ public class UniprotProteinRemoteRetriever {
 	private Uniprot parseResponse(InputStream is, Set<String> accessionsSent) {
 
 		log.debug("Processing response from remote input stream...");
-
+		File file = null;
 		// OutputStream outputStream = null;
 		try {
 			final long t1 = System.currentTimeMillis();
-			final File file = FileUtils.getFileFromInputStream(is);
+			file = FileUtils.getFileFromInputStream(is);
 			file.deleteOnExit();
 			log.debug("Input stream saved as file " + FileUtils.getDescriptiveSizeFromBytes(file.length()) + " in "
 					+ DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
@@ -792,9 +802,10 @@ public class UniprotProteinRemoteRetriever {
 			// it may return more than one fasta header, so get the one for the
 			// accession
 			boolean takeSequence = false;
+			int numHeaders = 0;
 			for (int i = 0; i < split.length; i++) {
 				if (split[i].startsWith(">")) {
-
+					numHeaders++;
 					// check if there was a sequence before and it was the
 					// correct one (takeSequence=true)
 					if (takeSequence && !"".equals(sequence.toString())) {
@@ -811,7 +822,7 @@ public class UniprotProteinRemoteRetriever {
 				}
 			}
 
-			if (takeSequence && !"".equals(sequence.toString())) {
+			if ((numHeaders == 1 || takeSequence) && !"".equals(sequence.toString())) {
 				return new UniprotEntryAdapterFromFASTA(accession, fastaHeader, sequence.toString()).adapt();
 			}
 		} catch (final IOException e) {
