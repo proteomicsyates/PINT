@@ -326,10 +326,10 @@ public class UniprotProteinLocalRetriever {
 		final Set<String> mainIsoforms = new THashSet<>();
 		for (final String acc : accessions) {
 			// only search for the uniprot ones
-			if (!FastaParser.isContaminant(acc) && !FastaParser.isReverse(acc)
-					&& FastaParser.getUniProtACC(acc) != null) {
-				if (!FastaParser.isProteoform(FastaParser.getUniProtACC(acc))) {
-					if ("1".equals(FastaParser.getIsoformVersion(acc))) {
+			final String uniProtACC = FastaParser.getUniProtACC(acc);
+			if (!FastaParser.isContaminant(acc) && !FastaParser.isReverse(acc) && uniProtACC != null) {
+				if (!FastaParser.isProteoform(uniProtACC)) {
+					if (FastaParser.getIsoformVersion(acc) != null) {
 						final String noIsoAcc = FastaParser.getNoIsoformAccession(acc);
 						if (noIsoAcc != null) {
 							log.debug("Registered main isoform accession: " + acc);
