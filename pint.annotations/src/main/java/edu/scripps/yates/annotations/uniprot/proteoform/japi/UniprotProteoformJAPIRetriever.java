@@ -6,13 +6,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRemoteRetriever;
 import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
@@ -20,6 +20,7 @@ import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformType;
 import edu.scripps.yates.annotations.uniprot.proteoform.UniprotPTM;
 import edu.scripps.yates.annotations.uniprot.proteoform.UniprotProteoformRetriever;
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import uk.ac.ebi.kraken.interfaces.uniprot.Gene;
@@ -56,7 +57,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 	private final UniprotProteinLocalRetriever uplr;
 	private boolean retrievePTMs = true;
 	private boolean retrieveIsoforms = true;
-	private final int defaultChunkSize = 100;
+	protected static final int defaultChunkSize = 100;
 
 	public UniprotProteoformJAPIRetriever(UniprotProteinLocalRetriever uplr) {
 		this.uplr = uplr;
@@ -65,15 +66,17 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 	/**
 	 * To call before getting variants
 	 */
-	public void startService() {
+	public static void startService(UniProtService service) {
 		service = Client.getServiceFactoryInstance().getUniProtQueryService();
 		service.start();
 	}
 
 	/**
 	 * To call after getting variants
+	 * 
+	 * @param service2
 	 */
-	public void stopService() {
+	private static void stopService(UniProtService service) {
 		service.stop();
 	}
 
@@ -88,22 +91,24 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 
 	@Override
 	public Map<String, List<Proteoform>> getProteoforms(Collection<String> uniprotACCs) {
-		return getProteoforms(uniprotACCs, defaultChunkSize);
+		return getProteoforms(service, uniprotACCs, defaultChunkSize, retrieveIsoforms, retrievePTMs, uplr);
 	}
 
-	public Map<String, List<Proteoform>> getProteoforms(Collection<String> uniprotACCs, int chunkSize) {
+	protected static Map<String, List<Proteoform>> getProteoforms(UniProtService service,
+			Collection<String> uniprotACCs, int chunkSize, boolean retrieveIsoforms, boolean retrievePTMs,
+			UniprotProteinLocalRetriever uplr) {
 		final Map<String, List<Proteoform>> ret = new HashMap<String, List<Proteoform>>();
 		final List<String> uniprotAccList = new ArrayList<String>();
 		uniprotAccList.addAll(uniprotACCs);
 		try {
 			// start service
-			startService();
+			startService(service);
 			if (retrieveIsoforms) {
 				final Set<String> isoformsACCs = new HashSet<String>();
 				final List<String> toQuery = new ArrayList<String>();
 				for (final String acc : uniprotAccList) {
 					final String isoformVersion = FastaParser.getIsoformVersion(acc);
-					if (isoformVersion == null || "1".equals(isoformVersion)) {
+					if (isoformVersion == null) {
 						toQuery.add(acc);
 					} else {
 						isoformsACCs.add(acc);
@@ -129,10 +134,6 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 								final List<AlternativeProductsIsoform> isoforms = alternativeProducts.getIsoforms();
 								for (final AlternativeProductsIsoform alternativeProductsIsoform : isoforms) {
 									final String isoformACC = alternativeProductsIsoform.getIds().get(0).getValue();
-									if ("1".equals(FastaParser.getIsoformVersion(isoformACC))) {
-										// no isoform
-										continue;
-									}
 									isoformsACCs.add(isoformACC);
 
 								}
@@ -140,7 +141,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 						}
 					}
 				}
-				retrieveIsoformsFirst(isoformsACCs);
+				retrieveIsoformsFirst(isoformsACCs, uplr);
 			}
 			for (int index = 0; index < uniprotAccList.size(); index += chunkSize) {
 				final Set<String> toQuery = new HashSet<String>();
@@ -217,10 +218,6 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 						final List<AlternativeProductsIsoform> isoforms = alternativeProducts.getIsoforms();
 						for (final AlternativeProductsIsoform alternativeProductsIsoform : isoforms) {
 							final String isoformACC = alternativeProductsIsoform.getIds().get(0).getValue();
-							if ("1".equals(FastaParser.getIsoformVersion(isoformACC))) {
-								// no isoform
-								continue;
-							}
 							isoformsACCs.add(isoformACC);
 
 						}
@@ -333,13 +330,13 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 		} catch (final ServiceException e) {
 			e.printStackTrace();
 		} finally {
-			stopService();
+			stopService(service);
 		}
 		return ret;
 
 	}
 
-	private void retrieveIsoformsFirst(Set<String> isoformsACCs) {
+	private static void retrieveIsoformsFirst(Set<String> isoformsACCs, UniprotProteinLocalRetriever uplr) {
 		final long t1 = System.currentTimeMillis();
 		log.info("Retrieving isoform fasta sequences all at once first");
 		// if there is no UPLR, get isoform fasta from internet,
@@ -374,6 +371,20 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 
 	public void setRetrieveIsoforms(boolean retrieveIsoforms) {
 		this.retrieveIsoforms = retrieveIsoforms;
+	}
+
+	@Override
+	public Iterator<Proteoform> getProteoformIterator(Collection<String> uniprotACCs) {
+		return new ProteoformRetrieverIteratorFromJAPI(service, uniprotACCs, retrieveIsoforms, retrievePTMs, uplr);
+	}
+
+	@Override
+	public Iterator<Proteoform> getProteoformIterator(String... uniprotACCs) {
+		final Set<String> set = new HashSet<String>();
+		for (final String uniprotACC : uniprotACCs) {
+			set.add(uniprotACC);
+		}
+		return getProteoformIterator(set);
 	}
 
 }

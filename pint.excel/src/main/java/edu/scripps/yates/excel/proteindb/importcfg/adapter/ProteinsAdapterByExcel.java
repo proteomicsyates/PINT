@@ -95,21 +95,21 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	}
 
 	private void loadUniprotAnnotations() {
-		Set<String> accessions = getUniprotAccs();
+		final Set<String> accessions = getUniprotAccs();
 		log.info("Getting annotations from " + accessions.size() + " proteins");
 		// use null in order to get the latest version, the current one.
-		String uniprotVersion = null;
-		UniprotProteinRetriever upr = new UniprotProteinRetriever(uniprotVersion,
+		final String uniprotVersion = null;
+		final UniprotProteinRetriever upr = new UniprotProteinRetriever(uniprotVersion,
 				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 				UniprotProteinRetrievalSettings.getInstance().isUseIndex());
 		upr.getAnnotatedProteins(accessions);
 	}
 
 	private Set<String> getUniprotAccs() {
-		Set<String> accessions = new THashSet<String>();
+		final Set<String> accessions = new THashSet<String>();
 		final ExcelColumn proteinAccColumn = excelFileReader
 				.getExcelColumnFromReference(excelCfg.getProteinAccession().getColumnRef());
-		ProteinAccessionType proteinAccessionCfg = excelCfg.getProteinAccession();
+		final ProteinAccessionType proteinAccessionCfg = excelCfg.getProteinAccession();
 
 		final ProteinDescriptionType proteinDescriptionCfg = excelCfg.getProteinDescription();
 		ExcelColumn proteinDescColumn = null;
@@ -118,12 +118,12 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 		}
 		final List<Object> proteinAccessionValues = proteinAccColumn.getValues();
 		int rowIndex = 0;
-		for (Object object : proteinAccessionValues) {
+		for (final Object object : proteinAccessionValues) {
 			String rawProteinDescription = null;
 			if (proteinDescColumn != null && rowIndex < proteinDescColumn.getValues().size())
 				rawProteinDescription = proteinDescColumn.getValues().get(rowIndex).toString().trim();
 			final String rawProteinAccession = object.toString();
-			List<String> proteinAccsToParse = getTokens(proteinAccessionCfg.isGroups(),
+			final List<String> proteinAccsToParse = getTokens(proteinAccessionCfg.isGroups(),
 					proteinAccessionCfg.getGroupSeparator(), rawProteinAccession);
 			List<String> proteinDescsToParse = null;
 			if (proteinDescriptionCfg != null) {
@@ -131,12 +131,12 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 						proteinDescriptionCfg.getGroupSeparator(), rawProteinDescription);
 			}
 			for (int i = 0; i < proteinAccsToParse.size(); i++) {
-				String proteinAccToParse = proteinAccsToParse.get(i).trim();
+				final String proteinAccToParse = proteinAccsToParse.get(i).trim();
 				String proteinDescToParse = null;
 				if (proteinDescsToParse != null && i < proteinDescsToParse.size())
 					proteinDescToParse = proteinDescsToParse.get(i).trim();
 				try {
-					String proteinAcc = applyRegexp(proteinAccToParse, proteinAccessionCfg.getRegexp());
+					final String proteinAcc = applyRegexp(proteinAccToParse, proteinAccessionCfg.getRegexp());
 					if (proteinAcc == null) {
 						log.info("Skipping protein accession: '" + proteinAccToParse + "'");
 						continue;
@@ -155,31 +155,29 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 						final List<UniprotEntry> map2Uniprot = IPI2UniprotACCMap.getInstance().map2Uniprot(proteinAcc);
 						boolean somethingFound = false;
 						if (!map2Uniprot.isEmpty()) {
-							for (UniprotEntry uniprotEntry : map2Uniprot) {
+							for (final UniprotEntry uniprotEntry : map2Uniprot) {
 								accessions.add(uniprotEntry.getAcc());
 							}
 							somethingFound = true;
 						}
 						if (!somethingFound) {
 
-							AccessionEx accession = new AccessionEx(proteinAcc,
+							final AccessionEx accession = new AccessionEx(proteinAcc,
 									AccessionType.fromValue(proteinAccessionType.getSecondElement()));
 							// has to be non parsed protein description for
 							// letting map2Uniprot use the information in
 							// the header to get the map if possible
 							accession.setDescription(noParsedProteinDescription);
-							final List<Protein> proteinsMapped = UniprotACCQuery.map2Uniprot(accession, false,
-									UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
-									UniprotProteinRetrievalSettings.getInstance().isUseIndex());
+							final List<Protein> proteinsMapped = UniprotACCQuery.map2Uniprot(accession, false);
 							if (proteinsMapped != null) {
-								for (Protein protein : proteinsMapped) {
+								for (final Protein protein : proteinsMapped) {
 									accessions.add(protein.getAccession());
 								}
 							}
 						}
 
 					}
-				} catch (IllegalArgumentException e) {
+				} catch (final IllegalArgumentException e) {
 
 					continue;
 				}
@@ -191,21 +189,21 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	}
 
 	private Set<Protein> getProteinsFromExcelReader() {
-		Set<Protein> ret = new THashSet<Protein>();
+		final Set<Protein> ret = new THashSet<Protein>();
 
 		final ExcelColumn proteinAccessionValuesColumn = excelFileReader
 				.getExcelColumnFromReference(excelCfg.getProteinAccession().getColumnRef());
 
 		final List<Object> proteinAccessionValues = proteinAccessionValuesColumn.getValues();
 		int rowIndex = 0;
-		for (Object object : proteinAccessionValues) {
+		for (final Object object : proteinAccessionValues) {
 			boolean grabProteinIfNoProteinAmount = false;
 			if (excelCfg.getSequence() != null) {
 				grabProteinIfNoProteinAmount = true;
 			}
 			final Set<Protein> proteinSet = getProteins(rowIndex, grabProteinIfNoProteinAmount);
 			// add to map by row index
-			for (Protein protein : proteinSet) {
+			for (final Protein protein : proteinSet) {
 				// addProteinByMSRunIDAndRowIndex(msRun.getId(), rowIndex,
 				// protein);
 				StaticProteomicsModelStorage.addProtein(protein, msRun.getId(), expCondition.getName());
@@ -219,7 +217,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 					if (psm != null) {
 						// add the psm to the proteins
 						// add the proteins to the psm
-						for (Protein protein : proteinSet) {
+						for (final Protein protein : proteinSet) {
 							((ProteinEx) protein).addPSM(psm);
 							((PSMEx) psm).addProtein(protein);
 						}
@@ -236,7 +234,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 						}
 						// add the peptide to the proteins
 						// add the proteins to the peptide
-						for (Protein protein : proteinSet) {
+						for (final Protein protein : proteinSet) {
 							((ProteinEx) protein).addPeptide(peptide);
 							((PeptideEx) peptide).addProtein(protein);
 						}
@@ -292,7 +290,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	private Set<Protein> getProteins(int rowIndex, boolean grabProteinIfNoProteinAmount) {
 		log.info("Getting proteins from row " + rowIndex + " on condition " + expCondition.getName() + " and run "
 				+ msRun.getId());
-		Set<Protein> ret = new THashSet<Protein>();
+		final Set<Protein> ret = new THashSet<Protein>();
 
 		final ProteinAccessionType proteinAccessionCfg = excelCfg.getProteinAccession();
 		final ProteinDescriptionType proteinDescriptionCfg = excelCfg.getProteinDescription();
@@ -307,7 +305,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 		if (proteinDescriptionColumn != null) {
 			rawProteinDescription = proteinDescriptionColumn.getValues().get(rowIndex).toString();
 		}
-		List<String> proteinAccsToParse = getTokens(proteinAccessionCfg.isGroups(),
+		final List<String> proteinAccsToParse = getTokens(proteinAccessionCfg.isGroups(),
 				proteinAccessionCfg.getGroupSeparator(), rawProteinAccession);
 		List<String> proteinDescriptionsToParse = null;
 		if (proteinDescriptionCfg != null) {
@@ -323,7 +321,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 		// proteinMapByMSRunID.put(msRun.getId(), proteinMap);
 		// }
 		for (int i = 0; i < proteinAccsToParse.size(); i++) {
-			String proteinAccToParse = proteinAccsToParse.get(i).trim();
+			final String proteinAccToParse = proteinAccsToParse.get(i).trim();
 			String proteinDescriptionToParse = "";
 			if (proteinDescriptionsToParse != null && i < proteinDescriptionsToParse.size())
 				proteinDescriptionToParse = proteinDescriptionsToParse.get(i).trim();
@@ -331,7 +329,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 			Pair<String, String> proteinAccession = null;
 			try {
 				if (excelCfg.getDiscardDecoys() != null && !"".equals(excelCfg.getDiscardDecoys())) {
-					String decoyAcc = applyRegexp(proteinAccToParse, excelCfg.getDiscardDecoys());
+					final String decoyAcc = applyRegexp(proteinAccToParse, excelCfg.getDiscardDecoys());
 					if (decoyAcc != null) {
 						log.info("Discarding DECOY accession: " + proteinAccToParse);
 						continue;
@@ -342,7 +340,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 					throw new IllegalArgumentException("Regular expression '" + proteinAccessionCfg.getRegexp()
 							+ "' not valid for string: '" + proteinAccToParse + "'");
 				proteinAccession = FastaParser.getACC(proteinAcc);
-			} catch (IllegalArgumentException e) {
+			} catch (final IllegalArgumentException e) {
 				log.warn(e.getMessage());
 				log.warn("skipping string '" + proteinAccToParse + "' as accession");
 				continue;
@@ -376,11 +374,11 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 				addUniprotInformation((ProteinEx) protein);
 				if (StaticProteomicsModelStorage.containsProtein(msRun.getId(), expCondition.getName(),
 						protein.getAccession())) {
-					Protein proteinOLD = StaticProteomicsModelStorage.getProtein(msRun.getId(), expCondition.getName(),
-							protein.getPrimaryAccession().getAccession()).iterator().next();
+					final Protein proteinOLD = StaticProteomicsModelStorage.getProtein(msRun.getId(),
+							expCondition.getName(), protein.getPrimaryAccession().getAccession()).iterator().next();
 					// add to map with also the secondary accession
 					if (protein.getSecondaryAccessions() != null) {
-						for (Accession secondaryAcc : protein.getSecondaryAccessions()) {
+						for (final Accession secondaryAcc : protein.getSecondaryAccessions()) {
 							if (proteinOLD instanceof ProteinEx) {
 								((ProteinEx) proteinOLD).addSecondaryAccession(secondaryAcc);
 							}
@@ -415,7 +413,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 			// condition
 			protein.addCondition(expCondition);
 
-			boolean addToSet = true;
+			final boolean addToSet = true;
 			// protein amounts
 			// DISABLED SINCE AMOUNTS ARE CREATED AT CONDITIONADAPTER
 			// if (excelCfg.getProteinAmounts() != null) {
@@ -441,7 +439,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 
 			// protein scores
 			if (excelCfg.getProteinScore() != null) {
-				for (ScoreType scoreCfg : excelCfg.getProteinScore()) {
+				for (final ScoreType scoreCfg : excelCfg.getProteinScore()) {
 					final Score score = new ScoreAdapter(scoreCfg, excelFileReader, rowIndex).adapt();
 					if (score != null)
 						protein.addScore(score);
@@ -486,22 +484,22 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 		}
 		// protein annotations
 		if (excelCfg.getProteinAnnotations() != null) {
-			Set<ProteinAnnotation> proteinAnnotations = new ProteinAnnotationsAdapterByExcel(rowIndex, excelCfg,
+			final Set<ProteinAnnotation> proteinAnnotations = new ProteinAnnotationsAdapterByExcel(rowIndex, excelCfg,
 					excelFileReader).adapt();
-			for (ProteinAnnotation proteinAnnotation : proteinAnnotations) {
-				for (Protein protein : ret) {
-					ProteinEx proteinEx = (ProteinEx) protein;
+			for (final ProteinAnnotation proteinAnnotation : proteinAnnotations) {
+				for (final Protein protein : ret) {
+					final ProteinEx proteinEx = (ProteinEx) protein;
 					proteinEx.addProteinAnnotation(proteinAnnotation);
 				}
 			}
 		}
 		// protein thresholds
 		if (excelCfg.getProteinThresholds() != null) {
-			Set<Threshold> proteinThresholds = new ProteinThresholdAdapterByExcel(rowIndex, excelCfg, excelFileReader)
-					.adapt();
-			for (Threshold threshold : proteinThresholds) {
-				for (Protein protein : ret) {
-					ProteinEx proteinEx = (ProteinEx) protein;
+			final Set<Threshold> proteinThresholds = new ProteinThresholdAdapterByExcel(rowIndex, excelCfg,
+					excelFileReader).adapt();
+			for (final Threshold threshold : proteinThresholds) {
+				for (final Protein protein : ret) {
+					final ProteinEx proteinEx = (ProteinEx) protein;
 					proteinEx.addProteinThreshold(threshold);
 				}
 			}
@@ -520,31 +518,29 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	 */
 	protected static void addUniprotInformation(ProteinEx protein) {
 		if (!protein.getPrimaryAccession().getAccessionType().equals(AccessionType.UNIPROT)) {
-			final List<Protein> map2Uniprot = UniprotACCQuery.map2Uniprot(protein.getPrimaryAccession(), true,
-					UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
-					UniprotProteinRetrievalSettings.getInstance().isUseIndex());
+			final List<Protein> map2Uniprot = UniprotACCQuery.map2Uniprot(protein.getPrimaryAccession(), true);
 			if (!map2Uniprot.isEmpty()) {
-				Protein firstProtein = map2Uniprot.iterator().next();
+				final Protein firstProtein = map2Uniprot.iterator().next();
 				final Accession primaryAccession = firstProtein.getPrimaryAccession();
 				if (map2Uniprot.size() > 1) {
 					log.info(map2Uniprot.size() + " proteins retrieved using the geneSymbol. Taking the fisrt one: "
 							+ primaryAccession.getAccession());
 					log.info("");
 				}
-				Accession previousPrimaryAcc = protein.getPrimaryAccession();
+				final Accession previousPrimaryAcc = protein.getPrimaryAccession();
 				protein.setPrimaryAccession(primaryAccession);
 				if (primaryAccession.getDescription() == null || "".equals(primaryAccession.getDescription()))
 					log.info("description null");
 				protein.addSecondaryAccession(previousPrimaryAcc);
 			}
 		} else {
-			UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
+			final UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
 					UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 					UniprotProteinRetrievalSettings.getInstance().isUseIndex());
 			final Map<String, Protein> annotatedProteins = upr
 					.getAnnotatedProtein(protein.getPrimaryAccession().getAccession());
 			if (annotatedProteins != null) {
-				for (String proteinAcc : annotatedProteins.keySet()) {
+				for (final String proteinAcc : annotatedProteins.keySet()) {
 					// accessions/descriptions
 					final Protein annotatedProtein = annotatedProteins.get(proteinAcc);
 					if (annotatedProtein == null) {
@@ -559,7 +555,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 								.setAlternativeNames(annotatedProtein.getPrimaryAccession().getAlternativeNames());
 					} else {
 						// add as secondary accessions
-						AccessionEx secondaryAcc = new AccessionEx(proteinAcc, AccessionType.UNIPROT);
+						final AccessionEx secondaryAcc = new AccessionEx(proteinAcc, AccessionType.UNIPROT);
 						secondaryAcc.setDescription(annotatedProtein.getPrimaryAccession().getDescription());
 						secondaryAcc.setAlternativeNames(annotatedProtein.getPrimaryAccession().getAlternativeNames());
 						protein.addSecondaryAccession(secondaryAcc);
@@ -568,7 +564,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 					// genes
 					final Set<Gene> genes = annotatedProtein.getGenes();
 					if (genes != null && !genes.isEmpty()) {
-						for (Gene gene : genes) {
+						for (final Gene gene : genes) {
 							protein.addGene(gene);
 						}
 
@@ -609,14 +605,14 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 			} else {
 				return null;
 			}
-		} catch (PatternSyntaxException e) {
+		} catch (final PatternSyntaxException e) {
 			throw new IllegalArgumentException("Regular expression '" + regexp + "' not valid for string: '"
 					+ stringtoParse + "', " + e.getMessage());
 		}
 	}
 
 	static List<String> getTokens(boolean isGroups, String groupSeparator, String rawString) {
-		List<String> list = new ArrayList<String>();
+		final List<String> list = new ArrayList<String>();
 		if (isGroups) {
 			final StringTokenizer stringTokenizer = new StringTokenizer(rawString, groupSeparator, false);
 			while (stringTokenizer.hasMoreElements()) {

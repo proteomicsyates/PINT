@@ -1,21 +1,15 @@
 package edu.scripps.yates.annotations.uniprot.proteoform.fasta;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
-import com.compomics.dbtoolkit.io.implementations.FASTADBLoader;
-import com.compomics.dbtoolkit.io.interfaces.DBLoader;
-import com.compomics.util.protein.Protein;
 import com.google.common.collect.Iterators;
 
 import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
 import edu.scripps.yates.annotations.uniprot.proteoform.UniprotProteoformRetriever;
 import edu.scripps.yates.utilities.fasta.Fasta;
-import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.fasta.FastaReader;
 
 /**
@@ -28,11 +22,25 @@ import edu.scripps.yates.utilities.fasta.FastaReader;
  */
 public class ProteoFormFastaReader extends FastaReader {
 	private final UniprotProteoformRetriever proteoFormRetriever;
-	private List<String> uniprotACCs;
+	private final Set<String> canonicalUniprotEntries;
 
 	public ProteoFormFastaReader(String fastaFileName, UniprotProteoformRetriever proteoFormRetriever) {
 		super(fastaFileName);
 		this.proteoFormRetriever = proteoFormRetriever;
+		canonicalUniprotEntries = null;
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param canonicalUniprotEntries
+	 *            set of uniprot accessions to consider from the fasta file
+	 * @param proteoFormRetriever
+	 */
+	public ProteoFormFastaReader(Set<String> canonicalUniprotEntries, UniprotProteoformRetriever proteoFormRetriever) {
+		super(null);
+		this.proteoFormRetriever = proteoFormRetriever;
+		this.canonicalUniprotEntries = canonicalUniprotEntries;
 	}
 
 	@Override
@@ -40,63 +48,26 @@ public class ProteoFormFastaReader extends FastaReader {
 		return Iterators.concat(super.getFastas(), getProteoFormFastaIterator());
 	}
 
-	private List<String> getUniprotACCs() throws IOException {
-		if (uniprotACCs == null || uniprotACCs.isEmpty()) {
-			uniprotACCs = new ArrayList<String>();
-			final DBLoader loader = new FASTADBLoader();
-			if (loader.canReadFile(new File(fastaFileName))) {
-
-				Protein protein = null;
-				loader.load(fastaFileName);
-				while ((protein = loader.nextProtein()) != null) {
-					String accession = protein.getHeader().getAccession();
-					if (accession == null) {
-						accession = protein.getHeader().getAccessionOrRest();
-					}
-					final String uniprotAccession = FastaParser.getUniProtACC(accession);
-					if (uniprotAccession != null) {
-						uniprotACCs.add(uniprotAccession);
-					}
-				}
-			}
-		}
-		return uniprotACCs;
-	}
-
 	public Iterator<Fasta> getProteoFormFastaIterator() throws IOException {
 
-		final List<String> uniprotACCs = getUniprotACCs();
+		Set<String> uniprotACCs = null;
 
+		// take just the ones in the canonicalUniprotEntries if not null
+		if (canonicalUniprotEntries != null) {
+			uniprotACCs = new HashSet<String>();
+			uniprotACCs.addAll(canonicalUniprotEntries);
+		} else {
+			uniprotACCs = getUniprotACCsFromFasta();
+		}
 		// look for proteoforms of the proteins
-		final List<Proteoform> proteoformList = getProteoformList(uniprotACCs);
+		final Iterator<Proteoform> proteoformList = proteoFormRetriever.getProteoformIterator(uniprotACCs);
 
 		return new FastaIteratorFromProteoforms(proteoformList);
 
 	}
 
-	private List<Proteoform> getProteoformList(List<String> uniprotACCs) {
-		final Map<String, List<Proteoform>> proteoformMap = proteoFormRetriever.getProteoforms(uniprotACCs);
-		final List<Proteoform> proteoformList = new ArrayList<Proteoform>();
-		for (final String acc : uniprotACCs) {
-			if (proteoformMap.containsKey(acc)) {
-				final List<Proteoform> proteoformList2 = proteoformMap.get(acc);
-
-				for (final Proteoform proteoform : proteoformList2) {
-					if (proteoform.isOriginal()) {
-						continue;
-					}
-					proteoformList.add(proteoform);
-				}
-			}
-		}
-		return proteoformList;
-	}
-
 	@Override
 	public int getNumberFastas() throws IOException {
-		final List<Proteoform> proteoformList = getProteoformList(getUniprotACCs());
-		final int proteoformNumber = proteoformList.size();
-		final int mainProteinNumber = super.getNumberFastas();
-		return mainProteinNumber + proteoformNumber;
+		throw new IOException("Using an iterator doesn't allow to know how many proteoforms we have");
 	}
 }

@@ -1,4 +1,4 @@
-package edu.scripps.yates.annotations.uniprot;
+package edu.scripps.yates.annotations.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,15 +12,35 @@ import edu.scripps.yates.annotations.uniprot.xml.GeneNameType;
 import edu.scripps.yates.annotations.uniprot.xml.GeneType;
 import edu.scripps.yates.annotations.uniprot.xml.PropertyType;
 import edu.scripps.yates.annotations.uniprot.xml.ProteinType.SubmittedName;
+import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 
 public class UniprotEntryUtil {
+	public static void removeNonUsedElements(Uniprot uniprot, boolean removeReferences, boolean removeDBReferences) {
+		if (uniprot != null && uniprot.getEntry() != null) {
+			for (final Entry entry : uniprot.getEntry()) {
+				removeNonUsedElements(entry, removeReferences, removeDBReferences);
+			}
+		}
+	}
+
+	public static void removeNonUsedElements(Entry entry, boolean removeReferences, boolean removeDBReferences) {
+		if (entry != null) {
+			if (removeReferences && entry.getReference() != null) {
+				entry.getReference().clear();
+			}
+			if (removeDBReferences && entry.getDbReference() != null) {
+				entry.getDbReference().clear();
+			}
+		}
+	}
+
 	public static String getENSGID(Entry entry) {
 		if (entry != null) {
 			if (entry.getDbReference() != null) {
-				for (DbReferenceType dbReference : entry.getDbReference()) {
+				for (final DbReferenceType dbReference : entry.getDbReference()) {
 					if ("Ensembl".equals(dbReference.getType())) {
 						if (dbReference.getProperty() != null) {
-							for (PropertyType property : dbReference.getProperty()) {
+							for (final PropertyType property : dbReference.getProperty()) {
 								if ("gene ID".equals(property.getType())) {
 									return property.getValue();
 								}
@@ -37,7 +57,7 @@ public class UniprotEntryUtil {
 		if (entry != null) {
 			if (entry.getSequence() != null) {
 				if (entry.getSequence().getValue() != null) {
-					String seq = entry.getSequence().getValue().replace("\n", "");
+					final String seq = entry.getSequence().getValue().replace("\n", "");
 					return seq;
 				}
 			}
@@ -57,14 +77,14 @@ public class UniprotEntryUtil {
 	}
 
 	public static List<String> getGeneName(Entry entry, boolean justPrimary, boolean secondaryIfPrimaryIsNull) {
-		List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<String>();
 		if (entry != null) {
-			List<GeneType> gene = entry.getGene();
+			final List<GeneType> gene = entry.getGene();
 			if (gene != null) {
-				for (GeneType geneType : gene) {
-					for (GeneNameType geneNameType : geneType.getName()) {
+				for (final GeneType geneType : gene) {
+					for (final GeneNameType geneNameType : geneType.getName()) {
 						boolean isPrimary = false;
-						if ("primary".contentEquals(geneNameType.getType())) {
+						if ("primary".equals(geneNameType.getType())) {
 							isPrimary = true;
 						}
 						if (!justPrimary || (justPrimary && isPrimary)) {
@@ -76,7 +96,7 @@ public class UniprotEntryUtil {
 					}
 				}
 				if (justPrimary && secondaryIfPrimaryIsNull && ret.isEmpty()) {
-					List<String> geneNames2 = getGeneName(entry, false, false);
+					final List<String> geneNames2 = getGeneName(entry, false, false);
 					if (geneNames2.isEmpty()) {
 					} else {
 						ret.add(geneNames2.get(0));
@@ -88,8 +108,8 @@ public class UniprotEntryUtil {
 	}
 
 	/**
-	 * <dbReference type="Proteomes" id="UP000005640"> <property type=
-	 * "component" value="Chromosome 1"/> </dbReference>
+	 * <dbReference type="Proteomes" id="UP000005640">
+	 * <property type= "component" value="Chromosome 1"/> </dbReference>
 	 * 
 	 * @param entry
 	 * @return
@@ -97,10 +117,10 @@ public class UniprotEntryUtil {
 	public static String getChromosomeName(Entry entry) {
 		if (entry != null) {
 			if (entry.getDbReference() != null) {
-				for (DbReferenceType dbReference : entry.getDbReference()) {
+				for (final DbReferenceType dbReference : entry.getDbReference()) {
 					if ("Proteomes".equals(dbReference.getType())) {
 						if (dbReference.getProperty() != null) {
-							for (PropertyType property : dbReference.getProperty()) {
+							for (final PropertyType property : dbReference.getProperty()) {
 								if (property.getValue().contains("Chromosome")) {
 									return property.getValue();
 								}
@@ -131,10 +151,10 @@ public class UniprotEntryUtil {
 					}
 				} else {
 					if (entry.getProtein().getSubmittedName() != null) {
-						for (SubmittedName submittedName : entry.getProtein().getSubmittedName()) {
-							EvidencedStringType fullName = submittedName.getFullName();
+						for (final SubmittedName submittedName : entry.getProtein().getSubmittedName()) {
+							final EvidencedStringType fullName = submittedName.getFullName();
 							if (fullName != null) {
-								String fullNameValue = fullName.getValue();
+								final String fullNameValue = fullName.getValue();
 								if (fullNameValue != null && !"".equals(fullNameValue)) {
 									return fullNameValue;
 								}
@@ -149,11 +169,11 @@ public class UniprotEntryUtil {
 
 	public static List<CommentType> getComments(Entry entry,
 			uk.ac.ebi.kraken.interfaces.uniprot.comments.CommentType type) {
-		List<CommentType> ret = new ArrayList<CommentType>();
-		String typeString = type.toXmlDisplayName();
+		final List<CommentType> ret = new ArrayList<CommentType>();
+		final String typeString = type.toXmlDisplayName();
 		if (entry != null) {
 			if (entry.getComment() != null) {
-				for (CommentType comment : entry.getComment()) {
+				for (final CommentType comment : entry.getComment()) {
 					if (comment.getType().equals(typeString)) {
 						ret.add(comment);
 					}
@@ -165,11 +185,11 @@ public class UniprotEntryUtil {
 
 	public static List<FeatureType> getFeatures(Entry entry,
 			uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType type) {
-		List<FeatureType> ret = new ArrayList<FeatureType>();
-		String typeString = type.getValue();
+		final List<FeatureType> ret = new ArrayList<FeatureType>();
+		final String typeString = type.getValue();
 		if (entry != null) {
 			if (entry.getFeature() != null) {
-				for (FeatureType feature : entry.getFeature()) {
+				for (final FeatureType feature : entry.getFeature()) {
 					if (feature.getType().equals(typeString)) {
 						ret.add(feature);
 					}

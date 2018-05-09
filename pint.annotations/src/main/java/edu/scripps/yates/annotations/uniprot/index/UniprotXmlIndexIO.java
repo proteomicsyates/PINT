@@ -3,6 +3,8 @@ package edu.scripps.yates.annotations.uniprot.index;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
@@ -69,10 +71,14 @@ public class UniprotXmlIndexIO extends TextFileIndexMultiThreadSafeIO {
 	@Override
 	protected Set<String> getKeys(String string) {
 
-		Entry entry = unmarshallFromString(string);
-		if (entry != null) {
+		final List<Entry> entries = unmarshallMultipleEntriesFromString(string);
+		if (entries != null) {
+			final Set<String> accs = new HashSet<String>();
 			// ret = convertUniprotEntries2Proteins(uniprot);
-			Set<String> accs = getKeys(entry);
+			for (final Entry entry : entries) {
+				accs.addAll(getKeys(entry));
+			}
+
 			return accs;
 		}
 
@@ -82,9 +88,9 @@ public class UniprotXmlIndexIO extends TextFileIndexMultiThreadSafeIO {
 	protected Set<String> getKeys(Entry entry) {
 
 		// ret = convertUniprotEntries2Proteins(uniprot);
-		Set<String> accs = new THashSet<String>();
+		final Set<String> accs = new THashSet<String>();
 		if (entry.getAccession() != null) {
-			for (String acc : entry.getAccession()) {
+			for (final String acc : entry.getAccession()) {
 				accs.add(acc);
 			}
 		}
@@ -92,20 +98,37 @@ public class UniprotXmlIndexIO extends TextFileIndexMultiThreadSafeIO {
 
 	}
 
-	protected Entry unmarshallFromString(String string) {
+	protected Entry unmarshallSingleEntryFromString(String string) {
 		if (string.startsWith("<<"))
 			string = string.substring(1);
 		Unmarshaller unmarshaller;
 		try {
 			unmarshaller = jaxbContext.createUnmarshaller();
-			Uniprot uniprot = (Uniprot) unmarshaller.unmarshal(new StringReader(PREFIX + string + SUFFIX));
-			Entry entry = uniprot.getEntry().get(0);
+			final Uniprot uniprot = (Uniprot) unmarshaller.unmarshal(new StringReader(PREFIX + string + SUFFIX));
+			final Entry entry = uniprot.getEntry().get(0);
 			return entry;
-		} catch (JAXBException e) {
+		} catch (final JAXBException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
 			throw new IndexException(
 					"Error reading index. Index file may be corrupt. Try to delete it and run the program again.");
 		}
 	}
+
+	protected List<Entry> unmarshallMultipleEntriesFromString(String string) {
+		if (string.startsWith("<<"))
+			string = string.substring(1);
+		Unmarshaller unmarshaller;
+		try {
+			unmarshaller = jaxbContext.createUnmarshaller();
+			final Uniprot uniprot = (Uniprot) unmarshaller.unmarshal(new StringReader(PREFIX + string + SUFFIX));
+			return uniprot.getEntry();
+		} catch (final JAXBException e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
+			throw new IndexException(
+					"Error reading index. Index file may be corrupt. Try to delete it and run the program again.");
+		}
+	}
+
 }

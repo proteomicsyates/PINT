@@ -40,16 +40,14 @@ public class UniprotACCQuery {
 	 * @param proteinDescription
 	 * @return
 	 */
-	public static List<Protein> map2Uniprot(Accession accession, boolean forcePrimaryGene, File uniprotReleasesFolder,
-			boolean useIndex) {
+	public static List<Protein> map2Uniprot(Accession accession, boolean forcePrimaryGene) {
 
 		// in case of not finding any mapping use the protein description
-		String taxid = getTaxIdFromProteinDescription(accession.getDescription());
-		String geneSymbol = getGeneSymbolFromProteinDescription(accession.getDescription());
-		final List<Protein> map2Uniprot = map2Uniprot(taxid, geneSymbol, forcePrimaryGene, uniprotReleasesFolder,
-				useIndex);
+		final String taxid = getTaxIdFromProteinDescription(accession.getDescription());
+		final String geneSymbol = getGeneSymbolFromProteinDescription(accession.getDescription());
+		final List<Protein> map2Uniprot = map2Uniprot(taxid, geneSymbol, forcePrimaryGene);
 		// keep it in a file
-		for (Protein protein : map2Uniprot) {
+		for (final Protein protein : map2Uniprot) {
 			addToMappingFile(protein.getPrimaryAccession().getAccession(), accession.getAccession());
 		}
 		return map2Uniprot;
@@ -61,7 +59,7 @@ public class UniprotACCQuery {
 		}
 		if (map.containsKey(otherAcc))
 			return;
-		File file = getMappingFile();
+		final File file = getMappingFile();
 		PrintWriter out = null;
 		try {
 			out = new PrintWriter(new BufferedWriter(new FileWriter(file, true)));
@@ -69,12 +67,12 @@ public class UniprotACCQuery {
 			if (map.containsKey(otherAcc)) {
 				map.get(otherAcc).add(uniprotAcc);
 			} else {
-				Set<String> set = new THashSet<String>();
+				final Set<String> set = new THashSet<String>();
 				set.add(uniprotAcc);
 				map.put(otherAcc, set);
 			}
 			out.close();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 
 		} finally {
 			if (out != null)
@@ -88,39 +86,39 @@ public class UniprotACCQuery {
 	}
 
 	private static void loadMap() {
-		File file = getMappingFile();
+		final File file = getMappingFile();
 		FileInputStream fstream = null;
 		BufferedReader br = null;
 		try {
 			fstream = new FileInputStream(file);
 
 			// Get the object of DataInputStream
-			DataInputStream in = new DataInputStream(fstream);
+			final DataInputStream in = new DataInputStream(fstream);
 			br = new BufferedReader(new InputStreamReader(in));
 			String strLine;
 			// Read File Line By Line
 			while ((strLine = br.readLine()) != null) {
 				final String[] split = strLine.split("\t");
-				String uniprotAcc = split[0];
-				String otherAcc = split[1];
+				final String uniprotAcc = split[0];
+				final String otherAcc = split[1];
 				if (map.containsKey(otherAcc)) {
 					map.get(otherAcc).add(uniprotAcc);
 				} else {
-					Set<String> set = new THashSet<String>();
+					final Set<String> set = new THashSet<String>();
 					set.add(uniprotAcc);
 					map.put(otherAcc, set);
 				}
 			}
 
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		} finally {
 			try {
 				if (br != null)
 					br.close();
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -133,16 +131,15 @@ public class UniprotACCQuery {
 	 * @param geneSymbol
 	 * @return
 	 */
-	private static List<Protein> map2Uniprot(String taxid, String geneSymbol, boolean forcePrimaryGene,
-			File uniprotReleasesFolder, boolean useIndex) {
-		String uniprotqueryURL = getUniprotQueryURL(taxid, geneSymbol);
+	private static List<Protein> map2Uniprot(String taxid, String geneSymbol, boolean forcePrimaryGene) {
+		final String uniprotqueryURL = getUniprotQueryURL(taxid, geneSymbol);
 		if (uniprotqueryURL != null) {
-			Uniprot proteins = getUniprotAccsFromQuery(uniprotqueryURL, uniprotReleasesFolder, useIndex);
-			List<Protein> list = new ArrayList<Protein>();
+			final Uniprot proteins = getUniprotAccsFromQuery(uniprotqueryURL);
+			final List<Protein> list = new ArrayList<Protein>();
 			if (proteins != null) {
 				final List<Entry> entries = proteins.getEntry();
-				for (Entry entry : entries) {
-					GeneNameType gene = getGene(entry, geneSymbol);
+				for (final Entry entry : entries) {
+					final GeneNameType gene = getGene(entry, geneSymbol);
 					if (gene == null) {
 						continue;
 					}
@@ -151,14 +148,14 @@ public class UniprotACCQuery {
 						continue;
 					}
 
-					Protein protein = new ProteinImplFromUniprotEntry(entry);
+					final Protein protein = new ProteinImplFromUniprotEntry(entry);
 					list.add(protein);
 				}
 			}
 			// if the list is empty, report all the entries without enforcing to
 			// be primary
 			if (list.isEmpty() && forcePrimaryGene)
-				return map2Uniprot(taxid, geneSymbol, false, uniprotReleasesFolder, useIndex);
+				return map2Uniprot(taxid, geneSymbol, false);
 			return list;
 		}
 		return new ArrayList<Protein>();
@@ -168,10 +165,10 @@ public class UniprotACCQuery {
 		if (entry != null) {
 			final List<GeneType> gene = entry.getGene();
 			if (gene != null) {
-				for (GeneType geneType : gene) {
+				for (final GeneType geneType : gene) {
 					final List<GeneNameType> names = geneType.getName();
 					if (names != null) {
-						for (GeneNameType geneNameType : names) {
+						for (final GeneNameType geneNameType : names) {
 							if (geneNameType.getValue().equals(geneSymbol))
 								return geneNameType;
 						}
@@ -182,13 +179,12 @@ public class UniprotACCQuery {
 		return null;
 	}
 
-	private static Uniprot getUniprotAccsFromQuery(String uniprotqueryURL, File uniprotReleasesFolder,
-			boolean useIndex) {
+	private static Uniprot getUniprotAccsFromQuery(String uniprotqueryURL) {
 		Uniprot proteins = null;
 		if (entriesByQuery.containsKey(uniprotqueryURL)) {
 			proteins = entriesByQuery.get(uniprotqueryURL);
 		} else {
-			UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever(uniprotReleasesFolder, useIndex);
+			final UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever();
 			proteins = uprr.getProteins(uniprotqueryURL);
 			entriesByQuery.put(uniprotqueryURL, proteins);
 		}
@@ -198,7 +194,7 @@ public class UniprotACCQuery {
 	private static String getUniprotQueryURL(String taxid, String geneSymbol) {
 		if (geneSymbol == null)
 			return null;
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		sb.append("gene:" + geneSymbol);
 
@@ -215,7 +211,7 @@ public class UniprotACCQuery {
 	private static String getTaxIdFromProteinDescription(String proteinDescription) {
 		if (proteinDescription != null) {
 			final String taxIDRegexp = ".*Tax_Id=(\\w+)\\s+.*";
-			Pattern pattern = Pattern.compile(taxIDRegexp);
+			final Pattern pattern = Pattern.compile(taxIDRegexp);
 			final Matcher matcher = pattern.matcher(proteinDescription);
 			if (matcher.find()) {
 				if (matcher.groupCount() == 1) {
@@ -229,7 +225,7 @@ public class UniprotACCQuery {
 	private static String getGeneSymbolFromProteinDescription(String proteinDescription) {
 		if (proteinDescription != null) {
 			final String taxIDRegexp = ".*Gene_Symbol=(\\w+)\\s+.*";
-			Pattern pattern = Pattern.compile(taxIDRegexp);
+			final Pattern pattern = Pattern.compile(taxIDRegexp);
 			final Matcher matcher = pattern.matcher(proteinDescription);
 			if (matcher.find()) {
 				if (matcher.groupCount() == 1) {

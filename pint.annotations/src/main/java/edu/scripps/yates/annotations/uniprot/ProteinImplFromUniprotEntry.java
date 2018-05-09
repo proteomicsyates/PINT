@@ -105,8 +105,8 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	private boolean isIsoform() {
 		if (primaryAccession.getAccessionType() == AccessionType.UNIPROT) {
 			final String accession = primaryAccession.getAccession();
-			String version = FastaParser.getIsoformVersion(accession);
-			if (version != null && !"1".equals(version)) {
+			final String version = FastaParser.getIsoformVersion(accession);
+			if (version != null) {
 				return true;
 			}
 		}
@@ -118,8 +118,8 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		if (!genesParsed) {
 			final List<GeneType> genesUniprot = entry.getGene();
 			if (genesUniprot != null) {
-				for (GeneType gene : genesUniprot) {
-					for (GeneNameType geneName : gene.getName()) {
+				for (final GeneType gene : genesUniprot) {
+					for (final GeneNameType geneName : gene.getName()) {
 						final GeneEx geneEx = new GeneEx(geneName.getValue());
 						geneEx.setGeneType(geneName.getType());
 						genes.add(geneEx);
@@ -133,24 +133,24 @@ public class ProteinImplFromUniprotEntry implements Protein {
 
 	private List<String> getDescriptions() {
 		final ProteinType protein = entry.getProtein();
-		List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<String>();
 		if (entry.getProtein() != null) {
 			final RecommendedName recommendedName = protein.getRecommendedName();
 			if (recommendedName != null) {
-				StringBuilder sb = new StringBuilder();
+				final StringBuilder sb = new StringBuilder();
 				if (recommendedName.getFullName() != null && recommendedName.getFullName().getValue() != null) {
 					sb.append(recommendedName.getFullName().getValue().trim());
 				}
 				final List<EvidencedStringType> shortNames = recommendedName.getShortName();
 				if (shortNames != null && shortNames.isEmpty()) {
 					for (int i = 0; i < shortNames.size(); i++) {
-						EvidencedStringType shortName = shortNames.get(i);
+						final EvidencedStringType shortName = shortNames.get(i);
 						sb.append(" (" + shortName.getValue().trim() + ")");
 					}
 				}
 				final List<EvidencedStringType> ecNumbers = recommendedName.getEcNumber();
 				if (ecNumbers != null && ecNumbers.isEmpty()) {
-					for (EvidencedStringType ecNumber : ecNumbers) {
+					for (final EvidencedStringType ecNumber : ecNumbers) {
 						sb.append(" (" + ecNumber.getValue().trim() + ")");
 					}
 				}
@@ -158,19 +158,19 @@ public class ProteinImplFromUniprotEntry implements Protein {
 			}
 			final List<AlternativeName> alternativeNames = protein.getAlternativeName();
 			if (alternativeNames != null && !alternativeNames.isEmpty()) {
-				for (AlternativeName alternativeName2 : alternativeNames) {
-					StringBuilder sb = new StringBuilder();
+				for (final AlternativeName alternativeName2 : alternativeNames) {
+					final StringBuilder sb = new StringBuilder();
 					sb.append(alternativeName2.getFullName().getValue().trim());
 					final List<EvidencedStringType> shortNames = alternativeName2.getShortName();
 					if (shortNames != null && shortNames.isEmpty()) {
 						for (int i = 0; i < shortNames.size(); i++) {
-							EvidencedStringType shortName = shortNames.get(i);
+							final EvidencedStringType shortName = shortNames.get(i);
 							sb.append(" (" + shortName.getValue().trim() + ")");
 						}
 					}
 					final List<EvidencedStringType> ecNumbers = alternativeName2.getEcNumber();
 					if (ecNumbers != null && ecNumbers.isEmpty()) {
-						for (EvidencedStringType ecNumber : ecNumbers) {
+						for (final EvidencedStringType ecNumber : ecNumbers) {
 							sb.append(" (" + ecNumber.getValue().trim() + ")");
 						}
 					}
@@ -180,12 +180,12 @@ public class ProteinImplFromUniprotEntry implements Protein {
 
 			final List<SubmittedName> submittedNames = protein.getSubmittedName();
 			if (submittedNames != null && !submittedNames.isEmpty()) {
-				for (SubmittedName submittedName2 : submittedNames) {
-					StringBuilder sb = new StringBuilder();
+				for (final SubmittedName submittedName2 : submittedNames) {
+					final StringBuilder sb = new StringBuilder();
 					sb.append(submittedName2.getFullName().getValue().trim());
 					final List<EvidencedStringType> ecNumbers = submittedName2.getEcNumber();
 					if (ecNumbers != null && ecNumbers.isEmpty()) {
-						for (EvidencedStringType ecNumber : ecNumbers) {
+						for (final EvidencedStringType ecNumber : ecNumbers) {
 							sb.append(" (" + ecNumber.getValue().trim() + ")");
 						}
 					}
@@ -200,20 +200,20 @@ public class ProteinImplFromUniprotEntry implements Protein {
 
 	@Override
 	public Set<ProteinAnnotation> getAnnotations() {
-		Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
+		final Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
 		// comments (CC):
 		final List<CommentType> comments = entry.getComment();
 		if (comments != null) {
-			for (CommentType comment : comments) {
+			for (final CommentType comment : comments) {
 				final AnnotationType annotationType = AnnotationType.translateStringToAnnotationType(comment.getType());
 				if ("tissue specificity".equals(annotationType.getKey()) && comment.getText() != null) {
 					// in this case, the text can contains different phrases,
 					// each of them can start by "isoform 4 is expressed..."
 					// in that case, only include the ones for the appropiate
 					// isoform
-					for (EvidencedStringType text : comment.getText()) {
+					for (final EvidencedStringType text : comment.getText()) {
 						if (text.getValue() != null) {
-							List<String> phrases = new ArrayList<String>();
+							final List<String> phrases = new ArrayList<String>();
 							if (text.getValue().contains(".")) {
 								final String[] split = text.getValue().split("\\.");
 								final List<String> asList = Arrays.asList(split);
@@ -222,8 +222,8 @@ public class ProteinImplFromUniprotEntry implements Protein {
 								phrases.add(text.getValue());
 							}
 							final Pattern isoformPattern = Pattern.compile("isoform (\\d+)");
-							StringBuilder sb = new StringBuilder();
-							for (String phrase : phrases) {
+							final StringBuilder sb = new StringBuilder();
+							for (final String phrase : phrases) {
 								final Matcher matcher = isoformPattern.matcher(phrase.toLowerCase());
 								if (matcher.find()) {
 									// if found, only get if when the isoform
@@ -247,7 +247,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 									}
 								}
 							}
-							ProteinAnnotationEx proteinAnnotationEx = new ProteinAnnotationEx(annotationType,
+							final ProteinAnnotationEx proteinAnnotationEx = new ProteinAnnotationEx(annotationType,
 									comment.getType(), sb.toString());
 							ret.add(proteinAnnotationEx);
 						}
@@ -263,7 +263,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		// features (FT):
 		final List<FeatureType> features = entry.getFeature();
 		if (features != null) {
-			for (FeatureType feature : features) {
+			for (final FeatureType feature : features) {
 				final AnnotationType annotationType = AnnotationType.translateStringToAnnotationType(feature.getType());
 				if (skipFeature(feature)) {
 					continue;
@@ -278,7 +278,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 						continue;
 					}
 				}
-				ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType, annotName,
+				final ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType, annotName,
 						getValueFromFeature(feature));
 				ret.add(annotation);
 			}
@@ -287,8 +287,8 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		// keywords (KW)
 		final List<KeywordType> keywords = entry.getKeyword();
 		if (keywords != null) {
-			for (KeywordType keyword : keywords) {
-				ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.uniprotKeyword,
+			for (final KeywordType keyword : keywords) {
+				final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.uniprotKeyword,
 						keyword.getValue(), getValueFromKeyword(keyword));
 				ret.add(annotation);
 			}
@@ -297,7 +297,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		// protein existence (PE)
 		final ProteinExistenceType proteinExistence = entry.getProteinExistence();
 		if (proteinExistence != null) {
-			ProteinAnnotation annotation = new ProteinAnnotationEx(
+			final ProteinAnnotation annotation = new ProteinAnnotationEx(
 					AnnotationType.translateStringToAnnotationType(proteinExistence.getType()),
 					proteinExistence.getType());
 			ret.add(annotation);
@@ -306,7 +306,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		// DB reference (DR)
 		final List<DbReferenceType> dbReferences = entry.getDbReference();
 		if (dbReferences != null) {
-			for (DbReferenceType dbReference : dbReferences) {
+			for (final DbReferenceType dbReference : dbReferences) {
 
 				// <dbReference type="GO" id="GO:0000166">
 				// <property type="term" value="F:nucleotide binding"/>
@@ -317,10 +317,10 @@ public class ProteinImplFromUniprotEntry implements Protein {
 				// <property type="organism name" value="rat"/>
 				// </dbReference>
 
-				StringBuilder sb = new StringBuilder();
+				final StringBuilder sb = new StringBuilder();
 				final List<PropertyType> properties = dbReference.getProperty();
 				if (properties != null) {
-					for (PropertyType property : properties) {
+					for (final PropertyType property : properties) {
 						appendIfNotEmpty(sb, ANNOTATION_SEPARATOR);
 						sb.append(property.getType() + ":" + property.getValue());
 					}
@@ -331,7 +331,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 				final AnnotationType annotationType = AnnotationType
 						.translateStringToAnnotationType(dbReference.getType());
 				if (annotationType != null) {
-					ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType, dbReference.getId(),
+					final ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType, dbReference.getId(),
 							sb.toString());
 					ret.add(annotation);
 				}
@@ -362,38 +362,38 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		// </reference>
 		final List<ReferenceType> references = entry.getReference();
 		if (references != null) {
-			for (ReferenceType reference : references) {
+			for (final ReferenceType reference : references) {
 				if (reference.getSource() != null) {
 					final List<Object> strainOrPlasmidOrTransposon = reference.getSource()
 							.getStrainOrPlasmidOrTransposon();
 					if (strainOrPlasmidOrTransposon != null) {
-						for (Object obj : strainOrPlasmidOrTransposon) {
+						for (final Object obj : strainOrPlasmidOrTransposon) {
 							if (obj instanceof Strain) {
-								Strain strain = (Strain) obj;
-								StringBuilder sb = new StringBuilder();
+								final Strain strain = (Strain) obj;
+								final StringBuilder sb = new StringBuilder();
 								getValueFromEvidences(sb, strain.getEvidence());
-								ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.strain,
+								final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.strain,
 										strain.getValue(), sb.toString());
 								ret.add(annotation);
 							} else if (obj instanceof Plasmid) {
-								Plasmid plasmid = (Plasmid) obj;
-								StringBuilder sb = new StringBuilder();
+								final Plasmid plasmid = (Plasmid) obj;
+								final StringBuilder sb = new StringBuilder();
 								getValueFromEvidences(sb, plasmid.getEvidence());
-								ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.plasmid,
+								final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.plasmid,
 										plasmid.getValue(), sb.toString());
 								ret.add(annotation);
 							} else if (obj instanceof Transposon) {
-								Transposon transposon = (Transposon) obj;
-								StringBuilder sb = new StringBuilder();
+								final Transposon transposon = (Transposon) obj;
+								final StringBuilder sb = new StringBuilder();
 								getValueFromEvidences(sb, transposon.getEvidence());
-								ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.transposon,
+								final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.transposon,
 										transposon.getValue(), sb.toString());
 								ret.add(annotation);
 							} else if (obj instanceof edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Tissue) {
-								edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Tissue tissue = (edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Tissue) obj;
-								StringBuilder sb = new StringBuilder();
+								final edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Tissue tissue = (edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Tissue) obj;
+								final StringBuilder sb = new StringBuilder();
 								getValueFromEvidences(sb, tissue.getEvidence());
-								ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.tissue,
+								final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.tissue,
 										tissue.getValue(), sb.toString());
 								ret.add(annotation);
 							}
@@ -406,50 +406,51 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		// reviewed or unreviewed
 		final String dataset = entry.getDataset();
 		if ("Swiss-Prot".equalsIgnoreCase(dataset)) {
-			ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.status, "reviewed");
+			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.status, "reviewed");
 			ret.add(annotation);
 		} else if ("TrEMBL".equalsIgnoreCase(dataset)) {
-			ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.status, "unreviewed");
+			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.status, "unreviewed");
 			ret.add(annotation);
 		}
 
 		// entry creation date
 		if (entry.getCreated() != null) {
-			Calendar calendar = entry.getCreated().toGregorianCalendar();
+			final Calendar calendar = entry.getCreated().toGregorianCalendar();
 			formatter.setTimeZone(calendar.getTimeZone());
-			String dateString = formatter.format(calendar.getTime());
-			ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_creation_date, dateString);
+			final String dateString = formatter.format(calendar.getTime());
+			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_creation_date,
+					dateString);
 			ret.add(annotation);
 		}
 
 		// entry modified
 		if (entry.getModified() != null) {
-			Calendar calendar = entry.getModified().toGregorianCalendar();
+			final Calendar calendar = entry.getModified().toGregorianCalendar();
 			formatter.setTimeZone(calendar.getTimeZone());
-			String dateString = formatter.format(calendar.getTime());
-			ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_modified, dateString);
+			final String dateString = formatter.format(calendar.getTime());
+			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_modified, dateString);
 			ret.add(annotation);
 		}
 
 		// entry version
 		if (entry.getVersion() > 0) {
-			ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_version,
+			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_version,
 					String.valueOf(entry.getVersion()));
 			ret.add(annotation);
 		}
 
 		// sequence modified
 		if (entry.getSequence() != null && entry.getSequence().getModified() != null) {
-			Calendar calendar = entry.getSequence().getModified().toGregorianCalendar();
+			final Calendar calendar = entry.getSequence().getModified().toGregorianCalendar();
 			formatter.setTimeZone(calendar.getTimeZone());
-			String dateString = formatter.format(calendar.getTime());
-			ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.sequence_modified, dateString);
+			final String dateString = formatter.format(calendar.getTime());
+			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.sequence_modified, dateString);
 			ret.add(annotation);
 		}
 
 		// sequence version
 		if (entry.getSequence() != null && entry.getSequence().getVersion() > -1) {
-			ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.sequence_modified,
+			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.sequence_modified,
 					String.valueOf(entry.getSequence().getVersion()));
 			ret.add(annotation);
 		}
@@ -479,15 +480,15 @@ public class ProteinImplFromUniprotEntry implements Protein {
 					final String[] split = description.split("isoform");
 
 					for (int index = 1; index < split.length; index++) {
-						String string = split[index];
+						final String string = split[index];
 						try {
-							int isoformNumber = Integer.valueOf(String.valueOf(string.trim().charAt(0)));
+							final int isoformNumber = Integer.valueOf(String.valueOf(string.trim().charAt(0)));
 							// isoformVersion can be null iof it is the
 							// canonical protein
 							if (String.valueOf(isoformNumber).equals(isoformVersion)) {
 								return false;
 							}
-						} catch (NumberFormatException e) {
+						} catch (final NumberFormatException e) {
 
 						}
 					}
@@ -500,7 +501,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	}
 
 	private String getValueFromKeyword(KeywordType keyword) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("id:" + keyword.getId());
 		getValueFromEvidences(sb, keyword.getEvidence());
 
@@ -508,7 +509,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	}
 
 	private String getValueFromFeature(FeatureType feature) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		if (feature.getId() != null)
 			sb.append(ID + ":" + feature.getDescription());
 
@@ -554,10 +555,10 @@ public class ProteinImplFromUniprotEntry implements Protein {
 
 	private void getValueFromEvidences(StringBuilder sb, List<Integer> evidences) {
 		if (evidences != null) {
-			for (Integer code : evidences) {
+			for (final Integer code : evidences) {
 				if (code != null) {
 					appendIfNotEmpty(sb, ANNOTATION_SEPARATOR);
-					EvidenceType evidenceType = getEvidenceType(code, entry.getEvidence());
+					final EvidenceType evidenceType = getEvidenceType(code, entry.getEvidence());
 					if (evidenceType != null) {
 						sb.append(" Evidence from:" + getStringFromEvidenceType(evidenceType));
 					}
@@ -567,7 +568,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	}
 
 	private String getStringFromEvidenceType(EvidenceType evidenceType) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		if (evidenceType != null) {
 			if (evidenceType.getType() != null && !"".equals(evidenceType.getType())) {
@@ -597,7 +598,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 
 	private EvidenceType getEvidenceType(Integer code, List<EvidenceType> evidenceList) {
 		if (evidenceList != null) {
-			for (EvidenceType evidenceType : evidenceList) {
+			for (final EvidenceType evidenceType : evidenceList) {
 				if (evidenceType.getKey().intValue() == code) {
 					return evidenceType;
 				}
@@ -652,7 +653,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 			final List<String> entryAccessions = entry.getAccession();
 			if (!entryAccessions.isEmpty()) {
 				int numAcc = 0;
-				for (String accession : entryAccessions) {
+				for (final String accession : entryAccessions) {
 					if (numAcc == 0) {
 						primaryAccession = new AccessionEx(accession, AccessionType.UNIPROT);
 						final List<String> descriptions = getDescriptions();
@@ -667,9 +668,9 @@ public class ProteinImplFromUniprotEntry implements Protein {
 						// look for alternative names
 						if (isIsoform()) {
 							final String isoformVersion = FastaParser.getIsoformVersion(accession);
-							IsoformType isoformType = getIsoformType(primaryAccession.getAccession());
+							final IsoformType isoformType = getIsoformType(primaryAccession.getAccession());
 							if (isoformType != null && isoformType.getName() != null) {
-								for (Name name : isoformType.getName()) {
+								for (final Name name : isoformType.getName()) {
 									// skip when:
 									// <id>P04637-8</id>
 									// <name>8</name>
@@ -681,7 +682,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 								// <text>Produced by alternative promoter usage
 								// and alternative splicing.</text>
 								if (isoformType.getText() != null) {
-									for (EvidencedStringType evidencedString : isoformType.getText()) {
+									for (final EvidencedStringType evidencedString : isoformType.getText()) {
 										if (evidencedString.getValue() != null) {
 											((AccessionEx) primaryAccession)
 													.addAlternativeName(evidencedString.getValue());
@@ -691,7 +692,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 							}
 						}
 					} else {
-						AccessionEx secondaryAccession = new AccessionEx(accession, AccessionType.UNIPROT);
+						final AccessionEx secondaryAccession = new AccessionEx(accession, AccessionType.UNIPROT);
 						final List<String> descriptions = getDescriptions();
 						if (!descriptions.isEmpty())
 							secondaryAccession.setDescription(descriptions.get(0));
@@ -720,9 +721,9 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	private IsoformType getIsoformType(String isoformID) {
 		if (isoformID != null) {
 			if (entry.getComment() != null) {
-				for (CommentType commentType : entry.getComment()) {
+				for (final CommentType commentType : entry.getComment()) {
 					if (commentType.getIsoform() != null) {
-						for (IsoformType isoformType : commentType.getIsoform()) {
+						for (final IsoformType isoformType : commentType.getIsoform()) {
 							if (isoformType.getId() != null) {
 								if (isoformType.getId().contains(isoformID)) {
 									return isoformType;
@@ -771,7 +772,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 					if (mass > 0.0) {
 						return mass;
 					}
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -834,13 +835,13 @@ public class ProteinImplFromUniprotEntry implements Protein {
 			if (uniprotOrganism != null) {
 				String organismName = null;
 				final List<OrganismNameType> names = uniprotOrganism.getName();
-				for (OrganismNameType organismNameType : names) {
+				for (final OrganismNameType organismNameType : names) {
 					if (organismNameType.getType().equalsIgnoreCase("scientific"))
 						organismName = organismNameType.getValue();
 				}
 				String ncbiTaxID = null;
 				if (uniprotOrganism.getDbReference() != null) {
-					for (DbReferenceType dbreference : uniprotOrganism.getDbReference()) {
+					for (final DbReferenceType dbreference : uniprotOrganism.getDbReference()) {
 						if (dbreference.getType().equalsIgnoreCase("NCBI Taxonomy"))
 							ncbiTaxID = dbreference.getId();
 					}
@@ -865,7 +866,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 
 	@Override
 	public List<GroupablePSM> getGroupablePSMs() {
-		List<GroupablePSM> list = new ArrayList<GroupablePSM>();
+		final List<GroupablePSM> list = new ArrayList<GroupablePSM>();
 		list.addAll(getPSMs());
 		return list;
 	}

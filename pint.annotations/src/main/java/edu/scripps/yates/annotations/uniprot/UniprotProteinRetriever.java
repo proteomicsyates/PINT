@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.SequenceType;
-import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
@@ -28,7 +27,13 @@ public class UniprotProteinRetriever {
 	private final String uniprotVersion;
 
 	public UniprotProteinRetriever(String uniprotVersion, File uniprotReleasesFolder, boolean useIndex) {
-		uniprotLocalRetriever = new UniprotProteinLocalRetriever(uniprotReleasesFolder, useIndex);
+		this(uniprotVersion, uniprotReleasesFolder, useIndex, false, false);
+	}
+
+	public UniprotProteinRetriever(String uniprotVersion, File uniprotReleasesFolder, boolean useIndex,
+			boolean ignoreReferences, boolean ignoreDBReferences) {
+		uniprotLocalRetriever = new UniprotProteinLocalRetriever(uniprotReleasesFolder, useIndex, ignoreReferences,
+				ignoreDBReferences);
 		this.uniprotVersion = uniprotVersion;
 	}
 
@@ -37,15 +42,15 @@ public class UniprotProteinRetriever {
 	}
 
 	private Map<String, Protein> getFromCache(Collection<String> accessions) {
-		Map<String, Protein> ret = new THashMap<String, Protein>();
-		for (String accession : accessions) {
+		final Map<String, Protein> ret = new THashMap<String, Protein>();
+		for (final String accession : accessions) {
 			ret.putAll(getFromCache(accession));
 		}
 		return ret;
 	}
 
 	private Map<String, Protein> getFromCache(String accession) {
-		Map<String, Protein> ret = new THashMap<String, Protein>();
+		final Map<String, Protein> ret = new THashMap<String, Protein>();
 
 		if (enableCache && cachedProteins.containsKey(accession)) {
 			ret.put(accession, cachedProteins.get(accession));
@@ -65,12 +70,12 @@ public class UniprotProteinRetriever {
 	}
 
 	public Map<String, String> getAnnotatedProteinSequence(Collection<String> accessions) {
-		Map<String, String> ret = new THashMap<String, String>();
-		Set<String> missingAccessions = new THashSet<String>();
+		final Map<String, String> ret = new THashMap<String, String>();
+		final Set<String> missingAccessions = new THashSet<String>();
 		if (accessions != null && !accessions.isEmpty()) {
 			// discard the proteins that were retrieved before and there was no
 			// sequence
-			for (String accession : accessions) {
+			for (final String accession : accessions) {
 				if (!notAvailableProteins.contains(accession)) {
 					missingAccessions.add(accession);
 				} else {
@@ -82,7 +87,7 @@ public class UniprotProteinRetriever {
 				final Map<String, Entry> annotatedProteins = uniprotLocalRetriever.getAnnotatedProteins(uniprotVersion,
 						missingAccessions);
 				if (!annotatedProteins.isEmpty()) {
-					for (String acc : accessions) {
+					for (final String acc : accessions) {
 						if (annotatedProteins.containsKey(acc)) {
 							final Entry entry = annotatedProteins.get(acc);
 							final SequenceType uniprotSeq = entry.getSequence();
@@ -92,14 +97,7 @@ public class UniprotProteinRetriever {
 									actualSeq = actualSeq.replaceAll("\n", "");
 									actualSeq = actualSeq.replaceAll(" ", "");
 									ret.put(acc, actualSeq);
-									// if it is an isoform like P12345-1, map it
-									// also to P12345
-									if ("1".equals(FastaParser.getIsoformVersion(acc))) {
-										final String noIsoformAccession = FastaParser.getNoIsoformAccession(acc);
-										log.info("Protein sequence from principal isoform " + acc
-												+ " mapped also to accession " + noIsoformAccession);
-										ret.put(noIsoformAccession, actualSeq);
-									}
+
 								}
 							} else {
 								log.warn("There is entry in Uniprot, but no sequence for protein: " + acc);
@@ -133,8 +131,8 @@ public class UniprotProteinRetriever {
 			} else {
 				// even not finding the proteins, store them in the cache in
 				// order to not look for them again
-				Map<String, Protein> nullProteins = new THashMap<String, Protein>();
-				for (String acc : missingAccessions) {
+				final Map<String, Protein> nullProteins = new THashMap<String, Protein>();
+				for (final String acc : missingAccessions) {
 					nullProteins.put(acc, null);
 				}
 				addToCache(nullProteins);
@@ -169,7 +167,7 @@ public class UniprotProteinRetriever {
 	 * @return
 	 */
 	public Map<String, Protein> getAnnotatedProtein(String accession) {
-		Set<String> set = new THashSet<String>();
+		final Set<String> set = new THashSet<String>();
 		set.add(accession);
 		return getAnnotatedProteins(set);
 
@@ -185,18 +183,18 @@ public class UniprotProteinRetriever {
 	// }
 
 	public static Map<String, Protein> convertUniprotEntries2Proteins(Collection<Entry> entries) {
-		Map<String, Protein> ret = new THashMap<String, Protein>();
+		final Map<String, Protein> ret = new THashMap<String, Protein>();
 		// log.info(entries.size() + " entries found");
-		for (Entry entry : entries) {
+		for (final Entry entry : entries) {
 			if (Thread.currentThread().isInterrupted()) {
 				throw new RuntimeException("Thread interrupted.");
 			}
-			Protein protein = new ProteinImplFromUniprotEntry(entry);
+			final Protein protein = new ProteinImplFromUniprotEntry(entry);
 			ret.put(protein.getPrimaryAccession().getAccession(), protein);
 			// index by all accessions
 			final List<Accession> uniprotAccs = ModelUtils.getAccessions(protein, AccessionType.UNIPROT);
 			if (uniprotAccs != null) {
-				for (Accession acc : uniprotAccs) {
+				for (final Accession acc : uniprotAccs) {
 					ret.put(acc.getAccession(), protein);
 				}
 			}
@@ -206,7 +204,7 @@ public class UniprotProteinRetriever {
 	}
 
 	public Map<String, String> getAnnotatedProteinSequence(String accession) {
-		Set<String> accessions = new THashSet<String>();
+		final Set<String> accessions = new THashSet<String>();
 		accessions.add(accession);
 		return getAnnotatedProteinSequence(accessions);
 

@@ -7,6 +7,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.util.IndexException;
+import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.index.FileIndex;
 import edu.scripps.yates.utilities.index.TextFileIndex;
@@ -28,11 +36,14 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 	private static final Logger log = Logger.getLogger(TextFileIndex.class);
 	private final File fileToIndex;
 	private final File indexFile;
-	private final Map<String, Pair<Long, Long>> indexMap = new THashMap<>();
+	protected final Map<String, Pair<Long, Long>> indexMap = new THashMap<>();
 	private final static String INDEX_EXT = ".idx";
 	private static final String TAB = "\t";
 	private static final String NEWLINE = "\n";
-	private final UniprotXmlIndexIO uniprotFileIndexIO;
+	protected final UniprotXmlIndexIO uniprotFileIndexIO;
+	private final boolean ignoreReferences;
+	private final boolean ignoreDBReferences;
+	private final static int MAX_NUMBER_ENTRIES_PER_PAIR = 100;
 
 	private enum Status {
 		READY, NOT_READY
@@ -40,7 +51,8 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 
 	private Status status = Status.NOT_READY;
 
-	public UniprotXmlIndex(File file) throws IOException, JAXBException {
+	public UniprotXmlIndex(File file, boolean ignoreReferences, boolean ignoreDBReferences)
+			throws IOException, JAXBException {
 		if (!file.exists()) {
 			file.getParentFile().mkdirs();
 		}
@@ -48,7 +60,8 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		// create the index file
 		indexFile = new File(getIndexPathName(file));
 		uniprotFileIndexIO = new UniprotXmlIndexIO(fileToIndex);
-
+		this.ignoreReferences = ignoreReferences;
+		this.ignoreDBReferences = ignoreDBReferences;
 	}
 
 	private String getIndexPathName(File file) {
@@ -57,8 +70,9 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		return pathName;
 	}
 
-	public UniprotXmlIndex(String path) throws IOException, JAXBException {
-		this(new File(path));
+	public UniprotXmlIndex(String path, boolean ignoreReferences, boolean ignoreDBReferences)
+			throws IOException, JAXBException {
+		this(new File(path), ignoreReferences, ignoreDBReferences);
 	}
 
 	private void indexFile() throws IOException {
@@ -110,7 +124,10 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 				final Pair<Long, Long> pair = indexMap.get(key);
 				final String item = uniprotFileIndexIO.getItem(pair.getFirstelement(), pair.getSecondElement());
 
-				final Entry entry = uniprotFileIndexIO.unmarshallFromString(item);
+				final Entry entry = uniprotFileIndexIO.unmarshallSingleEntryFromString(item);
+				// in order to save memory, remove non used elements such as
+				// references
+				UniprotEntryUtil.removeNonUsedElements(entry, ignoreReferences, ignoreDBReferences);
 				return entry;
 			}
 		} catch (final IndexException e) {
@@ -124,7 +141,170 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		return null;
 	}
 
-	private void loadIndexFile() throws IOException {
+	@Override
+	public List<Entry> getItems(Collection<String> keys) {
+		try {
+			// load index file
+			loadIndexFile();
+			final List<Entry> ret = new ArrayList<Entry>();
+			for (final String key : keys) {
+
+				// look for the provided key
+				if (indexMap.containsKey(key)) {
+					final Pair<Long, Long> pair = indexMap.get(key);
+					final String item = uniprotFileIndexIO.getItem(pair.getFirstelement(), pair.getSecondElement());
+
+					final List<Entry> entries = uniprotFileIndexIO.unmarshallMultipleEntriesFromString(item);
+					for (final Entry entry : entries) {
+						// in order to save memory, remove non used elements
+						// such as
+						// references
+						UniprotEntryUtil.removeNonUsedElements(entry, ignoreReferences, ignoreDBReferences);
+						ret.add(entry);
+					}
+
+				} else {
+					log.debug("Item with key '" + key + "' is not in the index");
+				}
+			}
+			if (!ret.isEmpty()) {
+				return ret;
+			}
+		} catch (final IndexException e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
+		} catch (final IOException e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
+		}
+
+		return null;
+	}
+
+	public List<Entry> getItemsOptimized(Collection<String> keys) {
+		try {
+			// load index file
+			loadIndexFile();
+			final Set<Pair<Long, Long>> setofpairs = new HashSet<Pair<Long, Long>>();
+			for (final String key : keys) {
+				if (indexMap.containsKey(key)) {
+					final Pair<Long, Long> pair = indexMap.get(key);
+					setofpairs.add(pair);
+				}
+			}
+			// Merge consecutive pairs
+			final List<Pair<Long, Long>> listofpairs = mergeConsecutivePairs(setofpairs, MAX_NUMBER_ENTRIES_PER_PAIR);
+
+			final List<Entry> ret = new ArrayList<Entry>();
+			for (final Pair<Long, Long> pair : listofpairs) {
+
+				final String item = uniprotFileIndexIO.getItem(pair.getFirstelement(), pair.getSecondElement());
+
+				final List<Entry> entries = uniprotFileIndexIO.unmarshallMultipleEntriesFromString(item);
+				for (final Entry entry : entries) {
+					// in order to save memory, remove non used elements
+					// such as
+					// references
+					UniprotEntryUtil.removeNonUsedElements(entry, ignoreReferences, ignoreDBReferences);
+					ret.add(entry);
+				}
+
+			}
+			if (!ret.isEmpty()) {
+				return ret;
+			}
+		} catch (final IndexException e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
+		} catch (final IOException e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
+		}
+
+		return null;
+	}
+
+	public Iterator<Entry> getIteratorOfItemsOptimized(Collection<String> keys) {
+		try {
+			// load index file
+			loadIndexFile();
+			final Set<Pair<Long, Long>> setofpairs = new HashSet<Pair<Long, Long>>();
+			for (final String key : keys) {
+				if (indexMap.containsKey(key)) {
+					final Pair<Long, Long> pair = indexMap.get(key);
+					setofpairs.add(pair);
+				}
+			}
+			// Merge consecutive pairs
+			final List<Pair<Long, Long>> listofpairs = mergeConsecutivePairs(setofpairs, MAX_NUMBER_ENTRIES_PER_PAIR);
+			return new UniprotXmlIndexIterator(listofpairs, uniprotFileIndexIO, ignoreReferences, ignoreDBReferences);
+
+		} catch (final IndexException e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
+		} catch (final IOException e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
+		}
+
+		return null;
+	}
+
+	private List<Pair<Long, Long>> mergeConsecutivePairs(Set<Pair<Long, Long>> setofpairs,
+			int maxNumberOfEntriesPerPair) {
+		final List<Pair<Long, Long>> listofpairs = new ArrayList<Pair<Long, Long>>();
+		listofpairs.addAll(setofpairs);
+		// sort the pairs
+		Collections.sort(listofpairs, new Comparator<Pair<Long, Long>>() {
+
+			@Override
+			public int compare(Pair<Long, Long> pair1, Pair<Long, Long> pair2) {
+				final int compareTo = pair1.getFirstelement().compareTo(pair2.getFirstelement());
+				if (compareTo != 0) {
+					return compareTo;
+				}
+				return pair1.getSecondElement().compareTo(pair2.getSecondElement());
+			}
+		});
+		final List<Pair<Long, Long>> ret = new ArrayList<Pair<Long, Long>>();
+		// iterate over them and merge them if they are consecutive
+		// we consider consecutive pairs when the second element of the first
+		// pair is equals to the first element of the second pair
+		for (int i = 0; i < listofpairs.size(); i++) {
+			final Pair<Long, Long> pair1 = listofpairs.get(i);
+			final long firstElement = pair1.getFirstelement();
+			long secondElement = pair1.getSecondElement();
+			long lastSecondElement = secondElement;
+			int j = 1;
+			while (j <= maxNumberOfEntriesPerPair && i + j < listofpairs.size()
+					&& (pair1.equals(listofpairs.get(i + j))
+							|| listofpairs.get(i + j).getFirstelement() == secondElement
+							|| listofpairs.get(i + j).getFirstelement() == lastSecondElement)) {
+				lastSecondElement = secondElement;
+				secondElement = listofpairs.get(i + j).getSecondElement();
+				j++;
+			}
+			if (j > 1) {
+				final Pair<Long, Long> pair3 = new Pair<Long, Long>(firstElement, secondElement);
+				ret.add(pair3);
+				i += j - 1;
+			} else {
+				ret.add(pair1);
+				i++;
+			}
+		}
+		if (ret.size() != listofpairs.size()) {
+			log.debug("keys to access the index were merged to optimze access from " + listofpairs.size() + " to "
+					+ ret.size());
+		}
+		return ret;
+	}
+
+	private Pair<Long, Long> mergePairs(Pair<Long, Long> pair1, Pair<Long, Long> pair2) {
+		return new Pair<Long, Long>(pair1.getFirstelement(), pair2.getSecondElement());
+	}
+
+	protected void loadIndexFile() throws IOException {
 		// if not ready, means that the index file has to be updated
 		if (status == Status.NOT_READY) {
 			indexMap.clear();
@@ -174,8 +354,6 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		try {
 			loadIndexFile();
 
-			final String item = marshallEntryToText(entry);
-
 			// look if it is already in the index
 			if (keys == null || keys.isEmpty()) {
 				keys = uniprotFileIndexIO.getKeys(entry);
@@ -195,6 +373,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 				return ret;
 			}
 			// add into the file to index
+			final String item = marshallEntryToText(entry);
 			itemPositions = uniprotFileIndexIO.addNewItem(item, keys);
 
 			// add to the map
@@ -260,6 +439,60 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			return true;
 		}
 		return false;
+	}
+
+	public Map<String, Pair<Long, Long>> addItems(List<Entry> entries) {
+		final Map<String, Pair<Long, Long>> itemPositions = new THashMap<String, Pair<Long, Long>>();
+		// load index file
+		try {
+			loadIndexFile();
+			final Map<String, Set<String>> notFoundEntries = new THashMap<String, Set<String>>();
+			for (final Entry entry : entries) {
+
+				final Set<String> keys = uniprotFileIndexIO.getKeys(entry);
+
+				if (keys != null && !keys.isEmpty()) {
+					boolean found = true;
+					for (final String key : keys) {
+						if (indexMap.containsKey(key)) {
+							final Pair<Long, Long> pair = indexMap.get(key);
+							itemPositions.put(key, pair);
+						} else {
+							found = false;
+						}
+					}
+					if (!found) {
+						final String item = marshallEntryToText(entry);
+						notFoundEntries.put(item, keys);
+					}
+				}
+
+			}
+			if (notFoundEntries.isEmpty()) {
+				return itemPositions;
+			}
+			// write the rest
+
+			// add into the file to index
+			final Map<String, Pair<Long, Long>> positions = uniprotFileIndexIO.addNewItems(notFoundEntries);
+
+			// add to the map
+			indexMap.putAll(positions);
+
+			// write the index file appending
+			writePositionsInIndex(this, positions, true);
+
+			// add to the returning map
+			itemPositions.putAll(positions);
+			// return the positions
+			return itemPositions;
+		} catch (
+
+		final IOException e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
+		}
+		return null;
 	}
 
 }

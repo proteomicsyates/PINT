@@ -13,6 +13,7 @@ import edu.scripps.yates.utilities.pi.reductions.Reducible;
 import gnu.trove.map.hash.THashMap;
 
 public class UniprotFastaRetrieverThread extends Thread {
+	private static final int LOG_SIZE_CHUNK = 200;
 	private static Logger log = Logger.getLogger(UniprotFastaRetrieverThread.class);
 	private final Reducible<Map<String, Entry>> reducibleMap;
 	private final ParIterator<String> iterator;
@@ -26,7 +27,7 @@ public class UniprotFastaRetrieverThread extends Thread {
 	public void run() {
 		final Map<String, Entry> ret = new THashMap<String, Entry>();
 		reducibleMap.set(ret);
-
+		int count = 0;
 		while (iterator.hasNext()) {
 			final String accession = iterator.next();
 			try {
@@ -38,7 +39,7 @@ public class UniprotFastaRetrieverThread extends Thread {
 				if (fastaEntry != null) {
 					ret.put(accession, fastaEntry);
 				} else {
-					log.info("Adding " + accession + " to the list of proteins with no FASTA sequence available.");
+					log.debug("Adding " + accession + " to the list of proteins with no FASTA sequence available.");
 					UniprotProteinRemoteRetriever.entriesWithNoFASTA.add(accession);
 				}
 
@@ -58,8 +59,14 @@ public class UniprotFastaRetrieverThread extends Thread {
 				e.printStackTrace();
 				log.warn(e.getMessage());
 				iterator.register(e);
+			} finally {
+				count++;
+				if (count % LOG_SIZE_CHUNK == 0) {
+					log.info(ret.size() + " protein sequences retrieved in thread " + Thread.currentThread().getId());
+				}
 			}
 		}
-
+		log.info(
+				"Finished. " + ret.size() + " protein sequences retrieved in thread " + Thread.currentThread().getId());
 	}
 }

@@ -18,13 +18,15 @@ public class UniprotPTMRetriever {
 	private final UniprotProteinLocalRetriever uplr;
 	private final static String MODIFIED_RESIDUE = "modified residue";
 
-	private UniprotPTMRetriever(File uniprotReleasesFolder2, boolean useIndex2) {
+	private UniprotPTMRetriever(File uniprotReleasesFolder2, boolean useIndex, boolean ignoreReferences,
+			boolean ignoreDBReferences) {
 		uniprotReleasesFolder = uniprotReleasesFolder2;
-		useIndex = useIndex2;
-		uplr = new UniprotProteinLocalRetriever(uniprotReleasesFolder, useIndex);
+		this.useIndex = useIndex;
+		uplr = new UniprotProteinLocalRetriever(uniprotReleasesFolder, useIndex, ignoreReferences, ignoreDBReferences);
 	}
 
-	public static UniprotPTMRetriever getInstance(File uniprotReleasesFolder, boolean useIndex) {
+	public static UniprotPTMRetriever getInstance(File uniprotReleasesFolder, boolean useIndex,
+			boolean ignoreReferences, boolean ignoreDBReferences) {
 		boolean createNewInstance = false;
 		if (instance == null) {
 			createNewInstance = true;
@@ -33,7 +35,7 @@ public class UniprotPTMRetriever {
 			createNewInstance = true;
 		}
 		if (createNewInstance) {
-			instance = new UniprotPTMRetriever(uniprotReleasesFolder, useIndex);
+			instance = new UniprotPTMRetriever(uniprotReleasesFolder, useIndex, ignoreReferences, ignoreDBReferences);
 		}
 
 		return instance;
@@ -59,31 +61,31 @@ public class UniprotPTMRetriever {
 	public Map<String, TIntObjectHashMap<PTMInformation>> getPTMsFromUniprotAccs(String uniprotVersion,
 			Collection<String> uniprotAccs) {
 		final Map<String, Entry> annotatedProteins = uplr.getAnnotatedProteins(uniprotVersion, uniprotAccs);
-		Map<String, TIntObjectHashMap<PTMInformation>> ret = new THashMap<String, TIntObjectHashMap<PTMInformation>>();
+		final Map<String, TIntObjectHashMap<PTMInformation>> ret = new THashMap<String, TIntObjectHashMap<PTMInformation>>();
 
-		for (String uniprotAcc : uniprotAccs) {
-			TIntObjectHashMap<PTMInformation> map = new TIntObjectHashMap<PTMInformation>();
+		for (final String uniprotAcc : uniprotAccs) {
+			final TIntObjectHashMap<PTMInformation> map = new TIntObjectHashMap<PTMInformation>();
 			if (annotatedProteins.containsKey(uniprotAcc)) {
 				final Entry entry = annotatedProteins.get(uniprotAcc);
 				final List<FeatureType> features = entry.getFeature();
 				if (features != null) {
-					for (FeatureType featureType : features) {
+					for (final FeatureType featureType : features) {
 						if (featureType.getType().equals(MODIFIED_RESIDUE)) {
-							int position = featureType.getLocation().getPosition().getPosition().intValue();
+							final int position = featureType.getLocation().getPosition().getPosition().intValue();
 							String proteinName = null;
 							if (entry.getProtein() != null && entry.getProtein().getRecommendedName() != null
 									&& entry.getProtein().getRecommendedName().getFullName() != null
 									&& entry.getProtein().getRecommendedName().getFullName().getValue() != null) {
 								proteinName = entry.getProtein().getRecommendedName().getFullName().getValue();
 							}
-							PTMInformation ptm = new PTMInformation(uniprotAcc, featureType.getDescription(),
+							final PTMInformation ptm = new PTMInformation(uniprotAcc, featureType.getDescription(),
 									proteinName, position, entry);
 							final List<Integer> evidences = featureType.getEvidence();
 							// add evidences
 							if (evidences != null) {
-								for (Integer evidenceKey : evidences) {
+								for (final Integer evidenceKey : evidences) {
 									if (evidenceKey != null) {
-										EvidenceType evidenceType = getEvidence(entry, evidenceKey);
+										final EvidenceType evidenceType = getEvidence(entry, evidenceKey);
 										if (evidenceType != null) {
 											ptm.addEvidence(evidenceType);
 										}
@@ -105,7 +107,7 @@ public class UniprotPTMRetriever {
 		if (entry != null && evidenceKey != null) {
 			final List<EvidenceType> evidences = entry.getEvidence();
 			if (evidences != null) {
-				for (EvidenceType evidenceType : evidences) {
+				for (final EvidenceType evidenceType : evidences) {
 					if (Integer.compare(evidenceType.getKey().intValue(), evidenceKey) == 0) {
 						return evidenceType;
 					}

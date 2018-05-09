@@ -6,13 +6,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRemoteRetriever;
 import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
@@ -23,6 +23,7 @@ import edu.scripps.yates.annotations.uniprot.xml.CommentType;
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.annotations.uniprot.xml.IsoformType;
+import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 
@@ -55,7 +56,11 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 
 	@Override
 	public Map<String, List<Proteoform>> getProteoforms(Collection<String> uniprotACCs) {
+		return getProteoformsFromList(uniprotACCs, retrieveIsoforms, retrievePTMs, uniprotVersion, uplr);
+	}
 
+	protected static Map<String, List<Proteoform>> getProteoformsFromList(Collection<String> uniprotACCs,
+			boolean retrieveIsoforms, boolean retrievePTMs, String uniprotVersion, UniprotProteinLocalRetriever uplr) {
 		final Map<String, List<Proteoform>> ret = new HashMap<String, List<Proteoform>>();
 		final List<String> uniprotAccList = new ArrayList<String>();
 		uniprotAccList.addAll(uniprotACCs);
@@ -66,7 +71,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 				final List<String> mainIsoforms = new ArrayList<String>();
 				for (final String acc : uniprotAccList) {
 					final String isoformVersion = FastaParser.getIsoformVersion(acc);
-					if (isoformVersion == null || "1".equals(isoformVersion)) {
+					if (isoformVersion == null) {
 						mainIsoforms.add(acc);
 					} else {
 						isoformsACCs.add(acc);
@@ -84,8 +89,12 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 									final List<IsoformType> isoforms = comment.getIsoform();
 									for (final IsoformType alternativeProductsIsoform : isoforms) {
 										final String isoformACC = alternativeProductsIsoform.getId().get(0);
-										if ("1".equals(FastaParser.getIsoformVersion(isoformACC))) {
+										if (FastaParser.getIsoformVersion(isoformACC) == null) {
 											// no isoform
+											continue;
+										}
+										if ("displayed".equals(alternativeProductsIsoform.getSequence().getType())) {
+											// this is the main form
 											continue;
 										}
 										isoformsACCs.add(isoformACC);
@@ -98,7 +107,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					}
 				}
 				if (!isoformsACCs.isEmpty()) {
-					final Map<String, Entry> isoforms = retrieveIsoformsFirst(isoformsACCs);
+					final Map<String, Entry> isoforms = retrieveIsoformsFirst(isoformsACCs, uplr);
 					annotatedProteins.putAll(isoforms);
 				}
 			} else {
@@ -110,7 +119,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 			for (String acc : uniprotAccList) {
 				final Map<String, String> isoformSequenceReferences = new HashMap<String, String>();
 				final String isoformVersion = FastaParser.getIsoformVersion(acc);
-				if (isoformVersion != null && !"1".equals(isoformVersion)) {
+				if (isoformVersion != null) {
 					acc = FastaParser.getNoIsoformAccession(acc);
 				}
 				if (accSet.contains(acc)) {
@@ -155,17 +164,15 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 						final List<IsoformType> isoforms = alternativeProductsComment.getIsoform();
 						for (final IsoformType alternativeProductsIsoform : isoforms) {
 							final String isoformACC = alternativeProductsIsoform.getId().get(0);
-							if ("1".equals(FastaParser.getIsoformVersion(isoformACC))) {
-								// no isoform
-								continue;
-							}
 							if (alternativeProductsIsoform.getSequence() != null
 									&& alternativeProductsIsoform.getSequence().getRef() != null) {
 								isoformSequenceReferences.put(isoformACC,
 										alternativeProductsIsoform.getSequence().getRef());
 							}
-							isoformsACCs.add(isoformACC);
-
+							if (alternativeProductsIsoform.getSequence() != null
+									&& !"displayed".equals(alternativeProductsIsoform.getSequence().getType())) {
+								isoformsACCs.add(isoformACC);
+							}
 						}
 					}
 					// retrieve isoform sequences
@@ -253,9 +260,10 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 
 	}
 
-	private Map<String, Entry> retrieveIsoformsFirst(Set<String> isoformsACCs) {
+	private static Map<String, Entry> retrieveIsoformsFirst(Set<String> isoformsACCs,
+			UniprotProteinLocalRetriever uplr) {
 		final long t1 = System.currentTimeMillis();
-		log.debug("Retrieving isoform fasta sequences all at once first");
+		log.debug("Retrieving isoform fasta sequences all at once first ");
 		// if there is no UPLR, get isoform fasta from internet,
 		if (uplr == null) {
 			final Map<String, Entry> isoformEntries = UniprotProteinRemoteRetriever
@@ -293,6 +301,21 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 
 	public void setRetrieveIsoforms(boolean retrieveIsoforms) {
 		this.retrieveIsoforms = retrieveIsoforms;
+	}
+
+	@Override
+	public Iterator<Proteoform> getProteoformIterator(Collection<String> uniprotACCs) {
+		return new ProteoformRetrieverIteratorFromXML(uniprotACCs, retrieveIsoforms, retrievePTMs, uniprotVersion,
+				uplr);
+	}
+
+	@Override
+	public Iterator<Proteoform> getProteoformIterator(String... uniprotACCs) {
+		final Set<String> set = new HashSet<String>();
+		for (final String uniprotACC : uniprotACCs) {
+			set.add(uniprotACC);
+		}
+		return getProteoformIterator(set);
 	}
 
 }
