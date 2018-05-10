@@ -1,7 +1,6 @@
 package edu.scripps.yates.server.util;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -12,6 +11,7 @@ import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.UniprotFeatureBean;
 import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.utilities.strings.StringUtils;
+import gnu.trove.list.array.TIntArrayList;
 
 public class ServerDataUtils {
 	// for calculating the protein coverage
@@ -39,18 +39,18 @@ public class ServerDataUtils {
 	 */
 	public static Pair<Double, char[]> calculateProteinCoverage(Collection<PSMBean> psms,
 			Collection<PeptideBean> peptides, String proteinSeq, String accession) {
-		StringBuilder proteinSeqTMP = new StringBuilder();
+		final StringBuilder proteinSeqTMP = new StringBuilder();
 		proteinSeqTMP.append(proteinSeq);
 		// RemoteServicesTasks.getPSMsFromProtein( sessionID,
 		// proteinBean, false);
 		if (psms != null) {
-			for (PSMBean psmBean : psms) {
+			for (final PSMBean psmBean : psms) {
 				final String pepSeq = psmBean.getSequence();
 				if (pepSeq != null && !"".equals(pepSeq)) {
-					String specialString = getSpecialString(pepSeq.length());
-					List<Integer> positions = StringUtils.allPositionsOf(proteinSeq, pepSeq);
+					final String specialString = getSpecialString(pepSeq.length());
+					final TIntArrayList positions = StringUtils.allPositionsOf(proteinSeq, pepSeq);
 					if (!positions.isEmpty()) {
-						for (Integer position : positions) {
+						for (final int position : positions.toArray()) {
 							psmBean.addPositionByProtein(accession,
 									new Pair<Integer, Integer>(position, position + pepSeq.length()));
 							// replace the peptide in the protein with
@@ -62,13 +62,13 @@ public class ServerDataUtils {
 			}
 		}
 		if (peptides != null) {
-			for (PeptideBean peptideBean : peptides) {
+			for (final PeptideBean peptideBean : peptides) {
 				final String pepSeq = peptideBean.getSequence();
 				if (pepSeq != null && !"".equals(pepSeq)) {
-					String specialString = getSpecialString(pepSeq.length());
-					List<Integer> positions = StringUtils.allPositionsOf(proteinSeq, pepSeq);
+					final String specialString = getSpecialString(pepSeq.length());
+					final TIntArrayList positions = StringUtils.allPositionsOf(proteinSeq, pepSeq);
 					if (!positions.isEmpty()) {
-						for (Integer position : positions) {
+						for (final int position : positions.toArray()) {
 							peptideBean.addPositionByProtein(accession,
 									new Pair<Integer, Integer>(position, position + pepSeq.length()));
 							// replace the peptide in the protein with
@@ -81,9 +81,9 @@ public class ServerDataUtils {
 		}
 		// calculate the protein coverage
 		final int numberOfCoveredAA = StringUtils.allPositionsOf(proteinSeqTMP.toString(), SPECIAL_CHARACTER).size();
-		double coverage = Double.valueOf(numberOfCoveredAA) / Double.valueOf(proteinSeq.length());
+		final double coverage = Double.valueOf(numberOfCoveredAA) / Double.valueOf(proteinSeq.length());
 
-		char[] coveredSequenceArray = new char[proteinSeqTMP.length()];
+		final char[] coveredSequenceArray = new char[proteinSeqTMP.length()];
 		for (int index = 0; index < proteinSeqTMP.length(); index++) {
 			if (proteinSeqTMP.charAt(index) == SPECIAL_CHARACTER.charAt(0)) {
 				coveredSequenceArray[index] = '1';
@@ -92,7 +92,7 @@ public class ServerDataUtils {
 			}
 		}
 
-		Pair<Double, char[]> ret = new Pair<Double, char[]>(coverage, coveredSequenceArray);
+		final Pair<Double, char[]> ret = new Pair<Double, char[]>(coverage, coveredSequenceArray);
 		return ret;
 	}
 
@@ -103,7 +103,7 @@ public class ServerDataUtils {
 	 * @return
 	 */
 	private static String getSpecialString(int length) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		while (sb.toString().length() != length) {
 			sb.append(SPECIAL_CHARACTER);
 		}
@@ -121,7 +121,7 @@ public class ServerDataUtils {
 	 */
 	public static UniprotFeatureBean getFromValue(String featureType, String name, String value) {
 		final String annotationSeparator = ProteinImplFromUniprotEntry.ANNOTATION_SEPARATOR;
-		UniprotFeatureBean ret = new UniprotFeatureBean();
+		final UniprotFeatureBean ret = new UniprotFeatureBean();
 
 		ret.setFeatureType(featureType);
 		if (name != null) {
@@ -129,10 +129,10 @@ public class ServerDataUtils {
 		}
 		if (value != null && value.contains(annotationSeparator)) {
 			final String[] split = value.split(annotationSeparator);
-			for (String string : split) {
+			for (final String string : split) {
 				if (string.contains(":")) {
 					final String[] split2 = string.split(":");
-					String type = split2[0].trim();
+					final String type = split2[0].trim();
 					String tmp = "";
 					if (split2.length > 1) {
 						tmp = split2[1].trim();
@@ -144,13 +144,13 @@ public class ServerDataUtils {
 					} else if (type.equals(ProteinImplFromUniprotEntry.BEGIN)) {
 						try {
 							ret.setPositionStart(Integer.valueOf(tmp));
-						} catch (NumberFormatException e) {
+						} catch (final NumberFormatException e) {
 
 						}
 					} else if (type.equals(ProteinImplFromUniprotEntry.END)) {
 						try {
 							ret.setPositionEnd(Integer.valueOf(tmp));
-						} catch (NumberFormatException e) {
+						} catch (final NumberFormatException e) {
 
 						}
 					} else if (type.equals(ProteinImplFromUniprotEntry.ORIGINAL)) {
@@ -163,7 +163,7 @@ public class ServerDataUtils {
 						try {
 							ret.setPositionStart(Integer.valueOf(tmp));
 							ret.setPositionEnd(Integer.valueOf(tmp));
-						} catch (NumberFormatException e) {
+						} catch (final NumberFormatException e) {
 
 						}
 					}
