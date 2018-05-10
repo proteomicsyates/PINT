@@ -37,8 +37,9 @@ public class ProteoFormFastaReader extends FastaReader {
 	 *            set of uniprot accessions to consider from the fasta file
 	 * @param proteoFormRetriever
 	 */
-	public ProteoFormFastaReader(Set<String> canonicalUniprotEntries, UniprotProteoformRetriever proteoFormRetriever) {
-		super(null);
+	public ProteoFormFastaReader(String fastaFileName, Set<String> canonicalUniprotEntries,
+			UniprotProteoformRetriever proteoFormRetriever) {
+		super(fastaFileName);
 		this.proteoFormRetriever = proteoFormRetriever;
 		this.canonicalUniprotEntries = canonicalUniprotEntries;
 	}
@@ -48,7 +49,7 @@ public class ProteoFormFastaReader extends FastaReader {
 		return Iterators.concat(super.getFastas(), getProteoFormFastaIterator());
 	}
 
-	public Iterator<Fasta> getProteoFormFastaIterator() throws IOException {
+	private Iterator<Fasta> getProteoFormFastaIterator() throws IOException {
 
 		Set<String> uniprotACCs = null;
 
