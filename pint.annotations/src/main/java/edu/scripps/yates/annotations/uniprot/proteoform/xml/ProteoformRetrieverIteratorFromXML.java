@@ -68,9 +68,13 @@ public class ProteoformRetrieverIteratorFromXML implements Iterator<Proteoform> 
 	private void loadList() {
 		final int nextIndex = Math.min(currentAccIndex + CHUNCK_SIZE, accs.size() - 1);
 		final List<String> accList = accs.subList(currentAccIndex, nextIndex);
+		if (accList.contains("P04434")) {
+			System.out.println("asdf");
+		}
 		currentAccIndex = nextIndex;
 		final Map<String, List<Proteoform>> proteoformsFromList = UniprotProteoformRetrieverFromXML
 				.getProteoformsFromList(accList, retrieveIsoforms, retrievePTMs, uniprotVersion, uplr);
+		System.out.println(proteoformsFromList.containsKey("P04434"));
 		final Set<Proteoform> set = new HashSet<Proteoform>();
 		for (final List<Proteoform> proteoforms : proteoformsFromList.values()) {
 			set.addAll(proteoforms);

@@ -89,6 +89,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -115,7 +116,7 @@ public class ImportCfgFileReader {
 	public ImportCfgFileReader() {
 		try {
 			jaxbContext = JAXBContext.newInstance("edu.scripps.yates.excel.proteindb.importcfg.jaxb");
-		} catch (JAXBException e) {
+		} catch (final JAXBException e) {
 			e.printStackTrace();
 		}
 	}
@@ -123,8 +124,8 @@ public class ImportCfgFileReader {
 	private PintImportCfg readCfgFile(File xmlFile) throws IOException, JAXBException {
 
 		if (xmlFile.exists() && jaxbContext != null) {
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Object ret = unmarshaller.unmarshal(xmlFile);
+			final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			final Object ret = unmarshaller.unmarshal(xmlFile);
 			return (PintImportCfg) ret;
 		}
 
@@ -134,8 +135,8 @@ public class ImportCfgFileReader {
 	private PintImportCfg readCfgFile(InputStream is) throws IOException, JAXBException {
 
 		if (is != null && jaxbContext != null) {
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Object ret = unmarshaller.unmarshal(is);
+			final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			final Object ret = unmarshaller.unmarshal(is);
 			return (PintImportCfg) ret;
 		}
 
@@ -158,7 +159,7 @@ public class ImportCfgFileReader {
 			final PintImportCfgType cfg = readCfgFile(is);
 			return getProjectFromCfgFile(cfg, fastaIndexFolder);
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}
@@ -180,7 +181,7 @@ public class ImportCfgFileReader {
 			final PintImportCfgType cfg = readCfgFile(xmlFile);
 			return getProjectFromCfgFile(cfg, fastaIndexFolder);
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}
@@ -206,7 +207,7 @@ public class ImportCfgFileReader {
 		StaticQuantMaps.clearInfo();
 
 		projectCfg = cfg.getProject();
-		ProjectEx project = new ProjectEx(projectCfg.getName(), projectCfg.getDescription());
+		final ProjectEx project = new ProjectEx(projectCfg.getName(), projectCfg.getDescription());
 		if (projectCfg.getReleaseDate() != null) {
 			project.setReleaseDate(projectCfg.getReleaseDate().toGregorianCalendar().getTime());
 		}
@@ -217,12 +218,13 @@ public class ImportCfgFileReader {
 		excelReader = new ExcelFileReader(cfg.getFileSet(), cfg.getServers());
 
 		// TODO CHANGE THIS!!
-		Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile = getLabelsByConditions(cfg);
-		Map<String, QuantificationLabel> numeratorLabelsByFile = getNumeratorLabelsByFile(cfg,
+		final Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile = getLabelsByConditions(
+				cfg);
+		final Map<String, QuantificationLabel> numeratorLabelsByFile = getNumeratorLabelsByFile(cfg,
 				labelsByConditionsByFile);
-		Map<String, QuantificationLabel> denominatorLabelsByFile = getDenominatorLabelsByFile(cfg,
+		final Map<String, QuantificationLabel> denominatorLabelsByFile = getDenominatorLabelsByFile(cfg,
 				labelsByConditionsByFile);
-		Map<String, List<RatioDescriptor>> ratioDescriptorsByFile = getRatioDescriptorsByFile(cfg,
+		final Map<String, List<RatioDescriptor>> ratioDescriptorsByFile = getRatioDescriptorsByFile(cfg,
 				labelsByConditionsByFile);
 		remoteFileReader = new RemoteFileReader(cfg.getFileSet(), cfg.getServers(), fastaIndexFolder,
 				labelsByConditionsByFile, ratioDescriptorsByFile);
@@ -233,15 +235,15 @@ public class ImportCfgFileReader {
 		// msRuns
 		final MsRunsType msRuns = projectCfg.getMsRuns();
 		if (msRuns != null && msRuns.getMsRun() != null) {
-			for (MsRunType msrunType : msRuns.getMsRun()) {
-				MSRun msrun = new MSRunAdapter(msrunType, project).adapt();
+			for (final MsRunType msrunType : msRuns.getMsRun()) {
+				final MSRun msrun = new MSRunAdapter(msrunType, project).adapt();
 				project.getMsRuns().add(msrun);
 			}
 		}
 		// experimental Conditions
 		final RatiosType ratiosCfg = projectCfg.getRatios();
 		conditionsByConditionID = new THashMap<String, Condition>();
-		for (ExperimentalConditionType expConditionCfg : projectCfg.getExperimentalConditions()
+		for (final ExperimentalConditionType expConditionCfg : projectCfg.getExperimentalConditions()
 				.getExperimentalCondition()) {
 			final ConditionAdapter conditionAdapter = new ConditionAdapter(expConditionCfg, msRuns,
 					projectCfg.getExperimentalDesign(), projectCfg.getExperimentalDesign().getOrganismSet(), project,
@@ -251,7 +253,7 @@ public class ImportCfgFileReader {
 			project.getConditions().add(condition);
 
 			// index proteins by ACC
-			for (Protein protein : condition.getProteins()) {
+			for (final Protein protein : condition.getProteins()) {
 				addToMapWithPrimaryAndSecondaryAccs(protein, proteinMap);
 			}
 		}
@@ -284,22 +286,22 @@ public class ImportCfgFileReader {
 	private void updateConditions(Project project) {
 
 		final Set<Condition> conditions = project.getConditions();
-		for (Condition condition : conditions) {
+		for (final Condition condition : conditions) {
 			// proteins
 			final Set<Protein> proteins = condition.getProteins();
-			for (Protein protein : proteins) {
+			for (final Protein protein : proteins) {
 				updateConditionsInHasAmounts(protein);
 				updateConditionsInHasRatios(protein);
 			}
 			// peptides
 			final Set<Peptide> peptides = condition.getPeptides();
-			for (Peptide peptide : peptides) {
+			for (final Peptide peptide : peptides) {
 				updateConditionsInHasAmounts(peptide);
 				updateConditionsInHasRatios(peptide);
 			}
 			// psms
 			final Set<PSM> psMs = condition.getPSMs();
-			for (PSM psm : psMs) {
+			for (final PSM psm : psMs) {
 				updateConditionsInHasAmounts(psm);
 				updateConditionsInHasRatios(psm);
 			}
@@ -308,7 +310,7 @@ public class ImportCfgFileReader {
 
 	private void updateConditionsInHasAmounts(HasAmounts hasAmounts) {
 		if (hasAmounts.getAmounts() != null) {
-			for (Amount amount : hasAmounts.getAmounts()) {
+			for (final Amount amount : hasAmounts.getAmounts()) {
 				if (amount.getCondition() instanceof QuantCondition) {
 					if (amount instanceof AmountEx) {
 						((AmountEx) amount).setCondition(conditionsByConditionID.get(amount.getCondition().getName()));
@@ -323,7 +325,7 @@ public class ImportCfgFileReader {
 
 	private void updateConditionsInHasRatios(HasRatios hasAmounts) {
 		if (hasAmounts.getRatios() != null) {
-			for (Ratio ratio : hasAmounts.getRatios()) {
+			for (final Ratio ratio : hasAmounts.getRatios()) {
 				if (ratio.getCondition1() instanceof QuantCondition) {
 					if (ratio instanceof RatioEx) {
 						((RatioEx) ratio).setCondition1(conditionsByConditionID.get(ratio.getCondition1().getName()));
@@ -346,21 +348,21 @@ public class ImportCfgFileReader {
 
 	private Map<String, List<RatioDescriptor>> getRatioDescriptorsByFile(PintImportCfgType cfg,
 			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile) {
-		Map<String, List<RatioDescriptor>> ret = new THashMap<String, List<RatioDescriptor>>();
+		final Map<String, List<RatioDescriptor>> ret = new THashMap<String, List<RatioDescriptor>>();
 
 		if (cfg != null && cfg.getProject() != null && cfg.getProject().getRatios() != null) {
 			if (cfg.getProject().getRatios().getPsmAmountRatios() != null
 					&& cfg.getProject().getRatios().getPsmAmountRatios().getRemoteFilesRatio() != null) {
-				for (RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPsmAmountRatios()
+				for (final RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPsmAmountRatios()
 						.getRemoteFilesRatio()) {
 
 					final String fileRef = remoteFileRatio.getFileRef();
-					RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
+					final RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
 							labelsByConditionsByFile.get(fileRef));
 					if (ret.containsKey(fileRef)) {
 						ret.get(fileRef).add(ratioDescriptor);
 					} else {
-						List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
+						final List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
 						list.add(ratioDescriptor);
 						ret.put(fileRef, list);
 					}
@@ -368,16 +370,16 @@ public class ImportCfgFileReader {
 			}
 			if (cfg.getProject().getRatios().getPeptideAmountRatios() != null
 					&& cfg.getProject().getRatios().getPeptideAmountRatios().getRemoteFilesRatio() != null) {
-				for (RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPeptideAmountRatios()
+				for (final RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPeptideAmountRatios()
 						.getRemoteFilesRatio()) {
 
 					final String fileRef = remoteFileRatio.getFileRef();
-					RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
+					final RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
 							labelsByConditionsByFile.get(fileRef));
 					if (ret.containsKey(fileRef)) {
 						ret.get(fileRef).add(ratioDescriptor);
 					} else {
-						List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
+						final List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
 						list.add(ratioDescriptor);
 						ret.put(fileRef, list);
 					}
@@ -385,15 +387,15 @@ public class ImportCfgFileReader {
 			}
 			if (cfg.getProject().getRatios().getProteinAmountRatios() != null
 					&& cfg.getProject().getRatios().getProteinAmountRatios().getRemoteFilesRatio() != null) {
-				for (RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getProteinAmountRatios()
+				for (final RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getProteinAmountRatios()
 						.getRemoteFilesRatio()) {
 					final String fileRef = remoteFileRatio.getFileRef();
-					RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
+					final RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
 							labelsByConditionsByFile.get(fileRef));
 					if (ret.containsKey(fileRef)) {
 						ret.get(fileRef).add(ratioDescriptor);
 					} else {
-						List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
+						final List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
 						list.add(ratioDescriptor);
 						ret.put(fileRef, list);
 					}
@@ -411,7 +413,7 @@ public class ImportCfgFileReader {
 		QuantificationLabel label1 = null;
 		QuantCondition condition2 = null;
 		QuantificationLabel label2 = null;
-		for (QuantCondition condition : labelsByConditions.keySet()) {
+		for (final QuantCondition condition : labelsByConditions.keySet()) {
 			final QuantificationLabel label = labelsByConditions.get(condition);
 			if (remoteFileRatio.getNumerator().getConditionRef().equals(condition.getName())) {
 				label1 = label;
@@ -423,23 +425,23 @@ public class ImportCfgFileReader {
 			}
 		}
 
-		RatioDescriptor ret = new RatioDescriptor(label1, label2, condition1, condition2);
+		final RatioDescriptor ret = new RatioDescriptor(label1, label2, condition1, condition2);
 		return ret;
 	}
 
 	private Map<String, QuantificationLabel> getNumeratorLabelsByFile(PintImportCfgType cfg,
 			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile) {
-		Map<String, QuantificationLabel> ret = new THashMap<String, QuantificationLabel>();
+		final Map<String, QuantificationLabel> ret = new THashMap<String, QuantificationLabel>();
 		if (cfg != null && cfg.getProject() != null && cfg.getProject().getRatios() != null) {
 			if (cfg.getProject().getRatios().getPsmAmountRatios() != null
 					&& cfg.getProject().getRatios().getPsmAmountRatios().getRemoteFilesRatio() != null) {
-				for (RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPsmAmountRatios()
+				for (final RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPsmAmountRatios()
 						.getRemoteFilesRatio()) {
 					final String fileRef = remoteFileRatio.getFileRef();
 					final Map<QuantCondition, QuantificationLabel> labelsByConditions = labelsByConditionsByFile
 							.get(fileRef);
 					final String numeratorConditionID = remoteFileRatio.getNumerator().getConditionRef();
-					for (QuantCondition quantCondition : labelsByConditions.keySet()) {
+					for (final QuantCondition quantCondition : labelsByConditions.keySet()) {
 						if (quantCondition.getName().equals(numeratorConditionID)) {
 							ret.put(remoteFileRatio.getFileRef(), labelsByConditions.get(quantCondition));
 						}
@@ -448,13 +450,13 @@ public class ImportCfgFileReader {
 			}
 			if (cfg.getProject().getRatios().getProteinAmountRatios() != null
 					&& cfg.getProject().getRatios().getProteinAmountRatios().getRemoteFilesRatio() != null) {
-				for (RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getProteinAmountRatios()
+				for (final RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getProteinAmountRatios()
 						.getRemoteFilesRatio()) {
 					final String fileRef = remoteFileRatio.getFileRef();
 					final Map<QuantCondition, QuantificationLabel> labelsByConditions = labelsByConditionsByFile
 							.get(fileRef);
 					final String numeratorConditionID = remoteFileRatio.getNumerator().getConditionRef();
-					for (QuantCondition quantCondition : labelsByConditions.keySet()) {
+					for (final QuantCondition quantCondition : labelsByConditions.keySet()) {
 						if (quantCondition.getName().equals(numeratorConditionID)) {
 							ret.put(remoteFileRatio.getFileRef(), labelsByConditions.get(quantCondition));
 						}
@@ -465,7 +467,7 @@ public class ImportCfgFileReader {
 
 		// insert LIGHT by default in all the files not detected
 		if (cfg != null && cfg.getFileSet() != null && cfg.getFileSet().getFile() != null) {
-			for (FileType fileType : cfg.getFileSet().getFile()) {
+			for (final FileType fileType : cfg.getFileSet().getFile()) {
 				if (!ret.containsKey(fileType.getId())) {
 					ret.put(fileType.getId(), QuantificationLabel.LIGHT);
 				}
@@ -476,17 +478,17 @@ public class ImportCfgFileReader {
 
 	private Map<String, QuantificationLabel> getDenominatorLabelsByFile(PintImportCfgType cfg,
 			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile) {
-		Map<String, QuantificationLabel> ret = new THashMap<String, QuantificationLabel>();
+		final Map<String, QuantificationLabel> ret = new THashMap<String, QuantificationLabel>();
 		if (cfg != null && cfg.getProject() != null && cfg.getProject().getRatios() != null) {
 			if (cfg.getProject().getRatios().getPsmAmountRatios() != null
 					&& cfg.getProject().getRatios().getPsmAmountRatios().getRemoteFilesRatio() != null) {
-				for (RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPsmAmountRatios()
+				for (final RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPsmAmountRatios()
 						.getRemoteFilesRatio()) {
 					final String fileRef = remoteFileRatio.getFileRef();
 					final Map<QuantCondition, QuantificationLabel> labelsByConditions = labelsByConditionsByFile
 							.get(fileRef);
 					final String denominatorConditionID = remoteFileRatio.getDenominator().getConditionRef();
-					for (QuantCondition quantCondition : labelsByConditions.keySet()) {
+					for (final QuantCondition quantCondition : labelsByConditions.keySet()) {
 						if (quantCondition.getName().equals(denominatorConditionID)) {
 							ret.put(remoteFileRatio.getFileRef(), labelsByConditions.get(quantCondition));
 						}
@@ -495,13 +497,13 @@ public class ImportCfgFileReader {
 			}
 			if (cfg.getProject().getRatios().getProteinAmountRatios() != null
 					&& cfg.getProject().getRatios().getProteinAmountRatios().getRemoteFilesRatio() != null) {
-				for (RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getProteinAmountRatios()
+				for (final RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getProteinAmountRatios()
 						.getRemoteFilesRatio()) {
 					final String fileRef = remoteFileRatio.getFileRef();
 					final Map<QuantCondition, QuantificationLabel> labelsByConditions = labelsByConditionsByFile
 							.get(fileRef);
 					final String denominatorConditionID = remoteFileRatio.getDenominator().getConditionRef();
-					for (QuantCondition quantCondition : labelsByConditions.keySet()) {
+					for (final QuantCondition quantCondition : labelsByConditions.keySet()) {
 						if (quantCondition.getName().equals(denominatorConditionID)) {
 							ret.put(remoteFileRatio.getFileRef(), labelsByConditions.get(quantCondition));
 						}
@@ -512,7 +514,7 @@ public class ImportCfgFileReader {
 
 		// insert LIGHT by default in all the files not detected
 		if (cfg != null && cfg.getFileSet() != null && cfg.getFileSet().getFile() != null) {
-			for (FileType fileType : cfg.getFileSet().getFile()) {
+			for (final FileType fileType : cfg.getFileSet().getFile()) {
 				if (!ret.containsKey(fileType.getId())) {
 					ret.put(fileType.getId(), QuantificationLabel.LIGHT);
 				}
@@ -526,11 +528,11 @@ public class ImportCfgFileReader {
 			if (discardDecoyRegexp == null) {
 				if (projectCfg != null) {
 					if (projectCfg.getExperimentalConditions() != null) {
-						for (ExperimentalConditionType condition : projectCfg.getExperimentalConditions()
+						for (final ExperimentalConditionType condition : projectCfg.getExperimentalConditions()
 								.getExperimentalCondition()) {
 							if (condition.getIdentificationInfo() != null) {
 								if (condition.getIdentificationInfo().getExcelIdentInfo() != null) {
-									for (IdentificationExcelType idExcel : condition.getIdentificationInfo()
+									for (final IdentificationExcelType idExcel : condition.getIdentificationInfo()
 											.getExcelIdentInfo()) {
 										if (idExcel.getDiscardDecoys() != null
 												&& !"".equals(idExcel.getDiscardDecoys())) {
@@ -539,7 +541,7 @@ public class ImportCfgFileReader {
 									}
 								}
 								if (condition.getIdentificationInfo().getRemoteFilesIdentInfo() != null) {
-									for (RemoteInfoType remoteId : condition.getIdentificationInfo()
+									for (final RemoteInfoType remoteId : condition.getIdentificationInfo()
 											.getRemoteFilesIdentInfo()) {
 										if (remoteId.getDiscardDecoys() != null
 												&& !"".equals(remoteId.getDiscardDecoys())) {
@@ -552,7 +554,7 @@ public class ImportCfgFileReader {
 					}
 				}
 			}
-		} catch (PatternSyntaxException e) {
+		} catch (final PatternSyntaxException e) {
 			log.warn(e);
 		}
 		return discardDecoyRegexp;
@@ -566,29 +568,29 @@ public class ImportCfgFileReader {
 	 * @return
 	 */
 	private Map<String, Map<QuantCondition, QuantificationLabel>> getLabelsByConditions(PintImportCfgType cfg) {
-		Map<String, Map<QuantCondition, QuantificationLabel>> ret = new THashMap<String, Map<QuantCondition, QuantificationLabel>>();
+		final Map<String, Map<QuantCondition, QuantificationLabel>> ret = new THashMap<String, Map<QuantCondition, QuantificationLabel>>();
 
 		// get all census-chro
 		// List<FileType> censusChroFiles =
 		// getQuantitativeFiles(cfg.getFileSet());
-		for (FileType fileType : cfg.getFileSet().getFile()) {
+		for (final FileType fileType : cfg.getFileSet().getFile()) {
 			if (fileType.getFormat() == FormatType.CENSUS_CHRO_XML
 					|| fileType.getFormat() == FormatType.CENSUS_OUT_TXT) {
 				// add the map in any case
-				Map<QuantCondition, QuantificationLabel> map = new THashMap<QuantCondition, QuantificationLabel>();
+				final Map<QuantCondition, QuantificationLabel> map = new THashMap<QuantCondition, QuantificationLabel>();
 				ret.put(fileType.getId(), map);
-				String fileId = fileType.getId();
-				for (ExperimentalConditionType conditionType : cfg.getProject().getExperimentalConditions()
+				final String fileId = fileType.getId();
+				for (final ExperimentalConditionType conditionType : cfg.getProject().getExperimentalConditions()
 						.getExperimentalCondition()) {
 					final QuantCondition condition = new QuantCondition(conditionType.getId(), projectCfg.getTag());
 					if (conditionType.getIdentificationInfo() != null
 							&& conditionType.getIdentificationInfo().getRemoteFilesIdentInfo() != null) {
-						for (RemoteInfoType remoteInfoType : conditionType.getIdentificationInfo()
+						for (final RemoteInfoType remoteInfoType : conditionType.getIdentificationInfo()
 								.getRemoteFilesIdentInfo()) {
-							for (FileReferenceType fileRef : remoteInfoType.getFileRef()) {
+							for (final FileReferenceType fileRef : remoteInfoType.getFileRef()) {
 								if (fileId.equals(fileRef.getFileRef())) {
 									final String sampleRef = conditionType.getSampleRef();
-									SampleType sampleType = getSampleType(sampleRef, cfg);
+									final SampleType sampleType = getSampleType(sampleRef, cfg);
 									if (sampleType != null) {
 										final String labelID = sampleType.getLabelRef();
 										map.put(condition, QuantificationLabel.getByName(labelID));
@@ -599,12 +601,12 @@ public class ImportCfgFileReader {
 					}
 					if (conditionType.getQuantificationInfo() != null
 							&& conditionType.getQuantificationInfo().getRemoteFilesQuantInfo() != null) {
-						for (RemoteInfoType remoteInfoType : conditionType.getQuantificationInfo()
+						for (final RemoteInfoType remoteInfoType : conditionType.getQuantificationInfo()
 								.getRemoteFilesQuantInfo()) {
-							for (FileReferenceType fileRef : remoteInfoType.getFileRef()) {
+							for (final FileReferenceType fileRef : remoteInfoType.getFileRef()) {
 								if (fileId.equals(fileRef.getFileRef())) {
 									final String sampleRef = conditionType.getSampleRef();
-									SampleType sampleType = getSampleType(sampleRef, cfg);
+									final SampleType sampleType = getSampleType(sampleRef, cfg);
 									if (sampleType != null) {
 										final String labelID = sampleType.getLabelRef();
 										map.put(condition, QuantificationLabel.getByName(labelID));
@@ -616,7 +618,7 @@ public class ImportCfgFileReader {
 				}
 				// check in the ratios
 				if (cfg.getProject().getRatios() != null) {
-					List<RemoteFilesRatioType> ratioList = new ArrayList<RemoteFilesRatioType>();
+					final List<RemoteFilesRatioType> ratioList = new ArrayList<RemoteFilesRatioType>();
 					if (cfg.getProject().getRatios().getProteinAmountRatios() != null) {
 						if (cfg.getProject().getRatios().getProteinAmountRatios().getRemoteFilesRatio() != null) {
 							ratioList.addAll(
@@ -628,15 +630,15 @@ public class ImportCfgFileReader {
 							ratioList.addAll(cfg.getProject().getRatios().getPsmAmountRatios().getRemoteFilesRatio());
 						}
 					}
-					for (RemoteFilesRatioType fileRatio : ratioList) {
+					for (final RemoteFilesRatioType fileRatio : ratioList) {
 						if (fileId.equals(fileRatio.getFileRef())) {
 							final String numeratorConditionId = fileRatio.getNumerator().getConditionRef();
-							for (ExperimentalConditionType conditionType : cfg.getProject().getExperimentalConditions()
-									.getExperimentalCondition()) {
+							for (final ExperimentalConditionType conditionType : cfg.getProject()
+									.getExperimentalConditions().getExperimentalCondition()) {
 								if (conditionType.getId().equals(numeratorConditionId)) {
 									final String sampleRef = conditionType.getSampleRef();
 									if (sampleRef != null) {
-										SampleType sampleType = getSampleType(sampleRef, cfg);
+										final SampleType sampleType = getSampleType(sampleRef, cfg);
 										if (sampleType != null) {
 											final String labelID = sampleType.getLabelRef();
 											map.put(new QuantCondition(conditionType.getId(), projectCfg.getTag()),
@@ -646,12 +648,12 @@ public class ImportCfgFileReader {
 								}
 							}
 							final String denominatorConditionId = fileRatio.getDenominator().getConditionRef();
-							for (ExperimentalConditionType conditionType : cfg.getProject().getExperimentalConditions()
-									.getExperimentalCondition()) {
+							for (final ExperimentalConditionType conditionType : cfg.getProject()
+									.getExperimentalConditions().getExperimentalCondition()) {
 								if (conditionType.getId().equals(denominatorConditionId)) {
 									final String sampleRef = conditionType.getSampleRef();
 									if (sampleRef != null) {
-										SampleType sampleType = getSampleType(sampleRef, cfg);
+										final SampleType sampleType = getSampleType(sampleRef, cfg);
 										if (sampleType != null) {
 											final String labelID = sampleType.getLabelRef();
 											map.put(new QuantCondition(conditionType.getId(), projectCfg.getTag()),
@@ -675,7 +677,7 @@ public class ImportCfgFileReader {
 		if (cfg.getProject().getExperimentalDesign() != null
 				&& cfg.getProject().getExperimentalDesign().getSampleSet() != null
 				&& cfg.getProject().getExperimentalDesign().getSampleSet().getSample() != null) {
-			for (SampleType sample : cfg.getProject().getExperimentalDesign().getSampleSet().getSample()) {
+			for (final SampleType sample : cfg.getProject().getExperimentalDesign().getSampleSet().getSample()) {
 				if (sample.getId().equals(sampleRef)) {
 					return sample;
 				}
@@ -685,15 +687,15 @@ public class ImportCfgFileReader {
 	}
 
 	private List<FileType> getQuantitativeFiles(FileSetType fileSet) {
-		List<FileType> ret = new ArrayList<FileType>();
+		final List<FileType> ret = new ArrayList<FileType>();
 		ret.addAll(getCensusChroFiles(fileSet));
 		ret.addAll(getCensusOutFiles(fileSet));
 		return ret;
 	}
 
 	private List<FileType> getCensusChroFiles(FileSetType fileSet) {
-		List<FileType> ret = new ArrayList<FileType>();
-		for (FileType fileType : fileSet.getFile()) {
+		final List<FileType> ret = new ArrayList<FileType>();
+		for (final FileType fileType : fileSet.getFile()) {
 			if (fileType.getFormat() == FormatType.CENSUS_CHRO_XML) {
 				ret.add(fileType);
 			}
@@ -702,8 +704,8 @@ public class ImportCfgFileReader {
 	}
 
 	private List<FileType> getCensusOutFiles(FileSetType fileSet) {
-		List<FileType> ret = new ArrayList<FileType>();
-		for (FileType fileType : fileSet.getFile()) {
+		final List<FileType> ret = new ArrayList<FileType>();
+		for (final FileType fileType : fileSet.getFile()) {
 			if (fileType.getFormat() == FormatType.CENSUS_OUT_TXT) {
 				ret.add(fileType);
 			}
@@ -718,7 +720,7 @@ public class ImportCfgFileReader {
 		// index also by secondary accessions
 		final List<Accession> secondaryAccessions = protein.getSecondaryAccessions();
 		if (secondaryAccessions != null) {
-			for (Accession secAcc : secondaryAccessions) {
+			for (final Accession secAcc : secondaryAccessions) {
 				addToMap(proteinMap2, secAcc.getAccession(), protein);
 			}
 		}
@@ -729,7 +731,7 @@ public class ImportCfgFileReader {
 		if (proteinMap2.containsKey(accession)) {
 			proteinMap2.get(accession).add(protein);
 		} else {
-			Set<Protein> set = new THashSet<Protein>();
+			final Set<Protein> set = new THashSet<Protein>();
 			set.add(protein);
 			proteinMap2.put(accession, set);
 		}
@@ -783,9 +785,9 @@ public class ImportCfgFileReader {
 	 */
 	private void createPeptideRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) {
 		if (remoteFileRatiosCfg != null) {
-			for (RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
+			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
-				String msRunRef = remoteFilesRatioType.getMsRunRef();
+				final String msRunRef = remoteFilesRatioType.getMsRunRef();
 
 				final QuantParser censusQuantParser = remoteFileReader
 						.getQuantParser(remoteFilesRatioType.getFileRef());
@@ -796,11 +798,11 @@ public class ImportCfgFileReader {
 					final Map<String, QuantifiedPSMInterface> quantPSMsMap = censusQuantParser.getPSMMap();
 
 					if (quantPSMsMap != null) {
-						Set<PSM> runPSMs = ConditionAdapter.getPSMsByRunID(projectCfg.getTag(), msRunRef);
+						final Set<PSM> runPSMs = ConditionAdapter.getPSMsByRunID(projectCfg.getTag(), msRunRef);
 						// aqui se usaa el msrun pero no en excel. Usarlo en
 						// excel, aunque sea opcionalmente?
 						if (runPSMs != null) {
-							for (PSM runPSM : runPSMs) {
+							for (final PSM runPSM : runPSMs) {
 								final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap
 										.get(runPSM.getPSMIdentifier());
 								if (quantifiedPSM == null) {
@@ -815,36 +817,37 @@ public class ImportCfgFileReader {
 								// peaks = pairs)
 								final Set<QuantRatio> ratios = quantifiedPSM.getRatios();
 								if (ratios != null) {
-									Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
-									for (QuantRatio quantRatio : ratios) {
+									final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
+									for (final QuantRatio quantRatio : ratios) {
 										final QuantificationLabel label1 = quantRatio.getLabel1();
 										final QuantificationLabel label2 = quantRatio.getLabel2();
 
-										String sample1 = getSamplesByLabel(label1,
+										final String sample1 = getSamplesByLabel(label1,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
-										String sample2 = getSamplesByLabel(label2,
+										final String sample2 = getSamplesByLabel(label2,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
 										if (sample1 == null || sample2 == null) {
 											continue;
 										}
-										Pair<String, String> samplePair = new Pair<String, String>(sample1, sample2);
+										final Pair<String, String> samplePair = new Pair<String, String>(sample1,
+												sample2);
 										if (mapQuantRatios.containsKey(samplePair)) {
 											// take LOG 2 ratio
 											mapQuantRatios.get(samplePair).add(quantRatio);
 										} else {
-											List<QuantRatio> list = new ArrayList<QuantRatio>();
+											final List<QuantRatio> list = new ArrayList<QuantRatio>();
 											list.add(quantRatio);
 											mapQuantRatios.put(samplePair, list);
 										}
 									}
-									for (Pair<String, String> pair : mapQuantRatios.keySet()) {
+									for (final Pair<String, String> pair : mapQuantRatios.keySet()) {
 										final String sample1 = pair.getFirstelement();
-										Condition condition1 = getConditionBySampleAndRatio(sample1,
+										final Condition condition1 = getConditionBySampleAndRatio(sample1,
 												remoteFilesRatioType);
 										final String sample2 = pair.getSecondElement();
-										Condition condition2 = getConditionBySampleAndRatio(sample2,
+										final Condition condition2 = getConditionBySampleAndRatio(sample2,
 												remoteFilesRatioType);
 
 										final List<QuantRatio> ratioList = mapQuantRatios.get(pair);
@@ -852,7 +855,7 @@ public class ImportCfgFileReader {
 										// separetely
 										final List<QuantRatio> safeRatios = new ArrayList<QuantRatio>();
 										final List<QuantRatio> maxOrMinValueRatioValues = new ArrayList<QuantRatio>();
-										for (QuantRatio ratioValue : ratioList) {
+										for (final QuantRatio ratioValue : ratioList) {
 											// discard a ratio that is not
 											// between the two conditions
 											if (!ratioValue.getCondition1().getName().equals(condition1.getName())
@@ -878,30 +881,27 @@ public class ImportCfgFileReader {
 											// get the ratios by its names, in
 											// order to average them if there is
 											// more than one of the same name
-											Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
+											final Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
 													safeRatios);
-											for (Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
+											for (final Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
 
 												if (safeRatiosSameName.size() > 1) {
 													// make the average of the
 													// values
-													List<Double> safeRatioValues = new ArrayList<Double>();
-													for (QuantRatio safeRatio : safeRatiosSameName) {
-														final Double log2Ratio = safeRatio.getLog2Ratio(
+													final TDoubleArrayList safeRatioValues = new TDoubleArrayList();
+													for (final QuantRatio safeRatio : safeRatiosSameName) {
+														final double log2Ratio = safeRatio.getLog2Ratio(
 																condition1.getName(), condition2.getName());
-														if (log2Ratio != null) {
-															safeRatioValues.add(log2Ratio);
-														}
+														safeRatioValues.add(log2Ratio);
+
 													}
-													RatioEx ratio = new RatioEx(
-															Maths.mean(safeRatioValues.toArray(new Double[0])),
+													final RatioEx ratio = new RatioEx(Maths.mean(safeRatioValues),
 															condition1, condition2, CombinationType.AVERAGE,
 															safeRatiosSameName.iterator().next().getDescription(),
 															AggregationLevel.PSM);
 
-													ScoreEx score = new ScoreEx(
-															String.valueOf(Maths
-																	.stddev(safeRatioValues.toArray(new Double[0]))),
+													final ScoreEx score = new ScoreEx(
+															String.valueOf(Maths.stddev(safeRatioValues)),
 															"Standard deviation of ratios",
 															"Standard deviation of ratios at spectrum level",
 															"Standard deviation of the ratios computed in this spectrum");
@@ -917,20 +917,20 @@ public class ImportCfgFileReader {
 													if (log2RatioValue != null) {
 														// as cv term
 														// MS:1001132:
-														String ratioDescription = safeRatio.getDescription();
+														final String ratioDescription = safeRatio.getDescription();
 														// if (safeRatio
 														// instanceof IsoRatio)
 														// {
 														// ratioDescription =
 														// ISOBARIC_RATIO;
 														// }
-														RatioEx ratio = new RatioEx(log2RatioValue, condition1,
+														final RatioEx ratio = new RatioEx(log2RatioValue, condition1,
 																condition2, ratioDescription, AggregationLevel.PSM);
 														final Score ratioScore = safeRatio
 																.getAssociatedConfidenceScore();
 														if (ratioScore != null && !Double
 																.isNaN(Double.valueOf(ratioScore.getValue()))) {
-															ScoreEx score = new ScoreEx(ratioScore.getValue(),
+															final ScoreEx score = new ScoreEx(ratioScore.getValue(),
 																	ratioScore.getScoreName(),
 																	ratioScore.getScoreType(),
 																	ratioScore.getScoreDescription());
@@ -946,12 +946,13 @@ public class ImportCfgFileReader {
 										// store the infinite ratios as
 										// singleton intensity ratios
 										if (!maxOrMinValueRatioValues.isEmpty()) {
-											for (QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
+											for (final QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
 												final Double nonLogRatio = infiniteRatio
 														.getNonLogRatio(condition1.getName(), condition2.getName());
 												if (nonLogRatio != null) {
-													RatioEx ratio = new RatioEx(nonLogRatio, condition1, condition2,
-															SINGLETON_INTENSITY_RATIO, AggregationLevel.PSM);
+													final RatioEx ratio = new RatioEx(nonLogRatio, condition1,
+															condition2, SINGLETON_INTENSITY_RATIO,
+															AggregationLevel.PSM);
 													// add ratio to peptide
 													runPSM.getPeptide().addRatio(ratio);
 												}
@@ -973,16 +974,16 @@ public class ImportCfgFileReader {
 								// number of singleton peaks of condition 2
 								//
 								if (quantifiedPSM instanceof IsobaricQuantifiedPSM) {
-									IsobaricQuantifiedPSM isoPSM = (IsobaricQuantifiedPSM) quantifiedPSM;
+									final IsobaricQuantifiedPSM isoPSM = (IsobaricQuantifiedPSM) quantifiedPSM;
 
 									final Map<QuantificationLabel, Set<Ion>> singletonIonsByLabelMap = isoPSM
 											.getSingletonIonsByLabel();
-									List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
+									final List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
 									quantLabelList.addAll(singletonIonsByLabelMap.keySet());
 
 									for (int i = 0; i < quantLabelList.size(); i++) {
 										final QuantificationLabel quantificationLabel1 = quantLabelList.get(i);
-										String sample1 = getSamplesByLabel(quantificationLabel1,
+										final String sample1 = getSamplesByLabel(quantificationLabel1,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
 										if (sample1 == null) {
@@ -990,10 +991,10 @@ public class ImportCfgFileReader {
 										}
 										final Condition condition1 = getConditionBySampleAndRatio(sample1,
 												remoteFilesRatioType);
-										Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
+										final Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
 										for (int j = i + 1; j < quantLabelList.size(); j++) {
 											final QuantificationLabel quantificationLabel2 = quantLabelList.get(j);
-											String sample2 = getSamplesByLabel(quantificationLabel2,
+											final String sample2 = getSamplesByLabel(quantificationLabel2,
 													remoteFilesRatioType.getNumerator().getConditionRef(),
 													remoteFilesRatioType.getDenominator().getConditionRef());
 											if (sample2 == null) {
@@ -1001,27 +1002,27 @@ public class ImportCfgFileReader {
 											}
 											final Condition condition2 = getConditionBySampleAndRatio(sample2,
 													remoteFilesRatioType);
-											Set<Ion> ions2 = singletonIonsByLabelMap.get(quantificationLabel2);
+											final Set<Ion> ions2 = singletonIonsByLabelMap.get(quantificationLabel2);
 											if (!ions2.isEmpty()) {
 												// singleton ratio count based
-												double singletonRatioCountValue = Double.valueOf(ions1.size())
+												final double singletonRatioCountValue = Double.valueOf(ions1.size())
 														/ Double.valueOf(ions2.size());
 												// make the log2
 												double log2Ratio = Math.log(singletonRatioCountValue) / Math.log(2);
-												RatioEx singletonRatioCount = new RatioEx(log2Ratio, condition1,
+												final RatioEx singletonRatioCount = new RatioEx(log2Ratio, condition1,
 														condition2, SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PSM);
 												// add ratio to peptide
 												runPSM.getPeptide().addRatio(singletonRatioCount);
 
 												// singleton ratio intensity
 												// based
-												double singletonRatioIntensityValue = Double
+												final double singletonRatioIntensityValue = Double
 														.valueOf(getIntensitySum(ions1))
 														/ Double.valueOf(getIntensitySum(ions2));
 												// make the log2
 												log2Ratio = Math.log(singletonRatioIntensityValue) / Math.log(2);
-												RatioEx singletonRatioIntensity = new RatioEx(log2Ratio, condition1,
-														condition2, SINGLETON_SUM_INTENSITIES_RATIO,
+												final RatioEx singletonRatioIntensity = new RatioEx(log2Ratio,
+														condition1, condition2, SINGLETON_SUM_INTENSITIES_RATIO,
 														AggregationLevel.PSM);
 												// add ratio to peptide
 												runPSM.getPeptide().addRatio(singletonRatioIntensity);
@@ -1032,12 +1033,12 @@ public class ImportCfgFileReader {
 												if (!ions1.isEmpty()) {
 													// n/0 -> positive infinity,
 													// log(inf) = inf
-													RatioEx singletonRatioCount = new RatioEx(Double.POSITIVE_INFINITY,
-															condition1, condition2, SINGLETON_SUM_COUNT_RATIO,
-															AggregationLevel.PSM);
+													final RatioEx singletonRatioCount = new RatioEx(
+															Double.POSITIVE_INFINITY, condition1, condition2,
+															SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PSM);
 													// add ratio to peptide
 													runPSM.getPeptide().addRatio(singletonRatioCount);
-													RatioEx singletonRatioIntensity = new RatioEx(
+													final RatioEx singletonRatioIntensity = new RatioEx(
 															Double.POSITIVE_INFINITY, condition1, condition2,
 															SINGLETON_SUM_INTENSITIES_RATIO, AggregationLevel.PSM);
 													// add ratio to peptide
@@ -1063,9 +1064,9 @@ public class ImportCfgFileReader {
 
 	private void createPSMRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) {
 		if (remoteFileRatiosCfg != null) {
-			for (RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
+			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
-				String msRunRef = remoteFilesRatioType.getMsRunRef();
+				final String msRunRef = remoteFilesRatioType.getMsRunRef();
 
 				final QuantParser censusQuantParser = remoteFileReader
 						.getQuantParser(remoteFilesRatioType.getFileRef());
@@ -1076,11 +1077,11 @@ public class ImportCfgFileReader {
 					final Map<String, QuantifiedPSMInterface> quantPSMsMap = censusQuantParser.getPSMMap();
 
 					if (quantPSMsMap != null) {
-						Set<PSM> runPSMs = ConditionAdapter.getPSMsByRunID(projectCfg.getTag(), msRunRef);
+						final Set<PSM> runPSMs = ConditionAdapter.getPSMsByRunID(projectCfg.getTag(), msRunRef);
 						// aqui se usaa el msrun pero no en excel. Usarlo en
 						// excel, aunque sea opcionalmente?
 						if (runPSMs != null) {
-							for (PSM runPSM : runPSMs) {
+							for (final PSM runPSM : runPSMs) {
 								final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap
 										.get(runPSM.getPSMIdentifier());
 								if (quantifiedPSM == null) {
@@ -1095,36 +1096,37 @@ public class ImportCfgFileReader {
 								// peaks = pairs)
 								final Set<QuantRatio> ratios = quantifiedPSM.getRatios();
 								if (ratios != null) {
-									Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
-									for (QuantRatio quantRatio : ratios) {
+									final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
+									for (final QuantRatio quantRatio : ratios) {
 										final QuantificationLabel label1 = quantRatio.getLabel1();
 										final QuantificationLabel label2 = quantRatio.getLabel2();
 
-										String sample1 = getSamplesByLabel(label1,
+										final String sample1 = getSamplesByLabel(label1,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
-										String sample2 = getSamplesByLabel(label2,
+										final String sample2 = getSamplesByLabel(label2,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
 										if (sample1 == null || sample2 == null) {
 											continue;
 										}
-										Pair<String, String> samplePair = new Pair<String, String>(sample1, sample2);
+										final Pair<String, String> samplePair = new Pair<String, String>(sample1,
+												sample2);
 										if (mapQuantRatios.containsKey(samplePair)) {
 											// take LOG 2 ratio
 											mapQuantRatios.get(samplePair).add(quantRatio);
 										} else {
-											List<QuantRatio> list = new ArrayList<QuantRatio>();
+											final List<QuantRatio> list = new ArrayList<QuantRatio>();
 											list.add(quantRatio);
 											mapQuantRatios.put(samplePair, list);
 										}
 									}
-									for (Pair<String, String> pair : mapQuantRatios.keySet()) {
+									for (final Pair<String, String> pair : mapQuantRatios.keySet()) {
 										final String sample1 = pair.getFirstelement();
-										Condition condition1 = getConditionBySampleAndRatio(sample1,
+										final Condition condition1 = getConditionBySampleAndRatio(sample1,
 												remoteFilesRatioType);
 										final String sample2 = pair.getSecondElement();
-										Condition condition2 = getConditionBySampleAndRatio(sample2,
+										final Condition condition2 = getConditionBySampleAndRatio(sample2,
 												remoteFilesRatioType);
 
 										final List<QuantRatio> ratioList = mapQuantRatios.get(pair);
@@ -1132,7 +1134,7 @@ public class ImportCfgFileReader {
 										// separetely
 										final List<QuantRatio> safeRatios = new ArrayList<QuantRatio>();
 										final List<QuantRatio> maxOrMinValueRatioValues = new ArrayList<QuantRatio>();
-										for (QuantRatio ratioValue : ratioList) {
+										for (final QuantRatio ratioValue : ratioList) {
 											// discard a ratio that is not
 											// between the two conditions
 											if (!ratioValue.getCondition1().getName().equals(condition1.getName())
@@ -1158,30 +1160,28 @@ public class ImportCfgFileReader {
 											// get the ratios by its names, in
 											// order to average them if there is
 											// more than one of the same name
-											Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
+											final Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
 													safeRatios);
-											for (Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
+											for (final Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
 
 												if (safeRatiosSameName.size() > 1) {
 													// make the average of the
 													// values
-													List<Double> safeRatioValues = new ArrayList<Double>();
-													for (QuantRatio safeRatio : safeRatiosSameName) {
-														final Double log2Ratio = safeRatio.getLog2Ratio(
+													final TDoubleArrayList safeRatioValues = new TDoubleArrayList();
+													for (final QuantRatio safeRatio : safeRatiosSameName) {
+														final double log2Ratio = safeRatio.getLog2Ratio(
 																condition1.getName(), condition2.getName());
-														if (log2Ratio != null) {
-															safeRatioValues.add(log2Ratio);
-														}
+
+														safeRatioValues.add(log2Ratio);
+
 													}
-													RatioEx ratio = new RatioEx(
-															Maths.mean(safeRatioValues.toArray(new Double[0])),
+													final RatioEx ratio = new RatioEx(Maths.mean(safeRatioValues),
 															condition1, condition2, CombinationType.AVERAGE,
 															safeRatiosSameName.iterator().next().getDescription(),
 															AggregationLevel.PSM);
 
-													ScoreEx score = new ScoreEx(
-															String.valueOf(Maths
-																	.stddev(safeRatioValues.toArray(new Double[0]))),
+													final ScoreEx score = new ScoreEx(
+															String.valueOf(Maths.stddev(safeRatioValues)),
 															"Standard deviation of ratios",
 															"Standard deviation of ratios at spectrum level",
 															"Standard deviation of the ratios computed in this spectrum");
@@ -1196,20 +1196,20 @@ public class ImportCfgFileReader {
 													if (log2RatioValue != null) {
 														// as cv term
 														// MS:1001132:
-														String ratioDescription = safeRatio.getDescription();
+														final String ratioDescription = safeRatio.getDescription();
 														// if (safeRatio
 														// instanceof IsoRatio)
 														// {
 														// ratioDescription =
 														// ISOBARIC_RATIO;
 														// }
-														RatioEx ratio = new RatioEx(log2RatioValue, condition1,
+														final RatioEx ratio = new RatioEx(log2RatioValue, condition1,
 																condition2, ratioDescription, AggregationLevel.PSM);
 														final Score ratioScore = safeRatio
 																.getAssociatedConfidenceScore();
 														if (ratioScore != null && !Double
 																.isNaN(Double.valueOf(ratioScore.getValue()))) {
-															ScoreEx score = new ScoreEx(ratioScore.getValue(),
+															final ScoreEx score = new ScoreEx(ratioScore.getValue(),
 																	ratioScore.getScoreName(),
 																	ratioScore.getScoreType(),
 																	ratioScore.getScoreDescription());
@@ -1224,12 +1224,13 @@ public class ImportCfgFileReader {
 										// store the infinite ratios as
 										// singleton intensity ratios
 										if (!maxOrMinValueRatioValues.isEmpty()) {
-											for (QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
+											for (final QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
 												final Double nonLogRatio = infiniteRatio
 														.getNonLogRatio(condition1.getName(), condition2.getName());
 												if (nonLogRatio != null) {
-													RatioEx ratio = new RatioEx(nonLogRatio, condition1, condition2,
-															SINGLETON_INTENSITY_RATIO, AggregationLevel.PSM);
+													final RatioEx ratio = new RatioEx(nonLogRatio, condition1,
+															condition2, SINGLETON_INTENSITY_RATIO,
+															AggregationLevel.PSM);
 													runPSM.addRatio(ratio);
 												}
 											}
@@ -1250,16 +1251,16 @@ public class ImportCfgFileReader {
 								// number of singleton peaks of condition 2
 								//
 								if (quantifiedPSM instanceof IsobaricQuantifiedPSM) {
-									IsobaricQuantifiedPSM isoPSM = (IsobaricQuantifiedPSM) quantifiedPSM;
+									final IsobaricQuantifiedPSM isoPSM = (IsobaricQuantifiedPSM) quantifiedPSM;
 
 									final Map<QuantificationLabel, Set<Ion>> singletonIonsByLabelMap = isoPSM
 											.getSingletonIonsByLabel();
-									List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
+									final List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
 									quantLabelList.addAll(singletonIonsByLabelMap.keySet());
 
 									for (int i = 0; i < quantLabelList.size(); i++) {
 										final QuantificationLabel quantificationLabel1 = quantLabelList.get(i);
-										String sample1 = getSamplesByLabel(quantificationLabel1,
+										final String sample1 = getSamplesByLabel(quantificationLabel1,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
 										if (sample1 == null) {
@@ -1267,10 +1268,10 @@ public class ImportCfgFileReader {
 										}
 										final Condition condition1 = getConditionBySampleAndRatio(sample1,
 												remoteFilesRatioType);
-										Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
+										final Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
 										for (int j = i + 1; j < quantLabelList.size(); j++) {
 											final QuantificationLabel quantificationLabel2 = quantLabelList.get(j);
-											String sample2 = getSamplesByLabel(quantificationLabel2,
+											final String sample2 = getSamplesByLabel(quantificationLabel2,
 													remoteFilesRatioType.getNumerator().getConditionRef(),
 													remoteFilesRatioType.getDenominator().getConditionRef());
 											if (sample2 == null) {
@@ -1278,26 +1279,26 @@ public class ImportCfgFileReader {
 											}
 											final Condition condition2 = getConditionBySampleAndRatio(sample2,
 													remoteFilesRatioType);
-											Set<Ion> ions2 = singletonIonsByLabelMap.get(quantificationLabel2);
+											final Set<Ion> ions2 = singletonIonsByLabelMap.get(quantificationLabel2);
 											if (!ions2.isEmpty()) {
 												// singleton ratio count based
-												double singletonRatioCountValue = Double.valueOf(ions1.size())
+												final double singletonRatioCountValue = Double.valueOf(ions1.size())
 														/ Double.valueOf(ions2.size());
 												// make the log2
 												double log2Ratio = Math.log(singletonRatioCountValue) / Math.log(2);
-												RatioEx singletonRatioCount = new RatioEx(log2Ratio, condition1,
+												final RatioEx singletonRatioCount = new RatioEx(log2Ratio, condition1,
 														condition2, SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PSM);
 												runPSM.addRatio(singletonRatioCount);
 
 												// singleton ratio intensity
 												// based
-												double singletonRatioIntensityValue = Double
+												final double singletonRatioIntensityValue = Double
 														.valueOf(getIntensitySum(ions1))
 														/ Double.valueOf(getIntensitySum(ions2));
 												// make the log2
 												log2Ratio = Math.log(singletonRatioIntensityValue) / Math.log(2);
-												RatioEx singletonRatioIntensity = new RatioEx(log2Ratio, condition1,
-														condition2, SINGLETON_SUM_INTENSITIES_RATIO,
+												final RatioEx singletonRatioIntensity = new RatioEx(log2Ratio,
+														condition1, condition2, SINGLETON_SUM_INTENSITIES_RATIO,
 														AggregationLevel.PSM);
 												runPSM.addRatio(singletonRatioIntensity);
 											} else {
@@ -1307,11 +1308,11 @@ public class ImportCfgFileReader {
 												if (!ions1.isEmpty()) {
 													// n/0 -> positive infinity,
 													// log(inf) = inf
-													RatioEx singletonRatioCount = new RatioEx(Double.POSITIVE_INFINITY,
-															condition1, condition2, SINGLETON_SUM_COUNT_RATIO,
-															AggregationLevel.PSM);
+													final RatioEx singletonRatioCount = new RatioEx(
+															Double.POSITIVE_INFINITY, condition1, condition2,
+															SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PSM);
 													runPSM.addRatio(singletonRatioCount);
-													RatioEx singletonRatioIntensity = new RatioEx(
+													final RatioEx singletonRatioIntensity = new RatioEx(
 															Double.POSITIVE_INFINITY, condition1, condition2,
 															SINGLETON_SUM_INTENSITIES_RATIO, AggregationLevel.PSM);
 													runPSM.addRatio(singletonRatioIntensity);
@@ -1334,10 +1335,10 @@ public class ImportCfgFileReader {
 	}
 
 	private Map<String, Set<QuantRatio>> getRatiosByDescription(List<QuantRatio> safeRatios) {
-		Map<String, Set<QuantRatio>> ret = new THashMap<String, Set<QuantRatio>>();
-		for (QuantRatio ratio : safeRatios) {
+		final Map<String, Set<QuantRatio>> ret = new THashMap<String, Set<QuantRatio>>();
+		for (final QuantRatio ratio : safeRatios) {
 			if (!ret.containsKey(ratio.getDescription())) {
-				Set<QuantRatio> set = new THashSet<QuantRatio>();
+				final Set<QuantRatio> set = new THashSet<QuantRatio>();
 				set.add(ratio);
 				ret.put(ratio.getDescription(), set);
 			} else {
@@ -1349,9 +1350,9 @@ public class ImportCfgFileReader {
 
 	private void createProteinRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) {
 		if (remoteFileRatiosCfg != null) {
-			for (RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
+			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
-				String msRunRef = remoteFilesRatioType.getMsRunRef();
+				final String msRunRef = remoteFilesRatioType.getMsRunRef();
 
 				final QuantParser censusQuantParser = remoteFileReader
 						.getQuantParser(remoteFilesRatioType.getFileRef());
@@ -1362,17 +1363,18 @@ public class ImportCfgFileReader {
 					final Map<String, QuantifiedProteinInterface> quantProteinMap = censusQuantParser.getProteinMap();
 
 					if (quantProteinMap != null) {
-						Set<Protein> runProteins = ConditionAdapter.getProteinsByRunID(projectCfg.getTag(), msRunRef);
+						final Set<Protein> runProteins = ConditionAdapter.getProteinsByRunID(projectCfg.getTag(),
+								msRunRef);
 						// aqui se usaa el msrun pero no en excel. Usarlo en
 						// excel, aunque sea opcionalmente?
 						if (runProteins != null) {
 							// proteins already in run that are quantified:
-							for (Protein runProtein : runProteins) {
+							for (final Protein runProtein : runProteins) {
 								QuantifiedProteinInterface quantifiedProtein = quantProteinMap
 										.get(runProtein.getAccession());
 								if (quantifiedProtein == null) {
 									final List<Accession> secondaryAccessions = runProtein.getSecondaryAccessions();
-									for (Accession accession : secondaryAccessions) {
+									for (final Accession accession : secondaryAccessions) {
 										if (quantProteinMap.containsKey(accession.getAccession())) {
 											quantifiedProtein = quantProteinMap.get(accession.getAccession());
 										}
@@ -1388,18 +1390,18 @@ public class ImportCfgFileReader {
 								// ratios
 								final Set<QuantRatio> ratios = quantifiedProtein.getRatios();
 								if (ratios != null) {
-									Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
-									for (QuantRatio quantRatio : ratios) {
+									final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
+									for (final QuantRatio quantRatio : ratios) {
 										final QuantificationLabel label1 = quantRatio.getLabel1();
 										final QuantificationLabel label2 = quantRatio.getLabel2();
 
-										String sample1 = getSamplesByLabel(label1,
+										final String sample1 = getSamplesByLabel(label1,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
 										if (sample1 == null) {
 											continue;
 										}
-										String sample2 = getSamplesByLabel(label2,
+										final String sample2 = getSamplesByLabel(label2,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
 										if (sample2 == null) {
@@ -1407,22 +1409,23 @@ public class ImportCfgFileReader {
 										}
 										// log.info("Sample1=" + sample1 +
 										// "\tSample2=" + sample2);
-										Pair<String, String> samplePair = new Pair<String, String>(sample1, sample2);
+										final Pair<String, String> samplePair = new Pair<String, String>(sample1,
+												sample2);
 										if (mapQuantRatios.containsKey(samplePair)) {
 											// take LOG 2 ratio
 											mapQuantRatios.get(samplePair).add(quantRatio);
 										} else {
-											List<QuantRatio> list = new ArrayList<QuantRatio>();
+											final List<QuantRatio> list = new ArrayList<QuantRatio>();
 											list.add(quantRatio);
 											mapQuantRatios.put(samplePair, list);
 										}
 									}
-									for (Pair<String, String> pair : mapQuantRatios.keySet()) {
+									for (final Pair<String, String> pair : mapQuantRatios.keySet()) {
 										final String sample1 = pair.getFirstelement();
-										Condition condition1 = getConditionBySampleAndRatio(sample1,
+										final Condition condition1 = getConditionBySampleAndRatio(sample1,
 												remoteFilesRatioType);
 										final String sample2 = pair.getSecondElement();
-										Condition condition2 = getConditionBySampleAndRatio(sample2,
+										final Condition condition2 = getConditionBySampleAndRatio(sample2,
 												remoteFilesRatioType);
 
 										final List<QuantRatio> ratioList = mapQuantRatios.get(pair);
@@ -1430,7 +1433,7 @@ public class ImportCfgFileReader {
 										// separetely
 										final List<QuantRatio> safeRatios = new ArrayList<QuantRatio>();
 										final List<QuantRatio> maxOrMinValueRatioValues = new ArrayList<QuantRatio>();
-										for (QuantRatio ratioValue : ratioList) {
+										for (final QuantRatio ratioValue : ratioList) {
 											final Double log2Ratio = ratioValue.getLog2Ratio(condition1.getName(),
 													condition2.getName());
 											if (Maths.isMaxOrMinValue(log2Ratio)) {
@@ -1444,29 +1447,26 @@ public class ImportCfgFileReader {
 											// get the ratios by its names, in
 											// order to average them if there is
 											// more than one of the same name
-											Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
+											final Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
 													safeRatios);
-											for (Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
+											for (final Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
 
 												if (safeRatiosSameName.size() > 1) {
 													// make the average of the
 													// values
-													List<Double> safeRatioValues = new ArrayList<Double>();
-													for (QuantRatio safeRatio : safeRatiosSameName) {
-														final Double log2Ratio = safeRatio.getLog2Ratio(
+													final TDoubleArrayList safeRatioValues = new TDoubleArrayList();
+													for (final QuantRatio safeRatio : safeRatiosSameName) {
+														final double log2Ratio = safeRatio.getLog2Ratio(
 																condition1.getName(), condition2.getName());
-														if (log2Ratio != null) {
-															safeRatioValues.add(log2Ratio);
-														}
+														safeRatioValues.add(log2Ratio);
+
 													}
-													RatioEx ratio = new RatioEx(
-															Maths.mean(safeRatioValues.toArray(new Double[0])),
+													final RatioEx ratio = new RatioEx(Maths.mean(safeRatioValues),
 															condition1, condition2, CombinationType.AVERAGE,
 															safeRatiosSameName.iterator().next().getDescription(),
 															AggregationLevel.PROTEIN);
-													ScoreEx score = new ScoreEx(
-															String.valueOf(Maths
-																	.stddev(safeRatioValues.toArray(new Double[0]))),
+													final ScoreEx score = new ScoreEx(
+															String.valueOf(Maths.stddev(safeRatioValues)),
 															"Standard deviation of ratios",
 															"Standard deviation of ratios at protein level",
 															"Standard deviation of the ratios computed in this protein");
@@ -1482,21 +1482,21 @@ public class ImportCfgFileReader {
 													if (log2Ratio != null) {
 														// as cv term
 														// MS:1001132:
-														String ratioDescription = safeRatio.getDescription();
+														final String ratioDescription = safeRatio.getDescription();
 														// if (safeRatio
 														// instanceof IsoRatio)
 														// {
 														// ratioDescription =
 														// ISOBARIC_RATIO;
 														// }
-														RatioEx ratio = new RatioEx(log2Ratio, condition1, condition2,
-																ratioDescription, AggregationLevel.PROTEIN);
+														final RatioEx ratio = new RatioEx(log2Ratio, condition1,
+																condition2, ratioDescription, AggregationLevel.PROTEIN);
 														final Score ratioScore = safeRatio
 																.getAssociatedConfidenceScore();
 														if (ratioScore != null && !"NA".equals(ratioScore.getValue())
 																&& !Double
 																		.isNaN(Double.valueOf(ratioScore.getValue()))) {
-															ScoreEx score = new ScoreEx(ratioScore.getValue(),
+															final ScoreEx score = new ScoreEx(ratioScore.getValue(),
 																	ratioScore.getScoreName(),
 																	ratioScore.getScoreType(),
 																	ratioScore.getScoreDescription());
@@ -1511,12 +1511,13 @@ public class ImportCfgFileReader {
 										// store the infinite ratios as
 										// singleton intensity ratios
 										if (!maxOrMinValueRatioValues.isEmpty()) {
-											for (QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
+											for (final QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
 												final Double nonLogRatio = infiniteRatio
 														.getNonLogRatio(condition1.getName(), condition2.getName());
 												if (nonLogRatio != null) {
-													RatioEx ratio = new RatioEx(nonLogRatio, condition1, condition2,
-															SINGLETON_INTENSITY_RATIO, AggregationLevel.PROTEIN);
+													final RatioEx ratio = new RatioEx(nonLogRatio, condition1,
+															condition2, SINGLETON_INTENSITY_RATIO,
+															AggregationLevel.PROTEIN);
 													runProtein.addRatio(ratio);
 												}
 											}
@@ -1537,16 +1538,16 @@ public class ImportCfgFileReader {
 								// number of singleton peaks of condition 2
 								//
 								if (quantifiedProtein instanceof IsobaricQuantifiedProtein) {
-									IsobaricQuantifiedProtein isoProtein = (IsobaricQuantifiedProtein) quantifiedProtein;
+									final IsobaricQuantifiedProtein isoProtein = (IsobaricQuantifiedProtein) quantifiedProtein;
 
 									final Map<QuantificationLabel, Set<Ion>> singletonIonsByLabelMap = isoProtein
 											.getSingletonIonsByLabel();
-									List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
+									final List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
 									quantLabelList.addAll(singletonIonsByLabelMap.keySet());
 
 									for (int i = 0; i < quantLabelList.size(); i++) {
 										final QuantificationLabel quantificationLabel1 = quantLabelList.get(i);
-										String sample1 = getSamplesByLabel(quantificationLabel1,
+										final String sample1 = getSamplesByLabel(quantificationLabel1,
 												remoteFilesRatioType.getNumerator().getConditionRef(),
 												remoteFilesRatioType.getDenominator().getConditionRef());
 										if (sample1 == null) {
@@ -1554,10 +1555,10 @@ public class ImportCfgFileReader {
 										}
 										final Condition condition1 = getConditionBySampleAndRatio(sample1,
 												remoteFilesRatioType);
-										Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
+										final Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
 										for (int j = i + 1; j < quantLabelList.size(); j++) {
 											final QuantificationLabel quantificationLabel2 = quantLabelList.get(j);
-											String sample2 = getSamplesByLabel(quantificationLabel2,
+											final String sample2 = getSamplesByLabel(quantificationLabel2,
 													remoteFilesRatioType.getNumerator().getConditionRef(),
 													remoteFilesRatioType.getDenominator().getConditionRef());
 											if (sample2 == null) {
@@ -1565,27 +1566,27 @@ public class ImportCfgFileReader {
 											}
 											final Condition condition2 = getConditionBySampleAndRatio(sample2,
 													remoteFilesRatioType);
-											Set<Ion> ions2 = singletonIonsByLabelMap.get(quantificationLabel2);
+											final Set<Ion> ions2 = singletonIonsByLabelMap.get(quantificationLabel2);
 											if (!ions2.isEmpty()) {
 												// singleton ratio count based
-												double singletonRatioCountValue = Double.valueOf(ions1.size())
+												final double singletonRatioCountValue = Double.valueOf(ions1.size())
 														/ Double.valueOf(ions2.size());
 												// make the log2
 												double log2Ratio = Math.log(singletonRatioCountValue) / Math.log(2);
-												RatioEx singletonRatioCount = new RatioEx(log2Ratio, condition1,
+												final RatioEx singletonRatioCount = new RatioEx(log2Ratio, condition1,
 														condition2, SINGLETON_SUM_COUNT_RATIO,
 														AggregationLevel.PROTEIN);
 												runProtein.addRatio(singletonRatioCount);
 
 												// singleton ratio intensity
 												// based
-												double singletonRatioIntensityValue = Double
+												final double singletonRatioIntensityValue = Double
 														.valueOf(getIntensitySum(ions1))
 														/ Double.valueOf(getIntensitySum(ions2));
 												// make the log2
 												log2Ratio = Math.log(singletonRatioIntensityValue) / Math.log(2);
-												RatioEx singletonRatioIntensity = new RatioEx(log2Ratio, condition1,
-														condition2, SINGLETON_SUM_INTENSITIES_RATIO,
+												final RatioEx singletonRatioIntensity = new RatioEx(log2Ratio,
+														condition1, condition2, SINGLETON_SUM_INTENSITIES_RATIO,
 														AggregationLevel.PROTEIN);
 												runProtein.addRatio(singletonRatioIntensity);
 											} else {
@@ -1595,11 +1596,11 @@ public class ImportCfgFileReader {
 												if (!ions1.isEmpty()) {
 													// n/0 -> positive infinity,
 													// log(inf) = inf
-													RatioEx singletonRatioCount = new RatioEx(Double.POSITIVE_INFINITY,
-															condition1, condition2, SINGLETON_SUM_COUNT_RATIO,
-															AggregationLevel.PROTEIN);
+													final RatioEx singletonRatioCount = new RatioEx(
+															Double.POSITIVE_INFINITY, condition1, condition2,
+															SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PROTEIN);
 													runProtein.addRatio(singletonRatioCount);
-													RatioEx singletonRatioIntensity = new RatioEx(
+													final RatioEx singletonRatioIntensity = new RatioEx(
 															Double.POSITIVE_INFINITY, condition1, condition2,
 															SINGLETON_SUM_INTENSITIES_RATIO, AggregationLevel.PROTEIN);
 													runProtein.addRatio(singletonRatioIntensity);
@@ -1648,7 +1649,7 @@ public class ImportCfgFileReader {
 	private long getIntensitySum(Set<Ion> ions) {
 		long intensitySum = 0;
 		if (ions != null) {
-			for (Ion ion : ions) {
+			for (final Ion ion : ions) {
 				intensitySum += ion.getIntensity();
 			}
 		}
@@ -1666,8 +1667,8 @@ public class ImportCfgFileReader {
 	 * @return
 	 */
 	private String getSamplesByLabel(QuantificationLabel label, String condition1ID, String condition2ID) {
-		List<String> ret = new ArrayList<String>();
-		for (ExperimentalConditionType expConditionCfg : projectCfg.getExperimentalConditions()
+		final List<String> ret = new ArrayList<String>();
+		for (final ExperimentalConditionType expConditionCfg : projectCfg.getExperimentalConditions()
 				.getExperimentalCondition()) {
 			if (!expConditionCfg.getId().equals(condition1ID) && !expConditionCfg.getId().equals(condition2ID))
 				continue;
@@ -1703,9 +1704,9 @@ public class ImportCfgFileReader {
 	private void createProteinRatiosFromExcel(List<ExcelAmountRatioType> excelRatiosCfg, Project project) {
 		if (excelRatiosCfg != null) {
 
-			for (ExcelAmountRatioType excelRatioCfg : excelRatiosCfg) {
-				List<String> msRunRefs = new ArrayList<String>();
-				String msRunRefString = excelRatioCfg.getMsRunRef();
+			for (final ExcelAmountRatioType excelRatioCfg : excelRatiosCfg) {
+				final List<String> msRunRefs = new ArrayList<String>();
+				final String msRunRefString = excelRatioCfg.getMsRunRef();
 				if (msRunRefString.contains(ExcelUtils.MULTIPLE_ITEM_SEPARATOR)) {
 					msRunRefs.addAll(Arrays.asList(msRunRefString.split(ExcelUtils.MULTIPLE_ITEM_SEPARATOR)));
 				} else {
@@ -1722,7 +1723,7 @@ public class ImportCfgFileReader {
 							"Protein accession is null for ratio. Trying to assign the ratios to proteins in the same row...");
 					int rowIndex = -1;
 
-					for (Object ratioValueObj : ratioColumn.getValues()) {
+					for (final Object ratioValueObj : ratioColumn.getValues()) {
 						rowIndex++;
 						if (ratioValueObj != null) {
 							Double ratioValue = null;
@@ -1731,47 +1732,49 @@ public class ImportCfgFileReader {
 								if (Double.compare(ratioValue, Double.NaN) == 0) {
 									continue;
 								}
-							} catch (NumberFormatException e) {
+							} catch (final NumberFormatException e) {
 								continue;
 							}
 							if (ratioValue == null) {
 								continue;
 							}
-							Sample sample1 = getSampleByCondition(condition1Ref);
-							Sample sample2 = getSampleByCondition(condition2Ref);
-							RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue, condition1Ref,
-									condition2Ref, sample1, sample2, project, AggregationLevel.PROTEIN).adapt();
+							final Sample sample1 = getSampleByCondition(condition1Ref);
+							final Sample sample2 = getSampleByCondition(condition2Ref);
+							final RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue,
+									condition1Ref, condition2Ref, sample1, sample2, project, AggregationLevel.PROTEIN)
+											.adapt();
 							if (excelRatioCfg.getRatioScore() != null) {
-								Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader, rowIndex)
-										.adapt();
+								final Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader,
+										rowIndex).adapt();
 								if (score != null) {
 									ratio.setAssociatedConfidenceScore(score);
 								}
 							}
 
 							// get proteins in the same row and the same msRun
-							for (String msRunRef : msRunRefs) {
-								Set<Protein> proteins1 = StaticProteomicsModelStorage.getProtein(msRunRef,
+							for (final String msRunRef : msRunRefs) {
+								final Set<Protein> proteins1 = StaticProteomicsModelStorage.getProtein(msRunRef,
 										condition1Ref, rowIndex, null);
 								if (proteins1.isEmpty()) {
 									throw new IllegalArgumentException("Protein in row " + rowIndex
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								Set<Protein> proteins2 = StaticProteomicsModelStorage.getProtein(msRunRef,
+								final Set<Protein> proteins2 = StaticProteomicsModelStorage.getProtein(msRunRef,
 										condition2Ref, rowIndex, null);
 								if (proteins2.isEmpty()) {
 									throw new IllegalArgumentException("Protein in row " + rowIndex
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								Set<Protein> rowProteins = ModelUtils.getProteinIntersection(proteins1, proteins2);
+								final Set<Protein> rowProteins = ModelUtils.getProteinIntersection(proteins1,
+										proteins2);
 								if (rowProteins.isEmpty()) {
 									throw new IllegalArgumentException("Protein in row " + rowIndex
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								for (Protein protein : rowProteins) {
+								for (final Protein protein : rowProteins) {
 									protein.addRatio(ratio);
 								}
 							}
@@ -1784,7 +1787,7 @@ public class ImportCfgFileReader {
 							.getExcelColumnFromReference(proteinAccessionCfg.getColumnRef());
 					int rowIndex = -1;
 
-					for (Object ratioValueObj : ratioColumn.getValues()) {
+					for (final Object ratioValueObj : ratioColumn.getValues()) {
 						rowIndex++;
 						if (ratioValueObj != null) {
 							Double ratioValue = null;
@@ -1793,30 +1796,31 @@ public class ImportCfgFileReader {
 								if (Double.compare(ratioValue, Double.NaN) == 0) {
 									continue;
 								}
-							} catch (NumberFormatException e) {
+							} catch (final NumberFormatException e) {
 								continue;
 							}
 
 							if (ratioValue == null) {
 								continue;
 							}
-							Sample sample1 = getSampleByCondition(condition1Ref);
-							Sample sample2 = getSampleByCondition(condition2Ref);
-							RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue, condition1Ref,
-									condition2Ref, sample1, sample2, project, AggregationLevel.PROTEIN).adapt();
+							final Sample sample1 = getSampleByCondition(condition1Ref);
+							final Sample sample2 = getSampleByCondition(condition2Ref);
+							final RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue,
+									condition1Ref, condition2Ref, sample1, sample2, project, AggregationLevel.PROTEIN)
+											.adapt();
 							if (excelRatioCfg.getRatioScore() != null) {
-								Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader, rowIndex)
-										.adapt();
+								final Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader,
+										rowIndex).adapt();
 								if (score != null)
 									ratio.setAssociatedConfidenceScore(score);
 
 							}
 
 							final String rawProteinAccession = proteinAccColumn.getValues().get(rowIndex).toString();
-							List<String> proteinAccsToParse = ProteinsAdapterByExcel.getTokens(
+							final List<String> proteinAccsToParse = ProteinsAdapterByExcel.getTokens(
 									proteinAccessionCfg.isGroups(), proteinAccessionCfg.getGroupSeparator(),
 									rawProteinAccession);
-							for (String proteinAcc : proteinAccsToParse) {
+							for (final String proteinAcc : proteinAccsToParse) {
 								final Pair<String, String> proteinAccession = FastaParser.getACC(proteinAcc);
 								final List<String> uniprotAccs = new ArrayList<String>();
 								if (proteinAccession.getSecondElement()
@@ -1824,7 +1828,7 @@ public class ImportCfgFileReader {
 									final List<UniprotEntry> entries = IPI2UniprotACCMap.getInstance()
 											.map2Uniprot(proteinAcc);
 									if (!entries.isEmpty()) {
-										for (UniprotEntry uniprotEntry : entries) {
+										for (final UniprotEntry uniprotEntry : entries) {
 											uniprotAccs.add(uniprotEntry.getAcc());
 										}
 									} else {
@@ -1834,15 +1838,15 @@ public class ImportCfgFileReader {
 								} else {
 									uniprotAccs.addAll(proteinAccsToParse);
 								}
-								for (String uniprotAcc : uniprotAccs) {
-									Pattern regexp = getDecoyProteinAccRegexp();
+								for (final String uniprotAcc : uniprotAccs) {
+									final Pattern regexp = getDecoyProteinAccRegexp();
 									if (regexp != null) {
 										final Matcher matcher = regexp.matcher(uniprotAcc);
 										if (matcher.find()) {
 											continue;
 										}
 									}
-									Set<Protein> proteins1 = StaticProteomicsModelStorage.getProtein(msRunRefs,
+									final Set<Protein> proteins1 = StaticProteomicsModelStorage.getProtein(msRunRefs,
 											condition1Ref, uniprotAcc);
 									if (proteins1.isEmpty() && !ignoreNotFoundProteins) {
 										throw new IllegalArgumentException("Protein  " + uniprotAcc + " in row "
@@ -1852,7 +1856,7 @@ public class ImportCfgFileReader {
 												+ getStringFromCollection(msRunRefs) + "\n"
 												+ "You may have proteins in your excel file that are not present in the identification set files");
 									}
-									Set<Protein> proteins2 = StaticProteomicsModelStorage.getProtein(msRunRefs,
+									final Set<Protein> proteins2 = StaticProteomicsModelStorage.getProtein(msRunRefs,
 											condition2Ref, uniprotAcc);
 									if (proteins2.isEmpty() && !ignoreNotFoundProteins) {
 										throw new IllegalArgumentException("Protein " + uniprotAcc + " in row  "
@@ -1863,7 +1867,8 @@ public class ImportCfgFileReader {
 												+ "You may have proteins in your excel file that are not present in the identification set files");
 									}
 
-									Set<Protein> rowProteins = ModelUtils.getProteinIntersection(proteins1, proteins2);
+									final Set<Protein> rowProteins = ModelUtils.getProteinIntersection(proteins1,
+											proteins2);
 									if (rowProteins.isEmpty() && !ignoreNotFoundProteins) {
 										throw new IllegalArgumentException("Protein " + proteinAcc
 												+ " from the Excel file is not found to assign a ratio to it between condition "
@@ -1871,7 +1876,7 @@ public class ImportCfgFileReader {
 												+ "\n"
 												+ "You may have proteins in your excel file that are not present in the identification set files");
 									}
-									for (Protein protein : rowProteins) {
+									for (final Protein protein : rowProteins) {
 										protein.addRatio(ratio);
 									}
 								}
@@ -1910,7 +1915,7 @@ public class ImportCfgFileReader {
 		if (project != null) {
 			final Set<Condition> conditions = project.getConditions();
 			if (conditions != null) {
-				for (Condition condition : conditions) {
+				for (final Condition condition : conditions) {
 					if (condition.getName().equals(conditionRef)) {
 						return condition;
 					}
@@ -1922,13 +1927,13 @@ public class ImportCfgFileReader {
 
 	private Set<Protein> getProteinsWithThatAccAndDetectedInBothConditions(String proteinAcc, Project project,
 			String condition1Ref, String condition2Ref) {
-		Set<Protein> ret = new THashSet<Protein>();
+		final Set<Protein> ret = new THashSet<Protein>();
 
-		Condition condition1 = getCondition(condition1Ref, project);
-		Condition condition2 = getCondition(condition2Ref, project);
+		final Condition condition1 = getCondition(condition1Ref, project);
+		final Condition condition2 = getCondition(condition2Ref, project);
 		final Set<Protein> proteins = proteinMap.get(proteinAcc);
 		if (proteins != null) {
-			for (Protein protein : proteins) {
+			for (final Protein protein : proteins) {
 				if (protein.getConditions().contains(condition1) && protein.getConditions().contains(condition2)) {
 					ret.add(protein);
 				}
@@ -1940,9 +1945,9 @@ public class ImportCfgFileReader {
 	private void createPSMRatiosFromExcel(List<ExcelAmountRatioType> excelRatiosCfg, Project project) {
 		if (excelRatiosCfg != null) {
 
-			for (ExcelAmountRatioType excelRatioCfg : excelRatiosCfg) {
-				List<String> msRunRefs = new ArrayList<String>();
-				String msRunRefString = excelRatioCfg.getMsRunRef();
+			for (final ExcelAmountRatioType excelRatioCfg : excelRatiosCfg) {
+				final List<String> msRunRefs = new ArrayList<String>();
+				final String msRunRefString = excelRatioCfg.getMsRunRef();
 				if (msRunRefString.contains(",")) {
 					msRunRefs.addAll(Arrays.asList(msRunRefString.split(",")));
 				} else {
@@ -1959,7 +1964,7 @@ public class ImportCfgFileReader {
 							"PSM identifier is null for ratio. Trying to assign the ratios to PSMs in the same row...");
 					int rowIndex = -1;
 
-					for (Object ratioValueObj : ratioColumn.getValues()) {
+					for (final Object ratioValueObj : ratioColumn.getValues()) {
 						rowIndex++;
 						if (ratioValueObj != null) {
 							Double ratioValue = null;
@@ -1968,47 +1973,48 @@ public class ImportCfgFileReader {
 								if (Double.compare(ratioValue, Double.NaN) == 0) {
 									continue;
 								}
-							} catch (NumberFormatException e) {
+							} catch (final NumberFormatException e) {
 								continue;
 							}
 							if (ratioValue == null) {
 								continue;
 							}
-							Sample sample1 = getSampleByCondition(condition1Ref);
-							Sample sample2 = getSampleByCondition(condition2Ref);
-							RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue, condition1Ref,
-									condition2Ref, sample1, sample2, project, AggregationLevel.PSM).adapt();
+							final Sample sample1 = getSampleByCondition(condition1Ref);
+							final Sample sample2 = getSampleByCondition(condition2Ref);
+							final RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue,
+									condition1Ref, condition2Ref, sample1, sample2, project, AggregationLevel.PSM)
+											.adapt();
 							if (excelRatioCfg.getRatioScore() != null) {
-								Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader, rowIndex)
-										.adapt();
+								final Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader,
+										rowIndex).adapt();
 								if (score != null) {
 									ratio.setAssociatedConfidenceScore(score);
 								}
 							}
 
 							// get psms in the same row and the same msRun
-							for (String msRunRef : msRunRefs) {
-								Set<PSM> psms1 = StaticProteomicsModelStorage.getPSM(msRunRef, condition1Ref, rowIndex,
-										null);
+							for (final String msRunRef : msRunRefs) {
+								final Set<PSM> psms1 = StaticProteomicsModelStorage.getPSM(msRunRef, condition1Ref,
+										rowIndex, null);
 								if (psms1.isEmpty()) {
 									throw new IllegalArgumentException("PSM in row " + rowIndex
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								Set<PSM> psms2 = StaticProteomicsModelStorage.getPSM(msRunRef, condition2Ref, rowIndex,
-										null);
+								final Set<PSM> psms2 = StaticProteomicsModelStorage.getPSM(msRunRef, condition2Ref,
+										rowIndex, null);
 								if (psms2.isEmpty()) {
 									throw new IllegalArgumentException("PSM in row " + rowIndex
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								Set<PSM> rowPSMs = ModelUtils.getPSMIntersection(psms1, psms2);
+								final Set<PSM> rowPSMs = ModelUtils.getPSMIntersection(psms1, psms2);
 								if (rowPSMs.isEmpty()) {
 									throw new IllegalArgumentException("PSM in row " + rowIndex
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								for (PSM psm : rowPSMs) {
+								for (final PSM psm : rowPSMs) {
 									psm.addRatio(ratio);
 								}
 							}
@@ -2018,27 +2024,28 @@ public class ImportCfgFileReader {
 					int rowIndex = -1;
 
 					final ExcelColumn psmIDColumn = excelReader.getExcelColumnFromReference(psmIDCfg.getColumnRef());
-					for (Object ratioValueObj : ratioColumn.getValues()) {
+					for (final Object ratioValueObj : ratioColumn.getValues()) {
 						rowIndex++;
 						String psmID = null;
 						if (psmIDColumn != null && psmIDColumn.getValues().size() > rowIndex) {
 							psmID = (String) psmIDColumn.getValues().get(rowIndex);
 						}
 						if (ratioValueObj != null) {
-							double ratioValue = Double.valueOf(ratioValueObj.toString());
-							Sample sample1 = getSampleByCondition(condition1Ref);
-							Sample sample2 = getSampleByCondition(condition2Ref);
-							RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue, condition1Ref,
-									condition2Ref, sample1, sample2, project, AggregationLevel.PSM).adapt();
+							final double ratioValue = Double.valueOf(ratioValueObj.toString());
+							final Sample sample1 = getSampleByCondition(condition1Ref);
+							final Sample sample2 = getSampleByCondition(condition2Ref);
+							final RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue,
+									condition1Ref, condition2Ref, sample1, sample2, project, AggregationLevel.PSM)
+											.adapt();
 							if (excelRatioCfg.getRatioScore() != null) {
-								Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader, rowIndex)
-										.adapt();
+								final Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader,
+										rowIndex).adapt();
 								if (score != null)
 									ratio.setAssociatedConfidenceScore(score);
 
 							}
 
-							for (String msRunRef : msRunRefs) {
+							for (final String msRunRef : msRunRefs) {
 								final Set<PSM> rowPSMCondition1 = StaticProteomicsModelStorage.getPSM(msRunRef,
 										condition1Ref, psmID);
 								if (rowPSMCondition1.isEmpty()) {
@@ -2060,7 +2067,7 @@ public class ImportCfgFileReader {
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								for (PSM psm : rowPSM) {
+								for (final PSM psm : rowPSM) {
 									psm.addRatio(ratio);
 								}
 							}
@@ -2077,9 +2084,9 @@ public class ImportCfgFileReader {
 	private void createPeptideRatiosFromExcel(List<ExcelAmountRatioType> excelRatiosCfg, Project project) {
 		if (excelRatiosCfg != null) {
 
-			for (ExcelAmountRatioType excelRatioCfg : excelRatiosCfg) {
-				List<String> msRunRefs = new ArrayList<String>();
-				String msRunRefString = excelRatioCfg.getMsRunRef();
+			for (final ExcelAmountRatioType excelRatioCfg : excelRatiosCfg) {
+				final List<String> msRunRefs = new ArrayList<String>();
+				final String msRunRefString = excelRatioCfg.getMsRunRef();
 				if (msRunRefString.contains(",")) {
 					msRunRefs.addAll(Arrays.asList(msRunRefString.split(",")));
 				} else {
@@ -2095,7 +2102,7 @@ public class ImportCfgFileReader {
 							"Peptide sequence is null for ratio. Trying to assign the ratios to peptides in the same row...");
 					int rowIndex = -1;
 
-					for (Object ratioValueObj : ratioColumn.getValues()) {
+					for (final Object ratioValueObj : ratioColumn.getValues()) {
 						rowIndex++;
 						if (ratioValueObj != null) {
 							Double ratioValue = null;
@@ -2104,26 +2111,27 @@ public class ImportCfgFileReader {
 								if (Double.compare(ratioValue, Double.NaN) == 0) {
 									continue;
 								}
-							} catch (NumberFormatException e) {
+							} catch (final NumberFormatException e) {
 								continue;
 							}
 							if (ratioValue == null) {
 								continue;
 							}
-							Sample sample1 = getSampleByCondition(condition1Ref);
-							Sample sample2 = getSampleByCondition(condition2Ref);
-							RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue, condition1Ref,
-									condition2Ref, sample1, sample2, project, AggregationLevel.PEPTIDE).adapt();
+							final Sample sample1 = getSampleByCondition(condition1Ref);
+							final Sample sample2 = getSampleByCondition(condition2Ref);
+							final RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue,
+									condition1Ref, condition2Ref, sample1, sample2, project, AggregationLevel.PEPTIDE)
+											.adapt();
 							if (excelRatioCfg.getRatioScore() != null) {
-								Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader, rowIndex)
-										.adapt();
+								final Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader,
+										rowIndex).adapt();
 								if (score != null) {
 									ratio.setAssociatedConfidenceScore(score);
 								}
 							}
 
 							// get peptides in the same row and the same msRun
-							for (String msRunRef : msRunRefs) {
+							for (final String msRunRef : msRunRefs) {
 
 								final Set<Peptide> rowPeptideCondition1 = StaticProteomicsModelStorage
 										.getPeptide(msRunRef, condition1Ref, rowIndex, null);
@@ -2139,14 +2147,14 @@ public class ImportCfgFileReader {
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								Set<Peptide> rowPeptides = ModelUtils.getPeptideIntersection(rowPeptideCondition1,
+								final Set<Peptide> rowPeptides = ModelUtils.getPeptideIntersection(rowPeptideCondition1,
 										rowPeptideCondition2);
 								if (rowPeptides.isEmpty()) {
 									throw new IllegalArgumentException("Peptide in row " + rowIndex
 											+ " from the Excel file is not found to assign a ratio to it between condition "
 											+ condition1Ref + " and " + condition2Ref + " in msRun " + msRunRef);
 								}
-								for (Peptide peptide : rowPeptides) {
+								for (final Peptide peptide : rowPeptides) {
 									peptide.addRatio(ratio);
 								}
 							}
@@ -2159,21 +2167,22 @@ public class ImportCfgFileReader {
 					final ExcelColumn peptideSequenceColumn = excelReader
 							.getExcelColumnFromReference(peptideSequenceCfg.getColumnRef());
 					int rowIndex = -1;
-					for (Object ratioValueObj : ratioColumn.getValues()) {
+					for (final Object ratioValueObj : ratioColumn.getValues()) {
 						rowIndex++;
 						if (ratioValueObj != null) {
 							String peptideSequence = null;
 							if (peptideSequenceColumn != null && peptideSequenceColumn.getValues().size() > rowIndex) {
 								peptideSequence = (String) peptideSequenceColumn.getValues().get(rowIndex);
 							}
-							double ratioValue = Double.valueOf(ratioValueObj.toString());
-							Sample sample1 = getSampleByCondition(condition1Ref);
-							Sample sample2 = getSampleByCondition(condition2Ref);
-							RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue, condition1Ref,
-									condition2Ref, sample1, sample2, project, AggregationLevel.PEPTIDE).adapt();
+							final double ratioValue = Double.valueOf(ratioValueObj.toString());
+							final Sample sample1 = getSampleByCondition(condition1Ref);
+							final Sample sample2 = getSampleByCondition(condition2Ref);
+							final RatioEx ratio = new AmountRatioAdapter(excelRatioCfg.getName(), ratioValue,
+									condition1Ref, condition2Ref, sample1, sample2, project, AggregationLevel.PEPTIDE)
+											.adapt();
 							if (excelRatioCfg.getRatioScore() != null) {
-								Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader, rowIndex)
-										.adapt();
+								final Score score = new ScoreAdapter(excelRatioCfg.getRatioScore(), excelReader,
+										rowIndex).adapt();
 								if (score != null)
 									ratio.setAssociatedConfidenceScore(score);
 
@@ -2196,7 +2205,7 @@ public class ImportCfgFileReader {
 										+ condition1Ref + " and " + condition2Ref + " in msRuns "
 										+ getStringFromCollection(msRunRefs));
 							}
-							Set<Peptide> rowPeptides = ModelUtils.getPeptideIntersection(rowPeptideCondition1,
+							final Set<Peptide> rowPeptides = ModelUtils.getPeptideIntersection(rowPeptideCondition1,
 									rowPeptideCondition2);
 							if (rowPeptides.isEmpty()) {
 								throw new IllegalArgumentException("Peptide " + peptideSequence
@@ -2212,7 +2221,7 @@ public class ImportCfgFileReader {
 							// condition1Ref, condition2Ref);
 							// add the same ratio to all of the
 							// PSMs
-							for (Peptide rowPeptide : rowPeptides) {
+							for (final Peptide rowPeptide : rowPeptides) {
 								// Peptide peptide = (Peptide) hasCondition;
 								rowPeptide.addRatio(ratio);
 							}
@@ -2258,11 +2267,11 @@ public class ImportCfgFileReader {
 	private String getStringFromCollection(Collection<String> collection) {
 		if (collection == null)
 			return "";
-		List<String> list = new ArrayList<String>();
+		final List<String> list = new ArrayList<String>();
 		list.addAll(collection);
 		Collections.sort(list);
-		StringBuilder sb = new StringBuilder();
-		for (String string : list) {
+		final StringBuilder sb = new StringBuilder();
+		for (final String string : list) {
 			if (!"".equals(sb.toString())) {
 				sb.append(",");
 			}
@@ -2279,7 +2288,7 @@ public class ImportCfgFileReader {
 	 * @return
 	 */
 	private Sample getSampleByCondition(String conditionId) {
-		for (ExperimentalConditionType expConditionCfg : projectCfg.getExperimentalConditions()
+		for (final ExperimentalConditionType expConditionCfg : projectCfg.getExperimentalConditions()
 				.getExperimentalCondition()) {
 			if (expConditionCfg.getId().equals(conditionId)) {
 				return new SampleAdapter(getSampleCfg(expConditionCfg.getSampleRef()),
@@ -2299,7 +2308,7 @@ public class ImportCfgFileReader {
 	 * @return
 	 */
 	private SampleType getSampleCfg(String sampleRef) {
-		for (SampleType sampleCfg : projectCfg.getExperimentalDesign().getSampleSet().getSample()) {
+		for (final SampleType sampleCfg : projectCfg.getExperimentalDesign().getSampleSet().getSample()) {
 			if (sampleCfg.getId().equals(sampleRef))
 				return sampleCfg;
 		}

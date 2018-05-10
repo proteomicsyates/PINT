@@ -41,6 +41,7 @@ import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantReplicate;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantResult;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantSupportedOrganism;
 import edu.scripps.yates.utilities.maths.Maths;
+import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.hash.THashSet;
@@ -83,18 +84,18 @@ public class PSEAQuantSender {
 	}
 
 	public PSEAQuantResult send() {
-		PSEAQuantResult ret = new PSEAQuantResult();
+		final PSEAQuantResult ret = new PSEAQuantResult();
 		BufferedReader rd = null;
 		try {
 			log.info("Sending request to PSEAQuant");
-			MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+			final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 			builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-			builder.addTextBody(quantType.getParameterName(), quantType.getQuanttype());
+			builder.addTextBody(PSEAQuantQuantType.getParameterName(), quantType.getQuanttype());
 			builder.addTextBody("email", email, ContentType.TEXT_PLAIN);
 			builder.addTextBody(organism.getParameterName(), organism.getOrganismName(), ContentType.TEXT_PLAIN);
 			builder.addTextBody("Sampling", String.valueOf(numberOfSamplings), ContentType.TEXT_PLAIN);
-			builder.addTextBody(annotationDatabase.getParameterName(), annotationDatabase.getAnnotationDBName(),
-					ContentType.TEXT_PLAIN);
+			builder.addTextBody(PSEAQuantAnnotationDatabase.getParameterName(),
+					annotationDatabase.getAnnotationDBName(), ContentType.TEXT_PLAIN);
 			builder.addTextBody(cvTol.getParameterName(), cvTol.getCvTol(), ContentType.TEXT_PLAIN);
 			if (cvTolFactor != null) {
 				builder.addTextBody("CVTolFactor", String.valueOf(cvTolFactor), ContentType.TEXT_PLAIN);
@@ -104,16 +105,16 @@ public class PSEAQuantSender {
 			builder.addTextBody("origin", "SUPER-COOL-PINT", ContentType.TEXT_PLAIN);
 			builder.addTextBody("submit", "submit", ContentType.TEXT_PLAIN);
 
-			File inputDataFile = createInputFile();
+			final File inputDataFile = createInputFile();
 			// builder.addBinaryBody("file", ratioFile);
 			ret.setLinkToRatios(FilenameUtils.getName(inputDataFile.getAbsolutePath()));
 
-			FileBody fileBody = new FileBody(inputDataFile);
+			final FileBody fileBody = new FileBody(inputDataFile);
 			builder.addPart("file", fileBody);
 			// ... add more parameters
 
-			URI url = getPSEAQuantURL();
-			HttpPost httppost = new HttpPost(url);
+			final URI url = getPSEAQuantURL();
+			final HttpPost httppost = new HttpPost(url);
 			final HttpEntity build = builder.build();
 
 			httppost.setEntity(build);
@@ -124,11 +125,11 @@ public class PSEAQuantSender {
 			log.info("Response received. Status code: " + response.getStatusLine().getStatusCode());
 
 			rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-			StringBuffer result = new StringBuffer();
+			final StringBuffer result = new StringBuffer();
 			String line = "";
 			while ((line = rd.readLine()) != null) {
 				if (line.contains("http://sealion.scripps.edu:18080/PSEA-Quant/output/")) {
-					String outputURL = line.split("=")[1].split(">")[0];
+					final String outputURL = line.split("=")[1].split(">")[0];
 					ret.setLinkToResults(outputURL);
 				}
 				result.append(line);
@@ -136,14 +137,14 @@ public class PSEAQuantSender {
 
 			}
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			ret.setErrorMessage(e.getMessage());
 		} finally {
 			if (rd != null) {
 				try {
 					rd.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -152,9 +153,9 @@ public class PSEAQuantSender {
 	}
 
 	private File createInputFile() {
-		Random random = new Random();
+		final Random random = new Random();
 		log.info("Creating  ratio file");
-		Map<String, TIntObjectHashMap<List<Double>>> valuesPerGeneAndReplicate = null;
+		Map<String, TIntObjectHashMap<TDoubleArrayList>> valuesPerGeneAndReplicate = null;
 		if (quantType == PSEAQuantQuantType.BASED) {
 			valuesPerGeneAndReplicate = getRatiosFromReplicates();
 		} else {
@@ -168,27 +169,28 @@ public class PSEAQuantSender {
 		return newRatioFile;
 	}
 
-	private void writeRatioFile(Map<String, TIntObjectHashMap<List<Double>>> ratiosPerGeneAndReplicate,
+	private void writeRatioFile(Map<String, TIntObjectHashMap<TDoubleArrayList>> ratiosPerGeneAndReplicate,
 			File inputFile) {
 		BufferedWriter bw = null;
 		try {
 			bw = new BufferedWriter(new FileWriter(inputFile));
-			for (String geneSymbol : ratiosPerGeneAndReplicate.keySet()) {
+			for (final String geneSymbol : ratiosPerGeneAndReplicate.keySet()) {
 				bw.write(geneSymbol + "\t");
-				final TIntObjectHashMap<List<Double>> valuesPerReplicate = ratiosPerGeneAndReplicate.get(geneSymbol);
+				final TIntObjectHashMap<TDoubleArrayList> valuesPerReplicate = ratiosPerGeneAndReplicate
+						.get(geneSymbol);
 				for (int numReplicate = 1; numReplicate <= replicates.size(); numReplicate++) {
-					List<Double> valueList = valuesPerReplicate.get(numReplicate);
+					final TDoubleArrayList valueList = valuesPerReplicate.get(numReplicate);
 					if (valueList == null || valueList.isEmpty()) {
 						bw.write(0 + "\t");
 					} else {
 						if (quantType == PSEAQuantQuantType.BASED) {
 							switch (ratioAveraging) {
 							case AVERAGE:
-								final double median = new Median().evaluate(getArray(valueList));
+								final double median = new Median().evaluate(valueList.toArray());
 								bw.write(String.valueOf(median) + "\t");
 								break;
 							case MEDIAN:
-								final double mean = Maths.mean(valueList.toArray(new Double[0]));
+								final double mean = Maths.mean(valueList);
 								bw.write(String.valueOf(mean) + "\t");
 								break;
 							default:
@@ -196,32 +198,28 @@ public class PSEAQuantSender {
 							}
 						} else {
 							// in case of spectral counts, just sum the values
-							double total = 0.0;
-							for (Double double1 : valueList) {
-								total += double1;
-							}
-							bw.write(String.valueOf(total) + "\t");
+							bw.write(String.valueOf(valueList.sum()) + "\t");
 						}
 					}
 				}
 				bw.write("\n");
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		} finally {
 			if (bw != null) {
 				try {
 					bw.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 				}
 			}
 		}
 	}
 
 	private double[] getArray(List<Double> ratioList) {
-		double[] ret = new double[ratioList.size()];
+		final double[] ret = new double[ratioList.size()];
 		int i = 0;
-		for (Double d : ratioList) {
+		for (final Double d : ratioList) {
 			ret[i++] = d;
 		}
 		return ret;
@@ -233,16 +231,16 @@ public class PSEAQuantSender {
 	 *
 	 * @return
 	 */
-	private Map<String, TIntObjectHashMap<List<Double>>> getRatiosFromReplicates() {
-		Map<String, TIntObjectHashMap<List<Double>>> ret = new THashMap<String, TIntObjectHashMap<List<Double>>>();
+	private Map<String, TIntObjectHashMap<TDoubleArrayList>> getRatiosFromReplicates() {
+		final Map<String, TIntObjectHashMap<TDoubleArrayList>> ret = new THashMap<String, TIntObjectHashMap<TDoubleArrayList>>();
 		int numReplicate = 0;
-		for (PSEAQuantReplicate pseaQuantReplicate : replicates) {
+		for (final PSEAQuantReplicate pseaQuantReplicate : replicates) {
 			numReplicate++;
-			List<Protein> proteinsInReplicate = new ArrayList<Protein>();
+			final List<Protein> proteinsInReplicate = new ArrayList<Protein>();
 			final List<Map<String, String>> listOfPairs = pseaQuantReplicate.getListOfPairs();
 
-			for (Map<String, String> pair : listOfPairs) {
-				for (String projectName : pair.keySet()) {
+			for (final Map<String, String> pair : listOfPairs) {
+				for (final String projectName : pair.keySet()) {
 					if (pseaQuantReplicate.isCondition()) {
 						final String conditionName = pair.get(projectName);
 						log.info("Getting proteins in condition: " + conditionName);
@@ -261,7 +259,7 @@ public class PSEAQuantSender {
 				}
 			}
 			// iterate over the proteinsInReplicate:
-			for (Protein protein : proteinsInReplicate) {
+			for (final Protein protein : proteinsInReplicate) {
 				// use just the proteins with the taxonomy
 				// if (!protein.getOrganism().getTaxonomyId()
 				// .equals(String.valueOf(organism.getNcbiID()))) {
@@ -275,22 +273,22 @@ public class PSEAQuantSender {
 
 				// TODO FILTER BY ORGANISM
 
-				String geneName = getGeneName(protein);
+				final String geneName = getGeneName(protein);
 				if (geneName != null) {
-					TIntObjectHashMap<List<Double>> ratiosPerReplicates = null;
+					TIntObjectHashMap<TDoubleArrayList> ratiosPerReplicates = null;
 					if (ret.containsKey(geneName)) {
 						ratiosPerReplicates = ret.get(geneName);
 					} else {
-						ratiosPerReplicates = new TIntObjectHashMap<List<Double>>();
+						ratiosPerReplicates = new TIntObjectHashMap<TDoubleArrayList>();
 						ret.put(geneName, ratiosPerReplicates);
 					}
-					List<Double> values = getProteinRatios(protein);
+					final TDoubleArrayList values = getProteinRatios(protein);
 
 					if (!values.isEmpty()) {
 						if (ratiosPerReplicates.containsKey(numReplicate)) {
 							ratiosPerReplicates.get(numReplicate).addAll(values);
 						} else {
-							List<Double> list = new ArrayList<Double>();
+							final TDoubleArrayList list = new TDoubleArrayList();
 							list.addAll(values);
 							ratiosPerReplicates.put(numReplicate, list);
 						}
@@ -301,17 +299,17 @@ public class PSEAQuantSender {
 		return ret;
 	}
 
-	private Map<String, TIntObjectHashMap<List<Double>>> getSPCsFromReplicates() {
-		Map<String, TIntObjectHashMap<List<Double>>> ret = new THashMap<String, TIntObjectHashMap<List<Double>>>();
-		Map<String, TIntObjectHashMap<Set<String>>> retTMP = new THashMap<String, TIntObjectHashMap<Set<String>>>();
+	private Map<String, TIntObjectHashMap<TDoubleArrayList>> getSPCsFromReplicates() {
+		final Map<String, TIntObjectHashMap<TDoubleArrayList>> ret = new THashMap<String, TIntObjectHashMap<TDoubleArrayList>>();
+		final Map<String, TIntObjectHashMap<Set<String>>> retTMP = new THashMap<String, TIntObjectHashMap<Set<String>>>();
 		int numReplicate = 0;
-		for (PSEAQuantReplicate pseaQuantReplicate : replicates) {
+		for (final PSEAQuantReplicate pseaQuantReplicate : replicates) {
 			numReplicate++;
-			List<Protein> proteinsInReplicate = new ArrayList<Protein>();
+			final List<Protein> proteinsInReplicate = new ArrayList<Protein>();
 			final List<Map<String, String>> listOfPairs = pseaQuantReplicate.getListOfPairs();
 
-			for (Map<String, String> pair : listOfPairs) {
-				for (String projectName : pair.keySet()) {
+			for (final Map<String, String> pair : listOfPairs) {
+				for (final String projectName : pair.keySet()) {
 					if (pseaQuantReplicate.isCondition()) {
 						final String conditionName = pair.get(projectName);
 						log.info("Getting proteins in condition: " + conditionName);
@@ -330,7 +328,7 @@ public class PSEAQuantSender {
 				}
 			}
 			// iterate over the proteinsInReplicate:
-			for (Protein protein : proteinsInReplicate) {
+			for (final Protein protein : proteinsInReplicate) {
 				// TODO
 				// use just the proteins with the taxonomy
 				// if (!protein.getOrganism().getTaxonomyId()
@@ -342,7 +340,7 @@ public class PSEAQuantSender {
 				// + organism.getNcbiID() + ")");
 				// continue;
 				// }
-				String geneName = getGeneName(protein);
+				final String geneName = getGeneName(protein);
 				if (geneName != null) {
 					TIntObjectHashMap<Set<String>> ratiosPerReplicates = null;
 					if (ret.containsKey(geneName)) {
@@ -351,13 +349,13 @@ public class PSEAQuantSender {
 						ratiosPerReplicates = new TIntObjectHashMap<Set<String>>();
 						retTMP.put(geneName, ratiosPerReplicates);
 					}
-					Set<String> psmIds = getProteinPSMIds(protein);
+					final Set<String> psmIds = getProteinPSMIds(protein);
 
 					if (!psmIds.isEmpty()) {
 						if (ratiosPerReplicates.containsKey(numReplicate)) {
 							ratiosPerReplicates.get(numReplicate).addAll(psmIds);
 						} else {
-							Set<String> set = new THashSet<String>();
+							final Set<String> set = new THashSet<String>();
 							set.addAll(psmIds);
 							ratiosPerReplicates.put(numReplicate, set);
 						}
@@ -367,13 +365,13 @@ public class PSEAQuantSender {
 		}
 
 		// convert retTM to ret
-		for (String key : retTMP.keySet()) {
-			TIntObjectHashMap<List<Double>> retMap = new TIntObjectHashMap<List<Double>>();
+		for (final String key : retTMP.keySet()) {
+			final TIntObjectHashMap<TDoubleArrayList> retMap = new TIntObjectHashMap<TDoubleArrayList>();
 			ret.put(key, retMap);
 			final TIntObjectHashMap<Set<String>> map = retTMP.get(key);
-			for (int numRep : map.keys()) {
+			for (final int numRep : map.keys()) {
 				final Set<String> set = map.get(numRep);
-				List<Double> list = new ArrayList<Double>();
+				final TDoubleArrayList list = new TDoubleArrayList();
 				list.add(Double.valueOf(set.size()));
 				retMap.put(numRep, list);
 			}
@@ -383,21 +381,21 @@ public class PSEAQuantSender {
 	}
 
 	private Set<String> getProteinPSMIds(Protein protein) {
-		Set<String> ret = new THashSet<String>();
+		final Set<String> ret = new THashSet<String>();
 
 		final Set<Psm> psms = protein.getPsms();
-		for (Psm psm : psms) {
+		for (final Psm psm : psms) {
 			ret.add(psm.getPsmId());
 		}
 
 		return ret;
 	}
 
-	private List<Double> getProteinRatios(Protein protein) {
-		List<Double> ret = new ArrayList<Double>();
+	private TDoubleArrayList getProteinRatios(Protein protein) {
+		final TDoubleArrayList ret = new TDoubleArrayList();
 		if (protein != null) {
 			final Set<ProteinRatioValue> proteinRatioValues = protein.getProteinRatioValues();
-			for (ProteinRatioValue proteinRatioValue : proteinRatioValues) {
+			for (final ProteinRatioValue proteinRatioValue : proteinRatioValues) {
 				if (proteinRatioValue.getRatioDescriptor().getDescription().equals(ratioDescriptor.getRatioName())) {
 					final double value = proteinRatioValue.getValue();
 					if (proteinRatioValue.getRatioDescriptor().getConditionByExperimentalCondition1Id().getName()
@@ -437,7 +435,7 @@ public class PSEAQuantSender {
 		if (protein != null) {
 			final Set<Gene> genes = protein.getGenes();
 			if (genes != null) {
-				for (Gene gene : genes) {
+				for (final Gene gene : genes) {
 					if ("primary".equalsIgnoreCase(gene.getGeneType())) {
 						return gene.getGeneId();
 					}
@@ -451,7 +449,7 @@ public class PSEAQuantSender {
 	}
 
 	private void addToProteinList(List<Protein> proteinsList, Map<String, Set<Protein>> proteinMap) {
-		for (Set<Protein> proteinSet : proteinMap.values()) {
+		for (final Set<Protein> proteinSet : proteinMap.values()) {
 			proteinsList.addAll(proteinSet);
 		}
 	}
