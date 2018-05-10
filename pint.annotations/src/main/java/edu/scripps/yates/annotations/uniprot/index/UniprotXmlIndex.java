@@ -141,47 +141,51 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		return null;
 	}
 
+	// @Override
+	// public List<Entry> getItems(Collection<String> keys) {
+	// try {
+	// // load index file
+	// loadIndexFile();
+	// final List<Entry> ret = new ArrayList<Entry>();
+	// for (final String key : keys) {
+	//
+	// // look for the provided key
+	// if (indexMap.containsKey(key)) {
+	// final Pair<Long, Long> pair = indexMap.get(key);
+	// final String item = uniprotFileIndexIO.getItem(pair.getFirstelement(),
+	// pair.getSecondElement());
+	//
+	// final List<Entry> entries =
+	// uniprotFileIndexIO.unmarshallMultipleEntriesFromString(item);
+	// for (final Entry entry : entries) {
+	// // in order to save memory, remove non used elements
+	// // such as
+	// // references
+	// UniprotEntryUtil.removeNonUsedElements(entry, ignoreReferences,
+	// ignoreDBReferences);
+	// ret.add(entry);
+	// }
+	//
+	// } else {
+	// log.debug("Item with key '" + key + "' is not in the index");
+	// }
+	// }
+	// if (!ret.isEmpty()) {
+	// return ret;
+	// }
+	// } catch (final IndexException e) {
+	// e.printStackTrace();
+	// log.error(e.getMessage());
+	// } catch (final IOException e) {
+	// e.printStackTrace();
+	// log.error(e.getMessage());
+	// }
+	//
+	// return null;
+	// }
+
 	@Override
 	public List<Entry> getItems(Collection<String> keys) {
-		try {
-			// load index file
-			loadIndexFile();
-			final List<Entry> ret = new ArrayList<Entry>();
-			for (final String key : keys) {
-
-				// look for the provided key
-				if (indexMap.containsKey(key)) {
-					final Pair<Long, Long> pair = indexMap.get(key);
-					final String item = uniprotFileIndexIO.getItem(pair.getFirstelement(), pair.getSecondElement());
-
-					final List<Entry> entries = uniprotFileIndexIO.unmarshallMultipleEntriesFromString(item);
-					for (final Entry entry : entries) {
-						// in order to save memory, remove non used elements
-						// such as
-						// references
-						UniprotEntryUtil.removeNonUsedElements(entry, ignoreReferences, ignoreDBReferences);
-						ret.add(entry);
-					}
-
-				} else {
-					log.debug("Item with key '" + key + "' is not in the index");
-				}
-			}
-			if (!ret.isEmpty()) {
-				return ret;
-			}
-		} catch (final IndexException e) {
-			e.printStackTrace();
-			log.error(e.getMessage());
-		} catch (final IOException e) {
-			e.printStackTrace();
-			log.error(e.getMessage());
-		}
-
-		return null;
-	}
-
-	public List<Entry> getItemsOptimized(Collection<String> keys) {
 		try {
 			// load index file
 			loadIndexFile();
@@ -224,7 +228,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		return null;
 	}
 
-	public Iterator<Entry> getIteratorOfItemsOptimized(Collection<String> keys) {
+	public Iterator<Entry> getIteratorOfItems(Collection<String> keys) {
 		try {
 			// load index file
 			loadIndexFile();

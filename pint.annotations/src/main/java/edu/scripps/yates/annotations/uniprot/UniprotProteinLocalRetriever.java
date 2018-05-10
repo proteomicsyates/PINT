@@ -435,7 +435,7 @@ public class UniprotProteinLocalRetriever {
 								+ uniprotXmlFile.getAbsolutePath());
 						final ProgressCounter counter = new ProgressCounter(accsToSearch.size(),
 								ProgressPrintingType.PERCENTAGE_STEPS, 0);
-						final Iterator<Entry> itemIterator = uniprotIndex.getIteratorOfItemsOptimized(accsToSearch);
+						final Iterator<Entry> itemIterator = uniprotIndex.getIteratorOfItems(accsToSearch);
 						while (itemIterator.hasNext()) {
 
 							counter.increment();
