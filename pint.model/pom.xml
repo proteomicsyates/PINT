@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>org.proteored.miape.api</groupId>
 			<artifactId>miape-api</artifactId>
-			<version>1.9.2-SNAPSHOT</version>
+			<version>1.9.7-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.servlet</groupId>
