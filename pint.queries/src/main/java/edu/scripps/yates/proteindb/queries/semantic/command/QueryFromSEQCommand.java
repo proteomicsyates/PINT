@@ -29,6 +29,7 @@ import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.strings.StringUtils;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -55,7 +56,7 @@ public class QueryFromSEQCommand extends AbstractQuery {
 
 		final String[] split = MyCommandTokenizer.splitCommand(commandReference.getCommandValue());
 		if (split.length == 2) {
-			String aggregationLevelString = split[0].trim();
+			final String aggregationLevelString = split[0].trim();
 			if (!"".equals(aggregationLevelString)) {
 
 				aggregationLevel = AggregationLevel.getAggregationLevelByString(aggregationLevelString);
@@ -82,7 +83,7 @@ public class QueryFromSEQCommand extends AbstractQuery {
 
 				}
 
-			} catch (PatternSyntaxException e) {
+			} catch (final PatternSyntaxException e) {
 				log.error(e);
 				throw new MalformedQueryException("Regular expression '" + regularExpression
 						+ "' is not a valid regular expression: " + e.getMessage());
@@ -117,14 +118,14 @@ public class QueryFromSEQCommand extends AbstractQuery {
 		tmp = tmp.replace("X", "\\w");
 
 		if (tmp.contains("|")) {
-			final List<Integer> pipePositions = StringUtils.allPositionsOf(tmp, "|");
+			final TIntArrayList pipePositions = StringUtils.allPositionsOf(tmp, "|");
 
 			for (int i = 1; i <= tmp.length(); i++) {
 				if (pipePositions.contains(i)) {
 					// "|"
 					if (i > 1) {
 						// remove previous char
-						String previousChar = patternString.substring(patternString.length() - 1);
+						final String previousChar = patternString.substring(patternString.length() - 1);
 						patternString = patternString.substring(0, patternString.length() - 1);
 						// add [
 						patternString += "[" + previousChar + "|";
@@ -172,7 +173,7 @@ public class QueryFromSEQCommand extends AbstractQuery {
 
 	private String getProteinSequence(QueriableProteinSet protein) {
 		final String acc = protein.getPrimaryAccession();
-		Set<String> uniprotACCs = new THashSet<String>();
+		final Set<String> uniprotACCs = new THashSet<String>();
 		final Pair<String, String> accPair = FastaParser.getACC(acc);
 		if (accPair != null && accPair.getSecondElement() == AccessionType.UNIPROT.name()) {
 			uniprotACCs.add(accPair.getFirstelement());
@@ -180,7 +181,7 @@ public class QueryFromSEQCommand extends AbstractQuery {
 			final List<UniprotEntry> map2Uniprot = IPI2UniprotACCMap.getInstance()
 					.map2Uniprot(accPair.getFirstelement());
 			if (map2Uniprot != null) {
-				for (UniprotEntry uniprotEntry : map2Uniprot) {
+				for (final UniprotEntry uniprotEntry : map2Uniprot) {
 					uniprotACCs.add(uniprotEntry.getAcc());
 				}
 			}
@@ -191,7 +192,7 @@ public class QueryFromSEQCommand extends AbstractQuery {
 			if (annotatedProtein != null && annotatedProtein.containsKey(uniprotACC)) {
 				final Protein protein2 = annotatedProtein.get(uniprotACC);
 				if (protein2 != null) {
-					String sequence = protein2.getSequence();
+					final String sequence = protein2.getSequence();
 					if (sequence != null) {
 						sequence.replace("\n", "");
 					}
@@ -224,7 +225,7 @@ public class QueryFromSEQCommand extends AbstractQuery {
 		if (aggregationLevel == AggregationLevel.PEPTIDE || aggregationLevel == AggregationLevel.PSM) {
 			try {
 				psmProviderFromSEQ = new PsmProviderFromSEQ(pattern.toString());
-			} catch (IllegalArgumentException e) {
+			} catch (final IllegalArgumentException e) {
 
 			}
 		}
@@ -266,11 +267,11 @@ public class QueryFromSEQCommand extends AbstractQuery {
 	}
 
 	public static void main(String[] args) {
-		String text = "rXXy|p";
-		String[] toFound = { "art", "arp", "ragyy" };
+		final String text = "rXXy|p";
+		final String[] toFound = { "art", "arp", "ragyy" };
 		final Pattern pattern = translateUserRegularExpressionToJavaPattern(text);
 		System.out.println(pattern);
-		for (String string : toFound) {
+		for (final String string : toFound) {
 			final Matcher matcher = pattern.matcher(string);
 			System.out.println(string + ":\t" + matcher.find());
 
