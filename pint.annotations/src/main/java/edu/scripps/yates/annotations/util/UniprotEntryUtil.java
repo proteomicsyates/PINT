@@ -220,4 +220,13 @@ public class UniprotEntryUtil {
 		}
 		return null;
 	}
+
+	public static List<String> getNames(Entry entry) {
+		if (entry != null) {
+			if (entry.getName() != null) {
+				return entry.getName();
+			}
+		}
+		return null;
+	}
 }
