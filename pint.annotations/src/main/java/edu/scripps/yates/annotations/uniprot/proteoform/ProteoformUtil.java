@@ -270,7 +270,7 @@ public class ProteoformUtil {
 	 */
 	public static List<Proteoform> getProteoformsAs(ProteoformType proteoformType, List<Proteoform> proteoforms) {
 		if (proteoforms == null) {
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		}
 		return proteoforms.stream().filter(p -> p.getProteoformType() == proteoformType).collect(Collectors.toList());
 	}
