@@ -36,25 +36,25 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 	}
 
 	private String getID(String originalACC, FeatureType feature) {
-		String ret = "";
+		final StringBuilder ret = new StringBuilder();
 		if (originalACC != null) {
-			ret += originalACC;
+			ret.append(originalACC);
 		}
 
 		if (feature.getId() != null) {
-			if (!"".equals(ret)) {
-				ret += "_";
+			if (!"".equals(ret.toString())) {
+				ret.append("_");
 			}
-			ret += feature.getId();
-			ret += "_" + ProteoformUtil.getShortDescription(feature);
+			ret.append(feature.getId());
+			ret.append("_").append(ProteoformUtil.getShortDescription(feature));
 		} else {
-			ret += FastaParser.variant;
+			ret.append(FastaParser.variant);
 			if (feature.getVariation() != null && !feature.getVariation().isEmpty()) {
-				ret += feature.getVariation().get(0) + "_" + ProteoformUtil.getLocationString(feature);
+				ret.append(feature.getVariation().get(0)).append("_").append(ProteoformUtil.getLocationString(feature));
 			} else {
-				ret += ProteoformUtil.getLocationString(feature);
+				ret.append(ProteoformUtil.getLocationString(feature));
 			}
 		}
-		return ret;
+		return ret.toString();
 	}
 }
