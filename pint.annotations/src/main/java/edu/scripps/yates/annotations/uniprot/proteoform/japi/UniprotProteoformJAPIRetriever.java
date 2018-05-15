@@ -197,16 +197,20 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 							taxonomy = mainEntry.getOrganism().getScientificName().getValue();
 						}
 					}
+					String name = null;
+					if (mainEntry.getUniProtId() != null && mainEntry.getUniProtId().getValue() != null) {
+						name = mainEntry.getUniProtId().getValue();
+					}
 					final Proteoform originalvariant = new Proteoform(acc, originalSequence, acc, originalSequence,
-							description, gene, taxonomy, ProteoformType.MAIN_ENTRY, true);
+							name, description, gene, taxonomy, ProteoformType.MAIN_ENTRY, true);
 					ret.get(acc).add(originalvariant);
 
 					// query for variants
 					final Collection<Feature> features = mainEntry.getFeatures(FeatureType.VARIANT);
 					for (final Feature feature : features) {
 						final VariantFeature varSeq = (VariantFeature) feature;
-						final Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, description, varSeq,
-								originalSequence, gene, taxonomy).adapt();
+						final Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, name, description,
+								varSeq, originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}
 					// alternative products
@@ -241,10 +245,11 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 								}
 								final String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
 
+								final String name2 = UniprotEntryUtil.getNames(isoformEntry).get(0);
+								final String proteinDescription = UniprotEntryUtil.getProteinDescription(isoformEntry);
 								final Proteoform variant = new Proteoform(acc, originalSequence, isoformACC,
-										isoformSequence, mainEntry.getProteinDescription().getRecommendedName()
-												.getFields().get(0).getValue(),
-										gene2, taxonomy2, ProteoformType.ISOFORM);
+										isoformSequence, name2, proteinDescription, gene2, taxonomy2,
+										ProteoformType.ISOFORM);
 								ret.get(acc).add(variant);
 							}
 						} else {
@@ -254,6 +259,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 									final Entry isoformEntry = entries.get(isoformACC);
 									final String isoformSequence = UniprotEntryUtil.getProteinSequence(isoformEntry);
 									final String description2 = UniprotEntryUtil.getProteinDescription(isoformEntry);
+									final String name2 = UniprotEntryUtil.getNames(isoformEntry).get(0);
 									final List<String> geneNames = UniprotEntryUtil.getGeneName(isoformEntry, true,
 											true);
 									String gene2 = null;
@@ -262,7 +268,8 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 									}
 									final String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
 									final Proteoform variant = new Proteoform(acc, originalSequence, isoformACC,
-											isoformSequence, description2, gene2, taxonomy2, ProteoformType.ISOFORM);
+											isoformSequence, name2, description2, gene2, taxonomy2,
+											ProteoformType.ISOFORM);
 									ret.get(acc).add(variant);
 								}
 							}
@@ -273,7 +280,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 					for (final Feature feature : conflicts) {
 
 						final ConflictFeature conflictFeature = (ConflictFeature) feature;
-						final Proteoform variant = new ProteoFormAdapterFromConflictFeature(acc, description,
+						final Proteoform variant = new ProteoFormAdapterFromConflictFeature(acc, name, description,
 								conflictFeature, originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}
@@ -281,7 +288,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 					final Collection<Feature> mutagens = mainEntry.getFeatures(FeatureType.MUTAGEN);
 					for (final Feature feature : mutagens) {
 						final MutagenFeature mutagenFeature = (MutagenFeature) feature;
-						final Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, description,
+						final Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, name, description,
 								mutagenFeature, originalSequence, gene, taxonomy).adapt();
 						ret.get(acc).add(variant);
 					}

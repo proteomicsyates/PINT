@@ -25,12 +25,14 @@ public class UniprotEntryAdapterFromFASTA implements Adapter<Entry> {
 	private final String organism;
 	private final String sequenceVersion;
 	private final String organismNCBIID;
+	private final String name;
 
 	public UniprotEntryAdapterFromFASTA(String accession, String fastaHeader, String sequence) {
 		this.accession = accession;
 		this.sequence = sequence;
 		description = FastaParser.getDescription(fastaHeader);
 		gene = FastaParser.getGeneFromFastaHeader(fastaHeader);
+		name = FastaParser.getUniProtProteinName(fastaHeader);
 		organism = FastaParser.getOrganismNameFromFastaHeader(fastaHeader, null);
 		organismNCBIID = FastaParser.getOrganismNCBIIDFromFastaHeader(fastaHeader);
 		sequenceVersion = FastaParser.getSequenceVersionFromFastaHeader(fastaHeader);
@@ -46,8 +48,11 @@ public class UniprotEntryAdapterFromFASTA implements Adapter<Entry> {
 			ret.setVersion(Integer.valueOf(sequenceVersion));
 		} catch (final NumberFormatException e) {
 		}
+		if (name != null) {
+			ret.getName().add(name);
+		}
+
 		if (description != null) {
-			ret.getName().add(description);
 			final ProteinType protein = new ProteinType();
 			final EvidencedStringType evidence = new EvidencedStringType();
 			evidence.setValue(description);

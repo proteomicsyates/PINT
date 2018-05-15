@@ -15,23 +15,28 @@ public class Proteoform {
 	private final String gene;
 	private final String taxonomy;
 	private final String originalSeq;
+	private final String name;
 
-	public Proteoform(String originalACC, String originalSeq, String id, String seq, String description, String gene,
-			String taxonomy, ProteoformType proteoformType, boolean original) {
+	public Proteoform(String originalACC, String originalSeq, String id, String seq, String name, String description,
+			String gene, String taxonomy, ProteoformType proteoformType, boolean original) {
 		this.originalACC = originalACC;
 		this.originalSeq = originalSeq;
 		this.id = id;
 		this.seq = seq;
+		this.name = name;
 		this.description = description;
 		this.gene = gene;
 		this.taxonomy = taxonomy;
 		this.proteoformType = proteoformType;
 		this.original = original;
+		if (description.equals(name)) {
+			System.out.println("asdf");
+		}
 	}
 
-	public Proteoform(String originalACC, String originalSeq, String id, String seq, String description, String gene,
-			String taxonomy, ProteoformType variantType) {
-		this(originalACC, originalSeq, id, seq, description, gene, taxonomy, variantType, false);
+	public Proteoform(String originalACC, String originalSeq, String id, String seq, String name, String description,
+			String gene, String taxonomy, ProteoformType variantType) {
+		this(originalACC, originalSeq, id, seq, name, description, gene, taxonomy, variantType, false);
 	}
 
 	public String getId() {
@@ -87,5 +92,9 @@ public class Proteoform {
 
 	public String getOriginalSeq() {
 		return originalSeq;
+	}
+
+	public String getName() {
+		return name;
 	}
 }

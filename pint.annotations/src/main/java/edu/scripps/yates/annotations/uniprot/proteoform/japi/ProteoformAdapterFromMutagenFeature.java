@@ -14,13 +14,15 @@ public class ProteoformAdapterFromMutagenFeature implements Adapter<Proteoform> 
 	private final String gene;
 	private final String taxonomy;
 	private final String originalDescription;
+	private final String name;
 
-	public ProteoformAdapterFromMutagenFeature(String originalACC, String originalDescription, MutagenFeature varSeq,
-			String wholeOriginalSeq, String gene, String taxonomy) {
+	public ProteoformAdapterFromMutagenFeature(String originalACC, String name, String originalDescription,
+			MutagenFeature varSeq, String wholeOriginalSeq, String gene, String taxonomy) {
 		feature = varSeq;
 		this.wholeOriginalSeq = wholeOriginalSeq;
 		this.originalACC = originalACC;
 		this.gene = gene;
+		this.name = name;
 		this.taxonomy = taxonomy;
 		this.originalDescription = originalDescription;
 	}
@@ -30,8 +32,8 @@ public class ProteoformAdapterFromMutagenFeature implements Adapter<Proteoform> 
 		final String id = originalACC + FastaParser.mutated + ProteoformUtil.getShortDescription(feature);
 		final String seq = ProteoformUtil.translateSequence(feature, wholeOriginalSeq);
 		final String description = ProteoformUtil.getDescription(feature, originalDescription);
-		final Proteoform variant = new Proteoform(originalACC, wholeOriginalSeq, id, seq, description, gene, taxonomy,
-				ProteoformType.MUTAGENESIS_SITE);
+		final Proteoform variant = new Proteoform(originalACC, wholeOriginalSeq, id, seq, name, description, gene,
+				taxonomy, ProteoformType.MUTAGENESIS_SITE);
 		return variant;
 	}
 

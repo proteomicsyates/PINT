@@ -14,12 +14,14 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 	private final String gene;
 	private final String taxonomy;
 	private final String originalDescription;
+	private final String name;
 
-	public ProteoformAdapterFromNaturalVariant(String originalACC, String originalDescription, VariantFeature varSeq,
-			String wholeOriginalSeq, String taxonomy, String gene) {
+	public ProteoformAdapterFromNaturalVariant(String originalACC, String name, String originalDescription,
+			VariantFeature varSeq, String wholeOriginalSeq, String taxonomy, String gene) {
 		this.varSeq = varSeq;
 		this.wholeOriginalSeq = wholeOriginalSeq;
 		this.originalACC = originalACC;
+		this.name = name;
 		this.taxonomy = taxonomy;
 		this.gene = gene;
 		this.originalDescription = originalDescription;
@@ -36,8 +38,8 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 		}
 		final String seq = ProteoformUtil.translateSequence(varSeq, wholeOriginalSeq);
 		final String description = ProteoformUtil.getDescription(varSeq, originalDescription);
-		final Proteoform variant = new Proteoform(originalACC, wholeOriginalSeq, id, seq, description, gene, taxonomy,
-				ProteoformType.NATURAL_VARIANT);
+		final Proteoform variant = new Proteoform(originalACC, wholeOriginalSeq, id, seq, name, description, gene,
+				taxonomy, ProteoformType.NATURAL_VARIANT);
 		return variant;
 	}
 
