@@ -108,8 +108,9 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			fw.write(sb.toString());
 			fw.close();
 			index.status = Status.READY;
-			if (index.indexFile.length() % 1000 == 0)
-				log.info("Indexing done. Size of index: " + index.indexFile.length() / 1000 + " Kb");
+			// if (index.indexFile.length() % 1000 == 0){
+			log.debug("Indexing done. Size of index: " + index.indexFile.length() / 1000 + " Kb");
+			// }
 		}
 
 	}
