@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.uniprot.xml.GeneNameType;
 import edu.scripps.yates.annotations.uniprot.xml.GeneType;
-import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import gnu.trove.map.hash.THashMap;
@@ -30,7 +29,7 @@ import gnu.trove.set.hash.THashSet;
 
 public class UniprotACCQuery {
 	private static Logger log = Logger.getLogger(UniprotACCQuery.class);
-	private static Map<String, Uniprot> entriesByQuery = new THashMap<String, Uniprot>();
+	private static Map<String, List<Entry>> entriesByQuery = new THashMap<String, List<Entry>>();
 	private final static Map<String, Set<String>> map = new THashMap<String, Set<String>>();
 
 	/**
@@ -134,10 +133,10 @@ public class UniprotACCQuery {
 	private static List<Protein> map2Uniprot(String taxid, String geneSymbol, boolean forcePrimaryGene) {
 		final String uniprotqueryURL = getUniprotQueryURL(taxid, geneSymbol);
 		if (uniprotqueryURL != null) {
-			final Uniprot proteins = getUniprotAccsFromQuery(uniprotqueryURL);
+			final List<Entry> entries = getUniprotAccsFromQuery(uniprotqueryURL);
 			final List<Protein> list = new ArrayList<Protein>();
-			if (proteins != null) {
-				final List<Entry> entries = proteins.getEntry();
+			if (entries != null) {
+
 				for (final Entry entry : entries) {
 					final GeneNameType gene = getGene(entry, geneSymbol);
 					if (gene == null) {
@@ -179,8 +178,8 @@ public class UniprotACCQuery {
 		return null;
 	}
 
-	private static Uniprot getUniprotAccsFromQuery(String uniprotqueryURL) {
-		Uniprot proteins = null;
+	private static List<Entry> getUniprotAccsFromQuery(String uniprotqueryURL) {
+		List<Entry> proteins = null;
 		if (entriesByQuery.containsKey(uniprotqueryURL)) {
 			proteins = entriesByQuery.get(uniprotqueryURL);
 		} else {
