@@ -310,7 +310,7 @@ public class UniprotProteinLocalRetriever {
 				// uniprotIndex.addItem(entry, null);
 				// }
 				if (entries.size() > 1) {
-					log.info(entries.size() + " entries added to index of uniprot version " + uniprotVersion);
+					log.debug(entries.size() + " entries added to index of uniprot version " + uniprotVersion);
 				} else {
 					log.debug(entries.get(0).getAccession().get(0) + " entry added to index of uniprot version "
 							+ uniprotVersion);
@@ -319,7 +319,7 @@ public class UniprotProteinLocalRetriever {
 				final ReadLock readLock = lock.readLock();
 				readLock.lock();
 				try {
-					log.info("Executor " + executors + ": Entries saved to local index in "
+					log.debug("Executor " + executors + ": Entries saved to local index in "
 							+ DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
 				} finally {
 					readLock.unlock();
@@ -441,7 +441,7 @@ public class UniprotProteinLocalRetriever {
 							counter.increment();
 							final String printIfNecessary = counter.printIfNecessary();
 							if (accsToSearch.size() > 1 && !"".equals(printIfNecessary)) {
-								log.info(printIfNecessary);
+								log.debug(printIfNecessary);
 							}
 							if (Thread.currentThread().isInterrupted()) {
 								throw new RuntimeException("Thread interrupted");
@@ -553,7 +553,7 @@ public class UniprotProteinLocalRetriever {
 
 					final UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever();
 					uprr.setLookForIsoforms(retrieveFastaIsoforms);
-					log.info("Trying to retrieve  " + missingCanonicalForms.size()
+					log.debug("Trying to retrieve  " + missingCanonicalForms.size()
 							+ " proteins that were not present in the local system");
 					final Map<String, Entry> foundMissingCanonicalEntries = uprr.getAnnotatedProteins(uniprotVersion,
 							missingCanonicalForms, cache);
