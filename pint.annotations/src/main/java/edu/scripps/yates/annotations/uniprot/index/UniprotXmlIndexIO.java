@@ -116,18 +116,22 @@ public class UniprotXmlIndexIO extends TextFileIndexMultiThreadSafeIO {
 	}
 
 	protected List<Entry> unmarshallMultipleEntriesFromString(String string) {
-		if (string.startsWith("<<"))
+		if (string.startsWith("<<")) {
 			string = string.substring(1);
+		}
+		String s = "";
 		Unmarshaller unmarshaller;
 		try {
 			unmarshaller = jaxbContext.createUnmarshaller();
-			final Uniprot uniprot = (Uniprot) unmarshaller.unmarshal(new StringReader(PREFIX + string + SUFFIX));
+			s = PREFIX + string + SUFFIX;
+			final Uniprot uniprot = (Uniprot) unmarshaller.unmarshal(new StringReader(s));
 			return uniprot.getEntry();
 		} catch (final JAXBException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
 			throw new IndexException(
-					"Error reading index. Index file may be corrupt. Try to delete it and run the program again.");
+					"Error reading index. Index file may be corrupt. Try to delete it and run the program again.\n"
+							+ s);
 		}
 	}
 
