@@ -16,6 +16,8 @@ import edu.scripps.yates.utilities.pattern.Adapter;
 public class UniprotEntryAdapterFromFASTA implements Adapter<Entry> {
 	private static final String SCIENTIFIC = "scientific";
 	private static final String NCBI_TAXONOMY = "NCBI Taxonomy";
+	private static final String PRIMARY = "primary";
+
 	private final String accession;
 	private final String sequence;
 	private final String description;
@@ -58,6 +60,7 @@ public class UniprotEntryAdapterFromFASTA implements Adapter<Entry> {
 			final GeneType geneType = new GeneType();
 			final GeneNameType geneNameType = new GeneNameType();
 			geneNameType.setValue(gene);
+			geneNameType.setType(PRIMARY);
 			geneType.getName().add(geneNameType);
 			ret.getGene().add(geneType);
 		}

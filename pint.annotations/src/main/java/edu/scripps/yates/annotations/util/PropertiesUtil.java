@@ -11,6 +11,7 @@ public class PropertiesUtil {
 	public static final String MINIMUM_LENGHT_PROP = "minimum.length.text.comparison";
 	public static final String UNIPROT_RELEASES_NOTES_PROP = "uniprot.releasenotes.url";
 	public static final String UNIPROT_EBI_SERVER_PROP = "uniprot.ebi.server.url";
+	public static final String UNIPROT_EBI_PROTEINS_REST_PATH = "uniprot.ebi.rest.proteins.path";
 	public static final String UNIPROT_SERVER_PROP = "uniprot.server.url";
 
 	public static final String OMIM_PROPERTIES_FILE = "omim.properties";
@@ -39,7 +40,7 @@ public class PropertiesUtil {
 	}
 
 	private void loadProperties(String propertyFileName) {
-		ClassLoader cl = PropertiesUtil.class.getClassLoader();
+		final ClassLoader cl = PropertiesUtil.class.getClassLoader();
 		InputStream is;
 
 		is = cl.getResourceAsStream(propertyFileName);
@@ -51,7 +52,7 @@ public class PropertiesUtil {
 		try {
 			prop.load(is);
 			log.debug("Properties file '" + propertyFileName + "'loaded correctly");
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}
@@ -68,7 +69,7 @@ public class PropertiesUtil {
 				log.debug("Returning " + property);
 				return property;
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		return null;
