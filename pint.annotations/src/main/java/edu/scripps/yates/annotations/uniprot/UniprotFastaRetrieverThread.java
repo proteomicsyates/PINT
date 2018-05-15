@@ -61,12 +61,13 @@ public class UniprotFastaRetrieverThread extends Thread {
 				iterator.register(e);
 			} finally {
 				count++;
-				if (count % LOG_SIZE_CHUNK == 0) {
-					log.info(ret.size() + " protein sequences retrieved in thread " + Thread.currentThread().getId());
+				if (count > 1 && count % LOG_SIZE_CHUNK == 0) {
+					log.debug(ret.size() + " protein sequences retrieved in thread " + Thread.currentThread().getId());
 				}
 			}
 		}
-		log.info(
-				"Finished. " + ret.size() + " protein sequences retrieved in thread " + Thread.currentThread().getId());
+		if (ret.size() > 1) {
+			log.debug(ret.size() + " protein sequences retrieved in thread " + Thread.currentThread().getId());
+		}
 	}
 }
