@@ -74,7 +74,7 @@ public class UniprotEntryRetrieverThread extends Thread {
 		if (httpClient != null) {
 			this.httpClient = httpClient;
 		} else {
-			this.httpClient = ThreadSafeHttpClient.createHttpClient();
+			this.httpClient = ThreadSafeHttpClient.createNewHttpClient();
 		}
 		try {
 			if (jaxbContext == null) {

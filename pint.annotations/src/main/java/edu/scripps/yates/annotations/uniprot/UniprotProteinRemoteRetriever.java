@@ -163,7 +163,7 @@ public class UniprotProteinRemoteRetriever {
 				Schedule.GUIDED);
 		final Reducible<Map<String, Entry>> reducibleEntryMap = new Reducible<>();
 		final List<UniprotEntryRetrieverThread> runners = new ArrayList<>();
-		final CloseableHttpClient httpClient = ThreadSafeHttpClient.createHttpClient();
+		final CloseableHttpClient httpClient = ThreadSafeHttpClient.createNewHttpClient();
 		for (int numCore = 0; numCore < threadCount; numCore++) {
 			// take current DB session
 			final UniprotEntryRetrieverThread runner = new UniprotEntryRetrieverThread(numCore + 1, iterator,
@@ -183,6 +183,8 @@ public class UniprotProteinRemoteRetriever {
 		// close httpClient
 		try {
 			httpClient.close();
+			ThreadSafeHttpClient.closeConnectionManager();
+
 		} catch (final IOException e1) {
 			e1.printStackTrace();
 			log.warn("Error closing HTTP client");

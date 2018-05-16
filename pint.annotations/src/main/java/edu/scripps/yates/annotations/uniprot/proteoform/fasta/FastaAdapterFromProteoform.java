@@ -7,7 +7,7 @@ import edu.scripps.yates.utilities.pattern.Adapter;
 
 public class FastaAdapterFromProteoform implements Adapter<Fasta> {
 
-	private Proteoform proteoform;
+	private final Proteoform proteoform;
 
 	public FastaAdapterFromProteoform(Proteoform proteoform) {
 		this.proteoform = proteoform;
@@ -15,14 +15,14 @@ public class FastaAdapterFromProteoform implements Adapter<Fasta> {
 
 	@Override
 	public Fasta adapt() {
-		String defline = ">sp|" + proteoform.getId() + "| " + proteoform.getDescription();
+		String defline = ">sp|" + proteoform.getId() + "|" + proteoform.getName() + " " + proteoform.getDescription();
 		if (proteoform.getGene() != null) {
 			defline += " GN=" + proteoform.getGene();
 		}
 		if (proteoform.getTaxonomy() != null) {
 			defline += " OS=" + proteoform.getTaxonomy();
 		}
-		Fasta fasta = new FastaImpl(defline, proteoform.getSeq());
+		final Fasta fasta = new FastaImpl(defline, proteoform.getSeq());
 		return fasta;
 	}
 
