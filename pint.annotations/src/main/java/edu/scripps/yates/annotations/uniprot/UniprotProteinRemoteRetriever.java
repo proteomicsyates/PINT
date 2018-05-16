@@ -155,7 +155,7 @@ public class UniprotProteinRemoteRetriever {
 		if (accessions == null || accessions.isEmpty()) {
 			return Collections.emptyMap();
 		}
-		final int threadCount = Math.min(SystemCoreManager.getAvailableNumSystemCores(8), accessions.size());
+		final int threadCount = Math.min(SystemCoreManager.getAvailableNumSystemCores(), accessions.size());
 		// threadCount = 2;
 		log.info("getting Uniprot entries of " + accessions.size() + " proteins in parallel using " + threadCount
 				+ " threads...");
