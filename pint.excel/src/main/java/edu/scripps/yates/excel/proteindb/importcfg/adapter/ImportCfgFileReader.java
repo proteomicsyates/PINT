@@ -738,7 +738,7 @@ public class ImportCfgFileReader {
 
 	}
 
-	private void createRatios(RatiosType ratiosCfg, Project project) {
+	private void createRatios(RatiosType ratiosCfg, Project project) throws IOException {
 		if (ratiosCfg != null) {
 			if (ratiosCfg.getProteinAmountRatios() != null) {
 				createProteinRatios(ratiosCfg.getProteinAmountRatios(), project);
@@ -752,7 +752,7 @@ public class ImportCfgFileReader {
 		}
 	}
 
-	private void createPSMRatios(PsmRatiosType psmAmountRatios, Project project) {
+	private void createPSMRatios(PsmRatiosType psmAmountRatios, Project project) throws IOException {
 		if (psmAmountRatios != null) {
 			if (psmAmountRatios.getExcelRatio() != null && !psmAmountRatios.getExcelRatio().isEmpty()) {
 				createPSMRatiosFromExcel(psmAmountRatios.getExcelRatio(), project);
@@ -763,7 +763,7 @@ public class ImportCfgFileReader {
 		}
 	}
 
-	private void createPeptideRatios(PeptideRatiosType peptideAmountRatios, Project project) {
+	private void createPeptideRatios(PeptideRatiosType peptideAmountRatios, Project project) throws IOException {
 		if (peptideAmountRatios != null) {
 			if (peptideAmountRatios.getExcelRatio() != null && !peptideAmountRatios.getExcelRatio().isEmpty()) {
 				createPeptideRatiosFromExcel(peptideAmountRatios.getExcelRatio(), project);
@@ -782,8 +782,9 @@ public class ImportCfgFileReader {
 	 * the PSMs have to be assigned to Peptides here
 	 *
 	 * @param remoteFileRatiosCfg
+	 * @throws IOException
 	 */
-	private void createPeptideRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) {
+	private void createPeptideRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) throws IOException {
 		if (remoteFileRatiosCfg != null) {
 			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
@@ -1062,7 +1063,7 @@ public class ImportCfgFileReader {
 
 	}
 
-	private void createPSMRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) {
+	private void createPSMRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) throws IOException {
 		if (remoteFileRatiosCfg != null) {
 			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
@@ -1348,7 +1349,7 @@ public class ImportCfgFileReader {
 		return ret;
 	}
 
-	private void createProteinRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) {
+	private void createProteinRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) throws IOException {
 		if (remoteFileRatiosCfg != null) {
 			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
@@ -1690,7 +1691,7 @@ public class ImportCfgFileReader {
 		return ret.get(0);
 	}
 
-	private void createProteinRatios(ProteinRatiosType proteinAmountRatios, Project project) {
+	private void createProteinRatios(ProteinRatiosType proteinAmountRatios, Project project) throws IOException {
 		if (proteinAmountRatios != null && proteinAmountRatios.getExcelRatio() != null
 				&& !proteinAmountRatios.getExcelRatio().isEmpty()) {
 			createProteinRatiosFromExcel(proteinAmountRatios.getExcelRatio(), project);

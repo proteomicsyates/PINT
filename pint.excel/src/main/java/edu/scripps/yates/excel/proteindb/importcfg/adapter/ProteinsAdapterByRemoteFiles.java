@@ -68,9 +68,9 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 		Map<String, Protein> retMap = null;
 
 		final List<FileReferenceType> fileRefs = remoteInfoCfg.getFileRef();
-		Set<String> fileRefSet = new THashSet<String>();
+		final Set<String> fileRefSet = new THashSet<String>();
 		DBIndexInterface fastaDBIndex = null;
-		for (FileReferenceType fileReference : fileRefs) {
+		for (final FileReferenceType fileReference : fileRefs) {
 			// try to get it as a FASTA file.
 			if (fastaDBIndex == null)
 				fastaDBIndex = remoteFileReader.getFastaDBIndex(fileReference.getFileRef());
@@ -83,7 +83,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 
 			retMap = createProteinsFromRemoteFiles(fileRefSet, fastaDBIndex);
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 
@@ -92,10 +92,10 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 
 	private Map<String, Protein> createProteinsFromRemoteFiles(Set<String> fileRefSet, DBIndexInterface fastaDBIndex)
 			throws IOException {
-		Map<String, Protein> retMap = new THashMap<String, Protein>();
+		final Map<String, Protein> retMap = new THashMap<String, Protein>();
 		String fileRefString = "";
 
-		for (String fileReference : fileRefSet) {
+		for (final String fileReference : fileRefSet) {
 			if (!"".equals(fileRefString)) {
 				fileRefString += ",";
 			}
@@ -146,7 +146,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 		if (dtaSelectFilterParser != null) {
 			final Collection<DTASelectProtein> dtaSelectProteins = dtaSelectFilterParser.getDTASelectProteins()
 					.values();
-			for (DTASelectProtein dtaSelectProtein : dtaSelectProteins) {
+			for (final DTASelectProtein dtaSelectProtein : dtaSelectProteins) {
 				// change on Sept 20, 2017
 				// because getMSRunID in dtaselectpsms is different than the
 				// msrun.getid, and so, they were not added.
@@ -164,7 +164,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 				// look in the static model storage first
 
 				if (StaticProteomicsModelStorage.containsProtein(msrun.getRunId(), condition.getName(), accession)) {
-					Protein proteinFromStaticStorage = StaticProteomicsModelStorage
+					final Protein proteinFromStaticStorage = StaticProteomicsModelStorage
 							.getProtein(msrun.getRunId(), condition.getName(), accession).iterator().next();
 					ImportCfgUtil.mergeProteins(proteinFromStaticStorage, protein);
 					protein = proteinFromStaticStorage;
@@ -186,7 +186,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 				protein.addCondition(condition);
 				// set condition to amounts
 				if (protein.getAmounts() != null) {
-					for (Amount amount : protein.getAmounts()) {
+					for (final Amount amount : protein.getAmounts()) {
 						if (amount instanceof AmountEx) {
 							((AmountEx) amount).setCondition(condition);
 						} else {
@@ -198,14 +198,14 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 				retMap.put(protein.getAccession(), protein);
 				final Set<PSM> psMs = protein.getPSMs();
 				if (psMs != null) {
-					for (PSM psm : psMs) {
+					for (final PSM psm : psMs) {
 						StaticProteomicsModelStorage.addPSM(psm, msrun.getRunId(), condition.getName());
 						psm.addCondition(condition);
 					}
 				}
 				final Set<Peptide> peptides = protein.getPeptides();
 				if (peptides != null) {
-					for (Peptide peptide : peptides) {
+					for (final Peptide peptide : peptides) {
 						StaticProteomicsModelStorage.addPeptide(peptide, msrun.getRunId(), condition.getName());
 						peptide.addCondition(condition);
 					}
@@ -213,7 +213,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 			}
 		} else if (quantParser != null) {
 			final Map<String, QuantifiedProteinInterface> proteinMap = quantParser.getProteinMap();
-			for (QuantifiedProteinInterface quantProtein : proteinMap.values()) {
+			for (final QuantifiedProteinInterface quantProtein : proteinMap.values()) {
 				Protein protein = new ProteinImplFromQuantifiedProtein(quantProtein, msrun, condition);
 				if (StaticProteomicsModelStorage.containsProtein(msrun.getRunId(), condition.getName(),
 						protein.getAccession())) {
@@ -225,14 +225,14 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 				retMap.put(protein.getAccession(), protein);
 				final Set<PSM> psMs = protein.getPSMs();
 				if (psMs != null) {
-					for (PSM psm : psMs) {
+					for (final PSM psm : psMs) {
 						StaticProteomicsModelStorage.addPSM(psm, msrun, condition.getName());
 						psm.addCondition(condition);
 					}
 				}
 				final Set<Peptide> peptides = protein.getPeptides();
 				if (peptides != null) {
-					for (Peptide peptide : peptides) {
+					for (final Peptide peptide : peptides) {
 						StaticProteomicsModelStorage.addPeptide(peptide, msrun, condition.getName());
 						peptide.addCondition(condition);
 					}
@@ -256,30 +256,32 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 		return organismEx;
 	}
 
-	private void loadUniprotAnnotations(DTASelectParser dtaSelectFilterParser, QuantParser quantParser) {
-		Set<String> accessions = getUniprotAccs(dtaSelectFilterParser, quantParser);
+	private void loadUniprotAnnotations(DTASelectParser dtaSelectFilterParser, QuantParser quantParser)
+			throws IOException {
+		final Set<String> accessions = getUniprotAccs(dtaSelectFilterParser, quantParser);
 		log.info("Getting annotations from " + accessions.size() + " proteins");
-		UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
+		final UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
 				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 				UniprotProteinRetrievalSettings.getInstance().isUseIndex());
 		upr.getAnnotatedProteins(accessions);
 	}
 
-	private Set<String> getUniprotAccs(DTASelectParser dtaSelectFilterParser, QuantParser quantParser) {
-		Set<String> accessions = new THashSet<String>();
+	private Set<String> getUniprotAccs(DTASelectParser dtaSelectFilterParser, QuantParser quantParser)
+			throws IOException {
+		final Set<String> accessions = new THashSet<String>();
 		if (dtaSelectFilterParser != null) {
 			try {
 				final Set<String> locuses = dtaSelectFilterParser.getDTASelectProteins().keySet();
-				for (String locus : locuses) {
+				for (final String locus : locuses) {
 
 					final Pair<String, String> acc = FastaParser.getACC(locus);
-					Set<String> uniProtAccs = new THashSet<String>();
+					final Set<String> uniProtAccs = new THashSet<String>();
 					if (acc.getSecondElement().equals("UNIPROT")) {
 						uniProtAccs.add(acc.getFirstelement());
 					} else if (acc.getSecondElement().equals("IPI")) {
 						final List<UniprotEntry> map2Uniprot = IPI2UniprotACCMap.getInstance()
 								.map2Uniprot(acc.getFirstelement());
-						for (UniprotEntry uniprotEntry : map2Uniprot) {
+						for (final UniprotEntry uniprotEntry : map2Uniprot) {
 							uniProtAccs.add(uniprotEntry.getAcc());
 						}
 					}
@@ -287,13 +289,13 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 						accessions.addAll(uniProtAccs);
 					}
 				}
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 			}
 		}
 		if (quantParser != null) {
 			final Set<String> locuses = quantParser.getProteinMap().keySet();
-			for (String locus : locuses) {
+			for (final String locus : locuses) {
 				final String uniProtACC = FastaParser.getUniProtACC(locus);
 				if (uniProtACC != null && FastaParser.isUniProtACC(uniProtACC))
 					accessions.add(uniProtACC);
