@@ -128,11 +128,7 @@ public class UniprotEntryRetrieverThread extends Thread {
 			}
 
 			final URI uri = new URIBuilder().setScheme("http").setHost(UNIPROT_EBI_SERVER)
-					// .setPath(UNIPROT_EBI_PROTEINS_REST_PATH).setParameter("size",
-					// String.valueOf(-1))
-					// .setParameter("accession",
-					// accListString.toString()).build();
-					.setPath("Tools/dbfetch/dbfetch").setParameter("db", "uniprotkb")
+					.setPath("/Tools/dbfetch/dbfetch").setParameter("db", "uniprotkb")
 					.setParameter("format", "uniprotxml").setParameter("id", accListString.toString()).build();
 
 			if (accs.size() > 1) {
