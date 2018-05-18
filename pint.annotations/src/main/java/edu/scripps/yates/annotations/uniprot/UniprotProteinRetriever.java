@@ -37,6 +37,10 @@ public class UniprotProteinRetriever {
 		this.uniprotVersion = uniprotVersion;
 	}
 
+	public void setCacheEnabled(boolean enableCache) {
+		this.uniprotLocalRetriever.setCacheEnabled(enableCache);
+	}
+
 	public Set<String> getUniprotVersionsForProjects(Map<String, Date> uploadDatesByProjectTags) {
 		return uniprotLocalRetriever.getUniprotVersionsForProjects(uploadDatesByProjectTags);
 	}
