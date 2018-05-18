@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +30,7 @@ import edu.scripps.yates.utilities.index.FileIndex;
 import edu.scripps.yates.utilities.index.TextFileIndex;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class UniprotXmlIndex implements FileIndex<Entry> {
 	private static final Logger log = Logger.getLogger(TextFileIndex.class);
@@ -190,7 +190,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		try {
 			// load index file
 			loadIndexFile();
-			final Set<Pair<Long, Long>> setofpairs = new HashSet<Pair<Long, Long>>();
+			final Set<Pair<Long, Long>> setofpairs = new THashSet<Pair<Long, Long>>();
 			for (final String key : keys) {
 				if (indexMap.containsKey(key)) {
 					final Pair<Long, Long> pair = indexMap.get(key);
@@ -233,7 +233,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		try {
 			// load index file
 			loadIndexFile();
-			final Set<Pair<Long, Long>> setofpairs = new HashSet<Pair<Long, Long>>();
+			final Set<Pair<Long, Long>> setofpairs = new THashSet<Pair<Long, Long>>();
 			for (final String key : keys) {
 				if (indexMap.containsKey(key)) {
 					final Pair<Long, Long> pair = indexMap.get(key);
