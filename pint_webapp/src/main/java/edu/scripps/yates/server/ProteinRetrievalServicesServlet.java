@@ -752,10 +752,11 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				ret.add(latestVersion);
 			}
 			Map<String, Date> uploadDatesByProjectTags = RemoteServicesTasks.getUploadDatesFromProjects(projectTags);
-			Set<String> uniprotversions = new UniprotProteinRetriever(null,
+			UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
 					UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
-					UniprotProteinRetrievalSettings.getInstance().isUseIndex())
-							.getUniprotVersionsForProjects(uploadDatesByProjectTags);
+					UniprotProteinRetrievalSettings.getInstance().isUseIndex(), true, true);
+			upr.setCacheEnabled(false);
+			Set<String> uniprotversions = upr.getUniprotVersionsForProjects(uploadDatesByProjectTags);
 			ret.addAll(uniprotversions);
 			return ret;
 		} catch (Exception e) {

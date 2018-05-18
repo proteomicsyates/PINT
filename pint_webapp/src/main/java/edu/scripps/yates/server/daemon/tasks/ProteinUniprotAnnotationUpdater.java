@@ -91,8 +91,9 @@ public class ProteinUniprotAnnotationUpdater extends PintServerDaemonTask {
 				// fixGeneNames();
 			}
 			UniprotProteinRetriever uplr = new UniprotProteinRetriever(null, urs.getUniprotReleasesFolder(),
-					urs.isUseIndex());
-
+					urs.isUseIndex(), true, true);
+			// disable cache to save memory
+			uplr.setCacheEnabled(false);
 			final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = uplr
 					.getAnnotatedProteins(accessions);
 			log.info(annotatedProteins.size() + " annotated proteins for current Uniprot version");

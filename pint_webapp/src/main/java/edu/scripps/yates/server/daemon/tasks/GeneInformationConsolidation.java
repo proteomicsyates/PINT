@@ -38,6 +38,7 @@ public class GeneInformationConsolidation extends PintServerDaemonTask {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Thread#run()
 	 */
 	@Override
@@ -55,7 +56,8 @@ public class GeneInformationConsolidation extends PintServerDaemonTask {
 						final ProteinAccession primaryAccession = PersistenceUtils.getPrimaryAccession(proteinFromDB);
 						if (primaryAccession.getAccessionType().equalsIgnoreCase(AccessionType.UNIPROT.name())) {
 							UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
-									urs.getUniprotReleasesFolder(), urs.isUseIndex());
+									urs.getUniprotReleasesFolder(), urs.isUseIndex(), true, true);
+							upr.setCacheEnabled(false);
 							final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = upr
 									.getAnnotatedProtein(primaryAccession.getAccession());
 							if (annotatedProteins != null) {

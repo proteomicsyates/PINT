@@ -62,7 +62,7 @@ public class PintServerDaemon implements ServletContextListener {
 
 		boolean isTestServer = ServerUtil.isTestServer();
 		log.info("Is a test server: " + isTestServer);
-		if (SharedConstants.DAEMON_TASKS_ENABLED && !isTestServer) {
+		if (SharedConstants.DAEMON_TASKS_ENABLED) {// && !isTestServer) {
 			// /////////////////////////////////////////////////
 			// REGISTER MAINTENANCE TASKS HERE
 
