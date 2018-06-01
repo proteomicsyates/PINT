@@ -182,7 +182,8 @@ public class RemoteServicesTasks {
 		final int initialProteinNumber = proteinBeans.size();
 		final UniprotProteinRetriever uplr = new UniprotProteinRetriever(uniprotVersion,
 				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
-				UniprotProteinRetrievalSettings.getInstance().isUseIndex());
+				UniprotProteinRetrievalSettings.getInstance().isUseIndex(), true, true);
+		uplr.setCacheEnabled(false);
 		log.info("Getting annotations from " + proteinBeans.size() + " protein beans using uniprot version: "
 				+ uniprotVersion);
 		final Collection<String> accessions = SharedDataUtils.getPrimaryAccessions(proteinBeans,
