@@ -9,7 +9,7 @@ import edu.scripps.yates.dtaselectparser.util.DTASelectModification;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import gnu.trove.set.hash.THashSet;
-import uk.ac.ebi.pridemod.ModReader;
+import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import uk.ac.ebi.pridemod.PrideModController;
 import uk.ac.ebi.pridemod.slimmod.model.SlimModCollection;
 import uk.ac.ebi.pridemod.slimmod.model.SlimModification;
@@ -17,31 +17,33 @@ import uk.ac.ebi.pridemod.slimmod.model.SlimModification;
 public class PTMImplFromDTASelect implements PTM {
 	private final DTASelectModification dtaSelectModification;
 	private final SlimModification slimModification;
-	private final uk.ac.ebi.pridemod.model.PTM prideModPTM;
-	private ModReader modReader;
+	private final uk.ac.ebi.pride.utilities.pridemod.model.PTM prideModPTM;
+	private final ModReader modReader;
 	private static SlimModCollection preferredModifications;
 	private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PTMImplFromDTASelect.class);
+	private static final String MOD0 = "MOD:00000";
 	private static Set<String> errorMessages = new THashSet<String>();
 
 	public PTMImplFromDTASelect(DTASelectModification dtaSelectModification) {
 		this.dtaSelectModification = dtaSelectModification;
 		if (preferredModifications == null) {
-			URL url = getClass().getClassLoader().getResource("modification_mappings_dtaSelect.xml");
+			final URL url = getClass().getClassLoader().getResource("modification_mappings_dtaSelect.xml");
 			if (url != null) {
 				preferredModifications = PrideModController.parseSlimModCollection(url);
 			} else {
 				throw new IllegalStateException("Could not find preferred modification file");
 			}
 		}
-		if (modReader == null) {
-			modReader = ModReader.getInstance();
-		}
-		double delta = dtaSelectModification.getModificationShift();
-		double precision = 0.01;
+
+		modReader = ModReader.getInstance();
+
+		final double delta = dtaSelectModification.getModificationShift();
+		final double precision = 0.01;
 
 		// first try with the newest pride mod library:
 
-		final List<uk.ac.ebi.pridemod.model.PTM> ptmListByMonoDeltaMass = modReader.getPTMListByMonoDeltaMass(delta);
+		final List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptmListByMonoDeltaMass = modReader
+				.getPTMListByMonoDeltaMass(delta);
 		if (ptmListByMonoDeltaMass != null && !ptmListByMonoDeltaMass.isEmpty()) {
 			prideModPTM = ptmListByMonoDeltaMass.get(0);
 			slimModification = null;
@@ -50,7 +52,7 @@ public class PTMImplFromDTASelect implements PTM {
 			// try with the old pride mod library:
 
 			// map by delta
-			SlimModCollection filteredMods = preferredModifications.getbyDelta(delta, precision);
+			final SlimModCollection filteredMods = preferredModifications.getbyDelta(delta, precision);
 			if (!filteredMods.isEmpty()) {
 				slimModification = filteredMods.get(0);
 			} else {
@@ -88,14 +90,18 @@ public class PTMImplFromDTASelect implements PTM {
 			return prideModPTM.getAccession();
 		}
 		if (slimModification != null) {
-			return slimModification.getIdPsiMod();
+			final String idPsiMod = slimModification.getIdPsiMod();
+			if (MOD0.equals(idPsiMod)) {
+				return null;
+			}
+			return idPsiMod;
 		}
 		return null;
 	}
 
 	@Override
 	public List<PTMSite> getPTMSites() {
-		List<PTMSite> ret = new ArrayList<PTMSite>();
+		final List<PTMSite> ret = new ArrayList<PTMSite>();
 		ret.add(new PTMSiteImplFromDTASelect(dtaSelectModification));
 		return ret;
 	}
