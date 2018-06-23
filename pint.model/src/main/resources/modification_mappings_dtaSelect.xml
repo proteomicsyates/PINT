@@ -1,0 +1,833 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pride_mod>
+	<pride_modifications>
+		<pride_modification title="Acetylation" id="1" diff_mono="42.010565" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="1"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00394" title="acetylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00050" title="N-acetyl-L-alanine" general_modification="0" specific_modification="1" origin="A" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00065" title="S-acetyl-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00052" title="N-acetyl-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00051" title="N-acetyl-L-aspartic acid" general_modification="0" specific_modification="1" origin="D" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00053" title="N-acetyl-L-glutamic acid" general_modification="0" specific_modification="1" origin="E" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00784" title="N-acetyl-L-phenylalanine" general_modification="0" specific_modification="1" origin="F" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00055" title="N-acetylglycine" general_modification="0" specific_modification="1" origin="G" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00781" title="N2-acetyl-L-histidine" general_modification="0" specific_modification="1" origin="H" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00056" title="N-acetyl-L-isoleucine" general_modification="0" specific_modification="1" origin="I" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00057" title="N2-acetyl-L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00064" title="N6-acetyl-L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00782" title="N-acetyl-L-leucine" general_modification="0" specific_modification="1" origin="L" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00058" title="N-acetyl-L-methionine" general_modification="0" specific_modification="1" origin="M" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00780" title="N-acetyl-L-asparagine" general_modification="0" specific_modification="1" origin="N" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00059" title="N-acetyl-L-proline" general_modification="0" specific_modification="1" origin="P" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00054" title="N-acetyl-L-glutamine" general_modification="0" specific_modification="1" origin="Q" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00359" title="N2-acetyl-L-arginine" general_modification="0" specific_modification="1" origin="R" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00060" title="N-acetyl-L-serine" general_modification="0" specific_modification="1" origin="S" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00369" title="O-acetyl-L-serine" general_modification="0" specific_modification="1" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01171" title="O-acetyl-L-threonine" general_modification="0" specific_modification="1" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00061" title="N-acetyl-L-threonine" general_modification="0" specific_modification="1" origin="T" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00063" title="N-acetyl-L-valine" general_modification="0" specific_modification="1" origin="V" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00785" title="N2-acetyl-L-tryptophan" general_modification="0" specific_modification="1" origin="W" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00062" title="N-acetyl-L-tyrosine" general_modification="0" specific_modification="1" origin="Y" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00646" title="acetylated L-cysteine" general_modification="0" specific_modification="0" origin="C" term_spec="" obsolete="0"/>
+				<psi_modification id="MOD:00450" title="acetate labeling reagent light form (K)" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="1"/>
+				<psi_modification id="MOD:00723" title="N-acetylated L-lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01186" title="acetylated L-threonine" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00408" title="N-acetylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01458" title="alpha-amino acetylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00645" title="S-acetylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00644" title="O-acetylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Amidation" id="2" diff_mono="-0.984016" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="2"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00674" title="amidated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00090" title="L-alanine amide" general_modification="0" specific_modification="1" origin="A" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00094" title="L-cysteine amide" general_modification="0" specific_modification="1" origin="C" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00093" title="L-aspartic acid 1-amide" general_modification="0" specific_modification="1" origin="D" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:01185" title="4-amidated L-aspartic acid" general_modification="0" specific_modification="1" origin="D" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00096" title="L-glutamic acid 1-amide" general_modification="0" specific_modification="1" origin="E" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00103" title="L-phenylalanine amide" general_modification="0" specific_modification="1" origin="F" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00097" title="glycine amide" general_modification="0" specific_modification="1" origin="G" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00098" title="L-histidine amide" general_modification="0" specific_modification="1" origin="H" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00099" title="L-isoleucine amide" general_modification="0" specific_modification="1" origin="I" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00101" title="L-lysine amide" general_modification="0" specific_modification="1" origin="K" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00100" title="L-leucine amide" general_modification="0" specific_modification="1" origin="L" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00102" title="L-methionine amide" general_modification="0" specific_modification="1" origin="M" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00092" title="L-asparagine amide" general_modification="0" specific_modification="1" origin="N" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00104" title="L-proline amide" general_modification="0" specific_modification="1" origin="P" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00095" title="L-glutamine amide" general_modification="0" specific_modification="1" origin="Q" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00091" title="L-arginine amide" general_modification="0" specific_modification="1" origin="R" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00105" title="L-serine amide" general_modification="0" specific_modification="1" origin="S" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00106" title="L-threonine amide" general_modification="0" specific_modification="1" origin="T" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00109" title="L-valine amide" general_modification="0" specific_modification="1" origin="V" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00107" title="L-tryptophan amide" general_modification="0" specific_modification="1" origin="W" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00108" title="L-tyrosine amide" general_modification="0" specific_modification="1" origin="Y" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00883" title="C1-amidated residue" general_modification="0" specific_modification="0" origin="X" term_spec="C-term" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Biotinylation" id="3" diff_mono="226.077599" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="3"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:01885" title="biotinylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00126" title="N6-biotinyl-L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Phosphorylation" id="4" diff_mono="79.966331" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="21"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00696" title="phosphorylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00043" title="S-phospho-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00042" title="L-aspartic 4-phosphoric anhydride" general_modification="0" specific_modification="1" origin="D" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00890" title="phosphorylated L-histidine" general_modification="0" specific_modification="1" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00227" title="omega-N-phospho-L-arginine" general_modification="0" specific_modification="1" origin="R" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00046" title="O-phospho-L-serine" general_modification="0" specific_modification="1" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00047" title="O-phospho-L-threonine" general_modification="0" specific_modification="1" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00048" title="O4'-phospho-L-tyrosine" general_modification="0" specific_modification="1" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00044" title="1'-phospho-L-histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00045" title="3'-phospho-L-histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01451" title="O-phospho-L-serine arising from O-phosphopantetheine-L-serine after neutral loss of pantetheine" general_modification="0" specific_modification="0" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01455" title="O-phosphorylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00415" title="phosphorylation without neutral loss" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="1"/>
+				<psi_modification id="MOD:01456" title="N-phosphorylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00328" title="O4'-(phospho-3'-DNA)-L-tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00254" title="O4'-(phospho-5'-RNA)-L-tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00259" title="O4'-(phospho-5'-DNA)-L-tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>		
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Carbamidomethyl" id="5" diff_mono="57.021464" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="4"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00397" title="iodoacetamide derivatized residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01060" title="S-carboxamidomethyl-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01215" title="iodoacetamide derivatized aspartic acid" general_modification="0" specific_modification="1" origin="D" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01216" title="iodoacetamide derivatized glutamic acid" general_modification="0" specific_modification="1" origin="E" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01213" title="iodoacetamide derivatized histidine" general_modification="0" specific_modification="1" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01212" title="iodoacetamide N6-derivatized lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01090" title="iodoacetamide derivatized amino-terminal residue" general_modification="0" specific_modification="1" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01214" title="iodoacetamide - site C" general_modification="0" specific_modification="0" origin="C" term_spec="none" obsolete="1"/>
+				<psi_modification id="MOD:00206" title="L-isoglutamyl-polyglycine" general_modification="0" specific_modification="0" origin="E" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Carbamylation" id="6" diff_mono="43.005814" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="5"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00398" title="carbamoylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00337" title="S-carbamoyl-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01678" title="N6-carbamoyl-L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01679" title="alpha-aminocarbamoylated residue" general_modification="0" specific_modification="1" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00348" title="N-carbamoyl-L-alanine" general_modification="0" specific_modification="0" origin="A" term_spec="N-term" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Carboxymethyl" id="7" diff_mono="58.005479" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="6"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00399" title="iodoacetic acid derivatized residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01061" title="S-carboxymethyl-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01094" title="N6-carboxymethyl-L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01328" title="iodoacetic acid - site W" general_modification="0" specific_modification="1" origin="W" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01084" title="iodoacetic acid derivatized amino-terminal residue" general_modification="0" specific_modification="1" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01829" title="S-carboxymethyl-L-cysteine sulfoxide" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01329" title="iodoacetic acid - site C" general_modification="0" specific_modification="0" origin="C" term_spec="none" obsolete="1"/>
+				<psi_modification id="MOD:01330" title="iodoacetic acid -site K" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="1"/>
+				<psi_modification id="MOD:00619" title="hydroxylethanone" general_modification="0" specific_modification="0" origin="W" term_spec="none" obsolete="1"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Deamidation" id="8" diff_mono="0.984016" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="7"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00400" title="deamidated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00137" title="L-3-phenyllactic acid" general_modification="0" specific_modification="1" origin="F" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00684" title="deamidated L-asparagine" general_modification="0" specific_modification="1" origin="N" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00685" title="deamidated L-glutamine" general_modification="0" specific_modification="1" origin="Q" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00219" title="L-citrulline" general_modification="0" specific_modification="1" origin="R" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00565" title="deglycosylated asparagine" general_modification="0" specific_modification="0" origin="N" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Homoserine" id="9" diff_mono="-29.992806" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="10"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00403" title="homoserine" general_modification="1" specific_modification="1" origin="M" term_spec="C-term" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Homoserine lactone" id="10" diff_mono="-48.003371" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="11"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00404" title="homoserine lactone" general_modification="1" specific_modification="1" origin="M" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:01204" title="prompt loss of methanethiol from oxidixed methionine" general_modification="0" specific_modification="0" origin="M" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01704" title="dehydrobutyrine (Met)" general_modification="0" specific_modification="0" origin="M" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="NIPCAM(C)" id="11" diff_mono="99.068414" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="17"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00410" title="S-(N-isopropylcarboxamidomethyl)-L-cysteine" general_modification="1" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Dehydratation" id="12" diff_mono="-18.010565" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="23"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00704" title="dehydrated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00420" title="2-pyrrolidone-5-carboxylic acid (Glu)" general_modification="0" specific_modification="1" origin="E" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00307" title="L-aspartimide" general_modification="0" specific_modification="1" origin="N" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00308" title="L-glutamimide" general_modification="0" specific_modification="1" origin="Q" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00189" title="dehydroalanine (Ser)" general_modification="0" specific_modification="1" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00190" title="dehydrobutyrine (Thr)" general_modification="0" specific_modification="1" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00821" title="S-(L-alanyl)-L-cysteine" general_modification="0" specific_modification="0" origin="A_C_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00195" title="L-alanine 5-imidazolinone glycine" general_modification="0" specific_modification="0" origin="A_G_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00825" title="S-(L-phenylalanyl)-L-cysteine" general_modification="0" specific_modification="0" origin="C_F_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:01407" title="L-phenylalanine thiazoline-4-carboxylic acid" general_modification="0" specific_modification="0" origin="C_F_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00211" title="S-(glycyl)-L-cysteine (Cys-Gly)" general_modification="0" specific_modification="0" origin="C_G_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00196" title="L-cysteine 5-imidazolinone glycine" general_modification="0" specific_modification="0" origin="C_G_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00822" title="S-(L-leucyl)-L-cysteine" general_modification="0" specific_modification="0" origin="C_L_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00823" title="S-(L-methionyl)-L-cysteine" general_modification="0" specific_modification="0" origin="C_M_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:01437" title="cyclo[(prolylserin)-O-yl] cysteinate (Cys-Pro-Ser cross-link)" general_modification="0" specific_modification="0" origin="C_P_S_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00244" title="L-cysteine oxazoline-4-carboxylic acid" general_modification="0" specific_modification="0" origin="C_S_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00120" title="meso-lanthionine" general_modification="0" specific_modification="0" origin="C_S_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00119" title="L-lanthionine (Cys-Ser)" general_modification="0" specific_modification="0" origin="C_S_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00826" title="S-(L-threonyl)-L-cysteine" general_modification="0" specific_modification="0" origin="C_T_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:01408" title="L-threonine thiazoline-4-carboxylic acid" general_modification="0" specific_modification="0" origin="C_T_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00121" title="3-methyl-L-lanthionine" general_modification="0" specific_modification="0" origin="C_T_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00828" title="S-(L-tryptophanyl)-L-cysteine" general_modification="0" specific_modification="0" origin="C_W_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:01839" title="L-lanthionine" general_modification="0" specific_modification="0" origin="C_X_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01841" title="lanthionine" general_modification="0" specific_modification="0" origin="C_X_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00827" title="S-(L-tyrosyl)-L-cysteine" general_modification="0" specific_modification="0" origin="C_Y_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:01805" title="N-(L-isoaspartyl)-glycine (Asp)" general_modification="0" specific_modification="0" origin="D_G_" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00952" title="(2-aminosuccinimidyl)acetic acid (Asp)" general_modification="0" specific_modification="0" origin="D_G_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00365" title="N-(L-isoglutamyl)-glycine" general_modification="0" specific_modification="0" origin="E_G_" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00953" title="O-(isoglutamyl)serine" general_modification="0" specific_modification="0" origin="E_S_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00829" title="O-(L-phenylalanyl)-L-serine" general_modification="0" specific_modification="0" origin="F_S_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00134" title="N6-glycyl-L-lysine" general_modification="0" specific_modification="0" origin="G_K_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00386" title="L-lysine 5-imidazolinone glycine" general_modification="0" specific_modification="0" origin="G_K_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00385" title="L-asparagine 5-imidazolinone glycine" general_modification="0" specific_modification="0" origin="G_N_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01585" title="O-glycyl-L-serine" general_modification="0" specific_modification="0" origin="G_S_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00192" title="L-serine 5-imidazolinone glycine" general_modification="0" specific_modification="0" origin="G_S_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01586" title="O-glycyl-L-threonine" general_modification="0" specific_modification="0" origin="G_T_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00955" title="alaninohistidine (serine crosslinked to tele or pros nitrogen of histidine)" general_modification="0" specific_modification="0" origin="H_S_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01484" title="N6-(L-isoglutamyl)-L-lysine (Glu)" general_modification="0" specific_modification="0" origin="K_E_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00132" title="L-lysinoalanine (Lys-Ser)" general_modification="0" specific_modification="0" origin="K_S_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00924" title="N6-(L-threonyl)-L-lysine" general_modification="0" specific_modification="0" origin="K_T_" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:01872" title="cyclized N-terminal S-carboxymethyl-L-cysteine" general_modification="0" specific_modification="0" origin="MOD:01061" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01904" title="L-serine 5-methyloxazoline-4-carboxylic acid" general_modification="0" specific_modification="0" origin="S_T_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01470" title="(E)-dehydrobutyrine (Thr)" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01471" title="(Z)-dehydrobutyrine (Thr)" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00416" title="phosphorylation of an hydroxyl amino acid with prompt loss of phosphate" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Propionamide(C)" id="13" diff_mono="71.037114" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="24"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00417" title="S-carboxamidoethyl-L-cysteine" general_modification="1" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01079" title="S-(acetylamino)methyl-L-cysteine" general_modification="0" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Pyro-carbamidomethyl" id="14" diff_mono="39.994915" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="26"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00419" title="(R)-5-oxo-1,4-tetrahydrothiazine-3-carboxylic acid" general_modification="1" specific_modification="1" origin="C" term_spec="N-term" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Oxidation" id="15" diff_mono="15.994915" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="35"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00425" title="monohydroxylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00210" title="L-cysteine sulfenic acid" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00036" title="(2S,3R)-3-hydroxyaspartic acid" general_modification="0" specific_modification="1" origin="D" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01434" title="4-hydroxy-L-glutamic acid" general_modification="0" specific_modification="1" origin="E" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01385" title="3-hydroxy-L-phenylalanine" general_modification="0" specific_modification="1" origin="F" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01180" title="2-hydroxyglycine observational artifact" general_modification="0" specific_modification="1" origin="G" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01415" title="monohydroxylated isoleucine" general_modification="0" specific_modification="1" origin="I" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01047" title="monohydroxylated lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01411" title="monohydroxylated leucine" general_modification="0" specific_modification="1" origin="L" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00719" title="L-methionine sulfoxide" general_modification="0" specific_modification="1" origin="M" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01688" title="monohydroxylated asparagine" general_modification="0" specific_modification="1" origin="N" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01024" title="monohydroxylated proline" general_modification="0" specific_modification="1" origin="P" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00220" title="4-hydroxy-L-arginine" general_modification="0" specific_modification="1" origin="R" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01445" title="L-3,3-dihydroxyoalanine (Ser)" general_modification="0" specific_modification="1" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00756" title="4-hydroxy-D-valine" general_modification="0" specific_modification="1" origin="V" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01622" title="monohydroxylated tryptophan" general_modification="0" specific_modification="1" origin="W" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00155" title="3'-hydroxylation of L-tyrosine to L-3',4'-dihydroxyphenylalanine" general_modification="0" specific_modification="1" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01377" title="(2S,3R,4S)-4-hydroxyisoleucine" general_modification="0" specific_modification="0" origin="I" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00240" title="4-hydroxy-L-lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00037" title="5-hydroxy-L-lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01372" title="(2S)-4-hydroxyleucine" general_modification="0" specific_modification="0" origin="L" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01373" title="(2S,4R)-5-hydroxyleucine" general_modification="0" specific_modification="0" origin="L" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00721" title="L-methionine (S)-sulfoxide" general_modification="0" specific_modification="0" origin="M" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00720" title="L-methionine (R)-sulfoxide" general_modification="0" specific_modification="0" origin="M" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00035" title="(2S,3R)-3-hydroxyasparagine" general_modification="0" specific_modification="0" origin="N" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01401" title="(2S,3S)-3-hydroxyasparagine" general_modification="0" specific_modification="0" origin="N" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00039" title="4-hydroxy-L-proline" general_modification="0" specific_modification="0" origin="P" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00478" title="glutamyl semialdehyde (Pro)" general_modification="0" specific_modification="0" origin="P" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00038" title="3-hydroxy-L-proline" general_modification="0" specific_modification="0" origin="P" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01386" title="3-hydroxy-L-valine" general_modification="0" specific_modification="0" origin="V" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01817" title="oxidation of tryptophan to 2'-oxo-L-tryptophan" general_modification="0" specific_modification="0" origin="W" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01664" title="7'-hydroxy-L-tryptophan" general_modification="0" specific_modification="0" origin="W" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01816" title="2'-hydroxy-L-tryptophan" general_modification="0" specific_modification="0" origin="W" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00327" title="3-hydroxy-L-tryptophan" general_modification="0" specific_modification="0" origin="W" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00412" title="oxidation" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="1"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Deamination" id="16" diff_mono="-17.026549" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="28"/>
+				<unimod_mapping id="385"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:01160" title="deaminated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01022" title="2-piperidinecarboxylic acid" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00040" title="2-pyrrolidone-5-carboxylic acid (Gln)" general_modification="0" specific_modification="1" origin="Q" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00807" title="pyruvic acid (Ser)" general_modification="0" specific_modification="1" origin="S" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00138" title="2-oxobutanoic acid" general_modification="0" specific_modification="1" origin="T" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01618" title="L-alanyl-L-isoaspartyl cyclopeptide" general_modification="0" specific_modification="0" origin="A_N_" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00221" title="N-(L-isoaspartyl)-L-cysteine" general_modification="0" specific_modification="0" origin="C_N_" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00117" title="S-(L-isoglutamyl)-L-cysteine" general_modification="0" specific_modification="0" origin="C_Q_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00135" title="N-(L-isoaspartyl)-glycine (Asn)" general_modification="0" specific_modification="0" origin="G_N_" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01624" title="(2-aminosuccinimidyl)acetic acid (Asn)" general_modification="0" specific_modification="0" origin="G_N_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00299" title="N6-(L-isoaspartyl)-L-lysine" general_modification="0" specific_modification="0" origin="K_N_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00133" title="N6-(L-isoglutamyl)-L-lysine (Gln)" general_modification="0" specific_modification="0" origin="K_Q_" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01871" title="cyclized N-terminal S-carboxamidomethyl-L-cysteine" general_modification="0" specific_modification="0" origin="MOD:01060" term_spec="N-term" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="SMA" id="17" diff_mono="127.063329" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="29"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:01813" title="morpholine-2-acetylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01211" title="N6-(morpholine-2-acetyl)-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00422" title="alpha-amino morpholine-2-acetylated residue" general_modification="0" specific_modification="1" origin="X" term_spec="N-term" obsolete="0"/>
+				<!--
+					← MOD:01607 has been questioned in PSI-MOD Bug-Tracker (3449649) 
+				-->
+				<psi_modification id="MOD:01607" title="5-glutamyl allysine" general_modification="0" specific_modification="0" origin="E" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Cation:Na" id="18" diff_mono="21.981944" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="30"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00423" title="monosodium salt" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01295" title="monosodium L-aspartate" general_modification="0" specific_modification="1" origin="D" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01296" title="monosodium L-glutamate" general_modification="0" specific_modification="1" origin="E" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Pyridylethyl" id="19" diff_mono="105.057849" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="31"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00424" title="S-pyridylethyl-L-cysteine" general_modification="1" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01438" title="S-[2-(pyridin-2-yl)ethyl]-L-cysteine" general_modification="0" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Monomethylation" id="20" diff_mono="14.01565" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="34"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00599" title="monomethylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01063" title="monomethylated phenylalanine" general_modification="0" specific_modification="1" origin="F" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00724" title="N-methylated L-histidine" general_modification="0" specific_modification="1" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00342" title="N-methyl-L-leucine" general_modification="0" specific_modification="1" origin="L" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01689" title="alpha-carboxyl methylated residue" general_modification="0" specific_modification="1" origin="X" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:01417" title="monomethylated proline" general_modification="0" specific_modification="1" origin="P" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01681" title="monomethylated L-aspartic acid" general_modification="0" specific_modification="1" origin="D" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01682" title="monomethylated L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00341" title="N-methyl-L-isoleucine" general_modification="0" specific_modification="1" origin="I" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01387" title="O-methyl-L-threonine" general_modification="0" specific_modification="1" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00079" title="N4-methyl-L-asparagine" general_modification="0" specific_modification="1" origin="N" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00414" title="monomethylated L-arginine" general_modification="0" specific_modification="1" origin="R" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00722" title="monomethylated L-glutamine" general_modification="0" specific_modification="1" origin="Q" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01683" title="monomethylated L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00081" title="L-glutamic acid 5-methyl ester (Glu)" general_modification="0" specific_modification="1" origin="E" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01680" title="alpha-amino monomethylated residue" general_modification="0" specific_modification="1" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01181" title="L-aspartic acid 4-methyl ester" general_modification="0" specific_modification="0" origin="D" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00074" title="N-methyl-L-phenylalanine" general_modification="0" specific_modification="0" origin="F" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00407" title="residue methyl ester" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="1"/>
+				<psi_modification id="MOD:00078" title="omega-N-methyl-L-arginine" general_modification="0" specific_modification="0" origin="R" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00070" title="N-methyl-L-alanine" general_modification="0" specific_modification="0" origin="A" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00277" title="5-methyl-L-arginine" general_modification="0" specific_modification="0" origin="R" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00085" title="N6-methyl-L-lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00082" title="3'-methyl-L-histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00323" title="L-lysine methyl ester" general_modification="0" specific_modification="0" origin="K" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00072" title="N-methylglycine" general_modification="0" specific_modification="0" origin="G" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00310" title="N5-methyl-L-arginine" general_modification="0" specific_modification="0" origin="R" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00830" title="N-methyl-L-proline" general_modification="0" specific_modification="0" origin="P" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00080" title="N5-methyl-L-glutamine" general_modification="0" specific_modification="0" origin="Q" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00322" title="1'-methyl-L-histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01782" title="N-methyl-L-serine" general_modification="0" specific_modification="0" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00239" title="S-methyl-L-cysteine" general_modification="0" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01610" title="L-threonine methyl ester" general_modification="0" specific_modification="0" origin="T" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00278" title="2-methyl-L-glutamine" general_modification="0" specific_modification="0" origin="Q" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00073" title="N-methyl-L-methionine" general_modification="0" specific_modification="0" origin="M" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00343" title="N-methyl-L-tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00114" title="L-cysteine methyl ester" general_modification="0" specific_modification="0" origin="C" term_spec="C-term" obsolete="0"/>
+				<psi_modification id="MOD:00304" title="L-leucine methyl ester" general_modification="0" specific_modification="0" origin="L" term_spec="C-term" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Methylthio" id="21" diff_mono="45.987721" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="39"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:01153" title="methylthiolated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00110" title="L-cysteine methyl disulfide" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00237" title="L-beta-methylthioaspartic acid" general_modification="0" specific_modification="1" origin="D" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00325" title="L-beta-methylthioasparagine" general_modification="0" specific_modification="1" origin="N" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00597" title="methyl methanethiosulfonate" general_modification="0" specific_modification="0" origin="C" term_spec="none" obsolete="1"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Sulfo" id="22" diff_mono="79.956815" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="40"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00695" title="sulfated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00180" title="S-sulfo-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00366" title="O-sulfo-L-serine" general_modification="0" specific_modification="1" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00367" title="O-sulfo-L-threonine" general_modification="0" specific_modification="1" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00181" title="O4'-sulfo-L-tyrosine" general_modification="0" specific_modification="1" origin="Y" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Lipoyl" id="23" diff_mono="188.032957" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="42"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00127" title="N6-lipoyl-L-lysine" general_modification="1" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Farnesylation" id="24" diff_mono="204.187801" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="44"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00437" title="farnesylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00111" title="S-farnesyl-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01590" title="3'-farnesyl-2',3'-dihydro-2',N2-cyclo-L-tryptophan" general_modification="0" specific_modification="1" origin="W" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Myristoylation" id="25" diff_mono="210.198365" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="45"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00438" title="myristoylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00312" title="S-myristoyl-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00068" title="N-myristoylglycine" general_modification="0" specific_modification="1" origin="G" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00087" title="N6-myristoyl-L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00655" title="S-myristoylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00650" title="N-myristoylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Pyridoxal phosphate" id="26" diff_mono="229.014009" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="46"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00128" title="N6-pyridoxal phosphate-L-lysine" general_modification="1" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Palmitoylation" id="27" diff_mono="238.229666" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="47"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00440" title="palmitoylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00069" title="N-palmitoyl-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00115" title="S-palmitoyl-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00344" title="N-palmitoylglycine" general_modification="0" specific_modification="1" origin="G" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00086" title="N6-palmitoyl-L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00089" title="O-palmitoyl-L-serine" general_modification="0" specific_modification="1" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00088" title="O-palmitoyl-L-threonine" general_modification="0" specific_modification="1" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01684" title="palmitoylated-L-cysteine" general_modification="0" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00651" title="N-palmitoylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00653" title="S-palmitoylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01685" title="alpha-amino palmitoylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00652" title="O-palmitoylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Geranyl-geranyl" id="28" diff_mono="272.250401" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="48"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00441" title="geranylgeranylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00113" title="S-geranylgeranyl-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Phosphopantetheine" id="29" diff_mono="340.085794" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="49"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00159" title="O-phosphopantetheine-L-serine" general_modification="1" specific_modification="1" origin="S" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Flavin adenine dinucleotide" id="30" diff_mono="783.141485" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="50"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00697" title="flavin modified residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01146" title="S-(6-FAD)-L-cysteine" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01668" title="O4-(8alpha-FAD)-L-aspartate" general_modification="0" specific_modification="1" origin="D" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00226" title="1'-(8alpha-FAD)-L-histidine" general_modification="0" specific_modification="1" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00154" title="O4'-(8alpha-FAD)-L-tyrosine" general_modification="0" specific_modification="1" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00152" title="S-(8alpha-FAD)-L-cysteine" general_modification="0" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00153" title="3'-(8alpha-FAD)-L-histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>			
+			</psi_modifications>					
+		</pride_modification>
+		<pride_modification title="Guanidination" id="31" diff_mono="42.021798" biological_significance="0">
+				<!--
+				Check what happens with the id=31 (← These terms have been questioned in PSI-MOD Bug-Tracker (3449657) )
+				-->
+			<unimod_mappings>
+				<unimod_mapping id="52"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id='MOD:00445' title='L-homoarginine' general_modification='1' specific_modification='1' origin='K' term_spec='none' obsolete='0'/>
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Formylation" id="32" diff_mono="27.994915" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="122"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00493" title="formylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01807" title="N-formyl-L-glutamic acid" general_modification="0" specific_modification="1" origin="E" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00066" title="N-formylglycine" general_modification="0" specific_modification="1" origin="G" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00216" title="N6-formyl-L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00482" title="N-formyl-L-methionine (Met)" general_modification="0" specific_modification="1" origin="M" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00389" title="N-formyl-L-proline" general_modification="0" specific_modification="1" origin="P" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01222" title="O-formyl-L-serine" general_modification="0" specific_modification="1" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01221" title="O-formyl-L-threonine" general_modification="0" specific_modification="1" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01106" title="N-formyl tryptophan" general_modification="0" specific_modification="1" origin="W" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00409" title="N-formylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01483" title="O-formylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>				
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="ICAT-D:2H(8)" id="33" diff_mono="450.275205" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="12"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00405" title="Applied Biosystems original ICAT(TM) d8 modified cysteine" general_modification="1" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>	
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="ICAT-D" id="34" diff_mono="442.224991" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="13"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00406" title="Applied Biosystems original ICAT(TM) d0 modified cysteine" general_modification="1" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>	
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="ICAT-C" id="35" diff_mono="227.126991" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="105"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00480" title="Applied Biosystems cleavable ICAT(TM) light" general_modification="1" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>	
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="ICAT-C:13C(9)" id="36" diff_mono="236.157185" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="106"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00481" title="Applied Biosystems cleavable ICAT(TM) heavy" general_modification="1" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="13C(6) Silac label" id="37" diff_mono="6.020129" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="188"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00544" title="6x(13)C labeled residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01333" title="6x(13)C labeled L-isoleucine" general_modification="0" specific_modification="1" origin="I" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01334" title="6x(13)C labeled L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01332" title="6x(13)C labeled L-leucine" general_modification="0" specific_modification="1" origin="L" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01331" title="6x(13)C labeled L-arginine" general_modification="0" specific_modification="1" origin="R" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Label:18O(2)" id="38" diff_mono="4.008493" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="193"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00546" title="(18)O label at both C-terminal oxygens" general_modification="1" specific_modification="1" origin="X" term_spec="C-term" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Carboxylation" id="39" diff_mono="43.989829" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="299"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:01152" title="carboxylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01873" title="N-carboxy-L-alanine" general_modification="0" specific_modification="1" origin="A" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00309" title="L-beta-carboxyaspartic acid" general_modification="0" specific_modification="1" origin="D" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00041" title="L-gamma-carboxyglutamic acid" general_modification="0" specific_modification="1" origin="E" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00123" title="N6-carboxy-L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00368" title="N-carboxy-L-methionine" general_modification="0" specific_modification="1" origin="M" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01874" title="N-carboxy-L-valine" general_modification="0" specific_modification="1" origin="V" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00618" title="tryptophan carboxylation" general_modification="0" specific_modification="1" origin="W" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Dioxidation" id="40" diff_mono="31.989829" biological_significance="1">
+			<unimod_mappings>
+				<unimod_mapping id="425"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00428" title="dihydroxylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00267" title="L-cysteine sulfinic acid" general_modification="0" specific_modification="1" origin="C" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00465" title="dihydroxyphenylalanine (Phe)" general_modification="0" specific_modification="1" origin="F" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01416" title="dihydroxylated isoleucine" general_modification="0" specific_modification="1" origin="I" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00375" title="4,5-dihydroxy-L-lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01412" title="dihydroxylated leucine" general_modification="0" specific_modification="1" origin="L" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00256" title="L-methionine sulfone" general_modification="0" specific_modification="1" origin="M" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00866" title="dihydroxylated proline" general_modification="0" specific_modification="1" origin="P" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00374" title="3,4-dihydroxy-L-arginine" general_modification="0" specific_modification="1" origin="R" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00464" title="N'-formyl-L-kynurenine" general_modification="0" specific_modification="1" origin="W" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00268" title="L-3',4',5'-trihydroxyphenylalanine" general_modification="0" specific_modification="1" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01290" title="dihydroxylated residue - site F" general_modification="0" specific_modification="0" origin="F" term_spec="none" obsolete="1"/>
+				<psi_modification id="MOD:01378" title="(2S,3R,4R)-4,5-dihydroxyisoleucine" general_modification="0" specific_modification="0" origin="I" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01376" title="(2S,3S,4R)-3,4-dihydroxyisoleucine" general_modification="0" specific_modification="0" origin="I" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01375" title="(2S,4R)-4,5-dihydroxyleucine" general_modification="0" specific_modification="0" origin="L" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01432" title="(2S,4S)-4,5-dihydroxyleucine" general_modification="0" specific_modification="0" origin="L" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:00287" title="(2S,3R,4S)-3,4-dihydroxyproline" general_modification="0" specific_modification="0" origin="P" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01402" title="(2S,3R,4R)-3,4-dihydroxyproline" general_modification="0" specific_modification="0" origin="P" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01291" title="dihydroxylated residue - site W" general_modification="0" specific_modification="0" origin="W" term_spec="none" obsolete="1"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="iTRAQ4plex" id="41" diff_mono="144.102062" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="214"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:01499" title="iTRAQ4plex-116 reporter+balance reagent acylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01503" title="iTRAQ4plex-116 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="1" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01501" title="iTRAQ4plex-116 reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01504" title="iTRAQ4plex-116 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="1" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01505" title="iTRAQ4plex-116 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="1" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01500" title="iTRAQ4plex-116 reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="1" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01502" title="iTRAQ4plex-116 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="1" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01510" title="iTRAQ4plex-117 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01508" title="iTRAQ4plex-117, mTRAQ heavy, reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01511" title="iTRAQ4plex-117 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="0" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01512" title="iTRAQ4plex-117 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01507" title="iTRAQ4plex-117, mTRAQ heavy, reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="0" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:00564" title="Applied Biosystems iTRAQ(TM) multiplexed quantitation chemistry" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="1"/>
+				<psi_modification id="MOD:01506" title="iTRAQ4plex-117, mTRAQ heavy, reporter+balance reagent acylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01509" title="iTRAQ4plex-117, mTRAQ heavy, reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="iTRAQ8plex" id="42" diff_mono="304.205359" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="730"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:01549" title="iTRAQ8plex-116 reporter+balance reagent acylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01553" title="iTRAQ8plex-116 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="1" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01551" title="iTRAQ8plex-116 reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01554" title="iTRAQ8plex-116 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="1" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01555" title="iTRAQ8plex-116 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="1" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01550" title="iTRAQ8plex-116 reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="1" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01552" title="iTRAQ8plex-116 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="1" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01532" title="iTRAQ8plex-113 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01539" title="iTRAQ8plex-114 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01560" title="iTRAQ8plex-117 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01530" title="iTRAQ8plex-113 reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01537" title="iTRAQ8plex-114 reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01558" title="iTRAQ8plex-117 reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01540" title="iTRAQ8plex-114 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="0" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01561" title="iTRAQ8plex-117 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="0" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01533" title="iTRAQ8plex-113 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="0" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01541" title="iTRAQ8plex-114 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01534" title="iTRAQ8plex-113 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01562" title="iTRAQ8plex-117 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01557" title="iTRAQ8plex-117 reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="0" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01529" title="iTRAQ8plex-113 reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="0" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01536" title="iTRAQ8plex-114 reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="0" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01535" title="iTRAQ8plex-114 reporter+balance reagent acylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01556" title="iTRAQ8plex-117 reporter+balance reagent acylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01528" title="iTRAQ8plex-113 reporter+balance reagent acylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01531" title="iTRAQ8plex-113 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01538" title="iTRAQ8plex-114 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01559" title="iTRAQ8plex-117 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="TMT6plex" id="43" diff_mono="229.162932" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="737"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:01720" title="TMT6plex-126 reporter+balance reagent acylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01724" title="TMT6plex-126 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="1" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01722" title="TMT6plex-126 reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="1" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01725" title="TMT6plex-126 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="1" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01726" title="TMT6plex-126 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="1" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01721" title="TMT6plex-126 reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="1" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01723" title="TMT6plex-126 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="1" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01740" title="TMT6plex-128 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01764" title="TMT6plex-131 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01732" title="TMT6plex-127 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01756" title="TMT6plex-130 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01748" title="TMT6plex-129 reporter+balance reagent N'-acylated histidine" general_modification="0" specific_modification="0" origin="H" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01746" title="TMT6plex-129 reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01738" title="TMT6plex-128 reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01754" title="TMT6plex-130 reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01730" title="TMT6plex-127 reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01762" title="TMT6plex-131 reporter+balance reagent N6-acylated lysine" general_modification="0" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01757" title="TMT6plex-130 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="0" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01733" title="TMT6plex-127 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="0" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01765" title="TMT6plex-131 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="0" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01741" title="TMT6plex-128 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="0" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01749" title="TMT6plex-129 reporter+balance reagent O3-acylated serine" general_modification="0" specific_modification="0" origin="S" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01766" title="TMT6plex-131 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01750" title="TMT6plex-129 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01758" title="TMT6plex-130 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01742" title="TMT6plex-128 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01734" title="TMT6plex-127 reporter+balance reagent O3-acylated threonine" general_modification="0" specific_modification="0" origin="T" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01715" title="TMT6plex reporter+balance reagent acylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01744" title="TMT6plex-129 reporter+balance reagent acylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01760" title="TMT6plex-131 reporter+balance reagent acylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01736" title="TMT6plex-128 reporter+balance reagent acylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01737" title="TMT6plex-128 reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="0" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01729" title="TMT6plex-127 reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="0" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01753" title="TMT6plex-130 reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="0" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01752" title="TMT6plex-130 reporter+balance reagent acylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01761" title="TMT6plex-131 reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="0" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01728" title="TMT6plex-127 reporter+balance reagent acylated residue" general_modification="0" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01745" title="TMT6plex-129 reporter+balance reagent acylated N-terminal" general_modification="0" specific_modification="0" origin="X" term_spec="N-term" obsolete="0"/>
+				<psi_modification id="MOD:01747" title="TMT6plex-129 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01731" title="TMT6plex-127 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01755" title="TMT6plex-130 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01739" title="TMT6plex-128 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>
+				<psi_modification id="MOD:01763" title="TMT6plex-131 reporter+balance reagent O4'-acylated tyrosine" general_modification="0" specific_modification="0" origin="Y" term_spec="none" obsolete="0"/>			
+			</psi_modifications>
+		</pride_modification>
+			
+		<!-- added by Salva on 1/20/2015 for supporting biotin+AHA modification in Daniel's PALM data -->
+		<pride_modification title="AHA" id="44" diff_mono="523.2746" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="0"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00000" title="AHA" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>	
+		<!-- added by Salva on 12/9/2015 for supporting 13C(6) 15N(4) Silac label modification -->
+		<pride_modification title="Label:13C(6)15N(4)" id="45" diff_mono="10.008269" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="267"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00587" title="Label:13C(6)15N(4)" general_modification="1" specific_modification="0" origin="R" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<pride_modification title="Label:13C(6)15N(2)" id="46" diff_mono="8.014199" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="259"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00582" title="Label:13C(6)15N(2)" general_modification="1" specific_modification="0" origin="K" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>	
+		<!-- added by Salva on 9/15/2017 for supporting ubiquitinmodification -->
+		<pride_modification title="ubiquitinylation residue" id="47" diff_mono="114.042927" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="121"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:01148" title="ubiquitinylation lysine" general_modification="1" specific_modification="0" origin="L" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<!-- added by Salva on 6/14/2018 for supporting Nethylmaleimide -->
+		<pride_modification title="N-ethylmaleimide on cysteines" id="48" diff_mono="125.047679" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="108"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00483" title="Nethylmaleimide" general_modification="1" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<!-- added by Salva on 6/14/2018 for supporting Trioxidation -->
+		<pride_modification title="cysteine oxidation to cysteic acid" id="48" diff_mono="47.984744" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="345"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00406" title="Trioxidation" general_modification="1" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<!-- added by Salva on 6/22/2018 for supporting Dioxidation -->
+		<pride_modification title="Dioxidation" id="49" diff_mono="31.989829" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="425"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00428" title="dihydroxylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<!-- added by Salva on 6/22/2018 for supporting biotin-maleimide -->
+		<pride_modification title="biotin-maleimide" id="50" diff_mono="451.1889" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="0"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00000" title="biotin-maleimide" general_modification="1" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<!-- added by Salva on 6/22/2018 for supporting N-ethylmaleimide derivatized cysteine -->
+		<pride_modification title="N-ethylmaleimide on cysteines" id="51" diff_mono="125.047679" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="108"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00483" title="N-ethylmaleimide derivatized cysteine" general_modification="1" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+		<!-- added by Salva on 6/22/2018 for supporting dimethyl -->
+		<pride_modification title="di-Methylation" id="52" diff_mono="28.0313" biological_significance="0">
+			<unimod_mappings>
+				<unimod_mapping id="36"/>
+			</unimod_mappings>
+			<psi_modifications>
+				<psi_modification id="MOD:00429" title="dimethylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
+			</psi_modifications>
+		</pride_modification>
+	</pride_modifications>
+</pride_mod>
