@@ -46,6 +46,7 @@ public class QueriableProteinSet {
 	private final String primaryAcc;
 	private ProteinAccession primaryProteinAcc;
 	private Set<Protein> individualProteins;
+	private String uniprotKBVersion;
 
 	private final static Logger log = Logger.getLogger(QueriableProteinSet.class);
 	private static final Map<String, QueriableProteinSet> map = new THashMap<String, QueriableProteinSet>();
@@ -353,6 +354,7 @@ public class QueriableProteinSet {
 
 	public Set<ProteinAnnotation> getProteinAnnotations() {
 		final Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
+		ret.addAll(ProteinAnnotator.getInstance(uniprotKBVersion).getProteinAnnotationByProteinAcc(primaryAcc));
 		for (final Protein protein : getIndividualProteins()) {
 			ret.addAll(protein.getProteinAnnotations());
 		}

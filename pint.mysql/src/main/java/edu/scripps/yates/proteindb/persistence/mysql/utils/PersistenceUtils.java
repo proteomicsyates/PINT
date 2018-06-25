@@ -31,7 +31,7 @@ public class PersistenceUtils {
 	public static ProteinAccession getPrimaryAccession(Protein protein) {
 		ProteinAccession primaryAcc = null;
 		final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
-		for (ProteinAccession proteinAccession : proteinAccessions) {
+		for (final ProteinAccession proteinAccession : proteinAccessions) {
 			if (proteinAccession.isIsPrimary()) {
 				if (primaryAcc == null) {
 					primaryAcc = proteinAccession;
@@ -50,7 +50,7 @@ public class PersistenceUtils {
 		if (primaryAcc != null) {
 			return primaryAcc;
 		}
-		List<ProteinAccession> list = new ArrayList<ProteinAccession>();
+		final List<ProteinAccession> list = new ArrayList<ProteinAccession>();
 		list.addAll(proteinAccessions);
 		Collections.sort(list, new Comparator<ProteinAccession>() {
 
@@ -84,7 +84,7 @@ public class PersistenceUtils {
 	public static Map<String, Set<Protein>> proteinUnion(Map<String, Set<Protein>> proteins1,
 			Map<String, Set<Protein>> proteins2) {
 
-		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		// add all proteins in query1
 		addToMapByPrimaryAcc(ret, proteins1);
 		// add all proteins in query2
@@ -93,12 +93,12 @@ public class PersistenceUtils {
 	}
 
 	public static Map<String, Set<Protein>> proteinUnion(List<Protein> list1, List<Protein> list2) {
-		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 
-		for (Protein protein : list1) {
+		for (final Protein protein : list1) {
 			addToMapByPrimaryAcc(ret, protein);
 		}
-		for (Protein protein : list2) {
+		for (final Protein protein : list2) {
 			addToMapByPrimaryAcc(ret, protein);
 		}
 		return ret;
@@ -133,7 +133,7 @@ public class PersistenceUtils {
 	// }
 
 	public static Set<Psm> psmUnion(Collection<Psm> psmCollection1, Collection<Psm> psmCollection2) {
-		Set<Psm> ret = new THashSet<Psm>();
+		final Set<Psm> ret = new THashSet<Psm>();
 		ret.addAll(psmCollection1);
 		ret.addAll(psmCollection2);
 		return ret;
@@ -144,9 +144,9 @@ public class PersistenceUtils {
 	}
 
 	public static List<ProteinAccession> getAccessionsByAccType(Protein prot, String accType) {
-		List<ProteinAccession> ret = new ArrayList<ProteinAccession>();
+		final List<ProteinAccession> ret = new ArrayList<ProteinAccession>();
 		final Set<ProteinAccession> proteinAccessions = prot.getProteinAccessions();
-		for (ProteinAccession proteinAccession : proteinAccessions) {
+		for (final ProteinAccession proteinAccession : proteinAccessions) {
 			if (proteinAccession.getAccessionType().equalsIgnoreCase(accType))
 				ret.add(proteinAccession);
 		}
@@ -160,15 +160,15 @@ public class PersistenceUtils {
 	 * @return
 	 */
 	public static Map<String, Set<Protein>> getProteinsFromPsms(Collection<Psm> psms, boolean removePsmsAndPeptides) {
-		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
-		Set<Protein> proteinSet = new THashSet<Protein>();
-		for (Psm psm : psms) {
+		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Set<Protein> proteinSet = new THashSet<Protein>();
+		for (final Psm psm : psms) {
 			final Set<Protein> proteins = psm.getProteins();
 			PersistenceUtils.addToMapByPrimaryAcc(ret, proteins);
 			proteinSet.addAll(proteins);
 		}
 		if (removePsmsAndPeptides) {
-			Set<Psm> psmSet = new THashSet<Psm>();
+			final Set<Psm> psmSet = new THashSet<Psm>();
 			psmSet.addAll(psms);
 			removePsmsAndPeptidesFromProteins(proteinSet, psmSet);
 		}
@@ -185,9 +185,9 @@ public class PersistenceUtils {
 	 */
 	public static Map<String, Set<Protein>> getProteinsFromPsms(Map<String, Set<Psm>> psmResult,
 			boolean removePsmsAndPeptides) {
-		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		if (psmResult != null) {
-			Set<Psm> psmSet = getPsmSetFromMap(psmResult);
+			final Set<Psm> psmSet = getPsmSetFromMap(psmResult);
 			final Map<String, Set<Protein>> proteinsFromPsms = getProteinsFromPsms(psmSet, removePsmsAndPeptides);
 			addToMapByPrimaryAcc(ret, proteinsFromPsms);
 			log.info(ret.size() + " proteins comming from " + psmResult.size() + " PSMs");
@@ -198,16 +198,16 @@ public class PersistenceUtils {
 	}
 
 	private static Set<Protein> getProteinSetFromMap(Map<String, Set<Protein>> proteinMap) {
-		Set<Protein> ret = new THashSet<Protein>();
-		for (Set<Protein> proteinSet : proteinMap.values()) {
+		final Set<Protein> ret = new THashSet<Protein>();
+		for (final Set<Protein> proteinSet : proteinMap.values()) {
 			ret.addAll(proteinSet);
 		}
 		return ret;
 	}
 
 	private static Set<Psm> getPsmSetFromMap(Map<String, Set<Psm>> psmMap) {
-		Set<Psm> ret = new THashSet<Psm>();
-		for (Set<Psm> psmSet : psmMap.values()) {
+		final Set<Psm> ret = new THashSet<Psm>();
+		for (final Set<Psm> psmSet : psmMap.values()) {
 			ret.addAll(psmSet);
 		}
 		return ret;
@@ -222,14 +222,14 @@ public class PersistenceUtils {
 	 * @param psms
 	 */
 	private static void removePsmsAndPeptidesFromProteins(Collection<Protein> proteins, Set<Psm> psms) {
-		Set<String> sequenceSet = new THashSet<String>();
-		for (Protein protein : proteins) {
+		final Set<String> sequenceSet = new THashSet<String>();
+		for (final Protein protein : proteins) {
 			sequenceSet.clear();
 			// for each protein, remove the psms not in the HashSet of psms
-			int initialNumPsms = protein.getPsms().size();
+			final int initialNumPsms = protein.getPsms().size();
 			final Iterator<Psm> psmIterator = protein.getPsms().iterator();
 			while (psmIterator.hasNext()) {
-				Psm psm = psmIterator.next();
+				final Psm psm = psmIterator.next();
 				if (!psms.contains(psm)) {
 					psmIterator.remove();
 					psm.getProteins().remove(protein);
@@ -242,7 +242,7 @@ public class PersistenceUtils {
 			}
 			// look if some peptides are not in the sequenceSet, then remove
 			// them from proteins
-			int initialNumPeptides = protein.getPeptides().size();
+			final int initialNumPeptides = protein.getPeptides().size();
 			final Iterator<Peptide> peptideIterator = protein.getPeptides().iterator();
 			while (peptideIterator.hasNext()) {
 				final Peptide peptide = peptideIterator.next();
@@ -262,8 +262,8 @@ public class PersistenceUtils {
 
 	public static List<ProteinAnnotation> getProteinAnnotations(Set<ProteinAnnotation> proteinAnnotations,
 			AnnotationType annotationType) {
-		List<ProteinAnnotation> ret = new ArrayList<ProteinAnnotation>();
-		for (ProteinAnnotation proteinAnnotation : proteinAnnotations) {
+		final List<ProteinAnnotation> ret = new ArrayList<ProteinAnnotation>();
+		for (final ProteinAnnotation proteinAnnotation : proteinAnnotations) {
 			if (proteinAnnotation.getAnnotationType() != null && proteinAnnotation.getAnnotationType().getName() != null
 					&& proteinAnnotation.getAnnotationType().getName().equals(annotationType.getKey()))
 				ret.add(proteinAnnotation);
@@ -272,9 +272,9 @@ public class PersistenceUtils {
 	}
 
 	public static Set<String> getPrimaryAccessions(Collection<Protein> proteinList) {
-		Set<String> ret = new THashSet<String>();
+		final Set<String> ret = new THashSet<String>();
 
-		for (Protein protein : proteinList) {
+		for (final Protein protein : proteinList) {
 			// ret.add(getPrimaryAccession(protein).getAccession());
 			ret.add(protein.getAcc());
 		}
@@ -295,7 +295,7 @@ public class PersistenceUtils {
 			map.get(primaryAcc).add(protein);
 		} else {
 
-			Set<Protein> set = new THashSet<Protein>();
+			final Set<Protein> set = new THashSet<Protein>();
 			set.add(protein);
 			map.put(primaryAcc, set);
 		}
@@ -304,44 +304,47 @@ public class PersistenceUtils {
 	}
 
 	public static void addToMapByPrimaryAcc(Map<String, Set<Protein>> map, Collection<Protein> proteins) {
-		for (Protein protein : proteins) {
+		for (final Protein protein : proteins) {
 			addToMapByPrimaryAcc(map, protein);
 		}
 	}
 
 	public static void addToMapByPrimaryAcc(Map<String, Set<Protein>> receiverMap, Map<String, Set<Protein>> donorMap) {
-		for (String key : donorMap.keySet()) {
+		for (final String key : donorMap.keySet()) {
 			final Set<Protein> set = donorMap.get(key);
 			addToMapByPrimaryAcc(receiverMap, set);
 		}
 	}
 
-	public static Set<String> getAccessionsByAccType(Map<String, Set<Protein>> proteinMap, AccessionType uniprot) {
-		Set<String> ret = new THashSet<String>();
-		final Collection<Set<Protein>> proteinSets = proteinMap.values();
-		for (Set<Protein> proteinSet : proteinSets) {
-			for (Protein protein : proteinSet) {
-				final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
-				for (ProteinAccession accession : proteinAccessions) {
-					if (accession.getAccessionType().equals(uniprot.name())) {
-						ret.add(accession.getAccession());
-					}
-				}
-			}
-		}
-		return ret;
-	}
+	// ** commented out because it is not efficient
+	// public static Set<String> getAccessionsByAccType(Map<String,
+	// Set<Protein>> proteinMap, AccessionType uniprot) {
+	// Set<String> ret = new THashSet<String>();
+	// final Collection<Set<Protein>> proteinSets = proteinMap.values();
+	// for (Set<Protein> proteinSet : proteinSets) {
+	// for (Protein protein : proteinSet) {
+	// final Set<ProteinAccession> proteinAccessions =
+	// protein.getProteinAccessions();
+	// for (ProteinAccession accession : proteinAccessions) {
+	// if (accession.getAccessionType().equals(uniprot.name())) {
+	// ret.add(accession.getAccession());
+	// }
+	// }
+	// }
+	// }
+	// return ret;
+	// }
 
 	public static Set<ProteinRatioValue> getProteinRatiosBetweenTwoConditions(Protein protein, String condition1Name,
 			String condition2Name, String ratioName) {
-		Set<ProteinRatioValue> ret = new THashSet<ProteinRatioValue>();
+		final Set<ProteinRatioValue> ret = new THashSet<ProteinRatioValue>();
 		if (protein.getProteinRatioValues() != null) {
 			// TODO
 			// if (!Hibernate.isInitialized(protein.getProteinRatioValues())) {
 			// Hibernate.initialize(protein.getProteinRatioValues());
 			// }
-			for (Object obj : protein.getProteinRatioValues()) {
-				ProteinRatioValue ratioValue = (ProteinRatioValue) obj;
+			for (final Object obj : protein.getProteinRatioValues()) {
+				final ProteinRatioValue ratioValue = (ProteinRatioValue) obj;
 				final RatioDescriptor ratioDescriptor = ratioValue.getRatioDescriptor();
 				if (ratioName != null && !ratioDescriptor.getDescription().equals(ratioName)) {
 					continue;
@@ -362,10 +365,10 @@ public class PersistenceUtils {
 
 	public static Set<PsmRatioValue> getPsmRatiosBetweenTwoConditions(Psm psm, String condition1Name,
 			String condition2Name, String ratioName) {
-		Set<PsmRatioValue> ret = new THashSet<PsmRatioValue>();
+		final Set<PsmRatioValue> ret = new THashSet<PsmRatioValue>();
 		if (psm.getPsmRatioValues() != null) {
-			for (Object obj : psm.getPsmRatioValues()) {
-				PsmRatioValue ratioValue = (PsmRatioValue) obj;
+			for (final Object obj : psm.getPsmRatioValues()) {
+				final PsmRatioValue ratioValue = (PsmRatioValue) obj;
 				final RatioDescriptor ratioDescriptor = ratioValue.getRatioDescriptor();
 				if (ratioName != null && !ratioDescriptor.getDescription().equals(ratioName)) {
 					continue;
@@ -387,10 +390,10 @@ public class PersistenceUtils {
 
 	public static Set<PeptideRatioValue> getPeptideRatiosBetweenTwoConditions(Peptide peptide, String condition1Name,
 			String condition2Name, String ratioName) {
-		Set<PeptideRatioValue> ret = new THashSet<PeptideRatioValue>();
+		final Set<PeptideRatioValue> ret = new THashSet<PeptideRatioValue>();
 		if (peptide.getPeptideRatioValues() != null) {
-			for (Object obj : peptide.getPeptideRatioValues()) {
-				PeptideRatioValue ratioValue = (PeptideRatioValue) obj;
+			for (final Object obj : peptide.getPeptideRatioValues()) {
+				final PeptideRatioValue ratioValue = (PeptideRatioValue) obj;
 				final RatioDescriptor ratioDescriptor = ratioValue.getRatioDescriptor();
 				if (ratioName != null && !ratioDescriptor.getDescription().equals(ratioName)) {
 					continue;
@@ -411,7 +414,7 @@ public class PersistenceUtils {
 	}
 
 	public static void addToPSMMapByPsmId(Map<String, Set<Psm>> map, Collection<Psm> psmList) {
-		for (Psm psm : psmList) {
+		for (final Psm psm : psmList) {
 			addToPSMMapByPsmId(map, psm);
 		}
 	}
@@ -428,14 +431,14 @@ public class PersistenceUtils {
 			map.get(psmID).add(psm);
 		} else {
 
-			Set<Psm> set = new THashSet<Psm>();
+			final Set<Psm> set = new THashSet<Psm>();
 			set.add(psm);
 			map.put(psmID, set);
 		}
 	}
 
 	public static void addToPSMMapByPsmId(Map<String, Set<Psm>> receiverMap, Map<String, Set<Psm>> donorMap) {
-		for (String key : donorMap.keySet()) {
+		for (final String key : donorMap.keySet()) {
 			final Set<Psm> set = donorMap.get(key);
 			addToPSMMapByPsmId(receiverMap, set);
 		}
@@ -444,7 +447,7 @@ public class PersistenceUtils {
 
 	public static Map<String, Set<Psm>> psmUnion(Map<String, Set<Psm>> psms1, Map<String, Set<Psm>> psms2) {
 
-		Map<String, Set<Psm>> ret = new THashMap<String, Set<Psm>>();
+		final Map<String, Set<Psm>> ret = new THashMap<String, Set<Psm>>();
 		// add all psms in query1
 		addToPSMMapByPsmId(ret, psms1);
 		// add all psms in query2
@@ -480,10 +483,10 @@ public class PersistenceUtils {
 	// }
 
 	public static Map<String, Set<Psm>> getPsmsFromProteins(Map<String, Set<Protein>> proteinResult) {
-		Map<String, Set<Psm>> ret = new THashMap<String, Set<Psm>>();
+		final Map<String, Set<Psm>> ret = new THashMap<String, Set<Psm>>();
 		if (proteinResult != null) {
-			Set<Protein> proteins = new THashSet<Protein>();
-			for (Set<Protein> proteins2 : proteinResult.values()) {
+			final Set<Protein> proteins = new THashSet<Protein>();
+			for (final Set<Protein> proteins2 : proteinResult.values()) {
 				proteins.addAll(proteins2);
 			}
 			final Map<String, Set<Psm>> psmsFromPsms = getPsmsFromProteins(proteins);
@@ -496,9 +499,9 @@ public class PersistenceUtils {
 	}
 
 	public static Map<String, Set<Psm>> getPsmsFromProteins(Collection<Protein> proteins) {
-		Map<String, Set<Psm>> ret = new THashMap<String, Set<Psm>>();
+		final Map<String, Set<Psm>> ret = new THashMap<String, Set<Psm>>();
 
-		for (Protein protein : proteins) {
+		for (final Protein protein : proteins) {
 			final Set<Psm> psms = protein.getPsms();
 
 			PersistenceUtils.addToPSMMapByPsmId(ret, psms);
@@ -541,21 +544,21 @@ public class PersistenceUtils {
 
 	public static void detachPSM(Psm psm, boolean psmDetached, boolean peptideDetached, boolean proteinDetached) {
 		final Set<Protein> proteins = psm.getProteins();
-		Set<Protein> proteinsToDetach = new THashSet<Protein>();
-		for (Protein protein : proteins) {
-			boolean removed = protein.getPsms().remove(psm);
+		final Set<Protein> proteinsToDetach = new THashSet<Protein>();
+		for (final Protein protein : proteins) {
+			final boolean removed = protein.getPsms().remove(psm);
 			if (!proteinDetached) {
 				if (protein.getPsms().isEmpty()) {
 					proteinsToDetach.add(protein);
 				}
 			}
 		}
-		for (Protein protein : proteinsToDetach) {
+		for (final Protein protein : proteinsToDetach) {
 			detachProtein(protein, true, peptideDetached, proteinDetached);
 		}
 
 		final Peptide peptide = psm.getPeptide();
-		boolean removed = peptide.getPsms().remove(psm);
+		final boolean removed = peptide.getPsms().remove(psm);
 		if (!peptideDetached) {
 			if (peptide.getPsms().isEmpty()) {
 				detachPeptide(peptide, true, peptideDetached, proteinDetached);
@@ -566,9 +569,9 @@ public class PersistenceUtils {
 	public static void detachPeptide(Peptide peptide, boolean psmDetached, boolean peptideDetached,
 			boolean proteinDetached) {
 		if (!psmDetached) {
-			Set<Psm> psms = peptide.getPsms();
-			Set<Psm> psmsToDetach = new THashSet<Psm>();
-			for (Psm psm : psms) {
+			final Set<Psm> psms = peptide.getPsms();
+			final Set<Psm> psmsToDetach = new THashSet<Psm>();
+			for (final Psm psm : psms) {
 				// if (psm.getPeptide() != null) {
 				if (psm.getPeptide().equals(peptide)) {
 					// psm.setPeptide(null);
@@ -577,22 +580,22 @@ public class PersistenceUtils {
 				}
 				// }
 			}
-			for (Psm psm : psmsToDetach) {
+			for (final Psm psm : psmsToDetach) {
 				detachPSM(psm, psmDetached, true, proteinDetached);
 			}
 		}
 
 		final Set<Protein> proteins = peptide.getProteins();
-		Set<Protein> proteinsToDetach = new THashSet<Protein>();
-		for (Protein protein : proteins) {
-			boolean removed = protein.getPeptides().remove(peptide);
+		final Set<Protein> proteinsToDetach = new THashSet<Protein>();
+		for (final Protein protein : proteins) {
+			final boolean removed = protein.getPeptides().remove(peptide);
 			if (!proteinDetached) {
 				if (protein.getPeptides().isEmpty()) {
 					proteinsToDetach.add(protein);
 				}
 			}
 		}
-		for (Protein protein : proteinsToDetach) {
+		for (final Protein protein : proteinsToDetach) {
 			detachProtein(protein, psmDetached, true, proteinDetached);
 		}
 	}
@@ -600,10 +603,10 @@ public class PersistenceUtils {
 	public static void detachProtein(Protein protein, boolean psmDetached, boolean peptideDetached,
 			boolean proteinDetached) {
 		final Set<Peptide> peptides = protein.getPeptides();
-		Set<Peptide> peptidesToDetach = new THashSet<Peptide>();
-		for (Peptide peptide : peptides) {
+		final Set<Peptide> peptidesToDetach = new THashSet<Peptide>();
+		for (final Peptide peptide : peptides) {
 			if (!peptide.getProteins().isEmpty()) {
-				boolean removed = peptide.getProteins().remove(protein);
+				final boolean removed = peptide.getProteins().remove(protein);
 			}
 			if (!peptideDetached) {
 				if (peptide.getProteins().isEmpty()) {
@@ -611,15 +614,15 @@ public class PersistenceUtils {
 				}
 			}
 		}
-		for (Peptide peptide : peptidesToDetach) {
+		for (final Peptide peptide : peptidesToDetach) {
 			detachPeptide(peptide, psmDetached, peptideDetached, true);
 		}
 
 		final Set<Psm> psms = protein.getPsms();
-		Set<Psm> psmsToDetach = new THashSet<Psm>();
-		for (Psm psm : psms) {
+		final Set<Psm> psmsToDetach = new THashSet<Psm>();
+		for (final Psm psm : psms) {
 			if (!psm.getProteins().isEmpty()) {
-				boolean removed = psm.getProteins().remove(protein);
+				final boolean removed = psm.getProteins().remove(protein);
 			}
 			if (!psmDetached) {
 				if (psm.getProteins().isEmpty()) {
@@ -627,7 +630,7 @@ public class PersistenceUtils {
 				}
 			}
 		}
-		for (Psm psm : psmsToDetach) {
+		for (final Psm psm : psmsToDetach) {
 			detachPSM(psm, psmDetached, peptideDetached, true);
 		}
 	}

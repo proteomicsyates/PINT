@@ -42,80 +42,59 @@ public class ProteinAnnotator {
 				UniprotProteinRetrievalSettings.getInstance().isUseIndex());
 	}
 
-	public void annotateProteins(Map<String, Set<Protein>> proteinList) {
-		log.info("Getting Uniprot annotations from " + proteinList.size() + " proteins");
-		Collection<String> accessions = PersistenceUtils.getAccessionsByAccType(proteinList, AccessionType.UNIPROT);
+	/**
+	 * method to get uniprot annotations from a protein Map. The annotations are
+	 * kept in a map separately and can be accessed by
+	 * getProteinAnnotationByProteinAcc(ProteinACC) method
+	 * 
+	 * @param proteinMap
+	 */
+	public void annotateProteins(Map<String, Set<Protein>> proteinMap) {
+		log.info("Getting Uniprot annotations from " + proteinMap.size() + " proteins");
+		final Set<String> accessions = proteinMap.keySet();
 		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = getAnnotatedProteins(
 				accessions);
-		for (String accession : proteinList.keySet()) {
+		for (final String accession : proteinMap.keySet()) {
 			final edu.scripps.yates.utilities.proteomicsmodel.Protein annotatedProtein = annotatedProteins
 					.get(accession);
 			if (annotatedProtein != null) {
 				final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = annotatedProtein
 						.getAnnotations();
-				for (edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation proteinAnnotation : proteinAnnotations) {
-					final Set<Protein> proteinSet = proteinList.get(accession);
-					for (Protein protein : proteinSet) {
+				for (final edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation proteinAnnotation : proteinAnnotations) {
+					final Set<Protein> proteinSet = proteinMap.get(accession);
+					for (final Protein protein : proteinSet) {
 						final ProteinAnnotation proteinAnnotationNew = new ProteinAnnotationAdapter(proteinAnnotation,
 								null).adapt();
-						protein.getProteinAnnotations().add(proteinAnnotationNew);
 						addAnnotationByProtein(protein, proteinAnnotationNew);
 					}
 				}
 			}
 		}
-		log.info("Annotations retrieved for " + proteinList.size() + " proteins");
+		log.info("Annotations retrieved for " + proteinMap.size() + " proteins");
 	}
-
-	// public void annotateProteins2(Map<String, Set<QueriableProteinInterface>>
-	// proteinList) {
-	// log.info("Getting Uniprot annotations from " + proteinList.size() + "
-	// proteins");
-	// Collection<String> accessions = getAccessionsByAccType(proteinList,
-	// AccessionType.UNIPROT);
-	// final Map<String, edu.scripps.yates.model.Protein> annotatedProteins =
-	// getAnnotatedProteins(accessions);
-	// for (String accession : proteinList.keySet()) {
-	// final edu.scripps.yates.model.Protein annotatedProtein =
-	// annotatedProteins.get(accession);
-	// if (annotatedProtein != null) {
-	// final Set<edu.scripps.yates.model.ProteinAnnotation> proteinAnnotations =
-	// annotatedProtein
-	// .getAnnotations();
-	// for (edu.scripps.yates.model.ProteinAnnotation proteinAnnotation :
-	// proteinAnnotations) {
-	// final Set<QueriableProteinInterface> proteinSet =
-	// proteinList.get(accession);
-	// for (QueriableProteinInterface protein : proteinSet) {
-	// final ProteinAnnotation proteinAnnotationNew = new
-	// ProteinAnnotationAdapter(proteinAnnotation,
-	// null).adapt();
-	// protein.getProteinAnnotations().add(proteinAnnotationNew);
-	// }
-	// }
-	// }
-	// }
-	// log.info("Annotations retrieved for " + proteinList.size() + "
-	// proteins");
-	// }
 
 	private void addAnnotationByProtein(Protein protein, ProteinAnnotation proteinAnnotation) {
 		if (protein != null) {
 			final List<ProteinAccession> accessionsByAccType = PersistenceUtils.getAccessionsByAccType(protein,
 					AccessionType.UNIPROT);
 			if (accessionsByAccType != null) {
-				for (ProteinAccession proteinAccession : accessionsByAccType) {
+				for (final ProteinAccession proteinAccession : accessionsByAccType) {
 					final String accession = proteinAccession.getAccession();
 					if (annotationsByProteinAcc.containsKey(accession)) {
 						annotationsByProteinAcc.get(accession).add(proteinAnnotation);
 					} else {
-						Set<ProteinAnnotation> set = new THashSet<ProteinAnnotation>();
+						final Set<ProteinAnnotation> set = new THashSet<ProteinAnnotation>();
 						set.add(proteinAnnotation);
 						annotationsByProteinAcc.put(accession, set);
 					}
 				}
 			}
 		}
+	}
+
+	public void clearAnnotations() {
+		annotatedProteins.clear();
+		annotationsByProteinAcc.clear();
 	}
 
 	public Set<ProteinAnnotation> getProteinAnnotationByProteinAcc(String accession) {
@@ -127,9 +106,9 @@ public class ProteinAnnotator {
 
 	private Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> getAnnotatedProteins(
 			Collection<String> accessions) {
-		Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> ret = new THashMap<String, edu.scripps.yates.utilities.proteomicsmodel.Protein>();
-		Set<String> notAnnotatedAccs = new THashSet<String>();
-		for (String acc : accessions) {
+		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> ret = new THashMap<String, edu.scripps.yates.utilities.proteomicsmodel.Protein>();
+		final Set<String> notAnnotatedAccs = new THashSet<String>();
+		for (final String acc : accessions) {
 			if (annotatedProteins.containsKey(acc)) {
 				ret.put(acc, annotatedProteins.get(acc));
 			} else {
@@ -139,7 +118,7 @@ public class ProteinAnnotator {
 		log.info("Retrieving from index " + notAnnotatedAccs.size() + " protein annotations");
 		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins2 = uplr
 				.getAnnotatedProteins(notAnnotatedAccs);
-		for (String acc : annotatedProteins2.keySet()) {
+		for (final String acc : annotatedProteins2.keySet()) {
 			final edu.scripps.yates.utilities.proteomicsmodel.Protein protein = annotatedProteins2.get(acc);
 			ret.put(acc, protein);
 			annotatedProteins.put(acc, protein);

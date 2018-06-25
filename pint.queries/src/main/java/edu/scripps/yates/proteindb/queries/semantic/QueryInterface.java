@@ -1,7 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -9,12 +8,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
-import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
-import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAnnotationAdapter;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.LogicalOperator;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProjects;
@@ -28,7 +23,6 @@ import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSEQCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSimpleAnnotationCommand;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import edu.scripps.yates.utilities.cores.SystemCoreManager;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.model.enums.AmountType;
 import edu.scripps.yates.utilities.pi.ParIterator;
@@ -78,7 +72,7 @@ public class QueryInterface {
 					// protein provider specific of the query
 
 					needLinkEvaluation = abstractQueries.get(0).requiresFurtherEvaluation();
-					String negation = needLinkEvaluation ? "" : " does not ";
+					final String negation = needLinkEvaluation ? "" : " does not ";
 					log.info("Changing protein provider to a narrow one of class: "
 							+ proteinProvider2.getClass().getName() + " which " + negation
 							+ "requires evaluation of links");
@@ -96,7 +90,7 @@ public class QueryInterface {
 		} else {
 			log.info(
 					"There is more than one command in the query. Trying to figure it out if we can narrow the initial dataset loading");
-			ProteinProviderFromDB dominantProteinProvider = getDominantProteinProvider(queryBinaryTree);
+			final ProteinProviderFromDB dominantProteinProvider = getDominantProteinProvider(queryBinaryTree);
 			if (dominantProteinProvider != null) {
 				log.info("Changing protein provider to a narrow one");
 				this.proteinProvider = dominantProteinProvider;
@@ -110,25 +104,26 @@ public class QueryInterface {
 		// if in the binary tree, there is a annotation query, lets annotate
 		// first all the proteins at once.
 
-		for (AbstractQuery abstractQuery : abstractQueries) {
+		for (final AbstractQuery abstractQuery : abstractQueries) {
 			if (abstractQuery instanceof QueryFromComplexAnnotationCommand) {
-				ProteinAnnotator.getInstance(((QueryFromComplexAnnotationCommand) abstractQuery).getUniprotVersion())
+				final String uniprotVersion = ((QueryFromComplexAnnotationCommand) abstractQuery).getUniprotVersion();
+				ProteinAnnotator.getInstance(uniprotVersion)
 						.annotateProteins(this.proteinProvider.getProteinMap(testMode));
 
-				annotateProteins(this.proteinProvider.getProteinMap(testMode),
-						((QueryFromComplexAnnotationCommand) abstractQuery).getUniprotVersion());
 				break;
 			}
 			if (abstractQuery instanceof QueryFromSimpleAnnotationCommand) {
-				annotateProteins(this.proteinProvider.getProteinMap(testMode),
-						((QueryFromSimpleAnnotationCommand) abstractQuery).getUniprotVersion());
+				final String uniprotVersion = ((QueryFromSimpleAnnotationCommand) abstractQuery).getUniprotVersion();
+				ProteinAnnotator.getInstance(uniprotVersion)
+						.annotateProteins(this.proteinProvider.getProteinMap(testMode));
+
 				break;
 			}
 			if (abstractQuery instanceof QueryFromSEQCommand) {
 				// annotate the proteins in this case because the protein
 				// sequence is going to be needed in the query
 				if (abstractQuery.getAggregationLevel() == AggregationLevel.PROTEIN) {
-					annotateProteins(this.proteinProvider.getProteinMap(testMode), null);
+					ProteinAnnotator.getInstance(null).annotateProteins(this.proteinProvider.getProteinMap(testMode));
 					break;
 				}
 			}
@@ -137,7 +132,7 @@ public class QueryInterface {
 		// if all of them are annotation related queries, it is not needed a new
 		// evaluation
 		boolean allAreAnnotationQueries = true;
-		for (AbstractQuery abstractQuery : abstractQueries) {
+		for (final AbstractQuery abstractQuery : abstractQueries) {
 			if (abstractQuery instanceof QueryFromComplexAnnotationCommand
 					|| abstractQuery instanceof QueryFromSimpleAnnotationCommand) {
 
@@ -153,7 +148,7 @@ public class QueryInterface {
 	private boolean containsSPCAmountQuery(QueryBinaryTree queryBinaryTree) {
 		final Set<QueryFromAmountCommand> amountQueries = (Set<QueryFromAmountCommand>) queryBinaryTree
 				.getAbstractQueries(QueryFromAmountCommand.class);
-		for (QueryFromAmountCommand queryFromAmountCommand : amountQueries) {
+		for (final QueryFromAmountCommand queryFromAmountCommand : amountQueries) {
 			if (queryFromAmountCommand.getAggregationLevel() == AggregationLevel.PROTEIN) {
 				if (queryFromAmountCommand.getAmountType() == AmountType.SPC) {
 					return true;
@@ -168,7 +163,7 @@ public class QueryInterface {
 		if (queryBinaryTree.isPredominant(QueryFromProteinAccessionsCommand.class)) {
 			log.info("There is at least one predominant query that is over protein accessions");
 			// get all the queries from protein accessions
-			Set<? extends AbstractQuery> accQueries = queryBinaryTree
+			final Set<? extends AbstractQuery> accQueries = queryBinaryTree
 					.getPredominantAbstractQueries(QueryFromProteinAccessionsCommand.class, LogicalOperator.AND);
 			if (accQueries.size() == 1) {
 				log.info("Getting the protein provider of the accession query");
@@ -176,8 +171,8 @@ public class QueryInterface {
 			} else {
 				log.info(
 						"There are more than one query about ACCs. Joining accessions of all of them and building the protein provider");
-				Set<String> accs = new THashSet<String>();
-				for (AbstractQuery abstractQuery : accQueries) {
+				final Set<String> accs = new THashSet<String>();
+				for (final AbstractQuery abstractQuery : accQueries) {
 					accs.addAll(((QueryFromProteinAccessionsCommand) abstractQuery).getAccs());
 				}
 				return new ProteinProviderFromProteinAccs(accs);
@@ -187,7 +182,7 @@ public class QueryInterface {
 		if (queryBinaryTree.isPredominant(QueryFromPTMCommand.class)) {
 			log.info("There is at least one predominant query that is over PTM ");
 			// get all the queries from PTM
-			Set<? extends AbstractQuery> ptmQueries = queryBinaryTree
+			final Set<? extends AbstractQuery> ptmQueries = queryBinaryTree
 					.getPredominantAbstractQueries(QueryFromPTMCommand.class, LogicalOperator.AND);
 			if (ptmQueries.size() == 1) {
 				log.info("Getting the protein provider of the PTM query");
@@ -204,7 +199,7 @@ public class QueryInterface {
 				|| queryBinaryTree.isPredominant(QueryFromComplexAnnotationCommand.class)) {
 			log.info("There is at least one predominant query that is over Uniprot annotations ");
 
-			Set<AbstractQuery> abstractQueries = new THashSet<AbstractQuery>();
+			final Set<AbstractQuery> abstractQueries = new THashSet<AbstractQuery>();
 			final Set<QueryFromComplexAnnotationCommand> predominantAbstractQueries = (Set<QueryFromComplexAnnotationCommand>) queryBinaryTree
 					.getPredominantAbstractQueries(QueryFromComplexAnnotationCommand.class, false, LogicalOperator.AND);
 			abstractQueries.addAll(predominantAbstractQueries);
@@ -238,27 +233,29 @@ public class QueryInterface {
 
 	private ProteinProviderFromDB getDominantProteinProviderFromAnnotationQueries(
 			Set<? extends AbstractQuery> annotationQueries, LogicalOperator logicalOperator) {
-		String uniprotKBVersion = null;
+		final String uniprotKBVersion = null;
 
 		// get all the proteins
 		final Map<String, Set<Protein>> proteinMap = proteinProvider.getProteinMap(testMode);
-		// annotate them
+		// annotate them. After, they will be available by
+		// getProteinAnnotationByProteinAcc(acc)
 		ProteinAnnotator.getInstance(uniprotKBVersion).annotateProteins(proteinMap);
 		// filter them and keep the valids
-		Set<String> validProteinAccs = new THashSet<String>();
+		final Set<String> validProteinAccs = new THashSet<String>();
 		log.info("Performing a pre evaluation of the proteins checking their annotations...");
 		log.info("Checking " + proteinMap.size() + " proteins");
-		for (String proteinAcc : proteinMap.keySet()) {
-			Protein protein = proteinMap.get(proteinAcc).iterator().next();
+		for (final String proteinAcc : proteinMap.keySet()) {
+			final Set<ProteinAnnotation> annotations = ProteinAnnotator.getInstance(uniprotKBVersion)
+					.getProteinAnnotationByProteinAcc(proteinAcc);
 			boolean valid = true;
-			for (AbstractQuery abstractQuery : annotationQueries) {
+			for (final AbstractQuery abstractQuery : annotationQueries) {
 				boolean evaluationResult = true;
 				if (abstractQuery instanceof QueryFromSimpleAnnotationCommand) {
-					QueryFromSimpleAnnotationCommand query = (QueryFromSimpleAnnotationCommand) abstractQuery;
-					evaluationResult = query.evaluate(protein.getProteinAnnotations());
+					final QueryFromSimpleAnnotationCommand query = (QueryFromSimpleAnnotationCommand) abstractQuery;
+					evaluationResult = query.evaluate(annotations);
 				} else if (abstractQuery instanceof QueryFromComplexAnnotationCommand) {
-					QueryFromComplexAnnotationCommand query = (QueryFromComplexAnnotationCommand) abstractQuery;
-					evaluationResult = query.evaluate(protein.getProteinAnnotations());
+					final QueryFromComplexAnnotationCommand query = (QueryFromComplexAnnotationCommand) abstractQuery;
+					evaluationResult = query.evaluate(annotations);
 				}
 				if (!abstractQuery.isNegative()) {
 					if (!evaluationResult) {
@@ -296,45 +293,16 @@ public class QueryInterface {
 		}
 		log.info(validProteinAccs.size() + " out of " + proteinMap.size() + " where valid");
 		// construct the protein provider with the remaining valid proteins
-		ProteinProviderFromDB proteinProviderFromAcc = new ProteinProviderFromProteinAccs(validProteinAccs);
+		final ProteinProviderFromDB proteinProviderFromAcc = new ProteinProviderFromProteinAccs(validProteinAccs);
 		return proteinProviderFromAcc;
-	}
-
-	private void annotateProteins(Map<String, Set<Protein>> proteinList, String uniprotVersion) {
-		UniprotProteinRetriever uplr = new UniprotProteinRetriever(uniprotVersion,
-				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
-				UniprotProteinRetrievalSettings.getInstance().isUseIndex());
-		log.info("Getting Uniprot annotations from " + proteinList.size() + " proteins");
-		Collection<String> accessions = PersistenceUtils.getAccessionsByAccType(proteinList, AccessionType.UNIPROT);
-		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = uplr
-				.getAnnotatedProteins(accessions);
-		for (String accession : proteinList.keySet()) {
-			final edu.scripps.yates.utilities.proteomicsmodel.Protein annotatedProtein = annotatedProteins
-					.get(accession);
-			if (annotatedProtein != null) {
-				final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = annotatedProtein
-						.getAnnotations();
-				for (edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation proteinAnnotation : proteinAnnotations) {
-					final Set<Protein> proteinSet = proteinList.get(accession);
-					for (Protein protein : proteinSet) {
-						final ProteinAnnotation proteinAnnotationNew = new ProteinAnnotationAdapter(proteinAnnotation,
-								null).adapt();
-						protein.getProteinAnnotations().add(proteinAnnotationNew);
-					}
-
-				}
-			}
-		}
-		log.info("Annotations retrieved for " + proteinList.size() + " proteins");
-
 	}
 
 	public QueryResult getQueryResults() {
 		if (queryResult == null) {
 
-			List<LinkBetweenQueriableProteinSetAndPSM> links = QueriesUtil
+			final List<LinkBetweenQueriableProteinSetAndPSM> links = QueriesUtil
 					.createProteinPSMLinks(proteinProvider.getProteinMap(testMode));
-			List<LinkBetweenQueriableProteinSetAndPSM> invalidLinks = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
+			final List<LinkBetweenQueriableProteinSetAndPSM> invalidLinks = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
 			if (needLinkEvaluation) {
 
 				int numDiscardedLinks = 0;
@@ -345,17 +313,17 @@ public class QueryInterface {
 					numDiscardedLinks = 0;
 					numValidLinks = 0;
 					int numLinks = 0;
-					int totalLinks = links.size();
+					final int totalLinks = links.size();
 					final Iterator<LinkBetweenQueriableProteinSetAndPSM> linksIterator = links.iterator();
 					while (linksIterator.hasNext()) {
-						LinkBetweenQueriableProteinSetAndPSM link = linksIterator.next();
+						final LinkBetweenQueriableProteinSetAndPSM link = linksIterator.next();
 						numLinks++;
 						if (numLinks % 100 == 0) {
 							log.info(numRound + " round - " + numLinks + "/" + totalLinks + " links (" + numValidLinks
 									+ " valid, " + numDiscardedLinks + " discarded)");
 						}
 
-						boolean valid = queryBinaryTree.evaluate(link);
+						final boolean valid = queryBinaryTree.evaluate(link);
 
 						// evaluate the links between individual proteins and
 						// psms
@@ -416,7 +384,7 @@ public class QueryInterface {
 	private boolean allQueriesAreTheSameAggregationLevel(QueryBinaryTree queryBinaryTree2) {
 		AggregationLevel level = null;
 		final List<AbstractQuery> abstractQueries = queryBinaryTree2.getAbstractQueries();
-		for (AbstractQuery abstractQuery : abstractQueries) {
+		for (final AbstractQuery abstractQuery : abstractQueries) {
 			final AggregationLevel aggregationLevel = abstractQuery.getAggregationLevel();
 			if (level == null) {
 				level = aggregationLevel;
@@ -430,7 +398,7 @@ public class QueryInterface {
 	private boolean allQueriesAreTheSameAggregationLevel(QueryBinaryTree queryBinaryTree2, AggregationLevel level) {
 
 		final List<AbstractQuery> abstractQueries = queryBinaryTree2.getAbstractQueries();
-		for (AbstractQuery abstractQuery : abstractQueries) {
+		for (final AbstractQuery abstractQuery : abstractQueries) {
 			final AggregationLevel aggregationLevel = abstractQuery.getAggregationLevel();
 			if (level != aggregationLevel) {
 				return false;
@@ -453,20 +421,20 @@ public class QueryInterface {
 
 			int numDiscardedLinks = 0;
 			int numRound = 1;
-			List<LinkBetweenQueriableProteinSetAndPSM> invalidLinks = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
+			final List<LinkBetweenQueriableProteinSetAndPSM> invalidLinks = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
 
 			do {
-				int threadCount = SystemCoreManager.getAvailableNumSystemCores(MAX_NUMBER_PARALLEL_PROCESSES);
+				final int threadCount = SystemCoreManager.getAvailableNumSystemCores(MAX_NUMBER_PARALLEL_PROCESSES);
 				log.info("Evaluating " + links.size() + " links in round " + numRound + " using " + threadCount
 						+ " cores out of " + Runtime.getRuntime().availableProcessors());
-				ParIterator<LinkBetweenQueriableProteinSetAndPSM> iterator = ParIteratorFactory.createParIterator(links,
-						threadCount, Schedule.GUIDED);
+				final ParIterator<LinkBetweenQueriableProteinSetAndPSM> iterator = ParIteratorFactory
+						.createParIterator(links, threadCount, Schedule.GUIDED);
 
-				Reducible<List<LinkBetweenQueriableProteinSetAndPSM>> reducibleLinkMap = new Reducible<List<LinkBetweenQueriableProteinSetAndPSM>>();
-				List<ProteinPSMLinkParallelProcesor> runners = new ArrayList<ProteinPSMLinkParallelProcesor>();
+				final Reducible<List<LinkBetweenQueriableProteinSetAndPSM>> reducibleLinkMap = new Reducible<List<LinkBetweenQueriableProteinSetAndPSM>>();
+				final List<ProteinPSMLinkParallelProcesor> runners = new ArrayList<ProteinPSMLinkParallelProcesor>();
 				for (int numCore = 0; numCore < threadCount; numCore++) {
 					// take current DB session
-					ProteinPSMLinkParallelProcesor runner = new ProteinPSMLinkParallelProcesor(iterator,
+					final ProteinPSMLinkParallelProcesor runner = new ProteinPSMLinkParallelProcesor(iterator,
 							reducibleLinkMap, queryBinaryTree);
 					runners.add(runner);
 					runner.start();
@@ -478,11 +446,11 @@ public class QueryInterface {
 				for (int k = 0; k < threadCount; k++) {
 					try {
 						runners.get(k).join();
-					} catch (InterruptedException e) {
+					} catch (final InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
-				Reduction<List<LinkBetweenQueriableProteinSetAndPSM>> linkReduction = new Reduction<List<LinkBetweenQueriableProteinSetAndPSM>>() {
+				final Reduction<List<LinkBetweenQueriableProteinSetAndPSM>> linkReduction = new Reduction<List<LinkBetweenQueriableProteinSetAndPSM>>() {
 					@Override
 					public List<LinkBetweenQueriableProteinSetAndPSM> reduce(
 							List<LinkBetweenQueriableProteinSetAndPSM> first,
