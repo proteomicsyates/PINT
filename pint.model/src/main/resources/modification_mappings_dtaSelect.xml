@@ -775,33 +775,7 @@
 				<psi_modification id="MOD:01148" title="ubiquitinylation lysine" general_modification="1" specific_modification="0" origin="L" term_spec="none" obsolete="0"/>
 			</psi_modifications>
 		</pride_modification>
-		<!-- added by Salva on 6/14/2018 for supporting Nethylmaleimide -->
-		<pride_modification title="N-ethylmaleimide on cysteines" id="48" diff_mono="125.047679" biological_significance="0">
-			<unimod_mappings>
-				<unimod_mapping id="108"/>
-			</unimod_mappings>
-			<psi_modifications>
-				<psi_modification id="MOD:00483" title="Nethylmaleimide" general_modification="1" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
-			</psi_modifications>
-		</pride_modification>
-		<!-- added by Salva on 6/14/2018 for supporting Trioxidation -->
-		<pride_modification title="cysteine oxidation to cysteic acid" id="48" diff_mono="47.984744" biological_significance="0">
-			<unimod_mappings>
-				<unimod_mapping id="345"/>
-			</unimod_mappings>
-			<psi_modifications>
-				<psi_modification id="MOD:00406" title="Trioxidation" general_modification="1" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
-			</psi_modifications>
-		</pride_modification>
-		<!-- added by Salva on 6/22/2018 for supporting Dioxidation -->
-		<pride_modification title="Dioxidation" id="49" diff_mono="31.989829" biological_significance="0">
-			<unimod_mappings>
-				<unimod_mapping id="425"/>
-			</unimod_mappings>
-			<psi_modifications>
-				<psi_modification id="MOD:00428" title="dihydroxylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
-			</psi_modifications>
-		</pride_modification>
+
 		<!-- added by Salva on 6/22/2018 for supporting biotin-maleimide -->
 		<pride_modification title="biotin-maleimide" id="50" diff_mono="451.1889" biological_significance="0">
 			<unimod_mappings>
@@ -811,23 +785,6 @@
 				<psi_modification id="MOD:00000" title="biotin-maleimide" general_modification="1" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
 			</psi_modifications>
 		</pride_modification>
-		<!-- added by Salva on 6/22/2018 for supporting N-ethylmaleimide derivatized cysteine -->
-		<pride_modification title="N-ethylmaleimide on cysteines" id="51" diff_mono="125.047679" biological_significance="0">
-			<unimod_mappings>
-				<unimod_mapping id="108"/>
-			</unimod_mappings>
-			<psi_modifications>
-				<psi_modification id="MOD:00483" title="N-ethylmaleimide derivatized cysteine" general_modification="1" specific_modification="0" origin="C" term_spec="none" obsolete="0"/>
-			</psi_modifications>
-		</pride_modification>
-		<!-- added by Salva on 6/22/2018 for supporting dimethyl -->
-		<pride_modification title="di-Methylation" id="52" diff_mono="28.0313" biological_significance="0">
-			<unimod_mappings>
-				<unimod_mapping id="36"/>
-			</unimod_mappings>
-			<psi_modifications>
-				<psi_modification id="MOD:00429" title="dimethylated residue" general_modification="1" specific_modification="0" origin="X" term_spec="none" obsolete="0"/>
-			</psi_modifications>
-		</pride_modification>
+	
 	</pride_modifications>
 </pride_mod>
