@@ -8,6 +8,7 @@ import edu.scripps.yates.cv.CVManager;
 import edu.scripps.yates.cv.CommonlyUsedCV;
 import edu.scripps.yates.dtaselectparser.util.DTASelectModification;
 import edu.scripps.yates.dtaselectparser.util.DTASelectPSM;
+import edu.scripps.yates.model.util.PTMAdapter;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.PeptideRelation;
 import edu.scripps.yates.utilities.model.factories.AmountEx;
@@ -55,15 +56,17 @@ public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteom
 		ptms = new ArrayList<PTM>();
 		final List<DTASelectModification> modifications = this.dtaSelectPSM.getModifications();
 		if (modifications != null) {
-			for (DTASelectModification dtaSelectModification : modifications) {
-				ptms.add(new PTMImplFromDTASelect(dtaSelectModification));
+			for (final DTASelectModification dtaSelectModification : modifications) {
+				ptms.add(new PTMAdapter(dtaSelectModification.getModificationShift(),
+						String.valueOf(dtaSelectModification.getAa()), dtaSelectModification.getModPosition()).adapt());
+				// ptms.add(new PTMImplFromDTASelect(dtaSelectModification));
 			}
 		}
 		this.msRun = msRun;
 	}
 
 	@Override
-	public String getPSMIdentifier() {
+	public String getIdentifier() {
 		return dtaSelectPSM.getPsmIdentifier();
 	}
 
@@ -156,14 +159,14 @@ public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteom
 			final Double xcorr = dtaSelectPSM.getXcorr();
 			if (xcorr != null) {
 
-				Score score = new ScoreEx(xcorr.toString(), xcorrName, psmScoreName, null);
+				final Score score = new ScoreEx(xcorr.toString(), xcorrName, psmScoreName, null);
 				scores.add(score);
 			}
 
 			final Double deltaCn = dtaSelectPSM.getDeltacn();
 			if (deltaCn != null) {
 
-				Score score = new ScoreEx(deltaCn.toString(), deltaCnName, psmScoreName, null);
+				final Score score = new ScoreEx(deltaCn.toString(), deltaCnName, psmScoreName, null);
 				scores.add(score);
 			}
 			scoreParsed = true;
@@ -198,8 +201,8 @@ public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteom
 		if (peptide != null) {
 			this.peptide = peptide;
 			peptide.addPSM(this);
-			Set<Protein> proteins2 = getProteins();
-			for (Protein protein : proteins2) {
+			final Set<Protein> proteins2 = getProteins();
+			for (final Protein protein : proteins2) {
 				peptide.addProtein(protein);
 				protein.addPeptide(peptide);
 			}
@@ -211,7 +214,7 @@ public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteom
 		if (peptide == null) {
 			String conditionName = null;
 			Condition condition = null;
-			Set<Condition> conditions2 = getConditions();
+			final Set<Condition> conditions2 = getConditions();
 			if (!conditions2.isEmpty()) {
 				condition = conditions2.iterator().next();
 				conditionName = condition.getName();
@@ -237,7 +240,7 @@ public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteom
 		if (condition != null && !conditions.contains(condition)) {
 			conditions.add(condition);
 			// set condition to amounts
-			for (Amount amount : getAmounts()) {
+			for (final Amount amount : getAmounts()) {
 				if (amount.getCondition() == null) {
 					if (amount instanceof AmountEx) {
 						((AmountEx) amount).setCondition(condition);
@@ -277,14 +280,14 @@ public class PSMImplFromDTASelect implements edu.scripps.yates.utilities.proteom
 		if (protein != null && !proteins.contains(protein)) {
 			proteins.add(protein);
 			protein.addPSM(this);
-			protein.addPeptide(this.getPeptide());
+			protein.addPeptide(getPeptide());
 		}
 
 	}
 
 	@Override
 	public List<GroupableProtein> getGroupableProteins() {
-		List<GroupableProtein> ret = new ArrayList<GroupableProtein>();
+		final List<GroupableProtein> ret = new ArrayList<GroupableProtein>();
 		ret.addAll(getProteins());
 		return ret;
 	}

@@ -204,8 +204,8 @@ public class ProteinDTASelectParser {
 			for (Set<Protein> proteinSet : getProteins().values()) {
 				for (Protein dtaSelectProtein : proteinSet) {
 					for (PSM psm : dtaSelectProtein.getPSMs()) {
-						if (!psms.containsKey(psm.getPSMIdentifier())) {
-							psms.put(psm.getPSMIdentifier(), psm);
+						if (!psms.containsKey(psm.getIdentifier())) {
+							psms.put(psm.getIdentifier(), psm);
 						}
 					}
 				}

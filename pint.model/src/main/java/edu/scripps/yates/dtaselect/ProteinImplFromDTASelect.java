@@ -12,7 +12,7 @@ import edu.scripps.yates.dtaselectparser.util.DTASelectPSM;
 import edu.scripps.yates.dtaselectparser.util.DTASelectProtein;
 import edu.scripps.yates.util.ProteinExistenceUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.grouping.GroupablePSM;
+import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
@@ -449,8 +449,8 @@ public class ProteinImplFromDTASelect implements Protein {
 	}
 
 	@Override
-	public List<GroupablePSM> getGroupablePSMs() {
-		List<GroupablePSM> ret = new ArrayList<GroupablePSM>();
+	public List<GroupablePeptide> getGroupablePeptides() {
+		List<GroupablePeptide> ret = new ArrayList<GroupablePeptide>();
 		ret.addAll(getPSMs());
 		return ret;
 	}

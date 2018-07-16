@@ -10,7 +10,7 @@ import edu.scripps.yates.census.read.model.IsobaricQuantifiedProtein;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
 import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.grouping.GroupablePSM;
+import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
@@ -85,8 +85,8 @@ public class ProteinImplFromQuantifiedProtein implements Protein {
 	}
 
 	@Override
-	public List<GroupablePSM> getGroupablePSMs() {
-		return quantProtein.getGroupablePSMs();
+	public List<GroupablePeptide> getGroupablePeptides() {
+		return quantProtein.getGroupablePeptides();
 	}
 
 	@Override

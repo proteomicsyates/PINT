@@ -98,8 +98,8 @@ public class PSMImplFromQuantifiedPSM implements PSM {
 	}
 
 	@Override
-	public String getPSMIdentifier() {
-		return quantPSM.getPSMIdentifier();
+	public String getIdentifier() {
+		return quantPSM.getIdentifier();
 	}
 
 	@Override

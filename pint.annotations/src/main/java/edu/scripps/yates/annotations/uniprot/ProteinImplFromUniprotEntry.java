@@ -38,7 +38,7 @@ import edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Plasmid;
 import edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Strain;
 import edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Transposon;
 import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.grouping.GroupablePSM;
+import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
@@ -865,8 +865,8 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	}
 
 	@Override
-	public List<GroupablePSM> getGroupablePSMs() {
-		final List<GroupablePSM> list = new ArrayList<GroupablePSM>();
+	public List<GroupablePeptide> getGroupablePeptides() {
+		final List<GroupablePeptide> list = new ArrayList<GroupablePeptide>();
 		list.addAll(getPSMs());
 		return list;
 	}

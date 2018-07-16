@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import edu.scripps.yates.utilities.grouping.GroupablePSM;
+import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
@@ -293,8 +293,8 @@ public class AnnotatedProteinImpl implements Protein {
 	}
 
 	@Override
-	public List<GroupablePSM> getGroupablePSMs() {
-		List<GroupablePSM> ret = new ArrayList<GroupablePSM>();
+	public List<GroupablePeptide> getGroupablePeptides() {
+		List<GroupablePeptide> ret = new ArrayList<GroupablePeptide>();
 		ret.addAll(getPSMs());
 		return ret;
 	}
