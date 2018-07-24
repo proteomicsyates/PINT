@@ -13,6 +13,7 @@ import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
 
 public class ProteoformRetrieverIteratorFromXML implements Iterator<Proteoform> {
+	private final boolean retrieveProteoforms;
 	private final boolean retrieveIsoforms;
 	private final boolean retrievePTMs;
 	private final String uniprotVersion;
@@ -24,9 +25,10 @@ public class ProteoformRetrieverIteratorFromXML implements Iterator<Proteoform> 
 												// of proteoform is empty
 	private final List<Proteoform> proteoformList = new ArrayList<Proteoform>();
 
-	public ProteoformRetrieverIteratorFromXML(Collection<String> uniprotACCs, boolean retrieveIsoforms,
-			boolean retrievePTMs, String uniprotVersion, UniprotProteinLocalRetriever uplr) {
+	public ProteoformRetrieverIteratorFromXML(Collection<String> uniprotACCs, boolean retrieveProteoforms,
+			boolean retrieveIsoforms, boolean retrievePTMs, String uniprotVersion, UniprotProteinLocalRetriever uplr) {
 		this.retrieveIsoforms = retrieveIsoforms;
+		this.retrieveProteoforms = retrieveProteoforms;
 		this.uniprotVersion = uniprotVersion;
 		this.uplr = uplr;
 		this.retrievePTMs = retrievePTMs;
@@ -70,7 +72,8 @@ public class ProteoformRetrieverIteratorFromXML implements Iterator<Proteoform> 
 		final List<String> accList = accs.subList(currentAccIndex, nextIndex);
 		currentAccIndex = nextIndex;
 		final Map<String, List<Proteoform>> proteoformsFromList = UniprotProteoformRetrieverFromXML
-				.getProteoformsFromList(accList, retrieveIsoforms, retrievePTMs, uniprotVersion, uplr);
+				.getProteoformsFromList(accList, retrieveProteoforms, retrieveIsoforms, retrievePTMs, uniprotVersion,
+						uplr);
 		final Set<Proteoform> set = new HashSet<Proteoform>();
 		for (final List<Proteoform> proteoforms : proteoformsFromList.values()) {
 			set.addAll(proteoforms);

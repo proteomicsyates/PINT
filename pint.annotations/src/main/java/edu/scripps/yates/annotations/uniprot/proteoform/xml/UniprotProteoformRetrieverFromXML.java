@@ -38,6 +38,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 	private final UniprotProteinLocalRetriever uplr;
 	private boolean retrievePTMs = true;
 	private boolean retrieveIsoforms = true;
+	private boolean retrieveProteoforms = true;
 	private final String uniprotVersion;
 
 	public UniprotProteoformRetrieverFromXML(UniprotProteinLocalRetriever uplr, String uniprotVersion) {
@@ -56,11 +57,27 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 
 	@Override
 	public Map<String, List<Proteoform>> getProteoforms(Collection<String> uniprotACCs) {
-		return getProteoformsFromList(uniprotACCs, retrieveIsoforms, retrievePTMs, uniprotVersion, uplr);
+		return getProteoformsFromList(uniprotACCs, retrieveProteoforms, retrieveIsoforms,
+				retrieveProteoforms & retrievePTMs, uniprotVersion, uplr);
 	}
 
+	/**
+	 * 
+	 * @param uniprotACCs
+	 * @param retrieveProteoforms
+	 *            if false, only main entry will be retrieved. if true, variants
+	 *            and alternative products will be retrieved
+	 * @param retrieveIsoforms
+	 *            if true, the isoforms will be rertieved
+	 * @param retrievePTMs
+	 *            if true, the PTM annotations will be retrieved
+	 * @param uniprotVersion
+	 * @param uplr
+	 * @return
+	 */
 	protected static Map<String, List<Proteoform>> getProteoformsFromList(Collection<String> uniprotACCs,
-			boolean retrieveIsoforms, boolean retrievePTMs, String uniprotVersion, UniprotProteinLocalRetriever uplr) {
+			boolean retrieveProteoforms, boolean retrieveIsoforms, boolean retrievePTMs, String uniprotVersion,
+			UniprotProteinLocalRetriever uplr) {
 		final Map<String, List<Proteoform>> ret = new HashMap<String, List<Proteoform>>();
 		final List<String> uniprotAccList = new ArrayList<String>();
 		uniprotAccList.addAll(uniprotACCs);
@@ -146,7 +163,11 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					final Proteoform originalvariant = new Proteoform(acc, originalSequence, acc, originalSequence,
 							name, description, gene, taxonomy, ProteoformType.MAIN_ENTRY, true);
 					ret.get(acc).add(originalvariant);
+					if (!retrieveProteoforms) {
+						// do not look further
+						continue;
 
+					}
 					// query for variants
 					final List<FeatureType> features = UniprotEntryUtil.getFeatures(entry,
 							uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.VARIANT);
@@ -307,8 +328,8 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 
 	@Override
 	public Iterator<Proteoform> getProteoformIterator(Collection<String> uniprotACCs) {
-		return new ProteoformRetrieverIteratorFromXML(uniprotACCs, retrieveIsoforms, retrievePTMs, uniprotVersion,
-				uplr);
+		return new ProteoformRetrieverIteratorFromXML(uniprotACCs, retrieveProteoforms, retrieveIsoforms, retrievePTMs,
+				uniprotVersion, uplr);
 	}
 
 	@Override
@@ -318,6 +339,20 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 			set.add(uniprotACC);
 		}
 		return getProteoformIterator(set);
+	}
+
+	public boolean isRetrieveProteoforms() {
+		return retrieveProteoforms;
+	}
+
+	/**
+	 * whether to search for variants and alternative products or not. If this
+	 * is false, PTMs will not be retrieved
+	 * 
+	 * @param retrieveProteoforms
+	 */
+	public void setRetrieveProteoforms(boolean retrieveProteoforms) {
+		this.retrieveProteoforms = retrieveProteoforms;
 	}
 
 }
