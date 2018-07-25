@@ -545,7 +545,9 @@ public class UniprotProteinLocalRetriever {
 					queryProteinsMap.putAll(foundIsoformEntries);
 					// now save them in the local index
 					try {
-						saveUniprotToLocalFilesystem(foundIsoformEntries, uniprotVersion, useIndex);
+						if (!foundIsoformEntries.isEmpty()) {
+							saveUniprotToLocalFilesystem(foundIsoformEntries, uniprotVersion, useIndex);
+						}
 					} catch (final JAXBException | IOException e) {
 						e.printStackTrace();
 						log.warn("Error while saving isoform entries to the local index");
