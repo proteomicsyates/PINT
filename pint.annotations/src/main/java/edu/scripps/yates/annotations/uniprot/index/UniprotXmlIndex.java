@@ -30,7 +30,6 @@ import edu.scripps.yates.utilities.index.FileIndex;
 import edu.scripps.yates.utilities.index.TextFileIndex;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
 
 public class UniprotXmlIndex implements FileIndex<Entry> {
 	private static final Logger log = Logger.getLogger(TextFileIndex.class);
@@ -190,18 +189,18 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		try {
 			// load index file
 			loadIndexFile();
-			final Set<Pair<Long, Long>> setofpairs = new THashSet<Pair<Long, Long>>();
+			final List<Pair<Long, Long>> listofpairs = new ArrayList<Pair<Long, Long>>();
 			for (final String key : keys) {
 				if (indexMap.containsKey(key)) {
 					final Pair<Long, Long> pair = indexMap.get(key);
-					setofpairs.add(pair);
+					listofpairs.add(pair);
 				}
 			}
 			// Merge consecutive pairs
-			final List<Pair<Long, Long>> listofpairs = mergeConsecutivePairs(setofpairs, MAX_NUMBER_ENTRIES_PER_PAIR);
+			final List<Pair<Long, Long>> listofpairs2 = mergeConsecutivePairs(listofpairs, MAX_NUMBER_ENTRIES_PER_PAIR);
 
 			final List<Entry> ret = new ArrayList<Entry>();
-			for (final Pair<Long, Long> pair : listofpairs) {
+			for (final Pair<Long, Long> pair : listofpairs2) {
 
 				final String item = uniprotFileIndexIO.getItem(pair.getFirstelement(), pair.getSecondElement());
 
@@ -233,16 +232,16 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		try {
 			// load index file
 			loadIndexFile();
-			final Set<Pair<Long, Long>> setofpairs = new THashSet<Pair<Long, Long>>();
+			final List<Pair<Long, Long>> listofpairs = new ArrayList<Pair<Long, Long>>();
 			for (final String key : keys) {
 				if (indexMap.containsKey(key)) {
 					final Pair<Long, Long> pair = indexMap.get(key);
-					setofpairs.add(pair);
+					listofpairs.add(pair);
 				}
 			}
 			// Merge consecutive pairs
-			final List<Pair<Long, Long>> listofpairs = mergeConsecutivePairs(setofpairs, MAX_NUMBER_ENTRIES_PER_PAIR);
-			return new UniprotXmlIndexIterator(listofpairs, uniprotFileIndexIO, ignoreReferences, ignoreDBReferences);
+			final List<Pair<Long, Long>> listofpairs2 = mergeConsecutivePairs(listofpairs, MAX_NUMBER_ENTRIES_PER_PAIR);
+			return new UniprotXmlIndexIterator(listofpairs2, uniprotFileIndexIO, ignoreReferences, ignoreDBReferences);
 
 		} catch (final IndexException e) {
 			e.printStackTrace();
@@ -255,10 +254,9 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		return null;
 	}
 
-	private List<Pair<Long, Long>> mergeConsecutivePairs(Set<Pair<Long, Long>> setofpairs,
+	private List<Pair<Long, Long>> mergeConsecutivePairs(List<Pair<Long, Long>> listofpairs,
 			int maxNumberOfEntriesPerPair) {
-		final List<Pair<Long, Long>> listofpairs = new ArrayList<Pair<Long, Long>>();
-		listofpairs.addAll(setofpairs);
+
 		// sort the pairs
 		Collections.sort(listofpairs, new Comparator<Pair<Long, Long>>() {
 
@@ -295,7 +293,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 				i += j - 1;
 			} else {
 				ret.add(pair1);
-				i++;
+
 			}
 		}
 		if (ret.size() != listofpairs.size()) {
