@@ -805,7 +805,7 @@ public class ImportCfgFileReader {
 						if (runPSMs != null) {
 							for (final PSM runPSM : runPSMs) {
 								final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap
-										.get(runPSM.getPSMIdentifier());
+										.get(runPSM.getIdentifier());
 								if (quantifiedPSM == null) {
 									// log.warn(runPSM.getPSMIdentifier()
 									// + " doesn't have quantitative
@@ -1084,7 +1084,7 @@ public class ImportCfgFileReader {
 						if (runPSMs != null) {
 							for (final PSM runPSM : runPSMs) {
 								final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap
-										.get(runPSM.getPSMIdentifier());
+										.get(runPSM.getIdentifier());
 								if (quantifiedPSM == null) {
 									// log.warn(runPSM.getPSMIdentifier()
 									// + " doesn't have quantitative

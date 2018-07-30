@@ -313,7 +313,7 @@ public class ImportCfgUtil {
 				// add if different psmID
 				boolean found = false;
 				for (PSM originalPSM : originalProtein.getPSMs()) {
-					if (originalPSM.getPSMIdentifier().equals(psm.getPSMIdentifier())) {
+					if (originalPSM.getIdentifier().equals(psm.getIdentifier())) {
 						found = true;
 						break;
 					}

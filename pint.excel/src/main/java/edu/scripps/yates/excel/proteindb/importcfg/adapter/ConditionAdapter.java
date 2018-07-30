@@ -339,7 +339,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 				if (quantPSMsMap != null) {
 					final Set<PSM> runPSMs = getPSMsByRunID(project.getTag(), msRunRef);
 					for (final PSM runPSM : runPSMs) {
-						final String psmIdentifier = runPSM.getPSMIdentifier();
+						final String psmIdentifier = runPSM.getIdentifier();
 
 						final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap.get(psmIdentifier);
 						if (quantifiedPSM == null) {

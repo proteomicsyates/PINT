@@ -16,8 +16,7 @@ import edu.scripps.yates.cv.CommonlyUsedCV;
 import edu.scripps.yates.dtaselect.PSMImplFromDTASelect;
 import edu.scripps.yates.excel.util.ColumnIndexManager;
 import edu.scripps.yates.excel.util.ColumnIndexManager.ColumnName;
-import edu.scripps.yates.model.util.PeptideImplFromProteinsAndPSMs;
-import edu.scripps.yates.utilities.grouping.GroupablePSM;
+import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
@@ -32,7 +31,6 @@ import edu.scripps.yates.utilities.model.factories.AmountEx;
 import edu.scripps.yates.utilities.model.factories.ConditionEx;
 import edu.scripps.yates.utilities.model.factories.GeneEx;
 import edu.scripps.yates.utilities.model.factories.PSMEx;
-import edu.scripps.yates.utilities.model.factories.PeptideEx;
 import edu.scripps.yates.utilities.model.factories.ProteinAnnotationEx;
 import edu.scripps.yates.utilities.model.factories.RatioEx;
 import edu.scripps.yates.utilities.model.factories.ScoreEx;
@@ -146,15 +144,15 @@ public class ProteinImpl2 implements Protein {
 	@Override
 	public Set<Gene> getGenes() {
 		if (!genesParsed) {
-			Cell cell = getRow(columnManager.getSheetIndex(ColumnName.Official_Gene_symbol), 0)
+			final Cell cell = getRow(columnManager.getSheetIndex(ColumnName.Official_Gene_symbol), 0)
 					.getCell(columnManager.getColumnIndex(ColumnName.Official_Gene_symbol));
 			if (cell != null) {
 
-				Set<String> geneNames = new THashSet<String>();
+				final Set<String> geneNames = new THashSet<String>();
 				final String stringCellValue = cell.getStringCellValue();
 				if (stringCellValue.contains(";")) {
 					final String[] split = stringCellValue.split(";");
-					for (String string : split) {
+					for (final String string : split) {
 						if (!geneNames.contains(string)) {
 							genes.add(new GeneEx(string));
 							geneNames.add(string);
@@ -173,12 +171,12 @@ public class ProteinImpl2 implements Protein {
 	private List<String> getProteinNames() {
 
 		final List<Row> rowList = rows.get(columnManager.getSheetIndex(ColumnName.uniprot_annotation_Protein_names));
-		List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<String>();
 		if (rowList != null) {
 			for (int i = 0; i < rowList.size(); i++) {
 				final String annotation = getStringValue(getCell(ColumnName.uniprot_annotation_Protein_names, i));
 				if (annotation != null) {
-					List<String> proteinDescriptions = parseProteinDescriptions(annotation);
+					final List<String> proteinDescriptions = parseProteinDescriptions(annotation);
 					ret.addAll(proteinDescriptions);
 				}
 			}
@@ -188,18 +186,18 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	private List<String> parseProteinDescriptions(String annotation) {
-		List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<String>();
 		if (annotation.contains("(") && annotation.contains(")")) {
 			// before parenthesis
-			String beforeParenthesis = annotation.substring(0, annotation.indexOf("(")).trim();
+			final String beforeParenthesis = annotation.substring(0, annotation.indexOf("(")).trim();
 			if (!"".equals(beforeParenthesis))
 				ret.add(beforeParenthesis.trim());
 			// between parenthesis
 			final int validIndexOfCloseParenthesis = getValidIndexOfCloseParenthesis(annotation);
-			String tmp = annotation.substring(annotation.indexOf("(") + 1, validIndexOfCloseParenthesis);
+			final String tmp = annotation.substring(annotation.indexOf("(") + 1, validIndexOfCloseParenthesis);
 			ret.add(tmp.trim());
 			annotation = annotation.substring(validIndexOfCloseParenthesis + 1);
-			List<String> retTmp = parseProteinDescriptions(annotation);
+			final List<String> retTmp = parseProteinDescriptions(annotation);
 			ret.addAll(retTmp);
 		} else {
 			if (!"".equals(annotation))
@@ -228,7 +226,7 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	private List<Accession> getUniprotAccessions() {
-		List<Accession> ret = new ArrayList<Accession>();
+		final List<Accession> ret = new ArrayList<Accession>();
 
 		// get the IPI Accession and get the mapping from the
 		// IPI2Uniprot mapping system
@@ -242,7 +240,7 @@ public class ProteinImpl2 implements Protein {
 				map2Uniprot.clear();
 				map2Uniprot.addAll(swissProts);
 			}
-			for (UniprotEntry uniprot : map2Uniprot) {
+			for (final UniprotEntry uniprot : map2Uniprot) {
 				final AccessionEx accessionEx = new AccessionEx(uniprot.getAcc(), AccessionType.UNIPROT);
 				if (uniprot.getName() != null && !"".equals(uniprot.getName())) {
 					accessionEx.setDescription(uniprot.getName());
@@ -298,9 +296,9 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	private List<UniprotEntry> getUniprotEntryByType(Collection<UniprotEntry> entries, UniprotEntry.UNIPROT_TYPE type) {
-		List<UniprotEntry> ret = new ArrayList<UniprotEntry>();
+		final List<UniprotEntry> ret = new ArrayList<UniprotEntry>();
 		if (entries != null) {
-			for (UniprotEntry uniprotEntry : entries) {
+			for (final UniprotEntry uniprotEntry : entries) {
 				if (uniprotEntry.getType() == type) {
 					ret.add(uniprotEntry);
 				}
@@ -311,11 +309,11 @@ public class ProteinImpl2 implements Protein {
 
 	private Accession getIPIAccession() {
 
-		Row mainRow = getMainRow(columnManager.getSheetIndex(ColumnName.LOCUS));
+		final Row mainRow = getMainRow(columnManager.getSheetIndex(ColumnName.LOCUS));
 		if (mainRow != null) {
 			// get the IPI accession
-			int locus = columnManager.getColumnIndex(ColumnName.LOCUS);
-			Cell cell = mainRow.getCell(locus);
+			final int locus = columnManager.getColumnIndex(ColumnName.LOCUS);
+			final Cell cell = mainRow.getCell(locus);
 			if (cell != null) {
 				final AccessionEx accessionEx = new AccessionEx(getStringValue(cell), AccessionType.IPI);
 				return accessionEx;
@@ -326,7 +324,7 @@ public class ProteinImpl2 implements Protein {
 
 	@Override
 	public Set<ProteinAnnotation> getAnnotations() {
-		Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
+		final Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
 
 		// forst parse "uniprot annotation" column, that contains different
 		// annotations
@@ -335,9 +333,9 @@ public class ProteinImpl2 implements Protein {
 			final String annotation = getStringValue(getCell(ColumnName.UNIPROT_ANNOTATION, i));
 			if (annotation != null) {
 				final Map<AnnotationType, List<String>> parsedAnnotations = AnnotationType.parseAnnotations(annotation);
-				for (AnnotationType annotationType : parsedAnnotations.keySet()) {
+				for (final AnnotationType annotationType : parsedAnnotations.keySet()) {
 					final List<String> list = parsedAnnotations.get(annotationType);
-					for (String annotationValue : list) {
+					for (final String annotationValue : list) {
 						ret.add(new ProteinAnnotationEx(annotationType, annotationType.getKey(), annotationValue));
 					}
 				}
@@ -377,15 +375,15 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	private Set<ProteinAnnotationEx> getProteinAnnotations(AnnotationType annotationType, ColumnName columnName) {
-		Set<ProteinAnnotationEx> ret = new THashSet<ProteinAnnotationEx>();
+		final Set<ProteinAnnotationEx> ret = new THashSet<ProteinAnnotationEx>();
 		final List<Row> rowList = rows.get(columnManager.getSheetIndex(columnName));
 		for (int i = 0; i < rowList.size(); i++) {
 			String annotation = getStringValue(getCell(columnName, i));
 			if (annotation != null) {
 				if (annotation.toLowerCase().startsWith(annotationType.getKey().toLowerCase() + ":"))
 					annotation = annotation.substring(annotation.indexOf(":") + 1).trim();
-				ProteinAnnotationEx proteinAnnotation = new ProteinAnnotationEx(annotationType, annotationType.getKey(),
-						annotation);
+				final ProteinAnnotationEx proteinAnnotation = new ProteinAnnotationEx(annotationType,
+						annotationType.getKey(), annotation);
 				ret.add(proteinAnnotation);
 			}
 		}
@@ -428,23 +426,23 @@ public class ProteinImpl2 implements Protein {
 
 	private Ratio getSAHARatio() {
 
-		Double ratio = getDoubleValue(getCell(ColumnName.SAHA_ratio_BKG, 0));
+		final Double ratio = getDoubleValue(getCell(ColumnName.SAHA_ratio_BKG, 0));
 		if (ratio != null) {
 			// just to make sure that conditions are already created:
 			getAmounts();
 
-			Condition wtcondition = ProteinSetAdapter
+			final Condition wtcondition = ProteinSetAdapter
 					.getExperimentalCondition(edu.scripps.yates.excel.proteindb.enums.ConditionName.WT, null, null);
-			Condition mutcondition = ProteinSetAdapter
+			final Condition mutcondition = ProteinSetAdapter
 					.getExperimentalCondition(edu.scripps.yates.excel.proteindb.enums.ConditionName.SAHA, null, null);
 
 			final RatioEx proteinRatio = new RatioEx(2, wtcondition, mutcondition, "Ratio over background for SAHA",
 					AggregationLevel.PROTEIN);
 			// pvalue of the ratio
-			Double value = getDoubleValue(getCell(ColumnName.SAHA_P, 0));
+			final Double value = getDoubleValue(getCell(ColumnName.SAHA_P, 0));
 			if (value != null) {
-				String description = "Probability value (P) for DeltaF508 CFTR interactors upon SAHA treatment to distinguish from background";
-				ScoreEx score = new ScoreEx(value.toString(), ColumnName.SAHA_P.name(), QUANTIFICATION_PVALUE,
+				final String description = "Probability value (P) for DeltaF508 CFTR interactors upon SAHA treatment to distinguish from background";
+				final ScoreEx score = new ScoreEx(value.toString(), ColumnName.SAHA_P.name(), QUANTIFICATION_PVALUE,
 						description);
 				proteinRatio.setAssociatedConfidenceScore(score);
 			}
@@ -455,28 +453,29 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	private Ratio getGeneralRatio() {
-		Double ratio = getDoubleValue(getCell(ColumnName.ALL_ratio_BKG, 0));
+		final Double ratio = getDoubleValue(getCell(ColumnName.ALL_ratio_BKG, 0));
 		if (ratio != null) {
 			// just to make sure that conditions are already created:
 			getAmounts();
 
-			Sample superSample = ProteinSetAdapter.getSample("sample: every sample excepting to DeltaF508, wt and SAHA",
-					false, false, ProteinSetAdapter.humanOrganism, ProteinSetAdapter.tissue);
-			Condition clusterExperimentalCondition = ProteinSetAdapter.getExperimentalCondition(
+			final Sample superSample = ProteinSetAdapter.getSample(
+					"sample: every sample excepting to DeltaF508, wt and SAHA", false, false,
+					ProteinSetAdapter.humanOrganism, ProteinSetAdapter.tissue);
+			final Condition clusterExperimentalCondition = ProteinSetAdapter.getExperimentalCondition(
 					edu.scripps.yates.excel.proteindb.enums.ConditionName.ALL_CONDITIONS,
 					"All proteins from every experiment excepting to DeltaF508, wt and SAHA", superSample);
 
-			Condition background = ProteinSetAdapter
+			final Condition background = ProteinSetAdapter
 					.getExperimentalCondition(edu.scripps.yates.excel.proteindb.enums.ConditionName.WT, null, null);
 
 			final RatioEx proteinRatio = new RatioEx(ratio, clusterExperimentalCondition, background,
 					"Ratio over background for all other experiments DeltaF508, wt and SAHA", AggregationLevel.PROTEIN);
 
 			// pvalue of the ratio
-			Double pvalue = getDoubleValue(getCell(ColumnName.All_P, 0));
+			final Double pvalue = getDoubleValue(getCell(ColumnName.All_P, 0));
 			if (pvalue != null) {
-				String description = "Probability value (P) for  DeltaF508 CFTR interactors in drug-treated experiments or temperature-experiments to distinguish from background";
-				ScoreEx score = new ScoreEx(pvalue.toString(), ColumnName.All_P.name(), QUANTIFICATION_PVALUE,
+				final String description = "Probability value (P) for  DeltaF508 CFTR interactors in drug-treated experiments or temperature-experiments to distinguish from background";
+				final ScoreEx score = new ScoreEx(pvalue.toString(), ColumnName.All_P.name(), QUANTIFICATION_PVALUE,
 						description);
 				proteinRatio.setAssociatedConfidenceScore(score);
 			}
@@ -487,22 +486,22 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	private Ratio getWTRatio() {
-		Double spc = getDoubleValue(getCell(ColumnName.WT_ratio_BKG, 0));
+		final Double spc = getDoubleValue(getCell(ColumnName.WT_ratio_BKG, 0));
 		if (spc != null) {
 			// just to make sure that conditions are already created:
 			getAmounts();
 
-			Condition wtcondition = ProteinSetAdapter.getExperimentalCondition(
+			final Condition wtcondition = ProteinSetAdapter.getExperimentalCondition(
 					edu.scripps.yates.excel.proteindb.enums.ConditionName.BACKGROUND, null, null);
-			Condition mutcondition = ProteinSetAdapter
+			final Condition mutcondition = ProteinSetAdapter
 					.getExperimentalCondition(edu.scripps.yates.excel.proteindb.enums.ConditionName.WT, null, null);
 			final RatioEx proteinRatio = new RatioEx(4, wtcondition, mutcondition,
 					"Ratio over background for DeltaF508", AggregationLevel.PROTEIN);
 			// pvalue of the ratio
-			Double value = getDoubleValue(getCell(ColumnName.WT_P, 0));
+			final Double value = getDoubleValue(getCell(ColumnName.WT_P, 0));
 			if (value != null) {
-				String description = "p-value for wt CFTR Interators to distinguish from background";
-				ScoreEx score = new ScoreEx(value.toString(), ColumnName.WT_P.name(), QUANTIFICATION_PVALUE,
+				final String description = "p-value for wt CFTR Interators to distinguish from background";
+				final ScoreEx score = new ScoreEx(value.toString(), ColumnName.WT_P.name(), QUANTIFICATION_PVALUE,
 						description);
 				proteinRatio.setAssociatedConfidenceScore(score);
 			}
@@ -513,22 +512,22 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	private Ratio getMUTRatio() {
-		Double spc = getDoubleValue(getCell(ColumnName.MUT_ratio_BKG, 0));
+		final Double spc = getDoubleValue(getCell(ColumnName.MUT_ratio_BKG, 0));
 		if (spc != null) {
 			// just to make sure that conditions are already created:
 			getAmounts();
 
-			Condition wtcondition = ProteinSetAdapter.getExperimentalCondition(
+			final Condition wtcondition = ProteinSetAdapter.getExperimentalCondition(
 					edu.scripps.yates.excel.proteindb.enums.ConditionName.BACKGROUND, null, null);
-			Condition mutcondition = ProteinSetAdapter
+			final Condition mutcondition = ProteinSetAdapter
 					.getExperimentalCondition(edu.scripps.yates.excel.proteindb.enums.ConditionName.MUT, null, null);
 			final RatioEx proteinRatio = new RatioEx(1, wtcondition, mutcondition,
 					"Ratio over background for DeltaF508", AggregationLevel.PROTEIN);
 			// pvalue of the ratio
-			Double value = getDoubleValue(getCell(ColumnName.MUT_P, 0));
+			final Double value = getDoubleValue(getCell(ColumnName.MUT_P, 0));
 			if (value != null) {
-				String description = "p-value for DeltaF508 CFTR Interators to distinguish from background";
-				ScoreEx score = new ScoreEx(value.toString(), ColumnName.MUT_P.name(), QUANTIFICATION_PVALUE,
+				final String description = "p-value for DeltaF508 CFTR Interators to distinguish from background";
+				final ScoreEx score = new ScoreEx(value.toString(), ColumnName.MUT_P.name(), QUANTIFICATION_PVALUE,
 						description);
 				proteinRatio.setAssociatedConfidenceScore(score);
 			}
@@ -539,20 +538,20 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	private Ratio getTMTExpressionAnalysisRatio() {
-		Double ratioValue = getDoubleValue(getCell(ColumnName.expression_analysis_TMT_log2_R_, 0));
+		final Double ratioValue = getDoubleValue(getCell(ColumnName.expression_analysis_TMT_log2_R_, 0));
 		if (ratioValue != null) {
 
-			Condition wtcondition = ProteinSetAdapter
+			final Condition wtcondition = ProteinSetAdapter
 					.getExperimentalCondition(edu.scripps.yates.excel.proteindb.enums.ConditionName.WT, null, null);
-			Condition mutcondition = ProteinSetAdapter
+			final Condition mutcondition = ProteinSetAdapter
 					.getExperimentalCondition(edu.scripps.yates.excel.proteindb.enums.ConditionName.MUT, null, null);
 			final RatioEx proteinRatio = new RatioEx(ratioValue, wtcondition, mutcondition, "fold change (wt/DeltaF)",
 					AggregationLevel.PROTEIN);
 			// pvalue of the ratio
-			Double value = getDoubleValue(getCell(ColumnName.expression_analysis_TMT_p_value, 0));
+			final Double value = getDoubleValue(getCell(ColumnName.expression_analysis_TMT_p_value, 0));
 			if (value != null) {
-				String description = "p-value, unpaired t-test for differential expression (two-tailed and two-sample t-test on every protein)";
-				ScoreEx score = new ScoreEx(value.toString(), ColumnName.expression_analysis_TMT_p_value.name(),
+				final String description = "p-value, unpaired t-test for differential expression (two-tailed and two-sample t-test on every protein)";
+				final ScoreEx score = new ScoreEx(value.toString(), ColumnName.expression_analysis_TMT_p_value.name(),
 						QUANTIFICATION_PVALUE, description);
 				proteinRatio.setAssociatedConfidenceScore(score);
 			}
@@ -640,9 +639,9 @@ public class ProteinImpl2 implements Protein {
 	// }
 
 	public void addDMSOSumAmount(double dmsoSumAmount) {
-		Sample sample = ProteinSetAdapter.getSample("DMSO treated sample", false, false,
+		final Sample sample = ProteinSetAdapter.getSample("DMSO treated sample", false, false,
 				ProteinSetAdapter.humanOrganism, ProteinSetAdapter.tissue);
-		ConditionEx dmsoCondition = ProteinSetAdapter.getExperimentalCondition(
+		final ConditionEx dmsoCondition = ProteinSetAdapter.getExperimentalCondition(
 				edu.scripps.yates.excel.proteindb.enums.ConditionName.DMSO, "DMSO treated", sample);
 
 		final AmountEx proteinAmount = new AmountEx(dmsoSumAmount, AmountType.SPC, CombinationType.SUM, dmsoCondition);
@@ -659,11 +658,11 @@ public class ProteinImpl2 implements Protein {
 	@Override
 	public String toString() {
 		final String ipiAcc = ModelUtils.getAccessions(this, AccessionType.IPI).iterator().next().getAccession();
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		final List<Accession> uniprotAccs = ModelUtils.getAccessions(this, AccessionType.UNIPROT);
 		if (!uniprotAccs.isEmpty())
 			sb.append("(");
-		for (Accession acc : uniprotAccs) {
+		for (final Accession acc : uniprotAccs) {
 			if (!"(".equals(sb.toString()))
 				sb.append("|");
 			sb.append(acc.getAccession());
@@ -687,68 +686,68 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	private Set<Threshold> getCoreInteractomeThresholds() {
-		Set<Threshold> ret = new THashSet<Threshold>();
+		final Set<Threshold> ret = new THashSet<Threshold>();
 
 		// 4A
 		Boolean bool = getBooleanValue(getCell(ColumnName.Xscorefilter_4A, 0));
 		if (bool != null) {
-			Threshold thresholdCombination = getCorr4AThreshold(bool);
+			final Threshold thresholdCombination = getCorr4AThreshold(bool);
 			ret.add(thresholdCombination);
 		}
 
 		// HDAC7si
 		bool = getBooleanValue(getCell(ColumnName.Xscorefilter_HDAC7si, 0));
 		if (bool != null) {
-			Threshold thresholdCombination = getThresholdHDACsi(bool);
+			final Threshold thresholdCombination = getThresholdHDACsi(bool);
 			ret.add(thresholdCombination);
 		}
 
 		// Saha
 		bool = getBooleanValue(getCell(ColumnName.Xc_score_Saha, 0));
 		if (bool != null) {
-			Threshold thresholdCombination = getThresholdSAHA(bool);
+			final Threshold thresholdCombination = getThresholdSAHA(bool);
 			ret.add(thresholdCombination);
 		}
 
 		// TSA
 		bool = getBooleanValue(getCell(ColumnName.Xscorefilter_TSA, 0));
 		if (bool != null) {
-			Threshold thresholdCombination = getThresholdTSA(bool);
+			final Threshold thresholdCombination = getThresholdTSA(bool);
 			ret.add(thresholdCombination);
 		}
 
 		// 1h
 		bool = getBooleanValue(getCell(ColumnName.Xscorefilter_1h, 0));
 		if (bool != null) {
-			Threshold thresholdCombination = getThreshold_1H(bool);
+			final Threshold thresholdCombination = getThreshold_1H(bool);
 			ret.add(thresholdCombination);
 		}
 
 		// 24h
 		bool = getBooleanValue(getCell(ColumnName.Xscorefilter_24h, 0));
 		if (bool != null) {
-			Threshold thresholdCombination = getThreshold_24H(bool);
+			final Threshold thresholdCombination = getThreshold_24H(bool);
 			ret.add(thresholdCombination);
 		}
 
 		// 24h_rev
 		bool = getBooleanValue(getCell(ColumnName._24h_rev_Xscorefilter, 0));
 		if (bool != null) {
-			Threshold thresholdCombination = getThreshold_24HREV(bool);
+			final Threshold thresholdCombination = getThreshold_24HREV(bool);
 			ret.add(thresholdCombination);
 		}
 
 		// 6h
 		bool = getBooleanValue(getCell(ColumnName.Xscorefilter_6h, 0));
 		if (bool != null) {
-			Threshold thresholdCombination = getThreshold_6H(bool);
+			final Threshold thresholdCombination = getThreshold_6H(bool);
 			ret.add(thresholdCombination);
 		}
 
 		// global core-interactome
 		bool = getBooleanValue(getCell(ColumnName.Xcscorefilter, 0));
 		if (bool != null) {
-			Threshold thresholdCombination = getThreshold_Global(bool);
+			final Threshold thresholdCombination = getThreshold_Global(bool);
 			ret.add(thresholdCombination);
 		}
 
@@ -759,7 +758,7 @@ public class ProteinImpl2 implements Protein {
 		final String name = ColumnName.Xcscorefilter.name();
 		ThresholdEx threshold = null;
 
-		String description = "If ((All_P > .959 and (WT_global > 1 or MUT_global > 1))" + "or(MUT_P> .929)"
+		final String description = "If ((All_P > .959 and (WT_global > 1 or MUT_global > 1))" + "or(MUT_P> .929)"
 				+ "or(SAHA_P > .949 and (WT_global > 1 or MUT_global > 1))" + "or(WT_P > .88);1)";
 		threshold = new ThresholdEx(name, pass);
 		threshold.setDescription(description);
@@ -770,7 +769,7 @@ public class ProteinImpl2 implements Protein {
 		final String name = ColumnName.Xscorefilter_6h.name();
 		ThresholdEx threshold = null;
 
-		String description = "If ((All_P > .959 and ( ${6h_SUM} > 0 ))" + "or(MUT_P> .929 and (${6h_SUM} >0))"
+		final String description = "If ((All_P > .959 and ( ${6h_SUM} > 0 ))" + "or(MUT_P> .929 and (${6h_SUM} >0))"
 				+ "or(SAHA_P > .949 and (${6h_SUM} > 0))" + "or(WT_P > .88 and (${6h_SUM}>0));1)";
 		threshold = new ThresholdEx(name, pass);
 		threshold.setDescription(description);
@@ -782,8 +781,9 @@ public class ProteinImpl2 implements Protein {
 		final String name = ColumnName._24h_rev_Xscorefilter.name();
 		ThresholdEx threshold = null;
 
-		String description = "If ((All_P > .959 and ( ${24H-rev_SUM} > 0 ))" + "or(MUT_P> .929 and (${24H-rev_SUM}>0))"
-				+ "or(SAHA_P > .949 and (${24H-rev_SUM} > 0))" + "or(WT_P > .88 and (${24H-rev_SUM}>0));1)";
+		final String description = "If ((All_P > .959 and ( ${24H-rev_SUM} > 0 ))"
+				+ "or(MUT_P> .929 and (${24H-rev_SUM}>0))" + "or(SAHA_P > .949 and (${24H-rev_SUM} > 0))"
+				+ "or(WT_P > .88 and (${24H-rev_SUM}>0));1)";
 		threshold = new ThresholdEx(name, pass);
 		threshold.setDescription(description);
 
@@ -794,7 +794,7 @@ public class ProteinImpl2 implements Protein {
 		final String name = ColumnName.Xscorefilter_24h.name();
 		ThresholdEx threshold = null;
 
-		String description = "If ((All_P > .959 and ( ${24h_SUM} > 0 ))" + "or(MUT_P> .929 and (${24h_SUM} >0))"
+		final String description = "If ((All_P > .959 and ( ${24h_SUM} > 0 ))" + "or(MUT_P> .929 and (${24h_SUM} >0))"
 				+ "or(SAHA_P > .949 and (${24h_SUM} > 0))" + "or(WT_P > .88 and (${24h_SUM}>0));1)";
 		threshold = new ThresholdEx(name, pass);
 		threshold.setDescription(description);
@@ -806,7 +806,7 @@ public class ProteinImpl2 implements Protein {
 		final String name = ColumnName.Xscorefilter_1h.name();
 		ThresholdEx threshold = null;
 
-		String description = "If ((All_P > .959 and ( ${1H_SUM} > 0 ))" + "or(MUT_P> .929 and (${1H_SUM} >0))"
+		final String description = "If ((All_P > .959 and ( ${1H_SUM} > 0 ))" + "or(MUT_P> .929 and (${1H_SUM} >0))"
 				+ "or(SAHA_P > .949 and (${1H_SUM} > 0))" + "or(WT_P > .88 and (${1H_SUM}>0));1)";
 		threshold = new ThresholdEx(name, pass);
 		threshold.setDescription(description);
@@ -818,7 +818,7 @@ public class ProteinImpl2 implements Protein {
 		final String name = ColumnName.Xscorefilter_TSA.name();
 		ThresholdEx threshold = null;
 
-		String description = "If ((All_P > .959 and ( ${TSA_SUM} > 0 ))" + "or(MUT_P> .929 and (${TSA_SUM}>0))"
+		final String description = "If ((All_P > .959 and ( ${TSA_SUM} > 0 ))" + "or(MUT_P> .929 and (${TSA_SUM}>0))"
 				+ "or(SAHA_P > .949 and (${TSA_SUM} > 0))" + "or(WT_P > .88 and (${TSA_SUM}>0));1)";
 		threshold = new ThresholdEx(name, pass);
 		threshold.setDescription(description);
@@ -830,7 +830,7 @@ public class ProteinImpl2 implements Protein {
 		final String name = ColumnName.Xc_score_Saha.name();
 		ThresholdEx threshold = null;
 
-		String description = "If ((All_P > .959 and (WT_global > 1 or MUT_global > 1))" + "or(MUT_P> .929)"
+		final String description = "If ((All_P > .959 and (WT_global > 1 or MUT_global > 1))" + "or(MUT_P> .929)"
 				+ "or(SAHA_P > .949 and SAHA_glob >1) " + "or(WT_P > .88);1)";
 		threshold = new ThresholdEx(name, pass);
 		threshold.setDescription(description);
@@ -842,8 +842,9 @@ public class ProteinImpl2 implements Protein {
 		final String name = ColumnName.Xscorefilter_HDAC7si.name();
 		ThresholdEx threshold = null;
 
-		String description = "If ((All_P > .959 and ( ${HDAC7si_SUM} > 0 ))" + "or(MUT_P> .929 and (${HDAC7si_SUM}>0))"
-				+ "or(SAHA_P > .949 and (${HDAC7si_SUM} > 0))" + "or(WT_P > .88 and (${HDAC7si_SUM}>0));1)";
+		final String description = "If ((All_P > .959 and ( ${HDAC7si_SUM} > 0 ))"
+				+ "or(MUT_P> .929 and (${HDAC7si_SUM}>0))" + "or(SAHA_P > .949 and (${HDAC7si_SUM} > 0))"
+				+ "or(WT_P > .88 and (${HDAC7si_SUM}>0));1)";
 		threshold = new ThresholdEx(name, pass);
 		threshold.setDescription(description);
 
@@ -854,7 +855,7 @@ public class ProteinImpl2 implements Protein {
 		final String name = ColumnName.Xscorefilter_4A.name();
 		ThresholdEx threshold = null;
 
-		String description = "If ((All_P > .959 and ( ${4A_SUM} > 0 ))" + "or(MUT_P> .929 and (${4A_SUM}>0))"
+		final String description = "If ((All_P > .959 and ( ${4A_SUM} > 0 ))" + "or(MUT_P> .929 and (${4A_SUM}>0))"
 				+ "or(SAHA_P > .949 and (${4A_SUM} > 0))" + "or(WT_P > .88 and (${4A_SUM}>0));1)";
 		threshold = new ThresholdEx(name, pass);
 		threshold.setDescription(description);
@@ -866,7 +867,7 @@ public class ProteinImpl2 implements Protein {
 	public Boolean passThreshold(String thresholdName) {
 		final Set<Threshold> thresholds = getThresholds();
 
-		for (Threshold threshold2 : thresholds) {
+		for (final Threshold threshold2 : thresholds) {
 			if (threshold2.getName().equals(thresholdName))
 				return threshold2.isPassThreshold();
 		}
@@ -879,7 +880,7 @@ public class ProteinImpl2 implements Protein {
 			return null;
 		switch (cell.getCellType()) {
 		case Cell.CELL_TYPE_STRING:
-			String string = cell.getStringCellValue();
+			final String string = cell.getStringCellValue();
 			if (string != null) {
 				if (string.equals("1") || string.toLowerCase().equals("true"))
 					return new Boolean(true);
@@ -889,7 +890,7 @@ public class ProteinImpl2 implements Protein {
 			break;
 		case Cell.CELL_TYPE_NUMERIC:
 
-			double value = cell.getNumericCellValue();
+			final double value = cell.getNumericCellValue();
 			if (value == 1)
 				return new Boolean(true);
 			else if (value == 0)
@@ -932,14 +933,14 @@ public class ProteinImpl2 implements Protein {
 				return null;
 			}
 
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 
 		}
 		return null;
 	}
 
 	private Cell getCell(ColumnName columnName, int rowIndex) {
-		Cell cell = getRow(columnManager.getSheetIndex(columnName), rowIndex)
+		final Cell cell = getRow(columnManager.getSheetIndex(columnName), rowIndex)
 				.getCell(columnManager.getColumnIndex(columnName));
 		return cell;
 	}
@@ -955,7 +956,7 @@ public class ProteinImpl2 implements Protein {
 			throw new IllegalArgumentException("A psm from a different msRun cannot be linked with this protein");
 
 		if (psm instanceof PSMImplFromDTASelect) {
-			PSMEx psmEx = new PSMEx(psm.getPSMIdentifier(), psm.getSequence(), psm.getFullSequence());
+			final PSMEx psmEx = new PSMEx(psm.getIdentifier(), psm.getSequence(), psm.getFullSequence());
 			psmEx.setMSRun(msRun);
 			psmEx.setAfterSeq(psm.getAfterSeq());
 			psmEx.setBeforeSeq(psm.getBeforeSeq());
@@ -973,7 +974,7 @@ public class ProteinImpl2 implements Protein {
 			// ((PSMImplFromDTASelect) psm).getProteins().add(this);
 			if (condition != null) {
 				// create a psm amount per each psm
-				AmountEx psmAmount = new AmountEx(1.0, AmountType.SPC, condition);
+				final AmountEx psmAmount = new AmountEx(1.0, AmountType.SPC, condition);
 				psmEx.addAmount(psmAmount);
 				psmEx.addCondition(condition);
 				conditions.add(condition);
@@ -989,27 +990,28 @@ public class ProteinImpl2 implements Protein {
 		if (!peptide.getMSRun().equals(getMSRun()))
 			throw new IllegalArgumentException("A peptide from a different msRun cannot be linked with this protein");
 
-		if (peptide instanceof PeptideImplFromProteinsAndPSMs) {
-			PeptideEx pep = new PeptideEx(peptide.getSequence(), msRun);
-			pep.getProteins().add(this);
-			pep.setScores(peptide.getScores());
-			for (Ratio ratio : peptide.getRatios()) {
-				pep.addRatio(ratio);
-			}
-
-			if (condition != null) {
-				// create a peptide amount per each psm
-				AmountEx peptideAmount = new AmountEx(peptide.getPSMs().size(), AmountType.SPC, condition);
-				pep.getAmounts().add(peptideAmount);
-				pep.getConditions().add(condition);
-				conditions.add(condition);
-			}
-			peptides.add(pep);
-			return pep;
-		} else {
-			peptides.add(peptide);
-			return peptide;
-		}
+		// if (peptide instanceof PeptideImplFromProteinsAndPSMs) {
+		// PeptideEx pep = new PeptideEx(peptide.getSequence(), msRun);
+		// pep.getProteins().add(this);
+		// pep.setScores(peptide.getScores());
+		// for (Ratio ratio : peptide.getRatios()) {
+		// pep.addRatio(ratio);
+		// }
+		//
+		// if (condition != null) {
+		// // create a peptide amount per each psm
+		// AmountEx peptideAmount = new AmountEx(peptide.getPSMs().size(),
+		// AmountType.SPC, condition);
+		// pep.getAmounts().add(peptideAmount);
+		// pep.getConditions().add(condition);
+		// conditions.add(condition);
+		// }
+		// peptides.add(pep);
+		// return pep;
+		// } else {
+		peptides.add(peptide);
+		return peptide;
+		// }
 	}
 
 	@Override
@@ -1018,7 +1020,7 @@ public class ProteinImpl2 implements Protein {
 			final Accession primaryAccession2 = getPrimaryAccession();
 			// UNIPROT ACCs
 			final List<Accession> uniprotAccessions = getUniprotAccessions();
-			for (Accession accession : uniprotAccessions) {
+			for (final Accession accession : uniprotAccessions) {
 				if (accession.equals(primaryAccession2))
 					continue;
 				secondaryAccessions.add(accession);
@@ -1031,7 +1033,7 @@ public class ProteinImpl2 implements Protein {
 						.map2Uniprot(ipiAccession.getAccession());
 				final List<String> proteinNames = new ArrayList<String>();
 				if (!map2Uniprot.isEmpty()) {
-					for (UniprotEntry uniprotEntry : map2Uniprot) {
+					for (final UniprotEntry uniprotEntry : map2Uniprot) {
 						if (uniprotEntry.getType() == UNIPROT_TYPE.SWISSPROT) {
 							proteinNames.add(uniprotEntry.getName());
 							break;
@@ -1201,8 +1203,8 @@ public class ProteinImpl2 implements Protein {
 	}
 
 	@Override
-	public List<GroupablePSM> getGroupablePSMs() {
-		List<GroupablePSM> ret = new ArrayList<GroupablePSM>();
+	public List<GroupablePeptide> getGroupablePeptides() {
+		final List<GroupablePeptide> ret = new ArrayList<GroupablePeptide>();
 		ret.addAll(getPSMs());
 		return ret;
 	}

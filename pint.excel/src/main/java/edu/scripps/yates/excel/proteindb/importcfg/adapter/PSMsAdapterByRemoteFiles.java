@@ -66,7 +66,7 @@ public class PSMsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pat
 						final PSMImplFromDTASelect psm = new PSMImplFromDTASelect(dtaSelectPSM, msrun);
 						psm.addCondition(expCondition);
 						StaticProteomicsModelStorage.addPSM(psm, msrun, expCondition.getName());
-						retMap.put(psm.getPSMIdentifier(), psm);
+						retMap.put(psm.getIdentifier(), psm);
 					}
 				} else if (censusChroParser != null) {
 					if (remoteInfoCfg.getDiscardDecoys() != null)
@@ -76,7 +76,7 @@ public class PSMsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pat
 						final PSMImplFromQuantifiedPSM psm = new PSMImplFromQuantifiedPSM(quantifiedPSM, msrun);
 						psm.addCondition(expCondition);
 						StaticProteomicsModelStorage.addPSM(psm, msrun, expCondition.getName());
-						retMap.put(psm.getPSMIdentifier(), psm);
+						retMap.put(psm.getIdentifier(), psm);
 					}
 				} else {
 					throw new IllegalArgumentException("Remote file '" + fileRefString
