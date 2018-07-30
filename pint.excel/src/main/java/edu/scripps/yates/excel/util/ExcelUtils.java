@@ -153,11 +153,10 @@ public class ExcelUtils {
 		}
 		ret.add(sb.toString());
 
-		final int maxRow = excelSheet.getColumn(columnHeaders.get(0)).getLastNonEmptyRow();
-		for (int row = 1; row <= maxRow; row++) {
+		final int maxRow = excelSheet.getColumns().get(0).getLastNonEmptyRow();
+		for (int row = 0; row < maxRow; row++) {
 			sb = new StringBuilder();
-			for (final String header : columnHeaders) {
-				final ExcelColumn column = excelSheet.getColumn(header);
+			for (final ExcelColumn column : excelSheet.getColumns()) {
 				final List<Object> values = column.getValues();
 				final Object object = values.get(row);
 				sb.append(object.toString()).append(separator);
