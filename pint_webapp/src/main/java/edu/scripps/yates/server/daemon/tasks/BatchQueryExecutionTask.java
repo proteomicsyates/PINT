@@ -16,11 +16,14 @@ import gnu.trove.set.hash.THashSet;
 public class BatchQueryExecutionTask extends PintServerDaemonTask {
 	private final File queriesFile;
 	private final File outputFile;
+	private final boolean psmCentric;
 
-	public BatchQueryExecutionTask(ServletContext servletContext) {
+	public BatchQueryExecutionTask(ServletContext servletContext, boolean psmCentric) {
 		super(servletContext);
 		queriesFile = new File("/home/salvador/PInt/batch_query_list.txt");
 		outputFile = new File("/home/salvador/PInt/queryBatchOutput.txt");
+		this.psmCentric = psmCentric;
+
 	}
 
 	@Override
@@ -29,20 +32,21 @@ public class BatchQueryExecutionTask extends PintServerDaemonTask {
 			log.info("Batch execution skipped. Results file already exists at: " + outputFile.getAbsolutePath());
 			return;
 		}
-		Set<String> projects = new THashSet<String>();
+		final Set<String> projects = new THashSet<String>();
 		projects.add("DmDshybrids2014");
-		Map<String, Pair<DataSet, String>> results = RemoteServicesTasks.batchQuery(queriesFile, projects, false);
+		final Map<String, Pair<DataSet, String>> results = RemoteServicesTasks.batchQuery(queriesFile, projects, false,
+				psmCentric);
 		FileWriter out = null;
 		try {
 			out = new FileWriter(outputFile);
 			out.write("Num protein groups" + "\t" + "Num proteins" + "\t" + "Num PSMs" + "\t" + "Num diff seqs" + "\t"
 					+ "Num diff seqs (PTM sensible)" + "\t" + "URL to results");
-			for (String queryString : results.keySet()) {
+			for (final String queryString : results.keySet()) {
 				final Pair<DataSet, String> pair = results.get(queryString);
 				final DataSet dataSet = pair.getFirstelement();
 				log.info("Writing dataset in the file:" + dataSet);
 				final String fileName = pair.getSecondElement();
-				StringBuilder sb = new StringBuilder();
+				final StringBuilder sb = new StringBuilder();
 				sb.append(queryString + "\n");
 				sb.append(dataSet.getProteinGroups(false).size() + "\t" + dataSet.getProteins().size() + "\t"
 						+ dataSet.getPsms().size() + "\t" + dataSet.getNumDifferentSequences(false) + "\t"
@@ -50,12 +54,12 @@ public class BatchQueryExecutionTask extends PintServerDaemonTask {
 						+ "http://sealion.scripps.edu/pint/download?fileType=idDataFile&filetodownload=" + fileName);
 				out.write(sb.toString() + "\n");
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		} finally {
 			try {
 				out.close();
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 			}
 		}

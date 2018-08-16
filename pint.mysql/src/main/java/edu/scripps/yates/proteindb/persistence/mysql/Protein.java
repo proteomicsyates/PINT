@@ -13,16 +13,14 @@ public class Protein implements java.io.Serializable {
 
 	private Integer id;
 	private String acc;
-	private Organism organism;
 	private MsRun msRun;
 	private Integer length;
 	private Double pi;
 	private Double mw;
-	private Set genes = new HashSet(0);
 	private Set psms = new HashSet(0);
 	private Set conditions = new HashSet(0);
 	private Set proteinRatioValues = new HashSet(0);
-	private Set proteinAccessions = new HashSet(0);
+	// private Set proteinAccessions = new HashSet(0);
 	private Set proteinScores = new HashSet(0);
 	private Set proteinAmounts = new HashSet(0);
 	private Set proteinThresholds = new HashSet(0);
@@ -32,26 +30,24 @@ public class Protein implements java.io.Serializable {
 	public Protein() {
 	}
 
-	public Protein(String acc, Organism organism, MsRun msRun) {
+	public Protein(String acc, MsRun msRun) {
 		this.acc = acc;
-		this.organism = organism;
 		this.msRun = msRun;
 	}
 
-	public Protein(String acc, Organism organism, MsRun msRun, Integer length, Double pi, Double mw, Set genes,
-			Set psms, Set conditions, Set proteinRatioValues, Set proteinAccessions, Set proteinScores,
-			Set proteinAmounts, Set proteinThresholds, Set proteinAnnotations, Set peptides) {
+	public Protein(String acc, MsRun msRun, Integer length, Double pi, Double mw, Set psms, Set conditions,
+			Set proteinRatioValues,
+			// Set proteinAccessions,
+			Set proteinScores, Set proteinAmounts, Set proteinThresholds, Set proteinAnnotations, Set peptides) {
 		this.acc = acc;
-		this.organism = organism;
 		this.msRun = msRun;
 		this.length = length;
 		this.pi = pi;
 		this.mw = mw;
-		this.genes = genes;
 		this.psms = psms;
 		this.conditions = conditions;
 		this.proteinRatioValues = proteinRatioValues;
-		this.proteinAccessions = proteinAccessions;
+		// this.proteinAccessions = proteinAccessions;
 		this.proteinScores = proteinScores;
 		this.proteinAmounts = proteinAmounts;
 		this.proteinThresholds = proteinThresholds;
@@ -80,14 +76,6 @@ public class Protein implements java.io.Serializable {
 	 */
 	public void setAcc(String acc) {
 		this.acc = acc;
-	}
-
-	public Organism getOrganism() {
-		return organism;
-	}
-
-	public void setOrganism(Organism organism) {
-		this.organism = organism;
 	}
 
 	public MsRun getMsRun() {
@@ -122,14 +110,6 @@ public class Protein implements java.io.Serializable {
 		this.mw = mw;
 	}
 
-	public Set getGenes() {
-		return genes;
-	}
-
-	public void setGenes(Set genes) {
-		this.genes = genes;
-	}
-
 	public Set getPsms() {
 		return psms;
 	}
@@ -154,13 +134,13 @@ public class Protein implements java.io.Serializable {
 		this.proteinRatioValues = proteinRatioValues;
 	}
 
-	public Set getProteinAccessions() {
-		return proteinAccessions;
-	}
-
-	public void setProteinAccessions(Set proteinAccessions) {
-		this.proteinAccessions = proteinAccessions;
-	}
+	// public Set getProteinAccessions() {
+	// return proteinAccessions;
+	// }
+	//
+	// public void setProteinAccessions(Set proteinAccessions) {
+	// this.proteinAccessions = proteinAccessions;
+	// }
 
 	public Set getProteinScores() {
 		return proteinScores;

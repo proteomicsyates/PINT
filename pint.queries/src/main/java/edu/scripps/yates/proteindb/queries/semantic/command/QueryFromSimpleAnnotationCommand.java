@@ -9,10 +9,11 @@ import edu.scripps.yates.proteindb.persistence.mysql.AnnotationType;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.queries.NumericalCondition;
 import edu.scripps.yates.proteindb.queries.Query;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
@@ -40,7 +41,7 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 		if (split.length == 3) {
 			uniprotVersion = split[0].trim();
 			annotationString = split[1].trim();
-			String numericalConditionString = split[2].trim();
+			final String numericalConditionString = split[2].trim();
 
 			if (annotationString == null || "".equals(annotationString)) {
 				throw new MalformedQueryException("Annotation string cannot be null" + annotationString + "'");
@@ -60,11 +61,11 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 
 	public boolean evaluate(Set<ProteinAnnotation> proteinAnnotations) {
 		if (proteinAnnotations != null) {
-			boolean found = false;
-			Map<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType, Integer> map = new THashMap<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType, Integer>();
+			final boolean found = false;
+			final Map<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType, Integer> map = new THashMap<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType, Integer>();
 			// to be included in the result, at least one annotation
 			// will have to be present
-			for (ProteinAnnotation proteinAnnotation : proteinAnnotations) {
+			for (final ProteinAnnotation proteinAnnotation : proteinAnnotations) {
 
 				// NAME!=null
 				if (StringUtils.compareStrings(proteinAnnotation.getName(), annotationString, true, true, false)
@@ -86,7 +87,7 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 			}
 			if (!found && numericalCondition != null) {
 				final Set<AnnotationType> keySet = map.keySet();
-				for (AnnotationType annotationType : keySet) {
+				for (final AnnotationType annotationType : keySet) {
 					if (numericalCondition.matches(map.get(annotationType))) {
 
 						return true;
@@ -116,6 +117,17 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 	}
 
 	@Override
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+
+		// annotate the proteins according to the uniprot version provided
+		final QueriableProteinSet protein = link.getQueriableProtein();
+		// QueryFromComplexAnnotationCommand.annotateProtein(protein,
+		// uniprotVersion);
+		return evaluate(protein);
+
+	}
+
+	@Override
 	public AggregationLevel getAggregationLevel() {
 		return AggregationLevel.PROTEIN;
 	}
@@ -125,7 +137,7 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 	}
 
 	@Override
-	public ProteinProviderFromDB initProtenProvider() {
+	public DataProviderFromDB initProtenProvider() {
 		// TODO Auto-generated method stub
 		return null;
 	}

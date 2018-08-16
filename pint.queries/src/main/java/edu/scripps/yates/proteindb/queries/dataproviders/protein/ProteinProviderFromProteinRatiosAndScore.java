@@ -6,23 +6,20 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.NumericalCondition;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.ProteinDataProvider;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromScoreCommand;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import gnu.trove.map.hash.THashMap;
 
-public class ProteinProviderFromProteinRatiosAndScore implements ProteinProviderFromDB {
+public class ProteinProviderFromProteinRatiosAndScore extends ProteinDataProvider {
 	private final static Logger log = Logger.getLogger(ProteinProviderFromProteinRatiosAndScore.class);
 	private final ConditionReferenceFromCommandValue condition1;
 	private final ConditionReferenceFromCommandValue condition2;
-	private Map<String, Set<Protein>> result;
-	private Set<String> projectTags;
 	private final String ratioName;
 	private final QueryFromScoreCommand scoreThresholdQuery;
 	private final NumericalCondition numericalCondition;
@@ -40,7 +37,7 @@ public class ProteinProviderFromProteinRatiosAndScore implements ProteinProvider
 	@Override
 	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
-			int numProteins = 0;
+			final int numProteins = 0;
 			result = new THashMap<String, Set<Protein>>();
 			// condition1 and condition2 only can contain one ConditionProject
 			if (condition1.getConditionProjects().size() != 1) {
@@ -49,8 +46,8 @@ public class ProteinProviderFromProteinRatiosAndScore implements ProteinProvider
 			if (condition2.getConditionProjects().size() != 1) {
 				throw new IllegalArgumentException("Second condition con only be referring to one condition");
 			}
-			ConditionProject conditionProject1 = condition1.getConditionProjects().iterator().next();
-			ConditionProject conditionProject2 = condition2.getConditionProjects().iterator().next();
+			final ConditionProject conditionProject1 = condition1.getConditionProjects().iterator().next();
+			final ConditionProject conditionProject2 = condition2.getConditionProjects().iterator().next();
 			if (conditionProject1.getProjectTag() != null && conditionProject2.getProjectTag() != null
 					&& !conditionProject1.getProjectTag().equals(conditionProject2.getProjectTag())) {
 				throw new IllegalArgumentException(
@@ -75,8 +72,8 @@ public class ProteinProviderFromProteinRatiosAndScore implements ProteinProvider
 				}
 			}
 			if (projectTags != null && !projectTags.isEmpty()) {
-				for (String projectTag : projectTags) {
-					String projectTagFromQuery = conditionProject2.getProjectTag();
+				for (final String projectTag : projectTags) {
+					final String projectTagFromQuery = conditionProject2.getProjectTag();
 					final Map<String, Set<Protein>> proteinsWithRatiosAndScores = PreparedQueries
 							.getProteinsWithRatiosAndScores(conditionProject1.getConditionName(),
 									conditionProject2.getConditionName(), projectTag, ratioName, ratioOperator,
@@ -119,18 +116,6 @@ public class ProteinProviderFromProteinRatiosAndScore implements ProteinProvider
 			}
 		}
 		return result;
-
-	}
-
-	@Override
-	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
-		return PersistenceUtils.getPsmsFromProteins(getProteinMap(testMode));
-	}
-
-	@Override
-	public void setProjectTags(Set<String> projectNames) {
-		projectTags = projectNames;
-		result = null;
 
 	}
 

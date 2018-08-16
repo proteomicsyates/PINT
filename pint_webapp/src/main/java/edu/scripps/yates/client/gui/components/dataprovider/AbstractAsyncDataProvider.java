@@ -57,7 +57,7 @@ public abstract class AbstractAsyncDataProvider<T> extends AsyncDataProvider<T> 
 		// }
 
 		if (display instanceof MyDataGrid) {
-			MyDataGrid dataGrid = (MyDataGrid) display;
+			final MyDataGrid dataGrid = (MyDataGrid) display;
 			if (dataGrid.isForceToRefresh()) {
 				dataGrid.setForceToRefresh(false);
 				forceToRefresh = true;
@@ -101,7 +101,7 @@ public abstract class AbstractAsyncDataProvider<T> extends AsyncDataProvider<T> 
 	 */
 	private ColumnSortList getColumnSortList(HasData<T> display) {
 		if (display instanceof AbstractCellTable) {
-			AbstractCellTable<T> dataGRid = (AbstractCellTable) display;
+			final AbstractCellTable<T> dataGRid = (AbstractCellTable) display;
 			return dataGRid.getColumnSortList();
 		}
 		throw new IllegalArgumentException("display not supported");
@@ -186,7 +186,7 @@ public abstract class AbstractAsyncDataProvider<T> extends AsyncDataProvider<T> 
 	@Override
 	protected final void onRangeChanged(final HasData<T> display) {
 		try {
-			boolean rangeChanged = rangeChanged(display);
+			final boolean rangeChanged = rangeChanged(display);
 			if (needsUpdate(display)) {
 				// GWT.log("forceToReload: " + forceToReload +
 				// "\tforceToRefresh: " + forceToRefresh + "\tnewProvider: "
@@ -195,7 +195,7 @@ public abstract class AbstractAsyncDataProvider<T> extends AsyncDataProvider<T> 
 				// + "\tcontainsData:" + containsData);
 				final Range range = display.getVisibleRange();
 				final int start = range.getStart();
-				int end = start + range.getLength();
+				final int end = start + range.getLength();
 
 				if (!retrievingData) {
 					final ColumnSortList columnSortList = getColumnSortList(display);

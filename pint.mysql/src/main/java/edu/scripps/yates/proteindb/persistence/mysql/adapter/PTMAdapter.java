@@ -3,34 +3,59 @@ package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 import java.io.Serializable;
 import java.util.List;
 
+import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class PTMAdapter implements Adapter<Ptm>, Serializable {
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 5095797962976071733L;
+	private final static TIntObjectHashMap<Ptm> map = new TIntObjectHashMap<Ptm>();
+
 	private final PTM ptm;
 	private final Psm psm;
+	private final Peptide peptide;
 
 	public PTMAdapter(PTM ptm, Psm psm) {
 		this.psm = psm;
 		this.ptm = ptm;
+		peptide = null;
+	}
+
+	public PTMAdapter(PTM ptm, Peptide peptide) {
+		psm = null;
+		this.ptm = ptm;
+		this.peptide = peptide;
+
 	}
 
 	@Override
 	public Ptm adapt() {
 		Ptm ret = null;
-
-		ret = new Ptm(psm, ptm.getMassShift(), ptm.getName());
-
+		if (map.contains(ptm.hashCode())) {
+			ret = map.get(ptm.hashCode());
+			if (psm != null) {
+				ret.setPsm(psm);
+			} else if (peptide != null) {
+				ret.setPeptide(peptide);
+			}
+		} else {
+			if (psm != null) {
+				ret = new Ptm(psm, ptm.getMassShift(), ptm.getName());
+			} else if (peptide != null) {
+				ret = new Ptm(peptide, ptm.getMassShift(), ptm.getName());
+			}
+			map.put(ptm.hashCode(), ret);
+		}
 		ret.setCvId(ptm.getCVId());
 		final List<PTMSite> ptmSites = ptm.getPTMSites();
 		if (ptmSites != null) {
-			for (PTMSite ptmSite : ptmSites) {
+			for (final PTMSite ptmSite : ptmSites) {
 				ret.getPtmSites().add(new PTMSiteAdapter(ptmSite, ret).adapt());
 			}
 

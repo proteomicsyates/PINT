@@ -2,7 +2,6 @@ package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,11 +10,9 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAnnotationAdapter;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -68,26 +65,46 @@ public class ProteinAnnotator {
 						addAnnotationByProtein(protein, proteinAnnotationNew);
 					}
 				}
+
 			}
 		}
 		log.info("Annotations retrieved for " + proteinMap.size() + " proteins");
 	}
 
+	// private void addAnnotationByProtein(Protein protein, ProteinAnnotation
+	// proteinAnnotation) {
+	// if (protein != null) {
+	// final List<ProteinAccession> accessionsByAccType =
+	// PersistenceUtils.getAccessionsByAccType(protein,
+	// AccessionType.UNIPROT);
+	// if (accessionsByAccType != null) {
+	// for (final ProteinAccession proteinAccession : accessionsByAccType) {
+	// final String accession = proteinAccession.getAccession();
+	// if (annotationsByProteinAcc.containsKey(accession)) {
+	// annotationsByProteinAcc.get(accession).add(proteinAnnotation);
+	// } else {
+	// final Set<ProteinAnnotation> set = new THashSet<ProteinAnnotation>();
+	// set.add(proteinAnnotation);
+	// annotationsByProteinAcc.put(accession, set);
+	// }
+	// }
+	// }
+	// }
+	// }
 	private void addAnnotationByProtein(Protein protein, ProteinAnnotation proteinAnnotation) {
 		if (protein != null) {
-			final List<ProteinAccession> accessionsByAccType = PersistenceUtils.getAccessionsByAccType(protein,
-					AccessionType.UNIPROT);
-			if (accessionsByAccType != null) {
-				for (final ProteinAccession proteinAccession : accessionsByAccType) {
-					final String accession = proteinAccession.getAccession();
-					if (annotationsByProteinAcc.containsKey(accession)) {
-						annotationsByProteinAcc.get(accession).add(proteinAnnotation);
-					} else {
-						final Set<ProteinAnnotation> set = new THashSet<ProteinAnnotation>();
-						set.add(proteinAnnotation);
-						annotationsByProteinAcc.put(accession, set);
-					}
+			final String uniprotACC = FastaParser.getUniProtACC(protein.getAcc());
+
+			if (uniprotACC != null) {
+
+				if (annotationsByProteinAcc.containsKey(uniprotACC)) {
+					annotationsByProteinAcc.get(uniprotACC).add(proteinAnnotation);
+				} else {
+					final Set<ProteinAnnotation> set = new THashSet<ProteinAnnotation>();
+					set.add(proteinAnnotation);
+					annotationsByProteinAcc.put(uniprotACC, set);
 				}
+
 			}
 		}
 	}

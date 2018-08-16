@@ -60,8 +60,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	 */
 	@Override
 	public List<GeneBean> getGenes(boolean onlyPrimary) {
-		List<GeneBean> ret = new ArrayList<GeneBean>();
-		for (ProteinBean protein : this) {
+		final List<GeneBean> ret = new ArrayList<GeneBean>();
+		for (final ProteinBean protein : this) {
 			final List<GeneBean> genes = protein.getGenes(onlyPrimary);
 			if (onlyPrimary && genes.isEmpty())
 				ret.add(null);
@@ -72,8 +72,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	public String getProteinDBString() {
-		StringBuilder sb = new StringBuilder();
-		for (ProteinBean protein : this) {
+		final StringBuilder sb = new StringBuilder();
+		for (final ProteinBean protein : this) {
 			sb.append(protein.getProteinDBString());
 		}
 		return sb.toString();
@@ -81,9 +81,9 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	public int getNumPSMs() {
 		if (numPSMs == 0) {
-			final Set<Integer> psmIds2 = getPSMDBIds();
-			if (psmIds2 != null && !psmIds2.isEmpty())
-				numPSMs = psmIds2.size();
+			for (final PeptideBean peptide : getPeptides()) {
+				numPSMs += peptide.getNumPSMs();
+			}
 		}
 		return numPSMs;
 	}
@@ -97,9 +97,9 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	public String getGenesString(boolean onlyPrimaryGenes) {
-		StringBuilder sb = new StringBuilder();
-		Set<String> set = new HashSet<String>();
-		for (GeneBean gene : getGenes(onlyPrimaryGenes)) {
+		final StringBuilder sb = new StringBuilder();
+		final Set<String> set = new HashSet<String>();
+		for (final GeneBean gene : getGenes(onlyPrimaryGenes)) {
 			if (gene == null || set.contains(gene.getGeneID()))
 				continue;
 
@@ -116,8 +116,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	public int getNumPeptides() {
 		if (numPeptides == 0) {
-			Set<String> seq = new HashSet<String>();
-			for (ProteinBean protein : this) {
+			final Set<String> seq = new HashSet<String>();
+			for (final ProteinBean protein : this) {
 				seq.addAll(protein.getDifferentSequences());
 			}
 			numPeptides = seq.size();
@@ -135,8 +135,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	@Override
 	public List<AccessionBean> getPrimaryAccessions() {
-		List<AccessionBean> ret = new ArrayList<AccessionBean>();
-		for (ProteinBean protein : this) {
+		final List<AccessionBean> ret = new ArrayList<AccessionBean>();
+		for (final ProteinBean protein : this) {
 			ret.add(protein.getPrimaryAccession());
 		}
 		// sort alphabetically
@@ -145,10 +145,10 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	public String getPrimaryAccessionsString() {
-		StringBuilder sb = new StringBuilder();
-		Set<String> accs = new HashSet<String>();
+		final StringBuilder sb = new StringBuilder();
+		final Set<String> accs = new HashSet<String>();
 		final List<AccessionBean> primaryAccessions = getPrimaryAccessions();
-		for (AccessionBean acc : primaryAccessions) {
+		for (final AccessionBean acc : primaryAccessions) {
 			if (accs.contains(acc.getAccession()))
 				continue;
 			accs.add(acc.getAccession());
@@ -160,9 +160,9 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	public String getDescriptionsString() {
-		StringBuilder sb = new StringBuilder();
-		Set<String> accs = new HashSet<String>();
-		for (AccessionBean acc : getPrimaryAccessions()) {
+		final StringBuilder sb = new StringBuilder();
+		final Set<String> accs = new HashSet<String>();
+		for (final AccessionBean acc : getPrimaryAccessions()) {
 			if (accs.contains(acc.getAccession()))
 				continue;
 			accs.add(acc.getAccession());
@@ -178,12 +178,12 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	@Override
 	public Set<AmountBean> getAmounts() {
-		Set<AmountBean> ret = new HashSet<AmountBean>();
+		final Set<AmountBean> ret = new HashSet<AmountBean>();
 		// be carefull with the SPC amounts comming from proteins, because we
 		// dont want to count several times the spectral counts.
-		for (ProteinBean protein : this) {
+		for (final ProteinBean protein : this) {
 			final Set<AmountBean> amounts = protein.getAmounts();
-			for (AmountBean amountBean : amounts) {
+			for (final AmountBean amountBean : amounts) {
 				// ignore the SPC amounts at protein group level because here
 				// has no sense. Recalculate them later
 				if (!amountBean.getAmountType().equals(AmountType.SPC.name())) {
@@ -199,7 +199,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	@Override
 	public boolean hasCombinationAmounts(String conditionName, String projectTag) {
-		for (ProteinBean protein : this) {
+		for (final ProteinBean protein : this) {
 			if (protein.hasCombinationAmounts(conditionName, projectTag))
 				return true;
 		}
@@ -208,8 +208,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	@Override
 	public List<AmountBean> getCombinationAmount(String conditionName, String projectTag) {
-		List<AmountBean> ret = new ArrayList<AmountBean>();
-		for (AmountBean amountBean : getAmounts()) {
+		final List<AmountBean> ret = new ArrayList<AmountBean>();
+		for (final AmountBean amountBean : getAmounts()) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 					if (amountBean.isComposed() && !ret.contains(amountBean)) {
@@ -223,8 +223,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	@Override
 	public List<AmountBean> getNonCombinationAmounts(String conditionName, String projectTag) {
-		List<AmountBean> ret = new ArrayList<AmountBean>();
-		for (AmountBean amountBean : getAmounts()) {
+		final List<AmountBean> ret = new ArrayList<AmountBean>();
+		for (final AmountBean amountBean : getAmounts()) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 					if (!amountBean.isComposed() && !ret.contains(amountBean)) {
@@ -238,15 +238,15 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	@Override
 	public HashMap<String, Set<AmountBean>> getAmountsByExperimentalCondition() {
-		HashMap<String, Set<AmountBean>> ret = new HashMap<String, Set<AmountBean>>();
-		for (ProteinBean protein : this) {
+		final HashMap<String, Set<AmountBean>> ret = new HashMap<String, Set<AmountBean>>();
+		for (final ProteinBean protein : this) {
 			final HashMap<String, Set<AmountBean>> amountsByExperimentalCondition = protein
 					.getAmountsByExperimentalCondition();
-			for (String conditionName : amountsByExperimentalCondition.keySet()) {
+			for (final String conditionName : amountsByExperimentalCondition.keySet()) {
 				if (ret.containsKey(conditionName)) {
 					ret.get(conditionName).addAll(amountsByExperimentalCondition.get(conditionName));
 				} else {
-					Set<AmountBean> set = new HashSet<AmountBean>();
+					final Set<AmountBean> set = new HashSet<AmountBean>();
 					set.addAll(amountsByExperimentalCondition.get(conditionName));
 					ret.put(conditionName, set);
 				}
@@ -258,8 +258,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	@Override
 	public List<RatioBean> getRatiosByConditions(String condition1Name, String condition2Name, String projectTag,
 			String ratioName, boolean skipInfinities) {
-		List<RatioBean> ret = new ArrayList<RatioBean>();
-		for (ProteinBean protein : this) {
+		final List<RatioBean> ret = new ArrayList<RatioBean>();
+		for (final ProteinBean protein : this) {
 			ret.addAll(protein.getRatios());
 		}
 		return SharedDataUtils.getRatiosByConditions(ret, condition1Name, condition2Name, projectTag, ratioName,
@@ -270,9 +270,9 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	@Override
 	public String getRatioStringByConditions(String condition1Name, String condition2Name, String projectTag,
 			String ratioName, boolean skipInfinities, boolean formatNumber) {
-		StringBuilder sb = new StringBuilder();
-		Set<String> ratioStrings = new HashSet<String>();
-		for (ProteinBean protein : this) {
+		final StringBuilder sb = new StringBuilder();
+		final Set<String> ratioStrings = new HashSet<String>();
+		for (final ProteinBean protein : this) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
 			final String ratioStringByConditions = protein.getRatioStringByConditions(condition1Name, condition2Name,
@@ -286,16 +286,16 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	public List<AccessionBean> getSecondaryAccessions() {
-		List<AccessionBean> ret = new ArrayList<AccessionBean>();
-		for (ProteinBean protein : this) {
+		final List<AccessionBean> ret = new ArrayList<AccessionBean>();
+		for (final ProteinBean protein : this) {
 			ret.addAll(protein.getSecondaryAccessions());
 		}
 		return ret;
 	}
 
 	public String getAmountString(String conditionName, String projectTag) {
-		StringBuilder sb = new StringBuilder();
-		for (ProteinBean protein : this) {
+		final StringBuilder sb = new StringBuilder();
+		for (final ProteinBean protein : this) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
 			sb.append(protein.getAmountString(conditionName, projectTag));
@@ -304,8 +304,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	public Set<Integer> getDbIds() {
-		Set<Integer> ret = new HashSet<Integer>();
-		for (ProteinBean protein : this) {
+		final Set<Integer> ret = new HashSet<Integer>();
+		for (final ProteinBean protein : this) {
 			ret.addAll(protein.getDbIds());
 		}
 		return ret;
@@ -313,10 +313,10 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	public List<AccessionBean> getDifferentPrimaryAccessions() {
 		final List<AccessionBean> primaryAccessions = getPrimaryAccessions();
-		Set<String> accs = new HashSet<String>();
-		List<AccessionBean> ret = new ArrayList<AccessionBean>();
+		final Set<String> accs = new HashSet<String>();
+		final List<AccessionBean> ret = new ArrayList<AccessionBean>();
 
-		for (AccessionBean accessionBean : primaryAccessions) {
+		for (final AccessionBean accessionBean : primaryAccessions) {
 			if (accs.contains(accessionBean.getAccession()))
 				continue;
 			accs.add(accessionBean.getAccession());
@@ -328,13 +328,13 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	public String getGroupMemberEvidences() {
 		StringBuilder sb = new StringBuilder();
 		final List<AccessionBean> primaryAccessions = getPrimaryAccessions();
-		Map<AccessionBean, ProteinBean> map = new HashMap<AccessionBean, ProteinBean>();
-		for (ProteinBean protein : this) {
+		final Map<AccessionBean, ProteinBean> map = new HashMap<AccessionBean, ProteinBean>();
+		for (final ProteinBean protein : this) {
 			map.put(protein.getPrimaryAccession(), protein);
 		}
-		Set<String> evidences = new HashSet<String>();
-		Set<String> accs = new HashSet<String>();
-		for (AccessionBean accessionBean : primaryAccessions) {
+		final Set<String> evidences = new HashSet<String>();
+		final Set<String> accs = new HashSet<String>();
+		for (final AccessionBean accessionBean : primaryAccessions) {
 			if (accs.contains(accessionBean.getAccession()))
 				continue;
 			accs.add(accessionBean.getAccession());
@@ -357,13 +357,13 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	public String getGroupMemberExistences() {
 		StringBuilder sb = new StringBuilder();
 		final List<AccessionBean> primaryAccessions = getPrimaryAccessions();
-		Map<AccessionBean, ProteinBean> map = new HashMap<AccessionBean, ProteinBean>();
-		for (ProteinBean protein : this) {
+		final Map<AccessionBean, ProteinBean> map = new HashMap<AccessionBean, ProteinBean>();
+		for (final ProteinBean protein : this) {
 			map.put(protein.getPrimaryAccession(), protein);
 		}
-		Set<UniprotProteinExistence> existences = new HashSet<UniprotProteinExistence>();
-		Set<String> accs = new HashSet<String>();
-		for (AccessionBean accessionBean : primaryAccessions) {
+		final Set<UniprotProteinExistence> existences = new HashSet<UniprotProteinExistence>();
+		final Set<String> accs = new HashSet<String>();
+		for (final AccessionBean accessionBean : primaryAccessions) {
 			if (accs.contains(accessionBean.getAccession()))
 				continue;
 			accs.add(accessionBean.getAccession());
@@ -387,13 +387,13 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	public String getOrganismsString() {
 		StringBuilder sb = new StringBuilder();
 		final List<AccessionBean> primaryAccessions = getPrimaryAccessions();
-		Map<AccessionBean, ProteinBean> map = new HashMap<AccessionBean, ProteinBean>();
-		for (ProteinBean protein : this) {
+		final Map<AccessionBean, ProteinBean> map = new HashMap<AccessionBean, ProteinBean>();
+		for (final ProteinBean protein : this) {
 			map.put(protein.getPrimaryAccession(), protein);
 		}
-		Set<String> accs = new HashSet<String>();
-		Set<String> organisms = new HashSet<String>();
-		for (AccessionBean accessionBean : primaryAccessions) {
+		final Set<String> accs = new HashSet<String>();
+		final Set<String> organisms = new HashSet<String>();
+		for (final AccessionBean accessionBean : primaryAccessions) {
 			if (accs.contains(accessionBean.getAccession()))
 				continue;
 			accs.add(accessionBean.getAccession());
@@ -401,8 +401,11 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 			if (!"".equals(sb.toString())) {
 				sb.append(SharedConstants.SEPARATOR);
 			}
-			sb.append(proteinBean.getOrganism().getId());
-			organisms.add(proteinBean.getOrganism().getId());
+			final OrganismBean organism = proteinBean.getOrganism();
+			if (organism != null && organism.getId() != null) {
+				sb.append(organism.getId());
+				organisms.add(organism.getId());
+			}
 		}
 		// if there is only one, just print once
 		if (organisms.size() == 1)
@@ -417,7 +420,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	@Override
 	public Set<Integer> getPSMDBIds() {
 		if (psmDBIds.isEmpty()) {
-			for (ProteinBean proteinBean : this) {
+			for (final ProteinBean proteinBean : this) {
 				psmDBIds.addAll(proteinBean.getPSMDBIds());
 			}
 		}
@@ -433,9 +436,9 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	public String getAlternativeNamesString() {
-		StringBuilder sb = new StringBuilder();
-		Set<String> set = new HashSet<String>();
-		for (ProteinBean proteinBean : this) {
+		final StringBuilder sb = new StringBuilder();
+		final Set<String> set = new HashSet<String>();
+		for (final ProteinBean proteinBean : this) {
 			final String alternativeNames = proteinBean.getAlternativeNamesString();
 			if (!set.contains(alternativeNames)) {
 				if (!"".equals(sb.toString()))
@@ -458,7 +461,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 			// add peptides
 			final List<PeptideBean> peptides2 = e.getPeptides();
 			if (peptides2 != null) {
-				for (PeptideBean peptideBean : peptides2) {
+				for (final PeptideBean peptideBean : peptides2) {
 					addPeptide(peptideBean);
 				}
 			}
@@ -475,7 +478,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	@Override
 	public boolean addAll(Collection<? extends ProteinBean> c) {
 		if (c != null) {
-			for (ProteinBean proteinBean : c) {
+			for (final ProteinBean proteinBean : c) {
 				this.add(proteinBean);
 			}
 			return true;
@@ -484,12 +487,12 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	public String getSecondaryAccessionsString() {
-		List<String> list = new ArrayList<String>();
-		StringBuilder sb = new StringBuilder();
-		for (ProteinBean proteinBean : this) {
+		final List<String> list = new ArrayList<String>();
+		final StringBuilder sb = new StringBuilder();
+		for (final ProteinBean proteinBean : this) {
 			final Set<AccessionBean> secondaryAccessions2 = proteinBean.getSecondaryAccessions();
 			if (secondaryAccessions2 != null) {
-				for (AccessionBean accessionBean : secondaryAccessions2) {
+				for (final AccessionBean accessionBean : secondaryAccessions2) {
 					final String accession = accessionBean.getAccession();
 					if (!list.contains(accession)) {
 						list.add(accession);
@@ -499,7 +502,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 		}
 		Collections.sort(list);
-		for (String acc : list) {
+		for (final String acc : list) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
 			sb.append(acc);
@@ -510,11 +513,11 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	@Override
 	public String getId() {
 		final Set<Integer> dbIds = getDbIds();
-		List<Integer> list = new ArrayList<Integer>();
+		final List<Integer> list = new ArrayList<Integer>();
 		list.addAll(dbIds);
 		Collections.sort(list);
-		StringBuilder sb = new StringBuilder();
-		for (Integer integer : list) {
+		final StringBuilder sb = new StringBuilder();
+		for (final Integer integer : list) {
 			sb.append(integer);
 		}
 		return sb.toString();
@@ -528,7 +531,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	 * @return
 	 */
 	public boolean isFromThisProject(String projectTag) {
-		for (ProteinBean proteinBean : this) {
+		for (final ProteinBean proteinBean : this) {
 			if (proteinBean.isFromThisProject(projectTag))
 				return true;
 		}
@@ -537,15 +540,15 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	@Override
 	public Map<ExperimentalConditionBean, Set<Integer>> getPSMDBIdsByCondition() {
-		Map<ExperimentalConditionBean, Set<Integer>> ret = new HashMap<ExperimentalConditionBean, Set<Integer>>();
-		for (ProteinBean proteinBean : this) {
+		final Map<ExperimentalConditionBean, Set<Integer>> ret = new HashMap<ExperimentalConditionBean, Set<Integer>>();
+		for (final ProteinBean proteinBean : this) {
 			final Map<ExperimentalConditionBean, Set<Integer>> psmIdsByConditionID = proteinBean
 					.getPSMDBIdsByCondition();
-			for (ExperimentalConditionBean condition : psmIdsByConditionID.keySet()) {
+			for (final ExperimentalConditionBean condition : psmIdsByConditionID.keySet()) {
 				if (ret.containsKey(condition)) {
 					ret.get(condition).addAll(psmIdsByConditionID.get(condition));
 				} else {
-					Set<Integer> set = new HashSet<Integer>();
+					final Set<Integer> set = new HashSet<Integer>();
 					set.addAll(psmIdsByConditionID.get(condition));
 					ret.put(condition, set);
 				}
@@ -555,30 +558,11 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	@Override
-	public Map<MSRunBean, Set<Integer>> getPSMDBIdsbyMSRun() {
-
-		Map<MSRunBean, Set<Integer>> ret = new HashMap<MSRunBean, Set<Integer>>();
-		for (ProteinBean proteinBean : this) {
-			final Map<MSRunBean, Set<Integer>> psmIdsByMSRun = proteinBean.getPSMDBIdsbyMSRun();
-			for (MSRunBean msrun : psmIdsByMSRun.keySet()) {
-				if (ret.containsKey(msrun)) {
-					ret.get(msrun).addAll(psmIdsByMSRun.get(msrun));
-				} else {
-					Set<Integer> set = new HashSet<Integer>();
-					set.addAll(psmIdsByMSRun.get(msrun));
-					ret.put(msrun, set);
-				}
-			}
-		}
-		return ret;
-	}
-
-	@Override
 	public List<PSMBean> getPsms() {
-		List<PSMBean> ret = new ArrayList<PSMBean>();
-		for (ProteinBean proteinBean : this) {
+		final List<PSMBean> ret = new ArrayList<PSMBean>();
+		for (final ProteinBean proteinBean : this) {
 			final List<PSMBean> psms = proteinBean.getPsms();
-			for (PSMBean psmBean : psms) {
+			for (final PSMBean psmBean : psms) {
 				if (!ret.contains(psmBean))
 					ret.add(psmBean);
 			}
@@ -595,14 +579,14 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	public ProteinGroupBean cloneToLightProteinGroupBean() {
 		if (lightVersion == null) {
 			lightVersion = new ProteinGroupBean();
-			Set<String> sequences = new HashSet<String>();
-			Set<Integer> psmIds = new HashSet<Integer>();
-			for (ProteinBean proteinBean : this) {
+			final Set<String> sequences = new HashSet<String>();
+			final Set<Integer> psmIds = new HashSet<Integer>();
+			for (final ProteinBean proteinBean : this) {
 				lightVersion.add(proteinBean.cloneToLightProteinBean());
 				sequences.addAll(proteinBean.getDifferentSequences());
 				psmIds.addAll(proteinBean.getDbIds());
 			}
-			for (PeptideBean peptide : getPeptides()) {
+			for (final PeptideBean peptide : getPeptides()) {
 				lightVersion.addPeptide(peptide.cloneToLightPeptideBean());
 			}
 			// ret.psmDBIds.addAll(getPSMDBIds());
@@ -611,22 +595,22 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 			lightVersion.getNumPSMsByCondition().putAll(getNumPSMsByCondition());
 			// create the amounts for each condition:
 			final Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition = new HashMap<ExperimentalConditionBean, Set<Integer>>();
-			for (ProteinBean proteinBean : this) {
+			for (final ProteinBean proteinBean : this) {
 				final Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition2 = proteinBean
 						.getPSMDBIdsByCondition();
-				for (ExperimentalConditionBean condition : psmdbIdsByCondition2.keySet()) {
+				for (final ExperimentalConditionBean condition : psmdbIdsByCondition2.keySet()) {
 					if (psmdbIdsByCondition.containsKey(condition)) {
 						psmdbIdsByCondition.get(condition).addAll(psmdbIdsByCondition2.get(condition));
 					} else {
-						Set<Integer> set = new HashSet<Integer>();
+						final Set<Integer> set = new HashSet<Integer>();
 						set.addAll(psmdbIdsByCondition2.get(condition));
 						psmdbIdsByCondition.put(condition, set);
 					}
 				}
 			}
-			for (ExperimentalConditionBean condition : psmdbIdsByCondition.keySet()) {
-				double spc = Double.valueOf(psmdbIdsByCondition.get(condition).size());
-				AmountBean amount = new AmountBean();
+			for (final ExperimentalConditionBean condition : psmdbIdsByCondition.keySet()) {
+				final double spc = Double.valueOf(psmdbIdsByCondition.get(condition).size());
+				final AmountBean amount = new AmountBean();
 				amount.setAmountType(AmountType.SPC);
 				amount.setComposed(false);
 				amount.setExperimentalCondition(condition);
@@ -651,13 +635,13 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	@Override
 	public String getRatioScoreStringByConditions(String condition1Name, String condition2Name, String projectTag,
 			String ratioName, String ratioScoreName, boolean skipInfinities, boolean formatNumber) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		final List<ScoreBean> ratioScores = getRatioScoresByConditions(condition1Name, condition2Name, projectTag,
 				ratioName, ratioScoreName);
-		for (ScoreBean ratioScore : ratioScores) {
+		for (final ScoreBean ratioScore : ratioScores) {
 			try {
-				Double value = Double.valueOf(ratioScore.getValue());
+				final Double value = Double.valueOf(ratioScore.getValue());
 				if (value.toString().endsWith(".0")) {
 					if (!"".equals(sb.toString()))
 						sb.append(SharedConstants.SEPARATOR);
@@ -673,11 +657,11 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 						if (!"".equals(sb.toString()))
 							sb.append(SharedConstants.SEPARATOR);
 						sb.append(format);
-					} catch (NumberFormatException e2) {
+					} catch (final NumberFormatException e2) {
 
 					}
 				}
-			} catch (NumberFormatException e) {
+			} catch (final NumberFormatException e) {
 				// add the string as it is
 			}
 
@@ -688,8 +672,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	@Override
 	public Set<ExperimentalConditionBean> getConditions() {
-		Set<ExperimentalConditionBean> conditions = new HashSet<ExperimentalConditionBean>();
-		for (ProteinBean proteinBean : this) {
+		final Set<ExperimentalConditionBean> conditions = new HashSet<ExperimentalConditionBean>();
+		for (final ProteinBean proteinBean : this) {
 			conditions.addAll(proteinBean.getConditions());
 		}
 		return conditions;
@@ -735,7 +719,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	public Iterator<ProteinBean> getIterator(Comparator<ProteinBean> comparator) {
-		List<ProteinBean> list = new ArrayList<ProteinBean>();
+		final List<ProteinBean> list = new ArrayList<ProteinBean>();
 		list.addAll(this);
 		Collections.sort(list, comparator);
 		return list.iterator();
@@ -765,8 +749,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	@Override
 	public Set<RatioBean> getRatios() {
-		Set<RatioBean> ret = new HashSet<RatioBean>();
-		for (ProteinBean protein : this) {
+		final Set<RatioBean> ret = new HashSet<RatioBean>();
+		for (final ProteinBean protein : this) {
 			ret.addAll(protein.getRatios());
 		}
 		return ret;
@@ -779,9 +763,9 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	@Override
 	public int getNumPSMsByCondition(String projectTag, String conditionName) {
-		Map<ExperimentalConditionBean, Integer> numPSMsByCondition = getNumPSMsByCondition();
+		final Map<ExperimentalConditionBean, Integer> numPSMsByCondition = getNumPSMsByCondition();
 		if (!numPSMsByCondition.isEmpty()) {
-			for (ExperimentalConditionBean conditionBean : numPSMsByCondition.keySet()) {
+			for (final ExperimentalConditionBean conditionBean : numPSMsByCondition.keySet()) {
 				if (conditionBean.getId().equals(conditionName)) {
 					if (conditionBean.getProject().getTag().equals(projectTag)) {
 						return numPSMsByCondition.get(conditionBean);
@@ -796,11 +780,12 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	public Map<ExperimentalConditionBean, Integer> getNumPSMsByCondition() {
 		if (numPSMsByCondition == null) {
 			numPSMsByCondition = new HashMap<ExperimentalConditionBean, Integer>();
-			Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition = getPSMDBIdsByCondition();
-			for (ExperimentalConditionBean conditionBean : psmdbIdsByCondition.keySet()) {
+			final Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition = getPSMDBIdsByCondition();
+			for (final ExperimentalConditionBean conditionBean : psmdbIdsByCondition.keySet()) {
 				numPSMsByCondition.put(conditionBean, psmdbIdsByCondition.get(conditionBean).size());
 			}
 		}
 		return numPSMsByCondition;
 	}
+
 }

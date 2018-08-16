@@ -33,8 +33,8 @@ public class AnalysisSubmiter {
 
 	public static void analysis(String data, final AnalysisPerformedHandler handler) {
 
-		String url = POST_ANALYSIS;
-		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
+		final String url = POST_ANALYSIS;
+		final RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
 		requestBuilder.setHeader("Content-Type", "text/plain");
 		requestBuilder.setHeader("Accept", "application/json");
 		try {
@@ -50,7 +50,7 @@ public class AnalysisSubmiter {
 							result = AnalysisModelFactory.getModelObject(AnalysisResult.class, response.getText());
 
 							handler.onAnalysisPerformed(result);
-						} catch (org.reactome.web.analysis.client.exceptions.AnalysisModelException e) {
+						} catch (final org.reactome.web.analysis.client.exceptions.AnalysisModelException e) {
 							// TODO Console.error("Oops! This is unexpected",
 							// this);
 						}
@@ -62,7 +62,7 @@ public class AnalysisSubmiter {
 					// TODO fireEvent(new ServiceUnavailableEvent());
 				}
 			});
-		} catch (RequestException ex) {
+		} catch (final RequestException ex) {
 			// TODO fireEvent(new ServiceUnavailableEvent());
 		}
 	}
@@ -112,13 +112,13 @@ public class AnalysisSubmiter {
 		if (includeInteractors != null) {
 			postURL += "&interactors=" + includeInteractors;
 		}
-		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, postURL);
+		final RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, postURL);
 		requestBuilder.setHeader("Content-Type", "text/plain");
 		requestBuilder.setHeader("Accept", "application/json");
 		try {
 			// String externalURL = Window.Location.getProtocol() + "//"
 			// + Window.Location.getHost() + dataURL;
-			String externalURL = dataURL;
+			final String externalURL = dataURL;
 			// StatusReportersRegister.getInstance()
 			// .notifyStatusReporters("Submitting analysis to Reactome as '" +
 			// postURL + "'");
@@ -133,10 +133,10 @@ public class AnalysisSubmiter {
 						StatusReportersRegister.getInstance().notifyStatusReporters(response.getStatusText());
 					} else {
 						try {
-							AnalysisResult result = AnalysisModelFactory.getModelObject(AnalysisResult.class,
+							final AnalysisResult result = AnalysisModelFactory.getModelObject(AnalysisResult.class,
 									response.getText());
 							handler.onAnalysisPerformed(result);
-						} catch (AnalysisModelException e) {
+						} catch (final AnalysisModelException e) {
 							StatusReportersRegister.getInstance().notifyStatusReporters(e);
 						}
 					}
@@ -149,7 +149,7 @@ public class AnalysisSubmiter {
 
 				}
 			});
-		} catch (RequestException ex) {
+		} catch (final RequestException ex) {
 			StatusReportersRegister.getInstance().notifyStatusReporters(ex);
 		}
 
@@ -158,9 +158,9 @@ public class AnalysisSubmiter {
 	public static void getSubmittedReactomeAnalysis(String token, int page, int pageSize, ColumnSortInfo columnSortInfo,
 			final AnalysisPerformedHandler handler) {
 
-		String getURL = getAnalysisPagedResultByToken(token, page, pageSize, columnSortInfo);
+		final String getURL = getAnalysisPagedResultByToken(token, page, pageSize, columnSortInfo);
 		GWT.log("URL for reactome: " + getURL);
-		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, getURL);
+		final RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, getURL);
 		requestBuilder.setHeader("Content-Type", "text/plain");
 		requestBuilder.setHeader("Accept", "application/json");
 		try {
@@ -173,10 +173,10 @@ public class AnalysisSubmiter {
 						StatusReportersRegister.getInstance().notifyStatusReporters(response.getStatusText());
 					} else {
 						try {
-							AnalysisResult result = AnalysisModelFactory.getModelObject(AnalysisResult.class,
+							final AnalysisResult result = AnalysisModelFactory.getModelObject(AnalysisResult.class,
 									response.getText());
 							handler.onAnalysisPerformed(result);
-						} catch (AnalysisModelException e) {
+						} catch (final AnalysisModelException e) {
 							StatusReportersRegister.getInstance().notifyStatusReporters(e);
 						}
 					}
@@ -188,7 +188,7 @@ public class AnalysisSubmiter {
 
 				}
 			});
-		} catch (RequestException ex) {
+		} catch (final RequestException ex) {
 			StatusReportersRegister.getInstance().notifyStatusReporters(ex);
 		}
 
@@ -198,9 +198,9 @@ public class AnalysisSubmiter {
 			ColumnSortInfo columnSortInfo) {
 		String string = "./reactome/AnalysisService/token/" + token + "?page=" + page + "&pageSize=" + pageSize;
 		if (columnSortInfo != null) {
-			String order = columnSortInfo.isAscending() ? "ASC" : "DESC";
+			final String order = columnSortInfo.isAscending() ? "ASC" : "DESC";
 			string += "&order=" + order;
-			String sortBy = ColumnName.getReactomeAnalysisPathwayColumnName(
+			final String sortBy = ColumnName.getReactomeAnalysisPathwayColumnName(
 					((PathWayTextColumn) columnSortInfo.getColumn()).getColumnName());
 			if (sortBy != null) {
 				string += "&sortBy=" + sortBy;

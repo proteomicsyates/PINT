@@ -74,10 +74,10 @@ public class ClientSafeHtmlUtils {
 	// MyClientBundle.INSTANCE;
 	public static Anchor getPubmedLink(ProjectBean projectBean) {
 		if (projectBean != null) {
-			String pubmedId = projectBean.getPubmedLink();
+			final String pubmedId = projectBean.getPubmedLink();
 
 			if (pubmedId != null) {
-				SafeHtmlBuilder sb = new SafeHtmlBuilder();
+				final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 				sb.appendEscaped("[ pubmed ]");
 				final Anchor link = new Anchor(sb.toSafeHtml(),
 						UriUtils.fromString("http://www.ncbi.nlm.nih.gov/pubmed/" + pubmedId));
@@ -92,7 +92,7 @@ public class ClientSafeHtmlUtils {
 
 	public static SafeHtml getSafeHtmlFromGene(GeneBean gene, boolean includeTitle) {
 		final int hgncId = gene.getHgncNumber();
-		String geneId = gene.getGeneID();
+		final String geneId = gene.getGeneID();
 		if (hgncId > 0) {
 			String title = "";
 			final String urlString = SharedConstants.GENENAMES_LINK + hgncId;
@@ -103,7 +103,7 @@ public class ClientSafeHtmlUtils {
 
 			return link;
 		} else {
-			SafeHtmlBuilder sb = new SafeHtmlBuilder();
+			final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 			String geneType = gene.getGeneType();
 			if (geneType == null)
 				geneType = "";
@@ -117,7 +117,7 @@ public class ClientSafeHtmlUtils {
 	public static SafeHtml getSafeHtmlFromGenes(GeneBean primaryGene, List<GeneBean> otherGenes, boolean includeTitle) {
 		if (primaryGene == null && otherGenes.isEmpty())
 			return new SafeHtmlBuilder().appendEscaped("-").toSafeHtml();
-		Set<String> geneIds = new HashSet<String>();
+		final Set<String> geneIds = new HashSet<String>();
 		GeneBean gene = primaryGene;
 		if (primaryGene == null && otherGenes != null && !otherGenes.isEmpty()) {
 			gene = otherGenes.get(0);
@@ -131,7 +131,7 @@ public class ClientSafeHtmlUtils {
 			if (includeTitle) {
 				// iterate over the others
 				String othersString = "";
-				for (GeneBean otherGene : otherGenes) {
+				for (final GeneBean otherGene : otherGenes) {
 					if (geneIds.contains(otherGene.getGeneID()))
 						continue;
 					geneIds.add(otherGene.getGeneID());
@@ -149,12 +149,12 @@ public class ClientSafeHtmlUtils {
 
 			return link;
 		} else {
-			SafeHtmlBuilder sb = new SafeHtmlBuilder();
+			final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 			String tooltip = gene.getGeneID();
 			if (gene.getGeneType() != null)
 				tooltip += " (" + gene.getGeneType() + ")" + SharedConstants.SEPARATOR;
 			String othersString = "";
-			for (GeneBean otherGene : otherGenes) {
+			for (final GeneBean otherGene : otherGenes) {
 				if (geneIds.contains(otherGene.getGeneID()))
 					continue;
 				geneIds.add(otherGene.getGeneID());
@@ -173,9 +173,9 @@ public class ClientSafeHtmlUtils {
 	}
 
 	private static SafeHtml getGeneLink(ContainsGenes p, boolean includeTitle) {
-		List<GeneBean> genes = p.getGenes(false);
+		final List<GeneBean> genes = p.getGenes(false);
 		GeneBean primaryGene = null;
-		for (GeneBean geneBean : genes) {
+		for (final GeneBean geneBean : genes) {
 			if (geneBean != null && GeneBean.PRIMARY.equals(geneBean.getGeneType()))
 				primaryGene = geneBean;
 		}
@@ -187,14 +187,15 @@ public class ClientSafeHtmlUtils {
 		if (p instanceof ProteinBean) {
 			return getGeneLink(p, includeTitle);
 		} else if (p instanceof ProteinGroupBean) {
-			SafeHtmlBuilder sb = new SafeHtmlBuilder();
-			ProteinGroupBean proteinGroup = (ProteinGroupBean) p;
-			Set<String> accs = new HashSet<String>();
+			final SafeHtmlBuilder sb = new SafeHtmlBuilder();
+			final ProteinGroupBean proteinGroup = (ProteinGroupBean) p;
+			final Set<String> accs = new HashSet<String>();
 			boolean addNewLine = false;
 
-			Iterator<ProteinBean> iterator = proteinGroup.getIterator(SharedDataUtils.getComparatorByPrymaryAcc());
+			final Iterator<ProteinBean> iterator = proteinGroup
+					.getIterator(SharedDataUtils.getComparatorByPrymaryAcc());
 			while (iterator.hasNext()) {
-				ProteinBean proteinBean = iterator.next();
+				final ProteinBean proteinBean = iterator.next();
 				if (accs.contains(proteinBean.getPrimaryAccession().getAccession())) {
 					continue;
 				}
@@ -221,9 +222,9 @@ public class ClientSafeHtmlUtils {
 		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
 		// sort the list by accession
 		Collections.sort(primaryAccessions, SharedDataUtils.getComparatorByAccession());
-		SafeHtmlBuilder sb = new SafeHtmlBuilder();
-		Set<String> proteinAccs = new HashSet<String>();
-		for (AccessionBean primaryAccession : primaryAccessions) {
+		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		final Set<String> proteinAccs = new HashSet<String>();
+		for (final AccessionBean primaryAccession : primaryAccessions) {
 
 			if (primaryAccession != null) {
 				final String accessionString = primaryAccession.getAccession();
@@ -280,10 +281,10 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static String getGenesTooltip(ContainsGenes p) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		final List<GeneBean> genes = p.getGenes(false);
-		Set<String> names = new HashSet<String>();
-		for (GeneBean geneBean : genes) {
+		final Set<String> names = new HashSet<String>();
+		for (final GeneBean geneBean : genes) {
 			if (geneBean != null && !names.contains(geneBean.getGeneID())) {
 				if (!"".equals(sb.toString()))
 					sb.append("\n");
@@ -297,9 +298,9 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static SafeHtml getProteinFunctionSafeHtml(ProteinBean p) {
-		String function = p.getFunctionString();
+		final String function = p.getFunctionString();
 		String shortFunction = function;
-		SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 
 		if (shortFunction.length() > MAX_LENGTH_FUNCTION) {
 			shortFunction = shortFunction.substring(0, MAX_LENGTH_FUNCTION) + "...";
@@ -312,7 +313,7 @@ public class ClientSafeHtmlUtils {
 			split[0] = shortFunction;
 		}
 		boolean first = true;
-		for (String string : split) {
+		for (final String string : split) {
 			if (!first) {
 				sb.appendEscapedLines(SharedConstants.SEPARATOR);
 			}
@@ -335,18 +336,18 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static SafeHtml getOmimLinks(ProteinBean p) {
-		SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		final List<Integer> omimIDs = p.getOmimSortedIDs();
 		if (omimIDs != null && !omimIDs.isEmpty()) {
 
-			for (Integer omimID : p.getOmimSortedIDs()) {
+			for (final Integer omimID : p.getOmimSortedIDs()) {
 				final OmimEntryBean omimEntry = p.getOmimEntries().get(omimID);
-				StringBuilder omimTooltip = new StringBuilder();
+				final StringBuilder omimTooltip = new StringBuilder();
 				omimTooltip.append("OMIM entry ID: " + omimEntry.getId() + SharedConstants.SEPARATOR);
 				omimTooltip.append(omimEntry.getPreferredTitle() + SharedConstants.SEPARATOR);
 				final List<String> alternativeTitles = omimEntry.getAlternativeTitles();
 				omimTooltip.append("Alternative titles; symbols: " + SharedConstants.SEPARATOR);
-				for (String alternativeTitle : alternativeTitles) {
+				for (final String alternativeTitle : alternativeTitles) {
 					omimTooltip.append("\t" + alternativeTitle + SharedConstants.SEPARATOR);
 				}
 				omimTooltip.append("(click for open OMIM entry web page)");
@@ -370,11 +371,11 @@ public class ClientSafeHtmlUtils {
 
 	public static SafeHtml getGroupMemberEvidences(ProteinGroupBean proteinGroup) {
 		SafeHtmlBuilder sb = new SafeHtmlBuilder();
-		Set<ProteinEvidence> evidences = new HashSet<ProteinEvidence>();
-		Set<String> accs = new HashSet<String>();
-		Iterator<ProteinBean> iterator = proteinGroup.getIterator(SharedDataUtils.getComparatorByPrymaryAcc());
+		final Set<ProteinEvidence> evidences = new HashSet<ProteinEvidence>();
+		final Set<String> accs = new HashSet<String>();
+		final Iterator<ProteinBean> iterator = proteinGroup.getIterator(SharedDataUtils.getComparatorByPrymaryAcc());
 		while (iterator.hasNext()) {
-			ProteinBean proteinBean = iterator.next();
+			final ProteinBean proteinBean = iterator.next();
 			if (accs.contains(proteinBean.getPrimaryAccession().getAccession()))
 				continue;
 			accs.add(proteinBean.getPrimaryAccession().getAccession());
@@ -400,11 +401,11 @@ public class ClientSafeHtmlUtils {
 
 	public static SafeHtml getGroupMemberExistences(ProteinGroupBean proteinGroup) {
 		SafeHtmlBuilder sb = new SafeHtmlBuilder();
-		Set<UniprotProteinExistence> existences = new HashSet<UniprotProteinExistence>();
-		Set<String> accs = new HashSet<String>();
-		Iterator<ProteinBean> iterator = proteinGroup.getIterator(SharedDataUtils.getComparatorByPrymaryAcc());
+		final Set<UniprotProteinExistence> existences = new HashSet<UniprotProteinExistence>();
+		final Set<String> accs = new HashSet<String>();
+		final Iterator<ProteinBean> iterator = proteinGroup.getIterator(SharedDataUtils.getComparatorByPrymaryAcc());
 		while (iterator.hasNext()) {
-			ProteinBean proteinBean = iterator.next();
+			final ProteinBean proteinBean = iterator.next();
 			if (accs.contains(proteinBean.getPrimaryAccession().getAccession()))
 				continue;
 			accs.add(proteinBean.getPrimaryAccession().getAccession());
@@ -462,11 +463,11 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static SafeHtml getProteinCoverageGraphic(ProteinGroupBean proteinGroup) {
-		SafeHtmlBuilder sb = new SafeHtmlBuilder();
-		Set<String> accs = new HashSet<String>();
-		Iterator<ProteinBean> iterator = proteinGroup.getIterator(SharedDataUtils.getComparatorByPrymaryAcc());
+		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		final Set<String> accs = new HashSet<String>();
+		final Iterator<ProteinBean> iterator = proteinGroup.getIterator(SharedDataUtils.getComparatorByPrymaryAcc());
 		while (iterator.hasNext()) {
-			ProteinBean proteinBean = iterator.next();
+			final ProteinBean proteinBean = iterator.next();
 			if (accs.contains(proteinBean.getPrimaryAccession().getAccession()))
 				continue;
 			accs.add(proteinBean.getPrimaryAccession().getAccession());
@@ -482,10 +483,10 @@ public class ClientSafeHtmlUtils {
 	public static SafeHtml getProteinCoverageGraphic(ProteinBean p) {
 		final NumberFormat formatter = NumberFormat.getFormat("#.#");
 		final char[] coverageArrayString = p.getCoverageArrayString();
-		SafeHtmlBuilder sb = new SafeHtmlBuilder();
-		List<Double> percentages = new ArrayList<Double>();
-		List<Boolean> coveredOrNot = new ArrayList<Boolean>();
-		List<String> titles = new ArrayList<String>();
+		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		final List<Double> percentages = new ArrayList<Double>();
+		final List<Boolean> coveredOrNot = new ArrayList<Boolean>();
+		final List<String> titles = new ArrayList<String>();
 		String prefixTitle = "Protein coverage representation for protein: " + p.getPrimaryAccession().getAccession()
 				+ "\n";
 		if (p.getLength() > 0) {
@@ -494,7 +495,7 @@ public class ClientSafeHtmlUtils {
 
 		int fragmentInitAA = 0;
 		if (coverageArrayString != null) {
-			int seqLenght = coverageArrayString.length;
+			final int seqLenght = coverageArrayString.length;
 			boolean currentAACovered = false;
 			int lengthFragment = 0;
 			for (int i = 0; i < coverageArrayString.length; i++) {
@@ -502,7 +503,7 @@ public class ClientSafeHtmlUtils {
 					if (currentAACovered) {
 						lengthFragment++;
 					} else {
-						double percentage = lengthFragment * 100.0 / seqLenght;
+						final double percentage = lengthFragment * 100.0 / seqLenght;
 						percentages.add(percentage);
 						coveredOrNot.add(false);
 
@@ -517,7 +518,7 @@ public class ClientSafeHtmlUtils {
 					if (!currentAACovered) {
 						lengthFragment++;
 					} else {
-						double percentage = lengthFragment * 100.0 / seqLenght;
+						final double percentage = lengthFragment * 100.0 / seqLenght;
 						percentages.add(percentage);
 						coveredOrNot.add(true);
 
@@ -589,18 +590,18 @@ public class ClientSafeHtmlUtils {
 		final RatioDistribution ratioDistribution = p.getRatioDistribution(r);
 		final char[] ratioNegative = getRatioDistributionNegativeCharArray(ratioDistribution, r);
 		final char[] ratioPositive = getRatioDistributionPositiveCharArray(ratioDistribution, r);
-		SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		char[] ratioDistributionArray = null;
-		if (ratioNegative != null || ratioPositive != null) {
+		if (ratioDistribution != null && (ratioNegative != null || ratioPositive != null)) {
 			ratioDistributionArray = new char[ratioNegative.length + ratioPositive.length];
 			int index = 0;
 			if (ratioNegative != null) {
-				for (char c : ratioNegative) {
+				for (final char c : ratioNegative) {
 					ratioDistributionArray[index++] = c;
 				}
 			}
 			if (ratioPositive != null) {
-				for (char c : ratioPositive) {
+				for (final char c : ratioPositive) {
 					ratioDistributionArray[index++] = c;
 				}
 			}
@@ -613,20 +614,21 @@ public class ClientSafeHtmlUtils {
 				|| Double.compare(r.getValue(), -Double.MAX_VALUE) == 0) {
 			isInfinity = true;
 		}
-		String defaultTitle = new StringBuilder("Ratio value: ").append(r.getValue()).append(SharedConstants.SEPARATOR)
+		final String defaultTitle = new StringBuilder("Ratio value: ").append(r.getValue())
+				.append(SharedConstants.SEPARATOR)
 				.append(SharedDataUtils.getRatioHeaderTooltip(ColumnName.PSM_RATIO, r.getCondition1().getId(),
 						r.getCondition2().getId(), r.getId()))
 				.append(SharedConstants.SEPARATOR).append(ratioDistribution.toString()).toString();
-		String minimumTitle = new StringBuilder("Minimum value of this ratio in the dataset:")
+		final String minimumTitle = new StringBuilder("Minimum value of this ratio in the dataset:")
 				.append(SharedConstants.SEPARATOR).append(ratioDistribution.getMinRatio()).toString();
-		String maximumTitle = new StringBuilder("Maximum value of this ratio in the dataset:")
+		final String maximumTitle = new StringBuilder("Maximum value of this ratio in the dataset:")
 				.append(SharedConstants.SEPARATOR).append(ratioDistribution.getMaxRatio()).toString();
 
-		List<Double> percentages = new ArrayList<Double>();
-		List<Boolean> coveredOrNot = new ArrayList<Boolean>();
-		List<String> titles = new ArrayList<String>();
-		List<Boolean> positives = new ArrayList<Boolean>();
-		int seqLenght = ratioNegative.length;
+		final List<Double> percentages = new ArrayList<Double>();
+		final List<Boolean> coveredOrNot = new ArrayList<Boolean>();
+		final List<String> titles = new ArrayList<String>();
+		final List<Boolean> positives = new ArrayList<Boolean>();
+		final int seqLenght = ratioNegative.length;
 		boolean currentPositionCovered = false;
 		int lengthFragment = 0;
 		boolean positiveSign = false;
@@ -636,7 +638,7 @@ public class ClientSafeHtmlUtils {
 				if (currentPositionCovered) {
 					lengthFragment++;
 				} else {
-					double percentage = lengthFragment * 100.0 / seqLenght;
+					final double percentage = lengthFragment * 100.0 / seqLenght;
 					percentages.add(percentage);
 					coveredOrNot.add(false);
 					currentPositionCovered = true;
@@ -648,7 +650,7 @@ public class ClientSafeHtmlUtils {
 				if (!currentPositionCovered) {
 					lengthFragment++;
 				} else {
-					double percentage = lengthFragment * 100.0 / seqLenght;
+					final double percentage = lengthFragment * 100.0 / seqLenght;
 					percentages.add(percentage);
 					coveredOrNot.add(true);
 					positives.add(positiveSign);
@@ -759,7 +761,7 @@ public class ClientSafeHtmlUtils {
 
 		final int arraySize = 1000;
 		if (Double.compare(-Double.MAX_VALUE, ratio.getValue()) == 0) {
-			char[] ret = new char[arraySize];
+			final char[] ret = new char[arraySize];
 			for (int i = 0; i < ret.length; i++) {
 				ret[i] = '1';
 			}
@@ -768,14 +770,14 @@ public class ClientSafeHtmlUtils {
 		if (ratio.getValue() <= 0.0) {
 			if (ratioDistribution != null) {
 				final double maxAbsRatio = ratioDistribution.getMaxAbsRatio();
-				double proportion = arraySize / maxAbsRatio;
+				final double proportion = arraySize / maxAbsRatio;
 				int ratioIndex = Double.valueOf(Math.abs(ratio.getValue()) * proportion).intValue();
 				ratioIndex = arraySize - ratioIndex;
 				if (ratioIndex == arraySize) {
 					// paint something
 					ratioIndex = arraySize - 1;
 				}
-				char[] ret = new char[arraySize];
+				final char[] ret = new char[arraySize];
 				for (int i = 0; i < ret.length; i++) {
 					if (i < ratioIndex) {
 					} else {
@@ -791,7 +793,7 @@ public class ClientSafeHtmlUtils {
 	private static char[] getRatioDistributionPositiveCharArray(RatioDistribution ratioDistribution, RatioBean ratio) {
 		final int arraySize = 1000;
 		if (Double.compare(Double.MAX_VALUE, ratio.getValue()) == 0) {
-			char[] ret = new char[arraySize];
+			final char[] ret = new char[arraySize];
 			for (int i = 0; i < ret.length; i++) {
 				ret[i] = '1';
 			}
@@ -800,9 +802,9 @@ public class ClientSafeHtmlUtils {
 		if (ratio.getValue() >= 0.0) {
 			if (ratioDistribution != null) {
 				final double maxAbsRatio = ratioDistribution.getMaxAbsRatio();
-				double proportion = arraySize / maxAbsRatio;
-				int ratioIndex = Double.valueOf(Math.abs(ratio.getValue()) * proportion).intValue();
-				char[] ret = new char[arraySize];
+				final double proportion = arraySize / maxAbsRatio;
+				final int ratioIndex = Double.valueOf(Math.abs(ratio.getValue()) * proportion).intValue();
+				final char[] ret = new char[arraySize];
 				for (int i = 0; i < ret.length; i++) {
 					if (i <= ratioIndex) {
 						ret[i] = '1';
@@ -827,11 +829,11 @@ public class ClientSafeHtmlUtils {
 	 */
 	public static String getExtendedRatioScoreStringByConditions(ContainsRatios p, String condition1Name,
 			String condition2Name, String projectTag, String ratioName, String ratioScoreName, boolean skipInfinities) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		final List<ScoreBean> ratioScores = p.getRatioScoresByConditions(condition1Name, condition2Name, projectTag,
 				ratioName, ratioScoreName);
-		for (ScoreBean ratioScore : ratioScores) {
+		for (final ScoreBean ratioScore : ratioScores) {
 			try {
 
 				if (!"".equals(sb.toString()))
@@ -840,16 +842,16 @@ public class ClientSafeHtmlUtils {
 						+ "Conditions in ratio: " + condition1Name + " / " + condition2Name + SharedConstants.SEPARATOR
 						+ "Score name: " + ratioScore.getScoreName() + SharedConstants.SEPARATOR);
 
-				Double doubleValue = Double.valueOf(ratioScore.getValue());
+				final Double doubleValue = Double.valueOf(ratioScore.getValue());
 				if (doubleValue.toString().endsWith(".0")) {
 					sb.append("Value: " + String.valueOf(doubleValue.intValue()));
 				} else {
 					try {
 						// no formatting because this is the tooltip, we want to
 						// show everything
-						String format = String.valueOf(doubleValue);
+						final String format = String.valueOf(doubleValue);
 						sb.append("Score value: " + format);
-					} catch (NumberFormatException e2) {
+					} catch (final NumberFormatException e2) {
 
 					}
 				}
@@ -859,7 +861,7 @@ public class ClientSafeHtmlUtils {
 				if (ratioScore.getScoreDescription() != null) {
 					sb.append(SharedConstants.SEPARATOR + "Score description: " + ratioScore.getScoreDescription());
 				}
-			} catch (NumberFormatException e) {
+			} catch (final NumberFormatException e) {
 				// add the string as it is
 			}
 
@@ -869,11 +871,11 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static SafeHtml getUniprotFeatureSafeHtml(ProteinBean p, String... featureTypes) {
-		SafeHtmlBuilder sb = new SafeHtmlBuilder();
-		List<String> uniprotFeatureList = new ArrayList<String>();
+		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		final List<String> uniprotFeatureList = new ArrayList<String>();
 		uniprotFeatureList.addAll(java.util.Arrays.asList(featureTypes));
 		Collections.sort(uniprotFeatureList);
-		for (String featureType : uniprotFeatureList) {
+		for (final String featureType : uniprotFeatureList) {
 
 			final List<UniprotFeatureBean> uniprotFeatures = p.getUniprotFeaturesByFeatureType(featureType);
 
@@ -885,8 +887,8 @@ public class ClientSafeHtmlUtils {
 			sb.appendEscaped(featureType);
 			sb.append(template.endToolTip());
 
-			for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {
-				String toolTipText = getToolTipFromUniprotFeature(uniprotFeature);
+			for (final UniprotFeatureBean uniprotFeature : uniprotFeatures) {
+				final String toolTipText = getToolTipFromUniprotFeature(uniprotFeature);
 				sb.append(template.startToolTip(toolTipText));
 				if (uniprotFeature.getDescription() != null) {
 					sb.appendEscaped(uniprotFeature.getDescription());
@@ -931,8 +933,8 @@ public class ClientSafeHtmlUtils {
 				.getProteinBeansByPrimaryAccession(proteins);
 		// get a list of proteins according to the order of the primary
 		// accessions
-		List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
-		for (AccessionBean acc : primaryAccessions) {
+		final List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
+		for (final AccessionBean acc : primaryAccessions) {
 			proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
 		}
 		return getUniprotFeatureSafeHtml(startingPositions, proteinBeanList, featureTypes);
@@ -946,8 +948,8 @@ public class ClientSafeHtmlUtils {
 				.getProteinBeansByPrimaryAccession(proteins);
 		// get a list of proteins according to the order of the primary
 		// accessions
-		List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
-		for (AccessionBean acc : primaryAccessions) {
+		final List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
+		for (final AccessionBean acc : primaryAccessions) {
 			proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
 		}
 		return getUniprotFeatureSafeHtml(startingPositions, proteinBeanList, featureTypes);
@@ -956,31 +958,31 @@ public class ClientSafeHtmlUtils {
 	private static SafeHtml getUniprotFeatureSafeHtml(
 			Map<String, List<Pair<Integer, Integer>>> startingPositionsByProtein, List<ProteinBean> proteinBeans,
 			String... featureTypes) {
-		SafeHtmlBuilder sb = new SafeHtmlBuilder();
-		for (String featureType : featureTypes) {
-			Map<UniprotFeatureBean, Set<ProteinBean>> proteinBeansByUniprotFeatureBean = new HashMap<UniprotFeatureBean, Set<ProteinBean>>();
-			for (ProteinBean p : proteinBeans) {
+		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		for (final String featureType : featureTypes) {
+			final Map<UniprotFeatureBean, Set<ProteinBean>> proteinBeansByUniprotFeatureBean = new HashMap<UniprotFeatureBean, Set<ProteinBean>>();
+			for (final ProteinBean p : proteinBeans) {
 
 				if (startingPositionsByProtein.containsKey(p.getPrimaryAccession().getAccession())) {
 					final List<UniprotFeatureBean> uniprotFeatureList = p.getUniprotFeaturesByFeatureType(featureType);
 					if (uniprotFeatureList.isEmpty()) {
 						continue;
 					}
-					for (UniprotFeatureBean uniprotFeature : uniprotFeatureList) {
+					for (final UniprotFeatureBean uniprotFeature : uniprotFeatureList) {
 						// only consider the ones with annotated start and end
 						// positions
 						if (uniprotFeature.getPositionStart() > -1 && uniprotFeature.getPositionEnd() > -1) {
 
 							final List<Pair<Integer, Integer>> startingPositions = startingPositionsByProtein
 									.get(p.getPrimaryAccession().getAccession());
-							SEQUENCE_OVERLAPPING sequenceOverlapping = SharedDataUtils.isPeptideIncludedInThatRange(
-									startingPositions, uniprotFeature.getPositionStart(),
-									uniprotFeature.getPositionEnd());
+							final SEQUENCE_OVERLAPPING sequenceOverlapping = SharedDataUtils
+									.isPeptideIncludedInThatRange(startingPositions, uniprotFeature.getPositionStart(),
+											uniprotFeature.getPositionEnd());
 							if (sequenceOverlapping != SEQUENCE_OVERLAPPING.NOT_COVERED) {
 								if (proteinBeansByUniprotFeatureBean.containsKey(uniprotFeature)) {
 									proteinBeansByUniprotFeatureBean.get(uniprotFeature).add(p);
 								} else {
-									Set<ProteinBean> proteinSet = new HashSet<ProteinBean>();
+									final Set<ProteinBean> proteinSet = new HashSet<ProteinBean>();
 									proteinSet.add(p);
 									proteinBeansByUniprotFeatureBean.put(uniprotFeature, proteinSet);
 								}
@@ -990,17 +992,17 @@ public class ClientSafeHtmlUtils {
 				}
 			}
 			boolean featureTypeHeaderPrinted = false;
-			List<UniprotFeatureBean> uniprotFeatureList = new ArrayList<UniprotFeatureBean>();
+			final List<UniprotFeatureBean> uniprotFeatureList = new ArrayList<UniprotFeatureBean>();
 			uniprotFeatureList.addAll(proteinBeansByUniprotFeatureBean.keySet());
 			Collections.sort(uniprotFeatureList);
-			for (UniprotFeatureBean uniprotFeature : uniprotFeatureList) {
+			for (final UniprotFeatureBean uniprotFeature : uniprotFeatureList) {
 				if (!featureTypeHeaderPrinted) {
 					sb.append(template.startToolTipWithClass(featureType, "featureType"));
 					sb.appendEscaped(featureType);
 					sb.append(template.endToolTip());
 					featureTypeHeaderPrinted = true;
 				}
-				String toolTipText = getToolTipFromUniprotFeature(uniprotFeature);
+				final String toolTipText = getToolTipFromUniprotFeature(uniprotFeature);
 				sb.append(template.startToolTip(toolTipText));
 				if (uniprotFeature.getDescription() != null) {
 					sb.appendEscaped(uniprotFeature.getDescription());
@@ -1016,23 +1018,23 @@ public class ClientSafeHtmlUtils {
 				}
 
 				final Set<ProteinBean> proteinSet = proteinBeansByUniprotFeatureBean.get(uniprotFeature);
-				Map<SEQUENCE_OVERLAPPING, List<ProteinBean>> proteinsBySequenceOverlapping = new HashMap<SEQUENCE_OVERLAPPING, List<ProteinBean>>();
-				for (ProteinBean proteinBean : proteinSet) {
+				final Map<SEQUENCE_OVERLAPPING, List<ProteinBean>> proteinsBySequenceOverlapping = new HashMap<SEQUENCE_OVERLAPPING, List<ProteinBean>>();
+				for (final ProteinBean proteinBean : proteinSet) {
 
 					final List<Pair<Integer, Integer>> startingPositions = startingPositionsByProtein
 							.get(proteinBean.getPrimaryAccession().getAccession());
-					SEQUENCE_OVERLAPPING sequenceOverlapping = SharedDataUtils.isPeptideIncludedInThatRange(
+					final SEQUENCE_OVERLAPPING sequenceOverlapping = SharedDataUtils.isPeptideIncludedInThatRange(
 							startingPositions, uniprotFeature.getPositionStart(), uniprotFeature.getPositionEnd());
 					if (proteinsBySequenceOverlapping.containsKey(sequenceOverlapping)) {
 						proteinsBySequenceOverlapping.get(sequenceOverlapping).add(proteinBean);
 					} else {
-						List<ProteinBean> list = new ArrayList<ProteinBean>();
+						final List<ProteinBean> list = new ArrayList<ProteinBean>();
 						list.add(proteinBean);
 						proteinsBySequenceOverlapping.put(sequenceOverlapping, list);
 					}
 				}
 
-				for (SEQUENCE_OVERLAPPING overlapping : SEQUENCE_OVERLAPPING.values()) {
+				for (final SEQUENCE_OVERLAPPING overlapping : SEQUENCE_OVERLAPPING.values()) {
 					if (proteinsBySequenceOverlapping.containsKey(overlapping)) {
 						final List<ProteinBean> proteinList = proteinsBySequenceOverlapping.get(overlapping);
 						if (!proteinList.isEmpty()) {
@@ -1045,7 +1047,7 @@ public class ClientSafeHtmlUtils {
 							}
 							sb.appendEscaped(" (" + overlapping.getDescription() + " in protein" + plural + " ");
 							boolean first = true;
-							for (ProteinBean proteinBean : proteinList) {
+							for (final ProteinBean proteinBean : proteinList) {
 								if (!first) {
 									sb.appendEscaped(",");
 								}
@@ -1068,7 +1070,7 @@ public class ClientSafeHtmlUtils {
 	}
 
 	private static String getToolTipFromUniprotFeature(UniprotFeatureBean uniprotFeature) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(uniprotFeature.getFeatureType()).append(":\n");
 		sb.append(uniprotFeature.getDescription()).append("\n");
 		if (uniprotFeature.getPositionStart() > -1) {
@@ -1090,11 +1092,11 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static SafeHtml getReactomeSafeHtml(ProteinBean p) {
-		SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 
-		Set<String> ids = new HashSet<String>();
+		final Set<String> ids = new HashSet<String>();
 		Collections.sort(p.getReactomePathways());
-		for (ReactomePathwayRef reactome : p.getReactomePathways()) {
+		for (final ReactomePathwayRef reactome : p.getReactomePathways()) {
 			if (ids.contains(reactome.getId())) {
 				continue;
 			}
@@ -1112,7 +1114,7 @@ public class ClientSafeHtmlUtils {
 	private static SafeHtml getReactomeEntryLink(ReactomePathwayRef reactome) {
 		final String urlString = SharedConstants.REACTOME_ENTRY_LINK + reactome.getId();
 
-		String title = "Go to reactome.org to see " + reactome.getId() + " entry";
+		final String title = "Go to reactome.org to see " + reactome.getId() + " entry";
 
 		final SafeHtml link = template.link(UriUtils.fromString(urlString), "reactomeLink", title, title,
 				reactome.getDescription());

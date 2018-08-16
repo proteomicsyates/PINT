@@ -93,14 +93,14 @@ public abstract class AbstractDataTable<T> extends Composite
 		// mainPanel.add(resizeLayoutPanel);
 		// } else if (dataGrid instanceof CellTable) {
 		// include it in a scrollpanel with horizontal scroll
-		SimplePanel scroll = new SimplePanel(dataGrid);
+		final SimplePanel scroll = new SimplePanel(dataGrid);
 		scroll.setSize("100%", "92%");
 		scroll.setStyleName("HorizontalScroll");
 		mainPanel.add(scroll);
 		// }
 
 		// loading panel
-		Image imageLoading = new Image(myClientBundle.horizontalLoader());
+		final Image imageLoading = new Image(myClientBundle.horizontalLoader());
 		loadingPanel = new VerticalPanel();
 		loadingPanel.add(imageLoading);
 		// add the pager
@@ -108,7 +108,7 @@ public abstract class AbstractDataTable<T> extends Composite
 		mainPanel.add(pager);
 		// Add the CellList to the adapter in the database.
 		asyncDataListProvider.addDataDisplay(dataGrid);
-		AsyncHandler asyncHandler = new AsyncHandler(dataGrid);
+		final AsyncHandler asyncHandler = new AsyncHandler(dataGrid);
 		dataGrid.addColumnSortHandler(asyncHandler);
 		dataGrid.setAutoHeaderRefreshDisabled(true);
 
@@ -122,7 +122,7 @@ public abstract class AbstractDataTable<T> extends Composite
 		// add the selection manager
 		if (multipleSelectionModel) {
 			selectionModel = new MultiSelectionModel<T>();
-			dataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<T> createCheckboxManager());
+			dataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<T>createCheckboxManager());
 		} else {
 			selectionModel = new SingleSelectionModel<T>();
 			dataGrid.setSelectionModel(selectionModel);
@@ -137,7 +137,7 @@ public abstract class AbstractDataTable<T> extends Composite
 	public final void initTableColumns(boolean addCheckBoxSelection) {
 		if (addCheckBoxSelection) {
 			// first column, the checkboxex for selection
-			Column<T, Boolean> checkColumn = new Column<T, Boolean>(new CheckboxCell(true, false)) {
+			final Column<T, Boolean> checkColumn = new Column<T, Boolean>(new CheckboxCell(true, false)) {
 				@Override
 				public Boolean getValue(T object) {
 					// Get the value from the selection model.
@@ -148,8 +148,8 @@ public abstract class AbstractDataTable<T> extends Composite
 			dataGrid.setColumnWidth(checkColumn, 30, Unit.PX);
 		}
 		// rest of the columns
-		for (MyColumn<T> myColumn : getColumnManager().getVisibleColumns()) {
-			ColumnName columnName = myColumn.getColumnName();
+		for (final MyColumn<T> myColumn : getColumnManager().getVisibleColumns()) {
+			final ColumnName columnName = myColumn.getColumnName();
 			// don't do anything with amount because the conditions
 			// are not loaded yet
 			if (columnName != ColumnName.PROTEIN_AMOUNT && columnName != ColumnName.SPC_PER_CONDITION
@@ -184,7 +184,7 @@ public abstract class AbstractDataTable<T> extends Composite
 
 	public final void clearTable() {
 		getAsyncDataProvider().updateRowCount(0, true);
-		getAsyncDataProvider().updateRowData(0, Collections.<T> emptyList());
+		getAsyncDataProvider().updateRowData(0, Collections.<T>emptyList());
 		setEmptyTableWidget(emptyWidget);
 		refreshData();
 	}
@@ -236,7 +236,7 @@ public abstract class AbstractDataTable<T> extends Composite
 	public final void onResize() {
 		// GWT.log("Resizing DataTable in " + getClass().getCanonicalName());
 		for (int i = 0; i < mainPanel.getWidgetCount(); i++) {
-			Widget child = mainPanel.getWidget(i);
+			final Widget child = mainPanel.getWidget(i);
 			if (child instanceof RequiresResize) {
 				((RequiresResize) child).onResize();
 			}
@@ -246,9 +246,9 @@ public abstract class AbstractDataTable<T> extends Composite
 	public final void addColumnForScore(String scoreName, ColumnName columnName) {
 		// check first if the column is already present or not
 		if (!columnManager.containsScoreColumn(scoreName, columnName)) {
-			CustomTextColumn<T> column = columnManager.addScoreColumn(columnName, true, scoreName);
+			final CustomTextColumn<T> column = columnManager.addScoreColumn(columnName, true, scoreName);
 			if (column.isVisible()) {
-				Header<String> footer = column.getFooter();
+				final Header<String> footer = column.getFooter();
 
 				if (footer != null) {
 					dataGrid.addColumn(column, column.getHeader(), footer);
@@ -267,10 +267,10 @@ public abstract class AbstractDataTable<T> extends Composite
 			String conditionSymbol, AmountType amountType, String projectTag) {
 		// check first if the column is already present or not
 		if (!columnManager.containsColumn(columnName, conditionName, amountType, projectTag)) {
-			CustomTextColumn<T> column = columnManager.addAmountColumn(columnName, isVisible, conditionName,
+			final CustomTextColumn<T> column = columnManager.addAmountColumn(columnName, isVisible, conditionName,
 					conditionSymbol, amountType, projectTag);
 			if (column.isVisible()) {
-				Header<String> footer = column.getFooter();
+				final Header<String> footer = column.getFooter();
 
 				if (footer != null) {
 					dataGrid.addColumn(column, column.getHeader(), footer);
@@ -293,10 +293,10 @@ public abstract class AbstractDataTable<T> extends Composite
 		}
 		// check first if the column is already present or not
 		if (!columnManager.containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName)) {
-			CustomTextColumn<T> column = columnManager.addRatioColumn(columnName, isVisible, condition1Name,
+			final CustomTextColumn<T> column = columnManager.addRatioColumn(columnName, isVisible, condition1Name,
 					condition1Symbol, condition2Name, condition2Symbol, projectTag, ratioName);
 			if (column.isVisible()) {
-				Header<String> footer = column.getFooter();
+				final Header<String> footer = column.getFooter();
 
 				if (footer != null) {
 					dataGrid.addColumn(column, column.getHeader(), footer);
@@ -320,8 +320,9 @@ public abstract class AbstractDataTable<T> extends Composite
 		// check first if the column is already present or not
 		if (!getColumnManager().containsColumn(columnName, condition1Name, condition2Name, projectTag, ratioName,
 				scoreName)) {
-			CustomTextColumn<T> column = getColumnManager().addRatioScoreColumn(columnName, isVisible, condition1Name,
-					condition1Symbol, condition2Name, condition2Symbol, projectTag, ratioName, scoreName);
+			final CustomTextColumn<T> column = getColumnManager().addRatioScoreColumn(columnName, isVisible,
+					condition1Name, condition1Symbol, condition2Name, condition2Symbol, projectTag, ratioName,
+					scoreName);
 			if (column.isVisible()) {
 				dataGrid.addColumnToTable(column, getColumnManager());
 			}
@@ -341,21 +342,21 @@ public abstract class AbstractDataTable<T> extends Composite
 	public final void pushSortingOrder(ColumnName sortedBy, ORDER order, String sortingScore) {
 		GWT.log("Sorting Table in " + getClass().getCanonicalName());
 		dataGrid.getColumnSortList().clear();
-		Set<MyColumn<T>> columns = getColumnManager().getColumnsByColumnName(sortedBy);
+		final Set<MyColumn<T>> columns = getColumnManager().getColumnsByColumnName(sortedBy);
 
 		if (columns != null && !columns.isEmpty()) {
 			if (sortingScore == null || "".equals(sortingScore)) {
-				Column<T, ?> column = (Column<T, ?>) columns.iterator().next();
+				final Column<T, ?> column = (Column<T, ?>) columns.iterator().next();
 				if (column != null) {
 					// dataGrid.sortColumn(column, order);
 					dataGrid.pushColumnToColumnSortList(column, order);
 				}
 			} else {
-				for (MyColumn<T> myColumn : columns) {
+				for (final MyColumn<T> myColumn : columns) {
 					if (myColumn instanceof MyIdColumn) {
-						MyIdColumn<T> idColumn = (MyIdColumn<T>) myColumn;
+						final MyIdColumn<T> idColumn = (MyIdColumn<T>) myColumn;
 						if (sortingScore.equalsIgnoreCase(idColumn.getScoreName())) {
-							Column<T, ?> column = (Column<T, ?>) myColumn;
+							final Column<T, ?> column = (Column<T, ?>) myColumn;
 							// dataGrid.sortColumn(column, order);
 							dataGrid.pushColumnToColumnSortList(column, order);
 						}
@@ -392,7 +393,7 @@ public abstract class AbstractDataTable<T> extends Composite
 	@Override
 	public final void showOrHideColumn(ColumnName columnName, boolean show) {
 
-		for (MyColumn<T> mycolumn : getColumnManager().getColumnsByColumnName(columnName)) {
+		for (final MyColumn<T> mycolumn : getColumnManager().getColumnsByColumnName(columnName)) {
 
 			final Column<T, ?> column = (Column<T, ?>) mycolumn;
 			mycolumn.setVisible(show);
@@ -429,12 +430,12 @@ public abstract class AbstractDataTable<T> extends Composite
 	@Override
 	public final void showOrHideExperimentalConditionColumn(ColumnName columnName, Set<String> conditionNames,
 			String projectName, boolean show) {
-		for (MyColumn<T> mycolumn : getColumnManager().getColumnsByColumnName(columnName)) {
+		for (final MyColumn<T> mycolumn : getColumnManager().getColumnsByColumnName(columnName)) {
 			if (mycolumn instanceof MyIdColumn) {
-				MyIdColumn<T> idColumn = (MyIdColumn<T>) mycolumn;
+				final MyIdColumn<T> idColumn = (MyIdColumn<T>) mycolumn;
 				final Column<T, String> column = (Column<T, String>) mycolumn;
-				String condition1ReferredByColumn = idColumn.getExperimentalConditionName();
-				String condition2ReferredByColumn = idColumn.getExperimentalCondition2Name() != null
+				final String condition1ReferredByColumn = idColumn.getExperimentalConditionName();
+				final String condition2ReferredByColumn = idColumn.getExperimentalCondition2Name() != null
 						? idColumn.getExperimentalCondition2Name() : condition1ReferredByColumn;
 
 				if (projectName == null || idColumn.getProjectTag().equalsIgnoreCase(projectName)) {
@@ -464,9 +465,9 @@ public abstract class AbstractDataTable<T> extends Composite
 	@Override
 	public final void showOrHideExperimentalConditionColumn(String keyName, boolean show) {
 		boolean found = false;
-		for (MyColumn<T> mycolumn : getColumnManager().getColumns()) {
+		for (final MyColumn<T> mycolumn : getColumnManager().getColumns()) {
 			if (mycolumn instanceof MyIdColumn) {
-				MyIdColumn<T> idColumn = (MyIdColumn<T>) mycolumn;
+				final MyIdColumn<T> idColumn = (MyIdColumn<T>) mycolumn;
 				final Column<T, String> column = (Column<T, String>) mycolumn;
 				if (idColumn.getKeyName() != null && idColumn.getKeyName().equals(keyName)) {
 					found = true;
@@ -502,7 +503,7 @@ public abstract class AbstractDataTable<T> extends Composite
 		}
 		// get default views on proteins
 		final List<ColumnWithVisibility> itemDefaultView = getItemDefaultView(defaultView);
-		for (ColumnWithVisibility columnWithVisibility : itemDefaultView) {
+		for (final ColumnWithVisibility columnWithVisibility : itemDefaultView) {
 			final ColumnName column = columnWithVisibility.getColumn();
 			final boolean visible = columnWithVisibility.isVisible();
 			showOrHideColumn(column, visible);

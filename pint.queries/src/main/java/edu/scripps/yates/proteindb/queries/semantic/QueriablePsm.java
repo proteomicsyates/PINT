@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
-import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.hash.THashSet;
@@ -24,7 +23,7 @@ public class QueriablePsm {
 			return queriablePsm;
 
 		} else {
-			QueriablePsm queriablePsm = new QueriablePsm(psm);
+			final QueriablePsm queriablePsm = new QueriablePsm(psm);
 			map.put(psm.getId(), queriablePsm);
 			return queriablePsm;
 		}
@@ -52,16 +51,21 @@ public class QueriablePsm {
 	}
 
 	public void removeProteinSetLink(LinkBetweenQueriableProteinSetAndPSM link) {
-		boolean removed = links.remove(link);
+		final boolean removed = links.remove(link);
 		if (!removed)
 			log.warn("BAD");
 	}
 
 	public Set<Organism> getOrganisms() {
-		Set<Organism> ret = new THashSet<Organism>();
-		final Set<Protein> proteins = getPsm().getProteins();
-		for (Protein protein : proteins) {
-			ret.add(protein.getOrganism());
+		final Set<String> organismNames = new THashSet<String>();
+		final Set<Organism> ret = new THashSet<Organism>();
+		final Set<LinkBetweenQueriableProteinSetAndPSM> links = getLinks();
+		for (final LinkBetweenQueriableProteinSetAndPSM link : links) {
+			final Organism organism = link.getQueriableProtein().getOrganism();
+			if (!organismNames.contains(organism.getName())) {
+				organismNames.add(organism.getName());
+				ret.add(organism);
+			}
 		}
 		return ret;
 	}

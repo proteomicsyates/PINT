@@ -3,6 +3,7 @@ package edu.scripps.yates.shared.columns;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.scripps.yates.client.Pint;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ScoreBean;
@@ -69,8 +70,11 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.SPECTRUM_COUNT, true);
 			columns.add(col);
-			col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
-			columns.add(col);
+			if (Pint.psmCentric) {
+				col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
+				columns.add(col);
+			}
+
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_SCORE, false);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_AMOUNT, false);
@@ -111,7 +115,7 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 	@Override
 	public ColumnWithVisibility getColumn(ColumnName columnName) {
 		final List<ColumnWithVisibility> columns2 = getColumns();
-		for (ColumnWithVisibility columnWithVisibility : columns2) {
+		for (final ColumnWithVisibility columnWithVisibility : columns2) {
 			if (columnWithVisibility.getColumn() == columnName)
 				return columnWithVisibility;
 		}
@@ -160,7 +164,7 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 						return NumberFormat.getFormat("#.###").format(valueOf);
 					else
 						return scoreByName.getValue();
-				} catch (NumberFormatException e) {
+				} catch (final NumberFormatException e) {
 					return scoreByName.getValue();
 				}
 

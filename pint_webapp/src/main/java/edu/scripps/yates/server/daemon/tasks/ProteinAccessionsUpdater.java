@@ -6,11 +6,21 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
+import org.hibernate.Criteria;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.criterion.Projections;
+
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
-import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
+import edu.scripps.yates.proteindb.persistence.mysql.Protein;
+import edu.scripps.yates.utilities.fasta.FastaParser;
+import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
+import edu.scripps.yates.utilities.ipi.UniprotEntry;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
+import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -52,121 +62,95 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 			ContextualSessionHandler.getCurrentSession().beginTransaction();
 			log.info("Starting " + getTaskName());
 
-			List<edu.scripps.yates.proteindb.persistence.mysql.Protein> proteins = ContextualSessionHandler
-					.retrieveList(edu.scripps.yates.proteindb.persistence.mysql.Protein.class);
+			final Criteria criteria = ContextualSessionHandler.getCurrentSession().createCriteria(Protein.class)
+					.setReadOnly(true).setFetchSize(5000).setProjection(Projections.property("acc"));
+			ScrollableResults proteins = criteria.scroll(ScrollMode.FORWARD_ONLY);
+			log.info("scrollable result of proteins in the DB retrieved");
+			final IPI2UniprotACCMap ipi2uniprot = IPI2UniprotACCMap.getInstance();
 
-			log.info(proteins.size() + " proteins in the DB");
-			ContextualSessionHandler.finishGoodTransaction();
-			UniprotProteinLocalRetriever ulr = new UniprotProteinLocalRetriever(urs.getUniprotReleasesFolder(), true);
-
-			for (edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteins) {
-				ContextualSessionHandler.getCurrentSession().beginTransaction();
-				final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
-				Set<ProteinAccession> primaryAccs = new THashSet<ProteinAccession>();
-				Set<ProteinAccession> primaryUniprotAccs = new THashSet<ProteinAccession>();
-				ProteinAccession ipiAcc = null;
-				Set<String> uniprotACCs = new THashSet<String>();
-				for (ProteinAccession proteinAccession : proteinAccessions) {
-					if (proteinAccession.isIsPrimary()) {
-						primaryAccs.add(proteinAccession);
-						if (proteinAccession.getAccessionType().equals(AccessionType.IPI.name())) {
-							ipiAcc = proteinAccession;
-						} else if (proteinAccession.getAccessionType().equals(AccessionType.UNIPROT.name())) {
-							primaryUniprotAccs.add(proteinAccession);
-						}
-					}
-
-					if (proteinAccession.getAccessionType().equals(AccessionType.UNIPROT.name())) {
-						uniprotACCs.add(proteinAccession.getAccession());
+			final Set<String> accs = new THashSet<String>();
+			while (proteins.next()) {
+				final String acc = proteins.getString(0);
+				final Pair<String, String> accessionWithType = FastaParser.getACC(acc);
+				if (accessionWithType.getSecondElement().equals("UNIPROT")) {
+					accs.add(accessionWithType.getFirstelement());
+				} else if (accessionWithType.getSecondElement().equals("IPI")) {
+					final List<UniprotEntry> map2Uniprot = ipi2uniprot.map2Uniprot(accessionWithType.getFirstelement());
+					for (final UniprotEntry uniprotEntry : map2Uniprot) {
+						accs.add(uniprotEntry.getAcc());
 					}
 				}
-				if (primaryAccs.isEmpty()) {
-					log.info("Protein with ID: " + protein.getId() + " has no primary IDs");
-					if (!proteinAccessions.isEmpty()) {
-						ProteinAccession acc = proteinAccessions.iterator().next();
-						log.info("Setting primary ID to " + acc.getAccession());
-						acc.setIsPrimary(true);
-						ContextualSessionHandler.saveOrUpdate(acc);
-						log.info(acc.getAccession() + " set to primary ID");
-					}
-				}
-				if (primaryAccs.size() > 1) {
-					log.info(protein.getId() + " contains more than one primary acc in the DB");
-					if (ipiAcc != null) {
-						log.info("It contains also a IPI acc");
-						final Map<String, Entry> annotatedProteins = ulr.getAnnotatedProteins(null, uniprotACCs);
-						boolean hasSwissProt = false;
-						ProteinAccession hasTrembl = null;
-						for (ProteinAccession primaryAcc : primaryAccs) {
-							if (annotatedProteins.containsKey(primaryAcc.getAccession())) {
-								final Entry entry = annotatedProteins.get(primaryAcc.getAccession());
-								if ("Swiss-Prot".equalsIgnoreCase(entry.getDataset())) {
-									hasSwissProt = true;
-								} else if ("TrEMBL".equalsIgnoreCase(entry.getDataset())) {
-									hasTrembl = primaryAcc;
-								}
-							}
-						}
-						if (hasSwissProt && hasTrembl != null) {
-							log.info("Contains both swissprot and trembl as primary. Lets keep the swissprot");
-							hasTrembl.setIsPrimary(false);
-							log.info("Setting " + hasTrembl.getAccession() + " as not primary");
-							ContextualSessionHandler.saveOrUpdate(hasTrembl);
-						}
-						if ((hasSwissProt || hasTrembl != null) && ipiAcc != null && ipiAcc.isIsPrimary()) {
-							log.info("both Uniprot and IPI as primary. Lets keep the swissprot");
-							ipiAcc.setIsPrimary(false);
-							log.info("Setting " + ipiAcc.getAccession() + " as not primary");
-							ContextualSessionHandler.saveOrUpdate(ipiAcc);
-						}
-					} else {
-						if (primaryUniprotAccs.size() > 1) {
-							log.info("there is more than one uniprot acc as primary.");
-							final Map<String, Entry> annotatedProteins = ulr.getAnnotatedProteins(null, uniprotACCs);
-							ProteinAccession goodAcc = null;
-							Set<ProteinAccession> accsToDowngrade = new THashSet<ProteinAccession>();
-							for (ProteinAccession primaryAcc : primaryUniprotAccs) {
-								if (annotatedProteins.containsKey(primaryAcc.getAccession())) {
-									final Entry entry = annotatedProteins.get(primaryAcc.getAccession());
-									if (entry.getName().get(0).contains("obsolete")) {
-										accsToDowngrade.add(primaryAcc);
-									} else {
-										goodAcc = primaryAcc;
-									}
-								}
-							}
-							if (goodAcc != null) {
-								if (!accsToDowngrade.isEmpty()) {
-									for (ProteinAccession proteinAccession2 : accsToDowngrade) {
-										proteinAccession2.setIsPrimary(false);
-										log.info("Setting obsolete acc " + proteinAccession2.getAccession()
-												+ " as not primary being the primary: " + goodAcc.getAccession());
-										ContextualSessionHandler.saveOrUpdate(proteinAccession2);
-									}
-								} else {
-									String tmp = "";
-									for (ProteinAccession proteinAccession : primaryUniprotAccs) {
-										tmp += proteinAccession.getAccession() + ",";
-									}
-									log.info("Protein with more than one valid uniprot primary acc: " + tmp);
-
-								}
-							} else {
-								log.info("Protein with obsolete accession but not valid found");
-								for (ProteinAccession proteinAccession : primaryUniprotAccs) {
-									log.info(proteinAccession.getAccession());
-								}
-
-							}
-
-						}
-					}
-				}
-				log.info("Committing transaction...");
-				ContextualSessionHandler.finishGoodTransaction();
 			}
+			log.info(accs.size() + " accs in the DB retrieved");
 
-		} catch (Exception e) {
+			final UniprotProteinLocalRetriever ulr = new UniprotProteinLocalRetriever(urs.getUniprotReleasesFolder(),
+					true, true, true);
+			ulr.setRetrieveFastaIsoforms(false);
+
+			final Map<String, Entry> annotatedProteins = ulr.getAnnotatedProteins(null, accs);
+			int i = 0;
+			proteins = ContextualSessionHandler.retrieveIterator(Protein.class, 5000, false);
+			while (proteins.next()) {
+				final edu.scripps.yates.proteindb.persistence.mysql.Protein protein = (Protein) proteins.get(0);
+				System.out.println(++i + "\t" + protein.getId());
+				final String proteinAccession = protein.getAcc();
+				final Pair<String, String> accPair = FastaParser.getACC(proteinAccession);
+				final String accType = accPair.getSecondElement();
+				final String accession = accPair.getFirstelement();
+				String ipiAcc = null;
+				String uniprotAcc = null;
+
+				if (accType.equals(AccessionType.IPI.name())) {
+					log.info("It contains a IPI acc");
+					ipiAcc = accession;
+				} else if (accType.equals(AccessionType.UNIPROT.name())) {
+					uniprotAcc = proteinAccession;
+				}
+
+				if (uniprotAcc != null) {
+
+					final Entry annotatedProtein = annotatedProteins.get(uniprotAcc);
+
+					final String primaryAcc = UniprotEntryUtil.getPrimaryAccession(annotatedProtein);
+
+					if (primaryAcc != null) {
+						if (!primaryAcc.equals(uniprotAcc)) {
+							protein.setAcc(primaryAcc);
+							log.info("Changing ACC for protein id:" + protein.getId() + " from " + uniprotAcc + " to "
+									+ primaryAcc);
+							ContextualSessionHandler.saveOrUpdate(protein);
+						}
+					}
+
+				} else if (ipiAcc != null) {
+					final List<UniprotEntry> map2Uniprot = ipi2uniprot.map2Uniprot(ipiAcc);
+					if (!map2Uniprot.isEmpty()) {
+						final Set<String> uniprotACCs = new THashSet<String>();
+						final Set<Entry> entries = new THashSet<Entry>();
+						final UniprotEntry uniprotEntry = map2Uniprot.get(0);
+						Entry entry = null;
+						if (annotatedProteins.containsKey(uniprotEntry.getAcc())) {
+							entry = annotatedProteins.get(uniprotEntry.getAcc());
+						} else {
+							final Map<String, Entry> uniprots = ulr.getAnnotatedProtein(null, uniprotEntry.getAcc());
+							if (!uniprots.isEmpty()) {
+								entry = uniprots.get(uniprotEntry.getAcc());
+							}
+						}
+						final String primaryAcc = UniprotEntryUtil.getPrimaryAccession(entry);
+						if (!primaryAcc.equals(ipiAcc)) {
+							log.info("Changing ACC for protein id:" + protein.getId() + " from " + ipiAcc + " to "
+									+ primaryAcc);
+							protein.setAcc(primaryAcc);
+							ContextualSessionHandler.saveOrUpdate(protein);
+						}
+					}
+				}
+			}
+			log.info("Committing transaction...");
+			ContextualSessionHandler.finishGoodTransaction();
+
+		} catch (final Exception e) {
 			e.printStackTrace();
 			ContextualSessionHandler.getCurrentSession().getTransaction().rollback();
 		} finally {

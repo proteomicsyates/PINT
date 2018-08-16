@@ -68,63 +68,60 @@ public class MySQLDeleter {
 		if (protein.getId() == null) {
 			return;
 		}
-		final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
+		// final Set<ProteinAccession> proteinAccessions =
+		// protein.getProteinAccessions();
 
-		// deleteMSRun(protein.getMsRun());
-		// deleteOrganism(protein.getOrganism());
-
-		// log.debug("Saving protein " + next.getAccession());
 		// protein accesssions
 
-		for (ProteinAccession proteinAccession : proteinAccessions) {
-			deleteProteinAccession(proteinAccession);
-		}
+		// for (ProteinAccession proteinAccession : proteinAccessions) {
+		// deleteProteinAccession(proteinAccession);
+		// }
 
 		// protein annotations
 		final Set<ProteinAnnotation> proteinAnnotations = protein.getProteinAnnotations();
-		for (ProteinAnnotation proteinAnnotation : proteinAnnotations) {
+		for (final ProteinAnnotation proteinAnnotation : proteinAnnotations) {
 			deleteProteinAnnotation(proteinAnnotation);
 		}
 		// genes
-		final Set<Gene> genes = protein.getGenes();
-		for (final Gene gene : genes) {
-			deleteGene(gene);
-		}
+		// final Set<Gene> genes = protein.getGenes();
+		// for (final Gene gene : genes) {
+		// deleteGene(gene);
+		// }
 
 		// applied threshold
 		final Set<ProteinThreshold> appliedThresholds = protein.getProteinThresholds();
-		for (ProteinThreshold appliedThreshold : appliedThresholds) {
+		for (final ProteinThreshold appliedThreshold : appliedThresholds) {
 			deleteAppliedThreshold(appliedThreshold);
 		}
 		// scores
 		final Set<ProteinScore> proteinScores = protein.getProteinScores();
 		if (proteinScores != null) {
-			for (ProteinScore proteinScore : proteinScores) {
+			for (final ProteinScore proteinScore : proteinScores) {
 				deleteProteinScore(proteinScore);
 			}
 		}
 
 		// // protein ratios
 		final Set<ProteinRatioValue> proteinRatios = protein.getProteinRatioValues();
-		for (ProteinRatioValue proteinRatio : proteinRatios) {
+		for (final ProteinRatioValue proteinRatio : proteinRatios) {
 			deleteProteinRatio(proteinRatio);
 		}
 
 		// amounts
 		final Set<ProteinAmount> amounts = protein.getProteinAmounts();
-		for (ProteinAmount amount : amounts) {
+		for (final ProteinAmount amount : amounts) {
 			deleteProteinAmount(amount);
 		}
 		// conditions
 		final Set<Condition> conditions = protein.getConditions();
-		for (Condition condition : conditions) {
+		for (final Condition condition : conditions) {
 			condition.getProteins().remove(protein);
 		}
 		// peptides
 		protein.getPeptides().clear();
 		final Iterator<Peptide> peptideIterator = protein.getPeptides().iterator();
 		while (peptideIterator.hasNext()) {
-			Peptide peptide = peptideIterator.next();
+			final Peptide peptide = peptideIterator.next();
 			// peptide.getProteins().remove(peptide);
 			// peptideIterator.remove();
 			deletePeptide(peptide);
@@ -163,32 +160,32 @@ public class MySQLDeleter {
 
 		final Set<Ptm> ptms = psm.getPtms();
 		if (ptms != null) {
-			for (Ptm ptm : ptms) {
+			for (final Ptm ptm : ptms) {
 				deletePTM(ptm);
 			}
 		}
 		final Set<PsmScore> scores = psm.getPsmScores();
 		if (scores != null) {
-			for (PsmScore psmScore : scores) {
+			for (final PsmScore psmScore : scores) {
 				deletePSMScore(psmScore);
 			}
 		}
 		final Set<PsmAmount> amounts = psm.getPsmAmounts();
 		if (amounts != null) {
-			for (PsmAmount psmAmount : amounts) {
+			for (final PsmAmount psmAmount : amounts) {
 				deletePsmAmount(psmAmount);
 			}
 		}
 		// ratios
 		final Set<PsmRatioValue> psmRatioValues = psm.getPsmRatioValues();
 		if (psmRatioValues != null) {
-			for (PsmRatioValue psmRatioValue : psmRatioValues) {
+			for (final PsmRatioValue psmRatioValue : psmRatioValues) {
 				deletePsmRatio(psmRatioValue);
 			}
 		}
 		// conditions
 		final Set<Condition> conditions = psm.getConditions();
-		for (Condition condition : conditions) {
+		for (final Condition condition : conditions) {
 			condition.getPsms().remove(psm);
 		}
 		// proteins
@@ -204,7 +201,7 @@ public class MySQLDeleter {
 
 		try {
 			ContextualSessionHandler.delete(psm);
-		} catch (PropertyValueException e) {
+		} catch (final PropertyValueException e) {
 			e.printStackTrace();
 			log.info(psm.getPeptide());
 		}
@@ -228,34 +225,34 @@ public class MySQLDeleter {
 		// scores
 		final Set<PeptideScore> scores = peptide.getPeptideScores();
 		if (scores != null) {
-			for (PeptideScore psmScore : scores) {
+			for (final PeptideScore psmScore : scores) {
 				deletePeptideScore(psmScore);
 			}
 		}
 		// amounts
 		final Set<PeptideAmount> amounts = peptide.getPeptideAmounts();
 		if (amounts != null) {
-			for (PeptideAmount peptideAmount : amounts) {
+			for (final PeptideAmount peptideAmount : amounts) {
 				deletePeptideAmount(peptideAmount);
 			}
 		}
 		// ratios
 		final Set<PeptideRatioValue> peptideRatioValues = peptide.getPeptideRatioValues();
 		if (peptideRatioValues != null) {
-			for (PeptideRatioValue peptideRatioValue : peptideRatioValues) {
+			for (final PeptideRatioValue peptideRatioValue : peptideRatioValues) {
 				deletePeptideRatio(peptideRatioValue);
 			}
 		}
 		// conditions
 		final Set<Condition> conditions = peptide.getConditions();
-		for (Condition condition : conditions) {
+		for (final Condition condition : conditions) {
 			condition.getPeptides().remove(peptide);
 		}
 		// psms
 		peptide.getPsms().clear();
 		final Iterator<Psm> psmsIterator = peptide.getPsms().iterator();
 		while (psmsIterator.hasNext()) {
-			Psm psm = psmsIterator.next();
+			final Psm psm = psmsIterator.next();
 			// actually delete psm before peptide
 			deletePSM(psm);
 			// psm.getPeptide().getPsms().remove(peptide);
@@ -312,7 +309,7 @@ public class MySQLDeleter {
 	private void deletePTM(Ptm ptm) {
 		final Set<PtmSite> ptmSites = ptm.getPtmSites();
 
-		for (PtmSite ptmSite : ptmSites) {
+		for (final PtmSite ptmSite : ptmSites) {
 			// final ConfidenceScoreType confidenceScoreType =
 			// ptmSite.getConfidenceScoreType();
 			// if (confidenceScoreType != null) {
@@ -543,9 +540,9 @@ public class MySQLDeleter {
 		int num = 0;
 		final Set<Protein> proteins = msRun.getProteins();
 		double percentage = 0;
-		for (Protein protein : proteins) {
+		for (final Protein protein : proteins) {
 			num++;
-			int newPercentage = Double.valueOf(num * 100.0 / proteins.size()).intValue();
+			final int newPercentage = Double.valueOf(num * 100.0 / proteins.size()).intValue();
 			if (newPercentage != percentage) {
 				percentage = newPercentage;
 				log.info(num + "/" + proteins.size() + "(" + newPercentage + "%) proteins deleted ");
@@ -558,9 +555,9 @@ public class MySQLDeleter {
 		num = 0;
 		final Set<Peptide> peptides = msRun.getPeptides();
 		percentage = 0;
-		for (Peptide peptide : peptides) {
+		for (final Peptide peptide : peptides) {
 			num++;
-			int newPercentage = Double.valueOf(num * 100.0 / peptides.size()).intValue();
+			final int newPercentage = Double.valueOf(num * 100.0 / peptides.size()).intValue();
 			if (newPercentage != percentage) {
 				percentage = newPercentage;
 				log.info(num + "/" + peptides.size() + "(" + newPercentage + "%) peptides deleted ");
@@ -574,9 +571,9 @@ public class MySQLDeleter {
 		final Set<Psm> psms = msRun.getPsms();
 		percentage = 0;
 		num = 0;
-		for (Psm psm : psms) {
+		for (final Psm psm : psms) {
 			num++;
-			int newPercentage = Double.valueOf(num * 100.0 / psms.size()).intValue();
+			final int newPercentage = Double.valueOf(num * 100.0 / psms.size()).intValue();
 			if (newPercentage != percentage) {
 				percentage = newPercentage;
 				log.info(num + "/" + psms.size() + "(" + newPercentage + "%) PSMs deleted ");
@@ -595,15 +592,15 @@ public class MySQLDeleter {
 
 		// look into the database if a project with the same name is already
 		// created
-		Project hibProject = MySQLProteinDBInterface.getDBProjectByTag(projectTag);
+		final Project hibProject = MySQLProteinDBInterface.getDBProjectByTag(projectTag);
 		if (hibProject != null) {
 			log.info("deleting project " + hibProject.getTag());
 			// get a map between MSRuns and Conditions
-			Map<MsRun, Set<Condition>> conditionsByMSRun = getConditionsByMSRun(hibProject);
-			Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(conditionsByMSRun);
+			final Map<MsRun, Set<Condition>> conditionsByMSRun = getConditionsByMSRun(hibProject);
+			final Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(conditionsByMSRun);
 			int initialMSRunNumber = 0;
-			Set<MsRun> deletedMSRuns = new THashSet<MsRun>();
-			Set<Condition> deletedConditions = new THashSet<Condition>();
+			final Set<MsRun> deletedMSRuns = new THashSet<MsRun>();
+			final Set<Condition> deletedConditions = new THashSet<Condition>();
 			while (true) {
 				ContextualSessionHandler.beginGoodTransaction();
 				ContextualSessionHandler.refresh(hibProject);
@@ -612,7 +609,7 @@ public class MySQLDeleter {
 					initialMSRunNumber = msRuns.size();
 				}
 				log.info(msRuns.size() + " MSRuns to delete in project " + hibProject.getTag());
-				List<Condition> conditionList = new ArrayList<Condition>();
+				final List<Condition> conditionList = new ArrayList<Condition>();
 				conditionList.addAll(msRunsByCondition.keySet());
 				Collections.sort(conditionList, new Comparator<Condition>() {
 
@@ -629,25 +626,25 @@ public class MySQLDeleter {
 					}
 
 				});
-				for (Condition condition : conditionList) {
-					Set<MsRun> msRunList = msRunsByCondition.get(condition);
+				for (final Condition condition : conditionList) {
+					final Set<MsRun> msRunList = msRunsByCondition.get(condition);
 					ContextualSessionHandler.beginGoodTransaction();
-					for (MsRun msRun : msRunList) {
+					for (final MsRun msRun : msRunList) {
 						if (deletedMSRuns.contains(msRun)) {
 							continue;
 						}
 						deleteMSRun(msRun);
 						deletedMSRuns.add(msRun);
-						Set<Condition> conditions = conditionsByMSRun.get(msRun);
+						final Set<Condition> conditions = conditionsByMSRun.get(msRun);
 						log.info(conditions.size() + " conditions associated with MSRun " + msRun.getRunId());
 						log.info("conditions associated: " + getConditionString(conditionsByMSRun.get(msRun)));
 						// check if all msruns of all conditions have been
 						// deleted
 						boolean allDeleted = true;
 						if (conditions != null) {
-							for (Condition condition2 : conditions) {
+							for (final Condition condition2 : conditions) {
 								final Set<MsRun> msRunSet = msRunsByCondition.get(condition2);
-								for (MsRun msRun2 : msRunSet) {
+								for (final MsRun msRun2 : msRunSet) {
 									if (!deletedMSRuns.contains(msRun2)) {
 										log.info(msRun2.getRunId() + " is not yet deleted... continuing the loop.");
 										allDeleted = false;
@@ -675,12 +672,12 @@ public class MySQLDeleter {
 			ContextualSessionHandler.refresh(hibProject);
 			final Set<Condition> conditions = hibProject.getConditions();
 
-			for (Condition condition : conditions) {
+			for (final Condition condition : conditions) {
 
 				deleteCondition(condition);
 
 			}
-			for (Condition condition : conditions) {
+			for (final Condition condition : conditions) {
 				final Sample sample = condition.getSample();
 				deleteSample(sample);
 			}
@@ -698,18 +695,18 @@ public class MySQLDeleter {
 
 		// look into the database if a project with the same name is already
 		// created
-		Project hibProject = MySQLProteinDBInterface.getDBProjectByTag(projectTag);
+		final Project hibProject = MySQLProteinDBInterface.getDBProjectByTag(projectTag);
 		if (hibProject != null) {
 			log.info("deleting project " + hibProject.getTag());
 			// get a map between MSRuns and Conditions
-			Map<MsRun, Set<Condition>> conditionsByMSRun = getConditionsByMSRun(hibProject);
-			Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(conditionsByMSRun);
+			final Map<MsRun, Set<Condition>> conditionsByMSRun = getConditionsByMSRun(hibProject);
+			final Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(conditionsByMSRun);
 			int initialMSRunNumber = 0;
 
 			ContextualSessionHandler.beginGoodTransaction();
 			ContextualSessionHandler.refresh(hibProject);
 			final Set<MsRun> msRuns = hibProject.getMsRuns();
-			for (MsRun msRun : msRuns) {
+			for (final MsRun msRun : msRuns) {
 				ContextualSessionHandler.beginGoodTransaction();
 				deleteMSRun(msRun);
 				log.info("Flushing session...");
@@ -726,12 +723,12 @@ public class MySQLDeleter {
 
 			final Set<Condition> conditions = hibProject.getConditions();
 
-			for (Condition condition : conditions) {
+			for (final Condition condition : conditions) {
 
 				deleteCondition(condition);
 
 			}
-			for (Condition condition : conditions) {
+			for (final Condition condition : conditions) {
 				final Sample sample = condition.getSample();
 				deleteSample(sample);
 			}
@@ -746,15 +743,15 @@ public class MySQLDeleter {
 	}
 
 	private String getConditionString(Set<Condition> conditions) {
-		List<String> list = new ArrayList<String>();
-		for (Condition condition : conditions) {
+		final List<String> list = new ArrayList<String>();
+		for (final Condition condition : conditions) {
 			if (!list.contains(condition.getName())) {
 				list.add(condition.getName());
 			}
 		}
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		Collections.sort(list);
-		for (String conditionName : list) {
+		for (final String conditionName : list) {
 			sb.append(conditionName + ",");
 		}
 		return sb.toString();
@@ -762,9 +759,9 @@ public class MySQLDeleter {
 
 	private Map<MsRun, Set<Condition>> getConditionsByMSRun(Project hibProject) {
 		log.info("Getting conditions mapped to MSRuns...");
-		Map<MsRun, Set<Condition>> conditionsByMSRun = new THashMap<MsRun, Set<Condition>>();
+		final Map<MsRun, Set<Condition>> conditionsByMSRun = new THashMap<MsRun, Set<Condition>>();
 		final Set<MsRun> msRuns = hibProject.getMsRuns();
-		for (MsRun msRun : msRuns) {
+		for (final MsRun msRun : msRuns) {
 			// Set<Condition> conditions = new THashSet<Condition>();
 			// final Set<Psm> psms = msRun.getPsms();
 			// for (Psm psm : psms) {
@@ -787,8 +784,8 @@ public class MySQLDeleter {
 			// }
 			// peptides.clear();
 			// System.gc();
-			List<Condition> conditions = PreparedCriteria.getConditionsByMSRunCriteria(msRun).list();
-			Set<Condition> set = new THashSet<Condition>();
+			final List<Condition> conditions = PreparedCriteria.getConditionsByMSRunCriteria(msRun).list();
+			final Set<Condition> set = new THashSet<Condition>();
 			set.addAll(conditions);
 			log.info("MSRun " + msRun.getRunId() + " mapped to " + conditions.size() + " conditions");
 			conditionsByMSRun.put(msRun, set);
@@ -800,30 +797,30 @@ public class MySQLDeleter {
 
 	private void deleteCondition(Condition condition) {
 		// ratio descriptors
-		Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition1Id = condition
+		final Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition1Id = condition
 				.getRatioDescriptorsForExperimentalCondition1Id();
-		for (RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition1Id) {
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition1Id) {
 			deleteRatioDescriptor(ratioDescriptor);
 		}
-		Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition2Id = condition
+		final Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition2Id = condition
 				.getRatioDescriptorsForExperimentalCondition2Id();
-		for (RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition2Id) {
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition2Id) {
 			deleteRatioDescriptor(ratioDescriptor);
 		}
 		ContextualSessionHandler.delete(condition);
 	}
 
 	private Map<Condition, Set<MsRun>> getMSRunsByCondition(Map<MsRun, Set<Condition>> conditionsByMSRun) {
-		Map<Condition, Set<MsRun>> msRunsByCondition = new THashMap<Condition, Set<MsRun>>();
+		final Map<Condition, Set<MsRun>> msRunsByCondition = new THashMap<Condition, Set<MsRun>>();
 		log.info("Getting MSRuns mapped to conditions...");
 		final Set<MsRun> msruns = conditionsByMSRun.keySet();
-		for (MsRun msrun : msruns) {
-			Set<Condition> conditions = conditionsByMSRun.get(msrun);
-			for (Condition condition2 : conditions) {
+		for (final MsRun msrun : msruns) {
+			final Set<Condition> conditions = conditionsByMSRun.get(msrun);
+			for (final Condition condition2 : conditions) {
 				if (msRunsByCondition.containsKey(condition2)) {
 					msRunsByCondition.get(condition2).add(msrun);
 				} else {
-					Set<MsRun> msRunSet = new THashSet<MsRun>();
+					final Set<MsRun> msRunSet = new THashSet<MsRun>();
 					msRunSet.add(msrun);
 					msRunsByCondition.put(condition2, msRunSet);
 				}
@@ -851,7 +848,7 @@ public class MySQLDeleter {
 			}
 		}
 		final Set<Organism> organisms = sample.getOrganisms();
-		for (Organism organism : organisms) {
+		for (final Organism organism : organisms) {
 			if (organism.getSamples() != null) {
 				organism.getSamples().remove(sample);
 

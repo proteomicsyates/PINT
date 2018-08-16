@@ -26,6 +26,7 @@ import edu.scripps.yates.annotations.uniprot.xml.IsoformType;
 import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
+import edu.scripps.yates.utilities.util.Pair;
 
 /**
  * It uses the Uniprot local XML files to get the variants of proteins
@@ -154,11 +155,11 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					}
 					final String description = UniprotEntryUtil.getProteinDescription(entry);
 					final String name = UniprotEntryUtil.getNames(entry).get(0);
-					final String taxonomy = UniprotEntryUtil.getTaxonomy(entry);
-					final List<String> genes = UniprotEntryUtil.getGeneName(entry, true, true);
+					final String taxonomy = UniprotEntryUtil.getTaxonomyName(entry);
+					final List<Pair<String, String>> genes = UniprotEntryUtil.getGeneName(entry, true, true);
 					String gene = null;
 					if (genes != null && !genes.isEmpty()) {
-						gene = genes.get(0);
+						gene = genes.get(0).getFirstelement();
 					}
 					final Proteoform originalvariant = new Proteoform(acc, originalSequence, acc, originalSequence,
 							name, description, gene, taxonomy, ProteoformType.MAIN_ENTRY, true);
@@ -205,11 +206,12 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								final String isoformSequence = UniprotEntryUtil.getProteinSequence(isoformEntry);
 								final String name2 = UniprotEntryUtil.getNames(isoformEntry).get(0);
 								final String description2 = UniprotEntryUtil.getProteinDescription(isoformEntry);
-								final String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
-								final List<String> genes2 = UniprotEntryUtil.getGeneName(isoformEntry, true, true);
+								final String taxonomy2 = UniprotEntryUtil.getTaxonomyName(isoformEntry);
+								final List<Pair<String, String>> genes2 = UniprotEntryUtil.getGeneName(isoformEntry,
+										true, true);
 								String gene2 = null;
 								if (genes2 != null && !genes2.isEmpty()) {
-									gene2 = genes2.get(0);
+									gene2 = genes2.get(0).getFirstelement();
 								}
 
 								final Proteoform variant = new Proteoform(acc, originalSequence, isoformACC,

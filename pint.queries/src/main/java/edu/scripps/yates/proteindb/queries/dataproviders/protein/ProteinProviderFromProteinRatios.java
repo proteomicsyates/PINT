@@ -6,21 +6,18 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.ProteinDataProvider;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import gnu.trove.map.hash.THashMap;
 
-public class ProteinProviderFromProteinRatios implements ProteinProviderFromDB {
+public class ProteinProviderFromProteinRatios extends ProteinDataProvider {
 	private final static Logger log = Logger.getLogger(ProteinProviderFromProteinRatios.class);
 	private final ConditionReferenceFromCommandValue condition1;
 	private final ConditionReferenceFromCommandValue condition2;
-	private Map<String, Set<Protein>> result;
-	private Set<String> projectNames;
 	private final String ratioName;
 
 	public ProteinProviderFromProteinRatios(ConditionReferenceFromCommandValue condition1,
@@ -43,16 +40,16 @@ public class ProteinProviderFromProteinRatios implements ProteinProviderFromDB {
 			if (condition2.getConditionProjects().size() != 1) {
 				throw new IllegalArgumentException("Second condition con only be referring to one condition");
 			}
-			ConditionProject conditionProject1 = condition1.getConditionProjects().iterator().next();
-			ConditionProject conditionProject2 = condition2.getConditionProjects().iterator().next();
+			final ConditionProject conditionProject1 = condition1.getConditionProjects().iterator().next();
+			final ConditionProject conditionProject2 = condition2.getConditionProjects().iterator().next();
 			if (conditionProject1.getProjectTag() != null && conditionProject2.getProjectTag() != null
 					&& !conditionProject1.getProjectTag().equals(conditionProject2.getProjectTag())) {
 				throw new IllegalArgumentException(
 						"Condition 1 and condition 2 must be referring to conditions of the same project");
 			}
-			if (projectNames != null && !projectNames.isEmpty()) {
-				for (String projectName : projectNames) {
-					String projectTagFromQuery = conditionProject2.getProjectTag();
+			if (projectTags != null && !projectTags.isEmpty()) {
+				for (final String projectName : projectTags) {
+					final String projectTagFromQuery = conditionProject2.getProjectTag();
 					final Map<String, Set<Protein>> proteinsWithRatios = PreparedQueries.getProteinsWithRatios(
 							conditionProject1.getConditionName(), conditionProject2.getConditionName(), projectName,
 							ratioName);
@@ -96,18 +93,6 @@ public class ProteinProviderFromProteinRatios implements ProteinProviderFromDB {
 			}
 		}
 		return result;
-
-	}
-
-	@Override
-	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
-		return PersistenceUtils.getPsmsFromProteins(getProteinMap(testMode));
-	}
-
-	@Override
-	public void setProjectTags(Set<String> projectNames) {
-		this.projectNames = projectNames;
-		result = null;
 
 	}
 

@@ -8,7 +8,6 @@ import java.util.Set;
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Header;
 
@@ -19,11 +18,10 @@ import edu.scripps.yates.shared.columns.PSMColumns;
 import edu.scripps.yates.shared.columns.comparator.PSMComparator;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PSMBean;
-import edu.scripps.yates.shared.model.PTMBean;
-import edu.scripps.yates.shared.model.PTMSiteBean;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
+import edu.scripps.yates.shared.util.SharedDataUtils;
 import edu.scripps.yates.shared.util.UniprotFeatures;
 
 public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColumn<PSMBean> {
@@ -187,7 +185,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 
 		case PEPTIDE_SEQUENCE:
 			sb.append(template.startToolTip(psm.getFullSequence()));
-			sb.append(getRichPeptideSequence(psm));
+			sb.append(SharedDataUtils.getRichPeptideSequence(psm.getSequence(), psm.getPtms()));
 			// super.render(context, psm, sb);
 			sb.append(template.endToolTip());
 			break;
@@ -277,33 +275,6 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 			sb.append(template.endToolTip());
 			break;
 		}
-	}
-
-	private SafeHtml getRichPeptideSequence(PSMBean p) {
-		final String sequence = p.getSequence();
-		if (p.getPtms() == null || p.getPtms().isEmpty())
-			return new SafeHtmlBuilder().appendEscaped(sequence).toSafeHtml();
-
-		SafeHtmlBuilder shb = new SafeHtmlBuilder();
-		for (int i = 0; i < sequence.length(); i++) {
-			boolean modified = false;
-			for (PTMBean ptm : p.getPtms()) {
-				for (PTMSiteBean ptmSite : ptm.getPtmSites()) {
-					final int position = ptmSite.getPosition();
-					if (position == i + 1) {
-						final SafeHtml html = template.spanClass("modifiedAA", String.valueOf(sequence.charAt(i)));
-						shb.append(html);
-						modified = true;
-						break;
-					}
-				}
-				if (modified)
-					break;
-			}
-			if (!modified)
-				shb.append(new SafeHtmlBuilder().appendEscaped(String.valueOf(sequence.charAt(i))).toSafeHtml());
-		}
-		return shb.toSafeHtml();
 	}
 
 	@Override

@@ -30,7 +30,7 @@ public class AsyncPathwaySummaryDataProvider extends AbstractAsyncDataProvider<P
 			GWT.log("submitting reactome analysis");
 			// updateRowCount(0, true);
 
-			int page = getPageNumber(start);
+			final int page = getPageNumber(start);
 			AnalysisSubmiter.getSubmittedReactomeAnalysis(token, page,
 					SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE, columnSortInfo,
 					new edu.scripps.yates.client.gui.reactome.AnalysisPerformedHandler() {
@@ -64,7 +64,7 @@ public class AsyncPathwaySummaryDataProvider extends AbstractAsyncDataProvider<P
 	}
 
 	private int getPageNumber(int start) {
-		int numPage = start / SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE + 1;
+		final int numPage = start / SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE + 1;
 		return numPage;
 	}
 }

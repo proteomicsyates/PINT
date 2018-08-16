@@ -11,10 +11,12 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ProjectBeanAdapter implements Adapter<ProjectBean> {
 	private final Project project;
+	private final boolean mapTables;
 	private static ThreadLocal<TIntObjectHashMap<ProjectBean>> map = new ThreadLocal<TIntObjectHashMap<ProjectBean>>();
 
-	public ProjectBeanAdapter(Project project) {
+	public ProjectBeanAdapter(Project project, boolean mapTables) {
 		this.project = project;
+		this.mapTables = mapTables;
 		initializeMap();
 	}
 
@@ -28,7 +30,7 @@ public class ProjectBeanAdapter implements Adapter<ProjectBean> {
 	public ProjectBean adapt() {
 		if (map.get().containsKey(project.getId()))
 			return map.get().get(project.getId());
-		ProjectBean ret = new ProjectBean();
+		final ProjectBean ret = new ProjectBean();
 		map.get().put(project.getId(), ret);
 		ret.setDescription(project.getDescription());
 		ret.setName(project.getName());
@@ -42,15 +44,15 @@ public class ProjectBeanAdapter implements Adapter<ProjectBean> {
 		ret.setBig(project.isBig());
 		final Set<Condition> conditions = project.getConditions();
 		if (conditions != null) {
-			for (Condition condition : conditions) {
-				ret.getConditions().add(new ConditionBeanAdapter(condition).adapt());
+			for (final Condition condition : conditions) {
+				ret.getConditions().add(new ConditionBeanAdapter(condition, false).adapt());
 			}
 
 		}
 		final Set<MsRun> msRuns = project.getMsRuns();
 		if (msRuns != null) {
-			for (MsRun msRun : msRuns) {
-				ret.getMsRuns().add(new MSRunBeanAdapter(msRun).adapt());
+			for (final MsRun msRun : msRuns) {
+				ret.getMsRuns().add(new MSRunBeanAdapter(msRun, mapTables).adapt());
 			}
 
 		}

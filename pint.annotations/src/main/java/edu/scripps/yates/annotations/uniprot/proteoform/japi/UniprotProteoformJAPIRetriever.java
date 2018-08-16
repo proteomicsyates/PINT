@@ -23,6 +23,7 @@ import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
+import edu.scripps.yates.utilities.util.Pair;
 import uk.ac.ebi.kraken.interfaces.uniprot.Gene;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.AlternativeProductsComment;
@@ -238,12 +239,13 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 									continue;
 								}
 								final String isoformSequence = isoformEntry.getSequence().getValue();
-								final List<String> geneNames = UniprotEntryUtil.getGeneName(isoformEntry, true, true);
+								final List<Pair<String, String>> geneNames = UniprotEntryUtil.getGeneName(isoformEntry,
+										true, true);
 								String gene2 = null;
 								if (geneNames.isEmpty()) {
-									gene2 = geneNames.get(0);
+									gene2 = geneNames.get(0).getFirstelement();
 								}
-								final String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
+								final String taxonomy2 = UniprotEntryUtil.getTaxonomyName(isoformEntry);
 
 								final String name2 = UniprotEntryUtil.getNames(isoformEntry).get(0);
 								final String proteinDescription = UniprotEntryUtil.getProteinDescription(isoformEntry);
@@ -260,13 +262,13 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 									final String isoformSequence = UniprotEntryUtil.getProteinSequence(isoformEntry);
 									final String description2 = UniprotEntryUtil.getProteinDescription(isoformEntry);
 									final String name2 = UniprotEntryUtil.getNames(isoformEntry).get(0);
-									final List<String> geneNames = UniprotEntryUtil.getGeneName(isoformEntry, true,
-											true);
+									final List<Pair<String, String>> geneNames = UniprotEntryUtil
+											.getGeneName(isoformEntry, true, true);
 									String gene2 = null;
 									if (geneNames.isEmpty()) {
-										gene2 = geneNames.get(0);
+										gene2 = geneNames.get(0).getFirstelement();
 									}
-									final String taxonomy2 = UniprotEntryUtil.getTaxonomy(isoformEntry);
+									final String taxonomy2 = UniprotEntryUtil.getTaxonomyName(isoformEntry);
 									final Proteoform variant = new Proteoform(acc, originalSequence, isoformACC,
 											isoformSequence, name2, description2, gene2, taxonomy2,
 											ProteoformType.ISOFORM);

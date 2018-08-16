@@ -27,23 +27,21 @@ public class PSMRatioBeanAdapter implements Adapter<RatioBean> {
 	public RatioBean adapt() {
 		if (map.get().containsKey(psmRatioValue.getId()))
 			return map.get().get(psmRatioValue.getId());
-		RatioBean ret = new RatioBean();
+		final RatioBean ret = new RatioBean();
 		map.get().put(psmRatioValue.getId(), ret);
 		if (psmRatioValue.getConfidenceScoreValue() != null) {
 			ret.setAssociatedConfidenceScore(
 					new ScoreBeanAdapter(String.valueOf(psmRatioValue.getConfidenceScoreValue()),
 							psmRatioValue.getConfidenceScoreName(), psmRatioValue.getConfidenceScoreType()).adapt());
 		}
-		ret.setCondition1(
-				new ConditionBeanAdapter(psmRatioValue.getRatioDescriptor().getConditionByExperimentalCondition1Id())
-						.adapt());
-		ret.setCondition2(
-				new ConditionBeanAdapter(psmRatioValue.getRatioDescriptor().getConditionByExperimentalCondition2Id())
-						.adapt());
+		ret.setCondition1(new ConditionBeanAdapter(
+				psmRatioValue.getRatioDescriptor().getConditionByExperimentalCondition1Id(), false).adapt());
+		ret.setCondition2(new ConditionBeanAdapter(
+				psmRatioValue.getRatioDescriptor().getConditionByExperimentalCondition2Id(), false).adapt());
 		ret.setDescription(psmRatioValue.getRatioDescriptor().getDescription());
 		ret.setValue(PersistenceUtils.parseRatioValueConvert2Infinities(psmRatioValue.getValue()));
 		ret.setDbID(psmRatioValue.getId());
-		RatioDescriptorBean ratioDescriptorBean = new RatioDescriptorAdapter(psmRatioValue.getRatioDescriptor(),
+		final RatioDescriptorBean ratioDescriptorBean = new RatioDescriptorAdapter(psmRatioValue.getRatioDescriptor(),
 				SharedAggregationLevel.PSM).adapt();
 		ret.setRatioDescriptorBean(ratioDescriptorBean);
 		return ret;

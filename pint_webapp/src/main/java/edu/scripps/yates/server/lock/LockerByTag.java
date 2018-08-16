@@ -1,24 +1,36 @@
-package edu.scripps.yates.server;
+package edu.scripps.yates.server.lock;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.log4j.Logger;
 
 import gnu.trove.map.hash.THashMap;
 
-public class ProjectLocker {
-	private static final Map<String, ReentrantLock> projectLocked = new THashMap<String, ReentrantLock>();
-	private static final Logger log = Logger.getLogger(ProjectLocker.class);
+public class LockerByTag {
+	private static final Logger log = Logger.getLogger(LockerByTag.class);
+	private final static Map<String, ReentrantLock> locksByTags = new THashMap<String, ReentrantLock>();
+	private final static ReadWriteLock mapLock = new ReentrantReadWriteLock(true);
 
 	private static ReentrantLock getLock(String projectTag) {
-		if (!projectLocked.containsKey(projectTag) || projectLocked.get(projectTag) == null) {
-			ReentrantLock lock = new ReentrantLock(true);
-			projectLocked.put(projectTag, lock);
+		try {
+			mapLock.writeLock().lock();
+			ReentrantLock projectLock = locksByTags.get(projectTag);
+			if (projectLock == null) {
+				projectLock = new ReentrantLock(true);
+				locksByTags.put(projectTag, projectLock);
+				return projectLock;
+
+			} else {
+				return projectLock;
+			}
+		} finally {
+			mapLock.writeLock().unlock();
 		}
-		return projectLocked.get(projectTag);
 	}
 
 	/**
@@ -31,12 +43,21 @@ public class ProjectLocker {
 
 	public static void lock(String projectTag, Method method) {
 		final ReentrantLock lock = getLock(projectTag);
-		log.info("Trying to acquire locker for " + projectTag + " from Method: " + method.getName() + " with "
-				+ lock.getQueueLength() + " threads in the queue");
+		if (method != null) {
+			log.info("Trying to acquire locker for tag " + projectTag + " from Method: " + method.getName() + " with "
+					+ lock.getQueueLength() + " threads in the queue");
+		} else {
+			log.info("Trying to acquire locker for tag " + projectTag + " with " + lock.getQueueLength()
+					+ " threads in the queue");
+		}
 
 		lock.lock();
-		log.info("Lock acquired by thread " + Thread.currentThread().getId() + " from Method " + method.getName()
-				+ " for project '" + projectTag + "'");
+		if (method != null) {
+			log.info("Lock acquired by thread " + Thread.currentThread().getId() + " from Method " + method.getName()
+					+ " for tag '" + projectTag + "'");
+		} else {
+			log.info("Lock acquired by thread " + Thread.currentThread().getId() + " for tag '" + projectTag + "'");
+		}
 	}
 
 	/**
@@ -45,12 +66,19 @@ public class ProjectLocker {
 	 * @param projectTag
 	 */
 	public static void unlock(String projectTag, Method method) {
-		log.info("Unlocking " + projectTag + " from Method: " + method.getName());
+		if (method != null) {
+			log.info("Unlocking for tag" + projectTag + " from Method: " + method.getName());
+		} else {
+			log.info("Unlocking for tag " + projectTag);
+		}
 		final ReentrantLock lock = getLock(projectTag);
 		log.info(lock.getQueueLength() + " threads are waiting for this thread to unlock the lock");
 		lock.unlock();
-		log.info(projectTag + " unlocked from Method: " + method.getName());
-
+		if (method != null) {
+			log.info(projectTag + " tag unlocked from Method: " + method.getName());
+		} else {
+			log.info(projectTag + " tag unlocked");
+		}
 	}
 
 	/**
@@ -59,7 +87,7 @@ public class ProjectLocker {
 	 * @param projectTag
 	 */
 	public static void unlock(Collection<String> projectTags, Method method) {
-		for (String projectTag : projectTags) {
+		for (final String projectTag : projectTags) {
 			unlock(projectTag, method);
 		}
 	}
@@ -71,7 +99,7 @@ public class ProjectLocker {
 	 * @param method
 	 */
 	public static void lock(Collection<String> projectTags, Method method) {
-		for (String projectTag : projectTags) {
+		for (final String projectTag : projectTags) {
 			lock(projectTag, method);
 		}
 	}

@@ -31,7 +31,14 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 	public PeptideTablePanel(String sessionID, String emptyLabel, ShowHiddePanel showhiddePSMPanel,
 			AbstractAsyncDataProvider<PeptideBean> asyncDataListProvider, boolean multipleSelectionModel,
 			QueryPanel queryPanel) {
-		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel, "peptide table", queryPanel);
+		this(sessionID, emptyLabel, showhiddePSMPanel, asyncDataListProvider, multipleSelectionModel, "peptide table",
+				queryPanel);
+	}
+
+	public PeptideTablePanel(String sessionID, String emptyLabel, ShowHiddePanel showhiddePSMPanel,
+			AbstractAsyncDataProvider<PeptideBean> asyncDataListProvider, boolean multipleSelectionModel,
+			String tableTitle, QueryPanel queryPanel) {
+		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel, tableTitle, queryPanel);
 		peptideLoaderFromProjects = showhiddePSMPanel;
 
 	}
@@ -69,15 +76,15 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 				return item == null ? null : item.getSequence();
 			}
 		};
-		MyDataGrid<PeptideBean> dataGrid = new MyDataGrid<PeptideBean>(KEY_PROVIDER, tableName);
+		final MyDataGrid<PeptideBean> dataGrid = new MyDataGrid<PeptideBean>(KEY_PROVIDER, tableName);
 
 		return dataGrid;
 	}
 
 	@Override
 	protected SimplePager makePager() {
-		SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
-		SimplePager simplePager = new SimplePager(TextLocation.CENTER, pagerResources, true,
+		final SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
+		final SimplePager simplePager = new SimplePager(TextLocation.CENTER, pagerResources, true,
 				SharedConstants.PEPTIDE_DEFAULT_PAGE_SIZE * 5, true);
 		simplePager.setPageSize(SharedConstants.PEPTIDE_DEFAULT_PAGE_SIZE);
 		simplePager.setDisplay(dataGrid);

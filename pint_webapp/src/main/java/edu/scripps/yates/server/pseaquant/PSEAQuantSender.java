@@ -26,7 +26,9 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.proteindb.persistence.mysql.Gene;
+import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
+import edu.scripps.yates.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
@@ -40,7 +42,9 @@ import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantQuantType;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantReplicate;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantResult;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantSupportedOrganism;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.maths.Maths;
+import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -58,6 +62,7 @@ public class PSEAQuantSender {
 	private final PSEAQuantQuantType quantType;
 	private final Double cvTolFactor;
 	private final PSEAQuantLiteratureBias literatureBias;
+	private final UniprotProteinLocalRetriever uplr;
 
 	public enum RATIO_AVERAGING {
 		AVERAGE, MEDIAN
@@ -68,7 +73,7 @@ public class PSEAQuantSender {
 	public PSEAQuantSender(String email, PSEAQuantSupportedOrganism organism, List<PSEAQuantReplicate> replicates,
 			RatioDescriptorBean ratioDescriptor, long numberOfSamplings, PSEAQuantQuantType quantType,
 			PSEAQuantAnnotationDatabase annotationDatabase, PSEAQuantCVTol cvTol, Double cvTolFactor,
-			PSEAQuantLiteratureBias literatureBias, RATIO_AVERAGING ratioAveraging) {
+			PSEAQuantLiteratureBias literatureBias, RATIO_AVERAGING ratioAveraging, UniprotProteinLocalRetriever uplr) {
 
 		this.email = email;
 		this.organism = organism;
@@ -81,6 +86,7 @@ public class PSEAQuantSender {
 		this.literatureBias = literatureBias;
 		this.ratioAveraging = ratioAveraging;
 		this.quantType = quantType;
+		this.uplr = uplr;
 	}
 
 	public PSEAQuantResult send() {
@@ -258,6 +264,14 @@ public class PSEAQuantSender {
 					}
 				}
 			}
+			final Set<String> uniprotAccs = new THashSet<String>();
+			for (final Protein protein : proteinsInReplicate) {
+				final String uniProtACC = FastaParser.getUniProtACC(protein.getAcc());
+				if (uniProtACC != null) {
+					uniprotAccs.add(uniProtACC);
+				}
+			}
+			final Map<String, Entry> annotatedProteins = uplr.getAnnotatedProteins(null, uniprotAccs);
 			// iterate over the proteinsInReplicate:
 			for (final Protein protein : proteinsInReplicate) {
 				// use just the proteins with the taxonomy
@@ -273,7 +287,7 @@ public class PSEAQuantSender {
 
 				// TODO FILTER BY ORGANISM
 
-				final String geneName = getGeneName(protein);
+				final String geneName = getGeneName(protein, annotatedProteins.get(protein.getAcc()));
 				if (geneName != null) {
 					TIntObjectHashMap<TDoubleArrayList> ratiosPerReplicates = null;
 					if (ret.containsKey(geneName)) {
@@ -327,6 +341,14 @@ public class PSEAQuantSender {
 					}
 				}
 			}
+			final Set<String> uniprotAccs = new THashSet<String>();
+			for (final Protein protein : proteinsInReplicate) {
+				final String uniProtACC = FastaParser.getUniProtACC(protein.getAcc());
+				if (uniProtACC != null) {
+					uniprotAccs.add(uniProtACC);
+				}
+			}
+			final Map<String, Entry> annotatedProteins = uplr.getAnnotatedProteins(null, uniprotAccs);
 			// iterate over the proteinsInReplicate:
 			for (final Protein protein : proteinsInReplicate) {
 				// TODO
@@ -340,7 +362,7 @@ public class PSEAQuantSender {
 				// + organism.getNcbiID() + ")");
 				// continue;
 				// }
-				final String geneName = getGeneName(protein);
+				final String geneName = getGeneName(protein, annotatedProteins.get(protein.getAcc()));
 				if (geneName != null) {
 					TIntObjectHashMap<Set<String>> ratiosPerReplicates = null;
 					if (ret.containsKey(geneName)) {
@@ -429,19 +451,15 @@ public class PSEAQuantSender {
 	 * primary (if available)
 	 *
 	 * @param protein
+	 * @param entry
 	 * @return
 	 */
-	private String getGeneName(Protein protein) {
+	private String getGeneName(Protein protein, Entry entry) {
 		if (protein != null) {
-			final Set<Gene> genes = protein.getGenes();
-			if (genes != null) {
-				for (final Gene gene : genes) {
-					if ("primary".equalsIgnoreCase(gene.getGeneType())) {
-						return gene.getGeneId();
-					}
-				}
-				if (!genes.isEmpty()) {
-					return genes.iterator().next().getGeneId();
+			if (entry != null) {
+				final List<Pair<String, String>> geneName = UniprotEntryUtil.getGeneName(entry, true, true);
+				if (geneName != null && !geneName.isEmpty()) {
+					return geneName.get(0).getFirstelement();
 				}
 			}
 		}

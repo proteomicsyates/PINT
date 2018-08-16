@@ -66,6 +66,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLSaver;
 import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
+import edu.scripps.yates.server.lock.LockerByTag;
 import edu.scripps.yates.server.projectCreator.ImportCfgFileParserUtil;
 import edu.scripps.yates.server.projectCreator.adapter.FileSetAdapter;
 import edu.scripps.yates.server.projectCreator.adapter.RemoteSSHFileReferenceAdapter;
@@ -1217,7 +1218,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		}.getClass().getEnclosingMethod();
 		try {
 
-			ProjectLocker.lock(sessionID, method);
+			LockerByTag.lock(sessionID, method);
 			// move the file
 			if (!oldDataFile.exists()) {
 				return;
@@ -1249,7 +1250,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.MOVING_FILE_ERROR);
 		} finally {
-			ProjectLocker.unlock(sessionID, method);
+			LockerByTag.unlock(sessionID, method);
 		}
 
 	}

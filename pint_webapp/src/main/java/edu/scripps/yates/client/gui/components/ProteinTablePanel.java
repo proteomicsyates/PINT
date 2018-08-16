@@ -44,7 +44,7 @@ public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
 				return item == null ? null : item.getProteinDBString();
 			}
 		};
-		MyDataGrid<ProteinBean> dataGrid = new MyDataGrid<ProteinBean>(KEY_PROVIDER, tableName);
+		final MyDataGrid<ProteinBean> dataGrid = new MyDataGrid<ProteinBean>(KEY_PROVIDER, tableName);
 		dataGrid.setEmptyTableWidget(new Label(cwDataGridEmpty));
 
 		return dataGrid;
@@ -52,8 +52,8 @@ public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
 
 	@Override
 	protected SimplePager makePager() {
-		SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
-		SimplePager simplePager = new SimplePager(TextLocation.CENTER, pagerResources, true,
+		final SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
+		final SimplePager simplePager = new SimplePager(TextLocation.CENTER, pagerResources, true,
 				SharedConstants.PROTEIN_DEFAULT_PAGE_SIZE * 5, true);
 		simplePager.setPageSize(SharedConstants.PROTEIN_DEFAULT_PAGE_SIZE);
 		simplePager.setDisplay(dataGrid);

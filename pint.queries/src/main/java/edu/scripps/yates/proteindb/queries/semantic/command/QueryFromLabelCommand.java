@@ -6,17 +6,21 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Label;
+import edu.scripps.yates.proteindb.persistence.mysql.PeptideAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 import edu.scripps.yates.proteindb.queries.Query;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.peptides.PeptideProviderFromPeptideLabeledAmount;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromLabeledAmount;
 import edu.scripps.yates.proteindb.queries.dataproviders.psm.PsmProviderFromPsmLabeledAmount;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
+import edu.scripps.yates.proteindb.queries.semantic.QueriablePeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
@@ -41,12 +45,12 @@ public class QueryFromLabelCommand extends AbstractQuery {
 
 		final String[] split = MyCommandTokenizer.splitCommand(commandReference.getCommandValue());
 		if (split.length == 3) {
-			String aggregationLevelString = split[0].trim();
+			final String aggregationLevelString = split[0].trim();
 			labelString = split[1].trim();
 			if ("".equals(labelString))
 				throw new MalformedQueryException(
 						"Label name is not provided in command '" + commandReference.getCommand().name() + "'");
-			String onlyString = split[2].trim();
+			final String onlyString = split[2].trim();
 			if (!"".equals(aggregationLevelString)) {
 
 				aggregationLevel = AggregationLevel.getAggregationLevelByString(aggregationLevelString);
@@ -107,11 +111,29 @@ public class QueryFromLabelCommand extends AbstractQuery {
 
 	}
 
+	@Override
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+
+		switch (aggregationLevel) {
+		case PROTEIN:
+			final boolean queryOverProtein = queryOverProtein(link.getQueriableProtein());
+			return queryOverProtein;
+
+		case PEPTIDE:
+			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptide());
+			return queryOverPeptide;
+
+		default:
+			throw new IllegalArgumentException("Error in aggregation level");
+		}
+
+	}
+
 	private boolean queryOverProtein(QueriableProteinSet protein) {
 
 		final Set<ProteinAmount> proteinAmounts = protein.getProteinAmounts();
 		if (proteinAmounts != null) {
-			for (ProteinAmount proteinAmount : proteinAmounts) {
+			for (final ProteinAmount proteinAmount : proteinAmounts) {
 				final Condition condition = proteinAmount.getCondition();
 				if (condition != null) {
 					final Sample sample = condition.getSample();
@@ -134,8 +156,42 @@ public class QueryFromLabelCommand extends AbstractQuery {
 		final Set<PsmAmount> psmAmounts = psm.getPsmAmounts();
 		if (psmAmounts != null) {
 
-			for (PsmAmount psmAmount : psmAmounts) {
+			for (final PsmAmount psmAmount : psmAmounts) {
 				final Condition condition = psmAmount.getCondition();
+				if (condition != null) {
+					final Sample sample = condition.getSample();
+					if (sample != null) {
+						final Label label = sample.getLabel();
+						final String labelName = label.getName();
+						if (labelName.equalsIgnoreCase(labelString)) {
+							targetLabel = true;
+						} else {
+							anyOtherLabel = true;
+						}
+					}
+				}
+			}
+		}
+		if (targetLabel) {
+			if (labelOnly != null && labelOnly) {
+				if (!anyOtherLabel) {
+					return true;
+				}
+			} else {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean queryOverPeptide(QueriablePeptideSet peptideSet) {
+		boolean anyOtherLabel = false;
+		boolean targetLabel = false;
+		final Set<PeptideAmount> psmAmounts = peptideSet.getPeptideAmounts();
+		if (psmAmounts != null) {
+
+			for (final PeptideAmount peptideAmount : psmAmounts) {
+				final Condition condition = peptideAmount.getCondition();
 				if (condition != null) {
 					final Sample sample = condition.getSample();
 					if (sample != null) {
@@ -168,11 +224,14 @@ public class QueryFromLabelCommand extends AbstractQuery {
 	}
 
 	@Override
-	public ProteinProviderFromDB initProtenProvider() {
-		ProteinProviderFromDB ret = null;
+	public DataProviderFromDB initProtenProvider() {
+		DataProviderFromDB ret = null;
 		switch (aggregationLevel) {
 		case PROTEIN:
 			ret = new ProteinProviderFromLabeledAmount(labelString);
+			break;
+		case PEPTIDE:
+			ret = new PeptideProviderFromPeptideLabeledAmount(labelString, labelOnly);
 			break;
 		case PSM:
 			ret = new PsmProviderFromPsmLabeledAmount(labelString, labelOnly);

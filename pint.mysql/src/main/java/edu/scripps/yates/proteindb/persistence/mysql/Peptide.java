@@ -13,12 +13,15 @@ public class Peptide implements java.io.Serializable {
 	private Integer id;
 	private MsRun msRun;
 	private String sequence;
+	private String fullSequence;
+	private Integer numPsms;
 	private Set peptideAmounts = new HashSet(0);
 	private Set peptideRatioValues = new HashSet(0);
 	private Set psms = new HashSet(0);
 	private Set conditions = new HashSet(0);
 	private Set peptideScores = new HashSet(0);
 	private Set proteins = new HashSet(0);
+	private Set ptms = new HashSet(0);
 
 	public Peptide() {
 	}
@@ -28,16 +31,19 @@ public class Peptide implements java.io.Serializable {
 		this.sequence = sequence;
 	}
 
-	public Peptide(MsRun msRun, String sequence, Set peptideAmounts, Set peptideRatioValues, Set psms, Set conditions,
-			Set peptideScores, Set proteins) {
+	public Peptide(MsRun msRun, String sequence, String fullSequence, Integer numPsms, Set peptideAmounts,
+			Set peptideRatioValues, Set psms, Set conditions, Set peptideScores, Set proteins, Set ptms) {
 		this.msRun = msRun;
 		this.sequence = sequence;
+		this.fullSequence = fullSequence;
+		setNumPsms(numPsms);
 		this.peptideAmounts = peptideAmounts;
 		this.peptideRatioValues = peptideRatioValues;
 		this.psms = psms;
 		this.conditions = conditions;
 		this.peptideScores = peptideScores;
 		this.proteins = proteins;
+		this.ptms = ptms;
 	}
 
 	public Integer getId() {
@@ -110,6 +116,30 @@ public class Peptide implements java.io.Serializable {
 
 	public void setProteins(Set proteins) {
 		this.proteins = proteins;
+	}
+
+	public Set getPtms() {
+		return ptms;
+	}
+
+	public void setPtms(Set ptms) {
+		this.ptms = ptms;
+	}
+
+	public String getFullSequence() {
+		return fullSequence;
+	}
+
+	public void setFullSequence(String fullSequence) {
+		this.fullSequence = fullSequence;
+	}
+
+	public Integer getNumPsms() {
+		return numPsms;
+	}
+
+	public void setNumPsms(Integer numPsms) {
+		this.numPsms = numPsms;
 	}
 
 }

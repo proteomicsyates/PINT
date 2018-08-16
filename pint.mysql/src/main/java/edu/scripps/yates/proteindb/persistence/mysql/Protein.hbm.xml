@@ -9,9 +9,9 @@
             <column name="id" />
             <generator class="identity" />
         </id>
-        <many-to-one name="organism" class="edu.scripps.yates.proteindb.persistence.mysql.Organism" fetch="select">
-            <column name="Organism_taxonomyID" length="90" not-null="true" />
-        </many-to-one>
+<!--         <many-to-one name="organism" class="edu.scripps.yates.proteindb.persistence.mysql.Organism" fetch="select"> -->
+<!--             <column name="Organism_taxonomyID" length="90" not-null="true" /> -->
+<!--         </many-to-one> -->
         <many-to-one name="msRun" class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" fetch="select">
             <column name="MS_Run_id" not-null="true" />
         </many-to-one>
@@ -27,14 +27,14 @@
         <property name="mw" type="java.lang.Double">
             <column name="mw" precision="22" scale="0" />
         </property>
-        <set name="genes" table="protein_has_gene" inverse="false" lazy="true" fetch="select" >
-            <key>
-                <column name="Protein_id" not-null="true" />
-            </key>
-            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Gene">
-                <column name="Gene_id" not-null="true" />
-            </many-to-many>
-        </set>
+<!--         <set name="genes" table="protein_has_gene" inverse="false" lazy="true" fetch="select" > -->
+<!--             <key> -->
+<!--                 <column name="Protein_id" not-null="true" /> -->
+<!--             </key> -->
+<!--             <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Gene"> -->
+<!--                 <column name="Gene_id" not-null="true" /> -->
+<!--             </many-to-many> -->
+<!--         </set> -->
 <!--         <set name="psms" table="protein_has_psm" inverse="true" lazy="true" fetch="select" > -->
         <set name="psms" table="protein_has_psm" inverse="true" lazy="extra" fetch="join" batch-size="100" >
             <key>
@@ -58,14 +58,14 @@
             </key>
             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue" />
         </set>
-        <set name="proteinAccessions" table="protein_has_protein_accession" inverse="false" lazy="true" fetch="select" >
-            <key>
-                <column name="Protein_id" not-null="true" />
-            </key>
-            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession">
-                <column name="Protein_Accession_accession" length="15" not-null="true" />
-            </many-to-many>
-        </set>
+<!--         <set name="proteinAccessions" table="protein_has_protein_accession" inverse="false" lazy="true" fetch="select" > -->
+<!--             <key> -->
+<!--                 <column name="Protein_id" not-null="true" /> -->
+<!--             </key> -->
+<!--             <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession"> -->
+<!--                 <column name="Protein_Accession_accession" length="15" not-null="true" /> -->
+<!--             </many-to-many> -->
+<!--         </set> -->
         <set name="proteinScores" table="protein_score" inverse="true" lazy="true" fetch="select" >
             <key>
                 <column name="Protein_id" not-null="true" />
@@ -90,7 +90,8 @@
             </key>
             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation" />
         </set>
-        <set name="peptides" table="protein_has_peptide" inverse="true" lazy="true" fetch="select" >
+<!--         <set name="peptides" table="protein_has_peptide" inverse="true" lazy="true" fetch="select" > -->
+        <set name="peptides" table="protein_has_peptide" inverse="true" lazy="extra" fetch="join" batch-size="100" >
             <key>
                 <column name="Protein_id" not-null="true" />
             </key>

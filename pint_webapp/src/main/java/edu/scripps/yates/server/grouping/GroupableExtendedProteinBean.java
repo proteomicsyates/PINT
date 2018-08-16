@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ProteinBean;
-import edu.scripps.yates.utilities.grouping.GroupablePSM;
+import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
@@ -16,13 +17,15 @@ public class GroupableExtendedProteinBean implements GroupableProtein {
 	public final static Map<String, GroupableExtendedProteinBean> map = new THashMap<String, GroupableExtendedProteinBean>();
 
 	private final ProteinBean protein;
-	private ArrayList<GroupablePSM> groupablePSMs;
+	private ArrayList<GroupablePeptide> groupablePeptides;
 	private String primaryAccession;
 	private ProteinGroup proteinGroup;
 	private ProteinEvidence evidence;
+	private final boolean psmCentric;
 
-	public GroupableExtendedProteinBean(ProteinBean protein) {
+	public GroupableExtendedProteinBean(ProteinBean protein, boolean psmCentric) {
 		this.protein = protein;
+		this.psmCentric = psmCentric;
 	}
 
 	@Override
@@ -32,19 +35,30 @@ public class GroupableExtendedProteinBean implements GroupableProtein {
 	}
 
 	@Override
-	public List<GroupablePSM> getGroupablePSMs() {
-		if (groupablePSMs == null) {
-			groupablePSMs = new ArrayList<GroupablePSM>();
-			List<PSMBean> psms = protein.getPsms();
-			for (PSMBean psm : psms) {
-				if (GroupableExtendedPsmBean.map.containsKey(psm.getId())) {
-					groupablePSMs.add(GroupableExtendedPsmBean.map.get(psm.getId()));
-				} else {
-					groupablePSMs.add(new GroupableExtendedPsmBean(psm));
+	public List<GroupablePeptide> getGroupablePeptides() {
+		if (groupablePeptides == null) {
+			groupablePeptides = new ArrayList<GroupablePeptide>();
+			if (psmCentric) {
+				final List<PSMBean> psms = protein.getPsms();
+				for (final PSMBean psm : psms) {
+					if (GroupableExtendedPsmBean.map.containsKey(psm.getId())) {
+						groupablePeptides.add(GroupableExtendedPsmBean.map.get(psm.getId()));
+					} else {
+						groupablePeptides.add(new GroupableExtendedPsmBean(psm));
+					}
+				}
+			} else {
+				final List<PeptideBean> peptides = protein.getPeptides();
+				for (final PeptideBean peptide : peptides) {
+					if (GroupableExtendedPeptideBean.map.containsKey(peptide.getId())) {
+						groupablePeptides.add(GroupableExtendedPeptideBean.map.get(peptide.getId()));
+					} else {
+						groupablePeptides.add(new GroupableExtendedPeptideBean(peptide));
+					}
 				}
 			}
 		}
-		return groupablePSMs;
+		return groupablePeptides;
 	}
 
 	@Override

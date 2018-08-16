@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.scripps.yates.shared.model.AmountType;
+import edu.scripps.yates.shared.model.PTMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedDataUtils;
@@ -28,7 +29,7 @@ public class PeptideColumns implements ColumnProvider<PeptideBean> {
 	@Override
 	public ColumnWithVisibility getColumn(ColumnName columnName) {
 		final List<ColumnWithVisibility> columns2 = getColumns();
-		for (ColumnWithVisibility columnWithVisibility : columns2) {
+		for (final ColumnWithVisibility columnWithVisibility : columns2) {
 			if (columnWithVisibility.getColumn() == columnName)
 				return columnWithVisibility;
 		}
@@ -56,6 +57,12 @@ public class PeptideColumns implements ColumnProvider<PeptideBean> {
 			col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.TAXONOMY, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.NUM_PTMS, false);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.NUM_PTM_SITES, true);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.PTMS, false);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PEPTIDE_AMOUNT, false);
 			columns.add(col);
@@ -151,6 +158,18 @@ public class PeptideColumns implements ColumnProvider<PeptideBean> {
 		case PEPTIDE_PTM:
 			return parseEmptyString(SharedDataUtils.getUniprotFeatureString(p,
 					UniprotFeatures.getUniprotFeaturesByColumnName(columnName)));
+		case PTM_SCORE:
+			return parseEmptyString(p.getPTMScoreString());
+		case PTMS:
+			return parseEmptyString(p.getPTMString());
+		case NUM_PTMS:
+			return parseEmptyString(String.valueOf(p.getPtms().size()));
+		case NUM_PTM_SITES:
+			int count = 0;
+			for (final PTMBean ptm : p.getPtms()) {
+				count += ptm.getPtmSites().size();
+			}
+			return parseEmptyString(String.valueOf(count));
 		case LINK_TO_PRIDE_CLUSTER:
 			return "+";
 		default:

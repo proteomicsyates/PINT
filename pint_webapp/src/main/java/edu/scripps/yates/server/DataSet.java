@@ -64,12 +64,14 @@ public class DataSet {
 	private Thread activeDatasetThread;
 	private final static Logger log = Logger.getLogger(DataSet.class);
 	private Date latestAccess;
+	private final boolean psmCentric;
 
-	public DataSet(String sessionID, String name) {
+	public DataSet(String sessionID, String name, boolean psmCentric) {
 		sessionId = sessionID;
+		this.psmCentric = psmCentric;
 		setName(name);
-		this.activeDatasetThread = Thread.currentThread();
-		this.setLatestAccess(new Date());
+		activeDatasetThread = Thread.currentThread();
+		setLatestAccess(new Date());
 	}
 
 	/**
@@ -79,8 +81,8 @@ public class DataSet {
 		if (!ready)
 			return Collections.emptyList();
 		if (proteins.isEmpty()) {
-			List<ProteinBean> proteinBeansFromPSMBeans = SharedDataUtils.getProteinBeansFromPSMBeans(psms);
-			for (ProteinBean proteinBean : proteinBeansFromPSMBeans) {
+			final List<ProteinBean> proteinBeansFromPSMBeans = SharedDataUtils.getProteinBeansFromPSMBeans(psms);
+			for (final ProteinBean proteinBean : proteinBeansFromPSMBeans) {
 				addProtein(proteinBean);
 			}
 		}
@@ -97,7 +99,7 @@ public class DataSet {
 
 			final List<PeptideBean> peptideBeansFromProteinBeans = SharedDataUtils
 					.getPeptideBeansFromProteinBeans(proteins);
-			for (PeptideBean peptideBean : peptideBeansFromProteinBeans) {
+			for (final PeptideBean peptideBean : peptideBeansFromProteinBeans) {
 				addPeptide(peptideBean);
 			}
 		}
@@ -110,10 +112,10 @@ public class DataSet {
 	public List<PSMBean> getPsms() {
 		if (!ready)
 			return Collections.emptyList();
-		if (psms.isEmpty()) {
+		if (psms.isEmpty() && psmCentric) {
 			final List<PSMBean> psmBeansFromProteinBeans = SharedDataUtils.getPSMBeansFromProteinBeans(proteins);
 			log.info("Getting " + psmBeansFromProteinBeans.size() + " PSMs from " + proteins.size() + " proteins");
-			for (PSMBean psmBean : psmBeansFromProteinBeans) {
+			for (final PSMBean psmBean : psmBeansFromProteinBeans) {
 				addPsm(psmBean);
 			}
 		}
@@ -203,7 +205,7 @@ public class DataSet {
 		proteins.add(proteinBean);
 		proteinsByProteinBeanUniqueIdentifier.put(proteinBean.getProteinBeanUniqueIdentifier(), proteinBean);
 		if (proteinBean.getPsms() != null) {
-			for (PSMBean psmBean : proteinBean.getPsms()) {
+			for (final PSMBean psmBean : proteinBean.getPsms()) {
 				addPsm(psmBean);
 			}
 		}
@@ -221,14 +223,14 @@ public class DataSet {
 		if (psmsBySequence.containsKey(psmBean.getSequence())) {
 			psmsBySequence.get(psmBean.getSequence()).add(psmBean);
 		} else {
-			Set<PSMBean> set = new THashSet<PSMBean>();
+			final Set<PSMBean> set = new THashSet<PSMBean>();
 			set.add(psmBean);
 			psmsBySequence.put(psmBean.getSequence(), set);
 		}
 		if (psmsByRawSequence.containsKey(psmBean.getFullSequence())) {
 			psmsByRawSequence.get(psmBean.getFullSequence()).add(psmBean);
 		} else {
-			Set<PSMBean> set = new THashSet<PSMBean>();
+			final Set<PSMBean> set = new THashSet<PSMBean>();
 			set.add(psmBean);
 			psmsByRawSequence.put(psmBean.getFullSequence(), set);
 		}
@@ -238,13 +240,13 @@ public class DataSet {
 		// add psm scores
 		addScores(psmScores, psmBean.getScores());
 		// add ptm scores
-		List<PTMBean> ptms = psmBean.getPtms();
+		final List<PTMBean> ptms = psmBean.getPtms();
 		if (ptms != null) {
-			for (PTMBean ptm : ptms) {
-				List<PTMSiteBean> ptmSites = ptm.getPtmSites();
+			for (final PTMBean ptm : ptms) {
+				final List<PTMSiteBean> ptmSites = ptm.getPtmSites();
 				if (ptmSites != null) {
-					for (PTMSiteBean ptmSiteBean : ptmSites) {
-						ScoreBean score = ptmSiteBean.getScore();
+					for (final PTMSiteBean ptmSiteBean : ptmSites) {
+						final ScoreBean score = ptmSiteBean.getScore();
 						if (score != null) {
 							addScore(ptmScores, score);
 						}
@@ -285,7 +287,8 @@ public class DataSet {
 				this.separateNonConclusiveProteins = separateNonConclusiveProteins;
 			}
 			proteinGroups.clear();
-			proteinGroups.addAll(RemoteServicesTasks.groupProteins(getProteins(), this.separateNonConclusiveProteins));
+			proteinGroups.addAll(
+					RemoteServicesTasks.groupProteins(getProteins(), this.separateNonConclusiveProteins, psmCentric));
 		}
 		return proteinGroups;
 	}
@@ -366,9 +369,9 @@ public class DataSet {
 	}
 
 	private void assignRatioDistributions(Collection<ContainsRatios> containsRatios) {
-		for (ContainsRatios ratioContainer : containsRatios) {
+		for (final ContainsRatios ratioContainer : containsRatios) {
 			final Set<RatioBean> ratios = ratioContainer.getRatios();
-			for (RatioBean ratioBean : ratios) {
+			for (final RatioBean ratioBean : ratios) {
 				final RatioDistribution ratioDistribution = ratioAnalyzer.getRatioDistribution(ratioBean);
 				if (ratioDistribution != null) {
 					ratioContainer.addRatioDistribution(ratioDistribution);
@@ -379,21 +382,21 @@ public class DataSet {
 
 	private void assignRatioDistributionsToPSMs() {
 		final List<PSMBean> psms2 = getPsms();
-		List<ContainsRatios> list = new ArrayList<ContainsRatios>();
+		final List<ContainsRatios> list = new ArrayList<ContainsRatios>();
 		list.addAll(psms2);
 		assignRatioDistributions(list);
 	}
 
 	private void assignRatioDistributionsToProteins() {
 		final List<ProteinBean> proteins2 = getProteins();
-		List<ContainsRatios> list = new ArrayList<ContainsRatios>();
+		final List<ContainsRatios> list = new ArrayList<ContainsRatios>();
 		list.addAll(proteins2);
 		assignRatioDistributions(list);
 	}
 
 	private void assignRatioDistributionsToPeptides() {
 		final List<PeptideBean> peptides2 = getPeptides();
-		List<ContainsRatios> list = new ArrayList<ContainsRatios>();
+		final List<ContainsRatios> list = new ArrayList<ContainsRatios>();
 		list.addAll(peptides2);
 		assignRatioDistributions(list);
 	}
@@ -428,10 +431,10 @@ public class DataSet {
 	public List<PSMBean> getPsmsFromProteinGroup(ProteinGroupBean proteinGroup) {
 		if (proteinGroup != null) {
 			log.info("Getting PSMs from protein Group " + proteinGroup.getPrimaryAccessionsString());
-			List<PSMBean> ret = new ArrayList<PSMBean>();
-			for (ProteinBean proteinBean : proteinGroup) {
+			final List<PSMBean> ret = new ArrayList<PSMBean>();
+			for (final ProteinBean proteinBean : proteinGroup) {
 				final List<PSMBean> psms2 = getPsmsFromPsmProvider(proteinBean);
-				for (PSMBean psmBean : psms2) {
+				for (final PSMBean psmBean : psms2) {
 					if (!ret.contains(psmBean)) {
 						ret.add(psmBean);
 					}
@@ -447,10 +450,10 @@ public class DataSet {
 	public List<PeptideBean> getPeptidesFromProteinGroup(ProteinGroupBean proteinGroup) {
 		if (proteinGroup != null) {
 			log.info("Getting Peptides from protein Group " + proteinGroup.getPrimaryAccessionsString());
-			List<PeptideBean> ret = new ArrayList<PeptideBean>();
-			for (ProteinBean proteinBean : proteinGroup) {
+			final List<PeptideBean> ret = new ArrayList<PeptideBean>();
+			for (final ProteinBean proteinBean : proteinGroup) {
 				final List<PeptideBean> peptides2 = getPeptidesFromPeptideProvider(proteinBean);
-				for (PeptideBean peptideBean : peptides2) {
+				for (final PeptideBean peptideBean : peptides2) {
 					if (!ret.contains(peptideBean)) {
 						ret.add(peptideBean);
 					}
@@ -536,7 +539,7 @@ public class DataSet {
 	 */
 	@Override
 	public String toString() {
-		return "/nDATASET:\nThread holder ID:\t" + this.activeDatasetThread.getId() + "\nReady:\t" + ready + "\nName: "
+		return "/nDATASET:\nThread holder ID:\t" + activeDatasetThread.getId() + "\nReady:\t" + ready + "\nName: "
 				+ name + "\nSessionID: " + sessionId + "\nProtein groups:\t" + getProteinGroups(false).size() + "\n"
 				+ "Proteins:\t" + getProteins().size() + "\n" + "PSMs:\t" + getPsms().size() + "\n" + "Peptides:\t"
 				+ getNumDifferentSequences(false) + "\n" + "Peptides(ptm sensible):\t" + getNumDifferentSequences(true)
@@ -558,6 +561,21 @@ public class DataSet {
 		ratioAnalyzer.addRatios(peptideBean.getRatios());
 		// add peptide scores
 		addScores(peptideScores, peptideBean.getScores());
+		// add ptm scores
+		final List<PTMBean> ptms = peptideBean.getPtms();
+		if (ptms != null) {
+			for (final PTMBean ptm : ptms) {
+				final List<PTMSiteBean> ptmSites = ptm.getPtmSites();
+				if (ptmSites != null) {
+					for (final PTMSiteBean ptmSiteBean : ptmSites) {
+						final ScoreBean score = ptmSiteBean.getScore();
+						if (score != null) {
+							addScore(ptmScores, score);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private void addScores(Set<String> scoreNamesSet, Map<String, ScoreBean> scores) {
@@ -567,7 +585,7 @@ public class DataSet {
 	}
 
 	private void addScores(Set<String> scoreNamesSet, Collection<ScoreBean> scores) {
-		for (ScoreBean score : scores) {
+		for (final ScoreBean score : scores) {
 			addScore(scoreNamesSet, score);
 
 		}
@@ -609,13 +627,13 @@ public class DataSet {
 	public void fixPrimaryAccessionDuplicates() {
 		setReady(false);
 		final List<ProteinBean> proteinList = getProteins();
-		int initialProteinNumber = proteinList.size();
+		final int initialProteinNumber = proteinList.size();
 
-		Map<String, ProteinBean> map = new THashMap<String, ProteinBean>();
+		final Map<String, ProteinBean> map = new THashMap<String, ProteinBean>();
 		int foundDuplicate = 0;
 		final Iterator<ProteinBean> iterator = proteinList.iterator();
 		while (iterator.hasNext()) {
-			ProteinBean proteinBean = iterator.next();
+			final ProteinBean proteinBean = iterator.next();
 			if (map.containsKey(proteinBean.getPrimaryAccession().getAccession())) {
 				foundDuplicate++;
 				// merge the two protein beans
@@ -686,19 +704,29 @@ public class DataSet {
 	}
 
 	public List<String> getPsmScores() {
-		getPsms();
+		if (psmCentric) {
+			getPsms();
+		} else {
+			getPeptides();
+		}
 		return psmScores.stream().collect(Collectors.toList()).stream().sorted().collect(Collectors.toList());
 	}
 
 	public List<String> getPtmScores() {
-		getPsms();
+		if (psmCentric) {
+			getPsms();
+		} else {
+			getPeptides();
+		}
 		return ptmScores.stream().collect(Collectors.toList()).stream().sorted().collect(Collectors.toList());
 	}
 
 	public List<String> getScoreTypes() {
 		getProteins();
 		getPeptides();
-		getPsms();
+		if (psmCentric) {
+			getPsms();
+		}
 		return scoreTypes.stream().collect(Collectors.toList()).stream().sorted().collect(Collectors.toList());
 	}
 }

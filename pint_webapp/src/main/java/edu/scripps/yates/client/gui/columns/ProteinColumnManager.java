@@ -36,7 +36,7 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 		} else {
 			columns = ProteinColumns.getInstance().getColumns();
 		}
-		for (ColumnWithVisibility columnWithVisibility : columns) {
+		for (final ColumnWithVisibility columnWithVisibility : columns) {
 			GWT.log(columnWithVisibility.getColumn().getName() + " column");
 			if (columnWithVisibility.getColumn().isAddColumnByDefault()) {
 				if (columnWithVisibility.getColumn() == ColumnName.LINK_TO_PRIDE_CLUSTER) {
@@ -66,7 +66,7 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 
 	@Override
 	protected MyColumn<ProteinBean> createColumn(ColumnName columnName, boolean visible) {
-		MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(columnName.getAbr()), columnName.getDescription());
 		return new ProteinTextColumn(columnName, visible, header, footerManager.getFooter(columnName));
 	}
@@ -92,7 +92,7 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 	public ProteinTextColumn addRatioColumn(ColumnName columnName, boolean visibleState, String condition1Name,
 			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
 			String ratioName) {
-		String headerName = SharedDataUtils.getRatioHeader(ratioName, condition1Symbol, condition2Symbol);
+		final String headerName = SharedDataUtils.getRatioHeader(ratioName, condition1Symbol, condition2Symbol);
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName),
 				SharedDataUtils.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
@@ -109,7 +109,7 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 	public ProteinTextColumn addRatioScoreColumn(ColumnName columnName, boolean visibleState, String condition1Name,
 			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
 			String ratioName, String scoreName) {
-		String headerName = SharedDataUtils.getRatioScoreHeader(scoreName, ratioName, condition1Symbol,
+		final String headerName = SharedDataUtils.getRatioScoreHeader(scoreName, ratioName, condition1Symbol,
 				condition2Symbol);
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName), SharedDataUtils.getRatioScoreHeaderTooltip(columnName,
@@ -138,7 +138,7 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 	private FieldUpdater<ProteinBean, ImageResource> getMyFieldUpdater(
 			final CustomClickableImageColumnShowPeptideTable<ProteinBean> customTextButtonColumn,
 			final String sessionID) {
-		FieldUpdater<ProteinBean, ImageResource> ret = new FieldUpdater<ProteinBean, ImageResource>() {
+		final FieldUpdater<ProteinBean, ImageResource> ret = new FieldUpdater<ProteinBean, ImageResource>() {
 
 			@Override
 			public void update(int index, final ProteinBean proteinBean, ImageResource image) {

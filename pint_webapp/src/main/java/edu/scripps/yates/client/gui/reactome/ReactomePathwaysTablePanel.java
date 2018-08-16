@@ -48,8 +48,8 @@ public class ReactomePathwaysTablePanel extends AbstractDataTable<PathwaySummary
 
 	@Override
 	protected SimplePager makePager() {
-		SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
-		SimplePager simplePager = new SimplePager(TextLocation.CENTER, pagerResources, true,
+		final SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
+		final SimplePager simplePager = new SimplePager(TextLocation.CENTER, pagerResources, true,
 				SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE * 5, true);
 		simplePager.setPageSize(SharedConstants.REACTOME_PATHWAYS_DEFAULT_PAGE_SIZE);
 		simplePager.setDisplay(dataGrid);

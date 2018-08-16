@@ -5,17 +5,14 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.ProteinDataProvider;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import gnu.trove.map.hash.THashMap;
 
-public class ProteinProviderFromLabeledAmount implements ProteinProviderFromDB {
+public class ProteinProviderFromLabeledAmount extends ProteinDataProvider {
 	private final String labelName;
-	private Set<String> projectTags;
-	private Map<String, Set<Protein>> result;
 
 	public ProteinProviderFromLabeledAmount(String labelString) {
 		labelName = labelString;
@@ -27,7 +24,7 @@ public class ProteinProviderFromLabeledAmount implements ProteinProviderFromDB {
 			result = new THashMap<String, Set<Protein>>();
 			int numProteins = 0;
 			if (projectTags != null) {
-				for (String projectTag : projectTags) {
+				for (final String projectTag : projectTags) {
 					final List<Protein> proteinsWithLabeledAmount = PreparedQueries
 							.getProteinsWithLabeledAmount(projectTag, labelName);
 					if (testMode
@@ -56,15 +53,4 @@ public class ProteinProviderFromLabeledAmount implements ProteinProviderFromDB {
 		return result;
 	}
 
-	@Override
-	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
-		return PersistenceUtils.getPsmsFromProteins(getProteinMap(testMode));
-	}
-
-	@Override
-	public void setProjectTags(Set<String> projectNames) {
-		projectTags = projectNames;
-		result = null;
-
-	}
 }

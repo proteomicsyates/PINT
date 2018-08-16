@@ -6,11 +6,11 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Gene;
 import edu.scripps.yates.proteindb.queries.Query;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
-import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProteinGenes;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
@@ -33,7 +33,7 @@ public class QueryFromGeneNameCommand extends AbstractQuery {
 		super(commandReference);
 		final String[] split = MyCommandTokenizer.splitCommand(commandReference.getCommandValue());
 		if (split != null && split.length > 0) {
-			for (String geneName : split) {
+			for (final String geneName : split) {
 				if (geneName == null || "".equals(geneName)) {
 					throw new MalformedQueryException("Gene name cannot be null");
 				}
@@ -53,8 +53,26 @@ public class QueryFromGeneNameCommand extends AbstractQuery {
 		if (genes != null) {
 			// to be included in the result, at least one gene
 			// will have to match
-			for (Gene gene : genes) {
-				for (String geneName : geneNames) {
+			for (final Gene gene : genes) {
+				for (final String geneName : geneNames) {
+					if (StringUtils.compareStrings(gene.getGeneId(), geneName, true, true, false)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+
+		final Set<Gene> genes = link.getQueriableProtein().getGenes();
+		if (genes != null) {
+			// to be included in the result, at least one gene
+			// will have to match
+			for (final Gene gene : genes) {
+				for (final String geneName : geneNames) {
 					if (StringUtils.compareStrings(gene.getGeneId(), geneName, true, true, false)) {
 						return true;
 					}
@@ -70,14 +88,18 @@ public class QueryFromGeneNameCommand extends AbstractQuery {
 	}
 
 	@Override
-	public ProteinProviderFromDB initProtenProvider() {
-		return new ProteinProviderFromProteinGenes(geneNames);
+	public DataProviderFromDB initProtenProvider() {
+		// change in Ago 2nd 2018
+		return null;
+		// return new ProteinProviderFromProteinGenes(geneNames);
 
 	}
 
 	@Override
 	public boolean requiresFurtherEvaluation() {
-		return false;
+		// change in Ago 2nd 2018
+		return true;
+		// return false;
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,8 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	private static final long serialVersionUID = -1713998292042049510L;
 	private Set<MSRunBean> msRuns = new HashSet<MSRunBean>();
 	private String sequence;
+	private String fullSequence;
+
 	private int length;
 	private Double calculatedMH;
 	private Map<String, ScoreBean> scores = new HashMap<String, ScoreBean>();
@@ -55,7 +58,6 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	private Set<Integer> proteinDBIds = new HashSet<Integer>();
 	private Set<ExperimentalConditionBean> conditions = new HashSet<ExperimentalConditionBean>();
 	private Set<Integer> dbIds = new HashSet<Integer>();
-	private Map<MSRunBean, Set<Integer>> psmIdsbyMSRun = new HashMap<MSRunBean, Set<Integer>>();
 	private Map<ExperimentalConditionBean, Set<Integer>> psmIdsByCondition = new HashMap<ExperimentalConditionBean, Set<Integer>>();
 	private Set<Integer> psmIds = new HashSet<Integer>();
 	private Set<String> rawSequences = new HashSet<String>();
@@ -64,6 +66,9 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	private PeptideBean lightVersion;
 	private PeptideRelation relation;
 	private Map<String, RatioDistribution> ratioDistributions;
+	private List<PTMBean> ptms = new ArrayList<PTMBean>();
+	private String ptmString;
+	private String ptmScoreString;
 	private Map<ExperimentalConditionBean, Integer> numPSMsByCondition;
 
 	public PeptideBean() {
@@ -95,6 +100,18 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	 */
 	public void setDbIds(Set<Integer> dbIds) {
 		this.dbIds = dbIds;
+	}
+
+	/**
+	 * @param fullSequence
+	 *            the fullSequence to set
+	 */
+	public void setFullSequence(String fullSequence) {
+		this.fullSequence = fullSequence;
+	}
+
+	public String getFullSequence() {
+		return fullSequence;
 	}
 
 	@Override
@@ -129,17 +146,17 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		addPSMToMapByconditions(psm);
 		// set Proteins
 		final Set<ProteinBean> proteins2 = psm.getProteins();
-		for (ProteinBean proteinBean : proteins2) {
+		for (final ProteinBean proteinBean : proteins2) {
 			addProteinToPeptide(proteinBean);
 		}
 
 		// organisms
-		for (OrganismBean organismBean : psm.getOrganisms()) {
+		for (final OrganismBean organismBean : psm.getOrganisms()) {
 			addOrganism(organismBean);
 		}
 		// add all the proteins to the psm
 		final Set<ProteinBean> proteins3 = getProteins();
-		for (ProteinBean proteinBean : proteins3) {
+		for (final ProteinBean proteinBean : proteins3) {
 			psm.addProteinToPSM(proteinBean);
 		}
 	}
@@ -150,11 +167,11 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		if (conditions2.isEmpty()) {
 			return;
 		}
-		for (ExperimentalConditionBean experimentalConditionBean : conditions2) {
+		for (final ExperimentalConditionBean experimentalConditionBean : conditions2) {
 			if (psmIdsByCondition.containsKey(experimentalConditionBean)) {
 				psmIdsByCondition.get(experimentalConditionBean).add(psmBean.getDbID());
 			} else {
-				Set<Integer> set = new HashSet<Integer>();
+				final Set<Integer> set = new HashSet<Integer>();
 				set.add(psmBean.getDbID());
 				psmIdsByCondition.put(experimentalConditionBean, set);
 			}
@@ -236,7 +253,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	}
 
 	public String getAmountString(String conditionName, String projectTag) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		// get by experimental condition name
 		Set<AmountBean> amounts = amountsByExperimentalCondition.get(conditionName);
 
@@ -244,10 +261,10 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 			// if some amounts are resulting from the combination
 			// (sum/average...)
 			// over other amounts, report only them
-			Set<AmountBean> composedAmounts = AmountBean.getComposedAmounts(amounts);
+			final Set<AmountBean> composedAmounts = AmountBean.getComposedAmounts(amounts);
 			if (!composedAmounts.isEmpty())
 				amounts = composedAmounts;
-			for (AmountBean amountBean : amounts) {
+			for (final AmountBean amountBean : amounts) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 
 					// if the resulting string is a number, try to format it:
@@ -262,7 +279,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 							if (!"".equals(sb.toString()))
 								sb.append("\n");
 							sb.append(format);
-						} catch (NumberFormatException e2) {
+						} catch (final NumberFormatException e2) {
 
 						}
 					}
@@ -297,11 +314,11 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	}
 
 	private void addtoMap(HashMap<String, Set<AmountBean>> map, AmountBean amount) {
-		String key = amount.getExperimentalCondition().getId();
+		final String key = amount.getExperimentalCondition().getId();
 		if (map.containsKey(key)) {
 			map.get(key).add(amount);
 		} else {
-			Set<AmountBean> set = new HashSet<AmountBean>();
+			final Set<AmountBean> set = new HashSet<AmountBean>();
 			set.add(amount);
 			map.put(key, set);
 		}
@@ -309,8 +326,8 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 
 	public String getProteinAccessionString() {
 		if (proteinAccessionString == null) {
-			StringBuilder sb = new StringBuilder();
-			for (AccessionBean acc : getProteinsPrimaryAccessions()) {
+			final StringBuilder sb = new StringBuilder();
+			for (final AccessionBean acc : getProteinsPrimaryAccessions()) {
 				if (!"".equals(sb.toString()))
 					sb.append(SharedConstants.SEPARATOR);
 				sb.append(acc.getAccession());
@@ -320,10 +337,10 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		return proteinAccessionString;
 	}
 
-	public void addProteinToPeptide(ProteinBean protein) {
+	public boolean addProteinToPeptide(ProteinBean protein) {
 
 		if (protein == null || proteins.contains(protein) || proteinDBIds.containsAll(protein.getDbIds())) {
-			return;
+			return false;
 		}
 		proteins.add(protein);
 		proteinDBIds.addAll(protein.getDbIds());
@@ -340,7 +357,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		// for (PSMBean psmBean : psms3) {
 		// protein.addPSMtoProtein(psmBean);
 		// }
-
+		return true;
 	}
 
 	public void setProteins(Set<ProteinBean> proteins) {
@@ -354,8 +371,8 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 
 	public String getProteinDescriptionString() {
 		if (proteinDescriptionString == null) {
-			StringBuilder sb = new StringBuilder();
-			for (ProteinBean proteinBean : proteins) {
+			final StringBuilder sb = new StringBuilder();
+			for (final ProteinBean proteinBean : proteins) {
 				if (!"".equals(sb.toString()))
 					sb.append(SharedConstants.SEPARATOR);
 				sb.append(proteinBean.getDescriptionString());
@@ -381,14 +398,14 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		if (ratiosByExperimentalcondition.containsKey(condition1.getId())) {
 			ratiosByExperimentalcondition.get(condition1.getId()).add(ratioBean);
 		} else {
-			List<RatioBean> set = new ArrayList<RatioBean>();
+			final List<RatioBean> set = new ArrayList<RatioBean>();
 			set.add(ratioBean);
 			ratiosByExperimentalcondition.put(condition1.getId(), set);
 		}
 		if (ratiosByExperimentalcondition.containsKey(condition2.getId())) {
 			ratiosByExperimentalcondition.get(condition2.getId()).add(ratioBean);
 		} else {
-			List<RatioBean> set = new ArrayList<RatioBean>();
+			final List<RatioBean> set = new ArrayList<RatioBean>();
 			set.add(ratioBean);
 			ratiosByExperimentalcondition.put(condition2.getId(), set);
 		}
@@ -462,13 +479,13 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	@Override
 	public String getRatioStringByConditions(String condition1Name, String condition2Name, String projectTag,
 			String ratioName, boolean skipInfinities, boolean formatNumber) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		final List<RatioBean> ratiosByConditions = getRatiosByConditions(condition1Name, condition2Name, projectTag,
 				ratioName, skipInfinities);
 		final List<Double> ratioValues = SharedDataUtils.getRatioValues(condition1Name, condition2Name,
 				ratiosByConditions);
-		for (Double value : ratioValues) {
+		for (final Double value : ratioValues) {
 
 			try {
 				String format = null;
@@ -480,7 +497,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 				if (!"".equals(sb.toString()))
 					sb.append(SharedConstants.SEPARATOR);
 				sb.append(format);
-			} catch (NumberFormatException e2) {
+			} catch (final NumberFormatException e2) {
 
 			}
 
@@ -498,9 +515,9 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	 */
 	public String getAmountTypeString(String conditionName, String projectTag) {
 
-		Set<AmountType> amountTypes = new HashSet<AmountType>();
+		final Set<AmountType> amountTypes = new HashSet<AmountType>();
 		final Set<AmountBean> amounts2 = getAmounts();
-		for (AmountBean amountBean : amounts2) {
+		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 
@@ -510,8 +527,8 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 			}
 		}
 
-		StringBuilder sb = new StringBuilder();
-		for (AmountType amountType : amountTypes) {
+		final StringBuilder sb = new StringBuilder();
+		for (final AmountType amountType : amountTypes) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
 			sb.append(amountType.getDescription());
@@ -523,7 +540,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	public boolean hasCombinationAmounts(String conditionName, String projectTag) {
 
 		final Set<AmountBean> amounts2 = getAmounts();
-		for (AmountBean amountBean : amounts2) {
+		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 					if (amountBean.isComposed())
@@ -537,10 +554,10 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 
 	@Override
 	public List<AmountBean> getCombinationAmount(String conditionName, String projectTag) {
-		List<AmountBean> ret = new ArrayList<AmountBean>();
+		final List<AmountBean> ret = new ArrayList<AmountBean>();
 
 		final Set<AmountBean> amounts2 = getAmounts();
-		for (AmountBean amountBean : amounts2) {
+		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 					if (amountBean.isComposed())
@@ -554,9 +571,9 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 
 	@Override
 	public List<AmountBean> getNonCombinationAmounts(String conditionName, String projectTag) {
-		List<AmountBean> ret = new ArrayList<AmountBean>();
+		final List<AmountBean> ret = new ArrayList<AmountBean>();
 		final Set<AmountBean> amounts2 = getAmounts();
-		for (AmountBean amountBean : amounts2) {
+		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 					if (!amountBean.isComposed())
@@ -576,7 +593,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		if (startingPositions.containsKey(accession)) {
 			startingPositions.get(accession).add(positions);
 		} else {
-			List<Pair<Integer, Integer>> list = new ArrayList<Pair<Integer, Integer>>();
+			final List<Pair<Integer, Integer>> list = new ArrayList<Pair<Integer, Integer>>();
 			list.add(positions);
 			startingPositions.put(accession, list);
 		}
@@ -604,14 +621,14 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 
 	public String getStartingPositionsString() {
 		final Map<String, List<Pair<Integer, Integer>>> startingPositions = getStartingPositions();
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		if (startingPositions != null) {
 			int minPosition = Integer.MAX_VALUE;
-			List<Integer> list = new ArrayList<Integer>();
-			for (List<Pair<Integer, Integer>> positions : startingPositions.values()) {
-				for (Pair<Integer, Integer> startAndEnd : positions) {
-					int position = startAndEnd.getFirstElement();
+			final List<Integer> list = new ArrayList<Integer>();
+			for (final List<Pair<Integer, Integer>> positions : startingPositions.values()) {
+				for (final Pair<Integer, Integer> startAndEnd : positions) {
+					final int position = startAndEnd.getFirstElement();
 					if (!list.contains(position))
 						list.add(position);
 					if (position < minPosition)
@@ -631,14 +648,14 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	public String getExtendedStartingPositionsString() {
 		final Map<String, List<Pair<Integer, Integer>>> startingPositions = getStartingPositions();
 		final List<AccessionBean> primaryAccessions = getPrimaryAccessions();
-		StringBuilder sb = new StringBuilder();
-		for (AccessionBean accessionBean : primaryAccessions) {
+		final StringBuilder sb = new StringBuilder();
+		for (final AccessionBean accessionBean : primaryAccessions) {
 			if (startingPositions != null && startingPositions.containsKey(accessionBean.getAccession())) {
 				final List<Pair<Integer, Integer>> listTmp = startingPositions.get(accessionBean.getAccession());
 				// to avoid duplicates:
-				List<Integer> list = new ArrayList<Integer>();
-				for (Pair<Integer, Integer> startAndEnd : listTmp) {
-					int position = startAndEnd.getFirstElement();
+				final List<Integer> list = new ArrayList<Integer>();
+				for (final Pair<Integer, Integer> startAndEnd : listTmp) {
+					final int position = startAndEnd.getFirstElement();
 					if (!list.contains(position))
 						list.add(position);
 				}
@@ -673,10 +690,10 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	}
 
 	public String getOrganismsString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		final Set<OrganismBean> organisms = getOrganisms();
 		// sort them for allowing sorting in columns
-		List<OrganismBean> list = new ArrayList<OrganismBean>();
+		final List<OrganismBean> list = new ArrayList<OrganismBean>();
 		list.addAll(organisms);
 		Collections.sort(list, new Comparator<OrganismBean>() {
 
@@ -685,7 +702,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 				return o1.getId().compareTo(o2.getId());
 			}
 		});
-		for (OrganismBean organismBean : list) {
+		for (final OrganismBean organismBean : list) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
 			sb.append(organismBean.getId());
@@ -727,7 +744,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	public boolean isFromThisProject(String projectTag) {
 		if (projectTag != null) {
 			if (amounts != null) {
-				for (AmountBean amount : amounts) {
+				for (final AmountBean amount : amounts) {
 					if (amount.getExperimentalCondition() != null) {
 						if (amount.getExperimentalCondition().getProject() != null) {
 							if (amount.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
@@ -738,7 +755,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 				}
 			}
 			if (ratios != null) {
-				for (RatioBean ratio : ratios) {
+				for (final RatioBean ratio : ratios) {
 					if (ratio.getRatioDescriptorBean() != null) {
 						if (projectTag.equals(ratio.getRatioDescriptorBean().getProjectTag())) {
 							return true;
@@ -763,13 +780,13 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	@Override
 	public String getRatioScoreStringByConditions(String condition1Name, String condition2Name, String projectTag,
 			String ratioName, String ratioScoreName, boolean skipInfinities, boolean formatNumber) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		final List<ScoreBean> ratioScores = getRatioScoresByConditions(condition1Name, condition2Name, projectTag,
 				ratioName, ratioScoreName);
-		for (ScoreBean ratioScore : ratioScores) {
+		for (final ScoreBean ratioScore : ratioScores) {
 			try {
-				Double value = Double.valueOf(ratioScore.getValue());
+				final Double value = Double.valueOf(ratioScore.getValue());
 				if (value.toString().endsWith(".0")) {
 					if (!"".equals(sb.toString()))
 						sb.append(SharedConstants.SEPARATOR);
@@ -785,11 +802,11 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 						if (!"".equals(sb.toString()))
 							sb.append(SharedConstants.SEPARATOR);
 						sb.append(format);
-					} catch (NumberFormatException e2) {
+					} catch (final NumberFormatException e2) {
 
 					}
 				}
-			} catch (NumberFormatException e) {
+			} catch (final NumberFormatException e) {
 				// add the string as it is
 			}
 
@@ -860,27 +877,11 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	}
 
 	/**
-	 * @return the psmIdsbyMSRun
-	 */
-	@Override
-	public Map<MSRunBean, Set<Integer>> getPSMDBIdsbyMSRun() {
-		return psmIdsbyMSRun;
-	}
-
-	/**
 	 * @param psmIdsByCondition
 	 *            the psmIdsByCondition to set
 	 */
 	public void setPsmIdsByCondition(Map<ExperimentalConditionBean, Set<Integer>> psmIdsByCondition) {
 		this.psmIdsByCondition = psmIdsByCondition;
-	}
-
-	/**
-	 * @param psmIdsbyMSRun
-	 *            the psmIdsbyMSRun to set
-	 */
-	public void setPsmIdsbyMSRun(Map<MSRunBean, Set<Integer>> psmIdsbyMSRun) {
-		this.psmIdsbyMSRun = psmIdsbyMSRun;
 	}
 
 	/**
@@ -949,6 +950,10 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 			lightVersion.setRawSequences(getRawSequences());
 			lightVersion.setRelation(getRelation());
 			lightVersion.ratioDistributions = getRatioDistributions();
+
+			lightVersion.setPtms(getPtms());
+			lightVersion.setPtmScoreString(getPTMScoreString());
+			lightVersion.setPtmString(getPTMString());
 		}
 		return lightVersion;
 	}
@@ -1032,11 +1037,11 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 
 	@Override
 	public int getNumPSMsByCondition(String projectTag, String conditionName) {
-		if (!numPSMsByCondition.isEmpty()) {
-			for (ExperimentalConditionBean conditionBean : numPSMsByCondition.keySet()) {
+		if (!getNumPSMsByCondition().isEmpty()) {
+			for (final ExperimentalConditionBean conditionBean : getNumPSMsByCondition().keySet()) {
 				if (conditionBean.getId().equals(conditionName)) {
 					if (conditionBean.getProject().getTag().equals(projectTag)) {
-						return numPSMsByCondition.get(conditionBean);
+						return getNumPSMsByCondition().get(conditionBean);
 					}
 				}
 			}
@@ -1048,10 +1053,86 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	public Map<ExperimentalConditionBean, Integer> getNumPSMsByCondition() {
 		if (numPSMsByCondition == null) {
 			numPSMsByCondition = new HashMap<ExperimentalConditionBean, Integer>();
-			for (ExperimentalConditionBean conditionBean : psmIdsByCondition.keySet()) {
+			for (final ExperimentalConditionBean conditionBean : psmIdsByCondition.keySet()) {
 				numPSMsByCondition.put(conditionBean, psmIdsByCondition.get(conditionBean).size());
 			}
 		}
 		return numPSMsByCondition;
+	}
+
+	public List<PTMBean> getPtms() {
+		return ptms;
+	}
+
+	/**
+	 * @param ptms
+	 *            the ptms to set
+	 */
+	public void setPtms(List<PTMBean> ptms) {
+		this.ptms = ptms;
+	}
+
+	public void addPtm(PTMBean ptm) {
+		if (ptms == null)
+			ptms = new ArrayList<PTMBean>();
+		// look the positions in which a ptm is already there, just in case, to
+		// avoid duplicates
+		final Set<Integer> positions = new HashSet<Integer>();
+		for (final PTMBean ptmBean : ptms) {
+			for (final PTMSiteBean ptmSite : ptmBean.getPtmSites()) {
+				positions.add(ptmSite.getPosition());
+			}
+		}
+		if (!ptms.contains(ptm)) {
+			final List<PTMSiteBean> ptmSites = ptm.getPtmSites();
+			final Iterator<PTMSiteBean> iterator = ptmSites.iterator();
+			while (iterator.hasNext()) {
+				final PTMSiteBean ptmSite = iterator.next();
+				if (positions.contains(ptmSite.getPosition())) {
+					iterator.remove();
+				}
+			}
+			if (!ptm.getPtmSites().isEmpty()) {
+				ptms.add(ptm);
+			}
+		}
+	}
+
+	/**
+	 * @param ptmString
+	 *            the ptmString to set
+	 */
+	public void setPtmString(String ptmString) {
+		this.ptmString = ptmString;
+	}
+
+	/**
+	 * @param ptmScoreString
+	 *            the ptmScoreString to set
+	 */
+	public void setPtmScoreString(String ptmScoreString) {
+		this.ptmScoreString = ptmScoreString;
+	}
+
+	public String getPTMString() {
+		if (ptmString == null) {
+			ptmString = SharedDataUtils.getPTMString(ptms);
+		}
+		return ptmString;
+	}
+
+	public String getPTMScoreString() {
+		if (ptmScoreString == null) {
+
+			ptmScoreString = SharedDataUtils.getPTMScoreString(ptms);
+		}
+		return ptmScoreString;
+	}
+
+	public String getPTMScoreString(String ptmScoreName) {
+		if (ptmScoreString == null) {
+			ptmScoreString = SharedDataUtils.getPTMScoreString(ptmScoreName, ptms);
+		}
+		return ptmScoreString;
 	}
 }

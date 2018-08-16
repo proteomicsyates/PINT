@@ -29,16 +29,17 @@ public class PintConfigurationPropertiesIO {
 	private static final String PRELOAD_PUBLIC_PROJECTS = "preLoadPublicProjects";
 	private static final String PROJECTS_TO_PRELOAD = "projectsToPreLoad";
 	private static final String PROJECTS_TO_NOT_PRELOAD = "projectsToNotPreLoad";
+	private static final String PSMCENTRIC = "psmCentric";
 
 	public static PintConfigurationProperties readProperties(File setupPropertiesFile) {
 		if (setupPropertiesFile == null || !setupPropertiesFile.exists()) {
 			return new PintConfigurationProperties();
 		}
 		try {
-			InputStream inputStream = new FileInputStream(setupPropertiesFile);
-			PintConfigurationProperties prop = readProperties(inputStream);
+			final InputStream inputStream = new FileInputStream(setupPropertiesFile);
+			final PintConfigurationProperties prop = readProperties(inputStream);
 			return prop;
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}
@@ -50,10 +51,10 @@ public class PintConfigurationPropertiesIO {
 			throw new IllegalArgumentException("input stream is null");
 		}
 		try {
-			Properties prop = new Properties();
+			final Properties prop = new Properties();
 			prop.load(inputStream);
 			return readPintParametersFromProperties(prop);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}
@@ -67,7 +68,7 @@ public class PintConfigurationPropertiesIO {
 		if (omimKey != null && !"".equals(omimKey)) {
 			try {
 				checkOMIMKey(omimKey);
-			} catch (OmimException e) {
+			} catch (final OmimException e) {
 				throw new IllegalArgumentException(e);
 			}
 		}
@@ -119,13 +120,17 @@ public class PintConfigurationPropertiesIO {
 						.append("\n");
 			}
 
-		} catch (IOException e) {
+			if (properties.getPsmCentric() != null) {
+				fw.append(PSMCENTRIC).append("=").append(properties.getPsmCentric().toString()).append("\n");
+			}
+
+		} catch (final IOException e) {
 			e.printStackTrace();
 		} finally {
 			if (fw != null) {
 				try {
 					fw.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -133,7 +138,7 @@ public class PintConfigurationPropertiesIO {
 	}
 
 	private static PintConfigurationProperties readPintParametersFromProperties(Properties prop) {
-		PintConfigurationProperties ret = new PintConfigurationProperties();
+		final PintConfigurationProperties ret = new PintConfigurationProperties();
 
 		String property = prop.getProperty(OMIM_PROPERTY);
 		if (property != null) {
@@ -177,6 +182,11 @@ public class PintConfigurationPropertiesIO {
 			property = property.trim();
 		}
 		ret.setProjectsToPreLoad(property);
+		property = prop.getProperty(PSMCENTRIC);
+		if (property != null) {
+			property = property.trim();
+		}
+		ret.setPsmCentric(Boolean.valueOf(property));
 		return ret;
 	}
 
@@ -185,7 +195,7 @@ public class PintConfigurationPropertiesIO {
 			throw new IllegalArgumentException("PINT database connection password cannot be empy");
 		}
 		final PintConfigurationProperties properties = readProperties(setupPropertiesFile);
-		String decryptedPassword = CryptoUtil.decrypt(dbPassword);
+		final String decryptedPassword = CryptoUtil.decrypt(dbPassword);
 		properties.setDb_password(decryptedPassword);
 		writeProperties(properties, setupPropertiesFile);
 		testDatabaseConnection(setupPropertiesFile);
@@ -202,7 +212,7 @@ public class PintConfigurationPropertiesIO {
 	}
 
 	private static void testDatabaseConnection(File pintPropertiesFile) {
-		PintConfigurationProperties properties = PintConfigurationPropertiesIO.readProperties(pintPropertiesFile);
+		final PintConfigurationProperties properties = PintConfigurationPropertiesIO.readProperties(pintPropertiesFile);
 
 		ContextualSessionHandler.clearSessionFactory();
 		ContextualSessionHandler.getSessionFactory(properties.getDb_username(), properties.getDb_password(),
@@ -236,12 +246,12 @@ public class PintConfigurationPropertiesIO {
 	private static void checkCVList(String projectsToPreload, File setupPropertiesFile) {
 		if (projectsToPreload != null && !"".equals(projectsToPreload)) {
 			if (projectsToPreload.contains(",")) {
-				String[] split = projectsToPreload.split(",");
-				for (String projectTag : split) {
+				final String[] split = projectsToPreload.split(",");
+				for (final String projectTag : split) {
 					checkProjectExistence(projectTag.trim(), setupPropertiesFile);
 				}
 			} else {
-				String projectTag = projectsToPreload.trim();
+				final String projectTag = projectsToPreload.trim();
 				checkProjectExistence(projectTag, setupPropertiesFile);
 			}
 		}
@@ -251,9 +261,9 @@ public class PintConfigurationPropertiesIO {
 		testDatabaseConnection(setupPropertiesFile);
 		ContextualSessionHandler.openSession();
 		ContextualSessionHandler.beginGoodTransaction();
-		Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans();
-		StringBuilder sb = new StringBuilder();
-		for (ProjectBean projectBean : projectBeans) {
+		final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans();
+		final StringBuilder sb = new StringBuilder();
+		for (final ProjectBean projectBean : projectBeans) {
 			if (!"".equals(sb.toString())) {
 				sb.append(", ");
 			}
@@ -276,6 +286,12 @@ public class PintConfigurationPropertiesIO {
 	public static void writePreLoadPublicProjects(boolean preLoadPublicProjects, File setupPropertiesFile) {
 		final PintConfigurationProperties properties = readProperties(setupPropertiesFile);
 		properties.setPreLoadPublicProjects(preLoadPublicProjects);
+		writeProperties(properties, setupPropertiesFile);
+	}
+
+	public static void writePSMCentric(boolean psmCentric, File setupPropertiesFile) {
+		final PintConfigurationProperties properties = readProperties(setupPropertiesFile);
+		properties.setPsmCentric(psmCentric);
 		writeProperties(properties, setupPropertiesFile);
 	}
 

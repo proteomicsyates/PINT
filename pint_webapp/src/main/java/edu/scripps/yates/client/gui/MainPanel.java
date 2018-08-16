@@ -39,36 +39,36 @@ public class MainPanel extends InitializableComposite {
 
 	public MainPanel(Pint pintEntryPoint) {
 		this.pintEntryPoint = pintEntryPoint;
-		FlowPanel mainPanel = new FlowPanel();
+		final FlowPanel mainPanel = new FlowPanel();
 		mainPanel.setStyleName("MainPanel");
 		initWidget(mainPanel);
 
-		HeaderPanel headerVerticalPanel = new HeaderPanel();
+		final HeaderPanel headerVerticalPanel = new HeaderPanel();
 		mainPanel.add(headerVerticalPanel);
 
-		NavigationHorizontalPanel navigationHorizontalPanel = new NavigationHorizontalPanel(TargetHistory.HOME);
+		final NavigationHorizontalPanel navigationHorizontalPanel = new NavigationHorizontalPanel(TargetHistory.HOME);
 		mainPanel.add(navigationHorizontalPanel);
 
-		FlowPanel contentVerticalPanel = new FlowPanel();
+		final FlowPanel contentVerticalPanel = new FlowPanel();
 		contentVerticalPanel.setStyleName("verticalComponent");
 		mainPanel.add(contentVerticalPanel);
 		contentVerticalPanel.setSize("100%", "100%");
 
-		FlowPanel horizontalPanel = new FlowPanel();
+		final FlowPanel horizontalPanel = new FlowPanel();
 		horizontalPanel.setStyleName("verticalComponent");
 		contentVerticalPanel.add(horizontalPanel);
 		horizontalPanel.setWidth("100%");
 
-		VerticalPanel pintPresentationVerticalPanel = new VerticalPanel();
+		final VerticalPanel pintPresentationVerticalPanel = new VerticalPanel();
 		pintPresentationVerticalPanel.setStyleName("mainPagePintExplanation");
 		pintPresentationVerticalPanel.setBorderWidth(0);
 		horizontalPanel.add(pintPresentationVerticalPanel);
 
-		InlineHTML nlnhtmlNewInlinehtml_1 = new InlineHTML("PINT:");
+		final InlineHTML nlnhtmlNewInlinehtml_1 = new InlineHTML("PINT:");
 		nlnhtmlNewInlinehtml_1.setStyleName("title1");
 		pintPresentationVerticalPanel.add(nlnhtmlNewInlinehtml_1);
 
-		InlineHTML nlnhtmlNewInlinehtml_2 = new InlineHTML(
+		final InlineHTML nlnhtmlNewInlinehtml_2 = new InlineHTML(
 				"<br>\r\n<b>PINT</b>, the <b>Proteomics INTegrator</b>, is an online experiment repository for final results coming from different qualitative and/or quantitative proteomics assays.\r\n<br>"
 						+ "<br>\r\nPINT is a new comprehensive system to store, visualize, and analyze data for proteomics results obtained under different experimental conditions.<br>"
 						+ "<ul><li>PINT provides an extremely <b>flexible and powerful query interface</b> that allows data filtering based on numerous proteomics features such as confidence values, abundance levels or ratios, dataset overlaps, etc...</li>"
@@ -78,24 +78,24 @@ public class MainPanel extends InitializableComposite {
 		nlnhtmlNewInlinehtml_2.setStyleName("mainPagePintTitleExplanation");
 		pintPresentationVerticalPanel.add(nlnhtmlNewInlinehtml_2);
 
-		FlowPanel sectionsHorizontalPanel = new FlowPanel();
+		final FlowPanel sectionsHorizontalPanel = new FlowPanel();
 		sectionsHorizontalPanel.setStyleName("verticalComponent");
 		contentVerticalPanel.add(sectionsHorizontalPanel);
 		sectionsHorizontalPanel.setSize("100%", "100%");
 
-		VerticalPanel submitVerticalPanel = new VerticalPanel();
+		final VerticalPanel submitVerticalPanel = new VerticalPanel();
 
-		VerticalPanel dataStatsVerticalPanel = new VerticalPanel();
+		final VerticalPanel dataStatsVerticalPanel = new VerticalPanel();
 		sectionsHorizontalPanel.add(dataStatsVerticalPanel);
 		dataStatsVerticalPanel.setWidth("");
 		dataStatsVerticalPanel.setStyleName("mainPageDataStatistics");
 		dataStatsVerticalPanel.setBorderWidth(0);
 
-		InlineHTML nlnhtmlNewInlinehtml = new InlineHTML("PINT database statistics:");
+		final InlineHTML nlnhtmlNewInlinehtml = new InlineHTML("PINT database statistics:");
 		nlnhtmlNewInlinehtml.setStyleName("title2");
 		nlnhtmlNewInlinehtml.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		dataStatsVerticalPanel.add(nlnhtmlNewInlinehtml);
-		InlineHTML text = new InlineHTML("Currently, this instance of PINT contains:");
+		final InlineHTML text = new InlineHTML("Currently, this instance of PINT contains:");
 		text.setStyleName("mainPageBoxExplanation");
 		dataStatsVerticalPanel.add(text);
 		listItemPanel = new HtmlList(ListType.UNORDERED);
@@ -116,45 +116,45 @@ public class MainPanel extends InitializableComposite {
 		submitVerticalPanel.setStyleName("mainPageBoxes");
 		submitVerticalPanel.setSpacing(10);
 
-		InlineHTML nlnhtmlNewInlinehtml_3 = new InlineHTML("Submit:");
+		final InlineHTML nlnhtmlNewInlinehtml_3 = new InlineHTML("Submit:");
 		nlnhtmlNewInlinehtml_3.setStyleName("title2");
 		submitVerticalPanel.add(nlnhtmlNewInlinehtml_3);
 
-		InlineHTML nlnhtmlSubmitExplanation = new InlineHTML(
+		final InlineHTML nlnhtmlSubmitExplanation = new InlineHTML(
 				"Click here to create a new project and upload data into it. The tool will guide you in order to capture your data in an appropiate way.");
 		nlnhtmlSubmitExplanation.setStyleName("mainPageBoxExplanation");
 		submitVerticalPanel.add(nlnhtmlSubmitExplanation);
 
-		VerticalPanel accessDataVerticalPanel = new VerticalPanel();
+		final VerticalPanel accessDataVerticalPanel = new VerticalPanel();
 		focusAccessDataPanel = new FocusPanel(accessDataVerticalPanel);
 		sectionsHorizontalPanel.add(focusAccessDataPanel);
 		accessDataVerticalPanel.setSpacing(10);
 		accessDataVerticalPanel.setBorderWidth(0);
 		accessDataVerticalPanel.setStyleName("mainPageBoxes");
 
-		InlineHTML nlnhtmlAccessData = new InlineHTML("Browse data:");
+		final InlineHTML nlnhtmlAccessData = new InlineHTML("Browse data:");
 		nlnhtmlAccessData.setStyleName("title2");
 		accessDataVerticalPanel.add(nlnhtmlAccessData);
 
-		InlineHTML nlnhtmlAccessDataExplanation = new InlineHTML(
+		final InlineHTML nlnhtmlAccessDataExplanation = new InlineHTML(
 				"Click here to see the list of the stored projects in PINT. You will be able to select the ones in which you are interested.");
 		nlnhtmlAccessDataExplanation.setStyleName("mainPageBoxExplanation");
 		accessDataVerticalPanel.add(nlnhtmlAccessDataExplanation);
 
 		////
 
-		VerticalPanel configurationVerticalPanel = new VerticalPanel();
+		final VerticalPanel configurationVerticalPanel = new VerticalPanel();
 		focusConfigurationPanel = new FocusPanel(configurationVerticalPanel);
 		sectionsHorizontalPanel.add(focusConfigurationPanel);
 		configurationVerticalPanel.setSpacing(10);
 		configurationVerticalPanel.setBorderWidth(0);
 		configurationVerticalPanel.setStyleName("mainPageBoxes");
 
-		InlineHTML nlnhtmlConfiguration = new InlineHTML("Configuration:");
+		final InlineHTML nlnhtmlConfiguration = new InlineHTML("Configuration:");
 		nlnhtmlConfiguration.setStyleName("title2");
 		configurationVerticalPanel.add(nlnhtmlConfiguration);
 
-		InlineHTML nlnhtmlConfigurationExplanation = new InlineHTML(
+		final InlineHTML nlnhtmlConfigurationExplanation = new InlineHTML(
 				"Click here to go to the basic configuration of PINT (master password-protected).\nYou can edit the master password, the database connection parameters, the location of the internal files in the server and the projects you want to pre-load in cache for a faster accession.");
 		nlnhtmlConfigurationExplanation.setStyleName("mainPageBoxExplanation");
 		configurationVerticalPanel.add(nlnhtmlConfigurationExplanation);
@@ -194,7 +194,7 @@ public class MainPanel extends InitializableComposite {
 
 	protected void checkLoginBeforeStartconfiguration() {
 		// check first the login
-		PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
+		final PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
 				"Enter PINT master password to access to PINT basic configuration:");
 		loginPanel.addCloseHandler(new CloseHandler<PopupPanel>() {
 
@@ -203,7 +203,7 @@ public class MainPanel extends InitializableComposite {
 				final PopupPanel popup = event.getTarget();
 				final Widget widget = popup.getWidget();
 				if (widget instanceof PopUpPanelPasswordChecker) {
-					PopUpPanelPasswordChecker loginPanel = (PopUpPanelPasswordChecker) widget;
+					final PopUpPanelPasswordChecker loginPanel = (PopUpPanelPasswordChecker) widget;
 					if (loginPanel.isLoginOK()) {
 						pintEntryPoint.startupConfiguration(true);
 					}
@@ -233,7 +233,7 @@ public class MainPanel extends InitializableComposite {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						listItemPanel.setTextAndTitle("error", caught.getMessage(), 0);
+						listItemPanel.setTextAndTitle("- (?)", caught.getMessage(), 0);
 					}
 				});
 				proteinRetrievingService.getNumConditions(new AsyncCallback<Integer>() {
@@ -246,7 +246,7 @@ public class MainPanel extends InitializableComposite {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						listItemPanel.setTextAndTitle("error", caught.getMessage(), 1);
+						listItemPanel.setTextAndTitle("- (?)", caught.getMessage(), 1);
 					}
 				});
 				proteinRetrievingService.getNumMSRuns(new AsyncCallback<Integer>() {
@@ -258,7 +258,7 @@ public class MainPanel extends InitializableComposite {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						listItemPanel.setTextAndTitle("error", caught.getMessage(), 2);
+						listItemPanel.setTextAndTitle("- (?)", caught.getMessage(), 2);
 					}
 				});
 				proteinRetrievingService.getNumDifferentProteins(new AsyncCallback<Integer>() {
@@ -270,7 +270,7 @@ public class MainPanel extends InitializableComposite {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						listItemPanel.setTextAndTitle("error", caught.getMessage(), 3);
+						listItemPanel.setTextAndTitle("- (?)", caught.getMessage(), 3);
 					}
 				});
 				proteinRetrievingService.getNumGenes(new AsyncCallback<Integer>() {
@@ -282,7 +282,7 @@ public class MainPanel extends InitializableComposite {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						listItemPanel.setTextAndTitle("error", caught.getMessage(), 4);
+						listItemPanel.setTextAndTitle("- (?)", caught.getMessage(), 4);
 					}
 				});
 				proteinRetrievingService.getNumDifferentPeptides(new AsyncCallback<Integer>() {
@@ -295,7 +295,7 @@ public class MainPanel extends InitializableComposite {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						listItemPanel.setTextAndTitle("error", caught.getMessage(), 5);
+						listItemPanel.setTextAndTitle("- (?)", caught.getMessage(), 5);
 					}
 				});
 				proteinRetrievingService.getNumPSMs(new AsyncCallback<Integer>() {
@@ -307,7 +307,7 @@ public class MainPanel extends InitializableComposite {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						listItemPanel.setTextAndTitle("error", caught.getMessage(), 6);
+						listItemPanel.setTextAndTitle("- (?)", caught.getMessage(), 6);
 					}
 				});
 			}

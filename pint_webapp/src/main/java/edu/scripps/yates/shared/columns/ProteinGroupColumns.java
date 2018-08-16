@@ -3,6 +3,7 @@ package edu.scripps.yates.shared.columns;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.scripps.yates.client.Pint;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
@@ -25,7 +26,7 @@ public class ProteinGroupColumns implements ColumnProvider<ProteinGroupBean> {
 	@Override
 	public ColumnWithVisibility getColumn(ColumnName columnName) {
 		final List<ColumnWithVisibility> columns2 = getColumns();
-		for (ColumnWithVisibility columnWithVisibility : columns2) {
+		for (final ColumnWithVisibility columnWithVisibility : columns2) {
 			if (columnWithVisibility.getColumn() == columnName)
 				return columnWithVisibility;
 		}
@@ -62,10 +63,12 @@ public class ProteinGroupColumns implements ColumnProvider<ProteinGroupBean> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.SEQUENCE_COUNT, true);
 			columns.add(col);
-			col = new ColumnWithVisibility(ColumnName.SPECTRUM_COUNT, true);
-			columns.add(col);
-			col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
-			columns.add(col);
+			if (Pint.psmCentric) {
+				col = new ColumnWithVisibility(ColumnName.SPECTRUM_COUNT, true);
+				columns.add(col);
+				col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
+				columns.add(col);
+			}
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_AMOUNT, false);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_RATIO, false);

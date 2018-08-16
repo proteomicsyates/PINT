@@ -6,11 +6,12 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Threshold;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProteinThresholds;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
@@ -32,7 +33,7 @@ public class QueryFromThresholdCommand extends AbstractQuery {
 		final String[] split = MyCommandTokenizer.splitCommand(commandReference.getCommandValue());
 		if (split.length == 2) {
 			thresholdName = split[0].trim();
-			String passString = split[1].trim();
+			final String passString = split[1].trim();
 
 			// all MUST be not null
 			if ("".equals(thresholdName))
@@ -60,7 +61,24 @@ public class QueryFromThresholdCommand extends AbstractQuery {
 	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
 		final Set<ProteinThreshold> proteinThresholds = link.getQueriableProtein().getProteinThresholds();
 
-		for (ProteinThreshold proteinThreshold : proteinThresholds) {
+		for (final ProteinThreshold proteinThreshold : proteinThresholds) {
+			final Threshold threshold = proteinThreshold.getThreshold();
+			if (threshold != null) {
+				if (thresholdName.equalsIgnoreCase(threshold.getName())) {
+					if (Boolean.compare(pass, proteinThreshold.isPassThreshold()) == 0) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+		final Set<ProteinThreshold> proteinThresholds = link.getQueriableProtein().getProteinThresholds();
+
+		for (final ProteinThreshold proteinThreshold : proteinThresholds) {
 			final Threshold threshold = proteinThreshold.getThreshold();
 			if (threshold != null) {
 				if (thresholdName.equalsIgnoreCase(threshold.getName())) {
@@ -79,7 +97,7 @@ public class QueryFromThresholdCommand extends AbstractQuery {
 	}
 
 	@Override
-	public ProteinProviderFromDB initProtenProvider() {
+	public DataProviderFromDB initProtenProvider() {
 		return new ProteinProviderFromProteinThresholds(thresholdName, pass);
 	}
 

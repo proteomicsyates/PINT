@@ -1,7 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,9 +18,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.model.enums.AmountType;
-import edu.scripps.yates.utilities.model.factories.OrganismEx;
 import edu.scripps.yates.utilities.model.factories.PeptideEx;
-import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.Gene;
@@ -61,7 +58,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		if (map.containsKey(protein.hashCode()))
 			return map.get(protein.hashCode());
 
-		Protein ret = new Protein();
+		final Protein ret = new Protein();
 		map.put(protein.hashCode(), ret);
 
 		ret.setAcc(protein.getAccession());
@@ -76,34 +73,40 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 			ret.setMw(getProteinMWFromUniprot(protein));
 		ret.setPi(protein.getPi());
 
-		ret.getProteinAccessions().add(new ProteinAccessionAdapter(protein.getPrimaryAccession(), true).adapt());
+		// ret.getProteinAccessions().add(new
+		// ProteinAccessionAdapter(protein.getPrimaryAccession(),
+		// true).adapt());
 
-		final List<Accession> accessions = protein.getSecondaryAccessions();
-		if (accessions != null) {
-			for (Accession accession : accessions) {
-				// not adapt the same accession as the primary
-				if (accession.getAccession().equals(protein.getPrimaryAccession().getAccession())) {
-					ret.getProteinAccessions().add(new ProteinAccessionAdapter(accession, false).adapt());
-				}
-			}
-		}
+		// final List<Accession> accessions = protein.getSecondaryAccessions();
+		// if (accessions != null) {
+		// for (Accession accession : accessions) {
+		// // not adapt the same accession as the primary
+		// if
+		// (accession.getAccession().equals(protein.getPrimaryAccession().getAccession()))
+		// {
+		// ret.getProteinAccessions().add(new ProteinAccessionAdapter(accession,
+		// false).adapt());
+		// }
+		// }
+		// }
 		final ProteinAccession primaryAccession = PersistenceUtils.getPrimaryAccession(ret);
 		if (primaryAccession == null)
 			log.error("The protein have to have a primary acc");
 
-		Set<Gene> genes = getGenesFromUniprot(protein);
-		if (genes == null) {
-			genes = protein.getGenes();
-		}
-		for (Gene gene : genes) {
-			final edu.scripps.yates.proteindb.persistence.mysql.Gene hibGene = new GeneAdapter(gene).adapt();
-			ret.getGenes().add(hibGene);
-		}
+		// Set<Gene> genes = getGenesFromUniprot(protein);
+		// if (genes == null) {
+		// genes = protein.getGenes();
+		// }
+		// for (Gene gene : genes) {
+		// final edu.scripps.yates.proteindb.persistence.mysql.Gene hibGene =
+		// new GeneAdapter(gene).adapt();
+		// ret.getGenes().add(hibGene);
+		// }
 
 		// thresholds
 		final Set<Threshold> thresholds = protein.getThresholds();
 		if (thresholds != null) {
-			for (Threshold threshold : thresholds) {
+			for (final Threshold threshold : thresholds) {
 				final ProteinThreshold hibAppliedThreshold = new ProteinThresholdAdapter(threshold, ret).adapt();
 				ret.getProteinThresholds().add(hibAppliedThreshold);
 			}
@@ -111,7 +114,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		// protein annotations
 		final Set<ProteinAnnotation> proteinAnnotations = protein.getAnnotations();
 		if (proteinAnnotations != null) {
-			for (ProteinAnnotation proteinAnnotation : proteinAnnotations) {
+			for (final ProteinAnnotation proteinAnnotation : proteinAnnotations) {
 				final edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation hibProteinAnnotation = new ProteinAnnotationAdapter(
 						proteinAnnotation, ret).adapt();
 				ret.getProteinAnnotations().add(hibProteinAnnotation);
@@ -120,7 +123,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		// protein ratios
 		final Set<Ratio> proteinRatios = protein.getRatios();
 		if (proteinRatios != null) {
-			for (Ratio proteinRatioModel : proteinRatios) {
+			for (final Ratio proteinRatioModel : proteinRatios) {
 				if (!Double.isNaN(proteinRatioModel.getValue())) {
 					final ProteinRatioValue hibProteinRatio = new ProteinRatioValueAdapter(proteinRatioModel, ret,
 							hibProject).adapt();
@@ -132,7 +135,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		boolean hasSPCAmount = false;
 		final Set<Amount> amounts = protein.getAmounts();
 		if (amounts != null) {
-			for (Amount amount : amounts) {
+			for (final Amount amount : amounts) {
 				if (amount.getCondition() == null) {
 					throw new IllegalArgumentException("Error. An amount with no condition stated is found");
 				}
@@ -167,7 +170,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		// scores
 		final Set<Score> scores = protein.getScores();
 		if (scores != null) {
-			for (Score score : scores) {
+			for (final Score score : scores) {
 				ret.getProteinScores().add(new ProteinScoreAdapter(score, ret).adapt());
 			}
 		}
@@ -178,17 +181,17 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		if (organism == null) {
 			organism = protein.getOrganism();
 		}
-		if (organism != null) {
-			ret.setOrganism(new OrganismAdapter(organism).adapt());
-		} else {
-			final OrganismEx organism2 = new OrganismEx("0000");
-			organism2.setName("Unknown");
-			ret.setOrganism(new OrganismAdapter(organism2).adapt());
-		}
+		// if (organism != null) {
+		// ret.setOrganism(new OrganismAdapter(organism).adapt());
+		// } else {
+		// final OrganismEx organism2 = new OrganismEx("0000");
+		// organism2.setName("Unknown");
+		// ret.setOrganism(new OrganismAdapter(organism2).adapt());
+		// }
 		// conditions
 		final Set<Condition> conditions = protein.getConditions();
 		if (conditions != null) {
-			for (Condition condition : conditions) {
+			for (final Condition condition : conditions) {
 				ret.getConditions().add(new ConditionAdapter(condition, hibProject).adapt());
 
 			}
@@ -201,7 +204,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		// PSMS
 		final Set<PSM> psms2 = protein.getPSMs();
 		if (psms2 != null) {
-			for (PSM psm : psms2) {
+			for (final PSM psm : psms2) {
 				final Psm hibPsm = new PSMAdapter(psm, hibProject).adapt();
 				ret.getPsms().add(hibPsm);
 				hibPsm.getProteins().add(ret);
@@ -211,7 +214,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		// peptides
 		final Set<Peptide> peptides = protein.getPeptides();
 		if (peptides != null) {
-			for (Peptide peptide : peptides) {
+			for (final Peptide peptide : peptides) {
 				final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(peptide,
 						hibProject).adapt();
 				ret.getPeptides().add(hibPeptide);
@@ -220,11 +223,11 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		} else {
 			// if there is not peptides, try to construct the peptides from
 			// PSMs and Proteins
-			Set<PSM> psms = protein.getPSMs();
+			final Set<PSM> psms = protein.getPSMs();
 			if (psms != null) {
-				Map<String, Set<PSM>> psmMapBySequence = ModelUtils.getPSMMapBySequence(psms);
+				final Map<String, Set<PSM>> psmMapBySequence = ModelUtils.getPSMMapBySequence(psms);
 
-				for (String sequence : psmMapBySequence.keySet()) {
+				for (final String sequence : psmMapBySequence.keySet()) {
 					final Set<PSM> psmsWithThatSequence = psmMapBySequence.get(sequence);
 					Peptide peptide = null;
 					if (StaticProteomicsModelStorage.containsPeptide(msRun, null, sequence)) {
@@ -236,7 +239,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 					}
 					peptide.addProtein(protein);
 					// add the relationships with the psms
-					for (PSM psmWithThatSequence : psmsWithThatSequence) {
+					for (final PSM psmWithThatSequence : psmsWithThatSequence) {
 						peptide.addPSM(psmWithThatSequence);
 						psmWithThatSequence.setPeptide(peptide);
 					}
@@ -254,18 +257,18 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 	}
 
 	private Map<edu.scripps.yates.proteindb.persistence.mysql.Condition, Set<PSM>> getPSMsByCondition(Set<PSM> psMs) {
-		Map<edu.scripps.yates.proteindb.persistence.mysql.Condition, Set<PSM>> ret = new THashMap<edu.scripps.yates.proteindb.persistence.mysql.Condition, Set<PSM>>();
+		final Map<edu.scripps.yates.proteindb.persistence.mysql.Condition, Set<PSM>> ret = new THashMap<edu.scripps.yates.proteindb.persistence.mysql.Condition, Set<PSM>>();
 		if (psMs != null) {
-			for (PSM psm : psMs) {
+			for (final PSM psm : psMs) {
 				final Set<Condition> conditions = psm.getConditions();
 				if (conditions != null) {
-					for (Condition condition : conditions) {
+					for (final Condition condition : conditions) {
 						final edu.scripps.yates.proteindb.persistence.mysql.Condition hibCondition = new ConditionAdapter(
 								condition, hibProject).adapt();
 						if (ret.containsKey(hibCondition)) {
 							ret.get(hibCondition).add(psm);
 						} else {
-							Set<PSM> psmSet = new THashSet<PSM>();
+							final Set<PSM> psmSet = new THashSet<PSM>();
 							psmSet.add(psm);
 							ret.put(hibCondition, psmSet);
 						}
@@ -279,7 +282,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 	private Organism getOrganismFromUniprot(edu.scripps.yates.utilities.proteomicsmodel.Protein protein) {
 		if (protein.getPrimaryAccession().getAccessionType() != AccessionType.UNIPROT)
 			return null;
-		UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
+		final UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
 				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 				UniprotProteinRetrievalSettings.getInstance().isUseIndex());
 		final String accession = protein.getAccession();
@@ -301,7 +304,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 	private Set<Gene> getGenesFromUniprot(edu.scripps.yates.utilities.proteomicsmodel.Protein protein) {
 		if (protein.getPrimaryAccession().getAccessionType() != AccessionType.UNIPROT)
 			return null;
-		UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
+		final UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
 				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 				UniprotProteinRetrievalSettings.getInstance().isUseIndex());
 		final String accession = protein.getAccession();
@@ -323,7 +326,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 	private Integer getProteinLengthFromUniprot(edu.scripps.yates.utilities.proteomicsmodel.Protein protein) {
 		if (protein.getPrimaryAccession().getAccessionType() != AccessionType.UNIPROT)
 			return null;
-		UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
+		final UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
 				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 				UniprotProteinRetrievalSettings.getInstance().isUseIndex());
 		final String accession = protein.getAccession();
@@ -345,7 +348,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 	private Double getProteinMWFromUniprot(edu.scripps.yates.utilities.proteomicsmodel.Protein protein) {
 		if (protein.getPrimaryAccession().getAccessionType() != AccessionType.UNIPROT)
 			return null;
-		UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
+		final UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
 				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 				UniprotProteinRetrievalSettings.getInstance().isUseIndex());
 		final String accession = protein.getAccession();

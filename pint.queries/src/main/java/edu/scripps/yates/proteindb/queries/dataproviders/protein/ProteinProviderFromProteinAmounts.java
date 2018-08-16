@@ -4,22 +4,19 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.ProteinDataProvider;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import edu.scripps.yates.utilities.model.enums.AmountType;
 import gnu.trove.map.hash.THashMap;
 
-public class ProteinProviderFromProteinAmounts implements ProteinProviderFromDB {
+public class ProteinProviderFromProteinAmounts extends ProteinDataProvider {
 
 	private final ConditionReferenceFromCommandValue condition;
 	private final String amountTypeString;
-	private Map<String, Set<Protein>> proteins;
-	private Set<String> projectTags;
 
 	public ProteinProviderFromProteinAmounts(ConditionReferenceFromCommandValue condition, AmountType amountType) {
 		this.condition = condition;
@@ -33,39 +30,28 @@ public class ProteinProviderFromProteinAmounts implements ProteinProviderFromDB 
 
 	@Override
 	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
-		if (proteins == null) {
-			proteins = new THashMap<String, Set<Protein>>();
+		if (result == null) {
+			result = new THashMap<String, Set<Protein>>();
 			int numProteins = 0;
 			final Set<ConditionProject> conditionProjects = condition.getConditionProjects();
-			for (ConditionProject conditionProject : conditionProjects) {
+			for (final ConditionProject conditionProject : conditionProjects) {
 
 				if (projectTags == null || projectTags.isEmpty() || conditionProject.getProjectTag() == null
 						|| (projectTags.contains(conditionProject.getProjectTag()))) {
 					final Map<String, Set<Protein>> proteinsWithAmount = PreparedQueries.getProteinsWithAmount(
 							conditionProject.getProjectTag(), conditionProject.getConditionName(), amountTypeString);
 					if (testMode && numProteins + proteinsWithAmount.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
-						PersistenceUtils.addToMapByPrimaryAcc(proteins, QueriesUtil.getProteinSubList(
-								proteinsWithAmount, QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
-						return proteins;
+						PersistenceUtils.addToMapByPrimaryAcc(result, QueriesUtil.getProteinSubList(proteinsWithAmount,
+								QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
+						return result;
 					} else {
-						PersistenceUtils.addToMapByPrimaryAcc(proteins, proteinsWithAmount);
+						PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithAmount);
 					}
 					numProteins += proteinsWithAmount.size();
 				}
 			}
 		}
-		return proteins;
+		return result;
 	}
 
-	@Override
-	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
-		return PersistenceUtils.getPsmsFromProteins(getProteinMap(testMode));
-	}
-
-	@Override
-	public void setProjectTags(Set<String> projectTags) {
-		this.projectTags = projectTags;
-		proteins = null;
-
-	}
 }

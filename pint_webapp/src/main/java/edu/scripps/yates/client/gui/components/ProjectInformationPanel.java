@@ -52,15 +52,15 @@ public class ProjectInformationPanel extends Composite {
 	 * @param testMode
 	 */
 	public ProjectInformationPanel(QueryPanel queryPanel, boolean testMode) {
-		FlowPanel mainPanel = new FlowPanel();
+		final FlowPanel mainPanel = new FlowPanel();
 		initWidget(mainPanel);
 		setStyleName("ProjectInformationPanel");
-		DockPanel dockPanel = new DockPanel();
+		final DockPanel dockPanel = new DockPanel();
 		mainPanel.add(dockPanel);
 
 		dockPanel.setSize("100%", "100%");
 
-		CaptionPanel captionPanelProjects = new CaptionPanel("Projects loaded");
+		final CaptionPanel captionPanelProjects = new CaptionPanel("Projects loaded");
 		captionPanelProjects.setStyleName("ProjectLoadedPanel");
 		flexTableInWest = new FlexTable();
 		flexTableInWest.setStyleName("ProjectInformationPanelLeft");
@@ -82,8 +82,8 @@ public class ProjectInformationPanel extends Composite {
 		if (!defaultViewsByProjectBean.containsKey(projectBean)) {
 			defaultViewsByProjectBean.put(projectBean, defaultView);
 			// small rounded panel with the name of the project
-			FlowPanel panel = new FlowPanel();
-			Label label = new Label(projectBean.getTag());
+			final FlowPanel panel = new FlowPanel();
+			final Label label = new Label(projectBean.getTag());
 			label.setWordWrap(false);
 			panel.add(label);
 			label.setWidth("100%");
@@ -102,7 +102,7 @@ public class ProjectInformationPanel extends Composite {
 	}
 
 	private MouseOutHandler getMouseOutHandler(final ProjectBean projectBean) {
-		MouseOutHandler mouseOutHandler = new MouseOutHandler() {
+		final MouseOutHandler mouseOutHandler = new MouseOutHandler() {
 
 			@Override
 			public void onMouseOut(MouseOutEvent event) {
@@ -111,7 +111,7 @@ public class ProjectInformationPanel extends Composite {
 					flowPanel.setStyleName("ProjectInformationProjectName");
 				}
 				if (selectedPanel != null) {
-					ProjectBean selectedProject = projectsByPanels.get(selectedPanel);
+					final ProjectBean selectedProject = projectsByPanels.get(selectedPanel);
 					loadDefaultView(selectedProject, defaultViewsByProjectBean.get(selectedProject));
 				}
 			}
@@ -120,7 +120,7 @@ public class ProjectInformationPanel extends Composite {
 	}
 
 	private ClickHandler getClickHandler(final ProjectBean projectBean) {
-		ClickHandler clickHandler = new ClickHandler() {
+		final ClickHandler clickHandler = new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
@@ -143,7 +143,7 @@ public class ProjectInformationPanel extends Composite {
 
 	private MouseOverHandler getMouseOverHandler(final ProjectBean projectBean, final DefaultView defaultView) {
 
-		MouseOverHandler mouseOverHandler = new MouseOverHandler() {
+		final MouseOverHandler mouseOverHandler = new MouseOverHandler() {
 
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
@@ -165,7 +165,7 @@ public class ProjectInformationPanel extends Composite {
 			gridInCenter.getColumnFormatter().setWidth(0, "400px");
 			gridInCenter.getColumnFormatter().setWidth(1, "400px");
 			// projectStats
-			ProjectStatsFromProjectItemPanel projectStatsItemPanel = ProjectStatsFromProjectItemPanel
+			final ProjectStatsFromProjectItemPanel projectStatsItemPanel = ProjectStatsFromProjectItemPanel
 					.getInstance(queryPanel, testMode, projectBean, defaultView);
 			gridInCenter.setWidget(0, 0, projectStatsItemPanel);
 			gridInCenter.getFlexCellFormatter().setColSpan(0, 0, 2);
@@ -179,7 +179,7 @@ public class ProjectInformationPanel extends Composite {
 					Widget widget = null;
 					try {
 						widget = gridInCenter.getWidget(1, 1);
-					} catch (IndexOutOfBoundsException e) {
+					} catch (final IndexOutOfBoundsException e) {
 					}
 					// if there is not widget yet
 
@@ -199,7 +199,7 @@ public class ProjectInformationPanel extends Composite {
 					Widget widget = null;
 					try {
 						widget = gridInCenter.getWidget(2, 1);
-					} catch (IndexOutOfBoundsException e) {
+					} catch (final IndexOutOfBoundsException e) {
 					}
 					// if there is not widget yet
 
@@ -220,7 +220,7 @@ public class ProjectInformationPanel extends Composite {
 					Widget widget = null;
 					try {
 						widget = gridInCenter.getWidget(3, 1);
-					} catch (IndexOutOfBoundsException e) {
+					} catch (final IndexOutOfBoundsException e) {
 					}
 					// if there is not widget yet
 
@@ -231,7 +231,7 @@ public class ProjectInformationPanel extends Composite {
 				}
 			});
 			// organisms
-			OrganismsItemPanel organismItemPanel = OrganismsItemPanel.getInstance(projectBean);
+			final OrganismsItemPanel organismItemPanel = OrganismsItemPanel.getInstance(projectBean);
 			gridInCenter.setWidget(4, 0, organismItemPanel);
 
 			currentDefaultViewShowed = defaultView;
@@ -240,9 +240,9 @@ public class ProjectInformationPanel extends Composite {
 
 	public void initPanel(Map<String, DefaultView> defaultViews) {
 
-		for (String projectTag : defaultViews.keySet()) {
-			FlowPanel panel = new FlowPanel();
-			Label label = new Label(projectTag);
+		for (final String projectTag : defaultViews.keySet()) {
+			final FlowPanel panel = new FlowPanel();
+			final Label label = new Label(projectTag);
 			panel.add(label);
 			panel.setStyleName("ProjectInformationProjectName");
 

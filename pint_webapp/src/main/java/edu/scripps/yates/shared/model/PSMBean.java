@@ -315,11 +315,11 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	}
 
 	private void addtoMap(HashMap<String, Set<AmountBean>> map, AmountBean amount) {
-		String key = amount.getExperimentalCondition().getId();
+		final String key = amount.getExperimentalCondition().getId();
 		if (map.containsKey(key)) {
 			map.get(key).add(amount);
 		} else {
-			Set<AmountBean> set = new HashSet<AmountBean>();
+			final Set<AmountBean> set = new HashSet<AmountBean>();
 			set.add(amount);
 			map.put(key, set);
 		}
@@ -327,109 +327,36 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 
 	public String getPTMString() {
 		if (ptmString == null) {
-			StringBuilder sb = new StringBuilder();
-
-			if (ptms != null) {
-				// sort ptms by the position
-
-				Collections.sort(ptms, new Comparator<PTMBean>() {
-					@Override
-					public int compare(PTMBean o1, PTMBean o2) {
-						int minPosition1 = Integer.MAX_VALUE;
-						int minPosition2 = Integer.MAX_VALUE;
-						for (PTMSiteBean ptmSite : o1.getPtmSites()) {
-							if (minPosition1 > ptmSite.getPosition())
-								minPosition1 = ptmSite.getPosition();
-						}
-						for (PTMSiteBean ptmSite : o2.getPtmSites()) {
-							if (minPosition2 > ptmSite.getPosition())
-								minPosition2 = ptmSite.getPosition();
-						}
-						return Integer.compare(minPosition1, minPosition2);
-					}
-				});
-				// now that is sorted:
-				for (PTMBean ptmBean : ptms) {
-					if (!"".equals(sb.toString()))
-						sb.append(SharedConstants.SEPARATOR);
-					sb.append(ptmBean.getName() + " (");
-
-					final List<PTMSiteBean> ptmSites = ptmBean.getPtmSites();
-					// sort by position
-					Collections.sort(ptmSites, new Comparator<PTMSiteBean>() {
-						@Override
-						public int compare(PTMSiteBean o1, PTMSiteBean o2) {
-							return Integer.compare(o1.getPosition(), o2.getPosition());
-						}
-					});
-					for (int i = 0; i < ptmSites.size(); i++) {
-						PTMSiteBean ptmSiteBean = ptmSites.get(i);
-						if (i > 0)
-							sb.append(",");
-						sb.append(ptmSiteBean.getPosition());
-					}
-					sb.append(")");
-				}
-
-			}
-
-			ptmString = sb.toString();
+			ptmString = SharedDataUtils.getPTMString(ptms);
 		}
 		return ptmString;
 	}
 
 	public String getPTMScoreString() {
 		if (ptmScoreString == null) {
-			Set<String> ret = new HashSet<String>();
-			StringBuilder sb = new StringBuilder();
-			if (ptms != null) {
-				for (PTMBean ptm : ptms) {
-					final String scoreString = ptm.getScoreString();
-					if (!ret.contains(scoreString)) {
-						if (!"".equals(sb.toString()))
-							sb.append(SharedConstants.SEPARATOR);
-						sb.append(scoreString);
-						ret.add(scoreString);
-					}
 
-				}
-			}
-			ptmScoreString = sb.toString();
+			ptmScoreString = SharedDataUtils.getPTMScoreString(ptms);
 		}
 		return ptmScoreString;
 	}
 
 	public String getPTMScoreString(String ptmScoreName) {
 		if (ptmScoreString == null) {
-			Set<String> ret = new HashSet<String>();
-			StringBuilder sb = new StringBuilder();
-			if (ptms != null) {
-				for (PTMBean ptm : ptms) {
-					final String scoreString = ptm.getScoreString(ptmScoreName);
-					if (!ret.contains(scoreString)) {
-						if (!"".equals(sb.toString()))
-							sb.append(SharedConstants.SEPARATOR);
-						sb.append(scoreString);
-						ret.add(scoreString);
-					}
-
-				}
-			}
-			ptmScoreString = sb.toString();
+			ptmScoreString = SharedDataUtils.getPTMScoreString(ptmScoreName, ptms);
 		}
 		return ptmScoreString;
 	}
 
 	public String getProteinAccessionString() {
 		if (proteinAccessionString == null) {
-			StringBuilder sb = new StringBuilder();
+			final StringBuilder sb = new StringBuilder();
 			// sort first by alphabetic order
-			List<String> sortedList = new ArrayList<String>();
-			for (AccessionBean acc : proteinsPrimaryAccessions) {
+			final List<String> sortedList = new ArrayList<String>();
+			for (final AccessionBean acc : proteinsPrimaryAccessions) {
 				sortedList.add(acc.getAccession());
 			}
 			Collections.sort(sortedList);
-			for (String acc : sortedList) {
+			for (final String acc : sortedList) {
 				if (!"".equals(sb.toString()))
 					sb.append(SharedConstants.SEPARATOR);
 				sb.append(acc);
@@ -461,8 +388,8 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 
 	public String getProteinDescriptionString() {
 		if (proteinDescriptionString == null) {
-			StringBuilder sb = new StringBuilder();
-			for (ProteinBean proteinBean : proteins) {
+			final StringBuilder sb = new StringBuilder();
+			for (final ProteinBean proteinBean : proteins) {
 				if (!"".equals(sb.toString()))
 					sb.append(SharedConstants.SEPARATOR);
 				sb.append(proteinBean.getDescriptionString());
@@ -488,14 +415,14 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		if (ratiosByExperimentalcondition.containsKey(condition1.getId())) {
 			ratiosByExperimentalcondition.get(condition1.getId()).add(ratioBean);
 		} else {
-			List<RatioBean> set = new ArrayList<RatioBean>();
+			final List<RatioBean> set = new ArrayList<RatioBean>();
 			set.add(ratioBean);
 			ratiosByExperimentalcondition.put(condition1.getId(), set);
 		}
 		if (ratiosByExperimentalcondition.containsKey(condition2.getId())) {
 			ratiosByExperimentalcondition.get(condition2.getId()).add(ratioBean);
 		} else {
-			List<RatioBean> set = new ArrayList<RatioBean>();
+			final List<RatioBean> set = new ArrayList<RatioBean>();
 			set.add(ratioBean);
 			ratiosByExperimentalcondition.put(condition2.getId(), set);
 		}
@@ -566,13 +493,13 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	@Override
 	public String getRatioStringByConditions(String condition1Name, String condition2Name, String projectTag,
 			String ratioName, boolean skipInfinities, boolean formatNumber) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		final List<RatioBean> ratiosByConditions = getRatiosByConditions(condition1Name, condition2Name, projectTag,
 				ratioName, skipInfinities);
 		final List<Double> ratioValues = SharedDataUtils.getRatioValues(condition1Name, condition2Name,
 				ratiosByConditions);
-		for (Double value : ratioValues) {
+		for (final Double value : ratioValues) {
 
 			try {
 				String format = null;
@@ -584,7 +511,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 				if (!"".equals(sb.toString()))
 					sb.append(SharedConstants.SEPARATOR);
 				sb.append(format);
-			} catch (NumberFormatException e2) {
+			} catch (final NumberFormatException e2) {
 
 			}
 
@@ -602,9 +529,9 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	 */
 	public String getAmountTypeString(String conditionName, String projectTag) {
 
-		Set<AmountType> amountTypes = new HashSet<AmountType>();
+		final Set<AmountType> amountTypes = new HashSet<AmountType>();
 		final Set<AmountBean> amounts2 = getAmounts();
-		for (AmountBean amountBean : amounts2) {
+		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 
@@ -614,8 +541,8 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 			}
 		}
 
-		StringBuilder sb = new StringBuilder();
-		for (AmountType amountType : amountTypes) {
+		final StringBuilder sb = new StringBuilder();
+		for (final AmountType amountType : amountTypes) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
 			sb.append(amountType.getDescription());
@@ -627,7 +554,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	public boolean hasCombinationAmounts(String conditionName, String projectTag) {
 
 		final Set<AmountBean> amounts2 = getAmounts();
-		for (AmountBean amountBean : amounts2) {
+		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 					if (amountBean.isComposed())
@@ -641,10 +568,10 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 
 	@Override
 	public List<AmountBean> getCombinationAmount(String conditionName, String projectTag) {
-		List<AmountBean> ret = new ArrayList<AmountBean>();
+		final List<AmountBean> ret = new ArrayList<AmountBean>();
 
 		final Set<AmountBean> amounts2 = getAmounts();
-		for (AmountBean amountBean : amounts2) {
+		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 					if (amountBean.isComposed())
@@ -658,9 +585,9 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 
 	@Override
 	public List<AmountBean> getNonCombinationAmounts(String conditionName, String projectTag) {
-		List<AmountBean> ret = new ArrayList<AmountBean>();
+		final List<AmountBean> ret = new ArrayList<AmountBean>();
 		final Set<AmountBean> amounts2 = getAmounts();
-		for (AmountBean amountBean : amounts2) {
+		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 					if (!amountBean.isComposed())
@@ -708,7 +635,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		if (startingPositions.containsKey(accession)) {
 			startingPositions.get(accession).add(position);
 		} else {
-			List<Pair<Integer, Integer>> list = new ArrayList<Pair<Integer, Integer>>();
+			final List<Pair<Integer, Integer>> list = new ArrayList<Pair<Integer, Integer>>();
 			list.add(position);
 			startingPositions.put(accession, list);
 		}
@@ -742,17 +669,17 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	 */
 	public String getStartingPositionsString() {
 		final Map<String, List<Pair<Integer, Integer>>> startingPositions = getStartingPositions();
-		StringBuilder sb = new StringBuilder();
-		List<String> proteinAccs = new ArrayList<String>();
+		final StringBuilder sb = new StringBuilder();
+		final List<String> proteinAccs = new ArrayList<String>();
 		proteinAccs.addAll(startingPositions.keySet());
 		Collections.sort(proteinAccs);
 		if (startingPositions != null) {
 			int minPosition = Integer.MAX_VALUE;
-			List<Integer> list = new ArrayList<Integer>();
+			final List<Integer> list = new ArrayList<Integer>();
 			if (!proteinAccs.isEmpty() && startingPositions.containsKey(proteinAccs.get(0))) {
-				List<Pair<Integer, Integer>> positions = startingPositions.get(proteinAccs.get(0));
-				for (Pair<Integer, Integer> startAndEnd : positions) {
-					int position = startAndEnd.getFirstElement();
+				final List<Pair<Integer, Integer>> positions = startingPositions.get(proteinAccs.get(0));
+				for (final Pair<Integer, Integer> startAndEnd : positions) {
+					final int position = startAndEnd.getFirstElement();
 					if (!list.contains(position))
 						list.add(position);
 					if (position < minPosition)
@@ -773,15 +700,15 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	public String getExtendedStartingPositionsString() {
 		final Map<String, List<Pair<Integer, Integer>>> startingPositions = getStartingPositions();
 		final List<AccessionBean> primaryAccessions = getPrimaryAccessions();
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		Collections.sort(primaryAccessions);
-		for (AccessionBean accessionBean : primaryAccessions) {
+		for (final AccessionBean accessionBean : primaryAccessions) {
 			if (startingPositions != null && startingPositions.containsKey(accessionBean.getAccession())) {
 				final List<Pair<Integer, Integer>> listTmp = startingPositions.get(accessionBean.getAccession());
 				// to avoid duplicates:
-				List<Integer> list = new ArrayList<Integer>();
-				for (Pair<Integer, Integer> startAndEnd : listTmp) {
-					int position = startAndEnd.getFirstElement();
+				final List<Integer> list = new ArrayList<Integer>();
+				for (final Pair<Integer, Integer> startAndEnd : listTmp) {
+					final int position = startAndEnd.getFirstElement();
 					if (!list.contains(position))
 						list.add(position);
 				}
@@ -816,10 +743,10 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	}
 
 	public String getOrganismsString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		final Set<OrganismBean> organisms = getOrganisms();
 		// sort them for allowing sorting in columns
-		List<OrganismBean> list = new ArrayList<OrganismBean>();
+		final List<OrganismBean> list = new ArrayList<OrganismBean>();
 		list.addAll(organisms);
 		Collections.sort(list, new Comparator<OrganismBean>() {
 
@@ -828,7 +755,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 				return o1.getId().compareTo(o2.getId());
 			}
 		});
-		for (OrganismBean organismBean : list) {
+		for (final OrganismBean organismBean : list) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
 			sb.append(organismBean.getId());
@@ -870,7 +797,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	public boolean isFromThisProject(String projectTag) {
 		if (projectTag != null) {
 			if (amounts != null) {
-				for (AmountBean amount : amounts) {
+				for (final AmountBean amount : amounts) {
 					if (amount.getExperimentalCondition() != null) {
 						if (amount.getExperimentalCondition().getProject() != null) {
 							if (amount.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
@@ -881,7 +808,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 				}
 			}
 			if (ratios != null) {
-				for (RatioBean ratio : ratios) {
+				for (final RatioBean ratio : ratios) {
 					if (ratio.getRatioDescriptorBean() != null) {
 						if (projectTag.equals(ratio.getRatioDescriptorBean().getProjectTag())) {
 							return true;
@@ -906,13 +833,13 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	@Override
 	public String getRatioScoreStringByConditions(String condition1Name, String condition2Name, String projectTag,
 			String ratioName, String ratioScoreName, boolean skipInfinities, boolean formatNumber) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		final List<ScoreBean> ratioScores = getRatioScoresByConditions(condition1Name, condition2Name, projectTag,
 				ratioName, ratioScoreName);
-		for (ScoreBean ratioScore : ratioScores) {
+		for (final ScoreBean ratioScore : ratioScores) {
 			try {
-				Double value = Double.valueOf(ratioScore.getValue());
+				final Double value = Double.valueOf(ratioScore.getValue());
 				if (value.toString().endsWith(".0")) {
 					if (!"".equals(sb.toString()))
 						sb.append(SharedConstants.SEPARATOR);
@@ -928,11 +855,11 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 						if (!"".equals(sb.toString()))
 							sb.append(SharedConstants.SEPARATOR);
 						sb.append(format);
-					} catch (NumberFormatException e2) {
+					} catch (final NumberFormatException e2) {
 
 					}
 				}
-			} catch (NumberFormatException e) {
+			} catch (final NumberFormatException e) {
 				// add the string as it is
 			}
 
@@ -978,7 +905,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 			// ret.setProteinDBIds(getProteinDBIds());
 
 			final Set<ProteinBean> proteins2 = getProteins();
-			for (ProteinBean proteinBean : proteins2) {
+			for (final ProteinBean proteinBean : proteins2) {
 				lightVersion.addProteinToPSM(proteinBean.cloneToLightProteinBean());
 			}
 
@@ -1081,8 +1008,8 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	 */
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (ProteinBean protein : getProteins()) {
+		final StringBuilder sb = new StringBuilder();
+		for (final ProteinBean protein : getProteins()) {
 			sb.append(protein.getPrimaryAccession().getAccession() + ",");
 		}
 		String score = "";
@@ -1109,7 +1036,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 			this.peptideBean = peptideBean;
 			// add the proteins of the peptide to the psm
 			final Set<ProteinBean> proteins2 = peptideBean.getProteins();
-			for (ProteinBean proteinBean : proteins2) {
+			for (final ProteinBean proteinBean : proteins2) {
 				addProteinToPSM(proteinBean);
 			}
 		}

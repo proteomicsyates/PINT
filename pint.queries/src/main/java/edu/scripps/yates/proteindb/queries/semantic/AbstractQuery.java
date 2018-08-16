@@ -3,7 +3,7 @@ package edu.scripps.yates.proteindb.queries.semantic;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.queries.Query;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 
@@ -11,7 +11,7 @@ public abstract class AbstractQuery implements Query {
 	protected final CommandReference commandReference;
 	protected final Logger log = Logger.getLogger(AbstractQuery.class);
 
-	protected ProteinProviderFromDB proteinProvider;
+	protected DataProviderFromDB proteinProvider;
 
 	protected AbstractQuery(CommandReference commandReference) {
 		this.commandReference = commandReference;
@@ -19,9 +19,9 @@ public abstract class AbstractQuery implements Query {
 	}
 
 	/**
-	 * Creates an appropiate {@link ProteinProviderFromDB}
+	 * Creates an appropiate {@link DataProviderFromDB}
 	 */
-	public abstract ProteinProviderFromDB initProtenProvider();
+	public abstract DataProviderFromDB initProtenProvider();
 
 	@Override
 	public final String toString() {
@@ -44,7 +44,7 @@ public abstract class AbstractQuery implements Query {
 
 	public abstract AggregationLevel getAggregationLevel();
 
-	public final ProteinProviderFromDB getProteinProvider() {
+	public final DataProviderFromDB getProteinProvider() {
 		if (proteinProvider == null) {
 			proteinProvider = initProtenProvider();
 		}

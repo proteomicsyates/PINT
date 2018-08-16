@@ -65,7 +65,10 @@ public class ProteinBean
 	private OrganismBean organism;
 	private Set<String> functions = new HashSet<String>();
 	private Map<ExperimentalConditionBean, Set<Integer>> psmIdsByCondition = new HashMap<ExperimentalConditionBean, Set<Integer>>();
+	private final Map<ExperimentalConditionBean, Set<Integer>> peptideIdsByCondition = new HashMap<ExperimentalConditionBean, Set<Integer>>();
+
 	private Map<MSRunBean, Set<Integer>> psmIdsbyMSRun = new HashMap<MSRunBean, Set<Integer>>();
+
 	private Set<ExperimentalConditionBean> conditions = new HashSet<ExperimentalConditionBean>();
 	private Map<Integer, OmimEntryBean> omimEntries = new HashMap<Integer, OmimEntryBean>();
 	private int numPSMs;
@@ -214,11 +217,11 @@ public class ProteinBean
 
 	public String getProteinDBString() {
 
-		List<Integer> sorted = new ArrayList<Integer>();
+		final List<Integer> sorted = new ArrayList<Integer>();
 		sorted.addAll(dbIds);
 		Collections.sort(sorted);
 		String ret = "";
-		for (Integer integer : sorted) {
+		for (final Integer integer : sorted) {
 			ret += integer + "-";
 		}
 		return ret;
@@ -271,12 +274,12 @@ public class ProteinBean
 	}
 
 	public Set<AccessionBean> getAccessions(AccessionType accType) {
-		Set<AccessionBean> ret = new HashSet<AccessionBean>();
+		final Set<AccessionBean> ret = new HashSet<AccessionBean>();
 		final AccessionBean primaryAccession2 = getPrimaryAccession();
 		if (primaryAccession2 != null && primaryAccession2.getAccessionType() != null
 				&& primaryAccession2.getAccessionType().equals(accType))
 			ret.add(primaryAccession2);
-		for (AccessionBean acc : secondaryAccessions) {
+		for (final AccessionBean acc : secondaryAccessions) {
 			if (acc.getAccessionType().equals(accType))
 				ret.add(acc);
 		}
@@ -307,11 +310,11 @@ public class ProteinBean
 		if (conditions2.isEmpty()) {
 			return;
 		}
-		for (ExperimentalConditionBean experimentalConditionBean : conditions2) {
+		for (final ExperimentalConditionBean experimentalConditionBean : conditions2) {
 			if (psmIdsByCondition.containsKey(experimentalConditionBean)) {
 				psmIdsByCondition.get(experimentalConditionBean).add(psmBean.getDbID());
 			} else {
-				Set<Integer> set = new HashSet<Integer>();
+				final Set<Integer> set = new HashSet<Integer>();
 				set.add(psmBean.getDbID());
 				psmIdsByCondition.put(experimentalConditionBean, set);
 			}
@@ -325,7 +328,7 @@ public class ProteinBean
 		if (psmIdsbyMSRun.containsKey(msrun)) {
 			psmIdsbyMSRun.get(msrun).add(psmBean.getDbID());
 		} else {
-			Set<Integer> set = new HashSet<Integer>();
+			final Set<Integer> set = new HashSet<Integer>();
 			set.add(psmBean.getDbID());
 			psmIdsbyMSRun.put(msrun, set);
 		}
@@ -339,7 +342,7 @@ public class ProteinBean
 		peptides.add(peptideBean);
 		peptideBean.addProteinToPeptide(this);
 		final List<PSMBean> psms2 = peptideBean.getPsms();
-		for (PSMBean psmBean : psms2) {
+		for (final PSMBean psmBean : psms2) {
 			addPSMtoProtein(psmBean);
 		}
 	}
@@ -360,7 +363,7 @@ public class ProteinBean
 	}
 
 	public void addDbIds(int[] dbIds) {
-		for (int dbId : dbIds) {
+		for (final int dbId : dbIds) {
 			this.dbIds.add(dbId);
 		}
 
@@ -383,11 +386,11 @@ public class ProteinBean
 	public String getDescriptionString() {
 		if (descriptionString == null) {
 			// to avoid redundancies, store first in a set
-			List<String> list = new ArrayList<String>();
-			StringBuilder sb = new StringBuilder();
+			final List<String> list = new ArrayList<String>();
+			final StringBuilder sb = new StringBuilder();
 			final Set<AccessionBean> uniprotACCs = getAccessions(edu.scripps.yates.shared.model.AccessionType.UNIPROT);
 			if (uniprotACCs != null) {
-				for (AccessionBean acc : uniprotACCs) {
+				for (final AccessionBean acc : uniprotACCs) {
 					if (!list.contains(acc.getDescription()))
 						list.add(acc.getDescription());
 				}
@@ -395,12 +398,12 @@ public class ProteinBean
 			final Set<AccessionBean> ipiACCs = getAccessions(edu.scripps.yates.shared.model.AccessionType.IPI);
 			if (ipiACCs != null && !ipiACCs.isEmpty()) {
 
-				for (AccessionBean acc : ipiACCs) {
+				for (final AccessionBean acc : ipiACCs) {
 					if (!list.contains(acc.getDescription()))
 						list.add(acc.getDescription());
 				}
 			}
-			for (String description : list) {
+			for (final String description : list) {
 				if (!"".equals(sb.toString()))
 					sb.append(",");
 				sb.append(description);
@@ -421,7 +424,7 @@ public class ProteinBean
 
 	public void setAmounts(Set<AmountBean> proteinAmounts) {
 		amounts = proteinAmounts;
-		for (AmountBean proteinAmountBean : proteinAmounts) {
+		for (final AmountBean proteinAmountBean : proteinAmounts) {
 			addAmountToMap(proteinAmountBean);
 		}
 	}
@@ -436,7 +439,7 @@ public class ProteinBean
 
 	public void setRatios(Set<RatioBean> proteinRatios) {
 		ratios = proteinRatios;
-		for (RatioBean ratioBean : proteinRatios) {
+		for (final RatioBean ratioBean : proteinRatios) {
 			addtoMap(ratioBean);
 		}
 
@@ -451,14 +454,14 @@ public class ProteinBean
 		if (ratiosByExperimentalcondition.containsKey(condition1.getId())) {
 			ratiosByExperimentalcondition.get(condition1.getId()).add(ratioBean);
 		} else {
-			Set<RatioBean> set = new HashSet<RatioBean>();
+			final Set<RatioBean> set = new HashSet<RatioBean>();
 			set.add(ratioBean);
 			ratiosByExperimentalcondition.put(condition1.getId(), set);
 		}
 		if (ratiosByExperimentalcondition.containsKey(condition2.getId())) {
 			ratiosByExperimentalcondition.get(condition2.getId()).add(ratioBean);
 		} else {
-			Set<RatioBean> set = new HashSet<RatioBean>();
+			final Set<RatioBean> set = new HashSet<RatioBean>();
 			set.add(ratioBean);
 			ratiosByExperimentalcondition.put(condition2.getId(), set);
 		}
@@ -514,7 +517,7 @@ public class ProteinBean
 		if (amountsByExperimentalCondition.containsKey(proteinAmount.getExperimentalCondition().getId())) {
 			amountsByExperimentalCondition.get(proteinAmount.getExperimentalCondition().getId()).add(proteinAmount);
 		} else {
-			Set<AmountBean> set = new HashSet<AmountBean>();
+			final Set<AmountBean> set = new HashSet<AmountBean>();
 			set.add(proteinAmount);
 			amountsByExperimentalCondition.put(proteinAmount.getExperimentalCondition().getId(), set);
 		}
@@ -523,7 +526,7 @@ public class ProteinBean
 		if (amountsByMSRunID.containsKey(proteinAmount.getMsRun())) {
 			amountsByMSRunID.get(proteinAmount.getMsRun()).add(proteinAmount);
 		} else {
-			Set<AmountBean> set = new HashSet<AmountBean>();
+			final Set<AmountBean> set = new HashSet<AmountBean>();
 			set.add(proteinAmount);
 			amountsByMSRunID.put(proteinAmount.getMsRun(), set);
 		}
@@ -546,8 +549,8 @@ public class ProteinBean
 	 */
 	@Override
 	public List<GeneBean> getGenes(boolean onlyPrimary) {
-		List<GeneBean> list = new ArrayList<GeneBean>();
-		for (GeneBean gene : genes) {
+		final List<GeneBean> list = new ArrayList<GeneBean>();
+		for (final GeneBean gene : genes) {
 			if (!onlyPrimary || GeneBean.PRIMARY.equals(gene.getGeneType())) {
 				list.add(gene);
 				if (onlyPrimary) {
@@ -563,14 +566,14 @@ public class ProteinBean
 	public GeneBean getRepresentativeGene() {
 
 		// look for a primary one
-		for (GeneBean gene : genes) {
+		for (final GeneBean gene : genes) {
 			if (GeneBean.PRIMARY.equals(gene.getGeneType())) {
 				return gene;
 			}
 		}
 		if (!genes.isEmpty()) {
 			// sort genes by name alphabetically
-			List<GeneBean> list = new ArrayList<GeneBean>();
+			final List<GeneBean> list = new ArrayList<GeneBean>();
 			list.addAll(genes);
 			Collections.sort(list, new Comparator<GeneBean>() {
 
@@ -591,10 +594,10 @@ public class ProteinBean
 
 	public String getGenesString(String type, boolean onlyPrimary) {
 
-		StringBuilder sb = new StringBuilder();
-		Set<String> set = new HashSet<String>();
+		final StringBuilder sb = new StringBuilder();
+		final Set<String> set = new HashSet<String>();
 		final List<GeneBean> genes = getGenes(onlyPrimary);
-		for (GeneBean geneBean : genes) {
+		for (final GeneBean geneBean : genes) {
 			if (type == null || (geneBean.getGeneType() != null && geneBean.getGeneType().equalsIgnoreCase(type))) {
 				if (!set.contains(geneBean.getGeneID())) {
 					set.add(geneBean.getGeneID());
@@ -617,18 +620,18 @@ public class ProteinBean
 	}
 
 	public String getAmountString(String conditionName, String projectTag) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		// get by experimental condition name
-		Set<AmountBean> proteinAmountSet = amountsByExperimentalCondition.get(conditionName);
+		final Set<AmountBean> proteinAmountSet = amountsByExperimentalCondition.get(conditionName);
 		List<AmountBean> proteinAmounts = sortAmountsByRunID(proteinAmountSet);
 		if (proteinAmounts != null) {
 			// if some amounts are resulting from the combination
 			// (sum/average...)
 			// over other amounts, report only them
-			Set<AmountBean> composedAmounts = AmountBean.getComposedAmounts(proteinAmounts);
+			final Set<AmountBean> composedAmounts = AmountBean.getComposedAmounts(proteinAmounts);
 			if (!composedAmounts.isEmpty())
 				proteinAmounts = sortAmountsByRunID(composedAmounts);
-			for (AmountBean proteinAmountBean : proteinAmounts) {
+			for (final AmountBean proteinAmountBean : proteinAmounts) {
 				if (proteinAmountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 
 					// if the resulting string is a number, try to format it:
@@ -643,7 +646,7 @@ public class ProteinBean
 							if (!"".equals(sb.toString()))
 								sb.append(SharedConstants.SEPARATOR);
 							sb.append(format);
-						} catch (NumberFormatException e2) {
+						} catch (final NumberFormatException e2) {
 
 						}
 					}
@@ -657,7 +660,7 @@ public class ProteinBean
 	private List<AmountBean> sortAmountsByRunID(Set<AmountBean> composedAmounts) {
 		if (composedAmounts == null)
 			return null;
-		List<AmountBean> ret = new ArrayList<AmountBean>();
+		final List<AmountBean> ret = new ArrayList<AmountBean>();
 
 		ret.addAll(composedAmounts);
 
@@ -725,8 +728,8 @@ public class ProteinBean
 	public String getAlternativeNamesString() {
 		if (alternativeNamesString == null) {
 			final List<String> alternativeNames = getPrimaryAccession().getAlternativeNames();
-			StringBuilder sb = new StringBuilder();
-			for (String altName : alternativeNames) {
+			final StringBuilder sb = new StringBuilder();
+			for (final String altName : alternativeNames) {
 				if (!"".equals(sb.toString()))
 					sb.append(SharedConstants.SEPARATOR);
 				sb.append(altName);
@@ -779,9 +782,9 @@ public class ProteinBean
 	 */
 	public int getNumPSMs() {
 		if (numPSMs == 0) {
-			final Set<Integer> psmIds2 = getPSMDBIds();
-			if (psmIds2 != null && !psmIds2.isEmpty())
-				numPSMs = psmIds2.size();
+			for (final PeptideBean peptide : getPeptides()) {
+				numPSMs += peptide.getNumPSMs();
+			}
 		}
 		return numPSMs;
 	}
@@ -840,13 +843,13 @@ public class ProteinBean
 	@Override
 	public String getRatioStringByConditions(String condition1Name, String condition2Name, String projectTag,
 			String ratioName, boolean skipInfinities, boolean formatNumber) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		final List<RatioBean> ratiosByConditions = getRatiosByConditions(condition1Name, condition2Name, projectTag,
 				ratioName, skipInfinities);
 		final List<Double> ratioValues = SharedDataUtils.getRatioValues(condition1Name, condition2Name,
 				ratiosByConditions);
-		for (Double value : ratioValues) {
+		for (final Double value : ratioValues) {
 
 			if (value.toString().endsWith(".0")) {
 				if (!"".equals(sb.toString()))
@@ -863,7 +866,7 @@ public class ProteinBean
 					if (!"".equals(sb.toString()))
 						sb.append(SharedConstants.SEPARATOR);
 					sb.append(format);
-				} catch (NumberFormatException e2) {
+				} catch (final NumberFormatException e2) {
 
 				}
 			}
@@ -875,13 +878,13 @@ public class ProteinBean
 	@Override
 	public String getRatioScoreStringByConditions(String condition1Name, String condition2Name, String projectTag,
 			String ratioName, String ratioScoreName, boolean skipInfinities, boolean formatNumber) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		final List<ScoreBean> ratioScores = getRatioScoresByConditions(condition1Name, condition2Name, projectTag,
 				ratioName, ratioScoreName);
-		for (ScoreBean ratioScore : ratioScores) {
+		for (final ScoreBean ratioScore : ratioScores) {
 			try {
-				Double value = Double.valueOf(ratioScore.getValue());
+				final Double value = Double.valueOf(ratioScore.getValue());
 				if (value.toString().endsWith(".0")) {
 					if (!"".equals(sb.toString()))
 						sb.append(SharedConstants.SEPARATOR);
@@ -897,11 +900,11 @@ public class ProteinBean
 						if (!"".equals(sb.toString()))
 							sb.append(SharedConstants.SEPARATOR);
 						sb.append(format);
-					} catch (NumberFormatException e2) {
+					} catch (final NumberFormatException e2) {
 
 					}
 				}
-			} catch (NumberFormatException e) {
+			} catch (final NumberFormatException e) {
 				// add the string as it is
 			}
 
@@ -919,19 +922,19 @@ public class ProteinBean
 	 */
 	public String getAmountTypeString(String conditionName, String projectTag) {
 		Set<AmountBean> amounts = getAmountsByExperimentalCondition().get(conditionName);
-		List<AmountType> amountTypes = new ArrayList<AmountType>();
+		final List<AmountType> amountTypes = new ArrayList<AmountType>();
 		if (amounts != null) {
-			Set<AmountBean> composedAmounts = AmountBean.getComposedAmounts(amounts);
+			final Set<AmountBean> composedAmounts = AmountBean.getComposedAmounts(amounts);
 			if (!composedAmounts.isEmpty())
 				amounts = composedAmounts;
-			for (AmountBean amount : amounts) {
+			for (final AmountBean amount : amounts) {
 				if (!amountTypes.contains(amount.getAmountType())) {
 					amountTypes.add(amount.getAmountType());
 				}
 			}
 		}
-		StringBuilder sb = new StringBuilder();
-		for (AmountType amountType : amountTypes) {
+		final StringBuilder sb = new StringBuilder();
+		for (final AmountType amountType : amountTypes) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
 			sb.append(amountType.getDescription());
@@ -943,7 +946,7 @@ public class ProteinBean
 	public boolean hasCombinationAmounts(String conditionName, String projectTag) {
 
 		final Set<AmountBean> amounts2 = getAmounts();
-		for (AmountBean amountBean : amounts2) {
+		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 					if (amountBean.isComposed())
@@ -958,10 +961,10 @@ public class ProteinBean
 
 	@Override
 	public List<AmountBean> getCombinationAmount(String conditionName, String projectTag) {
-		List<AmountBean> ret = new ArrayList<AmountBean>();
+		final List<AmountBean> ret = new ArrayList<AmountBean>();
 
 		final Set<AmountBean> amounts2 = getAmounts();
-		for (AmountBean amountBean : amounts2) {
+		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 					if (amountBean.isComposed() && !ret.contains(amountBean)) {
@@ -976,9 +979,9 @@ public class ProteinBean
 
 	@Override
 	public List<AmountBean> getNonCombinationAmounts(String conditionName, String projectTag) {
-		List<AmountBean> ret = new ArrayList<AmountBean>();
+		final List<AmountBean> ret = new ArrayList<AmountBean>();
 		final Set<AmountBean> amounts2 = getAmounts();
-		for (AmountBean amountBean : amounts2) {
+		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
 					if (!amountBean.isComposed() && !ret.contains(amountBean))
@@ -1041,8 +1044,8 @@ public class ProteinBean
 	}
 
 	public String getFunctionString() {
-		StringBuilder sb = new StringBuilder();
-		for (String function : functions) {
+		final StringBuilder sb = new StringBuilder();
+		for (final String function : functions) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
 			sb.append(function.replace("\n", ""));
@@ -1066,25 +1069,25 @@ public class ProteinBean
 				Collections.sort(list);
 			}
 		} else {
-			List<UniprotFeatureBean> list = new ArrayList<UniprotFeatureBean>();
+			final List<UniprotFeatureBean> list = new ArrayList<UniprotFeatureBean>();
 			list.add(uniprotFeature);
 			uniprotFeatures.put(uniprotFeature.getFeatureType(), list);
 		}
 	}
 
 	public String getSecondaryAccessionsString() {
-		List<String> list = new ArrayList<String>();
-		StringBuilder sb = new StringBuilder();
+		final List<String> list = new ArrayList<String>();
+		final StringBuilder sb = new StringBuilder();
 		final Set<AccessionBean> secondaryAccessions2 = getSecondaryAccessions();
 		if (secondaryAccessions2 != null) {
-			for (AccessionBean accessionBean : secondaryAccessions2) {
+			for (final AccessionBean accessionBean : secondaryAccessions2) {
 				final String accession = accessionBean.getAccession();
 				if (!list.contains(accession) && !getPrimaryAccession().getAccession().equals(accession))
 					list.add(accession);
 			}
 		}
 		Collections.sort(list);
-		for (String acc : list) {
+		for (final String acc : list) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
 			sb.append(acc);
@@ -1099,7 +1102,7 @@ public class ProteinBean
 
 	@Override
 	public List<AccessionBean> getPrimaryAccessions() {
-		List<AccessionBean> list = new ArrayList<AccessionBean>();
+		final List<AccessionBean> list = new ArrayList<AccessionBean>();
 		list.add(getPrimaryAccession());
 		return list;
 	}
@@ -1122,7 +1125,7 @@ public class ProteinBean
 	public boolean isFromThisProject(String projectTag) {
 		if (projectTag != null) {
 			if (amounts != null) {
-				for (AmountBean amount : amounts) {
+				for (final AmountBean amount : amounts) {
 					if (amount.getExperimentalCondition() != null) {
 						if (amount.getExperimentalCondition().getProject() != null) {
 							if (amount.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
@@ -1133,7 +1136,7 @@ public class ProteinBean
 				}
 			}
 			if (ratios != null) {
-				for (RatioBean ratio : ratios) {
+				for (final RatioBean ratio : ratios) {
 					if (ratio.getRatioDescriptorBean() != null) {
 						if (projectTag.equals(ratio.getRatioDescriptorBean().getProjectTag())) {
 							return true;
@@ -1142,7 +1145,7 @@ public class ProteinBean
 				}
 			}
 			if (psms != null) {
-				for (PSMBean psmBean : psms) {
+				for (final PSMBean psmBean : psms) {
 					if (psmBean.isFromThisProject(projectTag)) {
 						return true;
 					}
@@ -1158,14 +1161,6 @@ public class ProteinBean
 	@Override
 	public Map<ExperimentalConditionBean, Set<Integer>> getPSMDBIdsByCondition() {
 		return psmIdsByCondition;
-	}
-
-	/**
-	 * @return the psmIdsbyMSRun
-	 */
-	@Override
-	public Map<MSRunBean, Set<Integer>> getPSMDBIdsbyMSRun() {
-		return psmIdsbyMSRun;
 	}
 
 	/**
@@ -1220,10 +1215,9 @@ public class ProteinBean
 			lightVersion.proteinBeanUniqueIdentifier = getProteinBeanUniqueIdentifier();
 			// ret.psmIds.addAll(psmIds);
 			lightVersion.setNumPSMs(getPSMDBIds().size());
-
 			lightVersion.getNumPSMsByCondition().putAll(getNumPSMsByCondition());
+			// disabled for performance
 			// ret.psmIdsByCondition.putAll(getPsmIdsByCondition());
-			// ret.psmIdsbyMSRun.putAll(getPsmIdsbyMSRun());
 			lightVersion.ratios.addAll(getRatios());
 			lightVersion.scores.putAll(getScores());
 			lightVersion.ratiosByExperimentalcondition.putAll(getRatiosByExperimentalcondition());
@@ -1236,7 +1230,7 @@ public class ProteinBean
 			// allow peptides in proteins.
 			// IMPORTANT: do it after cloning all the other features of the
 			// protein
-			for (PeptideBean peptideBean : getPeptides()) {
+			for (final PeptideBean peptideBean : getPeptides()) {
 				final PeptideBean lightPeptide = peptideBean.cloneToLightPeptideBean();
 				lightVersion.addPeptideToProtein(lightPeptide);
 			}
@@ -1280,7 +1274,7 @@ public class ProteinBean
 	}
 
 	public void addOMIMEntries(Collection<OmimEntryBean> omimEntries) {
-		for (OmimEntryBean omimEntry : omimEntries) {
+		for (final OmimEntryBean omimEntry : omimEntries) {
 			addOMIMEntry(omimEntry);
 		}
 	}
@@ -1310,10 +1304,10 @@ public class ProteinBean
 	 * @return
 	 */
 	public String getOmimIDString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
-		List<Integer> sortedIDs = getOmimSortedIDs();
-		for (Integer omimID : sortedIDs) {
+		final List<Integer> sortedIDs = getOmimSortedIDs();
+		for (final Integer omimID : sortedIDs) {
 			sb.append(omimID);
 			if (!"".equals(sb.toString())) {
 				sb.append(",");
@@ -1323,11 +1317,11 @@ public class ProteinBean
 	}
 
 	public List<Integer> getOmimSortedIDs() {
-		List<Integer> sortedIds = new ArrayList<Integer>();
+		final List<Integer> sortedIds = new ArrayList<Integer>();
 
 		if (!omimEntries.isEmpty()) {
 			final Set<Integer> keySet = omimEntries.keySet();
-			for (Integer i : keySet) {
+			for (final Integer i : keySet) {
 				sortedIds.add(i);
 			}
 
@@ -1398,7 +1392,7 @@ public class ProteinBean
 			} else {
 				split[0] = ensemblAnnotation;
 			}
-			for (String string : split) {
+			for (final String string : split) {
 				if (string.startsWith("gene ID") && string.contains(":")) {
 					ensemblID = string.split(":")[1];
 				}
@@ -1547,11 +1541,11 @@ public class ProteinBean
 
 	@Override
 	public int getNumPSMsByCondition(String projectTag, String conditionName) {
-		if (!numPSMsByCondition.isEmpty()) {
-			for (ExperimentalConditionBean conditionBean : numPSMsByCondition.keySet()) {
+		if (!getNumPSMsByCondition().isEmpty()) {
+			for (final ExperimentalConditionBean conditionBean : getNumPSMsByCondition().keySet()) {
 				if (conditionBean.getId().equals(conditionName)) {
 					if (conditionBean.getProject().getTag().equals(projectTag)) {
-						return numPSMsByCondition.get(conditionBean);
+						return getNumPSMsByCondition().get(conditionBean);
 					}
 				}
 			}
@@ -1563,11 +1557,25 @@ public class ProteinBean
 	public Map<ExperimentalConditionBean, Integer> getNumPSMsByCondition() {
 		if (numPSMsByCondition == null) {
 			numPSMsByCondition = new HashMap<ExperimentalConditionBean, Integer>();
-			Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition = getPSMDBIdsByCondition();
-			for (ExperimentalConditionBean conditionBean : psmdbIdsByCondition.keySet()) {
+			// this is only going to work for psmCentric
+			// but for peptideCentric this is going to be filled in the adapter
+			final Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition = getPSMDBIdsByCondition();
+			for (final ExperimentalConditionBean conditionBean : psmdbIdsByCondition.keySet()) {
 				numPSMsByCondition.put(conditionBean, psmdbIdsByCondition.get(conditionBean).size());
 			}
 		}
 		return numPSMsByCondition;
+	}
+
+	public Map<ExperimentalConditionBean, Set<Integer>> getPeptideDBIdsByCondition() {
+		return peptideIdsByCondition;
+	}
+
+	public void addDifferentSequence(String sequence) {
+		differentSequences.add(sequence);
+	}
+
+	public void addDifferentSequences(Set<String> differentSequences) {
+		this.differentSequences.addAll(differentSequences);
 	}
 }

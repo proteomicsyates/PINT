@@ -7,22 +7,19 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.Psm;
-import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
+import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.ProteinDataProvider;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import gnu.trove.map.hash.THashMap;
 
-public class ProteinProviderFromProteinAccs implements ProteinProviderFromDB {
+public class ProteinProviderFromProteinAccs extends ProteinDataProvider {
 	private final List<String> accs = new ArrayList<String>();
-	private Set<String> projectTags;
-	private Map<String, Set<Protein>> proteins;
 
 	public ProteinProviderFromProteinAccs(Collection<String> accs) {
 		if (accs == null)
 			throw new IllegalArgumentException("accession list is null");
-		for (String acc : accs) {
+		for (final String acc : accs) {
 			if (acc != null && !"".equals(acc))
 				this.accs.add(acc);
 		}
@@ -31,59 +28,35 @@ public class ProteinProviderFromProteinAccs implements ProteinProviderFromDB {
 
 	@Override
 	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
-		if (proteins == null) {
-			proteins = new THashMap<String, Set<Protein>>();
+		if (result == null) {
+			result = new THashMap<String, Set<Protein>>();
 			int numProteins = 0;
 			if (projectTags != null) {
-				for (String projectTag : projectTags) {
-					final List<Protein> proteinsWithAccessions = PreparedQueries.getProteinsWithAccessions(accs,
+				for (final String projectTag : projectTags) {
+					final List<Protein> proteinsWithAccessions = PreparedCriteria.getCriteriaByProteinACC(accs,
 							projectTag);
 					if (testMode && numProteins + proteinsWithAccessions.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
-						PersistenceUtils.addToMapByPrimaryAcc(proteins, proteinsWithAccessions.subList(0, Math
+						PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithAccessions.subList(0, Math
 								.min(proteinsWithAccessions.size(), QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins)));
-						return proteins;
+						return result;
 					} else {
-						PersistenceUtils.addToMapByPrimaryAcc(proteins, proteinsWithAccessions);
+						PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithAccessions);
 					}
 					numProteins += proteinsWithAccessions.size();
 				}
 			} else {
-				final List<Protein> proteinsWithAccessions = PreparedQueries.getProteinsWithAccessions(accs, null);
+				final List<Protein> proteinsWithAccessions = PreparedCriteria.getCriteriaByProteinACC(accs, null);
 				if (testMode && numProteins + proteinsWithAccessions.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
-					PersistenceUtils.addToMapByPrimaryAcc(proteins, proteinsWithAccessions.subList(0,
+					PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithAccessions.subList(0,
 							Math.min(proteinsWithAccessions.size(), QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins)));
-					return proteins;
+					return result;
 				} else {
-					PersistenceUtils.addToMapByPrimaryAcc(proteins, proteinsWithAccessions);
+					PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithAccessions);
 				}
 			}
 
 		}
-		return proteins;
+		return result;
 	}
 
-	@Override
-	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
-		return PersistenceUtils.getPsmsFromProteins(getProteinMap(testMode));
-	}
-
-	@Override
-	public void setProjectTags(Set<String> projectTags) {
-		this.projectTags = projectTags;
-		proteins = null;
-	}
-
-	/**
-	 * @return the accs
-	 */
-	public List<String> getAccs() {
-		return accs;
-	}
-
-	/**
-	 * @return the projectTags
-	 */
-	public Set<String> getProjectTags() {
-		return projectTags;
-	}
 }

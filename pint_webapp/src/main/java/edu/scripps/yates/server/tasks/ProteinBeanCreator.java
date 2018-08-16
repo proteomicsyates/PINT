@@ -20,33 +20,35 @@ public class ProteinBeanCreator extends Thread {
 	private final Set<String> hiddenPTMs;
 	private static int threadCounter = 0;
 	private final int numThread;
+	private final boolean psmCentric;
 
 	public ProteinBeanCreator(ParIterator<Set<QueriableProteinSet>> iterator, Reducible<Set<ProteinBean>> reducibleMap,
-			Set<String> hiddenPTMs) {
+			Set<String> hiddenPTMs, boolean psmCentric) {
 		this.iterator = iterator;
 		this.reducibleMap = reducibleMap;
 		this.hiddenPTMs = hiddenPTMs;
+		this.psmCentric = psmCentric;
 		numThread = ++threadCounter;
 	}
 
 	@Override
 	public void run() {
 		// needed for get a session in the thread
-		Session session = ContextualSessionHandler.openSession();
-		Set<ProteinBean> ret = new THashSet<ProteinBean>();
+		final Session session = ContextualSessionHandler.openSession();
+		final Set<ProteinBean> ret = new THashSet<ProteinBean>();
 		reducibleMap.set(ret);
 		int numProteins = 0;
 		while (iterator.hasNext()) {
 			numProteins++;
 			try {
 				final Set<QueriableProteinSet> proteinSet = iterator.next();
-				final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs)
-						.adapt();
+				final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs,
+						psmCentric).adapt();
 				ret.add(proteinBeanAdapted);
 				if (numProteins % 10 == 0) {
 					log.info(numProteins + " proteins in thread " + numThread);
 				}
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 				iterator.register(e);
 			}

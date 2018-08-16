@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
-import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.PSMBean;
 
 public interface ContainsPSMs {
@@ -19,5 +18,4 @@ public interface ContainsPSMs {
 
 	public int getNumPSMsByCondition(String projectTag, String conditionName);
 
-	public Map<MSRunBean, Set<Integer>> getPSMDBIdsbyMSRun();
 }

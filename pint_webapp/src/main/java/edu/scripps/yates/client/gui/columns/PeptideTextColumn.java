@@ -21,6 +21,7 @@ import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
+import edu.scripps.yates.shared.util.SharedDataUtils;
 import edu.scripps.yates.shared.util.UniprotFeatures;
 
 public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements MyIdColumn<PeptideBean> {
@@ -181,13 +182,13 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 		DataGridRenderValue data;
 
 		switch (columnName) {
-
 		case PEPTIDE_SEQUENCE:
-			sb.append(template.startToolTip(pep.getSequence()));
-			sb.appendEscaped(pep.getSequence());
+			sb.append(template.startToolTip(pep.getFullSequence()));
+			sb.append(SharedDataUtils.getRichPeptideSequence(pep.getSequence(), pep.getPtms()));
 			// super.render(context, psm, sb);
 			sb.append(template.endToolTip());
 			break;
+
 		case PEPTIDE_AMOUNT:
 			data = DataGridRenderValue.getAmountDataGridRenderValue(pep, conditionName, amountType, projectTag);
 			sb.append(template.startToolTip(data.getTooltip()));

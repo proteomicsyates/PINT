@@ -6,17 +6,13 @@ import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.ProteinDataProvider;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import gnu.trove.map.hash.THashMap;
 
-public class ProteinProviderFromProjects implements ProteinProviderFromDB {
-
-	private Map<String, Set<Protein>> results;
-	private Set<String> projectTags;
+public class ProteinProviderFromProjects extends ProteinDataProvider {
 
 	public ProteinProviderFromProjects(Set<String> projectTags) {
 		this.projectTags = projectTags;
@@ -25,11 +21,11 @@ public class ProteinProviderFromProjects implements ProteinProviderFromDB {
 
 	@Override
 	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
-		if (results == null) {
-			results = new THashMap<String, Set<Protein>>();
+		if (result == null) {
+			result = new THashMap<String, Set<Protein>>();
 			int numProteins = 0;
 			if (projectTags != null && !projectTags.isEmpty()) {
-				for (String projectTag : projectTags) {
+				for (final String projectTag : projectTags) {
 					// change here to the new way of getting proteins and
 					// compare with the 3 minutes after load PSM scores
 
@@ -37,11 +33,11 @@ public class ProteinProviderFromProjects implements ProteinProviderFromDB {
 					// for (MsRun msRun : msRuns) {
 					final List<Protein> proteinsByMSRuns = PreparedQueries.getProteinsByMSRuns(msRuns);
 					if (testMode && numProteins + proteinsByMSRuns.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
-						PersistenceUtils.addToMapByPrimaryAcc(results, proteinsByMSRuns.subList(0,
+						PersistenceUtils.addToMapByPrimaryAcc(result, proteinsByMSRuns.subList(0,
 								Math.min(proteinsByMSRuns.size(), QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins)));
-						return results;
+						return result;
 					} else {
-						PersistenceUtils.addToMapByPrimaryAcc(results, proteinsByMSRuns);
+						PersistenceUtils.addToMapByPrimaryAcc(result, proteinsByMSRuns);
 					}
 					numProteins += proteinsByMSRuns.size();
 					// }
@@ -51,19 +47,7 @@ public class ProteinProviderFromProjects implements ProteinProviderFromDB {
 				}
 			}
 		}
-		return results;
-	}
-
-	@Override
-	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
-		return PersistenceUtils.getPsmsFromProteins(getProteinMap(testMode));
-	}
-
-	@Override
-	public void setProjectTags(Set<String> projectTags) {
-		this.projectTags = projectTags;
-		results = null;
-
+		return result;
 	}
 
 }

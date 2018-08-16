@@ -84,14 +84,14 @@ public class ContextualSessionHandler {
 	}
 
 	public static <T> void saveSet(Set<T> set) {
-		for (T object : set) {
+		for (final T object : set) {
 			getCurrentSession().save(object);
 		}
 	}
 
 	public static <T> void deleteSet(Set<T> set) {
 		if (set != null) {
-			for (T object : set) {
+			for (final T object : set) {
 				getCurrentSession().delete(object);
 			}
 		}
@@ -152,7 +152,7 @@ public class ContextualSessionHandler {
 	}
 
 	public static <T> void refresh(Set<T> set) {
-		for (T object : set) {
+		for (final T object : set) {
 			refresh(object);
 		}
 
@@ -170,7 +170,7 @@ public class ContextualSessionHandler {
 	@SuppressWarnings("unchecked")
 	public static <T> T load(Serializable id, Class<?> clazz) {
 		if (id != null) {
-			T objectLoaded = (T) getCurrentSession().get(clazz, id);
+			final T objectLoaded = (T) getCurrentSession().get(clazz, id);
 			Hibernate.initialize(objectLoaded);
 			return objectLoaded;
 		}
@@ -189,12 +189,12 @@ public class ContextualSessionHandler {
 	 * @return the list of objects of the class = clazz
 	 */
 	public static <T, M> List<T> retrieveList(List<Parameter<M>> listParameter, Class<?> clazz) {
-		Criteria criteria = getCurrentSession().createCriteria(clazz);
-		for (Parameter<?> parameter : listParameter) {
+		final Criteria criteria = getCurrentSession().createCriteria(clazz);
+		for (final Parameter<?> parameter : listParameter) {
 			criteria.add(Restrictions.eq(parameter.getKey(), parameter.getValue()));
 		}
 		@SuppressWarnings("unchecked")
-		List<T> result = criteria.list();
+		final List<T> result = criteria.list();
 
 		return result;
 	}
@@ -208,10 +208,10 @@ public class ContextualSessionHandler {
 	 * @return the list of objects of the class = clazz
 	 */
 	public static <T> List<T> retrieveList(Class<?> clazz) {
-		Criteria criteria = getCurrentSession().createCriteria(clazz);
+		final Criteria criteria = getCurrentSession().createCriteria(clazz);
 
 		@SuppressWarnings("unchecked")
-		List<T> result = criteria.list();
+		final List<T> result = criteria.list();
 
 		return result;
 	}
@@ -225,11 +225,29 @@ public class ContextualSessionHandler {
 	 * @return the list of objects of the class = clazz
 	 */
 	public static <T> ScrollableResults retrieveReadOnlyIterator(Class<?> clazz) {
-		Criteria criteria = getCurrentSession().createCriteria(clazz).setReadOnly(true);
+		final Criteria criteria = getCurrentSession().createCriteria(clazz).setReadOnly(true);
 
 		@SuppressWarnings("unchecked")
-		ScrollableResults result = criteria.scroll(ScrollMode.FORWARD_ONLY);
+		final ScrollableResults result = criteria.scroll(ScrollMode.FORWARD_ONLY);
 
+		return result;
+	}
+
+	/**
+	 * Function like select * from clazz
+	 *
+	 * @param <T>
+	 *
+	 * @param clazz
+	 * @param readonly
+	 * @return the list of objects of the class = clazz
+	 */
+	public static <T> ScrollableResults retrieveIterator(Class<?> clazz, int fetchSize, boolean readonly) {
+		final Criteria criteria = getCurrentSession().createCriteria(clazz).setReadOnly(readonly)
+				.setFetchSize(fetchSize);
+
+		@SuppressWarnings("unchecked")
+		final ScrollableResults result = criteria.scroll(ScrollMode.FORWARD_ONLY);
 		return result;
 	}
 
@@ -242,12 +260,7 @@ public class ContextualSessionHandler {
 	 * @return the list of objects of the class = clazz
 	 */
 	public static <T> ScrollableResults retrieveIterator(Class<?> clazz) {
-		Criteria criteria = getCurrentSession().createCriteria(clazz).setReadOnly(false);
-
-		@SuppressWarnings("unchecked")
-		ScrollableResults result = criteria.scroll(ScrollMode.FORWARD_ONLY);
-
-		return result;
+		return retrieveIterator(clazz, 1000, false);
 	}
 
 	/**
@@ -266,11 +279,11 @@ public class ContextualSessionHandler {
 	 */
 	public static <T, M2, M1> List<T> retrieveList(List<Parameter<M1>> listParameter,
 			List<Parameter<M2>> listParameter2, Class<?> clazz) {
-		Criteria criteria = getCurrentSession().createCriteria(clazz);
-		for (Parameter<?> parameter : listParameter) {
+		final Criteria criteria = getCurrentSession().createCriteria(clazz);
+		for (final Parameter<?> parameter : listParameter) {
 			criteria.add(Restrictions.eq(parameter.getKey(), parameter.getValue()));
 		}
-		for (Parameter<?> parameter : listParameter2) {
+		for (final Parameter<?> parameter : listParameter2) {
 			criteria.add(Restrictions.eq(parameter.getKey(), parameter.getValue()));
 		}
 		return criteria.list();
@@ -295,14 +308,14 @@ public class ContextualSessionHandler {
 	 */
 	public static <M1, M2, M3, T> List<T> retrieveList(List<Parameter<M1>> listParameter,
 			List<Parameter<M2>> listParameter2, List<Parameter<M3>> listParameter3, Class<?> clazz) {
-		Criteria criteria = getCurrentSession().createCriteria(clazz);
-		for (Parameter<?> parameter : listParameter) {
+		final Criteria criteria = getCurrentSession().createCriteria(clazz);
+		for (final Parameter<?> parameter : listParameter) {
 			criteria.add(Restrictions.eq(parameter.getKey(), parameter.getValue()));
 		}
-		for (Parameter<?> parameter : listParameter2) {
+		for (final Parameter<?> parameter : listParameter2) {
 			criteria.add(Restrictions.eq(parameter.getKey(), parameter.getValue()));
 		}
-		for (Parameter<?> parameter : listParameter3) {
+		for (final Parameter<?> parameter : listParameter3) {
 			criteria.add(Restrictions.eq(parameter.getKey(), parameter.getValue()));
 		}
 		return criteria.list();
@@ -337,7 +350,7 @@ public class ContextualSessionHandler {
 		try {
 			currentSession = getSessionFactory().getCurrentSession();
 
-		} catch (HibernateException e) {
+		} catch (final HibernateException e) {
 			currentSession = openSession();
 		}
 

@@ -17,7 +17,7 @@ public class ProteinRatioBeanAdapter implements Adapter<RatioBean> {
 		initializeMap();
 	}
 
-	private void initializeMap() {
+	private static void initializeMap() {
 		if (map.get() == null) {
 			map.set(new TIntObjectHashMap<RatioBean>());
 		}
@@ -27,7 +27,7 @@ public class ProteinRatioBeanAdapter implements Adapter<RatioBean> {
 	public RatioBean adapt() {
 		if (map.get().containsKey(proteinRatioValue.getId()))
 			return map.get().get(proteinRatioValue.getId());
-		RatioBean ret = new RatioBean();
+		final RatioBean ret = new RatioBean();
 		map.get().put(proteinRatioValue.getId(), ret);
 		if (proteinRatioValue.getConfidenceScoreValue() != null) {
 			ret.setAssociatedConfidenceScore(
@@ -36,14 +36,14 @@ public class ProteinRatioBeanAdapter implements Adapter<RatioBean> {
 									.adapt());
 		}
 		ret.setCondition1(new ConditionBeanAdapter(
-				proteinRatioValue.getRatioDescriptor().getConditionByExperimentalCondition1Id()).adapt());
+				proteinRatioValue.getRatioDescriptor().getConditionByExperimentalCondition1Id(), true).adapt());
 		ret.setCondition2(new ConditionBeanAdapter(
-				proteinRatioValue.getRatioDescriptor().getConditionByExperimentalCondition2Id()).adapt());
+				proteinRatioValue.getRatioDescriptor().getConditionByExperimentalCondition2Id(), true).adapt());
 		ret.setDescription(proteinRatioValue.getRatioDescriptor().getDescription());
 		ret.setValue(PersistenceUtils.parseRatioValueConvert2Infinities(proteinRatioValue.getValue()));
 		ret.setDbID(proteinRatioValue.getId());
-		RatioDescriptorBean ratioDescriptorBean = new RatioDescriptorAdapter(proteinRatioValue.getRatioDescriptor(),
-				SharedAggregationLevel.PROTEIN).adapt();
+		final RatioDescriptorBean ratioDescriptorBean = new RatioDescriptorAdapter(
+				proteinRatioValue.getRatioDescriptor(), SharedAggregationLevel.PROTEIN).adapt();
 		ret.setRatioDescriptorBean(ratioDescriptorBean);
 		return ret;
 	}
@@ -52,5 +52,10 @@ public class ProteinRatioBeanAdapter implements Adapter<RatioBean> {
 		if (map.get() != null) {
 			map.get().clear();
 		}
+	}
+
+	public static RatioBean getBeanByProteinRatioValueID(int id) {
+		initializeMap();
+		return map.get().get(id);
 	}
 }

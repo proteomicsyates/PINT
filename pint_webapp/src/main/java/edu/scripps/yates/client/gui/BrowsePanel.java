@@ -32,7 +32,6 @@ import com.google.gwt.user.client.ui.DateLabel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HasAlignment;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Image;
@@ -94,29 +93,29 @@ public class BrowsePanel extends InitializableComposite {
 		proteinGroupsLink.setStyleName("linkPINT");
 		proteinsLink.setStyleName("linkPINT");
 
-		FlowPanel mainPanel = new FlowPanel();
+		final FlowPanel mainPanel = new FlowPanel();
 		mainPanel.setStyleName("MainPanel");
 		initWidget(mainPanel);
 
-		HeaderPanel header = new HeaderPanel();
+		final HeaderPanel header = new HeaderPanel();
 		mainPanel.add(header);
-		NavigationHorizontalPanel navigationPanel = new NavigationHorizontalPanel(TargetHistory.BROWSE);
+		final NavigationHorizontalPanel navigationPanel = new NavigationHorizontalPanel(TargetHistory.BROWSE);
 		navigationPanel.setStyleName("navigationBar");
 		mainPanel.add(navigationPanel);
 
-		FlowPanel horizontalFlowPanel = new FlowPanel();
+		final FlowPanel horizontalFlowPanel = new FlowPanel();
 		mainPanel.add(horizontalFlowPanel);
 		horizontalFlowPanel.setStyleName("verticalComponent");
 
-		FlowPanel flowPanel = new FlowPanel();
+		final FlowPanel flowPanel = new FlowPanel();
 		flowPanel.setStyleName("browserLeftPart");
 		horizontalFlowPanel.add(flowPanel);
 
-		CaptionPanel captionPanel = new CaptionPanel("Available Projects");
+		final CaptionPanel captionPanel = new CaptionPanel("Available Projects");
 		flowPanel.add(captionPanel);
 		captionPanel.setStyleName("browserAvailableProjects");
 
-		ScrollPanel scrollPanel = new ScrollPanel();
+		final ScrollPanel scrollPanel = new ScrollPanel();
 		scrollPanel.setStyleName("BrowserVerticalScroll");
 		captionPanel.setContentWidget(scrollPanel);
 
@@ -142,18 +141,20 @@ public class BrowsePanel extends InitializableComposite {
 		label4.setTitle(availabilityTag);
 		label4.setStyleName("font-bold");
 		projectsTable.setWidget(0, 3, label4);
-		projectsTable.getCellFormatter().setAlignment(0, 3, HasAlignment.ALIGN_CENTER, HasAlignment.ALIGN_MIDDLE);
+		projectsTable.getCellFormatter().setAlignment(0, 3, HasHorizontalAlignment.ALIGN_CENTER,
+				HasVerticalAlignment.ALIGN_MIDDLE);
 		final Label label5 = new Label("Publication");
 		label5.setTitle(publicationTag);
 		label5.setStyleName("font-bold");
 		projectsTable.setWidget(0, 4, label5);
-		projectsTable.getCellFormatter().setAlignment(0, 4, HasAlignment.ALIGN_CENTER, HasAlignment.ALIGN_MIDDLE);
+		projectsTable.getCellFormatter().setAlignment(0, 4, HasHorizontalAlignment.ALIGN_CENTER,
+				HasVerticalAlignment.ALIGN_MIDDLE);
 
-		CaptionPanel querySelectedProjectsCaptionPanel = new CaptionPanel("Explore data:");
+		final CaptionPanel querySelectedProjectsCaptionPanel = new CaptionPanel("Explore data:");
 		flowPanel.add(querySelectedProjectsCaptionPanel);
 		querySelectedProjectsCaptionPanel.setStyleName("browserSelectedProject");
 
-		FlexTable horizontalPanel_1 = new FlexTable();
+		final FlexTable horizontalPanel_1 = new FlexTable();
 		horizontalPanel_1.setStyleName("horizontalComponent");
 
 		querySelectedProjectsCaptionPanel.setContentWidget(horizontalPanel_1);
@@ -173,11 +174,11 @@ public class BrowsePanel extends InitializableComposite {
 		horizontalPanel_1.getCellFormatter().setWidth(0, 1, "30%");
 		btnQueryOverSelected.setWidth("100px");
 
-		CaptionPanel cptnpnlExploreEnrichmentAnalysis = new CaptionPanel("Explore Enrichment Analysis:");
+		final CaptionPanel cptnpnlExploreEnrichmentAnalysis = new CaptionPanel("Explore Enrichment Analysis:");
 		cptnpnlExploreEnrichmentAnalysis.setStyleName("browserSelectedProject");
 		flowPanel.add(cptnpnlExploreEnrichmentAnalysis);
 
-		FlexTable horizontalPanel = new FlexTable();
+		final FlexTable horizontalPanel = new FlexTable();
 		cptnpnlExploreEnrichmentAnalysis.setContentWidget(horizontalPanel);
 		horizontalPanel.setSize("100%", "100%");
 
@@ -198,15 +199,15 @@ public class BrowsePanel extends InitializableComposite {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				Set<String> projectTags = getSelectedProjects();
+				final Set<String> projectTags = getSelectedProjects();
 				if (projectTags == null || projectTags.isEmpty()) {
 					StatusReportersRegister.getInstance().notifyStatusReporters("Select at least one project");
 					return;
 				}
 
 				String historyToken = TargetHistory.PSEAQUANT.getTargetHistory() + "?project=";
-				StringBuilder projectTagsString = new StringBuilder();
-				for (String projectTag : projectTags) {
+				final StringBuilder projectTagsString = new StringBuilder();
+				for (final String projectTag : projectTags) {
 					if (!"".equals(projectTagsString.toString()))
 						projectTagsString.append(",");
 					projectTagsString.append(projectTag);
@@ -219,15 +220,15 @@ public class BrowsePanel extends InitializableComposite {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				Set<String> projectTags = getSelectedProjects();
+				final Set<String> projectTags = getSelectedProjects();
 				if (projectTags == null || projectTags.isEmpty()) {
 					StatusReportersRegister.getInstance().notifyStatusReporters("Select at least one project");
 					return;
 				}
 
 				String historyToken = TargetHistory.LOAD_PROJECT.getTargetHistory() + "?project=";
-				StringBuilder projectTagsString = new StringBuilder();
-				for (String projectTag : projectTags) {
+				final StringBuilder projectTagsString = new StringBuilder();
+				for (final String projectTag : projectTags) {
 					if (!"".equals(projectTagsString.toString()))
 						projectTagsString.append(",");
 					projectTagsString.append(projectTag);
@@ -236,18 +237,18 @@ public class BrowsePanel extends InitializableComposite {
 				History.newItem(historyToken);
 			}
 		});
-		CaptionPanel cptnpnlDeleteProject = new CaptionPanel("Delete project:");
+		final CaptionPanel cptnpnlDeleteProject = new CaptionPanel("Delete project:");
 		cptnpnlDeleteProject.setStyleName("browserSelectedProject");
 		flowPanel.add(cptnpnlDeleteProject);
 
-		FlexTable horizontalPanel2 = new FlexTable();
+		final FlexTable horizontalPanel2 = new FlexTable();
 		cptnpnlDeleteProject.setContentWidget(horizontalPanel2);
 		horizontalPanel2.setSize("100%", "100%");
 
 		final TextBox projectTagTextBox = new TextBox();
 		horizontalPanel2.setWidget(0, 0, projectTagTextBox);
 
-		Button btnDeleteProject = new Button("Delete");
+		final Button btnDeleteProject = new Button("Delete");
 		btnDeleteProject.setStyleName("selectionButton");
 		horizontalPanel2.setWidget(0, 1, btnDeleteProject);
 		horizontalPanel2.getCellFormatter().setWidth(0, 1, "30%");
@@ -259,11 +260,11 @@ public class BrowsePanel extends InitializableComposite {
 				checkUserNameForDeletion(projectTagTextBox.getText());
 			}
 		});
-		FlowPanel verticalPanelRigth = new FlowPanel();
+		final FlowPanel verticalPanelRigth = new FlowPanel();
 		verticalPanelRigth.setStyleName("browserRigthPart");
 		horizontalFlowPanel.add(verticalPanelRigth);
 
-		CaptionPanel cptnpnlNewPanel = new CaptionPanel("Experiment information:");
+		final CaptionPanel cptnpnlNewPanel = new CaptionPanel("Experiment information:");
 		cptnpnlNewPanel.setStyleName("browserExperimentInformation");
 		verticalPanelRigth.add(cptnpnlNewPanel);
 
@@ -275,7 +276,7 @@ public class BrowsePanel extends InitializableComposite {
 		cptnpnlNewPanel.setContentWidget(grid);
 		grid.setSize("100%", "100%");
 
-		Label lblProjectTag = new Label("Project tag:");
+		final Label lblProjectTag = new Label("Project tag:");
 		lblProjectTag.setStyleName("browserExperimentInformationItemHeader");
 		grid.setWidget(1, 0, lblProjectTag);
 		lblProjectTag.setHeight("2em");
@@ -286,7 +287,7 @@ public class BrowsePanel extends InitializableComposite {
 		grid.getCellFormatter().setWordWrap(0, 1, true);
 		projectTagLabel.setWidth("100%");
 
-		Label lblProjectStatus = new Label("Project status:");
+		final Label lblProjectStatus = new Label("Project status:");
 		lblProjectStatus.setStyleName("browserExperimentInformationItemHeader");
 		grid.setWidget(0, 0, lblProjectStatus);
 		lblProjectStatus.setHeight("2em");
@@ -297,7 +298,7 @@ public class BrowsePanel extends InitializableComposite {
 		grid.getCellFormatter().setWordWrap(1, 1, true);
 		projectStatusLabel.setWidth("100%");
 
-		Label lblTitle = new Label("Title:");
+		final Label lblTitle = new Label("Title:");
 		lblTitle.setStyleName("browserExperimentInformationItemHeader");
 		grid.setWidget(2, 0, lblTitle);
 		lblTitle.setHeight("2em");
@@ -308,7 +309,7 @@ public class BrowsePanel extends InitializableComposite {
 		projectTitleLabel.setWidth("100%");
 		grid.getCellFormatter().setWordWrap(1, 1, true);
 
-		Label lblDescription = new Label("Description:");
+		final Label lblDescription = new Label("Description:");
 		lblDescription.setStyleName("browserExperimentInformationItemHeader");
 		grid.setWidget(9, 0, lblDescription);
 		lblDescription.setHeight("10em");
@@ -327,7 +328,7 @@ public class BrowsePanel extends InitializableComposite {
 		grid.getCellFormatter().setHorizontalAlignment(7, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		grid.getCellFormatter().setHorizontalAlignment(8, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 
-		Label speciesLabel = new Label("Species:");
+		final Label speciesLabel = new Label("Species:");
 		speciesLabel.setStyleName("browserExperimentInformationItemHeader");
 		grid.setWidget(3, 0, speciesLabel);
 
@@ -335,7 +336,7 @@ public class BrowsePanel extends InitializableComposite {
 		grid.setWidget(3, 1, speciesDataLabel);
 		speciesDataLabel.setWidth("100%");
 
-		Label lblExpDate = new Label("Experiment date:");
+		final Label lblExpDate = new Label("Experiment date:");
 		lblExpDate.setStyleName("browserExperimentInformationItemHeader");
 		grid.setWidget(4, 0, lblExpDate);
 		lblExpDate.setSize("146px", "");
@@ -344,7 +345,7 @@ public class BrowsePanel extends InitializableComposite {
 		grid.setWidget(4, 1, projectDateLabel);
 		projectDateLabel.setWidth("100%");
 
-		Label lblUploadedDate = new Label("Uploaded date:");
+		final Label lblUploadedDate = new Label("Uploaded date:");
 		lblUploadedDate.setStyleName("browserExperimentInformationItemHeader");
 		grid.setWidget(5, 0, lblUploadedDate);
 		lblUploadedDate.setSize("100%", "");
@@ -353,22 +354,22 @@ public class BrowsePanel extends InitializableComposite {
 		grid.setWidget(5, 1, projectUploadDateLabel);
 		projectUploadDateLabel.setWidth("100%");
 
-		Label lblNewLabel = new Label("Download links:");
+		final Label lblNewLabel = new Label("Download links:");
 		lblNewLabel.setStyleName("browserExperimentInformationItemHeader");
 		grid.setWidget(6, 0, lblNewLabel);
 
-		Label proteinLabel = new Label("proteins");
+		final Label proteinLabel = new Label("proteins");
 		proteinLabel.setStyleName("browserExperimentInformationItemHeader");
 		grid.setWidget(7, 0, proteinLabel);
 
-		Label emptyLabel = new Label("-");
+		final Label emptyLabel = new Label("-");
 		grid.setWidget(7, 1, emptyLabel);
 
-		Label proteinGroupsLabel = new Label("protein groups");
+		final Label proteinGroupsLabel = new Label("protein groups");
 		proteinGroupsLabel.setStyleName("browserExperimentInformationItemHeader");
 		grid.setWidget(8, 0, proteinGroupsLabel);
 
-		Label emptyLabel2 = new Label("-");
+		final Label emptyLabel2 = new Label("-");
 		grid.setWidget(8, 1, emptyLabel2);
 		grid.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
 		grid.getCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_TOP);
@@ -399,7 +400,7 @@ public class BrowsePanel extends InitializableComposite {
 
 	protected void checkUserNameForDeletion(final String projectTag) {
 		// check first the login
-		PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
+		final PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
 				"Enter PINT master password for project deletion:");
 		loginPanel.addCloseHandler(new CloseHandler<PopupPanel>() {
 
@@ -408,7 +409,7 @@ public class BrowsePanel extends InitializableComposite {
 				final PopupPanel popup = event.getTarget();
 				final Widget widget = popup.getWidget();
 				if (widget instanceof PopUpPanelPasswordChecker) {
-					PopUpPanelPasswordChecker loginPanel = (PopUpPanelPasswordChecker) widget;
+					final PopUpPanelPasswordChecker loginPanel = (PopUpPanelPasswordChecker) widget;
 					if (loginPanel.isLoginOK()) {
 						showLoadingDialog(
 								"Deleting project '" + projectTag + "'. Please wait, this may take some minutes.",
@@ -416,20 +417,20 @@ public class BrowsePanel extends InitializableComposite {
 						ProjectSaverServiceAsync.Util.getInstance().deleteProject(projectTag,
 								new AsyncCallback<String>() {
 
-							@Override
-							public void onFailure(Throwable caught) {
-								hiddeLoadingDialog();
-								StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+									@Override
+									public void onFailure(Throwable caught) {
+										hiddeLoadingDialog();
+										StatusReportersRegister.getInstance().notifyStatusReporters(caught);
 
-							}
+									}
 
-							@Override
-							public void onSuccess(String message) {
-								hiddeLoadingDialog();
-								StatusReportersRegister.getInstance().notifyStatusReporters(message);
-								loadProjectList();
-							}
-						});
+									@Override
+									public void onSuccess(String message) {
+										hiddeLoadingDialog();
+										StatusReportersRegister.getInstance().notifyStatusReporters(message);
+										loadProjectList();
+									}
+								});
 					}
 				}
 			}
@@ -438,8 +439,8 @@ public class BrowsePanel extends InitializableComposite {
 	}
 
 	protected Set<String> getSelectedProjects() {
-		Set<String> ret = new HashSet<String>();
-		for (CheckBox checkBox : checkBoxes) {
+		final Set<String> ret = new HashSet<String>();
+		for (final CheckBox checkBox : checkBoxes) {
 			if (checkBox.getValue().booleanValue())
 				ret.add(checkBox.getText());
 		}
@@ -465,7 +466,7 @@ public class BrowsePanel extends InitializableComposite {
 			public void onSuccess(Set<ProjectBean> projectBeans) {
 				projectListVerticalPanel.add(new ScrollPanel(projectsTable));
 				// sort projects by release date
-				List<ProjectBean> projectList = new ArrayList<ProjectBean>();
+				final List<ProjectBean> projectList = new ArrayList<ProjectBean>();
 				projectList.addAll(projectBeans);
 				Collections.sort(projectList, new Comparator<ProjectBean>() {
 
@@ -489,7 +490,7 @@ public class BrowsePanel extends InitializableComposite {
 				int row = 1;
 
 				// create a checkbox per each project
-				for (ProjectBean projectBean : projectList) {
+				for (final ProjectBean projectBean : projectList) {
 					addToProjectTable(row, projectBean);
 
 					row++;
@@ -514,7 +515,7 @@ public class BrowsePanel extends InitializableComposite {
 
 		projectsTable.setWidget(row, 0, new Label(String.valueOf(row)));
 		projectsTable.setWidget(row, 1, checkBox);
-		DateTimeFormat format = com.google.gwt.i18n.client.DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG);
+		final DateTimeFormat format = com.google.gwt.i18n.client.DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG);
 		final DateLabel dateLabel = new DateLabel(format);
 		dateLabel.setTitle(uploadDateTitle + ":\n" + format.format(projectBean.getUploadedDate()));
 		dateLabel.setValue(projectBean.getUploadedDate());
@@ -541,7 +542,8 @@ public class BrowsePanel extends InitializableComposite {
 		});
 
 		projectsTable.setWidget(row, 3, publicPrivateLabel);
-		projectsTable.getCellFormatter().setAlignment(row, 3, HasAlignment.ALIGN_CENTER, HasAlignment.ALIGN_MIDDLE);
+		projectsTable.getCellFormatter().setAlignment(row, 3, HasHorizontalAlignment.ALIGN_CENTER,
+				HasVerticalAlignment.ALIGN_MIDDLE);
 		// publication
 		final String pubmedId = projectBean.getPubmedLink();
 		if (pubmedId != null) {
@@ -550,7 +552,8 @@ public class BrowsePanel extends InitializableComposite {
 		} else {
 			projectsTable.setWidget(row, 4, new Label("-"));
 		}
-		projectsTable.getCellFormatter().setAlignment(row, 4, HasAlignment.ALIGN_CENTER, HasAlignment.ALIGN_MIDDLE);
+		projectsTable.getCellFormatter().setAlignment(row, 4, HasHorizontalAlignment.ALIGN_CENTER,
+				HasVerticalAlignment.ALIGN_MIDDLE);
 		// projectListVerticalPanel.add(checkBox);
 
 	}
@@ -558,7 +561,7 @@ public class BrowsePanel extends InitializableComposite {
 	protected void updateNumSelectedProjects() {
 		int numSelected = 0;
 		boolean allowExploreData = true;
-		for (CheckBox checkBox : checkBoxes) {
+		for (final CheckBox checkBox : checkBoxes) {
 			if (checkBox.getValue().booleanValue()) {
 				if (!projectAvailability.get(checkBox.getText()))
 					allowExploreData = false;
@@ -657,7 +660,7 @@ public class BrowsePanel extends InitializableComposite {
 				loadProteinLink(ClientCacheProteinFileDescriptorByProjectName.getInstance().getFromCache(projectTag));
 			} else {
 				setLoadingImagesForDownloadLinks();
-				List<String> projectTags = new ArrayList<String>();
+				final List<String> projectTags = new ArrayList<String>();
 				projectTags.add(projectTag);
 				proteinRetrievingService.getDownloadLinkForProteinsInProject(projectTags,
 						new AsyncCallback<FileDescriptor>() {
@@ -686,7 +689,7 @@ public class BrowsePanel extends InitializableComposite {
 				loadProteinGroupLink(
 						ClientCacheProteinGroupFileDescriptorByProjectName.getInstance().getFromCache(projectTag));
 			} else {
-				List<String> projectTags = new ArrayList<String>();
+				final List<String> projectTags = new ArrayList<String>();
 				projectTags.add(projectTag);
 				proteinRetrievingService.getDownloadLinkForProteinGroupsInProject(projectTags, true,
 						new AsyncCallback<FileDescriptor>() {
@@ -749,8 +752,8 @@ public class BrowsePanel extends InitializableComposite {
 
 	protected void loadOrganisms(Set<OrganismBean> organisms) {
 		if (organisms != null) {
-			StringBuilder sb = new StringBuilder();
-			for (OrganismBean organismBean : organisms) {
+			final StringBuilder sb = new StringBuilder();
+			for (final OrganismBean organismBean : organisms) {
 				if (!"".equals(sb.toString()))
 					sb.append("\n");
 				sb.append(organismBean.toString());
@@ -812,7 +815,7 @@ public class BrowsePanel extends InitializableComposite {
 		public void onMouseOver(MouseOverEvent event) {
 			final Object source = event.getSource();
 			if (source instanceof CheckBox) {
-				CheckBox checkbox = (CheckBox) source;
+				final CheckBox checkbox = (CheckBox) source;
 				loadProjectInfo(checkbox.getText());
 			}
 		}
@@ -825,10 +828,10 @@ public class BrowsePanel extends InitializableComposite {
 		@Override
 		public void onClick(ClickEvent event) {
 			updateNumSelectedProjects();
-			Object source = event.getSource();
+			final Object source = event.getSource();
 			if (source instanceof CheckBox) {
-				CheckBox checkBox = (CheckBox) source;
-				String projectName = checkBox.getText();
+				final CheckBox checkBox = (CheckBox) source;
+				final String projectName = checkBox.getText();
 				if (checkBox.getValue()) {
 					loadProjectInfo(projectName);
 				} else {

@@ -42,4 +42,8 @@ public interface ConfigurationService extends RemoteService {
 
 	Boolean isPreLoadPublicProjects();
 
+	void setPSMCentric(boolean psmCentric);
+
+	Boolean isPSMCentric();
+
 }

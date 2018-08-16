@@ -1,6 +1,7 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
@@ -8,11 +9,14 @@ import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
+import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
+import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class PeptideAdapter implements Adapter<Peptide>, Serializable {
@@ -39,13 +43,15 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 		}
 
 		final MsRun msRun = new MSRunAdapter(peptide.getMSRun(), hibProject).adapt();
-		Peptide ret = new Peptide(msRun, peptide.getSequence());
+		final Peptide ret = new Peptide(msRun, peptide.getSequence());
+		ret.setFullSequence(ModelUtils.getFullSequence(peptide.getSequence(), peptide.getPTMs()));
+
 		map.put(peptide.hashCode(), ret);
 
 		// peptide amounts
 		final Set<Amount> peptideAmounts = peptide.getAmounts();
 		if (peptideAmounts != null) {
-			for (Amount amount : peptideAmounts) {
+			for (final Amount amount : peptideAmounts) {
 				if (!Double.isNaN(amount.getValue())) {
 					ret.getPeptideAmounts().add(new PeptideAmountAdapter(amount, ret, hibProject).adapt());
 				}
@@ -54,7 +60,7 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 		// ratios
 		final Set<Ratio> ratios = peptide.getRatios();
 		if (ratios != null) {
-			for (Ratio ratio : ratios) {
+			for (final Ratio ratio : ratios) {
 				if (!Double.isNaN(ratio.getValue())) {
 					ret.getPeptideRatioValues().add(new PeptideRatioValueAdapter(ratio, ret, hibProject).adapt());
 				}
@@ -64,14 +70,24 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 		// scores
 		final Set<Score> scores = peptide.getScores();
 		if (scores != null) {
-			for (Score score : scores) {
+			for (final Score score : scores) {
 				ret.getPeptideScores().add(new PeptideScoreAdapter(score, ret).adapt());
 			}
 		}
+		// ptms
+		final List<PTM> ptms = peptide.getPTMs();
+		if (ptms != null && !ptms.isEmpty()) {
+			for (final PTM ptm : ptms) {
+				final Ptm hibPtm = new PTMAdapter(ptm, ret).adapt();
+				ret.getPtms().add(hibPtm);
+				hibPtm.setPeptide(ret);
+			}
+		}
+
 		// psms
 		final Set<PSM> psMs = peptide.getPSMs();
 		if (psMs != null && !psMs.isEmpty()) {
-			for (PSM psm : psMs) {
+			for (final PSM psm : psMs) {
 				final Psm hibPsm = new PSMAdapter(psm, hibProject).adapt();
 				ret.getPsms().add(hibPsm);
 				hibPsm.setPeptide(ret);
@@ -84,7 +100,7 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 		// proteins
 		final Set<edu.scripps.yates.utilities.proteomicsmodel.Protein> proteins = peptide.getProteins();
 		if (proteins != null && !proteins.isEmpty()) {
-			for (edu.scripps.yates.utilities.proteomicsmodel.Protein protein : proteins) {
+			for (final edu.scripps.yates.utilities.proteomicsmodel.Protein protein : proteins) {
 				final Protein hibProtein = new ProteinAdapter(protein, hibProject).adapt();
 				ret.getProteins().add(hibProtein);
 				hibProtein.getPeptides().add(ret);
@@ -95,7 +111,7 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 		}
 		// conditions
 		final Set<Condition> conditions = peptide.getConditions();
-		for (Condition condition : conditions) {
+		for (final Condition condition : conditions) {
 			ret.getConditions().add(new ConditionAdapter(condition, hibProject).adapt());
 		}
 		return ret;

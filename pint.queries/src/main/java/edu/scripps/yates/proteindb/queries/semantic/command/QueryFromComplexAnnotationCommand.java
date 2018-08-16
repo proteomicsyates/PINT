@@ -9,10 +9,11 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.NumericalCondition;
 import edu.scripps.yates.proteindb.queries.Query;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
@@ -44,12 +45,12 @@ public class QueryFromComplexAnnotationCommand extends AbstractQuery {
 		final String[] split = MyCommandTokenizer.splitCommand(commandReference.getCommandValue());
 		if (split.length == 6) {
 			uniprotVersion = split[0].trim();
-			String ulhString = split[1].trim();
-			String annotationTypeString = split[2].trim();
+			final String ulhString = split[1].trim();
+			final String annotationTypeString = split[2].trim();
 			annotationNameString = split[3].trim();
 			annotationValueString = split[4].trim();
 
-			String numericalConditionString = split[5].trim();
+			final String numericalConditionString = split[5].trim();
 
 			uniprotLineHeader = null;
 			if (!"".equals(ulhString)) {
@@ -109,6 +110,15 @@ public class QueryFromComplexAnnotationCommand extends AbstractQuery {
 
 	}
 
+	@Override
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+
+		// annotate the proteins according to the uniprot version provided
+		final QueriableProteinSet protein = link.getQueriableProtein();
+		return evaluate(protein);
+
+	}
+
 	// static void annotateProtein(QueriableProteinInterface protein, String
 	// uniprotVersion) {
 	// Map<String, Set<QueriableProteinInterface>> map = new THashMap<String,
@@ -145,8 +155,7 @@ public class QueryFromComplexAnnotationCommand extends AbstractQuery {
 	}
 
 	@Override
-	public ProteinProviderFromDB initProtenProvider() {
-		// TODO Auto-generated method stub
+	public DataProviderFromDB initProtenProvider() {
 		return null;
 	}
 
@@ -160,10 +169,10 @@ public class QueryFromComplexAnnotationCommand extends AbstractQuery {
 			int numMatchedAnnotations = 0;
 			// to be included in the result, at least one annotation
 			// will have to be present
-			for (edu.scripps.yates.utilities.proteomicsmodel.AnnotationType annotationType : annotationTypes) {
-				List<ProteinAnnotation> proteinAnnotations2 = PersistenceUtils.getProteinAnnotations(proteinAnnotations,
-						annotationType);
-				for (ProteinAnnotation proteinAnnotation : proteinAnnotations2) {
+			for (final edu.scripps.yates.utilities.proteomicsmodel.AnnotationType annotationType : annotationTypes) {
+				final List<ProteinAnnotation> proteinAnnotations2 = PersistenceUtils
+						.getProteinAnnotations(proteinAnnotations, annotationType);
+				for (final ProteinAnnotation proteinAnnotation : proteinAnnotations2) {
 
 					// NAME==null
 					if ("".equals(annotationNameString)) {

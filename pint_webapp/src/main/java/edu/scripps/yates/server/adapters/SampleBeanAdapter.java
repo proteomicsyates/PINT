@@ -30,7 +30,7 @@ public class SampleBeanAdapter implements Adapter<SampleBean> {
 		if (map.get().containsKey(sample.getId())) {
 			return map.get().get(sample.getId());
 		}
-		SampleBean ret = new SampleBean();
+		final SampleBean ret = new SampleBean();
 		map.get().put(sample.getId(), ret);
 		ret.setDescription(sample.getDescription());
 		if (sample.getLabel() != null) {
@@ -38,8 +38,8 @@ public class SampleBeanAdapter implements Adapter<SampleBean> {
 		}
 		ret.setName(sample.getName());
 		if (sample.getOrganisms() != null && !sample.getOrganisms().isEmpty()) {
-			for (Object obj : sample.getOrganisms()) {
-				Organism organism = (Organism) obj;
+			for (final Object obj : sample.getOrganisms()) {
+				final Organism organism = (Organism) obj;
 				ret.setOrganism(new OrganismBeanAdapter(organism).adapt());
 				// just adapt the first. The DB model is different from the data
 				// model, allowing more than one organism for each sample

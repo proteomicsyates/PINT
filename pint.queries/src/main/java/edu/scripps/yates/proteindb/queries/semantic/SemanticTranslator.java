@@ -16,6 +16,7 @@ import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSimpleAnnot
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromTaxonomyCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromThresholdCommand;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
+import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 
 /**
  * This class will translate the query commands into a {@link QueryImpl} object
@@ -34,9 +35,9 @@ public class SemanticTranslator {
 		if ("".equals(queryCommand))
 			throw new MalformedQueryException("Query command cannot be empty");
 
-		CommandReference commandReference = new CommandReference(queryCommand);
+		final CommandReference commandReference = new CommandReference(queryCommand);
 		AbstractQuery query = null;
-		Command command = commandReference.getCommand();
+		final Command command = commandReference.getCommand();
 		switch (command) {
 		case CONDITION_PROJECT:
 			query = new QueryFromConditionCommand(commandReference);
@@ -75,7 +76,7 @@ public class SemanticTranslator {
 			query = new QueryFromMSRunCommand(commandReference);
 			return query;
 		case PTM:
-			query = new QueryFromPTMCommand(commandReference);
+			query = new QueryFromPTMCommand(commandReference, AggregationLevel.PEPTIDE);
 			return query;
 		case SEQ:
 			query = new QueryFromSEQCommand(commandReference);

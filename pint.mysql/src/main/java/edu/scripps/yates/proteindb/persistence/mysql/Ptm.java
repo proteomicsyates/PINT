@@ -12,6 +12,7 @@ public class Ptm implements java.io.Serializable {
 
 	private Integer id;
 	private Psm psm;
+	private Peptide peptide;
 	private double massShift;
 	private String name;
 	private String cvId;
@@ -34,8 +35,22 @@ public class Ptm implements java.io.Serializable {
 		this.ptmSites = ptmSites;
 	}
 
+	public Ptm(Peptide peptide, double massShift, String name) {
+		this.peptide = peptide;
+		this.massShift = massShift;
+		this.name = name;
+	}
+
+	public Ptm(Peptide peptide, double massShift, String name, String cvId, Set ptmSites) {
+		this.peptide = peptide;
+		this.massShift = massShift;
+		this.name = name;
+		this.cvId = cvId;
+		this.ptmSites = ptmSites;
+	}
+
 	public Integer getId() {
-		return this.id;
+		return id;
 	}
 
 	public void setId(Integer id) {
@@ -43,7 +58,15 @@ public class Ptm implements java.io.Serializable {
 	}
 
 	public Psm getPsm() {
-		return this.psm;
+		return psm;
+	}
+
+	public Peptide getPeptide() {
+		return peptide;
+	}
+
+	public void setPeptide(Peptide peptide) {
+		this.peptide = peptide;
 	}
 
 	public void setPsm(Psm psm) {
@@ -51,7 +74,7 @@ public class Ptm implements java.io.Serializable {
 	}
 
 	public double getMassShift() {
-		return this.massShift;
+		return massShift;
 	}
 
 	public void setMassShift(double massShift) {
@@ -59,7 +82,7 @@ public class Ptm implements java.io.Serializable {
 	}
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	public void setName(String name) {
@@ -67,7 +90,7 @@ public class Ptm implements java.io.Serializable {
 	}
 
 	public String getCvId() {
-		return this.cvId;
+		return cvId;
 	}
 
 	public void setCvId(String cvId) {
@@ -75,7 +98,7 @@ public class Ptm implements java.io.Serializable {
 	}
 
 	public Set getPtmSites() {
-		return this.ptmSites;
+		return ptmSites;
 	}
 
 	public void setPtmSites(Set ptmSites) {

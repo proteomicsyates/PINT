@@ -1,8 +1,6 @@
 package edu.scripps.yates.server.daemon.tasks;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -43,7 +41,7 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 			log.info("ProjectsToPreload property=" + projectsToPreload);
 			if (projectsToPreload.contains(",")) {
 				final String[] split = projectsToPreload.split(",");
-				for (String projectToPreload : split) {
+				for (final String projectToPreload : split) {
 					log.info("Project to preload: " + projectToPreload);
 					projectsToLoad.add(projectToPreload);
 				}
@@ -59,7 +57,7 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 		if (preloadPublic != null && preloadPublic) {
 			log.info("preloadPublic property=" + preloadPublic);
 
-			for (ProjectBean projectBean : projectBeans) {
+			for (final ProjectBean projectBean : projectBeans) {
 				if (projectBean.isPublicAvailable()) {
 					projectsToLoad.add(projectBean.getTag());
 				}
@@ -72,7 +70,7 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 
 			if (projectsToNotPreLoad.contains(",")) {
 				final String[] split = projectsToNotPreLoad.split(",");
-				for (String projectToNotPreLoad : split) {
+				for (final String projectToNotPreLoad : split) {
 					projectsToLoad.remove(projectToNotPreLoad);
 				}
 			} else {
@@ -81,14 +79,13 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 		}
 
 		if (!projectsToLoad.isEmpty()) {
-			List<String> projectList = new ArrayList<String>();
 
-			for (ProjectBean projectBean : projectBeans) {
+			for (final ProjectBean projectBean : projectBeans) {
 				log.info("Project to preload: " + projectBean.getTag());
 			}
-			ProteinRetrievalServicesServlet proteinRetrieval = new ProteinRetrievalServicesServlet();
+			final ProteinRetrievalServicesServlet proteinRetrieval = new ProteinRetrievalServicesServlet();
 			proteinRetrieval.setServletContext(servletContext);
-			for (ProjectBean projectBean : projectBeans) {
+			for (final ProjectBean projectBean : projectBeans) {
 				if (ServerUtil.isTestServer() && !projectBean.getTag().equals("PCP PPI Cortex")) {
 					continue;
 				}
@@ -96,14 +93,14 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 					try {
 						session = ContextualSessionHandler.openSession();
 						session.beginTransaction();
-						long t1 = System.currentTimeMillis();
+						final long t1 = System.currentTimeMillis();
 						log.info("Pre loading project: " + projectBean.getTag());
-						Set<String> projectTagSet = new THashSet<String>();
+						final Set<String> projectTagSet = new THashSet<String>();
 						projectTagSet.add(projectBean.getTag());
 						proteinRetrieval.getProteinsFromProjects(sessionID, projectTagSet, null, false, null, false);
-						double t2 = (System.currentTimeMillis() * 1.0 - t1 * 1.0) / 1000;
+						final double t2 = (System.currentTimeMillis() * 1.0 - t1 * 1.0) / 1000;
 						log.info(projectBean.getTag() + " pre loaded in " + myFormatter.format(t2) + " seconds");
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						e.printStackTrace();
 						session.getTransaction().rollback();
 					} finally {

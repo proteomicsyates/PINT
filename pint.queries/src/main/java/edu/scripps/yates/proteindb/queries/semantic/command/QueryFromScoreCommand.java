@@ -15,12 +15,15 @@ import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.queries.NumericalCondition;
 import edu.scripps.yates.proteindb.queries.NumericalconditionOperator;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.peptides.PeptideProviderFromPeptideScores;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProteinScores;
 import edu.scripps.yates.proteindb.queries.dataproviders.psm.PsmProviderFromPsmScores;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
+import edu.scripps.yates.proteindb.queries.semantic.QueriablePeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
@@ -46,7 +49,7 @@ public class QueryFromScoreCommand extends AbstractQuery {
 		super(commandReference);
 		final String[] split = MyCommandTokenizer.splitCommand(commandReference.getCommandValue());
 		if (split.length == 4) {
-			String aggregationLevelString = split[0].trim();
+			final String aggregationLevelString = split[0].trim();
 			if (!"".equals(aggregationLevelString)) {
 
 				aggregationLevel = AggregationLevel.getAggregationLevelByString(aggregationLevelString);
@@ -73,7 +76,7 @@ public class QueryFromScoreCommand extends AbstractQuery {
 				throw new MalformedQueryException(
 						"Score type or score name should be not empty at SC command '" + commandReference + "'");
 
-			String numericalConditionString = split[3].trim();
+			final String numericalConditionString = split[3].trim();
 			if (!"".equals(numericalConditionString)) {
 				numericalCondition = new NumericalCondition(numericalConditionString);
 			}
@@ -101,6 +104,22 @@ public class QueryFromScoreCommand extends AbstractQuery {
 
 	}
 
+	@Override
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+
+		switch (aggregationLevel) {
+		case PROTEIN:
+			final boolean queryOverProtein = queryOverProtein(link.getQueriableProtein());
+			return queryOverProtein;
+		case PEPTIDE:
+			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptide());
+			return queryOverPeptide;
+		default:
+			throw new IllegalArgumentException("Error in aggregation level");
+		}
+
+	}
+
 	/**
 	 * @return the scoreNameString
 	 */
@@ -117,11 +136,11 @@ public class QueryFromScoreCommand extends AbstractQuery {
 
 	private boolean queryOverPsm(Psm psm) {
 
-		boolean found = false;
+		final boolean found = false;
 		final Set<PsmScore> psmScores = psm.getPsmScores();
 		if (psmScores != null) {
 			boolean scoreFound = false;
-			for (PsmScore score : psmScores) {
+			for (final PsmScore score : psmScores) {
 				if (isThisScore(score.getName(), score.getConfidenceScoreType().getName())) {
 					scoreFound = true;
 
@@ -152,10 +171,10 @@ public class QueryFromScoreCommand extends AbstractQuery {
 		final Set<Ptm> ptMs = psm.getPtms();
 		if (!found && ptMs != null) {
 			boolean scoreFound = false;
-			for (Ptm ptm : ptMs) {
+			for (final Ptm ptm : ptMs) {
 				final Set<PtmSite> ptmSites = ptm.getPtmSites();
 				if (ptmSites != null) {
-					for (PtmSite ptmSite : ptmSites) {
+					for (final PtmSite ptmSite : ptmSites) {
 						if (ptmSite.getConfidenceScoreName() != null) {
 							if (isThisScore(ptmSite.getConfidenceScoreName(),
 									ptmSite.getConfidenceScoreType().getName())) {
@@ -198,7 +217,7 @@ public class QueryFromScoreCommand extends AbstractQuery {
 		final Set<ProteinScore> proteinScores = protein.getProteinScores();
 		if (proteinScores != null) {
 			boolean scoreFound = false;
-			for (ProteinScore score : proteinScores) {
+			for (final ProteinScore score : proteinScores) {
 
 				if (isThisScore(score.getName(), score.getConfidenceScoreType().getName())) {
 					scoreFound = true;
@@ -217,6 +236,84 @@ public class QueryFromScoreCommand extends AbstractQuery {
 							}
 						}
 						return true;
+					}
+				}
+			}
+			if (!scoreFound) {
+				// if =Nan
+				if (numericalCondition != null && numericalCondition.isNanValue()
+						&& numericalCondition.getOperator() == NumericalconditionOperator.EQUAL) {
+					return true;
+				}
+
+			}
+		}
+		return false;
+	}
+
+	private boolean queryOverPeptide(QueriablePeptideSet peptide) {
+		final boolean found = false;
+		final Set<PeptideScore> peptideScores = peptide.getPeptideScores();
+		if (peptideScores != null) {
+			boolean scoreFound = false;
+			for (final PeptideScore score : peptideScores) {
+				if (isThisScore(score.getName(), score.getConfidenceScoreType().getName())) {
+					scoreFound = true;
+
+					if (evaluateScore(score)) {
+						return true;
+					}
+					// if !=Nan
+					if (numericalCondition != null) {
+						if (numericalCondition.isNanValue()
+								&& numericalCondition.getOperator() == NumericalconditionOperator.NOT_EQUAL) {
+							return true;
+						} else {
+							continue;
+						}
+					}
+				}
+			}
+			if (!scoreFound) {
+				// if =Nan
+				if (numericalCondition != null && numericalCondition.isNanValue()
+						&& numericalCondition.getOperator() == NumericalconditionOperator.EQUAL) {
+					return true;
+				}
+
+			}
+		}
+
+		final Set<Ptm> ptMs = peptide.getPtms();
+		if (!found && ptMs != null) {
+			boolean scoreFound = false;
+			for (final Ptm ptm : ptMs) {
+				final Set<PtmSite> ptmSites = ptm.getPtmSites();
+				if (ptmSites != null) {
+					for (final PtmSite ptmSite : ptmSites) {
+						if (ptmSite.getConfidenceScoreName() != null) {
+							if (isThisScore(ptmSite.getConfidenceScoreName(),
+									ptmSite.getConfidenceScoreType().getName())) {
+								scoreFound = true;
+
+								if (evaluateScore(ptmSite.getConfidenceScoreName(),
+										ptmSite.getConfidenceScoreType().getName(),
+										ptmSite.getConfidenceScoreValue())) {
+
+									return true;
+								}
+								// if !=Nan
+								if (numericalCondition != null) {
+									if (numericalCondition.isNanValue() && numericalCondition
+											.getOperator() == NumericalconditionOperator.NOT_EQUAL) {
+										return true;
+									} else {
+										continue;
+									}
+								}
+							}
+						}
+
 					}
 				}
 			}
@@ -287,14 +384,17 @@ public class QueryFromScoreCommand extends AbstractQuery {
 	}
 
 	@Override
-	public ProteinProviderFromDB initProtenProvider() {
-		ProteinProviderFromDB ret = null;
+	public DataProviderFromDB initProtenProvider() {
+		DataProviderFromDB ret = null;
 		switch (aggregationLevel) {
 		case PROTEIN:
 			ret = new ProteinProviderFromProteinScores(scoreNameString, scoreTypeString);
 			break;
 		case PSM:
 			ret = new PsmProviderFromPsmScores(scoreNameString, scoreTypeString);
+			break;
+		case PEPTIDE:
+			ret = new PeptideProviderFromPeptideScores(scoreNameString, scoreTypeString);
 			break;
 		default:
 			throw new IllegalArgumentException("aggregation level is not acceptable");

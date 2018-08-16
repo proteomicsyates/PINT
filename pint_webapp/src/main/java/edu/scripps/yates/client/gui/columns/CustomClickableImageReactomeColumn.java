@@ -27,6 +27,7 @@ public class CustomClickableImageReactomeColumn extends AbsctractCustomClickable
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * com.google.gwt.user.cellview.client.Column#onBrowserEvent(com.google.gwt.
 	 * cell.client.Cell.Context, com.google.gwt.dom.client.Element,
@@ -39,7 +40,7 @@ public class CustomClickableImageReactomeColumn extends AbsctractCustomClickable
 		GWT.log("onBrowser event in Reactome clickable column: " + type);
 		if (type.equals(BrowserEvents.CLICK)) {
 
-			PathwaySummary pathWay = object;
+			final PathwaySummary pathWay = object;
 			ReactomePanel.getInstance(sessionID).selectPathWay(pathWay);
 
 		}

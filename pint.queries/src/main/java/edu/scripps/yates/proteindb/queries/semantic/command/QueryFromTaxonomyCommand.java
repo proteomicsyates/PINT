@@ -6,12 +6,12 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.queries.Query;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
-import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromTaxonomy;
-import edu.scripps.yates.proteindb.queries.dataproviders.psm.PsmProviderFromTaxonomy;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
+import edu.scripps.yates.proteindb.queries.semantic.QueriablePeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
@@ -39,14 +39,14 @@ public class QueryFromTaxonomyCommand extends AbstractQuery {
 
 		final String[] split = MyCommandTokenizer.splitCommand(commandReference.getCommandValue());
 		if (split.length == 4) {
-			String aggregationLevelString = split[0].trim();
-			String organismNameString = split[1].trim();
+			final String aggregationLevelString = split[0].trim();
+			final String organismNameString = split[1].trim();
 			if (!"".equals(organismNameString))
 				organismName = organismNameString;
-			String ncbiTaxIDString = split[2].trim();
+			final String ncbiTaxIDString = split[2].trim();
 			if (!"".equals(ncbiTaxIDString))
 				ncbiTaxID = ncbiTaxIDString;
-			String onlyString = split[3].trim();
+			final String onlyString = split[3].trim();
 			if (!"".equals(aggregationLevelString)) {
 				aggregationLevel = AggregationLevel.getAggregationLevelByString(aggregationLevelString);
 				if (aggregationLevel == null)
@@ -102,6 +102,23 @@ public class QueryFromTaxonomyCommand extends AbstractQuery {
 		}
 	}
 
+	@Override
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+
+		switch (aggregationLevel) {
+		case PROTEIN:
+			final boolean queryOverProtein = queryOverProtein(link.getQueriableProtein());
+			return queryOverProtein;
+		case PEPTIDE:
+			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptide());
+			return queryOverPeptide;
+
+		default:
+
+			throw new IllegalArgumentException("Aggregation level error");
+		}
+	}
+
 	private boolean queryOverProtein(QueriableProteinSet protein) {
 
 		return isValidOrganism(protein.getOrganism());
@@ -117,7 +134,25 @@ public class QueryFromTaxonomyCommand extends AbstractQuery {
 			}
 			return false;
 		} else {
-			for (Organism organism : organisms) {
+			for (final Organism organism : organisms) {
+				if (isValidOrganism(organism))
+					return true;
+			}
+
+		}
+		return false;
+	}
+
+	private boolean queryOverPeptide(QueriablePeptideSet peptide) {
+		final Set<Organism> organisms = peptide.getOrganisms();
+
+		if (exclusiveTaxonomy) {
+			if (organisms.size() == 1) {
+				return isValidOrganism(organisms.iterator().next());
+			}
+			return false;
+		} else {
+			for (final Organism organism : organisms) {
 				if (isValidOrganism(organism))
 					return true;
 			}
@@ -144,27 +179,33 @@ public class QueryFromTaxonomyCommand extends AbstractQuery {
 	}
 
 	@Override
-	public ProteinProviderFromDB initProtenProvider() {
-		ProteinProviderFromDB ret = null;
-		switch (aggregationLevel) {
-		case PROTEIN:
-			ret = new ProteinProviderFromTaxonomy(organismName, ncbiTaxID);
-			break;
-		case PSM:
-			ret = new PsmProviderFromTaxonomy(organismName, ncbiTaxID);
-			break;
-		default:
-			throw new IllegalArgumentException("aggregation level is not acceptable");
-		}
+	public DataProviderFromDB initProtenProvider() {
+		final DataProviderFromDB ret = null;
+		// change in Ago 2nd 2018
+		// switch (aggregationLevel) {
+		// case PROTEIN:
+		// ret = new ProteinProviderFromTaxonomy(organismName, ncbiTaxID);
+		// break;
+		// case PSM:
+		// ret = new PsmProviderFromTaxonomy(organismName, ncbiTaxID);
+		// break;
+		// case PEPTIDE:
+		// ret = new PeptideProviderFromTaxonomy(organismName, ncbiTaxID);
+		// break;
+		// default:
+		// throw new IllegalArgumentException("aggregation level is not
+		// acceptable");
+		// }
 
 		return ret;
 	}
 
 	@Override
 	public boolean requiresFurtherEvaluation() {
-		if (!exclusiveTaxonomy) {
-			return false;
-		}
+		// change in Ago 2nd 2018
+		// if (!exclusiveTaxonomy) {
+		// return false;
+		// }
 		return true; // because of the exclusive taxonomy
 	}
 }

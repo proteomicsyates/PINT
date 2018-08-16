@@ -14,10 +14,15 @@ public class ThresholdBeanAdapter implements Adapter<ThresholdBean> {
 		initializeMap();
 	}
 
-	private void initializeMap() {
+	private static void initializeMap() {
 		if (map.get() == null) {
 			map.set(new TIntObjectHashMap<ThresholdBean>());
 		}
+	}
+
+	public static ThresholdBean getBeanByConditionID(int proteinThresholdID) {
+		initializeMap();
+		return map.get().get(proteinThresholdID);
 	}
 
 	@Override
@@ -25,7 +30,7 @@ public class ThresholdBeanAdapter implements Adapter<ThresholdBean> {
 		if (map.get().containsKey(appliedThreshold.getId())) {
 			map.get().get(appliedThreshold.getId());
 		}
-		ThresholdBean ret = new ThresholdBean();
+		final ThresholdBean ret = new ThresholdBean();
 		map.get().put(appliedThreshold.getId(), ret);
 		ret.setDescription(appliedThreshold.getThreshold().getDescription());
 		ret.setName(appliedThreshold.getThreshold().getName());

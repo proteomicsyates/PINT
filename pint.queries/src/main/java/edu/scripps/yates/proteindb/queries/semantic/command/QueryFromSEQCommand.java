@@ -12,11 +12,13 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.proteindb.queries.Query;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.psm.PsmProviderFromSEQ;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
+import edu.scripps.yates.proteindb.queries.semantic.QueriablePeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
@@ -149,16 +151,45 @@ public class QueryFromSEQCommand extends AbstractQuery {
 
 	@Override
 	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
-		if (aggregationLevel == AggregationLevel.PSM || aggregationLevel == AggregationLevel.PEPTIDE) {
+		switch (aggregationLevel) {
+		case PSM:
 			return evaluate(link.getQueriablePsm());
-		} else if (aggregationLevel == AggregationLevel.PROTEIN) {
+
+		case PROTEIN:
 			return evaluate(link.getQueriableProtein());
+
+		default:
+			break;
 		}
+
+		throw new IllegalArgumentException("aggregation level " + aggregationLevel + " is not supported");
+	}
+
+	@Override
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+		switch (aggregationLevel) {
+		case PEPTIDE:
+			return evaluate(link.getQueriablePeptide());
+
+		case PROTEIN:
+			return evaluate(link.getQueriableProtein());
+
+		default:
+			break;
+		}
+
 		throw new IllegalArgumentException("aggregation level " + aggregationLevel + " is not supported");
 	}
 
 	private boolean evaluate(QueriablePsm psm) {
 		final String seq = psm.getSequence();
+
+		return evaluateSequence(seq);
+
+	}
+
+	private boolean evaluate(QueriablePeptideSet peptide) {
+		final String seq = peptide.getSequence();
 
 		return evaluateSequence(seq);
 
@@ -220,7 +251,7 @@ public class QueryFromSEQCommand extends AbstractQuery {
 	}
 
 	@Override
-	public ProteinProviderFromDB initProtenProvider() {
+	public DataProviderFromDB initProtenProvider() {
 		// only for PSM or PEPTIDE aggregation levels
 		if (aggregationLevel == AggregationLevel.PEPTIDE || aggregationLevel == AggregationLevel.PSM) {
 			try {

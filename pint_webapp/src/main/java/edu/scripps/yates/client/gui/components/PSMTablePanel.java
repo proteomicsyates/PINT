@@ -48,15 +48,15 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 				return item == null ? null : item.getPsmID();
 			}
 		};
-		MyDataGrid<PSMBean> dataGrid = new MyDataGrid<PSMBean>(KEY_PROVIDER, tableName);
+		final MyDataGrid<PSMBean> dataGrid = new MyDataGrid<PSMBean>(KEY_PROVIDER, tableName);
 
 		return dataGrid;
 	}
 
 	@Override
 	protected SimplePager makePager() {
-		SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
-		SimplePager simplePager = new SimplePager(TextLocation.CENTER, pagerResources, true,
+		final SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
+		final SimplePager simplePager = new SimplePager(TextLocation.CENTER, pagerResources, true,
 				SharedConstants.PSM_DEFAULT_PAGE_SIZE * 5, true);
 		simplePager.setPageSize(SharedConstants.PSM_DEFAULT_PAGE_SIZE);
 		simplePager.setDisplay(dataGrid);

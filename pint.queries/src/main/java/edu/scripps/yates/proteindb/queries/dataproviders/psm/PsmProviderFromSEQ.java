@@ -4,19 +4,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.PsmDataProvider;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import gnu.trove.map.hash.THashMap;
 
-public class PsmProviderFromSEQ implements ProteinProviderFromDB {
+public class PsmProviderFromSEQ extends PsmDataProvider {
 
 	private final String mySqlRegularExpression;
-	private Map<String, Set<Psm>> result;
-	private Set<String> projectTags;
 
 	public PsmProviderFromSEQ(String regularExpression) {
 		mySqlRegularExpression = getMySQLRegularExpression(regularExpression);
@@ -66,7 +63,7 @@ public class PsmProviderFromSEQ implements ProteinProviderFromDB {
 			result = new THashMap<String, Set<Psm>>();
 			int numPSMs = 0;
 			if (projectTags == null || projectTags.isEmpty()) {
-				List<Psm> psms = PreparedCriteria.getCriteriaForPsmSequence(mySqlRegularExpression, null).list();
+				final List<Psm> psms = PreparedCriteria.getCriteriaForPsmSequence(mySqlRegularExpression, null).list();
 				if (testMode && numPSMs + psms.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
 					PersistenceUtils.addToPSMMapByPsmId(result,
 							psms.subList(0, Math.min(psms.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
@@ -75,9 +72,9 @@ public class PsmProviderFromSEQ implements ProteinProviderFromDB {
 				}
 				numPSMs += psms.size();
 			} else {
-				for (String projectTag : projectTags) {
-					List<Psm> psms = PreparedCriteria.getCriteriaForPsmSequence(mySqlRegularExpression, projectTag)
-							.list();
+				for (final String projectTag : projectTags) {
+					final List<Psm> psms = PreparedCriteria
+							.getCriteriaForPsmSequence(mySqlRegularExpression, projectTag).list();
 					if (testMode && numPSMs + psms.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
 						PersistenceUtils.addToPSMMapByPsmId(result,
 								psms.subList(0, Math.min(psms.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
@@ -92,14 +89,4 @@ public class PsmProviderFromSEQ implements ProteinProviderFromDB {
 		return result;
 	}
 
-	@Override
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap(testMode), true);
-	}
-
-	@Override
-	public void setProjectTags(Set<String> projectNames) {
-		projectTags = projectNames;
-		result = null;
-	}
 }

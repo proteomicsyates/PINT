@@ -49,7 +49,7 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 
 	@Override
 	public PSMBean adapt() {
-		Psm psm = queriablePsm.getPsm();
+		final Psm psm = queriablePsm.getPsm();
 		if (ServerCachePSMBeansByPSMDBId.getInstance().contains(psm.getId())) {
 			final PSMBean psmBean = ServerCachePSMBeansByPSMDBId.getInstance().getFromCache(psm.getId());
 			// even if the psmBean was already created, add the corresponding
@@ -58,17 +58,17 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 			addProteinBeans(psmBean, queriablePsm);
 			return psmBean;
 		}
-		PSMBean ret = new PSMBean();
+		final PSMBean ret = new PSMBean();
 		ServerCachePSMBeansByPSMDBId.getInstance().addtoCache(ret, psm.getId());
 		ret.setDbID(psm.getId());
 		ret.setChargeState(psm.getChargeState());
 		ret.setCalculatedMH(psm.getCalMh());
 		ret.setExperimentalMH(psm.getMh());
-		Set<Ptm> ptms = psm.getPtms();
-		ret.setFullSequence(getFullSequence(psm, ptms, hiddenPTMs));
+		final Set<Ptm> ptms = psm.getPtms();
+		ret.setFullSequence(getFullSequence(psm.getFullSequence(), psm.getSequence(), ptms, hiddenPTMs));
 		ret.setIonProportion(psm.getIonProportion());
 		ret.setMassErrorPPM(psm.getPpmError());
-		final MSRunBean msRunBean = new MSRunBeanAdapter(psm.getMsRun()).adapt();
+		final MSRunBean msRunBean = new MSRunBeanAdapter(psm.getMsRun(), false).adapt();
 		ret.setMsRun(msRunBean);
 		ret.setPi(psm.getPi());
 		if (psm.getPsmId() != null) {
@@ -84,13 +84,13 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 		ret.setSpr(psm.getSpr());
 		ret.setTotalIntensity(psm.getTotalIntensity());
 		if (psm.getPsmAmounts() != null) {
-			for (Object obj : psm.getPsmAmounts()) {
-				PsmAmount amount = (PsmAmount) obj;
+			for (final Object obj : psm.getPsmAmounts()) {
+				final PsmAmount amount = (PsmAmount) obj;
 				ret.addAmount(new AmountBeanAdapter(amount, psm.getMsRun()).adapt());
 			}
 		}
 		if (psm.getPsmRatioValues() != null) {
-			for (Object obj : psm.getPsmRatioValues()) {
+			for (final Object obj : psm.getPsmRatioValues()) {
 				ret.addRatio(new PSMRatioBeanAdapter((PsmRatioValue) obj).adapt());
 			}
 		}
@@ -100,8 +100,8 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 		}
 		if (psm.getPsmScores() != null) {
 			if (SharedConstants.ADAPT_PSM_SCORES) {
-				for (Object obj : psm.getPsmScores()) {
-					PsmScore score = (PsmScore) obj;
+				for (final Object obj : psm.getPsmScores()) {
+					final PsmScore score = (PsmScore) obj;
 					ret.addScore(new ScoreBeanAdapter(String.valueOf(score.getValue()), score.getName(),
 							score.getConfidenceScoreType()).adapt());
 				}
@@ -109,8 +109,8 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 		}
 
 		if (ptms != null) {
-			for (Object obj : ptms) {
-				Ptm ptm = (Ptm) obj;
+			for (final Object obj : ptms) {
+				final Ptm ptm = (Ptm) obj;
 				// skip PTMs in the list of hidden PTMs
 				if (hiddenPTMs != null && hiddenPTMs.contains(ptm.getName()))
 					continue;
@@ -119,9 +119,9 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 		}
 		// conditions
 		if (psm.getConditions() != null) {
-			for (Object obj : psm.getConditions()) {
-				Condition condition = (Condition) obj;
-				ret.addCondition(new ConditionBeanAdapter(condition).adapt());
+			for (final Object obj : psm.getConditions()) {
+				final Condition condition = (Condition) obj;
+				ret.addCondition(new ConditionBeanAdapter(condition, true).adapt());
 			}
 		}
 		return ret;
@@ -131,9 +131,9 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 		// List<AccessionBean> primaryAccessions = new
 		// ArrayList<AccessionBean>();
 
-		for (LinkBetweenQueriableProteinSetAndPSM link : queriablePsm2.getLinks()) {
-			QueriableProteinSet queriableProtein = link.getQueriableProtein();
-			TIntIterator iterator = queriableProtein.getProteinDBIds().iterator();
+		for (final LinkBetweenQueriableProteinSetAndPSM link : queriablePsm2.getLinks()) {
+			final QueriableProteinSet queriableProtein = link.getQueriableProtein();
+			final TIntIterator iterator = queriableProtein.getProteinDBIds().iterator();
 			while (iterator.hasNext()) {
 				psmBean.getProteinDBIds().add(iterator.next());
 			}
@@ -166,19 +166,21 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 	 * @param hiddenPTMs2
 	 * @return
 	 */
-	private String getFullSequence(Psm psm, Set<Ptm> ptms, Collection<String> hiddenPTMs) {
+	protected static String getFullSequence(String fullSequence, String cleanSequence, Set<Ptm> ptms,
+			Collection<String> hiddenPTMs) {
 		try {
-			final String fullSequence = psm.getFullSequence();
-
-			if (ptms == null || ptms.isEmpty() || hiddenPTMs == null || hiddenPTMs.isEmpty())
+			if (fullSequence == null) {
+				return cleanSequence;
+			}
+			if (hiddenPTMs == null || hiddenPTMs.isEmpty() || ptms == null || ptms.isEmpty()) {
 				return fullSequence;
-
-			List<Integer> ptmsPositionsToHidde = new ArrayList<Integer>();
-			for (Ptm ptm : ptms) {
+			}
+			final List<Integer> ptmsPositionsToHidde = new ArrayList<Integer>();
+			for (final Ptm ptm : ptms) {
 				if (hiddenPTMs != null && hiddenPTMs.contains(ptm.getName())) {
 					final Set<PtmSite> ptmSites = ptm.getPtmSites();
 					if (ptmSites != null) {
-						for (PtmSite ptmSite : ptmSites) {
+						for (final PtmSite ptmSite : ptmSites) {
 							ptmsPositionsToHidde.add(ptmSite.getPosition());
 						}
 					}
@@ -186,8 +188,7 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 			}
 			int positionOnCleanSequence = 0;
 			int positionOnAnnotatedSequence = 0;
-			final String cleanSequence = psm.getSequence();
-			StringBuilder sb = new StringBuilder();
+			final StringBuilder sb = new StringBuilder();
 			boolean skipthisPTM = false;
 			boolean insideParenthesis = false;
 			boolean firstPoint = false;
@@ -195,7 +196,7 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 				if (ptmsPositionsToHidde.contains(positionOnCleanSequence))
 					skipthisPTM = true;
 
-				char annotatedSequenceAA = fullSequence.charAt(positionOnAnnotatedSequence);
+				final char annotatedSequenceAA = fullSequence.charAt(positionOnAnnotatedSequence);
 				if (annotatedSequenceAA == '.' && firstPoint == false && !insideParenthesis) {
 					firstPoint = true;
 					positionOnCleanSequence = -1;
@@ -221,7 +222,7 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 			}
 
 			return sb.toString();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 		}

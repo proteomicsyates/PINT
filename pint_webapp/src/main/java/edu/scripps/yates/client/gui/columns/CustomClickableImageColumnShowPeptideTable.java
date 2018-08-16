@@ -80,7 +80,7 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsPeptid
 
 			@Override
 			public void execute() {
-				SharingPeptidesPanel table = new SharingPeptidesPanel(result);
+				final SharingPeptidesPanel table = new SharingPeptidesPanel(result);
 				WindowBox window = null;
 				if (containsPeptides instanceof ProteinGroupBean) {
 					window = new WindowBox(table, "Peptides explaining protein group '"

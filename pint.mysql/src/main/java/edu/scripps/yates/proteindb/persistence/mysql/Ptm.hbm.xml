@@ -11,6 +11,9 @@
         <many-to-one name="psm" class="edu.scripps.yates.proteindb.persistence.mysql.Psm" fetch="select">
             <column name="PSM_id" not-null="true" />
         </many-to-one>
+        <many-to-one name="peptide" class="edu.scripps.yates.proteindb.persistence.mysql.Peptide" fetch="select">
+            <column name="Peptide_id" not-null="true" />
+        </many-to-one>
         <property name="massShift" type="double">
             <column name="mass_shift" precision="22" scale="0" not-null="true" />
         </property>

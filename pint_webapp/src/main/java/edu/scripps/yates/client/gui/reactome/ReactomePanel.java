@@ -80,7 +80,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 	private final DiagramViewer diagram;
 	private boolean fireWorksLoaded;
 	private final SimpleCheckBox includeInteractorsCheckBox;
-	private final AsyncPathwaySummaryDataProvider asyncDataListProvider = new AsyncPathwaySummaryDataProvider();
+	private final AsyncPathwaySummaryDataProvider asyncDataListProvider;
 
 	private PathwaySummary toHighlight;
 	private PathwaySummary toSelect;
@@ -91,7 +91,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 	private final ListBox speciesComboBox;
 	private ReactomeSupportedSpecies dataSpecies;
 	private final Button reactomeSubmitButton;
-	private SimpleCheckBox projectToHumanCheckBox;
+	private final SimpleCheckBox projectToHumanCheckBox;
 	private String currentProjectSpecies;
 
 	static {
@@ -121,21 +121,22 @@ public class ReactomePanel extends ResizeLayoutPanel
 
 	private ReactomePanel(final String sessionID) {
 		this.sessionID = sessionID;
+		asyncDataListProvider = new AsyncPathwaySummaryDataProvider();
 		this.setStyleName("queryPanelDataTablesPanel");
 		tabPanel = new ScrolledTabLayoutPanel();
 		tabPanel.setHeight("100%");
 		add(tabPanel);
 
-		DockLayoutPanel mainPanelAnalysis = new DockLayoutPanel(Unit.PX);
+		final DockLayoutPanel mainPanelAnalysis = new DockLayoutPanel(Unit.PX);
 		mainPanelAnalysis.setSize("100%", "100%");
 		tabPanel.add(mainPanelAnalysis, "Data Analysis");
-		CaptionPanel captionPanel = new CaptionPanel("Reactome data analysis service client");
+		final CaptionPanel captionPanel = new CaptionPanel("Reactome data analysis service client");
 		mainPanelAnalysis.addNorth(captionPanel, 200);
 		// captionPanel.setHeight("20%");
 		// panelAnalysis.setWidgetTopHeight(captionPanel, 0, Unit.PCT, 20,
 		// Unit.PCT);
 
-		FlowPanel submissionButtonPanel = new FlowPanel();
+		final FlowPanel submissionButtonPanel = new FlowPanel();
 		submissionButtonPanel.setStyleName("reactomePanelSubmit");
 		captionPanel.add(submissionButtonPanel);
 		final Label label = new Label(
@@ -146,9 +147,9 @@ public class ReactomePanel extends ResizeLayoutPanel
 		submissionButtonPanel.add(label);
 		final Label labelIncludeInteractors = new Label(
 				"Include IntAct interactors to increase the analysis background:");
-		String title = "IntAct interactors are used to increase the analysis background";
+		final String title = "IntAct interactors are used to increase the analysis background";
 		labelIncludeInteractors.setTitle(title);
-		FlexTable table = new FlexTable();
+		final FlexTable table = new FlexTable();
 		table.getElement().getStyle().setMargin(10, Unit.PX);
 		submissionButtonPanel.add(table);
 		table.setWidget(0, 0, labelIncludeInteractors);
@@ -156,7 +157,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		includeInteractorsCheckBox.setTitle(title);
 		table.setWidget(0, 1, includeInteractorsCheckBox);
 		final Label labelProjectToHuman = new Label("Project the result to Homo Sapiens:");
-		String titleProjectToHuman = "Analyse the identifiers in the file over the different \n"
+		final String titleProjectToHuman = "Analyse the identifiers in the file over the different \n"
 				+ "species and projects the result to Homo Sapiens.\n"
 				+ "The projection is calculated by the orthologous \n" + "slot in the Reactome database. ";
 		labelProjectToHuman.setTitle(titleProjectToHuman);
@@ -196,7 +197,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 				// case, the dataSpecies should be Human
 				if (projectToHumanCheckBox.getValue() == true
 						&& getSelectedSpecies() != ReactomeSupportedSpecies.Homo_sapiens) {
-					PopUpPanelYesNo yesNo = new PopUpPanelYesNo(false, true, true, "Pathway browser taxonomy",
+					final PopUpPanelYesNo yesNo = new PopUpPanelYesNo(false, true, true, "Pathway browser taxonomy",
 							"Selecting the analysis projection to Human requires to load the '"
 									+ ReactomeSupportedSpecies.Homo_sapiens.getScientificName() + "' pathways.\n"
 									+ "The view will automatically change to show '"
@@ -213,7 +214,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 					});
 					yesNo.show();
 				} else if (dataSpecies != null && dataSpecies != getSelectedSpecies()) {
-					PopUpPanelYesNo yesNo = new PopUpPanelYesNo(false, true, true, "Pathway browser taxonomy",
+					final PopUpPanelYesNo yesNo = new PopUpPanelYesNo(false, true, true, "Pathway browser taxonomy",
 							"The taxonomy of the proteins that are going to be analyzed ('"
 									+ dataSpecies.getScientificName() + "')\n"
 									+ "is different from the selected species in the Reactome fireworks view '"
@@ -248,7 +249,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		// panelAnalysis.setWidgetTopHeight(flowPanel, 20, Unit.PCT, 70,
 		// Unit.PCT);
 
-		FlowPanel flowPanelGraphical = new FlowPanel();
+		final FlowPanel flowPanelGraphical = new FlowPanel();
 		tabPanel.add(flowPanelGraphical, "Reactome view");
 		tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
 
@@ -266,7 +267,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 
 		flowPanelGraphical.setSize("100%", "100%");
 		flowPanelGraphical.setStyleName("flowPanelGraphical");
-		FlexTable tableSpecies = new FlexTable();
+		final FlexTable tableSpecies = new FlexTable();
 		tableSpecies.setStyleName("reactomeTableSpecies");
 		tableSpecies.setWidget(0, 0, new Label("Pathways for:"));
 		speciesComboBox = createSpeciesComboBox();
@@ -282,7 +283,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 		// diagram.asWidget().setWidth("1000px");
 		diagram.asWidget().setStyleName("reactome_diagram");
 		diagramLoader = new DiagramLoader(diagram);
-		FireworksOpenedHandler handler = new FireworksOpenedHandler() {
+		final FireworksOpenedHandler handler = new FireworksOpenedHandler() {
 
 			@Override
 			public void onFireworksOpened(FireworksOpenedEvent event) {
@@ -291,7 +292,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 				fireworksContainer.setVisible(true);
 				fireworks.showAll();
 
-				Node nodeSelected = fireworks.getSelected();
+				final Node nodeSelected = fireworks.getSelected();
 				if (nodeSelected != null) {
 					fireworks.selectNode(nodeSelected.getDbId());
 				}
@@ -338,10 +339,10 @@ public class ReactomePanel extends ResizeLayoutPanel
 	}
 
 	private ListBox createSpeciesComboBox() {
-		ListBox ret = new ListBox();
+		final ListBox ret = new ListBox();
 		int index = 0;
 		int selectedIndex = 0;
-		for (ReactomeSupportedSpecies species : ReactomeSupportedSpecies.values()) {
+		for (final ReactomeSupportedSpecies species : ReactomeSupportedSpecies.values()) {
 			if (dataSpecies != null && species == dataSpecies) {
 				selectedIndex = index;
 			}
@@ -434,8 +435,8 @@ public class ReactomePanel extends ResizeLayoutPanel
 			GWT.log("Actually requesting fireworks remotelly");
 			fireworksContainer.clear();
 			fireworksContainer.add(getLoadingMessage(species));
-			String url = "./reactome/download/current/fireworks/" + species.toJSonString();
-			RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+			final String url = "./reactome/download/current/fireworks/" + species.toJSonString();
+			final RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 			requestBuilder.setHeader("Accept", "application/json");
 			try {
 				requestingFireworks = true;
@@ -447,7 +448,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 
 							switch (response.getStatusCode()) {
 							case Response.SC_OK:
-								String json = response.getText();
+								final String json = response.getText();
 								GWT.log("Calling loadFireworks");
 
 								loadFireworks(json);
@@ -455,7 +456,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 
 								break;
 							default:
-								String errorMsg = "A problem has occurred while loading the pathways overview data. "
+								final String errorMsg = "A problem has occurred while loading the pathways overview data. "
 										+ response.getStatusText();
 								onFireworksLoadError(errorMsg);
 							}
@@ -467,7 +468,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 					@Override
 					public void onError(Request request, Throwable exception) {
 						try {
-							String errorMsg = "A problem has occurred while loading the pathways overview data. "
+							final String errorMsg = "A problem has occurred while loading the pathways overview data. "
 									+ exception.getMessage();
 							onFireworksLoadError(errorMsg);
 						} finally {
@@ -477,8 +478,8 @@ public class ReactomePanel extends ResizeLayoutPanel
 				});
 				GWT.log("fireworks remotelly requested");
 
-			} catch (RequestException ex) {
-				String errorMsg = "A problem has occurred while connecting to the server. " + ex.getMessage();
+			} catch (final RequestException ex) {
+				final String errorMsg = "A problem has occurred while connecting to the server. " + ex.getMessage();
 				onFireworksLoadError(errorMsg);
 			}
 		} finally {
@@ -676,7 +677,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 	 * @return Widget
 	 */
 	private Widget getLoadingMessage(ReactomeSupportedSpecies specie) {
-		HorizontalPanel hp = new HorizontalPanel();
+		final HorizontalPanel hp = new HorizontalPanel();
 		hp.add(new Image(MyClientBundle.INSTANCE.horizontalLoader()));
 		hp.add(new HTMLPanel("Loading pathways overview graph for '" + specie.getScientificName() + "'..."));
 		hp.setSpacing(5);
@@ -685,7 +686,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 	}
 
 	public void setProjectDataSpecies(String speciesName) {
-		this.currentProjectSpecies = speciesName;
+		currentProjectSpecies = speciesName;
 
 	}
 }

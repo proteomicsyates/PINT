@@ -16,7 +16,7 @@ import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
 import edu.scripps.yates.server.daemon.tasks.PreLoadPublicProjects;
-import edu.scripps.yates.server.daemon.tasks.ProteinUniprotAnnotationUpdater;
+import edu.scripps.yates.server.daemon.tasks.ProteinAccessionsUpdater;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerUtil;
 import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
@@ -32,11 +32,13 @@ public class PintServerDaemon implements ServletContextListener {
 	@Override
 	public void contextInitialized(final ServletContextEvent sce) {
 		// check database connection
-		boolean sessionOpen = false;
+		final boolean sessionOpen = false;
 		SessionFactory sessionFactory = null;
+		File pintPropertiesFile = null;
 		try {
-			File pintPropertiesFile = FileManager.getPINTPropertiesFile(sce.getServletContext());
-			PintConfigurationProperties properties = PintConfigurationPropertiesIO.readProperties(pintPropertiesFile);
+			pintPropertiesFile = FileManager.getPINTPropertiesFile(sce.getServletContext());
+			final PintConfigurationProperties properties = PintConfigurationPropertiesIO
+					.readProperties(pintPropertiesFile);
 
 			sessionFactory = ContextualSessionHandler.getSessionFactory(properties.getDb_username(),
 					properties.getDb_password(), properties.getDb_url());
@@ -45,13 +47,13 @@ public class PintServerDaemon implements ServletContextListener {
 			// sessionOpen = true;
 			// ContextualSessionHandler.beginGoodTransaction();
 			// ContextualSessionHandler.finishGoodTransaction();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			log.error(e);
 			log.error("Some error happened trying to initiate the database connection: " + e.getMessage());
-			log.error(
-					"Check the database user credentials in the pint.properties file at the WEB-INF folder of the web application");
-
+			log.error("Check the database user credentials in the '" + pintPropertiesFile.getAbsolutePath()
+					+ "' file on the server");
+			System.exit(-1);
 		} finally {
 			// if (sessionOpen) {
 			// ContextualSessionHandler.closeSession();
@@ -60,14 +62,14 @@ public class PintServerDaemon implements ServletContextListener {
 		//
 		log.info("Starting PintServerDaemon...");
 
-		boolean isTestServer = ServerUtil.isTestServer();
+		final boolean isTestServer = ServerUtil.isTestServer();
 		log.info("Is a test server: " + isTestServer);
 		if (SharedConstants.DAEMON_TASKS_ENABLED) {// && !isTestServer) {
 			// /////////////////////////////////////////////////
 			// REGISTER MAINTENANCE TASKS HERE
 
 			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", sce.getServletContext()));
-			pintServerDaemonTasks.add(new ProteinUniprotAnnotationUpdater(sce.getServletContext()));
+			pintServerDaemonTasks.add(new ProteinAccessionsUpdater(sce.getServletContext()));
 			// disabled because it seems that it has some problems
 			// pintServerDaemonTasks.add(new
 			// ProteinAccessionsUpdaterScroll(sce.getServletContext()));
@@ -82,13 +84,13 @@ public class PintServerDaemon implements ServletContextListener {
 			// BatchQueryExecutionTask(servletContext));
 			// /////////////////////////////////////////////////
 		}
-		TimerTask timerTask = new TimerTask() {
+		final TimerTask timerTask = new TimerTask() {
 
 			@Override
 			public void run() {
 
 				log.info("Starting " + pintServerDaemonTasks.size() + " registered tasks in PintServerDaemon");
-				for (PintServerDaemonTask task : pintServerDaemonTasks) {
+				for (final PintServerDaemonTask task : pintServerDaemonTasks) {
 					if (task.justRunOnce() && task.getNumRuns() > 0) {
 						log.info("Task " + task.getName() + " is only configured to run once. Skipping it");
 						continue;
@@ -99,12 +101,12 @@ public class PintServerDaemon implements ServletContextListener {
 				}
 				log.info("All tasks launched");
 
-				for (PintServerDaemonTask task : pintServerDaemonTasks) {
+				for (final PintServerDaemonTask task : pintServerDaemonTasks) {
 					try {
 						log.info("Waiting for " + task.getTaskName() + " to be complete...");
 						task.join();
 						log.info(task.getTaskName() + " complete");
-					} catch (InterruptedException e) {
+					} catch (final InterruptedException e) {
 						e.printStackTrace();
 						log.info(task.getTaskName() + " interrupted");
 					}
@@ -131,7 +133,7 @@ public class PintServerDaemon implements ServletContextListener {
 		// you need it to clean up after itself
 		log.info("context destroyed at PintServerDaemon...");
 		log.info("Interrupting all running tasks");
-		for (PintServerDaemonTask task : pintServerDaemonTasks) {
+		for (final PintServerDaemonTask task : pintServerDaemonTasks) {
 			if (task.isAlive()) {
 				log.info("Interrupting " + task.getName());
 				task.interrupt();
@@ -145,7 +147,7 @@ public class PintServerDaemon implements ServletContextListener {
 			try {
 				timer.cancel();
 				log.info("Timer cancelled");
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 				log.warn(e.getMessage());
 			}

@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.queries.LogicalOperator;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProjects;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProteinAccs;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
@@ -33,7 +33,7 @@ import edu.scripps.yates.utilities.pi.reductions.Reduction;
 import gnu.trove.set.hash.THashSet;
 
 public class QueryInterface {
-	private ProteinProviderFromDB proteinProvider;
+	private DataProviderFromDB proteinProvider;
 	private QueryResult queryResult;
 	private final QueryBinaryTree queryBinaryTree;
 	private static final Logger log = Logger.getLogger(QueryInterface.class);
@@ -41,15 +41,17 @@ public class QueryInterface {
 	private boolean needLinkEvaluation = true;
 	private final Set<String> projectTags;
 	private final boolean testMode;
+	private final boolean psmCentric;
 
-	public QueryInterface(Set<String> projectTags, String queryString, boolean testMode)
+	public QueryInterface(Set<String> projectTags, String queryString, boolean testMode, boolean psmCentric)
 			throws MalformedQueryException {
-		this(projectTags, new ProteinProviderFromProjects(projectTags), queryString, testMode);
+		this(projectTags, new ProteinProviderFromProjects(projectTags), queryString, testMode, psmCentric);
 	}
 
-	public QueryInterface(Set<String> projectTags, ProteinProviderFromDB proteinProvider, String queryString,
-			boolean testMode) throws MalformedQueryException {
+	public QueryInterface(Set<String> projectTags, DataProviderFromDB proteinProvider, String queryString,
+			boolean testMode, boolean psmCentric) throws MalformedQueryException {
 		this.testMode = testMode;
+		this.psmCentric = psmCentric;
 		this.projectTags = projectTags;
 		this.proteinProvider = proteinProvider;
 		this.proteinProvider.setProjectTags(projectTags);
@@ -61,7 +63,7 @@ public class QueryInterface {
 		if (abstractQueries.size() == 1) {
 			log.info(
 					"There is  only one command in the query. Trying to figure it out if we can narrow the initial dataset loading");
-			final ProteinProviderFromDB proteinProvider2 = abstractQueries.get(0).getProteinProvider();
+			final DataProviderFromDB proteinProvider2 = abstractQueries.get(0).getProteinProvider();
 			if (proteinProvider2 != null) {
 				if (abstractQueries.get(0).isNegative()) {
 					log.info("The query is negative, so we cannot use the protein provider of that query");
@@ -90,7 +92,7 @@ public class QueryInterface {
 		} else {
 			log.info(
 					"There is more than one command in the query. Trying to figure it out if we can narrow the initial dataset loading");
-			final ProteinProviderFromDB dominantProteinProvider = getDominantProteinProvider(queryBinaryTree);
+			final DataProviderFromDB dominantProteinProvider = getDominantProteinProvider(queryBinaryTree);
 			if (dominantProteinProvider != null) {
 				log.info("Changing protein provider to a narrow one");
 				this.proteinProvider = dominantProteinProvider;
@@ -158,7 +160,7 @@ public class QueryInterface {
 		return false;
 	}
 
-	ProteinProviderFromDB getDominantProteinProvider(QueryBinaryTree queryBinaryTree) {
+	DataProviderFromDB getDominantProteinProvider(QueryBinaryTree queryBinaryTree) {
 		// protein ACCESSION QUERY
 		if (queryBinaryTree.isPredominant(QueryFromProteinAccessionsCommand.class)) {
 			log.info("There is at least one predominant query that is over protein accessions");
@@ -231,7 +233,7 @@ public class QueryInterface {
 		return allQueriesAreTheSameAggregationLevel(queryBinaryTree, AggregationLevel.PROTEIN);
 	}
 
-	private ProteinProviderFromDB getDominantProteinProviderFromAnnotationQueries(
+	private DataProviderFromDB getDominantProteinProviderFromAnnotationQueries(
 			Set<? extends AbstractQuery> annotationQueries, LogicalOperator logicalOperator) {
 		final String uniprotKBVersion = null;
 
@@ -293,86 +295,181 @@ public class QueryInterface {
 		}
 		log.info(validProteinAccs.size() + " out of " + proteinMap.size() + " where valid");
 		// construct the protein provider with the remaining valid proteins
-		final ProteinProviderFromDB proteinProviderFromAcc = new ProteinProviderFromProteinAccs(validProteinAccs);
+		final DataProviderFromDB proteinProviderFromAcc = new ProteinProviderFromProteinAccs(validProteinAccs);
 		return proteinProviderFromAcc;
 	}
 
 	public QueryResult getQueryResults() {
 		if (queryResult == null) {
+			List<LinkBetweenQueriableProteinSetAndPSM> linksBetweenProteinsAndPSMs = null;
+			List<LinkBetweenQueriableProteinSetAndPSM> invalidLinksBetweenProteinsAndPSMs = null;
+			List<LinkBetweenQueriableProteinSetAndPeptideSet> linksBetweenProteinsAndPeptides = null;
+			List<LinkBetweenQueriableProteinSetAndPeptideSet> invalidLinksBetweenProteinsAndPeptides = null;
+			if (psmCentric) {
+				linksBetweenProteinsAndPSMs = QueriesUtil
+						.createProteinPSMLinks(proteinProvider.getProteinMap(testMode));
+				invalidLinksBetweenProteinsAndPSMs = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
+				if (needLinkEvaluation) {
 
-			final List<LinkBetweenQueriableProteinSetAndPSM> links = QueriesUtil
-					.createProteinPSMLinks(proteinProvider.getProteinMap(testMode));
-			final List<LinkBetweenQueriableProteinSetAndPSM> invalidLinks = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
-			if (needLinkEvaluation) {
+					int numDiscardedLinks = 0;
+					int numValidLinks = 0;
+					int numRound = 1;
+					do {
+						log.info("Evaluating " + linksBetweenProteinsAndPSMs.size()
+								+ " links between proteins and PSMs in round " + numRound);
+						numDiscardedLinks = 0;
+						numValidLinks = 0;
+						int numLinks = 0;
+						final int totalLinks = linksBetweenProteinsAndPSMs.size();
+						final Iterator<LinkBetweenQueriableProteinSetAndPSM> linksIterator = linksBetweenProteinsAndPSMs
+								.iterator();
+						while (linksIterator.hasNext()) {
+							final LinkBetweenQueriableProteinSetAndPSM link = linksIterator.next();
+							numLinks++;
+							if (numLinks % 100 == 0) {
+								log.info(numRound + " round - " + numLinks + "/" + totalLinks + " links ("
+										+ numValidLinks + " valid, " + numDiscardedLinks + " discarded)");
+							}
 
-				int numDiscardedLinks = 0;
-				int numValidLinks = 0;
-				int numRound = 1;
-				do {
-					log.info("Evaluating " + links.size() + " links in round " + numRound);
-					numDiscardedLinks = 0;
-					numValidLinks = 0;
-					int numLinks = 0;
-					final int totalLinks = links.size();
-					final Iterator<LinkBetweenQueriableProteinSetAndPSM> linksIterator = links.iterator();
-					while (linksIterator.hasNext()) {
-						final LinkBetweenQueriableProteinSetAndPSM link = linksIterator.next();
-						numLinks++;
-						if (numLinks % 100 == 0) {
-							log.info(numRound + " round - " + numLinks + "/" + totalLinks + " links (" + numValidLinks
-									+ " valid, " + numDiscardedLinks + " discarded)");
+							final boolean valid = queryBinaryTree.evaluate(link);
+
+							// evaluate the links between individual proteins
+							// and
+							// psms
+							// final Set<QueriableProtein2PSMLink>
+							// protein2psmLinks
+							// = link.getProtein2PSMLinks();
+							// for (QueriableProtein2PSMLink
+							// queriableProtein2PSMLink : protein2psmLinks) {
+							// boolean result =
+							// queryBinaryTree.evaluate(queriableProtein2PSMLink);
+							// link.setProtein2PsmResult(queriableProtein2PSMLink,
+							// result);
+							// }
+							if (valid) {
+								numValidLinks++;
+							} else {
+								invalidLinksBetweenProteinsAndPSMs.add(link);
+								numDiscardedLinks++;
+								// delete link between QueriableProtein and
+								// QueriablePSM
+								link.detachFromProteinAndPSM();
+								linksIterator.remove();
+							}
 						}
-
-						final boolean valid = queryBinaryTree.evaluate(link);
-
-						// evaluate the links between individual proteins and
-						// psms
-						// final Set<QueriableProtein2PSMLink> protein2psmLinks
-						// = link.getProtein2PSMLinks();
-						// for (QueriableProtein2PSMLink
-						// queriableProtein2PSMLink : protein2psmLinks) {
-						// boolean result =
-						// queryBinaryTree.evaluate(queriableProtein2PSMLink);
-						// link.setProtein2PsmResult(queriableProtein2PSMLink,
-						// result);
-						// }
-						if (valid) {
-							numValidLinks++;
-						} else {
-							invalidLinks.add(link);
-							numDiscardedLinks++;
-							// delete link between QueriableProtein and
-							// QueriablePSM
-							link.detachFromProteinAndPSM();
-							linksIterator.remove();
+						log.info(linksBetweenProteinsAndPSMs.size() + " Protein-PSM links remain after " + numRound
+								+ " round. " + numValidLinks + " valid links. " + numDiscardedLinks
+								+ " were discarded.");
+						numRound++;
+						if (!containsSPCAmountQuery(queryBinaryTree)) {
+							log.info(
+									"Query not containing SPC amount query, so it is not necessary to keep in the loop");
+							break;
 						}
-					}
-					log.info(links.size() + " Protein-PSM links remain after " + numRound + " round. " + numValidLinks
-							+ " valid links. " + numDiscardedLinks + " were discarded.");
-					numRound++;
-					if (!containsSPCAmountQuery(queryBinaryTree)) {
-						log.info("Query not containing SPC amount query, so it is not necessary to keep in the loop");
-						break;
-					}
-					if (allQueriesAreTheSameAggregationLevel(queryBinaryTree)) {
-						log.info(
-								"All queries are in the same aggregation level, so it is not necessary to keep in the loop");
-						break;
-					}
-				} while (numDiscardedLinks > 0);
+						if (allQueriesAreTheSameAggregationLevel(queryBinaryTree)) {
+							log.info(
+									"All queries are in the same aggregation level, so it is not necessary to keep in the loop");
+							break;
+						}
+					} while (numDiscardedLinks > 0);
+				} else {
+					// create the links between individual proteins and psms
+					// for (LinkBetweenQueriableProteinSetAndPSM link : links) {
+					// final Set<LinkBetweenProteinAndPSMImpl> protein2psmLinks
+					// =
+					// link.getProtein2PSMLinks();
+					// for (LinkBetweenProteinAndPSMImpl
+					// queriableProtein2PSMLink :
+					// protein2psmLinks) {
+					// // link.setProtein2PsmResult(queriableProtein2PSMLink,
+					// // true);
+					// }
+					// }
+				}
 			} else {
-				// create the links between individual proteins and psms
-				// for (LinkBetweenQueriableProteinSetAndPSM link : links) {
-				// final Set<LinkBetweenProteinAndPSMImpl> protein2psmLinks =
-				// link.getProtein2PSMLinks();
-				// for (LinkBetweenProteinAndPSMImpl queriableProtein2PSMLink :
-				// protein2psmLinks) {
-				// // link.setProtein2PsmResult(queriableProtein2PSMLink,
-				// // true);
-				// }
-				// }
+				linksBetweenProteinsAndPeptides = QueriesUtil
+						.createProteinPeptideLinks(proteinProvider.getProteinMap(testMode));
+				invalidLinksBetweenProteinsAndPeptides = new ArrayList<LinkBetweenQueriableProteinSetAndPeptideSet>();
+				if (needLinkEvaluation) {
+
+					int numDiscardedLinks = 0;
+					int numValidLinks = 0;
+					int numRound = 1;
+					do {
+						log.info("Evaluating " + linksBetweenProteinsAndPeptides.size()
+								+ " links between proteins and peptides in round " + numRound);
+						numDiscardedLinks = 0;
+						numValidLinks = 0;
+						int numLinks = 0;
+						final int totalLinks = linksBetweenProteinsAndPeptides.size();
+						final Iterator<LinkBetweenQueriableProteinSetAndPeptideSet> linksIterator = linksBetweenProteinsAndPeptides
+								.iterator();
+						while (linksIterator.hasNext()) {
+							final LinkBetweenQueriableProteinSetAndPeptideSet link = linksIterator.next();
+							numLinks++;
+							if (numLinks % 100 == 0) {
+								log.info(numRound + " round - " + numLinks + "/" + totalLinks + " links ("
+										+ numValidLinks + " valid, " + numDiscardedLinks + " discarded)");
+							}
+
+							final boolean valid = queryBinaryTree.evaluate(link);
+
+							// evaluate the links between individual proteins
+							// and
+							// psms
+							// final Set<QueriableProtein2PSMLink>
+							// protein2psmLinks
+							// = link.getProtein2PSMLinks();
+							// for (QueriableProtein2PSMLink
+							// queriableProtein2PSMLink : protein2psmLinks) {
+							// boolean result =
+							// queryBinaryTree.evaluate(queriableProtein2PSMLink);
+							// link.setProtein2PsmResult(queriableProtein2PSMLink,
+							// result);
+							// }
+							if (valid) {
+								numValidLinks++;
+							} else {
+								invalidLinksBetweenProteinsAndPeptides.add(link);
+								numDiscardedLinks++;
+								// delete link between QueriableProtein and
+								// QueriablePSM
+								link.detachFromProteinAndPeptide();
+								linksIterator.remove();
+							}
+						}
+						log.info(linksBetweenProteinsAndPeptides.size() + " Protein-Peptide links remain after "
+								+ numRound + " round. " + numValidLinks + " valid links. " + numDiscardedLinks
+								+ " were discarded.");
+						numRound++;
+						if (!containsSPCAmountQuery(queryBinaryTree)) {
+							log.info(
+									"Query not containing SPC amount query, so it is not necessary to keep in the loop");
+							break;
+						}
+						if (allQueriesAreTheSameAggregationLevel(queryBinaryTree)) {
+							log.info(
+									"All queries are in the same aggregation level, so it is not necessary to keep in the loop");
+							break;
+						}
+					} while (numDiscardedLinks > 0);
+				} else {
+					// create the links between individual proteins and psms
+					// for (LinkBetweenQueriableProteinSetAndPSM link : links) {
+					// final Set<LinkBetweenProteinAndPSMImpl> protein2psmLinks
+					// =
+					// link.getProtein2PSMLinks();
+					// for (LinkBetweenProteinAndPSMImpl
+					// queriableProtein2PSMLink :
+					// protein2psmLinks) {
+					// // link.setProtein2PsmResult(queriableProtein2PSMLink,
+					// // true);
+					// }
+					// }
+				}
 			}
-			queryResult = new QueryResult(links, invalidLinks);
+			queryResult = new QueryResult(linksBetweenProteinsAndPSMs, linksBetweenProteinsAndPeptides,
+					invalidLinksBetweenProteinsAndPSMs, invalidLinksBetweenProteinsAndPeptides);
 			// }else{
 			// queryBinaryTree.getAbstractQueries().get(0).
 			// }
@@ -416,64 +513,133 @@ public class QueryInterface {
 	 */
 	public QueryResult getQueryResultsParallel() {
 		if (queryResult == null) {
-			List<LinkBetweenQueriableProteinSetAndPSM> links = QueriesUtil
-					.createProteinPSMLinks(proteinProvider.getProteinMap(testMode));
+			List<LinkBetweenQueriableProteinSetAndPSM> linksBetweenProteinsAndPSMs = null;
+			List<LinkBetweenQueriableProteinSetAndPSM> invalidLinksBetweenProteinsAndPSMs = null;
+			List<LinkBetweenQueriableProteinSetAndPeptideSet> linksBetweenProteinsAndPeptides = null;
+			List<LinkBetweenQueriableProteinSetAndPeptideSet> invalidLinksBetweenProteinsAndPeptides = null;
 
-			int numDiscardedLinks = 0;
-			int numRound = 1;
-			final List<LinkBetweenQueriableProteinSetAndPSM> invalidLinks = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
+			if (psmCentric) {
+				linksBetweenProteinsAndPSMs = QueriesUtil
+						.createProteinPSMLinks(proteinProvider.getProteinMap(testMode));
 
-			do {
-				final int threadCount = SystemCoreManager.getAvailableNumSystemCores(MAX_NUMBER_PARALLEL_PROCESSES);
-				log.info("Evaluating " + links.size() + " links in round " + numRound + " using " + threadCount
-						+ " cores out of " + Runtime.getRuntime().availableProcessors());
-				final ParIterator<LinkBetweenQueriableProteinSetAndPSM> iterator = ParIteratorFactory
-						.createParIterator(links, threadCount, Schedule.GUIDED);
+				int numDiscardedLinks = 0;
+				int numRound = 1;
 
-				final Reducible<List<LinkBetweenQueriableProteinSetAndPSM>> reducibleLinkMap = new Reducible<List<LinkBetweenQueriableProteinSetAndPSM>>();
-				final List<ProteinPSMLinkParallelProcesor> runners = new ArrayList<ProteinPSMLinkParallelProcesor>();
-				for (int numCore = 0; numCore < threadCount; numCore++) {
-					// take current DB session
-					final ProteinPSMLinkParallelProcesor runner = new ProteinPSMLinkParallelProcesor(iterator,
-							reducibleLinkMap, queryBinaryTree);
-					runners.add(runner);
-					runner.start();
-				}
-				if (iterator.getAllExceptions().length > 0) {
-					throw new IllegalArgumentException(iterator.getAllExceptions()[0].getException());
-				}
-				// Main thread waits for worker threads to complete
-				for (int k = 0; k < threadCount; k++) {
-					try {
-						runners.get(k).join();
-					} catch (final InterruptedException e) {
-						e.printStackTrace();
+				invalidLinksBetweenProteinsAndPSMs = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
+
+				do {
+					final int threadCount = SystemCoreManager.getAvailableNumSystemCores(MAX_NUMBER_PARALLEL_PROCESSES);
+					log.info("Evaluating " + linksBetweenProteinsAndPSMs.size()
+							+ " links between proteins and PSMs in round " + numRound + " using " + threadCount
+							+ " cores out of " + Runtime.getRuntime().availableProcessors());
+					final ParIterator<LinkBetweenQueriableProteinSetAndPSM> iterator = ParIteratorFactory
+							.createParIterator(linksBetweenProteinsAndPSMs, threadCount, Schedule.GUIDED);
+
+					final Reducible<List<LinkBetweenQueriableProteinSetAndPSM>> reducibleLinkMap = new Reducible<List<LinkBetweenQueriableProteinSetAndPSM>>();
+					final List<ProteinPSMLinkParallelProcesor> runners = new ArrayList<ProteinPSMLinkParallelProcesor>();
+					for (int numCore = 0; numCore < threadCount; numCore++) {
+						// take current DB session
+						final ProteinPSMLinkParallelProcesor runner = new ProteinPSMLinkParallelProcesor(iterator,
+								reducibleLinkMap, queryBinaryTree);
+						runners.add(runner);
+						runner.start();
 					}
-				}
-				final Reduction<List<LinkBetweenQueriableProteinSetAndPSM>> linkReduction = new Reduction<List<LinkBetweenQueriableProteinSetAndPSM>>() {
-					@Override
-					public List<LinkBetweenQueriableProteinSetAndPSM> reduce(
-							List<LinkBetweenQueriableProteinSetAndPSM> first,
-							List<LinkBetweenQueriableProteinSetAndPSM> second) {
-						first.addAll(second);
-						return first;
+					if (iterator.getAllExceptions().length > 0) {
+						throw new IllegalArgumentException(iterator.getAllExceptions()[0].getException());
 					}
+					// Main thread waits for worker threads to complete
+					for (int k = 0; k < threadCount; k++) {
+						try {
+							runners.get(k).join();
+						} catch (final InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					final Reduction<List<LinkBetweenQueriableProteinSetAndPSM>> linkReduction = new Reduction<List<LinkBetweenQueriableProteinSetAndPSM>>() {
+						@Override
+						public List<LinkBetweenQueriableProteinSetAndPSM> reduce(
+								List<LinkBetweenQueriableProteinSetAndPSM> first,
+								List<LinkBetweenQueriableProteinSetAndPSM> second) {
+							first.addAll(second);
+							return first;
+						}
 
-				};
-				links = reducibleLinkMap.reduce(linkReduction);
-				numDiscardedLinks = 0;
-				long time = 0;
-				for (int k = 0; k < threadCount; k++) {
-					numDiscardedLinks = +runners.get(k).getNumDiscardedLinks();
-					invalidLinks.addAll(runners.get(k).getDiscardedLinks());
-					time = +runners.get(k).getRunningTime();
-				}
-				log.info(links.size() + " Protein-PSM links remain after " + numRound + " round. " + numDiscardedLinks
-						+ " were discarded in " + time / 1000 + "sg");
-				numRound++;
-			} while (numDiscardedLinks > 0);
+					};
+					linksBetweenProteinsAndPSMs = reducibleLinkMap.reduce(linkReduction);
+					numDiscardedLinks = 0;
+					long time = 0;
+					for (int k = 0; k < threadCount; k++) {
+						numDiscardedLinks = +runners.get(k).getNumDiscardedLinks();
+						invalidLinksBetweenProteinsAndPSMs.addAll(runners.get(k).getDiscardedLinks());
+						time = +runners.get(k).getRunningTime();
+					}
+					log.info(linksBetweenProteinsAndPSMs.size() + " Protein-PSM links remain after " + numRound
+							+ " round. " + numDiscardedLinks + " were discarded in " + time / 1000 + "sg");
+					numRound++;
+				} while (numDiscardedLinks > 0);
 
-			queryResult = new QueryResult(links, invalidLinks);
+			} else {
+				linksBetweenProteinsAndPeptides = QueriesUtil
+						.createProteinPeptideLinks(proteinProvider.getProteinMap(testMode));
+
+				int numDiscardedLinks = 0;
+				int numRound = 1;
+
+				invalidLinksBetweenProteinsAndPeptides = new ArrayList<LinkBetweenQueriableProteinSetAndPeptideSet>();
+
+				do {
+					final int threadCount = SystemCoreManager.getAvailableNumSystemCores(MAX_NUMBER_PARALLEL_PROCESSES);
+					log.info("Evaluating " + linksBetweenProteinsAndPeptides.size()
+							+ " links between proteins and peptides in round " + numRound + " using " + threadCount
+							+ " cores out of " + Runtime.getRuntime().availableProcessors());
+					final ParIterator<LinkBetweenQueriableProteinSetAndPeptideSet> iterator = ParIteratorFactory
+							.createParIterator(linksBetweenProteinsAndPeptides, threadCount, Schedule.GUIDED);
+
+					final Reducible<List<LinkBetweenQueriableProteinSetAndPeptideSet>> reducibleLinkMap = new Reducible<List<LinkBetweenQueriableProteinSetAndPeptideSet>>();
+					final List<ProteinPeptideLinkParallelProcesor> runners = new ArrayList<ProteinPeptideLinkParallelProcesor>();
+					for (int numCore = 0; numCore < threadCount; numCore++) {
+						// take current DB session
+						final ProteinPeptideLinkParallelProcesor runner = new ProteinPeptideLinkParallelProcesor(
+								iterator, reducibleLinkMap, queryBinaryTree);
+						runners.add(runner);
+						runner.start();
+					}
+					if (iterator.getAllExceptions().length > 0) {
+						throw new IllegalArgumentException(iterator.getAllExceptions()[0].getException());
+					}
+					// Main thread waits for worker threads to complete
+					for (int k = 0; k < threadCount; k++) {
+						try {
+							runners.get(k).join();
+						} catch (final InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					final Reduction<List<LinkBetweenQueriableProteinSetAndPeptideSet>> linkReduction = new Reduction<List<LinkBetweenQueriableProteinSetAndPeptideSet>>() {
+						@Override
+						public List<LinkBetweenQueriableProteinSetAndPeptideSet> reduce(
+								List<LinkBetweenQueriableProteinSetAndPeptideSet> first,
+								List<LinkBetweenQueriableProteinSetAndPeptideSet> second) {
+							first.addAll(second);
+							return first;
+						}
+
+					};
+					linksBetweenProteinsAndPeptides = reducibleLinkMap.reduce(linkReduction);
+					numDiscardedLinks = 0;
+					long time = 0;
+					for (int k = 0; k < threadCount; k++) {
+						numDiscardedLinks = +runners.get(k).getNumDiscardedLinks();
+						invalidLinksBetweenProteinsAndPeptides.addAll(runners.get(k).getDiscardedLinks());
+						time = +runners.get(k).getRunningTime();
+					}
+					log.info(linksBetweenProteinsAndPeptides.size() + " Protein-Peptide links remain after " + numRound
+							+ " round. " + numDiscardedLinks + " were discarded in " + time / 1000 + "sg");
+					numRound++;
+				} while (numDiscardedLinks > 0);
+			}
+			queryResult = new QueryResult(linksBetweenProteinsAndPSMs, linksBetweenProteinsAndPeptides,
+					invalidLinksBetweenProteinsAndPSMs, invalidLinksBetweenProteinsAndPeptides);
 
 		}
 		return queryResult;

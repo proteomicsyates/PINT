@@ -13,9 +13,11 @@ import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.annotations.uniprot.xml.GeneNameType;
 import edu.scripps.yates.annotations.uniprot.xml.GeneType;
 import edu.scripps.yates.annotations.uniprot.xml.PropertyType;
+import edu.scripps.yates.annotations.uniprot.xml.ProteinType.AlternativeName;
 import edu.scripps.yates.annotations.uniprot.xml.ProteinType.SubmittedName;
 import edu.scripps.yates.annotations.uniprot.xml.SubcellularLocationType;
 import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
+import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.set.hash.THashSet;
 import uk.ac.ebi.kraken.interfaces.go.GoCategory;
 import uk.ac.ebi.kraken.interfaces.go.GoTerm;
@@ -85,8 +87,17 @@ public class UniprotEntryUtil {
 		return null;
 	}
 
-	public static List<String> getGeneName(Entry entry, boolean justPrimary, boolean secondaryIfPrimaryIsNull) {
-		final List<String> ret = new ArrayList<String>();
+	/**
+	 * 
+	 * @param entry
+	 * @param justPrimary
+	 * @param secondaryIfPrimaryIsNull
+	 * @return a list of pairs: first element is the name of the gene and second
+	 *         is the type of the gene
+	 */
+	public static List<Pair<String, String>> getGeneName(Entry entry, boolean justPrimary,
+			boolean secondaryIfPrimaryIsNull) {
+		final List<Pair<String, String>> ret = new ArrayList<Pair<String, String>>();
 		if (entry != null) {
 			final List<GeneType> gene = entry.getGene();
 			if (gene != null) {
@@ -97,7 +108,7 @@ public class UniprotEntryUtil {
 							isPrimary = true;
 						}
 						if (!justPrimary || (justPrimary && isPrimary)) {
-							ret.add(geneNameType.getValue());
+							ret.add(new Pair<String, String>(geneNameType.getValue(), geneNameType.getType()));
 							if (justPrimary) {
 								return ret;
 							}
@@ -105,7 +116,7 @@ public class UniprotEntryUtil {
 					}
 				}
 				if (justPrimary && secondaryIfPrimaryIsNull && ret.isEmpty()) {
-					final List<String> geneNames2 = getGeneName(entry, false, false);
+					final List<Pair<String, String>> geneNames2 = getGeneName(entry, false, false);
 					if (geneNames2.isEmpty()) {
 					} else {
 						ret.add(geneNames2.get(0));
@@ -176,6 +187,35 @@ public class UniprotEntryUtil {
 		return null;
 	}
 
+	public static List<String> getAlternativeNames(Entry entry) {
+		final List<String> ret = new ArrayList<String>();
+		if (entry != null) {
+			if (entry.getProtein() != null) {
+				if (entry.getProtein().getAlternativeName() != null) {
+
+					for (final AlternativeName alternativeName : entry.getProtein().getAlternativeName()) {
+						final EvidencedStringType fullName = alternativeName.getFullName();
+						if (fullName != null) {
+							final String fullNameValue = fullName.getValue();
+							if (fullNameValue != null && !"".equals(fullNameValue)) {
+								ret.add(fullNameValue);
+							}
+						}
+						if (alternativeName.getShortName() != null) {
+							for (final EvidencedStringType shortNameType : alternativeName.getShortName()) {
+								if (shortNameType.getValue() != null) {
+									ret.add(shortNameType.getValue());
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return ret;
+
+	}
+
 	public static List<CommentType> getComments(Entry entry,
 			uk.ac.ebi.kraken.interfaces.uniprot.comments.CommentType type) {
 		final List<CommentType> ret = new ArrayList<CommentType>();
@@ -219,11 +259,24 @@ public class UniprotEntryUtil {
 		return null;
 	}
 
-	public static String getTaxonomy(Entry entry) {
+	public static String getTaxonomyName(Entry entry) {
 		if (entry != null) {
 			if (entry.getOrganism() != null && entry.getOrganism().getName() != null) {
 				if (!entry.getOrganism().getName().isEmpty()) {
 					return entry.getOrganism().getName().get(0).getValue();
+				}
+			}
+		}
+		return null;
+	}
+
+	public static String getTaxonomyNCBIID(Entry entry) {
+		if (entry != null) {
+			if (entry.getOrganism() != null && entry.getOrganism().getDbReference() != null) {
+				for (final DbReferenceType dbRef : entry.getOrganism().getDbReference()) {
+					if (dbRef.getType() != null && "NCBI Taxonomy".equals(dbRef.getType())) {
+						return dbRef.getId();
+					}
 				}
 			}
 		}

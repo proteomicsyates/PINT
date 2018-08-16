@@ -10,6 +10,12 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.collect.Iterables;
+
+import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
+import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
+import edu.scripps.yates.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Gene;
@@ -24,9 +30,11 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinScore;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
+import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAccessionAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
+import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 import gnu.trove.set.hash.TIntHashSet;
@@ -38,7 +46,9 @@ import gnu.trove.set.hash.TIntHashSet;
  *
  */
 public class QueriableProteinSet {
-	private final Set<LinkBetweenQueriableProteinSetAndPSM> links = new THashSet<LinkBetweenQueriableProteinSetAndPSM>();
+	private final Set<LinkBetweenQueriableProteinSetAndPSM> linksToPSMs = new THashSet<LinkBetweenQueriableProteinSetAndPSM>();
+	private final Set<LinkBetweenQueriableProteinSetAndPeptideSet> linksToPeptides = new THashSet<LinkBetweenQueriableProteinSetAndPeptideSet>();
+
 	/**
 	 * Proteins that share the same primary accession
 	 */
@@ -47,6 +57,17 @@ public class QueriableProteinSet {
 	private ProteinAccession primaryProteinAcc;
 	private Set<Protein> individualProteins;
 	private String uniprotKBVersion;
+	private Set<String> proteinAccs;
+	private THashSet<ProteinScore> proteinScores;
+	private THashSet<MsRun> msRuns;
+	private THashSet<ProteinRatioValue> proteinRatios;
+	private THashSet<ProteinThreshold> proteinThresholds;
+	private THashSet<ProteinAmount> proteinAmounts;
+	private THashSet<ProteinAnnotation> proteinAnnotations;
+	private THashSet<Gene> genes;
+	private THashSet<Condition> conditions;
+	private Organism organism;
+	private static UniprotProteinLocalRetriever uplr;
 
 	private final static Logger log = Logger.getLogger(QueriableProteinSet.class);
 	private static final Map<String, QueriableProteinSet> map = new THashMap<String, QueriableProteinSet>();
@@ -82,6 +103,15 @@ public class QueriableProteinSet {
 		this.proteins.addAll(proteins);
 	}
 
+	private UniprotProteinLocalRetriever getUplr() {
+		if (uplr == null) {
+			uplr = new UniprotProteinLocalRetriever(
+					UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
+					UniprotProteinRetrievalSettings.getInstance().isUseIndex(), true, true);
+		}
+		return uplr;
+	}
+
 	/**
 	 * Return all the individual proteins<br>
 	 * <b>Note that maybe some of them have no PSMs and are not valid</b>
@@ -105,9 +135,10 @@ public class QueriableProteinSet {
 			individualProteins = new THashSet<Protein>();
 			final List<Protein> allProteins = getAllProteins();
 			for (final Protein protein : allProteins) {
-				if (!protein.getPsms().isEmpty()) {
-					individualProteins.add(protein);
-				}
+				// disable check of peptides because this triggers a query
+				// if (!protein.getPeptides().isEmpty()) {
+				individualProteins.add(protein);
+				// }
 			}
 			// if (!proteins2.isEmpty()) {
 			// for (Protein protein : proteins2) {
@@ -149,13 +180,27 @@ public class QueriableProteinSet {
 	/**
 	 * @return the links
 	 */
+	public Set<LinkBetweenQueriableProteinSetAndPSM> getLinksToPSMs() {
+		return linksToPSMs;
+	}
 
-	public Set<LinkBetweenQueriableProteinSetAndPSM> getLinks() {
-		return links;
+	/**
+	 * @return the links
+	 */
+	public Set<LinkBetweenQueriableProteinSetAndPeptideSet> getLinksToPeptides() {
+		return linksToPeptides;
 	}
 
 	public void removeLink(LinkBetweenQueriableProteinSetAndPSM link) {
-		final boolean removed = links.remove(link);
+		final boolean removed = linksToPSMs.remove(link);
+		// force to recreate the individual proteins
+		individualProteins = null;
+		if (!removed)
+			log.warn("BAD");
+	}
+
+	public void removeLink(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+		final boolean removed = linksToPeptides.remove(link);
 		// force to recreate the individual proteins
 		individualProteins = null;
 		if (!removed)
@@ -210,13 +255,14 @@ public class QueriableProteinSet {
 	public Set<Peptide> getPeptides() {
 
 		final Set<Peptide> peptideSet = new THashSet<Peptide>();
-		for (final Psm psm : getPsms()) {
-			Peptide peptide = psm.getPeptide();
-			if (!ContextualSessionHandler.getCurrentSession().contains(peptide)) {
-				peptide = (Peptide) ContextualSessionHandler.load(peptide.getId(), Peptide.class);
+		for (final Protein protein : getIndividualProteins()) {
+			final Set<Peptide> peptides = protein.getPeptides();
+			for (Peptide peptide : peptides) {
+				if (!ContextualSessionHandler.getCurrentSession().contains(peptide)) {
+					peptide = (Peptide) ContextualSessionHandler.load(peptide.getId(), Peptide.class);
+				}
+				peptideSet.add(peptide);
 			}
-			peptideSet.add(peptide);
-
 		}
 
 		return peptideSet;
@@ -246,12 +292,15 @@ public class QueriableProteinSet {
 		return psmSet;
 	}
 
-	public Set<ProteinAccession> getProteinAccessions() {
-		final Set<ProteinAccession> ret = new THashSet<ProteinAccession>();
-		for (final Protein protein : getIndividualProteins()) {
-			ret.addAll(protein.getProteinAccessions());
+	public Set<String> getProteinAccessions() {
+		if (proteinAccs == null) {
+			proteinAccs = new THashSet<String>();
+			for (final Protein protein : getIndividualProteins()) {
+				proteinAccs.add(protein.getAcc());
+			}
 		}
-		return ret;
+		return proteinAccs;
+
 	}
 
 	/**
@@ -269,14 +318,28 @@ public class QueriableProteinSet {
 	public ProteinAccession getPrimaryProteinAccession() {
 		if (primaryProteinAcc == null) {
 			String accessionType = null;
+			String description = null;
+			String alternativeNamesString = "";
 			if (FastaParser.isUniProtACC(primaryAcc)) {
 				accessionType = AccessionType.UNIPROT.name();
+				description = UniprotEntryUtil.getProteinDescription(getUniprotEntry());
+				final List<String> alternativeNames = UniprotEntryUtil.getAlternativeNames(getUniprotEntry());
+				for (final String alternativeName : alternativeNames) {
+					if (!"".equals(alternativeNamesString)) {
+						alternativeNamesString += ProteinAccessionAdapter.SEPARATOR;
+					}
+					alternativeNamesString += alternativeName;
+				}
 			} else if (FastaParser.getIPIACC(primaryAcc) != null) {
 				accessionType = AccessionType.IPI.name();
 			} else if (FastaParser.getNCBIACC(primaryAcc) != null) {
 				accessionType = AccessionType.NCBI.name();
 			}
 			primaryProteinAcc = new ProteinAccession(primaryAcc, accessionType, true);
+			if (!"".equals(alternativeNamesString)) {
+				primaryProteinAcc.setAlternativeNames(alternativeNamesString);
+			}
+			primaryProteinAcc.setDescription(description);
 		}
 		return primaryProteinAcc;
 	}
@@ -288,11 +351,13 @@ public class QueriableProteinSet {
 	 */
 
 	public Set<Condition> getConditions() {
-		final Set<Condition> ret = new THashSet<Condition>();
-		for (final Protein protein : getIndividualProteins()) {
-			ret.addAll(protein.getConditions());
+		if (conditions == null) {
+			conditions = new THashSet<Condition>();
+			for (final Protein protein : getIndividualProteins()) {
+				conditions.addAll(protein.getConditions());
+			}
 		}
-		return ret;
+		return conditions;
 	}
 
 	/**
@@ -303,17 +368,20 @@ public class QueriableProteinSet {
 	 */
 
 	public Set<ProteinAmount> getProteinAmounts() {
-		final Set<ProteinAmount> ret = new THashSet<ProteinAmount>();
-		for (final Protein protein : getIndividualProteins()) {
-			final Set<ProteinAmount> proteinAmounts = protein.getProteinAmounts();
-			for (ProteinAmount proteinAmount : proteinAmounts) {
-				if (!ContextualSessionHandler.getCurrentSession().contains(proteinAmount)) {
-					proteinAmount = (ProteinAmount) ContextualSessionHandler.getCurrentSession().merge(proteinAmount);
+		if (proteinAmounts == null) {
+			proteinAmounts = new THashSet<ProteinAmount>();
+			for (final Protein protein : getIndividualProteins()) {
+				final Set<ProteinAmount> proteinAmounts = protein.getProteinAmounts();
+				for (ProteinAmount proteinAmount : proteinAmounts) {
+					if (!ContextualSessionHandler.getCurrentSession().contains(proteinAmount)) {
+						proteinAmount = (ProteinAmount) ContextualSessionHandler.getCurrentSession()
+								.merge(proteinAmount);
+					}
+					proteinAmounts.add(proteinAmount);
 				}
-				ret.add(proteinAmount);
 			}
 		}
-		return ret;
+		return proteinAmounts;
 	}
 
 	/**
@@ -338,12 +406,30 @@ public class QueriableProteinSet {
 	 */
 
 	public Organism getOrganism() {
+		if (organism == null) {
+			final Entry uniprotEntry = getUniprotEntry();
+			final String taxonomyName = UniprotEntryUtil.getTaxonomyName(uniprotEntry);
+			final String taxonomyNCBIID = UniprotEntryUtil.getTaxonomyNCBIID(uniprotEntry);
+			organism = new Organism(taxonomyNCBIID);
+			organism.setName(taxonomyName);
 
-		Organism organism = getIndividualProteins().iterator().next().getOrganism();
-		if (!ContextualSessionHandler.getCurrentSession().contains(organism)) {
-			organism = (Organism) ContextualSessionHandler.getCurrentSession().merge(organism);
+			// if
+			// (!ContextualSessionHandler.getCurrentSession().contains(organism))
+			// {
+			// organism = (Organism)
+			// ContextualSessionHandler.getCurrentSession().merge(organism);
+			// }
 		}
 		return organism;
+
+	}
+
+	private Entry getUniprotEntry() {
+		final Map<String, Entry> annotatedProtein = getUplr().getAnnotatedProtein(uniprotKBVersion, primaryAcc);
+		if (annotatedProtein.containsKey(primaryAcc)) {
+			return annotatedProtein.get(primaryAcc);
+		}
+		return null;
 	}
 
 	/**
@@ -353,12 +439,15 @@ public class QueriableProteinSet {
 	 */
 
 	public Set<ProteinAnnotation> getProteinAnnotations() {
-		final Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
-		ret.addAll(ProteinAnnotator.getInstance(uniprotKBVersion).getProteinAnnotationByProteinAcc(primaryAcc));
-		for (final Protein protein : getIndividualProteins()) {
-			ret.addAll(protein.getProteinAnnotations());
+		if (proteinAnnotations == null) {
+			proteinAnnotations = new THashSet<ProteinAnnotation>();
+			proteinAnnotations.addAll(
+					ProteinAnnotator.getInstance(uniprotKBVersion).getProteinAnnotationByProteinAcc(primaryAcc));
+			for (final Protein protein : getIndividualProteins()) {
+				proteinAnnotations.addAll(protein.getProteinAnnotations());
+			}
 		}
-		return ret;
+		return proteinAnnotations;
 	}
 
 	/**
@@ -369,26 +458,34 @@ public class QueriableProteinSet {
 	 */
 
 	public Set<ProteinThreshold> getProteinThresholds() {
-		final Set<ProteinThreshold> ret = new THashSet<ProteinThreshold>();
-		for (final Protein protein : getIndividualProteins()) {
-			final Set<ProteinThreshold> proteinThresholds = protein.getProteinThresholds();
-			for (ProteinThreshold proteinThreshold : proteinThresholds) {
-				if (!ContextualSessionHandler.getCurrentSession().contains(proteinThreshold)) {
-					proteinThreshold = (ProteinThreshold) ContextualSessionHandler.getCurrentSession()
-							.merge(proteinThreshold);
+		if (proteinThresholds == null) {
+			proteinThresholds = new THashSet<ProteinThreshold>();
+			for (final Protein protein : getIndividualProteins()) {
+				final Set<ProteinThreshold> proteinThresholds = protein.getProteinThresholds();
+				for (ProteinThreshold proteinThreshold : proteinThresholds) {
+					if (!ContextualSessionHandler.getCurrentSession().contains(proteinThreshold)) {
+						proteinThreshold = (ProteinThreshold) ContextualSessionHandler.getCurrentSession()
+								.merge(proteinThreshold);
+					}
+					proteinThresholds.add(proteinThreshold);
 				}
-				ret.add(proteinThreshold);
 			}
 		}
-		return ret;
+		return proteinThresholds;
 	}
 
 	public Set<Gene> getGenes() {
-		final Set<Gene> ret = new THashSet<Gene>();
-		for (final Protein protein : getIndividualProteins()) {
-			ret.addAll(protein.getGenes());
+		if (genes == null) {
+			genes = new THashSet<Gene>();
+			final List<Pair<String, String>> geneNames = UniprotEntryUtil.getGeneName(getUniprotEntry(), false, false);
+			for (int i = 0; i < geneNames.size(); i++) {
+				final Pair<String, String> geneName = geneNames.get(i);
+				final Gene newGene = new Gene(geneName.getFirstelement());
+				newGene.setGeneType(geneName.getSecondElement());
+				genes.add(newGene);
+			}
 		}
-		return ret;
+		return genes;
 	}
 
 	public Set<ProteinRatioValue> getProteinRatiosBetweenTwoConditions(String condition1Name, String condition2Name,
@@ -403,12 +500,29 @@ public class QueriableProteinSet {
 	}
 
 	public Set<ProteinScore> getProteinScores() {
-		final Set<ProteinScore> ret = new THashSet<ProteinScore>();
-		for (final Protein protein : getIndividualProteins()) {
-			ret.addAll(protein.getProteinScores());
+		if (proteinScores == null) {
+			proteinScores = new THashSet<ProteinScore>();
+			for (final Protein protein : getIndividualProteins()) {
+				proteinScores.addAll(protein.getProteinScores());
+			}
 		}
-		return ret;
+		return proteinScores;
 
+	}
+
+	public Iterator<ProteinScore> getProteinScoresIterator() {
+		Iterable<ProteinScore> ret = null;
+
+		for (final Protein protein : getIndividualProteins()) {
+			final Set<ProteinScore> proteinScores = protein.getProteinScores();
+			if (ret == null) {
+				ret = proteinScores;
+			} else {
+				ret = Iterables.concat(ret, proteinScores);
+			}
+		}
+
+		return ret.iterator();
 	}
 
 	public Integer getLength() {
@@ -425,29 +539,55 @@ public class QueriableProteinSet {
 	}
 
 	public Set<MsRun> getMsRuns() {
-		final Set<MsRun> ret = new THashSet<MsRun>();
-		for (final Protein protein : getIndividualProteins()) {
-			ret.add(protein.getMsRun());
+		if (msRuns == null) {
+			msRuns = new THashSet<MsRun>();
+			for (final Protein protein : getIndividualProteins()) {
+				msRuns.add(protein.getMsRun());
+			}
 		}
-		return ret;
+		return msRuns;
 	}
 
 	public Set<ProteinRatioValue> getProteinRatioValues() {
-		final Set<ProteinRatioValue> ret = new THashSet<ProteinRatioValue>();
-		for (final Protein protein : getIndividualProteins()) {
-			ret.addAll(protein.getProteinRatioValues());
+		if (proteinRatios == null) {
+			proteinRatios = new THashSet<ProteinRatioValue>();
+			for (final Protein protein : getIndividualProteins()) {
+				proteinRatios.addAll(protein.getProteinRatioValues());
+			}
 		}
-		return ret;
+		return proteinRatios;
 	}
 
-	public void addLink(LinkBetweenQueriableProteinSetAndPSM link) {
-		links.add(link);
+	public Iterator<ProteinRatioValue> getProteinRatioValuesIterator() {
+		Iterable<ProteinRatioValue> ret = null;
+
+		for (final Protein protein : getIndividualProteins()) {
+			final Set<ProteinRatioValue> proteinRatioValues = protein.getProteinRatioValues();
+			if (ret == null) {
+				ret = proteinRatioValues;
+			} else {
+				ret = Iterables.concat(ret, proteinRatioValues);
+			}
+		}
+
+		return ret.iterator();
+	}
+
+	public void addLinkToPSM(LinkBetweenQueriableProteinSetAndPSM link) {
+		linksToPSMs.add(link);
+		// force to recreate the individual proteins
+		individualProteins = null;
+	}
+
+	public void addLinkToPeptide(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+		linksToPeptides.add(link);
 		// force to recreate the individual proteins
 		individualProteins = null;
 	}
 
 	public void clearLinks() {
-		links.clear();
+		linksToPSMs.clear();
+		linksToPeptides.clear();
 		// force to recreate the individual proteins
 		individualProteins = null;
 	}

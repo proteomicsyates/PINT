@@ -27,7 +27,7 @@ public class LinkBetweenQueriableProteinSetAndPSM {
 		this.queriableProteinSet = queriableProteinSet;
 		this.queriablePsm = queriablePsm;
 
-		this.queriableProteinSet.addLink(this);
+		this.queriableProteinSet.addLinkToPSM(this);
 		this.queriablePsm.addLink(this);
 
 	}
@@ -138,7 +138,7 @@ public class LinkBetweenQueriableProteinSetAndPSM {
 		// PersistenceUtils.detachPSM(psm, false, false, false);
 		final List<Protein> allProteins = getQueriableProtein().getAllProteins();
 		final Set<Protein> proteinsFromPSM = psm.getProteins();
-		for (Protein protein : allProteins) {
+		for (final Protein protein : allProteins) {
 			protein.getPsms().remove(psm);
 			proteinsFromPSM.remove(protein);
 			peptide.getProteins().remove(protein);

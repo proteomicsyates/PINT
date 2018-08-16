@@ -28,8 +28,10 @@ import org.hibernate.SessionFactory;
 import edu.scripps.yates.annotations.omim.OmimEntry;
 import edu.scripps.yates.annotations.omim.OmimRetriever;
 import edu.scripps.yates.annotations.uniprot.ProteinImplFromUniprotEntry;
+import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
+import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.census.analysis.QuantCondition;
 import edu.scripps.yates.census.read.CensusChroParser;
 import edu.scripps.yates.census.read.CensusOutParser;
@@ -49,15 +51,18 @@ import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
+import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.cache.Cache;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
+import edu.scripps.yates.proteindb.queries.semantic.QueriablePeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueryInterface;
 import edu.scripps.yates.proteindb.queries.semantic.QueryResult;
 import edu.scripps.yates.server.DataSet;
 import edu.scripps.yates.server.DataSetsManager;
+import edu.scripps.yates.server.adapters.ConditionBeanAdapter;
 import edu.scripps.yates.server.adapters.GeneBeanAdapter;
 import edu.scripps.yates.server.adapters.OmimEntryBeanAdapter;
 import edu.scripps.yates.server.adapters.PeptideBeanAdapterFromPeptideSet;
@@ -71,8 +76,10 @@ import edu.scripps.yates.server.cache.ServerCacheProjectBeanByProjectTag;
 import edu.scripps.yates.server.cache.ServerCacheProteinAccessionsByFileKey;
 import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
 import edu.scripps.yates.server.export.DataExporter;
+import edu.scripps.yates.server.grouping.GroupableExtendedPeptideBean;
 import edu.scripps.yates.server.grouping.GroupableExtendedProteinBean;
 import edu.scripps.yates.server.grouping.GroupableExtendedPsmBean;
+import edu.scripps.yates.server.lock.LockerByTag;
 import edu.scripps.yates.server.projectCreator.adapter.RemoteSSHFileReferenceAdapter;
 import edu.scripps.yates.server.util.DefaultViewReader;
 import edu.scripps.yates.server.util.FileManager;
@@ -103,11 +110,12 @@ import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
 import edu.scripps.yates.utilities.cores.SystemCoreManager;
 import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.grouping.GroupablePSM;
+import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.PAnalyzer;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
+import edu.scripps.yates.utilities.ipi.UniprotEntry;
 import edu.scripps.yates.utilities.memory.MemoryUsageReport;
 import edu.scripps.yates.utilities.model.factories.AccessionEx;
 import edu.scripps.yates.utilities.pi.ParIterator;
@@ -166,6 +174,49 @@ public class RemoteServicesTasks {
 	}
 
 	/**
+	 * Gets the uniprot annotations using a {@link UniprotProteinLocalRetriever}
+	 * and using the given uniprot version, storing them in cache.<br>
+	 *
+	 *
+	 * @param proteins
+	 * @param uniprotVersion
+	 * @param projectTag
+	 * @param projectTag
+	 * @return
+	 */
+	public static Map<String, Entry> annotateProteinsWithUniprot(Collection<String> proteins, String uniprotVersion,
+			String projectTag) {
+
+		final String lockTag = projectTag + "_uniprot_annotation";
+		LockerByTag.lock(lockTag, null);
+		try {
+			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
+					UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
+					UniprotProteinRetrievalSettings.getInstance().isUseIndex(), true, true);
+			uplr.setCacheEnabled(true);
+			final Set<String> uniprotACCs = new THashSet<String>();
+			for (final String acc : proteins) {
+				final Pair<String, String> accType = FastaParser.getACC(acc);
+				if (accType.getSecondElement().equals("UNIPROT")) {
+					uniprotACCs.add(accType.getFirstelement());
+				} else if (accType.getSecondElement().equals("IPI")) {
+					final List<UniprotEntry> map2Uniprot = IPI2UniprotACCMap.getInstance()
+							.map2Uniprot(accType.getFirstelement());
+					if (map2Uniprot != null && !map2Uniprot.isEmpty()) {
+						for (final UniprotEntry uniprotEntry : map2Uniprot) {
+							uniprotACCs.add(uniprotEntry.getAcc());
+						}
+					}
+				}
+			}
+
+			return uplr.getAnnotatedProteins(uniprotVersion, uniprotACCs);
+		} finally {
+			LockerByTag.unlock(lockTag, null);
+		}
+	}
+
+	/**
 	 * Gets the uniprot annotations using a {@link UniprotProteinRetriever} and
 	 * using the given uniprot version.<br>
 	 * It is also annotating the position of each peptide in each protein by
@@ -177,7 +228,7 @@ public class RemoteServicesTasks {
 	 * @param uniprotVersion
 	 * @param hiddenPTMs
 	 */
-	public static void annotateProteinsUNIPROT(Collection<ProteinBean> proteinBeans, String uniprotVersion,
+	public static void annotateProteinBeansWithUniprot(Collection<ProteinBean> proteinBeans, String uniprotVersion,
 			Collection<String> hiddenPTMs) {
 		final int initialProteinNumber = proteinBeans.size();
 		final UniprotProteinRetriever uplr = new UniprotProteinRetriever(uniprotVersion,
@@ -406,6 +457,30 @@ public class RemoteServicesTasks {
 	}
 
 	/**
+	 * Gets a list of score names associated to a collection of proteins in a
+	 * collection of projects.
+	 *
+	 * @param projectNames
+	 * @return a non repeated and alphabethically sorted list of score names
+	 * @throws IllegalArgumentException
+	 */
+	public static List<String> getPeptideScoreNamesFromProjects(Collection<String> projectNames)
+			throws IllegalArgumentException {
+		final List<String> ret = new ArrayList<String>();
+		// for (String projectName : projectNames) {
+		// get the PSM scores from the projects
+		final List<String> peptideScoresByProject = PreparedQueries.getPeptideScoreNames();
+		for (final String peptideScore : peptideScoresByProject) {
+			if (!ret.contains(peptideScore))
+				ret.add(peptideScore);
+		}
+		// }
+		Collections.sort(ret);
+		return ret;
+
+	}
+
+	/**
 	 * Gets a list of score type names associated to a collection of PSMs in a
 	 * collection of projects.
 	 *
@@ -453,14 +528,14 @@ public class RemoteServicesTasks {
 	}
 
 	public static List<ProteinGroupBean> groupProteins(Collection<ProteinBean> proteins,
-			boolean separateNonConclusiveProteins) {
+			boolean separateNonConclusiveProteins, boolean psmCentric) {
 		log.info("Grouping " + proteins.size() + " protein beans");
 		log.info("separateNonConclusiveProteins=" + separateNonConclusiveProteins);
 		final PAnalyzer panalyzer = new PAnalyzer(separateNonConclusiveProteins);
 		// get the groupable proteins
 		final List<GroupableProtein> groupableProteins = new ArrayList<GroupableProtein>();
 		for (final ProteinBean proteinBean : proteins) {
-			groupableProteins.add(new GroupableExtendedProteinBean(proteinBean));
+			groupableProteins.add(new GroupableExtendedProteinBean(proteinBean, psmCentric));
 
 		}
 		log.info("Grouping " + groupableProteins.size() + " protein objects from the database");
@@ -474,20 +549,33 @@ public class RemoteServicesTasks {
 				final ProteinBean proteinBean = ((GroupableExtendedProteinBean) groupableProtein).getProtein();
 				proteinBean.setEvidence(ProteinEvidence.valueOf(groupableProtein.getEvidence().name()));
 				proteinGroupBean.add(proteinBean);
-				final List<GroupablePSM> groupablePSMs = groupableProtein.getGroupablePSMs();
-				for (final GroupablePSM groupablePSM : groupablePSMs) {
-					final PeptideRelation peptideRelationByName = PeptideRelation
-							.getPeptideRelationByName(groupablePSM.getRelation().name());
-					final PSMBean psm = ((GroupableExtendedPsmBean) groupablePSM).getPsm();
-					// log.info(peptideRelationByName + "\t with " +
-					// psm.getProteins().size() + "("
-					// + psm.getPrimaryAccessions().size() + ")");
-					psm.setRelation(peptideRelationByName);
-					if (psm.getPeptideBean() != null) {
-						psm.getPeptideBean().setRelation(peptideRelationByName);
+				if (psmCentric) {
+					final List<GroupablePeptide> groupablePSMs = groupableProtein.getGroupablePeptides();
+					for (final GroupablePeptide groupablePSM : groupablePSMs) {
+						final PeptideRelation peptideRelationByName = PeptideRelation
+								.getPeptideRelationByName(groupablePSM.getRelation().name());
+						final PSMBean psm = ((GroupableExtendedPsmBean) groupablePSM).getPsm();
+						// log.info(peptideRelationByName + "\t with " +
+						// psm.getProteins().size() + "("
+						// + psm.getPrimaryAccessions().size() + ")");
+						psm.setRelation(peptideRelationByName);
+						if (psm.getPeptideBean() != null) {
+							psm.getPeptideBean().setRelation(peptideRelationByName);
+						}
+					}
+				} else {
+					final List<GroupablePeptide> groupablePSMs = groupableProtein.getGroupablePeptides();
+					for (final GroupablePeptide groupablePeptide : groupablePSMs) {
+						final PeptideRelation peptideRelationByName = PeptideRelation
+								.getPeptideRelationByName(groupablePeptide.getRelation().name());
+						final PeptideBean peptide = ((GroupableExtendedPeptideBean) groupablePeptide).getPeptide();
+						// log.info(peptideRelationByName + "\t with " +
+						// psm.getProteins().size() + "("
+						// + psm.getPrimaryAccessions().size() + ")");
+						peptide.setRelation(peptideRelationByName);
+
 					}
 				}
-
 			}
 
 			ret.add(proteinGroupBean);
@@ -583,7 +671,7 @@ public class RemoteServicesTasks {
 		for (final edu.scripps.yates.proteindb.persistence.mysql.Project project : retrieveList) {
 			if (!includeHidden && project.isHidden())
 				continue;
-			final ProjectBean projectBean = new ProjectBeanAdapter(project).adapt();
+			final ProjectBean projectBean = new ProjectBeanAdapter(project, false).adapt();
 			ServerCacheProjectBeanByProjectTag.getInstance().addtoCache(projectBean, projectBean.getTag());
 			ret.add(projectBean);
 		}
@@ -992,7 +1080,7 @@ public class RemoteServicesTasks {
 	}
 
 	public static Map<String, Pair<DataSet, String>> batchQuery(File batchQueryFile, Set<String> projectTags,
-			boolean testMode) {
+			boolean testMode, boolean psmCentric) {
 		final Map<String, Pair<DataSet, String>> ret = new THashMap<String, Pair<DataSet, String>>();
 		String queryText;
 		BufferedReader br = null;
@@ -1010,23 +1098,31 @@ public class RemoteServicesTasks {
 				log.info("Query readed:" + queryText);
 				final String sessionID = String.valueOf(queryNumber);
 
-				final QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode);
+				final QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode, psmCentric);
 
 				final QueryResult result = expressionTree.getQueryResults();
 
 				final Map<String, Set<QueriableProteinSet>> proteins = result.getProteins();
-
 				log.info(proteins.size() + " proteins comming from command '" + queryText + "'");
+
+				// adapt experimental conditions first, so that the protein to
+				// condition mapper is ready
+				for (final String projectTag : projectTags) {
+					final List<Condition> conditions = PreparedCriteria.getCriteriaForConditionsInProject(projectTag);
+					for (final Condition condition : conditions) {
+						new ConditionBeanAdapter(condition, true).adapt();
+					}
+				}
 
 				final List<ProteinBean> proteinBeans = new ArrayList<ProteinBean>();
 				int i = 0;
 				for (final String proteinAcc : proteins.keySet()) {
-
 					final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(
-							proteins.get(proteinAcc), RemoteServicesTasks.getHiddenPTMs(projectTags)).adapt();
+							proteins.get(proteinAcc), RemoteServicesTasks.getHiddenPTMs(projectTags), psmCentric)
+									.adapt();
 
 					// add to current dataset
-					DataSetsManager.getDataSet(sessionID, projectString).addProtein(proteinBeanAdapted);
+					DataSetsManager.getDataSet(sessionID, projectString, psmCentric).addProtein(proteinBeanAdapted);
 					i++;
 					log.debug(i + " / " + proteins.size() + " proteins adapted to beans");
 					// final ProteinBean proteinBeanFromProtein = new
@@ -1036,27 +1132,30 @@ public class RemoteServicesTasks {
 				log.info(proteinBeans.size() + " protein beans created");
 
 				// peptides
-				final Map<String, Set<Peptide>> peptideMap = result.getPeptides();
+				final Map<String, Set<QueriablePeptideSet>> peptideMap = result.getPeptides();
 				log.info(peptideMap.size() + " Peptides comming from command '" + queryText + "'");
 				i = 0;
 				for (final String sequence : peptideMap.keySet()) {
 					i++;
-					final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(
-							peptideMap.get(sequence)).adapt();
-					// add to current dataset
-					DataSetsManager.getDataSet(sessionID, projectString).addPeptide(peptideBeanAdapted);
-					log.debug(i + " / " + peptideMap.size() + " peptides adapted to beans");
+					for (final QueriablePeptideSet queriablePeptide : peptideMap.get(sequence)) {
+
+						final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(queriablePeptide,
+								getHiddenPTMs(projectTags), psmCentric).adapt();
+						// add to current dataset
+						DataSetsManager.getDataSet(sessionID, projectString, psmCentric).addPeptide(peptideBeanAdapted);
+						log.debug(i + " / " + peptideMap.size() + " peptides adapted to beans");
+					}
 				}
 
 				log.info("Exporting protein beans to file");
 				final String urlString = FilenameUtils
-						.getName(DataExporter.exportProteins(proteinBeans, queryText).getAbsolutePath());
+						.getName(DataExporter.exportProteins(proteinBeans, queryText, psmCentric).getAbsolutePath());
 
 				final Pair<DataSet, String> pair = new Pair<DataSet, String>(
-						DataSetsManager.getDataSet(sessionID, projectString), urlString);
+						DataSetsManager.getDataSet(sessionID, projectString, psmCentric), urlString);
 				// set datasetReady
-				DataSetsManager.getDataSet(sessionID, projectString).setReady(true);
-				log.info("Dataset created: " + DataSetsManager.getDataSet(sessionID, projectString));
+				DataSetsManager.getDataSet(sessionID, projectString, psmCentric).setReady(true);
+				log.info("Dataset created: " + DataSetsManager.getDataSet(sessionID, projectString, psmCentric));
 
 				ret.put(queryText, pair);
 				// ContextualSessionHandler.finishGoodTransaction();
@@ -1093,7 +1192,8 @@ public class RemoteServicesTasks {
 
 			final Map<String, List<ProteinBean>> proteinMap = new THashMap<String, List<ProteinBean>>();
 			for (final ProteinBean proteinBean : proteinBeans) {
-				if (proteinBean.getOrganism().getNcbiTaxID().equals("9606")) {
+				if (proteinBean.getOrganism() != null && proteinBean.getOrganism().getNcbiTaxID() != null
+						&& proteinBean.getOrganism().getNcbiTaxID().equals("9606")) {
 					final String accession = proteinBean.getPrimaryAccession().getAccession();
 					if (proteinMap.containsKey(accession)) {
 						proteinMap.get(accession).add(proteinBean);
@@ -1155,7 +1255,7 @@ public class RemoteServicesTasks {
 	}
 
 	public static Set<ProteinBean> createProteinBeans(String sessionID, Map<String, Set<Protein>> proteins,
-			Set<String> hiddenPTMs) {
+			Set<String> hiddenPTMs, boolean psmCentric) {
 		log.info("Creating protein beans from " + proteins.size() + " different Proteins");
 		final Set<ProteinBean> ret = new THashSet<ProteinBean>();
 		int numProteins = 0;
@@ -1164,9 +1264,10 @@ public class RemoteServicesTasks {
 				break;
 
 			final Set<Protein> proteinSet = proteins.get(proteinAcc);
-			final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs).adapt();
+			final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs,
+					psmCentric).adapt();
 			if (sessionID != null) {
-				DataSetsManager.getDataSet(sessionID, null).addProtein(proteinBeanAdapted);
+				DataSetsManager.getDataSet(sessionID, null, psmCentric).addProtein(proteinBeanAdapted);
 			}
 			ret.add(proteinBeanAdapted);
 			log.info(numProteins++ + " / " + proteins.size() + " proteins: "
@@ -1179,7 +1280,7 @@ public class RemoteServicesTasks {
 	}
 
 	public static Set<ProteinBean> createProteinBeansInParallel(String sessionID, Map<String, Set<Protein>> proteins,
-			Set<String> hiddenPTMs) {
+			Set<String> hiddenPTMs, boolean psmCentric) {
 		log.info("Creating protein beans from " + proteins.size() + " different Proteins");
 		final Set<ProteinBean> ret = new THashSet<ProteinBean>();
 		int numProteins = 0;
@@ -1188,9 +1289,10 @@ public class RemoteServicesTasks {
 				break;
 
 			final Set<Protein> proteinSet = proteins.get(proteinAcc);
-			final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs).adapt();
+			final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs,
+					psmCentric).adapt();
 			if (sessionID != null) {
-				DataSetsManager.getDataSet(sessionID, null).addProtein(proteinBeanAdapted);
+				DataSetsManager.getDataSet(sessionID, null, psmCentric).addProtein(proteinBeanAdapted);
 			}
 			ret.add(proteinBeanAdapted);
 			log.info(numProteins++ + " / " + proteins.size() + " proteins: "
@@ -1213,16 +1315,19 @@ public class RemoteServicesTasks {
 	 * @param sessionID
 	 * @param proteins
 	 * @param hiddenPTMs
+	 * @param uniprotEntries
 	 * @param b
 	 * @return
 	 */
 	public static Set<ProteinBean> createProteinBeansFromQueriableProteins(String sessionID,
 			Map<String, Set<QueriableProteinSet>> proteins, Set<String> hiddenPTMs, String projectTagString,
-			boolean proteinLevelQuery) {
+			boolean proteinLevelQuery, boolean psmCentric) {
 		log.info("Creating protein beans from " + proteins.size() + " different Proteins");
 		final Set<ProteinBean> ret = new THashSet<ProteinBean>();
 		final int numProteins = 0;
-		final ProgressCounter counter = new ProgressCounter(proteins.size(), ProgressPrintingType.PERCENTAGE_STEPS, 1);
+		final ProgressCounter counter = new ProgressCounter(proteins.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0,
+				true);
+		counter.setSuffix("proteins converted to beans");
 		for (final String proteinAcc : proteins.keySet()) {
 			counter.increment();
 			final String printIfNecessary = counter.printIfNecessary();
@@ -1241,10 +1346,10 @@ public class RemoteServicesTasks {
 			if (proteinLevelQuery && ServerCacheProteinBeansByProteinDBId.getInstance().contains(proteinDBId)) {
 				proteinBeanAdapted = ServerCacheProteinBeansByProteinDBId.getInstance().getFromCache(proteinDBId);
 			} else {
-				proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs).adapt();
+				proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs, psmCentric).adapt();
 			}
 			if (sessionID != null) {
-				DataSetsManager.getDataSet(sessionID, projectTagString).addProtein(proteinBeanAdapted);
+				DataSetsManager.getDataSet(sessionID, projectTagString, psmCentric).addProtein(proteinBeanAdapted);
 			}
 			ret.add(proteinBeanAdapted);
 
@@ -1257,7 +1362,8 @@ public class RemoteServicesTasks {
 	}
 
 	public static Set<ProteinBean> createProteinBeansFromQueriableProteinsInParallel(String sessionID,
-			Map<String, Set<QueriableProteinSet>> proteins, Set<String> hiddenPTMs, String projectTagString) {
+			Map<String, Set<QueriableProteinSet>> proteins, Set<String> hiddenPTMs, String projectTagString,
+			boolean psmCentric) {
 		final int threadCount = SystemCoreManager.getAvailableNumSystemCores();
 		final ParIterator<Set<QueriableProteinSet>> iterator = ParIteratorFactory.createParIterator(proteins.values(),
 				threadCount, Schedule.GUIDED);
@@ -1266,7 +1372,8 @@ public class RemoteServicesTasks {
 		final List<ProteinBeanCreator> runners = new ArrayList<ProteinBeanCreator>();
 		for (int numCore = 0; numCore < threadCount; numCore++) {
 			// take current DB session
-			final ProteinBeanCreator runner = new ProteinBeanCreator(iterator, reducibleProteinSet, hiddenPTMs);
+			final ProteinBeanCreator runner = new ProteinBeanCreator(iterator, reducibleProteinSet, hiddenPTMs,
+					psmCentric);
 			runners.add(runner);
 			runner.start();
 		}
@@ -1290,7 +1397,8 @@ public class RemoteServicesTasks {
 				ret.addAll(second);
 				if (sessionID != null) {
 					for (final ProteinBean proteinBeanAdapted : ret) {
-						DataSetsManager.getDataSet(sessionID, projectTagString).addProtein(proteinBeanAdapted);
+						DataSetsManager.getDataSet(sessionID, projectTagString, psmCentric)
+								.addProtein(proteinBeanAdapted);
 					}
 				}
 				return ret;
@@ -1311,11 +1419,13 @@ public class RemoteServicesTasks {
 	 * @param sessionID
 	 * @param peptideMap
 	 * @param proteinLevelQuery
+	 * @param hiddenPTMs
 	 * @param b
 	 * @return
 	 */
 	public static Set<PeptideBean> createPeptideBeansFromPeptideMap(String sessionID,
-			Map<String, Set<Peptide>> peptideMap, boolean proteinLevelQuery) {
+			Map<String, Set<Peptide>> peptideMap, boolean proteinLevelQuery, boolean psmCentric,
+			Set<String> hiddenPTMs) {
 		if (ServerCacheProteinBeansByProteinDBId.getInstance().isEmpty()) {
 			throw new IllegalArgumentException(
 					"ServerCacheProteinBeansByProteinDBId is empty. That is going to be needed when creating the peptide beans, so call before to createProteinBeansFromQueriableProteins");
@@ -1326,7 +1436,10 @@ public class RemoteServicesTasks {
 		log.info("Creating PeptideBeans from " + peptideMap.size() + " different peptides");
 
 		int numPeptides = 0;
-		int percentage = 0;
+		final int percentage = 0;
+		final ProgressCounter counter = new ProgressCounter(peptideMap.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0,
+				true);
+		counter.setSuffix("peptides adapted to beans");
 		final Set<Peptide> peptidesToRelease = new THashSet<Peptide>();
 		for (final String sequence : peptideMap.keySet()) {
 			numPeptides++;
@@ -1335,18 +1448,20 @@ public class RemoteServicesTasks {
 			// the psmBeans when is a protein level query, they will be
 			// available in the cache
 			PeptideBean peptideBeanAdapted = null;
-			final Integer psmID = ((Psm) peptideSet.iterator().next().getPsms().iterator().next()).getId();
-			if (proteinLevelQuery && ServerCachePSMBeansByPSMDBId.getInstance().contains(psmID)) {
-				final PSMBean psmBean = ServerCachePSMBeansByPSMDBId.getInstance().getFromCache(psmID);
-				peptideBeanAdapted = psmBean.getPeptideBean();
+			if (psmCentric) {
+				final Integer psmID = ((Psm) peptideSet.iterator().next().getPsms().iterator().next()).getId();
+				if (proteinLevelQuery && ServerCachePSMBeansByPSMDBId.getInstance().contains(psmID)) {
+					final PSMBean psmBean = ServerCachePSMBeansByPSMDBId.getInstance().getFromCache(psmID);
+					peptideBeanAdapted = psmBean.getPeptideBean();
+				}
 			}
 			if (peptideBeanAdapted == null) {
-				peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(peptideSet).adapt();
+				peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(peptideSet, hiddenPTMs, psmCentric).adapt();
 			}
 			ret.add(peptideBeanAdapted);
 			peptidesToRelease.addAll(peptideSet);
 			if (peptidesToRelease.size() >= CHUNK_TO_RELEASE) {
-				cleanUpPeptidesFromSession(peptidesToRelease);
+				cleanUpPeptidesFromSession(peptidesToRelease, psmCentric);
 				peptidesToRelease.clear();
 				if (MemoryUsageReport.getFreeMemoryPercentage() < 10.0) {
 					log.info("calling to Garbage collector");
@@ -1356,20 +1471,19 @@ public class RemoteServicesTasks {
 				log.info(MemoryUsageReport.getMemoryUsageReport());
 			}
 			// add to current dataset
-			DataSetsManager.getDataSet(sessionID, null).addPeptide(peptideBeanAdapted);
-			final int currentPercentage = numPeptides * 100 / peptideMap.size();
-			if (currentPercentage != percentage) {
-				log.info(currentPercentage + "% (" + numPeptides + " / " + peptideMap.size()
-						+ ") peptides adapted to beans");
-				percentage = currentPercentage;
+			DataSetsManager.getDataSet(sessionID, null, psmCentric).addPeptide(peptideBeanAdapted);
+			final String printIfNecessary = counter.printIfNecessary();
+			if (!"".equals(printIfNecessary)) {
+				log.info(printIfNecessary);
 			}
+			counter.increment();
 		}
-		cleanUpPeptidesFromSession(peptidesToRelease);
+		cleanUpPeptidesFromSession(peptidesToRelease, psmCentric);
 		peptidesToRelease.clear();
 		return ret;
 	}
 
-	private static void cleanUpPeptidesFromSession(Collection<Peptide> peptides) {
+	private static void cleanUpPeptidesFromSession(Collection<Peptide> peptides, boolean psmCentric) {
 		for (final Peptide peptide : peptides) {
 			lookForInterruption();
 
@@ -1377,7 +1491,9 @@ public class RemoteServicesTasks {
 					peptide.getId());
 			ContextualSessionHandler.getCurrentSession().evict(peptide);
 			cleanUpProteinsFromSession(peptide.getProteins());
-			cleanUpPsmsFromSession(peptide.getPsms());
+			if (psmCentric) {
+				cleanUpPsmsFromSession(peptide.getPsms());
+			}
 		}
 
 	}
@@ -1418,7 +1534,7 @@ public class RemoteServicesTasks {
 	}
 
 	public static Set<PeptideBean> createPeptideBeansFromPeptideMapInParallel(String sessionID,
-			Map<String, Set<Peptide>> peptideMap) {
+			Map<String, Set<Peptide>> peptideMap, boolean psmCentric, Set<String> hiddenPTMs) {
 
 		// int threadCount =
 		// SystemCoreManager.getAvailableNumSystemCores(SharedConstants.MAX_NUMBER_PARALLEL_PROCESSES);
@@ -1486,12 +1602,12 @@ public class RemoteServicesTasks {
 		int numPeptides = 0;
 		for (final String sequence : peptideMap.keySet()) {
 			numPeptides++;
-			final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(peptideMap.get(sequence))
-					.adapt();
+			final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(peptideMap.get(sequence),
+					hiddenPTMs, psmCentric).adapt();
 			ret.add(peptideBeanAdapted);
 			// add to current dataset
 			if (sessionID != null) {
-				DataSetsManager.getDataSet(sessionID, null).addPeptide(peptideBeanAdapted);
+				DataSetsManager.getDataSet(sessionID, null, psmCentric).addPeptide(peptideBeanAdapted);
 			}
 			log.info(numPeptides + " / " + peptideMap.size() + " peptides adapted to beans");
 		}

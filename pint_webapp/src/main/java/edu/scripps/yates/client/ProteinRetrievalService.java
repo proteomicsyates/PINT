@@ -163,7 +163,7 @@ public interface ProteinRetrievalService extends RemoteService {
 
 	PeptideBeanSubList getPeptideBeansFromPeptideProviderFromListSorted(String sessionID,
 			ContainsPeptides peptideProvider, int start, int end, Comparator<PeptideBean> comparator, boolean ascending)
-					throws PintException;
+			throws PintException;
 
 	PeptideBeanSubList getPeptideBeansFromPeptideProviderFromList(String sessionID, ContainsPeptides peptideProvider,
 			int start, int end) throws PintException;

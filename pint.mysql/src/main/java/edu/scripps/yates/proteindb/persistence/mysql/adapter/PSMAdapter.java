@@ -52,7 +52,7 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 		}
 		ret.setPeptide(parentPeptide);
 
-		ret.setPsmId(psm.getPSMIdentifier());
+		ret.setPsmId(psm.getIdentifier());
 		ret.setCalMh(psm.getCalcMH());
 		ret.setIonProportion(psm.getIonProportion());
 		ret.setMh(psm.getExperimentalMH());

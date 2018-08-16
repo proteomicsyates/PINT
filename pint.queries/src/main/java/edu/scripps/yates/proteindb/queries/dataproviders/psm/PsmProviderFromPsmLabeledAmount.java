@@ -4,18 +4,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.PsmDataProvider;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import gnu.trove.map.hash.THashMap;
 
-public class PsmProviderFromPsmLabeledAmount implements ProteinProviderFromDB {
+public class PsmProviderFromPsmLabeledAmount extends PsmDataProvider {
 	private final String labelName;
-	private Set<String> projectTags;
-	private Map<String, Set<Psm>> result;
 	private final Boolean singleton;
 
 	public PsmProviderFromPsmLabeledAmount(String labelString, Boolean singleton) {
@@ -29,7 +26,7 @@ public class PsmProviderFromPsmLabeledAmount implements ProteinProviderFromDB {
 			result = new THashMap<String, Set<Psm>>();
 			int numPSMs = 0;
 			if (projectTags != null) {
-				for (String projectTag : projectTags) {
+				for (final String projectTag : projectTags) {
 					final List<Psm> psMsWithLabeledAmount = PreparedQueries.getPSMsWithLabeledAmount(projectTag,
 							labelName, singleton);
 					if (testMode && numPSMs + psMsWithLabeledAmount.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
@@ -55,18 +52,6 @@ public class PsmProviderFromPsmLabeledAmount implements ProteinProviderFromDB {
 			}
 		}
 		return result;
-	}
-
-	@Override
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
-		return PersistenceUtils.getProteinsFromPsms(getPsmMap(testMode), true);
-	}
-
-	@Override
-	public void setProjectTags(Set<String> projectNames) {
-		projectTags = projectNames;
-		result = null;
-
 	}
 
 }

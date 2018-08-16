@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.ListBox;
 
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ExcelColumnRefPanel;
@@ -17,6 +20,7 @@ import edu.scripps.yates.client.gui.components.projectCreatorWizard.ProjectCreat
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ObjectPanels.DataSourceDisclosurePanel;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ProjectCreatorRegister;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.RepresentsDataObject;
+import edu.scripps.yates.client.gui.templates.HtmlTemplates;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils.SEQUENCE_OVERLAPPING;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
@@ -60,8 +64,8 @@ public class SharedDataUtils {
 	 */
 	public static List<ScoreBean> getRatioScoreValues(String condition1Name, String condition2Name,
 			List<RatioBean> ratios, String ratioScoreName) {
-		List<ScoreBean> ret = new ArrayList<ScoreBean>();
-		for (RatioBean ratio : ratios) {
+		final List<ScoreBean> ret = new ArrayList<ScoreBean>();
+		for (final RatioBean ratio : ratios) {
 			if (ratio.getCondition1().getId().equalsIgnoreCase(condition1Name)
 					&& ratio.getCondition2().getId().equalsIgnoreCase(condition2Name)) {
 				if (ratio.getAssociatedConfidenceScore() != null
@@ -82,13 +86,13 @@ public class SharedDataUtils {
 
 	public static String getConditionString(ContainsConditions containsConditions) {
 		final List<String> conditions2 = new ArrayList<String>();
-		for (ExperimentalConditionBean condition : containsConditions.getConditions()) {
+		for (final ExperimentalConditionBean condition : containsConditions.getConditions()) {
 			conditions2.add(condition.getId());
 		}
 
 		Collections.sort(conditions2);
-		StringBuilder sb = new StringBuilder();
-		for (String string : conditions2) {
+		final StringBuilder sb = new StringBuilder();
+		for (final String string : conditions2) {
 			if (!"".equals(sb.toString()))
 				sb.append(SharedConstants.SEPARATOR);
 			sb.append(string);
@@ -107,8 +111,8 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static List<Double> getRatioValues(String condition1Name, String condition2Name, List<RatioBean> ratios1) {
-		List<Double> ret = new ArrayList<Double>();
-		for (RatioBean ratio : ratios1) {
+		final List<Double> ret = new ArrayList<Double>();
+		for (final RatioBean ratio : ratios1) {
 			if (ratio.getCondition1().getId().equalsIgnoreCase(condition1Name)
 					&& ratio.getCondition2().getId().equalsIgnoreCase(condition2Name)) {
 				ret.add(ratio.getValue());
@@ -130,7 +134,7 @@ public class SharedDataUtils {
 	public static Double getEfectiveRatio(Collection<Double> ratioValues) {
 		// look if the ratios are infinity or -infinity
 		boolean areAllPlusINF = true;
-		for (Double ratioValue : ratioValues) {
+		for (final Double ratioValue : ratioValues) {
 			if (Double.compare(Double.POSITIVE_INFINITY, ratioValue) != 0
 					&& Double.compare(Double.MAX_VALUE, ratioValue) != 0) {
 				areAllPlusINF = false;
@@ -141,7 +145,7 @@ public class SharedDataUtils {
 			return Double.POSITIVE_INFINITY;
 		}
 		boolean areAllMinusINF = true;
-		for (Double ratioValue : ratioValues) {
+		for (final Double ratioValue : ratioValues) {
 			if (Double.compare(Double.NEGATIVE_INFINITY, ratioValue) != 0
 					&& Double.compare(-Double.MAX_VALUE, ratioValue) != 0) {
 				areAllMinusINF = false;
@@ -167,7 +171,7 @@ public class SharedDataUtils {
 	public static String parseConditionSymbolFromConditionSelection(String element) {
 		if (element.contains("-")) {
 			String prefix = element.split("-")[0];
-			String firstCharacter = String.valueOf(prefix.charAt(0));
+			final String firstCharacter = String.valueOf(prefix.charAt(0));
 			if (isNumber(firstCharacter)) {
 				prefix = prefix.substring(1);
 			}
@@ -180,7 +184,7 @@ public class SharedDataUtils {
 		try {
 			Double.valueOf(potentialNumber);
 			return true;
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 
 		}
 		return false;
@@ -214,7 +218,7 @@ public class SharedDataUtils {
 	 */
 	public static String parseProjectSymbolFromConditionSelection(String element) {
 		if (element.contains("-")) {
-			String prefix = element.split("-")[0];
+			final String prefix = element.split("-")[0];
 			int index = 0;
 			while (isNumber(String.valueOf(prefix.charAt(index)))) {
 				index++;
@@ -237,11 +241,11 @@ public class SharedDataUtils {
 		if (projectListBox.getItemCount() <= 1)
 			return "";
 		for (int i = 0; i < projectListBox.getItemCount(); i++) {
-			String element = projectListBox.getItemText(i);
+			final String element = projectListBox.getItemText(i);
 			if (element.contains("-")) {
-				String name = element.split("-")[1];
+				final String name = element.split("-")[1];
 				if (name.equals(projectName)) {
-					String symbol = element.split("-")[0];
+					final String symbol = element.split("-")[0];
 					return symbol;
 				}
 			} else {
@@ -268,9 +272,9 @@ public class SharedDataUtils {
 		if (projectSymbol == null || "".equals(projectSymbol))
 			return listBox.getItemText(0);
 		for (int i = 0; i < listBox.getItemCount(); i++) {
-			String element = listBox.getItemText(i);
+			final String element = listBox.getItemText(i);
 			if (element.contains("-")) {
-				String symbol = element.split("-")[0];
+				final String symbol = element.split("-")[0];
 				if (symbol.equals(projectSymbol))
 					return element.split("-")[1];
 			} else {
@@ -297,7 +301,7 @@ public class SharedDataUtils {
 			ListBox conditionsListBox, ListBox projectsListBox) {
 		String conditionSymbol = "";
 		String projectSymbol = "";
-		boolean moreThanOneProject = projectsListBox.getItemCount() > 1;
+		final boolean moreThanOneProject = projectsListBox.getItemCount() > 1;
 		if (moreThanOneProject) {
 			// more than one project
 			projectSymbol = parseProjectSymbolFromListBox(projectName, projectsListBox);
@@ -317,7 +321,7 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static String getNewElementNameForProject(String projectName, ListBox projectsListBox) {
-		String projectSymbol = getNextAvailableProjectSymbol(projectsListBox);
+		final String projectSymbol = getNextAvailableProjectSymbol(projectsListBox);
 		if (projectSymbol != null && !"".equals(projectSymbol))
 			return projectSymbol + "-" + projectName;
 		return projectName;
@@ -338,12 +342,12 @@ public class SharedDataUtils {
 		if (conditionsListBox.getItemCount() == 0) {
 			return String.valueOf((char) 65);
 		} else {
-			String lastProjectSymbol = parseProjectSymbolFromConditionSelection(
+			final String lastProjectSymbol = parseProjectSymbolFromConditionSelection(
 					conditionsListBox.getItemText(conditionsListBox.getItemCount() - 1));
 			if (!lastProjectSymbol.equals(projectSymbol)) {
 				return String.valueOf((char) 65);
 			}
-			String lastConditionSymbol = parseConditionSymbolFromConditionSelection(
+			final String lastConditionSymbol = parseConditionSymbolFromConditionSelection(
 					conditionsListBox.getItemText(conditionsListBox.getItemCount() - 1));
 			if (lastConditionSymbol.length() == 1) {
 				final char charAt = lastConditionSymbol.charAt(0);
@@ -367,7 +371,7 @@ public class SharedDataUtils {
 			return "1";
 		} else {
 			final String itemText = projectListBox.getItemText(projectListBox.getItemCount() - 1);
-			int lastProjectSymbol = Integer.valueOf(parseProjectSymbolFromProjectSelection(itemText));
+			final int lastProjectSymbol = Integer.valueOf(parseProjectSymbolFromProjectSelection(itemText));
 			return String.valueOf(lastProjectSymbol + 1);
 		}
 	}
@@ -383,7 +387,7 @@ public class SharedDataUtils {
 	private static String parseProjectSymbolFromProjectSelection(String projectSelection) {
 
 		if (projectSelection.contains("-")) {
-			String prefix = projectSelection.split("-")[0];
+			final String prefix = projectSelection.split("-")[0];
 			if (isNumber(prefix)) {
 				return prefix;
 			}
@@ -393,7 +397,7 @@ public class SharedDataUtils {
 	}
 
 	public static Comparator<AccessionBean> getComparatorByAccession() {
-		Comparator<AccessionBean> ret = new Comparator<AccessionBean>() {
+		final Comparator<AccessionBean> ret = new Comparator<AccessionBean>() {
 
 			@Override
 			public int compare(AccessionBean o1, AccessionBean o2) {
@@ -416,7 +420,7 @@ public class SharedDataUtils {
 
 	public static Comparator<ProteinBean> getComparatorByPrymaryAcc() {
 
-		Comparator<ProteinBean> comparatorByProteinPrimaryAcc = new Comparator<ProteinBean>() {
+		final Comparator<ProteinBean> comparatorByProteinPrimaryAcc = new Comparator<ProteinBean>() {
 			@Override
 			public int compare(ProteinBean o1, ProteinBean o2) {
 				return o1.getPrimaryAccession().getAccession().compareTo(o2.getPrimaryAccession().getAccession());
@@ -427,7 +431,7 @@ public class SharedDataUtils {
 	}
 
 	public static Set<String> getItemValuesFromListBox(ListBox listBox) {
-		Set<String> selectedItems = new HashSet<String>();
+		final Set<String> selectedItems = new HashSet<String>();
 		for (int i = 0; i < listBox.getItemCount(); i++) {
 			selectedItems.add(listBox.getValue(i));
 		}
@@ -435,11 +439,11 @@ public class SharedDataUtils {
 	}
 
 	public static Collection<String> getPrimaryAccessions(Collection<ProteinBean> proteinMap, AccessionType accType) {
-		Set<String> ret = new HashSet<String>();
+		final Set<String> ret = new HashSet<String>();
 		if (proteinMap != null) {
-			for (ProteinBean proteinBean : proteinMap) {
+			for (final ProteinBean proteinBean : proteinMap) {
 				final Set<AccessionBean> accessions = proteinBean.getAccessions(accType);
-				for (AccessionBean accessionBean : accessions) {
+				for (final AccessionBean accessionBean : accessions) {
 					if (accessionBean.isPrimaryAccession())
 						ret.add(accessionBean.getAccession());
 				}
@@ -460,10 +464,10 @@ public class SharedDataUtils {
 				ratioName = ratioName.substring(0, ratioName.length() - 1);
 			}
 		}
-		Set<Integer> ratioIDs = new HashSet<Integer>();
-		List<RatioBean> ret = new ArrayList<RatioBean>();
+		final Set<Integer> ratioIDs = new HashSet<Integer>();
+		final List<RatioBean> ret = new ArrayList<RatioBean>();
 		if (ratios != null) {
-			for (RatioBean ratioBean : ratios) {
+			for (final RatioBean ratioBean : ratios) {
 
 				if (ratioName != null && !ratioName.equals(ratioBean.getDescription()))
 					continue;
@@ -490,7 +494,7 @@ public class SharedDataUtils {
 	}
 
 	private static List<RatioBean> sortRatiosByID(List<RatioBean> unsortedRatios) {
-		List<RatioBean> ret = new ArrayList<RatioBean>();
+		final List<RatioBean> ret = new ArrayList<RatioBean>();
 		ret.addAll(unsortedRatios);
 
 		Collections.sort(ret, new Comparator<RatioBean>() {
@@ -511,11 +515,11 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static String getProjectTagCollectionKey(Collection<String> projectTags) {
-		List<String> list = new ArrayList<String>();
+		final List<String> list = new ArrayList<String>();
 		list.addAll(projectTags);
 		Collections.sort(list);
 		String ret = "";
-		for (String string : list) {
+		for (final String string : list) {
 			ret += string;
 		}
 		return ret;
@@ -528,9 +532,9 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static Map<String, List<String>> getConditionsByProjectsFromRatios(Collection<RatioBean> ratios) {
-		Map<String, List<String>> ret = new HashMap<String, List<String>>();
+		final Map<String, List<String>> ret = new HashMap<String, List<String>>();
 		if (ratios != null) {
-			for (RatioBean ratioBean : ratios) {
+			for (final RatioBean ratioBean : ratios) {
 				final ExperimentalConditionBean experimentalCondition1 = ratioBean.getCondition1();
 				mergeStringMapsWithNoRepetitionsOnList(ret, getConditionsByProject(experimentalCondition1));
 				final ExperimentalConditionBean experimentalCondition2 = ratioBean.getCondition2();
@@ -548,9 +552,9 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static Map<String, List<String>> getConditionsByProjectsFromAmounts(Collection<AmountBean> amounts) {
-		Map<String, List<String>> ret = new HashMap<String, List<String>>();
+		final Map<String, List<String>> ret = new HashMap<String, List<String>>();
 		if (amounts != null) {
-			for (AmountBean amountBean : amounts) {
+			for (final AmountBean amountBean : amounts) {
 				final ExperimentalConditionBean experimentalCondition = amountBean.getExperimentalCondition();
 				mergeStringMapsWithNoRepetitionsOnList(ret, getConditionsByProject(experimentalCondition));
 
@@ -568,15 +572,15 @@ public class SharedDataUtils {
 	 */
 	public static void mergeStringMapsWithNoRepetitionsOnList(Map<String, List<String>> receiver,
 			Map<String, List<String>> donor) {
-		for (String key : donor.keySet()) {
+		for (final String key : donor.keySet()) {
 			final List<String> list = donor.get(key);
 			if (receiver.containsKey(key)) {
-				for (String item : list) {
+				for (final String item : list) {
 					if (!receiver.get(key).contains(item))
 						receiver.get(key).add(item);
 				}
 			} else {
-				List<String> list2 = new ArrayList<String>();
+				final List<String> list2 = new ArrayList<String>();
 				list2.addAll(list);
 				receiver.put(key, list2);
 			}
@@ -591,14 +595,14 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static Map<String, List<String>> getConditionsByProject(ExperimentalConditionBean experimentalCondition) {
-		Map<String, List<String>> ret = new HashMap<String, List<String>>();
+		final Map<String, List<String>> ret = new HashMap<String, List<String>>();
 		if (experimentalCondition != null && experimentalCondition.getProject() != null) {
 			if (ret.containsKey(experimentalCondition.getProject().getTag())) {
 				if (!ret.get(experimentalCondition.getProject().getTag()).contains(experimentalCondition.getId())) {
 					ret.get(experimentalCondition.getProject().getTag()).add(experimentalCondition.getId());
 				}
 			} else {
-				List<String> list = new ArrayList<String>();
+				final List<String> list = new ArrayList<String>();
 				list.add(experimentalCondition.getId());
 				ret.put(experimentalCondition.getProject().getTag(), list);
 			}
@@ -615,15 +619,15 @@ public class SharedDataUtils {
 	 */
 	public static void mergeRatioDescriptorMapsWithNoRepetitionsOnList(Map<String, List<RatioDescriptorBean>> receiver,
 			Map<String, List<RatioDescriptorBean>> donor) {
-		for (String key : donor.keySet()) {
+		for (final String key : donor.keySet()) {
 			final List<RatioDescriptorBean> list = donor.get(key);
 			if (receiver.containsKey(key)) {
-				for (RatioDescriptorBean item : list) {
+				for (final RatioDescriptorBean item : list) {
 					if (!receiver.get(key).contains(item))
 						receiver.get(key).add(item);
 				}
 			} else {
-				List<RatioDescriptorBean> list2 = new ArrayList<RatioDescriptorBean>();
+				final List<RatioDescriptorBean> list2 = new ArrayList<RatioDescriptorBean>();
 				list2.addAll(list);
 				receiver.put(key, list2);
 			}
@@ -640,17 +644,17 @@ public class SharedDataUtils {
 	 */
 	public static Map<String, List<RatioDescriptorBean>> getRatioDescriptorsByProjectsFromRatios(
 			Collection<RatioBean> ratios) {
-		Map<String, List<RatioDescriptorBean>> ret = new HashMap<String, List<RatioDescriptorBean>>();
+		final Map<String, List<RatioDescriptorBean>> ret = new HashMap<String, List<RatioDescriptorBean>>();
 
 		if (ratios != null) {
-			for (RatioBean ratioBean : ratios) {
+			for (final RatioBean ratioBean : ratios) {
 				final RatioDescriptorBean ratioDescriptorBean = ratioBean.getRatioDescriptorBean();
 				if (ret.containsKey(ratioDescriptorBean.getProjectTag())) {
 					final List<RatioDescriptorBean> list = ret.get(ratioDescriptorBean.getProjectTag());
 					if (!list.contains(ratioDescriptorBean))
 						list.add(ratioDescriptorBean);
 				} else {
-					List<RatioDescriptorBean> list = new ArrayList<RatioDescriptorBean>();
+					final List<RatioDescriptorBean> list = new ArrayList<RatioDescriptorBean>();
 					list.add(ratioDescriptorBean);
 					ret.put(ratioDescriptorBean.getProjectTag(), list);
 				}
@@ -670,9 +674,9 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static List<ProteinBean> getProteinsFromProject(Collection<ProteinBean> proteins, String projectTag) {
-		List<ProteinBean> ret = new ArrayList<ProteinBean>();
+		final List<ProteinBean> ret = new ArrayList<ProteinBean>();
 		if (proteins != null) {
-			for (ProteinBean proteinBean : proteins) {
+			for (final ProteinBean proteinBean : proteins) {
 				if (proteinBean.isFromThisProject(projectTag)) {
 					ret.add(proteinBean);
 				}
@@ -692,9 +696,9 @@ public class SharedDataUtils {
 	 */
 	public static List<ProteinGroupBean> getProteinGroupsFromProject(List<ProteinGroupBean> proteinGroups,
 			String projectTag) {
-		List<ProteinGroupBean> ret = new ArrayList<ProteinGroupBean>();
+		final List<ProteinGroupBean> ret = new ArrayList<ProteinGroupBean>();
 		if (proteinGroups != null) {
-			for (ProteinGroupBean proteinGroup : proteinGroups) {
+			for (final ProteinGroupBean proteinGroup : proteinGroups) {
 				if (proteinGroup.isFromThisProject(projectTag)) {
 					ret.add(proteinGroup);
 				}
@@ -713,13 +717,13 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static List<PSMBean> getPSMBeansFromProteinBeans(Collection<ProteinBean> proteinBeans) {
-		List<PSMBean> ret = new ArrayList<PSMBean>();
-		Set<Integer> psmIDs = new HashSet<Integer>();
+		final List<PSMBean> ret = new ArrayList<PSMBean>();
+		final Set<Integer> psmIDs = new HashSet<Integer>();
 		if (proteinBeans != null) {
-			for (ProteinBean proteinBean : proteinBeans) {
+			for (final ProteinBean proteinBean : proteinBeans) {
 				final List<PSMBean> psmBeans = proteinBean.getPsms();
 				if (psmBeans != null) {
-					for (PSMBean psmBean : psmBeans) {
+					for (final PSMBean psmBean : psmBeans) {
 						if (!psmIDs.contains(psmBean.getDbID())) {
 							psmIDs.add(psmBean.getDbID());
 							ret.add(psmBean);
@@ -744,16 +748,16 @@ public class SharedDataUtils {
 	 */
 	public static FileNameWithTypeBean getFileNameWithTypeFromFileComboSelection(ListBox fileCombo, String columnRef) {
 		final String excelFileID = ExcelColumnRefPanel.getExcelFileID(columnRef);
-		String internalID = ProjectCreatorWizardUtil.getValueInCombo(fileCombo, excelFileID);
+		final String internalID = ProjectCreatorWizardUtil.getValueInCombo(fileCombo, excelFileID);
 		try {
 			final RepresentsDataObject projectObjectRepresenter = ProjectCreatorRegister
 					.getProjectObjectRepresenter(Integer.valueOf(internalID));
 			if (projectObjectRepresenter instanceof DataSourceDisclosurePanel) {
-				DataSourceDisclosurePanel disclosurePanel = (DataSourceDisclosurePanel) projectObjectRepresenter;
+				final DataSourceDisclosurePanel disclosurePanel = (DataSourceDisclosurePanel) projectObjectRepresenter;
 				final FileNameWithTypeBean fileNameWithTypeBean = disclosurePanel.getFileNameWithTypeBean();
 				return fileNameWithTypeBean;
 			}
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 
 		}
 		return null;
@@ -769,13 +773,41 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static List<ProteinBean> getProteinBeansFromPSMBeans(List<PSMBean> psmBeans) {
-		List<ProteinBean> ret = new ArrayList<ProteinBean>();
-		Set<String> proteinIDs = new HashSet<String>();
+		final List<ProteinBean> ret = new ArrayList<ProteinBean>();
+		final Set<String> proteinIDs = new HashSet<String>();
 		if (psmBeans != null) {
-			for (PSMBean psmBean : psmBeans) {
+			for (final PSMBean psmBean : psmBeans) {
 				final Set<ProteinBean> proteinBeans = psmBean.getProteins();
 				if (proteinBeans != null) {
-					for (ProteinBean proteinBean : proteinBeans) {
+					for (final ProteinBean proteinBean : proteinBeans) {
+						if (!proteinIDs.contains(proteinBean.getId())) {
+							proteinIDs.add(proteinBean.getId());
+							ret.add(proteinBean);
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a List of {@link ProteinBean} from a collection of
+	 * {@link PeptideBean}. <br>
+	 * Note that if the {@link PeptideBean} is not linked to any
+	 * {@link ProteinBean} the list will be empty
+	 *
+	 * @param peptideBeans
+	 * @return
+	 */
+	public static List<ProteinBean> getProteinBeansFromPeptideBeans(List<PeptideBean> peptideBeans) {
+		final List<ProteinBean> ret = new ArrayList<ProteinBean>();
+		final Set<String> proteinIDs = new HashSet<String>();
+		if (peptideBeans != null) {
+			for (final PeptideBean peptideBean : peptideBeans) {
+				final Set<ProteinBean> proteinBeans = peptideBean.getProteins();
+				if (proteinBeans != null) {
+					for (final ProteinBean proteinBean : proteinBeans) {
 						if (!proteinIDs.contains(proteinBean.getId())) {
 							proteinIDs.add(proteinBean.getId());
 							ret.add(proteinBean);
@@ -797,17 +829,18 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static List<PeptideBean> getPeptideBeansFromProteinBeans(Collection<ProteinBean> proteinBeans) {
-		List<PeptideBean> ret = new ArrayList<PeptideBean>();
-		Set<String> peptideIDs = new HashSet<String>();
+		final List<PeptideBean> ret = new ArrayList<PeptideBean>();
+		final Set<String> peptideIDs = new HashSet<String>();
 		if (proteinBeans != null) {
-			for (ProteinBean proteinBean : proteinBeans) {
+			for (final ProteinBean proteinBean : proteinBeans) {
 				final List<PeptideBean> peptideBeans = proteinBean.getPeptides();
 				if (peptideBeans != null) {
-					for (PeptideBean peptideBean : peptideBeans) {
+					for (final PeptideBean peptideBean : peptideBeans) {
 						if (!peptideIDs.contains(peptideBean.getId())) {
 							peptideIDs.add(peptideBean.getId());
 							ret.add(peptideBean);
 						}
+						proteinBean.addDifferentSequence(peptideBean.getFullSequence());
 					}
 				}
 			}
@@ -823,16 +856,16 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static Map<String, Set<PeptideBean>> getPeptideMapFromProteins(Collection<ProteinBean> proteins) {
-		Map<String, Set<PeptideBean>> ret = new HashMap<String, Set<PeptideBean>>();
+		final Map<String, Set<PeptideBean>> ret = new HashMap<String, Set<PeptideBean>>();
 
-		for (ProteinBean protein : proteins) {
+		for (final ProteinBean protein : proteins) {
 			final List<PeptideBean> peptides = protein.getPeptides();
-			for (PeptideBean peptide : peptides) {
+			for (final PeptideBean peptide : peptides) {
 				final String sequence = peptide.getSequence();
 				if (ret.containsKey(sequence)) {
 					ret.get(sequence).add(peptide);
 				} else {
-					Set<PeptideBean> set = new HashSet<PeptideBean>();
+					final Set<PeptideBean> set = new HashSet<PeptideBean>();
 					set.add(peptide);
 					ret.put(sequence, set);
 				}
@@ -856,26 +889,26 @@ public class SharedDataUtils {
 				.equals(proteinBeanDonor.getPrimaryAccession().getAccession())) {
 			return;
 		}
-		for (AmountBean amount : proteinBeanDonor.getAmounts()) {
+		for (final AmountBean amount : proteinBeanDonor.getAmounts()) {
 			proteinBeanReceiver.addAmount(amount);
 		}
-		for (ProteinAnnotationBean annotation : proteinBeanDonor.getAnnotations()) {
+		for (final ProteinAnnotationBean annotation : proteinBeanDonor.getAnnotations()) {
 			proteinBeanReceiver.getAnnotations().add(annotation);
 		}
 		final Set<Integer> dbIds = proteinBeanDonor.getDbIds();
-		for (Integer dbId : dbIds) {
+		for (final Integer dbId : dbIds) {
 			proteinBeanReceiver.addDbId(dbId);
 
 		}
 
 		final Set<String> functions = proteinBeanDonor.getFunctions();
-		for (String function : functions) {
+		for (final String function : functions) {
 			proteinBeanReceiver.addFunction(function);
 		}
 
 		final Collection<List<UniprotFeatureBean>> uniprotFeatures = proteinBeanDonor.getUniprotFeatures().values();
-		for (List<UniprotFeatureBean> uniprotFeatureSet : uniprotFeatures) {
-			for (UniprotFeatureBean uniprotFeature : uniprotFeatureSet) {
+		for (final List<UniprotFeatureBean> uniprotFeatureSet : uniprotFeatures) {
+			for (final UniprotFeatureBean uniprotFeature : uniprotFeatureSet) {
 				proteinBeanReceiver.addUniprotFeature(uniprotFeature);
 			}
 
@@ -884,45 +917,45 @@ public class SharedDataUtils {
 		// reset geneString in order to be rebuilt after adding new genes
 		proteinBeanReceiver.setGeneString(null);
 		final Set<GeneBean> genes = proteinBeanDonor.getGenes();
-		for (GeneBean geneBean : genes) {
+		for (final GeneBean geneBean : genes) {
 			proteinBeanReceiver.addGene(geneBean);
 		}
 
 		final Set<MSRunBean> msruns = proteinBeanDonor.getMsruns();
-		for (MSRunBean msRunBean : msruns) {
+		for (final MSRunBean msRunBean : msruns) {
 			proteinBeanReceiver.addMsrun(msRunBean);
 		}
 		// reset the number of PSMs to be recalculated after adding the new PSMs
 		proteinBeanReceiver.setNumPSMs(0);
 		final List<PSMBean> psms = proteinBeanDonor.getPsms();
-		for (PSMBean psm : psms) {
+		for (final PSMBean psm : psms) {
 			proteinBeanReceiver.addPSMtoProtein(psm);
 		}
 
 		final Set<RatioBean> ratios = proteinBeanDonor.getRatios();
-		for (RatioBean ratioBean : ratios) {
+		for (final RatioBean ratioBean : ratios) {
 			proteinBeanReceiver.addProteinRatio(ratioBean);
 		}
 
 		final Set<ThresholdBean> thresholds = proteinBeanDonor.getThresholds();
-		for (ThresholdBean thresholdBean : thresholds) {
+		for (final ThresholdBean thresholdBean : thresholds) {
 			proteinBeanReceiver.addThreshold(thresholdBean);
 		}
 		final Set<ExperimentalConditionBean> conditions = proteinBeanDonor.getConditions();
-		for (ExperimentalConditionBean experimentalConditionBean : conditions) {
+		for (final ExperimentalConditionBean experimentalConditionBean : conditions) {
 			proteinBeanReceiver.addCondition(experimentalConditionBean);
 		}
 		final Map<Integer, OmimEntryBean> omimEntries = proteinBeanDonor.getOmimEntries();
-		for (OmimEntryBean omimEntry : omimEntries.values()) {
+		for (final OmimEntryBean omimEntry : omimEntries.values()) {
 			proteinBeanReceiver.addOMIMEntry(omimEntry);
 		}
 
 		// reset numPeptide to force to get the actual number after adding the
 		// donor different sequences
 		proteinBeanReceiver.setNumPeptides(0);
-		proteinBeanReceiver.getDifferentSequences().addAll(proteinBeanDonor.getDifferentSequences());
+		proteinBeanReceiver.addDifferentSequences(proteinBeanDonor.getDifferentSequences());
 
-		for (PeptideBean peptideBean : proteinBeanDonor.getPeptides()) {
+		for (final PeptideBean peptideBean : proteinBeanDonor.getPeptides()) {
 			proteinBeanReceiver.addPeptideToProtein(peptideBean);
 		}
 	}
@@ -936,7 +969,7 @@ public class SharedDataUtils {
 	 */
 	public static String getRatioKey(RatioBean ratio) {
 		final String key = new StringBuilder().append(ratio.getDescription()).append(ratio.getCondition1().getId())
-				.append(ratio.getCondition2().getId()).append(ratio.getCondition1().getProject().getId())
+				.append(ratio.getCondition2().getId()).append(ratio.getCondition1().getProject().getTag())
 				.append(ratio.getRatioDescriptorBean().getAggregationLevel().name()).toString();
 		return key;
 	}
@@ -986,13 +1019,13 @@ public class SharedDataUtils {
 	}
 
 	public static List<PSMBean> getPSMBeansFromProteinBeans(List<ProteinBean> proteinBeans) {
-		List<PSMBean> ret = new ArrayList<PSMBean>();
-		Set<Integer> psmIDs = new HashSet<Integer>();
+		final List<PSMBean> ret = new ArrayList<PSMBean>();
+		final Set<Integer> psmIDs = new HashSet<Integer>();
 		if (proteinBeans != null) {
-			for (ProteinBean proteinBean : proteinBeans) {
+			for (final ProteinBean proteinBean : proteinBeans) {
 				final List<PSMBean> psmBeans = proteinBean.getPsms();
 				// RemoteServicesTasks .getPSMsFromProtein(proteinBean, false);
-				for (PSMBean psmBean : psmBeans) {
+				for (final PSMBean psmBean : psmBeans) {
 					if (!psmIDs.contains(psmBean.getDbID())) {
 						psmIDs.add(psmBean.getDbID());
 						ret.add(psmBean);
@@ -1012,15 +1045,15 @@ public class SharedDataUtils {
 	 */
 	public static Map<String, List<RatioDescriptorBean>> getRatioDescriptorsByProjectsFromProteins(
 			Collection<ProteinBean> proteins) {
-		Map<String, List<RatioDescriptorBean>> ret = new HashMap<String, List<RatioDescriptorBean>>();
-		for (ProteinBean proteinBean : proteins) {
+		final Map<String, List<RatioDescriptorBean>> ret = new HashMap<String, List<RatioDescriptorBean>>();
+		for (final ProteinBean proteinBean : proteins) {
 			final Set<RatioBean> ratios = proteinBean.getRatios();
 			if (ratios != null && !ratios.isEmpty()) {
 				mergeRatioDescriptorMapsWithNoRepetitionsOnList(ret, getRatioDescriptorsByProjectsFromRatios(ratios));
 			}
 			final List<PSMBean> psms = proteinBean.getPsms();
 			// RemoteServicesTasks.getPSMsFromProtein(proteinBean, false);
-			for (PSMBean psmBean : psms) {
+			for (final PSMBean psmBean : psms) {
 				final Set<RatioBean> ratios2 = psmBean.getRatios();
 				if (ratios2 != null) {
 					mergeRatioDescriptorMapsWithNoRepetitionsOnList(ret,
@@ -1038,16 +1071,44 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static List<String> getPSMScoreNamesFromProteins(Collection<ProteinBean> proteins) {
-		List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<String>();
 		if (proteins != null) {
-			for (ProteinBean protein : proteins) {
+			for (final ProteinBean protein : proteins) {
 				final List<PSMBean> psms = protein.getPsms();
 				// RemoteServicesTasks .getPSMsFromProtein(protein, false);
-				for (PSMBean psmBean : psms) {
+				for (final PSMBean psmBean : psms) {
 					final Map<String, ScoreBean> scores = psmBean.getScores();
 					if (scores != null) {
 						final Set<String> scoreNames = scores.keySet();
-						for (String scoreName : scoreNames) {
+						for (final String scoreName : scoreNames) {
+							if (!ret.contains(scoreName))
+								ret.add(scoreName);
+						}
+					}
+				}
+			}
+		}
+		Collections.sort(ret);
+		return ret;
+	}
+
+	/**
+	 * Gets a alphabetically sorted list of score names associated to psms
+	 *
+	 * @param protein
+	 * @return
+	 */
+	public static List<String> getPeptideScoreNamesFromProteins(Collection<ProteinBean> proteins) {
+		final List<String> ret = new ArrayList<String>();
+		if (proteins != null) {
+			for (final ProteinBean protein : proteins) {
+				final List<PeptideBean> peptides = protein.getPeptides();
+				// RemoteServicesTasks .getPSMsFromProtein(protein, false);
+				for (final PeptideBean peptideBean : peptides) {
+					final Map<String, ScoreBean> scores = peptideBean.getScores();
+					if (scores != null) {
+						final Set<String> scoreNames = scores.keySet();
+						for (final String scoreName : scoreNames) {
 							if (!ret.contains(scoreName))
 								ret.add(scoreName);
 						}
@@ -1066,14 +1127,14 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static List<String> getProteinScoreNamesFromProteins(Collection<ProteinBean> proteins) {
-		List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<String>();
 		if (proteins != null) {
-			for (ProteinBean protein : proteins) {
+			for (final ProteinBean protein : proteins) {
 
 				final Map<String, ScoreBean> scores = protein.getScores();
 				if (scores != null) {
 					final Set<String> scoreNames = scores.keySet();
-					for (String scoreName : scoreNames) {
+					for (final String scoreName : scoreNames) {
 						if (!ret.contains(scoreName))
 							ret.add(scoreName);
 					}
@@ -1093,18 +1154,18 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static List<String> getPTMScoreNamesFromProteins(Collection<ProteinBean> proteins) {
-		List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<String>();
 		if (proteins != null) {
-			for (ProteinBean protein : proteins) {
+			for (final ProteinBean protein : proteins) {
 				final List<PSMBean> psms = protein.getPsms();
 				// RemoteServicesTasks .getPSMsFromProtein(protein, false);
-				for (PSMBean psmBean : psms) {
+				for (final PSMBean psmBean : psms) {
 					final List<PTMBean> ptms = psmBean.getPtms();
 					if (ptms != null) {
-						for (PTMBean ptmBean : ptms) {
+						for (final PTMBean ptmBean : ptms) {
 							final List<PTMSiteBean> ptmSites = ptmBean.getPtmSites();
 							if (ptmSites != null) {
-								for (PTMSiteBean ptmSiteBean : ptmSites) {
+								for (final PTMSiteBean ptmSiteBean : ptmSites) {
 									final ScoreBean score = ptmSiteBean.getScore();
 									if (score != null) {
 										if (!ret.contains(score.getScoreName()))
@@ -1129,17 +1190,17 @@ public class SharedDataUtils {
 	 * @return
 	 */
 	public static Map<String, List<String>> getConditionsByProjects(Collection<ProteinBean> proteins) {
-		Map<String, List<String>> ret = new HashMap<String, List<String>>();
+		final Map<String, List<String>> ret = new HashMap<String, List<String>>();
 
 		if (proteins != null) {
-			for (ProteinBean proteinBean : proteins) {
+			for (final ProteinBean proteinBean : proteins) {
 				mergeStringMapsWithNoRepetitionsOnList(ret,
 						getConditionsByProjectsFromAmounts(proteinBean.getAmounts()));
 				mergeStringMapsWithNoRepetitionsOnList(ret, getConditionsByProjectsFromRatios(proteinBean.getRatios()));
 				final List<PSMBean> psmBeans = proteinBean.getPsms();
 				// RemoteServicesTasks .getPSMsFromProtein(proteinBean, true);
 				if (psmBeans != null) {
-					for (PSMBean psmBean : psmBeans) {
+					for (final PSMBean psmBean : psmBeans) {
 						mergeStringMapsWithNoRepetitionsOnList(ret,
 								getConditionsByProjectsFromAmounts(psmBean.getAmounts()));
 						mergeStringMapsWithNoRepetitionsOnList(ret,
@@ -1155,9 +1216,9 @@ public class SharedDataUtils {
 	public static int getMinStartingPosition(PSMBean o1) {
 		int min = Integer.MAX_VALUE;
 		final Map<String, List<Pair<Integer, Integer>>> startingPositions = o1.getStartingPositions();
-		for (List<Pair<Integer, Integer>> positions : startingPositions.values()) {
-			for (Pair<Integer, Integer> startAndEnd : positions) {
-				int position = startAndEnd.getFirstElement();
+		for (final List<Pair<Integer, Integer>> positions : startingPositions.values()) {
+			for (final Pair<Integer, Integer> startAndEnd : positions) {
+				final int position = startAndEnd.getFirstElement();
 				if (min > position)
 					min = position;
 			}
@@ -1167,8 +1228,8 @@ public class SharedDataUtils {
 	}
 
 	public static Map<String, ProteinBean> getProteinBeansByPrimaryAccession(Set<ProteinBean> proteins) {
-		Map<String, ProteinBean> ret = new HashMap<String, ProteinBean>();
-		for (ProteinBean proteinBean : proteins) {
+		final Map<String, ProteinBean> ret = new HashMap<String, ProteinBean>();
+		for (final ProteinBean proteinBean : proteins) {
 			ret.put(proteinBean.getPrimaryAccession().getAccession(), proteinBean);
 		}
 		return ret;
@@ -1182,8 +1243,8 @@ public class SharedDataUtils {
 				.getProteinBeansByPrimaryAccession(proteins);
 		// get a list of proteins according to the order of the primary
 		// accessions
-		List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
-		for (AccessionBean acc : primaryAccessions) {
+		final List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
+		for (final AccessionBean acc : primaryAccessions) {
 			if (proteinBeanByAccession.containsKey(acc.getAccession())) {
 				proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
 			}
@@ -1199,8 +1260,8 @@ public class SharedDataUtils {
 				.getProteinBeansByPrimaryAccession(proteins);
 		// get a list of proteins according to the order of the primary
 		// accessions
-		List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
-		for (AccessionBean acc : primaryAccessions) {
+		final List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
+		for (final AccessionBean acc : primaryAccessions) {
 			if (proteinBeanByAccession.containsKey(acc.getAccession())) {
 				proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
 			}
@@ -1210,11 +1271,11 @@ public class SharedDataUtils {
 
 	public static String getUniprotFeatureString(ProteinBean p, String... featureTypes) {
 		final Set<UniprotFeatureBean> uniprotFeatures = new HashSet<UniprotFeatureBean>();
-		for (String featureType : featureTypes) {
+		for (final String featureType : featureTypes) {
 			uniprotFeatures.addAll(p.getUniprotFeaturesByFeatureType(featureType));
 		}
-		StringBuilder sb = new StringBuilder();
-		for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {
+		final StringBuilder sb = new StringBuilder();
+		for (final UniprotFeatureBean uniprotFeature : uniprotFeatures) {
 			if (uniprotFeature.getDescription() != null) {
 				sb.append(uniprotFeature.getDescription());
 			} else {
@@ -1234,21 +1295,21 @@ public class SharedDataUtils {
 
 	private static String getUniprotFeatureString(Map<String, List<Pair<Integer, Integer>>> startingPositionsByProtein,
 			List<ProteinBean> proteinBeans, String... featureTypes) {
-		StringBuilder sb = new StringBuilder();
-		for (ProteinBean p : proteinBeans) {
+		final StringBuilder sb = new StringBuilder();
+		for (final ProteinBean p : proteinBeans) {
 			if (startingPositionsByProtein.containsKey(p.getPrimaryAccession().getAccession())) {
 				final Set<UniprotFeatureBean> uniprotFeatures = new HashSet<UniprotFeatureBean>();
-				for (String featureType : featureTypes) {
+				for (final String featureType : featureTypes) {
 					uniprotFeatures.addAll(p.getUniprotFeaturesByFeatureType(featureType));
 				}
 
-				for (UniprotFeatureBean uniprotFeature : uniprotFeatures) {
+				for (final UniprotFeatureBean uniprotFeature : uniprotFeatures) {
 					// only consider the ones with annotated start and end
 					// positions
 					if (uniprotFeature.getPositionStart() > -1 && uniprotFeature.getPositionEnd() > -1) {
 						final List<Pair<Integer, Integer>> startingPositions = startingPositionsByProtein
 								.get(p.getPrimaryAccession().getAccession());
-						SEQUENCE_OVERLAPPING included = isPeptideIncludedInThatRange(startingPositions,
+						final SEQUENCE_OVERLAPPING included = isPeptideIncludedInThatRange(startingPositions,
 								uniprotFeature.getPositionStart(), uniprotFeature.getPositionEnd());
 						if (included != SEQUENCE_OVERLAPPING.NOT_COVERED) {
 							if (uniprotFeature.getDescription() != null) {
@@ -1291,13 +1352,13 @@ public class SharedDataUtils {
 	public static SEQUENCE_OVERLAPPING isPeptideIncludedInThatRange(
 			List<Pair<Integer, Integer>> startingEndingPositions, int positionStart, int positionEnd) {
 		SEQUENCE_OVERLAPPING ret = SEQUENCE_OVERLAPPING.NOT_COVERED;
-		for (Pair<Integer, Integer> startingEndingPosition : startingEndingPositions) {
-			int startingPosition = startingEndingPosition.getFirstElement();
-			int endingPosition = startingEndingPosition.getSecondElement();
+		for (final Pair<Integer, Integer> startingEndingPosition : startingEndingPositions) {
+			final int startingPosition = startingEndingPosition.getFirstElement();
+			final int endingPosition = startingEndingPosition.getSecondElement();
 			if (
 			// it starts in the range
 			startingPosition >= positionStart && startingPosition <= positionEnd ||
-					// it ends in the range
+			// it ends in the range
 					endingPosition >= positionStart && endingPosition <= positionEnd) {
 				if (startingPosition >= positionStart && endingPosition <= positionEnd) {
 					return SEQUENCE_OVERLAPPING.TOTALLY_COVERED;
@@ -1323,14 +1384,14 @@ public class SharedDataUtils {
 		if (maxDecimals <= 0) {
 			return NumberFormat.getFormat("#").format(number);
 		}
-		StringBuilder pattern = new StringBuilder("#.");
-		StringBuilder numberThresholdStringBuilder = new StringBuilder("0.");
+		final StringBuilder pattern = new StringBuilder("#.");
+		final StringBuilder numberThresholdStringBuilder = new StringBuilder("0.");
 		for (int i = 0; i < maxDecimals; i++) {
 			pattern.append("#");
 			numberThresholdStringBuilder.append("0");
 		}
 		final String numberThresholdString = numberThresholdStringBuilder.toString();
-		double numberThreshold = Double
+		final double numberThreshold = Double
 				.valueOf(numberThresholdString.substring(0, numberThresholdString.length() - 1) + "1");
 		if (scientificNotationIfSmaller && Math.abs(number) < numberThreshold) {
 			return NumberFormat.getScientificFormat(maxDecimals, 3).format(number);
@@ -1338,5 +1399,120 @@ public class SharedDataUtils {
 		} else {
 			return NumberFormat.getFormat(pattern.toString()).format(number);
 		}
+	}
+
+	public static String getPTMString(List<PTMBean> ptms) {
+
+		final StringBuilder sb = new StringBuilder();
+
+		if (ptms != null) {
+			// sort ptms by the position
+
+			Collections.sort(ptms, new Comparator<PTMBean>() {
+				@Override
+				public int compare(PTMBean o1, PTMBean o2) {
+					int minPosition1 = Integer.MAX_VALUE;
+					int minPosition2 = Integer.MAX_VALUE;
+					for (final PTMSiteBean ptmSite : o1.getPtmSites()) {
+						if (minPosition1 > ptmSite.getPosition())
+							minPosition1 = ptmSite.getPosition();
+					}
+					for (final PTMSiteBean ptmSite : o2.getPtmSites()) {
+						if (minPosition2 > ptmSite.getPosition())
+							minPosition2 = ptmSite.getPosition();
+					}
+					return Integer.compare(minPosition1, minPosition2);
+				}
+			});
+			// now that is sorted:
+			for (final PTMBean ptmBean : ptms) {
+				if (!"".equals(sb.toString()))
+					sb.append(SharedConstants.SEPARATOR);
+				sb.append(ptmBean.getName() + " (");
+
+				final List<PTMSiteBean> ptmSites = ptmBean.getPtmSites();
+				// sort by position
+				Collections.sort(ptmSites, new Comparator<PTMSiteBean>() {
+					@Override
+					public int compare(PTMSiteBean o1, PTMSiteBean o2) {
+						return Integer.compare(o1.getPosition(), o2.getPosition());
+					}
+				});
+				for (int i = 0; i < ptmSites.size(); i++) {
+					final PTMSiteBean ptmSiteBean = ptmSites.get(i);
+					if (i > 0)
+						sb.append(",");
+					sb.append(ptmSiteBean.getPosition());
+				}
+				sb.append(")");
+			}
+
+		}
+
+		return sb.toString();
+	}
+
+	public static String getPTMScoreString(List<PTMBean> ptms) {
+		final Set<String> ret = new HashSet<String>();
+		final StringBuilder sb = new StringBuilder();
+		if (ptms != null) {
+			for (final PTMBean ptm : ptms) {
+				final String scoreString = ptm.getScoreString();
+				if (!ret.contains(scoreString)) {
+					if (!"".equals(sb.toString()))
+						sb.append(SharedConstants.SEPARATOR);
+					sb.append(scoreString);
+					ret.add(scoreString);
+				}
+
+			}
+		}
+
+		return sb.toString();
+	}
+
+	public static String getPTMScoreString(String ptmScoreName, List<PTMBean> ptms) {
+		final Set<String> ret = new HashSet<String>();
+		final StringBuilder sb = new StringBuilder();
+		if (ptms != null) {
+			for (final PTMBean ptm : ptms) {
+				final String scoreString = ptm.getScoreString(ptmScoreName);
+				if (!ret.contains(scoreString)) {
+					if (!"".equals(sb.toString()))
+						sb.append(SharedConstants.SEPARATOR);
+					sb.append(scoreString);
+					ret.add(scoreString);
+				}
+
+			}
+		}
+		return sb.toString();
+
+	}
+
+	public static SafeHtml getRichPeptideSequence(String sequence, List<PTMBean> ptms) {
+		if (ptms == null || ptms.isEmpty())
+			return new SafeHtmlBuilder().appendEscaped(sequence).toSafeHtml();
+		final HtmlTemplates template = GWT.create(HtmlTemplates.class);
+		final SafeHtmlBuilder shb = new SafeHtmlBuilder();
+		for (int i = 0; i < sequence.length(); i++) {
+			boolean modified = false;
+			for (final PTMBean ptm : ptms) {
+				for (final PTMSiteBean ptmSite : ptm.getPtmSites()) {
+					final int position = ptmSite.getPosition();
+					if (position == i + 1) {
+						final SafeHtml html = template.spanClass("modifiedAA", String.valueOf(sequence.charAt(i)));
+						shb.append(html);
+						modified = true;
+						break;
+					}
+				}
+				if (modified)
+					break;
+			}
+			if (!modified)
+				shb.append(new SafeHtmlBuilder().appendEscaped(String.valueOf(sequence.charAt(i))).toSafeHtml());
+		}
+		return shb.toSafeHtml();
 	}
 }

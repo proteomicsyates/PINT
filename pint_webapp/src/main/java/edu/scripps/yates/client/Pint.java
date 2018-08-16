@@ -43,6 +43,7 @@ import edu.scripps.yates.shared.util.CryptoUtil;
 
 public class Pint implements EntryPoint {
 
+	public static Boolean psmCentric;
 	private QueryPanel queryPanel;
 	private MainPanel mainPanel;
 	private BrowsePanel browsePanel;
@@ -54,8 +55,9 @@ public class Pint implements EntryPoint {
 
 	private ConfigurationPanel configurationPanel;
 	private boolean testMode = false;
-	private Logger log = Logger.getLogger("");
+	private final Logger log = Logger.getLogger("");
 	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
+	private final static boolean defaultPSMCentric = false;
 
 	@Override
 	public void onModuleLoad() {
@@ -63,7 +65,7 @@ public class Pint implements EntryPoint {
 		GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
 			@Override
 			public void onUncaughtException(Throwable e) {
-				Throwable unwrapped = unwrap(e);
+				final Throwable unwrapped = unwrap(e);
 				GWT.log("Exception uncaught! " + e.getMessage());
 
 				// Window.alert(unwrapped.getMessage());
@@ -73,7 +75,7 @@ public class Pint implements EntryPoint {
 			public Throwable unwrap(Throwable e) {
 				e.printStackTrace();
 				if (e instanceof UmbrellaException) {
-					UmbrellaException ue = (UmbrellaException) e;
+					final UmbrellaException ue = (UmbrellaException) e;
 					if (ue.getCauses().size() == 1) {
 						return unwrap(ue.getCauses().iterator().next());
 					}
@@ -96,7 +98,7 @@ public class Pint implements EntryPoint {
 				GWT.log("Production mode: " + GWT.isProdMode());
 
 				// register as status reporter
-				StatusReporterImpl statusReporter = new StatusReporterImpl();
+				final StatusReporterImpl statusReporter = new StatusReporterImpl();
 				StatusReportersRegister.getInstance().registerNewStatusReporter(statusReporter);
 				//
 
@@ -119,12 +121,16 @@ public class Pint implements EntryPoint {
 
 			@Override
 			public void onSuccess() {
-				ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
+				final ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
 
 				service.getPintConfigurationProperties(new AsyncCallback<PintConfigurationProperties>() {
 
 					@Override
 					public void onSuccess(PintConfigurationProperties properties) {
+						psmCentric = properties.getPsmCentric();
+						if (psmCentric == null) {
+							psmCentric = defaultPSMCentric;
+						}
 						if (forceToShowPanel || properties.isSomeConfigurationMissing()) {
 							showConfigurationPanel(properties);
 						} else {
@@ -179,7 +185,7 @@ public class Pint implements EntryPoint {
 				// setup historychangehandler
 				setUpHistory();
 
-				RootLayoutPanel rootPanel = RootLayoutPanel.get();
+				final RootLayoutPanel rootPanel = RootLayoutPanel.get();
 				rootPanel.setSize("100%", "100%");
 				rootPanel.animate(100);
 				scroll = new MyWindowScrollPanel();
@@ -198,7 +204,7 @@ public class Pint implements EntryPoint {
 				if (testParameter != null) {
 					try {
 						testMode = Boolean.parseBoolean(testParameter);
-					} catch (Exception e) {
+					} catch (final Exception e) {
 
 					}
 				}
@@ -230,10 +236,10 @@ public class Pint implements EntryPoint {
 				instance.center();
 				return;
 			}
-			Set<String> projectTags = new HashSet<String>();
+			final Set<String> projectTags = new HashSet<String>();
 			if (decodedProjectTag.contains(",")) {
-				String[] split = decodedProjectTag.split(",");
-				for (String string : split) {
+				final String[] split = decodedProjectTag.split(",");
+				for (final String string : split) {
 					projectTags.add(string);
 				}
 			} else {
@@ -246,7 +252,7 @@ public class Pint implements EntryPoint {
 	}
 
 	private Set<String> getProjectValues(String projectValue) {
-		Set<String> projectTags = new HashSet<String>();
+		final Set<String> projectTags = new HashSet<String>();
 		if (projectValue.contains("?")) {
 			projectValue = projectValue.substring(projectValue.indexOf("?") + 1);
 		}
@@ -257,8 +263,8 @@ public class Pint implements EntryPoint {
 		if (projectValue != null && !"".equals(projectValue)) {
 
 			if (projectValue.contains(",")) {
-				String[] split = projectValue.split(",");
-				for (String string : split) {
+				final String[] split = projectValue.split(",");
+				for (final String string : split) {
 					projectTags.add(string.trim());
 				}
 			} else {
@@ -271,7 +277,7 @@ public class Pint implements EntryPoint {
 
 	private void parseProjectValues(String projectValue) {
 
-		Set<String> projectTags = getProjectValues(projectValue);
+		final Set<String> projectTags = getProjectValues(projectValue);
 		if (!projectTags.isEmpty()) {
 
 			if (queryPanel != null && queryPanel.hasLoadedThisProjects(projectTags)) {
@@ -282,7 +288,7 @@ public class Pint implements EntryPoint {
 			History.newItem(TargetHistory.QUERY.getTargetHistory());
 
 		} else {
-			PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true, "No projects selected",
+			final PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true, "No projects selected",
 					"You need to select one project before to query the data.\nClick here to go to Browse menu.",
 					TargetHistory.BROWSE);
 			popup.show();
@@ -296,11 +302,11 @@ public class Pint implements EntryPoint {
 
 			@Override
 			public void onSuccess() {
-				ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
-				String clientToken = ClientToken.getToken();
+				final ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
+				final String clientToken = ClientToken.getToken();
 
-				String userName = "guest";
-				String password = "guest";
+				final String userName = "guest";
+				final String password = "guest";
 				service.login(clientToken, userName, password, new AsyncCallback<String>() {
 
 					@Override
@@ -401,7 +407,7 @@ public class Pint implements EntryPoint {
 			@Override
 			public void onValueChange(ValueChangeEvent<String> event) {
 
-				String historyToken = event.getValue();
+				final String historyToken = event.getValue();
 
 				GWT.log("HISTORY VALUE: " + historyToken);
 				// Parse the history token
@@ -417,7 +423,7 @@ public class Pint implements EntryPoint {
 						public void onSuccess() {
 							// queryPanel is suppose to be already created
 							if (queryPanel == null || queryPanel.getLoadedProjects().isEmpty()) {
-								PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true,
+								final PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true,
 										"No projects selected",
 										"You need to select one project before to query the data.\nClick here to go to Browse menu.",
 										TargetHistory.BROWSE);
@@ -562,7 +568,7 @@ public class Pint implements EntryPoint {
 
 						@Override
 						public void onSuccess() {
-							PSEAQuantFormPanel pseaQuant = new PSEAQuantFormPanel(getProjectValues(historyToken));
+							final PSEAQuantFormPanel pseaQuant = new PSEAQuantFormPanel(getProjectValues(historyToken));
 							loadPanel(pseaQuant);
 						}
 					});

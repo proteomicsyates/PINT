@@ -41,7 +41,7 @@ public class OrganismsItemPanel extends AbstractItemPanel<ProjectBean, OrganismB
 	private OrganismsItemPanel(ProjectBean projectBean) {
 		super("Organism(s)", projectBean, true, true);
 		// add description panel in the right
-		FlexTable flexTable = new FlexTable();
+		final FlexTable flexTable = new FlexTable();
 		final Label labelCondition = new Label("");
 		flexTable.setWidget(0, 0, labelCondition);
 		flexTable.getFlexCellFormatter().setColSpan(0, 0, 2);
@@ -81,7 +81,7 @@ public class OrganismsItemPanel extends AbstractItemPanel<ProjectBean, OrganismB
 	private void askForOrganismInProject(final String projectTag) {
 		clearItemList();
 		if (organismBeansByProjectTag.containsKey(projectTag)) {
-			Set<OrganismBean> organisms = organismBeansByProjectTag.get(projectTag);
+			final Set<OrganismBean> organisms = organismBeansByProjectTag.get(projectTag);
 			updateOrganisms(organisms);
 		} else {
 			proteinRetrievingService.getOrganismsByProject(projectTag, new AsyncCallback<Set<OrganismBean>>() {
@@ -93,12 +93,12 @@ public class OrganismsItemPanel extends AbstractItemPanel<ProjectBean, OrganismB
 					if (result.size() == 1) {
 						selectFirstItem();
 					}
-					String plural = result.size() > 1 ? "s" : "";
+					final String plural = result.size() > 1 ? "s" : "";
 					setCaption(result.size() + " Organism" + plural);
 
 					// set the species in the reactome panel
 					if (!result.isEmpty()) {
-						String speciesName = result.iterator().next().getId();
+						final String speciesName = result.iterator().next().getId();
 						ReactomePanel.getInstance(null).setProjectDataSpecies(speciesName);
 						ReactomePanel.getInstance(null).setDataSpecies(speciesName);
 					}
@@ -114,14 +114,14 @@ public class OrganismsItemPanel extends AbstractItemPanel<ProjectBean, OrganismB
 	}
 
 	private void updateOrganisms(Set<OrganismBean> organisms) {
-		List<OrganismBean> list = new ArrayList<OrganismBean>();
+		final List<OrganismBean> list = new ArrayList<OrganismBean>();
 		list.addAll(organisms);
 		Collections.sort(list);
 		for (final OrganismBean organismBean : list) {
 
 			addItemToList(organismBean.getId(), organismBean, "Click here to go to NCBI taxonomy browser");
 			// mouseclickhandler to open ncbi
-			ClickHandler clickHandler = new ClickHandler() {
+			final ClickHandler clickHandler = new ClickHandler() {
 
 				@Override
 				public void onClick(ClickEvent event) {

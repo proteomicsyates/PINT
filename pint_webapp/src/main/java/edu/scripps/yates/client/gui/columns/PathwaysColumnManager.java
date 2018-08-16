@@ -22,8 +22,8 @@ public class PathwaysColumnManager extends AbstractColumnManager<PathwaySummary>
 
 		super(null);
 		this.sessionID = sessionID;
-		List<ColumnWithVisibility> columns = PathwaysColumns.getInstance().getColumns();
-		for (ColumnWithVisibility columnWithVisibility : columns) {
+		final List<ColumnWithVisibility> columns = PathwaysColumns.getInstance().getColumns();
+		for (final ColumnWithVisibility columnWithVisibility : columns) {
 			if (columnWithVisibility.getColumn() == ColumnName.PATHWAY_ID) {
 				final CustomClickableImageReactomeColumn customTextButtonColumn = new CustomClickableImageReactomeColumn(
 						sessionID, columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
@@ -37,7 +37,7 @@ public class PathwaysColumnManager extends AbstractColumnManager<PathwaySummary>
 	}
 
 	public FieldUpdater<PathwaySummary, ImageResource> getMyFieldUpdater() {
-		FieldUpdater<PathwaySummary, ImageResource> ret = new FieldUpdater<PathwaySummary, ImageResource>() {
+		final FieldUpdater<PathwaySummary, ImageResource> ret = new FieldUpdater<PathwaySummary, ImageResource>() {
 
 			@Override
 			public void update(int index, final PathwaySummary pathway, ImageResource image) {
@@ -53,7 +53,7 @@ public class PathwaysColumnManager extends AbstractColumnManager<PathwaySummary>
 		if (footerManager != null) {
 			footer = footerManager.getFooter(columnName);
 		}
-		MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(columnName.getAbr()), columnName.getDescription());
 		return new PathWayTextColumn(columnName, visible, header, footer);
 	}

@@ -50,10 +50,66 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 			}
 
 		} else if (element.getAbstractQuery() != null) {
-			AbstractQuery query = element.getAbstractQuery();
+			final AbstractQuery query = element.getAbstractQuery();
 
 			// execute
-			boolean queryResult = query.evaluate(link);
+			final boolean queryResult = query.evaluate(link);
+
+			// TODO CHECK THIS (11/11/15)
+			// if (queryResult == false && query instanceof
+			// QueryFromConditionCommand) {
+			// QueryFromConditionCommand queryCondition =
+			// (QueryFromConditionCommand) query;
+			// queryResult =
+			// queryCondition.evaluate(link.getLinkSetForSameProtein());
+			// }
+			boolean finalResult = queryResult;
+			// look if it is negative
+			if (query.isNegative()) {
+				finalResult = !queryResult;
+			} else {
+				finalResult = queryResult;
+			}
+
+			return finalResult;
+		}
+		throw new IllegalArgumentException("Binary tree cannot be evaluated");
+
+	}
+
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+		if (element.getLogicalOperator() != null) {
+			final boolean leftResult = getLeftBNode().evaluate(link);
+			if (leftResult == false && LogicalOperator.AND == element.getLogicalOperator())
+				return false;
+
+			final boolean rightResult = getRightBNode().evaluate(link);
+			if (rightResult == false && LogicalOperator.AND == element.getLogicalOperator())
+				return false;
+
+			switch (element.getLogicalOperator()) {
+			case AND:
+				final boolean result = leftResult & rightResult;
+				return result;
+			case OR:
+				return leftResult || rightResult;
+			case XOR:
+				if (leftResult && !rightResult) {
+					return true;
+				} else if (!leftResult && rightResult) {
+					return true;
+				} else {
+					return false;
+				}
+			default:
+				break;
+			}
+
+		} else if (element.getAbstractQuery() != null) {
+			final AbstractQuery query = element.getAbstractQuery();
+
+			// execute
+			final boolean queryResult = query.evaluate(link);
 
 			// TODO CHECK THIS (11/11/15)
 			// if (queryResult == false && query instanceof
@@ -94,7 +150,7 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	}
 
 	public List<AbstractQuery> getAbstractQueries() {
-		List<AbstractQuery> ret = new ArrayList<AbstractQuery>();
+		final List<AbstractQuery> ret = new ArrayList<AbstractQuery>();
 		if (element.getLogicalOperator() != null) {
 			ret.addAll(getLeftBNode().getAbstractQueries());
 			ret.addAll(getRightBNode().getAbstractQueries());
@@ -156,8 +212,8 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	 * @return
 	 */
 	public Set<? extends AbstractQuery> getAbstractQueries(Class<? extends AbstractQuery> class1) {
-		Set<AbstractQuery> ret = new THashSet<AbstractQuery>();
-		for (AbstractQuery abstractQuery : getAbstractQueries()) {
+		final Set<AbstractQuery> ret = new THashSet<AbstractQuery>();
+		for (final AbstractQuery abstractQuery : getAbstractQueries()) {
 			if (class1.isInstance(abstractQuery)) {
 				ret.add(abstractQuery);
 			}
@@ -203,7 +259,7 @@ public class QueryBinaryTree extends BinaryTree<QueryBinaryTreeElement> {
 	 */
 	public Set<? extends AbstractQuery> getPredominantAbstractQueries(Class<? extends AbstractQuery> class1,
 			boolean requireNonNegative, LogicalOperator logicalOperator) {
-		Set<AbstractQuery> ret = new THashSet<AbstractQuery>();
+		final Set<AbstractQuery> ret = new THashSet<AbstractQuery>();
 		if (element.getLogicalOperator() != null) {
 			if (element.getLogicalOperator() == logicalOperator) {
 				ret.addAll(getLeftBNode().getPredominantAbstractQueries(class1, requireNonNegative, logicalOperator));

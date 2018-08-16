@@ -59,7 +59,8 @@ public class MySQLSaver {
 	private int geneLength = 0;
 
 	private boolean saveProtein(edu.scripps.yates.proteindb.persistence.mysql.Protein protein) {
-		final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
+		// final Set<ProteinAccession> proteinAccessions =
+		// protein.getProteinAccessions();
 		if (protein.getId() != null)
 			return true;
 		// not save protein without PSMs
@@ -70,50 +71,50 @@ public class MySQLSaver {
 		}
 		saveMSRun(protein.getMsRun());
 
-		// organism
-		final Organism organism = protein.getOrganism();
-		if (organism != null) {
-			saveOrganismForProtein(organism, protein);
-
-		}
+		// // organism
+		// final Organism organism = protein.getOrganism();
+		// if (organism != null) {
+		// saveOrganismForProtein(organism, protein);
+		//
+		// }
 
 		ContextualSessionHandler.save(protein);
 		if (protein.getId() == null) {
 			log.info("Protein with no ID after saving it");
 		}
-		// log.debug("Saving protein " + next.getAccession());
+
 		// protein accesssions
 
-		if (proteinAccessions.isEmpty())
-			log.error("The protein has to have accessions");
-		boolean thereisPrimaryAcc = false;
-		for (ProteinAccession proteinAccession : proteinAccessions) {
-			if (proteinAccession.isIsPrimary())
-				thereisPrimaryAcc = true;
-			saveProteinAccession(proteinAccession, protein);
-		}
-		if (!thereisPrimaryAcc)
-			log.error("The protein has to have one primary acc");
+		// if (proteinAccessions.isEmpty())
+		// log.error("The protein has to have accessions");
+		// boolean thereisPrimaryAcc = false;
+		// for (final ProteinAccession proteinAccession : proteinAccessions) {
+		// if (proteinAccession.isIsPrimary())
+		// thereisPrimaryAcc = true;
+		// saveProteinAccession(proteinAccession, protein);
+		// }
+		// if (!thereisPrimaryAcc)
+		// log.error("The protein has to have one primary acc");
 		// protein annotations
 		final Set<ProteinAnnotation> proteinAnnotations = protein.getProteinAnnotations();
-		for (ProteinAnnotation proteinAnnotation : proteinAnnotations) {
+		for (final ProteinAnnotation proteinAnnotation : proteinAnnotations) {
 			saveProteinAnnotation(proteinAnnotation);
 		}
 		// genes
-		final Set<Gene> genes = protein.getGenes();
-		for (final Gene gene : genes) {
-			saveGene(gene);
-		}
+		// final Set<Gene> genes = protein.getGenes();
+		// for (final Gene gene : genes) {
+		// saveGene(gene);
+		// }
 
 		// applied threshold
 		final Set<ProteinThreshold> appliedThresholds = protein.getProteinThresholds();
-		for (ProteinThreshold appliedThreshold : appliedThresholds) {
+		for (final ProteinThreshold appliedThreshold : appliedThresholds) {
 			saveAppliedThreshold(appliedThreshold);
 		}
 		// scores
 		final Set<ProteinScore> proteinScores = protein.getProteinScores();
 		if (proteinScores != null) {
-			for (ProteinScore proteinScore : proteinScores) {
+			for (final ProteinScore proteinScore : proteinScores) {
 				saveProteinScore(proteinScore);
 			}
 		}
@@ -128,20 +129,20 @@ public class MySQLSaver {
 		// if (proteinPeptideRelation ==
 		// ProteinPeptideRelationship.PROTEINS_HAS_PEPTIDES) {
 		final Set<Peptide> peptides = protein.getPeptides();
-		for (Peptide peptide : peptides) {
+		for (final Peptide peptide : peptides) {
 			savePeptide(peptide);
 		}
 
 		final Set<Psm> psms = protein.getPsms();
-		for (Psm psm : psms) {
+		for (final Psm psm : psms) {
 			if (psm.getId() != null)
 				continue;
 
-			for (Peptide peptide : peptides) {
+			for (final Peptide peptide : peptides) {
 				if (psm.getSequence().equals(peptide.getSequence())) {
-					Set<Psm> psms2 = peptide.getPsms();
+					final Set<Psm> psms2 = peptide.getPsms();
 					boolean found = false;
-					for (Psm psm2 : psms2) {
+					for (final Psm psm2 : psms2) {
 						if (psm2 == psm) {
 							found = true;
 						}
@@ -158,7 +159,7 @@ public class MySQLSaver {
 		// amounts
 		final Set<ProteinAmount> amounts = protein.getProteinAmounts();
 		if (amounts != null) {
-			for (ProteinAmount amount : amounts) {
+			for (final ProteinAmount amount : amounts) {
 				saveProteinAmount(amount);
 			}
 		}
@@ -179,26 +180,26 @@ public class MySQLSaver {
 		}
 		final Set<Ptm> ptms = psm.getPtms();
 		if (ptms != null) {
-			for (Ptm ptm : ptms) {
+			for (final Ptm ptm : ptms) {
 				savePTM(ptm);
 			}
 		}
 		final Set<PsmScore> scores = psm.getPsmScores();
 		if (scores != null) {
-			for (PsmScore psmScore : scores) {
+			for (final PsmScore psmScore : scores) {
 				savePSMScore(psmScore);
 			}
 		}
 		final Set<PsmAmount> amounts = psm.getPsmAmounts();
 		if (amounts != null) {
-			for (PsmAmount psmAmount : amounts) {
+			for (final PsmAmount psmAmount : amounts) {
 				savePsmAmount(psmAmount);
 			}
 		}
 		final Set<Protein> proteins = psm.getProteins();
 		if (proteins != null) {
 
-			for (Protein protein : proteins) {
+			for (final Protein protein : proteins) {
 				saveProtein(protein);
 			}
 		}
@@ -221,14 +222,14 @@ public class MySQLSaver {
 		// scores
 		final Set<PeptideScore> scores = peptide.getPeptideScores();
 		if (scores != null) {
-			for (PeptideScore psmScore : scores) {
+			for (final PeptideScore psmScore : scores) {
 				savePeptideScore(psmScore);
 			}
 		}
 		// amounts
 		final Set<PeptideAmount> amounts = peptide.getPeptideAmounts();
 		if (amounts != null) {
-			for (PeptideAmount peptideAmount : amounts) {
+			for (final PeptideAmount peptideAmount : amounts) {
 				savePeptideAmount(peptideAmount);
 			}
 		}
@@ -243,14 +244,14 @@ public class MySQLSaver {
 		// psms
 		final Set<Psm> psms = peptide.getPsms();
 		if (psms != null) {
-			for (Psm psm : psms) {
+			for (final Psm psm : psms) {
 				savePSM(psm);
 			}
 		}
 		// proteins
 		final Set<Protein> proteins = peptide.getProteins();
 		if (proteins != null) {
-			for (Protein protein : proteins) {
+			for (final Protein protein : proteins) {
 				saveProtein(protein);
 			}
 		}
@@ -293,7 +294,7 @@ public class MySQLSaver {
 		ContextualSessionHandler.save(ptm);
 		final Set<PtmSite> ptmSites = ptm.getPtmSites();
 		if (ptmSites != null) {
-			for (PtmSite ptmSite : ptmSites) {
+			for (final PtmSite ptmSite : ptmSites) {
 				final ConfidenceScoreType confidenceScoreType = ptmSite.getConfidenceScoreType();
 				if (confidenceScoreType != null) {
 					saveConfidenceScoreTypeForPtmSite(confidenceScoreType, ptmSite);
@@ -315,7 +316,7 @@ public class MySQLSaver {
 		if (proteinRatioValue.getProtein() == null) {
 			log.info("asdf");
 		}
-		boolean proteinSaved = saveProtein(proteinRatioValue.getProtein());
+		final boolean proteinSaved = saveProtein(proteinRatioValue.getProtein());
 		if (!proteinSaved) {
 			return;
 		}
@@ -326,7 +327,7 @@ public class MySQLSaver {
 		}
 
 		// combination type
-		CombinationType combinationType = proteinRatioValue.getCombinationType();
+		final CombinationType combinationType = proteinRatioValue.getCombinationType();
 		if (combinationType != null) {
 			saveCombinationTypeForProteinRatioValue(combinationType, proteinRatioValue);
 		}
@@ -346,7 +347,7 @@ public class MySQLSaver {
 		}
 
 		// combination type
-		CombinationType combinationType = peptideRatioValue.getCombinationType();
+		final CombinationType combinationType = peptideRatioValue.getCombinationType();
 		if (combinationType != null) {
 			saveCombinationTypeForPeptideRatioValue(combinationType, peptideRatioValue);
 		}
@@ -364,7 +365,7 @@ public class MySQLSaver {
 		}
 
 		// combination type
-		CombinationType combinationType = psmRatioValue.getCombinationType();
+		final CombinationType combinationType = psmRatioValue.getCombinationType();
 		if (combinationType != null) {
 			saveCombinationTypeForPsmRatioValue(combinationType, psmRatioValue);
 		}
@@ -385,21 +386,21 @@ public class MySQLSaver {
 
 		final Set<ProteinRatioValue> proteinRatioValues = ratioDescriptor.getProteinRatioValues();
 		if (proteinRatioValues != null) {
-			for (ProteinRatioValue proteinRatioValue : proteinRatioValues) {
+			for (final ProteinRatioValue proteinRatioValue : proteinRatioValues) {
 				saveProteinRatio(proteinRatioValue);
 			}
 		}
 
 		final Set<PeptideRatioValue> peptideRatioValues = ratioDescriptor.getPeptideRatioValues();
 		if (peptideRatioValues != null) {
-			for (PeptideRatioValue peptideRatioValue : peptideRatioValues) {
+			for (final PeptideRatioValue peptideRatioValue : peptideRatioValues) {
 				savePeptideRatio(peptideRatioValue);
 			}
 		}
 
 		final Set<PsmRatioValue> psmRatioValues = ratioDescriptor.getPsmRatioValues();
 		if (psmRatioValues != null) {
-			for (PsmRatioValue psmRatioValue : psmRatioValues) {
+			for (final PsmRatioValue psmRatioValue : psmRatioValues) {
 				savePsmRatio(psmRatioValue);
 			}
 		}
@@ -431,7 +432,7 @@ public class MySQLSaver {
 		}
 
 		// combination type
-		CombinationType combinationType = proteinAmount.getCombinationType();
+		final CombinationType combinationType = proteinAmount.getCombinationType();
 		if (combinationType != null) {
 			saveCombinationTypeForProteinAmount(combinationType, proteinAmount);
 
@@ -471,7 +472,7 @@ public class MySQLSaver {
 		}
 
 		// combination type
-		CombinationType combinationType = peptideAmount.getCombinationType();
+		final CombinationType combinationType = peptideAmount.getCombinationType();
 		if (combinationType != null) {
 			saveCombinationTypeForPeptideAmount(combinationType, peptideAmount);
 
@@ -511,7 +512,7 @@ public class MySQLSaver {
 		}
 
 		// combination type
-		CombinationType combinationType = psmAmount.getCombinationType();
+		final CombinationType combinationType = psmAmount.getCombinationType();
 		if (combinationType != null) {
 			saveCombinationTypeForPsmAmount(combinationType, psmAmount);
 
@@ -547,9 +548,8 @@ public class MySQLSaver {
 				proteinAccessionInDB.setIsPrimary(proteinAccession.isIsPrimary());
 			}
 			proteinAccessionInDB.setAlternativeNames(proteinAccession.getAlternativeNames());
-			// proteinAccessionInDB.getProteins().add(protein);
-			protein.getProteinAccessions().remove(proteinAccession);
-			protein.getProteinAccessions().add(proteinAccessionInDB);
+			// protein.getProteinAccessions().remove(proteinAccession);
+			// protein.getProteinAccessions().add(proteinAccessionInDB);
 			ContextualSessionHandler.saveOrUpdate(protein);
 			ContextualSessionHandler.saveOrUpdate(proteinAccessionInDB);
 			proteinAccession = proteinAccessionInDB;
@@ -893,13 +893,13 @@ public class MySQLSaver {
 		// proteinamounts
 		final Set<Protein> proteins = hibExperimentalCondition.getProteins();
 		log.info("Saving " + proteins.size() + " proteins");
-		Set<Protein> discardedProteins = new THashSet<Protein>();
-		ProgressCounter counter = new ProgressCounter(proteins.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
+		final Set<Protein> discardedProteins = new THashSet<Protein>();
+		final ProgressCounter counter = new ProgressCounter(proteins.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
 		if (proteins != null && !proteins.isEmpty()) {
 
-			for (Protein protein : proteins) {
+			for (final Protein protein : proteins) {
 				counter.increment();
-				String printIfNecessary = counter.printIfNecessary();
+				final String printIfNecessary = counter.printIfNecessary();
 				if (printIfNecessary != null && !"".equals(printIfNecessary)) {
 					log.info(printIfNecessary + " proteins saved in condition " + hibExperimentalCondition.getName());
 				}
@@ -920,7 +920,7 @@ public class MySQLSaver {
 			if (!discardedProteins.isEmpty()) {
 				log.warn("Removing " + discardedProteins.size() + " proteins from condition "
 						+ hibExperimentalCondition.getName() + " condition without PSMs");
-				for (Protein protein : discardedProteins) {
+				for (final Protein protein : discardedProteins) {
 					hibExperimentalCondition.getProteins().remove(protein);
 				}
 				if (hibExperimentalCondition.getProteins().isEmpty()) {
@@ -931,13 +931,13 @@ public class MySQLSaver {
 		} else {
 			log.info("Condition without proteins");
 			final Set<Psm> psms = hibExperimentalCondition.getPsms();
-			ProgressCounter counter2 = new ProgressCounter(psms.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
-			for (Psm psm : psms) {
+			final ProgressCounter counter2 = new ProgressCounter(psms.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
+			for (final Psm psm : psms) {
 				counter2.increment();
 				if (psm.getId() != null) {
 					continue;
 				}
-				String printIfNecessary = counter2.printIfNecessary();
+				final String printIfNecessary = counter2.printIfNecessary();
 				if (printIfNecessary != null && !"".equals(printIfNecessary)) {
 					log.info("Saving psm " + printIfNecessary);
 				}
@@ -946,13 +946,13 @@ public class MySQLSaver {
 		}
 		// save all PSMs
 		final Set<Psm> psms = hibExperimentalCondition.getPsms();
-		ProgressCounter counter2 = new ProgressCounter(psms.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
-		for (Psm psm : psms) {
+		final ProgressCounter counter2 = new ProgressCounter(psms.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
+		for (final Psm psm : psms) {
 			counter2.increment();
 			if (psm.getId() != null) {
 				continue;
 			}
-			String printIfNecessary = counter2.printIfNecessary();
+			final String printIfNecessary = counter2.printIfNecessary();
 			if (printIfNecessary != null && !"".equals(printIfNecessary)) {
 				log.info("Saving psms " + printIfNecessary + " in condition " + hibExperimentalCondition.getName());
 			}
@@ -961,15 +961,15 @@ public class MySQLSaver {
 		}
 
 		// save all the protein ratios
-		Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition1Id = hibExperimentalCondition
+		final Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition1Id = hibExperimentalCondition
 				.getRatioDescriptorsForExperimentalCondition1Id();
-		for (RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition1Id) {
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition1Id) {
 			saveRatioDescriptor(ratioDescriptor);
 		}
 
-		Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition2Id = hibExperimentalCondition
+		final Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition2Id = hibExperimentalCondition
 				.getRatioDescriptorsForExperimentalCondition2Id();
-		for (RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition2Id) {
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition2Id) {
 			saveRatioDescriptor(ratioDescriptor);
 		}
 
@@ -978,7 +978,7 @@ public class MySQLSaver {
 	public Integer saveProject(edu.scripps.yates.utilities.proteomicsmodel.Project project) {
 
 		// check if there is already a project with that name
-		String projectTag = project.getTag();
+		final String projectTag = project.getTag();
 
 		// look into the database if a project with the same name is already
 		// created
@@ -995,7 +995,7 @@ public class MySQLSaver {
 			ContextualSessionHandler.save(hibProject);
 			// experiments
 			final Set<Condition> hibExperimentConditions = hibProject.getConditions();
-			for (Condition condition : hibExperimentConditions) {
+			for (final Condition condition : hibExperimentConditions) {
 				saveExperimentalCondition(condition);
 			}
 		} else {
@@ -1003,12 +1003,12 @@ public class MySQLSaver {
 					+ "' already present in the database. The experiments will be attached to that project with identifier: "
 					+ hibProject.getId());
 			final Set<edu.scripps.yates.utilities.proteomicsmodel.Condition> conditions = project.getConditions();
-			for (edu.scripps.yates.utilities.proteomicsmodel.Condition condition : conditions) {
+			for (final edu.scripps.yates.utilities.proteomicsmodel.Condition condition : conditions) {
 				// Condition hibCondition =
 				// MySQLProteinDBInterface.getDBConditionByName(projectTag,
 				// condition.getName());
 				// if (hibCondition == null) {
-				Condition hibCondition = new ConditionAdapter(condition, hibProject).adapt();
+				final Condition hibCondition = new ConditionAdapter(condition, hibProject).adapt();
 				saveExperimentalCondition(hibCondition);
 				// } else {
 				//
@@ -1039,7 +1039,7 @@ public class MySQLSaver {
 		ContextualSessionHandler.save(sample);
 
 		final Set<Organism> organisms = sample.getOrganisms();
-		for (Organism organism : organisms) {
+		for (final Organism organism : organisms) {
 			saveOrganismForSample(organism, sample);
 		}
 	}
@@ -1093,22 +1093,23 @@ public class MySQLSaver {
 		}
 	}
 
-	private void saveOrganismForProtein(Organism organism, Protein protein) {
-		if (organism == null) {
-			log.info("CUIDADO");
-			throw new IllegalArgumentException("The protein has no organism!");
-		}
-		final Organism oldOrganism = ContextualSessionHandler.load(organism.getTaxonomyId(), Organism.class);
-		if (oldOrganism != null) {
-			oldOrganism.setName(organism.getName());
-			// oldOrganism.getProteins().add(protein);
-			protein.setOrganism(oldOrganism);
-			ContextualSessionHandler.saveOrUpdate(protein);
-			ContextualSessionHandler.saveOrUpdate(oldOrganism);
-			organism = oldOrganism;
-		} else {
-			ContextualSessionHandler.save(organism);
-		}
-	}
+	// private void saveOrganismForProtein(Organism organism, Protein protein) {
+	// if (organism == null) {
+	// log.info("CUIDADO");
+	// throw new IllegalArgumentException("The protein has no organism!");
+	// }
+	// final Organism oldOrganism =
+	// ContextualSessionHandler.load(organism.getTaxonomyId(), Organism.class);
+	// if (oldOrganism != null) {
+	// oldOrganism.setName(organism.getName());
+	// // oldOrganism.getProteins().add(protein);
+	// protein.setOrganism(oldOrganism);
+	// ContextualSessionHandler.saveOrUpdate(protein);
+	// ContextualSessionHandler.saveOrUpdate(oldOrganism);
+	// organism = oldOrganism;
+	// } else {
+	// ContextualSessionHandler.save(organism);
+	// }
+	// }
 
 }

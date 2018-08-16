@@ -5,19 +5,16 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.ProteinDataProvider;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import gnu.trove.map.hash.THashMap;
 
-public class ProteinProviderFromProteinScores implements ProteinProviderFromDB {
+public class ProteinProviderFromProteinScores extends ProteinDataProvider {
 
 	private final String scoreNameString;
 	private final String scoreTypeString;
-	private Map<String, Set<Protein>> results;
-	private Set<String> projectNames;
 
 	public ProteinProviderFromProteinScores(String scoreNameString, String scoreTypeString) {
 		this.scoreNameString = scoreNameString;
@@ -27,49 +24,37 @@ public class ProteinProviderFromProteinScores implements ProteinProviderFromDB {
 
 	@Override
 	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
-		if (results == null) {
+		if (result == null) {
 			int numProteins = 0;
 
-			results = new THashMap<String, Set<Protein>>();
-			if (projectNames == null || projectNames.isEmpty()) {
+			result = new THashMap<String, Set<Protein>>();
+			if (projectTags == null || projectTags.isEmpty()) {
 				final List<Protein> proteinsWithScores = PreparedQueries.getProteinsWithScores(scoreNameString,
 						scoreTypeString, null);
 				if (testMode && numProteins + proteinsWithScores.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
-					PersistenceUtils.addToMapByPrimaryAcc(results, proteinsWithScores.subList(0,
+					PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithScores.subList(0,
 							Math.min(proteinsWithScores.size(), QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins)));
-					return results;
+					return result;
 				} else {
-					PersistenceUtils.addToMapByPrimaryAcc(results, proteinsWithScores);
+					PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithScores);
 				}
 				numProteins += proteinsWithScores.size();
 			} else {
-				for (String projectName : projectNames) {
+				for (final String projectName : projectTags) {
 					final List<Protein> proteinsWithScores = PreparedQueries.getProteinsWithScores(scoreNameString,
 							scoreTypeString, projectName);
 					if (testMode && numProteins + proteinsWithScores.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
-						PersistenceUtils.addToMapByPrimaryAcc(results, proteinsWithScores.subList(0,
+						PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithScores.subList(0,
 								Math.min(proteinsWithScores.size(), QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins)));
-						return results;
+						return result;
 					} else {
-						PersistenceUtils.addToMapByPrimaryAcc(results, proteinsWithScores);
+						PersistenceUtils.addToMapByPrimaryAcc(result, proteinsWithScores);
 					}
 					numProteins += proteinsWithScores.size();
 				}
 			}
 		}
-		return results;
-	}
-
-	@Override
-	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
-		return PersistenceUtils.getPsmsFromProteins(getProteinMap(testMode));
-	}
-
-	@Override
-	public void setProjectTags(Set<String> projectNames) {
-		this.projectNames = projectNames;
-		results = null;
-
+		return result;
 	}
 
 }

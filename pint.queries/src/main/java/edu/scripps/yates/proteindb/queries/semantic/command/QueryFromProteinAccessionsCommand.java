@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProteinAccs;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
@@ -29,7 +29,7 @@ public class QueryFromProteinAccessionsCommand extends AbstractQuery {
 		super(commandReference);
 		final String[] split = MyCommandTokenizer.splitCommand(commandReference.getCommandValue());
 		if (split.length >= 1) {
-			for (String string : split) {
+			for (final String string : split) {
 				if ("".equals(string.trim()))
 					continue;
 				accs.add(string);
@@ -51,11 +51,21 @@ public class QueryFromProteinAccessionsCommand extends AbstractQuery {
 
 	@Override
 	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
-		final QueriableProteinSet protein = link.getQueriableProtein();
+		return queryOverProtein(link.getQueriableProtein());
 
-		final Set<ProteinAccession> proteinAccessions = protein.getProteinAccessions();
-		for (ProteinAccession proteinAccession : proteinAccessions) {
-			if (accs.contains(proteinAccession.getAccession()))
+	}
+
+	@Override
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+		return queryOverProtein(link.getQueriableProtein());
+
+	}
+
+	private boolean queryOverProtein(QueriableProteinSet protein) {
+
+		final Set<String> proteinAccessions = protein.getProteinAccessions();
+		for (final String proteinAccession : proteinAccessions) {
+			if (accs.contains(proteinAccession))
 				return true;
 		}
 		return false;
@@ -67,7 +77,7 @@ public class QueryFromProteinAccessionsCommand extends AbstractQuery {
 	}
 
 	@Override
-	public ProteinProviderFromDB initProtenProvider() {
+	public DataProviderFromDB initProtenProvider() {
 		return new ProteinProviderFromProteinAccs(accs);
 	}
 

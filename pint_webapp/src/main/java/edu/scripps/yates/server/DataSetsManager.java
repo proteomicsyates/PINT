@@ -11,16 +11,16 @@ public class DataSetsManager {
 	private static final Map<String, DataSet> dataSetMap = new THashMap<String, DataSet>();
 	private final static Logger log = Logger.getLogger(DataSetsManager.class);
 
-	public static DataSet getDataSet(String sessionID, String name) {
+	public static DataSet getDataSet(String sessionID, String name, boolean psmCentric) {
 
 		if (!dataSetMap.containsKey(sessionID) || dataSetMap.get(sessionID) == null) {
 			log.info("Creating new dataset '" + name + "' for sessionID: " + sessionID);
-			DataSet dataSet = new DataSet(sessionID, name);
+			final DataSet dataSet = new DataSet(sessionID, name, psmCentric);
 			dataSetMap.put(sessionID, dataSet);
 			log.info(printStatistics());
 			log.info("");
 		}
-		DataSet ret = dataSetMap.get(sessionID);
+		final DataSet ret = dataSetMap.get(sessionID);
 		ret.setLatestAccess(new Date());
 		return ret;
 	}
@@ -43,13 +43,13 @@ public class DataSetsManager {
 				// and loaded the other. So that, we
 				// want to cancel that thread.
 				try {
-					Thread thread = dataSet.getActiveDatasetThread();
+					final Thread thread = dataSet.getActiveDatasetThread();
 					if (thread != Thread.currentThread()) {
 						log.info("Interrumping previous thread '" + thread.getId()
 								+ "' loading a different dataset for this session ID: " + sessionID);
 						thread.interrupt();
 					}
-				} catch (SecurityException e) {
+				} catch (final SecurityException e) {
 				}
 				log.info("Clearing dataset '" + dataSet.getName() + "' from sessionID: " + sessionID);
 				dataSet.clearDataSet();
@@ -74,10 +74,10 @@ public class DataSetsManager {
 	}
 
 	private static String printStatistics() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("DataSetsManager having " + dataSetMap.size() + " datasets.\n");
-		for (String sessionID : dataSetMap.keySet()) {
-			DataSet dataSet = dataSetMap.get(sessionID);
+		for (final String sessionID : dataSetMap.keySet()) {
+			final DataSet dataSet = dataSetMap.get(sessionID);
 			sb.append(sessionID + "\t" + dataSet + "\n");
 		}
 		return sb.toString();

@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.ConfigurationServiceAsync;
+import edu.scripps.yates.client.Pint;
 import edu.scripps.yates.client.gui.PopUpPanelYesNo;
 import edu.scripps.yates.client.gui.components.WindowBox;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
@@ -50,13 +51,14 @@ public class ConfigurationPanel extends WindowBox {
 	private Label labelprojectsToPreloadStatus;
 	private Label labelprojectsToNotPreloadStatus;
 	private boolean somethingchanged = false;
+	private Label labelIsPSMCentric;
 
 	public ConfigurationPanel(PintConfigurationProperties pintConfigurationProperties) {
 		super(false, true, true, false, true);
 		this.pintConfigurationProperties = pintConfigurationProperties;
 		// setStyleName("configurationPanel");
 		setText("PINT basic configuration");
-		ScrollPanel scroll = new ScrollPanel(createMainWidget());
+		final ScrollPanel scroll = new ScrollPanel(createMainWidget());
 		scroll.setSize("500px", "600px");
 		setWidget(scroll);
 		setAnimationEnabled(true);
@@ -75,8 +77,9 @@ public class ConfigurationPanel extends WindowBox {
 
 	protected void showRealodDialog() {
 		if (somethingchanged) {
-			String text = "Click OK to reload PINT with the new configuration";
-			PopUpPanelYesNo reloadDialog = new PopUpPanelYesNo(false, true, true, "Reload page", text, "OK", null);
+			final String text = "Click OK to reload PINT with the new configuration";
+			final PopUpPanelYesNo reloadDialog = new PopUpPanelYesNo(false, true, true, "Reload page", text, "OK",
+					null);
 			reloadDialog.addButton1ClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
@@ -101,25 +104,25 @@ public class ConfigurationPanel extends WindowBox {
 	}
 
 	private Widget createMainWidget() {
-		FlowPanel mainPanel = new FlowPanel();
-		InlineLabel label = new InlineLabel("Welcome to the basic configuration of PINT");
+		final FlowPanel mainPanel = new FlowPanel();
+		final InlineLabel label = new InlineLabel("Welcome to the basic configuration of PINT");
 		label.setStyleName("configurationPanel_welcome");
 		mainPanel.add(label);
-		CaptionPanel firstCaptionPanel = new CaptionPanel("Explanation");
+		final CaptionPanel firstCaptionPanel = new CaptionPanel("Explanation");
 		firstCaptionPanel.setStyleName("configurationPanel_CaptionPanel");
-		VerticalPanel verticalpanel = new VerticalPanel();
+		final VerticalPanel verticalpanel = new VerticalPanel();
 		verticalpanel.getElement().getStyle().setMargin(10, Unit.PX);
 
-		InlineLabel label2 = new InlineLabel("Here you can set or update some basic parameters.");
+		final InlineLabel label2 = new InlineLabel("Here you can set or update some basic parameters.");
 		verticalpanel.add(label2);
 
-		Label label3 = new Label(
+		final Label label3 = new Label(
 				"This form will update the file located at your server at: pint_webapp/WEB-INF/pint.properties. So you could also directly edit that file and then restart the server.");
 		verticalpanel.add(label3);
-		HorizontalPanel horizontal = new HorizontalPanel();
-		Label label4 = new Label("For a template of a pint.properties file, go to ");
+		final HorizontalPanel horizontal = new HorizontalPanel();
+		final Label label4 = new Label("For a template of a pint.properties file, go to ");
 		horizontal.add(label4);
-		Anchor link = new Anchor(" here", true,
+		final Anchor link = new Anchor(" here", true,
 				"https://raw.githubusercontent.com/proteomicsyates/PINT/master/pint_webapp/src/main/webapp/WEB-INF/pint.properties",
 				"_blank");
 		horizontal.add(link);
@@ -127,24 +130,24 @@ public class ConfigurationPanel extends WindowBox {
 		firstCaptionPanel.add(verticalpanel);
 		mainPanel.add(firstCaptionPanel);
 		// admin password
-		CaptionPanel adminPassCaptionPanel = new CaptionPanel("PINT master password");
+		final CaptionPanel adminPassCaptionPanel = new CaptionPanel("PINT master password");
 		adminPassCaptionPanel.setStyleName("configurationPanel_CaptionPanel");
 		mainPanel.add(adminPassCaptionPanel);
 		adminPassCaptionPanel.add(getAdminPassRowPanel());
 		// omim key
-		CaptionPanel omimKeyCaptionPanel = new CaptionPanel("OMIM key");
+		final CaptionPanel omimKeyCaptionPanel = new CaptionPanel("OMIM key");
 		omimKeyCaptionPanel.setStyleName("configurationPanel_CaptionPanel");
 		mainPanel.add(omimKeyCaptionPanel);
 		omimKeyCaptionPanel.add(getOMIMKeyRowPanel());
 		// database connection
-		CaptionPanel databaseConnectionPanel = new CaptionPanel("Database connection settings");
+		final CaptionPanel databaseConnectionPanel = new CaptionPanel("Database connection settings");
 		databaseConnectionPanel.setStyleName("configurationPanel_CaptionPanel");
 		mainPanel.add(databaseConnectionPanel);
 		final FlexTable grid = new FlexTable();
 		grid.setWidget(0, 0, new Label(
 				"All projects in PINT are stored in a database. Here you can configure the access to that database."));
-		HorizontalPanel horizontal2 = new HorizontalPanel();
-		Anchor link2 = new Anchor("create_db_schema_096.sql", true,
+		final HorizontalPanel horizontal2 = new HorizontalPanel();
+		final Anchor link2 = new Anchor("create_db_schema_096.sql", true,
 				"https://raw.githubusercontent.com/proteomicsyates/PINT/master/pint.mysql/create_db_schema_096.sql",
 				"_blank");
 		horizontal2.add(new Label("SQL script to create the database: "));
@@ -156,7 +159,7 @@ public class ConfigurationPanel extends WindowBox {
 		databaseConnectionPanel.add(grid);
 
 		// server storage folder
-		CaptionPanel projectPreloadingPanel = new CaptionPanel("Project preloading");
+		final CaptionPanel projectPreloadingPanel = new CaptionPanel("Project pre-loading");
 		projectPreloadingPanel.setStyleName("configurationPanel_CaptionPanel");
 		mainPanel.add(projectPreloadingPanel);
 		final Grid grid2 = new Grid(3, 1);
@@ -164,8 +167,16 @@ public class ConfigurationPanel extends WindowBox {
 		grid2.setWidget(1, 0, getProjectsToPreLoadRowPanel());
 		grid2.setWidget(2, 0, getProjectsToNotPreLoadRowPanel());
 		projectPreloadingPanel.add(grid2);
+		// PSM centric
+		final CaptionPanel psmCentricPanel = new CaptionPanel("Performance settings");
+		psmCentricPanel.setStyleName("configurationPanel_CaptionPanel");
+		mainPanel.add(psmCentricPanel);
+		final Grid grid3 = new Grid(3, 1);
+		grid3.setWidget(0, 0, getPSMCentricRowPanel());
+
+		psmCentricPanel.add(grid3);
 		// status
-		CaptionPanel statusPanel = new CaptionPanel("Status");
+		final CaptionPanel statusPanel = new CaptionPanel("Status");
 		statusPanel.setStyleName("configurationPanel_CaptionPanel");
 		mainPanel.add(statusPanel);
 		statusLabel = new Label();
@@ -306,7 +317,7 @@ public class ConfigurationPanel extends WindowBox {
 		final Boolean isPreLoadPublicProjects = pintConfigurationProperties.isPreLoadPublicProjects();
 		grid.setWidget(0, 0, getGreenTickIcon());
 
-		final CheckBox checkBox = new CheckBox("Pre load public projects");
+		final CheckBox checkBox = new CheckBox("Pre-load public projects");
 		if (isPreLoadPublicProjects != null) {
 			checkBox.setValue(isPreLoadPublicProjects);
 		}
@@ -322,7 +333,7 @@ public class ConfigurationPanel extends WindowBox {
 			@Override
 			public void onClick(ClickEvent event) {
 				final Image imageLoading = new Image(MyClientBundle.INSTANCE.smallLoader());
-				imageLoading.setTitle("Setting pre load public projects");
+				imageLoading.setTitle("Setting pre-load public projects");
 				grid.setWidget(0, 0, imageLoading);
 				button.setEnabled(false);
 				checkBox.setEnabled(false);
@@ -336,7 +347,7 @@ public class ConfigurationPanel extends WindowBox {
 						button.setEnabled(true);
 						checkBox.setEnabled(true);
 						checkClosability();
-						showMessage("Pre load public projects set to " + checkBox.getValue());
+						showMessage("Pre-load public projects set to " + checkBox.getValue());
 						somethingchanged = true;
 					}
 
@@ -358,6 +369,71 @@ public class ConfigurationPanel extends WindowBox {
 		});
 		labelIsPreLoadPublicProjectStatus = new Label(getStatusText(isPreLoadPublicProjects));
 		grid.setWidget(0, 3, labelIsPreLoadPublicProjectStatus);
+		return grid;
+	}
+
+	private Widget getPSMCentricRowPanel() {
+		final FlexTable grid = new FlexTable();
+		grid.setStyleName("configurationPanel_Grid");
+
+		final Boolean isPSMCentric = pintConfigurationProperties.getPsmCentric();
+		grid.setWidget(0, 0, getGreenTickIcon());
+
+		final CheckBox checkBox = new CheckBox("PSM-centric");
+		if (isPSMCentric != null) {
+			checkBox.setValue(isPSMCentric);
+		}
+		grid.setWidget(0, 1, checkBox);
+		String html = "Set";
+		if (isPSMCentric != null && !"".equals(isPSMCentric)) {
+			html = "Update";
+		}
+		final Button button = new Button(html);
+		grid.setWidget(0, 2, button);
+		button.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				final Image imageLoading = new Image(MyClientBundle.INSTANCE.smallLoader());
+				imageLoading.setTitle("Setting PSM-centric");
+				grid.setWidget(0, 0, imageLoading);
+				button.setEnabled(false);
+				checkBox.setEnabled(false);
+				service.setPSMCentric(checkBox.getValue(), new AsyncCallback<Void>() {
+
+					@Override
+					public void onSuccess(Void result) {
+						pintConfigurationProperties.setPsmCentric(checkBox.getValue());
+						labelIsPSMCentric.setText(getStatusText(checkBox.getValue()));
+						// set client variable
+						Pint.psmCentric = checkBox.getValue();
+						//
+						grid.setWidget(0, 0, getGreenTickIcon());
+						button.setEnabled(true);
+						checkBox.setEnabled(true);
+						checkClosability();
+						showMessage("PSM-centric set to " + checkBox.getValue());
+						somethingchanged = true;
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						showErrorMessage(caught);
+						pintConfigurationProperties.setPsmCentric(null);
+						labelIsPSMCentric.setText(getStatusText(null));
+						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+						GWT.log("Error setting up PINT: " + caught.getMessage());
+						grid.setWidget(0, 0, getValidIcon(false));
+						button.setEnabled(true);
+						checkBox.setEnabled(true);
+						checkClosability();
+					}
+				});
+
+			}
+		});
+		labelIsPSMCentric = new Label(getStatusText(isPSMCentric));
+		grid.setWidget(0, 3, labelIsPSMCentric);
 		return grid;
 	}
 
@@ -810,8 +886,8 @@ public class ConfigurationPanel extends WindowBox {
 		statusLabel.setText(message);
 		statusLabel.setStyleName("configurationPanel_Status");
 		// show pop up dialog
-		PopUpPanelYesNo popUpDialog = new PopUpPanelYesNo(true, true, true, "Configuration property updated", message,
-				"OK", null);
+		final PopUpPanelYesNo popUpDialog = new PopUpPanelYesNo(true, true, true, "Configuration property updated",
+				message, "OK", null);
 		popUpDialog.addButton1ClickHandler(new ClickHandler() {
 
 			@Override
@@ -828,8 +904,8 @@ public class ConfigurationPanel extends WindowBox {
 		statusLabel.setText(throwable.getMessage());
 		statusLabel.setStyleName("configurationPanel_Status_Error");
 		// show pop up dialog
-		PopUpPanelYesNo popUpDialog = new PopUpPanelYesNo(true, true, true, "Error updating configuration property",
-				throwable.getMessage(), "OK", null);
+		final PopUpPanelYesNo popUpDialog = new PopUpPanelYesNo(true, true, true,
+				"Error updating configuration property", throwable.getMessage(), "OK", null);
 		popUpDialog.addButton1ClickHandler(new ClickHandler() {
 
 			@Override

@@ -49,15 +49,15 @@ public class ProteinGroupTablePanel extends AbstractDataTable<ProteinGroupBean> 
 				return item == null ? null : item.getProteinDBString();
 			}
 		};
-		MyDataGrid<ProteinGroupBean> dataGrid = new MyDataGrid<ProteinGroupBean>(KEY_PROVIDER, tableName);
+		final MyDataGrid<ProteinGroupBean> dataGrid = new MyDataGrid<ProteinGroupBean>(KEY_PROVIDER, tableName);
 
 		return dataGrid;
 	}
 
 	@Override
 	protected SimplePager makePager() {
-		SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
-		SimplePager simplePager = new SimplePager(TextLocation.CENTER, pagerResources, true,
+		final SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
+		final SimplePager simplePager = new SimplePager(TextLocation.CENTER, pagerResources, true,
 				SharedConstants.PROTEINGROUP_DEFAULT_PAGE_SIZE * 5, true);
 
 		simplePager.setPageSize(SharedConstants.PROTEINGROUP_DEFAULT_PAGE_SIZE);

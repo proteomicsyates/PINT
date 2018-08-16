@@ -19,6 +19,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
+import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
@@ -81,7 +82,7 @@ public class PreparedQueries {
 	public static Map<String, Set<Protein>> getProteinsWithAmount(String projectTag) {
 		final List<Protein> list = parseParametersForQuery(PROTEINS_WITH_AMOUNT, "project.tag=:projectTag", projectTag)
 				.list();
-		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -97,7 +98,7 @@ public class PreparedQueries {
 			String amountType) {
 		final List<Protein> list = parseParametersForQuery(PROTEINS_WITH_AMOUNT, "project.tag=:projectTag", projectTag,
 				"condition.name=:conditionName", conditionName, "amountType.name=:amountType", amountType).list();
-		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -117,7 +118,7 @@ public class PreparedQueries {
 				"condition.name=:conditionName", conditionName).list();
 		log.info("Returning " + list.size() + " proteins from the query");
 
-		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -184,6 +185,22 @@ public class PreparedQueries {
 				"condition.name=:conditionName", conditioName).list();
 	}
 
+	private final static String PEPTIDES_BY_PROJECT = "select distinct peptide from "
+			+ "Peptide peptide join peptide.conditions condition " + "join condition.project project";
+
+	/**
+	 * projectTag can be null for querying over all projects
+	 *
+	 * @param projectTag
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<Peptide> getPeptidesByProjectCondition(String projectTag, String conditioName) {
+
+		return parseParametersForQuery(PEPTIDES_BY_PROJECT, "project.tag=:projectTag", projectTag,
+				"condition.name=:conditionName", conditioName).list();
+	}
+
 	private final static String PSM_SCORES_BY_PROJECT = "select distinct score from " + "Project project "
 			+ "join project.conditions condition " + "join condition.psms psm " + "join psm.psmScores score";
 
@@ -220,6 +237,18 @@ public class PreparedQueries {
 	@SuppressWarnings("unchecked")
 	public static List<String> getProteinScoreNames() {
 		return parseParametersForQuery(PROTEIN_SCORES).list();
+	}
+
+	private final static String PEPTIDE_SCORES = "select distinct name from PeptideScore";
+
+	/**
+	 *
+	 * @param projectTag
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<String> getPeptideScoreNames() {
+		return parseParametersForQuery(PEPTIDE_SCORES).list();
 	}
 
 	private final static String PSM_SCORES_TYPES = "select distinct confidenceScoreType from PsmScore";
@@ -445,7 +474,7 @@ public class PreparedQueries {
 			+ "join ratioDescriptor.psmRatioValues ratio_values " + "join ratio_values.psm psm";
 
 	@SuppressWarnings("unchecked")
-	public static Collection<Psm> getPSMWithRatios(String condition1Name, String condition2Name, String projectTag,
+	public static Set<Psm> getPSMWithRatios(String condition1Name, String condition2Name, String projectTag,
 			String ratioName) {
 		final List<Psm> list = parseParametersForQuery(PSM_WITH_RATIOS, "condition1.name=:condition1Name",
 				condition1Name, "condition2.name=:condition2Name", condition2Name, "project1.tag=:project1Name",
@@ -493,7 +522,7 @@ public class PreparedQueries {
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Psm> getPsmsWithScores(String scoreNameString, String scoreTypeString, String projectTag) {
-		Query query = parseParametersForQuery(PSMS_WITH_SCORES, "psm_score.name=:score_name", scoreNameString,
+		final Query query = parseParametersForQuery(PSMS_WITH_SCORES, "psm_score.name=:score_name", scoreNameString,
 				"score_type.name=:score_type", scoreTypeString, "project.tag=:projectTag", projectTag);
 		final List<Psm> list1 = query.list();
 		return list1;
@@ -513,8 +542,9 @@ public class PreparedQueries {
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Psm> getPsmsWithPTMScores(String scoreNameString, String scoreTypeString, String projectTag) {
-		Query query2 = parseParametersForQuery(PSMS_WITH_WITH_PTM_SCORES, "ptm_site.confidenceScoreName=:score_name",
-				scoreNameString, "score_type.name=:score_type", scoreTypeString, "project.tag=:projectTag", projectTag);
+		final Query query2 = parseParametersForQuery(PSMS_WITH_WITH_PTM_SCORES,
+				"ptm_site.confidenceScoreName=:score_name", scoreNameString, "score_type.name=:score_type",
+				scoreTypeString, "project.tag=:projectTag", projectTag);
 		final List<Psm> list2 = query2.list();
 		return list2;
 
@@ -533,8 +563,8 @@ public class PreparedQueries {
 	@SuppressWarnings("unchecked")
 	public static List<Protein> getProteinsWithScores(String scoreNameString, String scoreTypeString,
 			String projectTag) {
-		Query query = parseParametersForQuery(PROTEINS_WITH_SCORES, "protein_score.name=:score_name", scoreNameString,
-				"score_type.name=:score_type", scoreTypeString, "project.tag=:projectTag", projectTag);
+		final Query query = parseParametersForQuery(PROTEINS_WITH_SCORES, "protein_score.name=:score_name",
+				scoreNameString, "score_type.name=:score_type", scoreTypeString, "project.tag=:projectTag", projectTag);
 		final List<Protein> list1 = query.list();
 		return list1;
 
@@ -548,11 +578,11 @@ public class PreparedQueries {
 	 * @return
 	 */
 	private static Query parseParametersForQuery(String baseQuery, Object... strings) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		for (int i = 0; i < strings.length; i = i + 2) {
-			String property = String.valueOf(strings[i]);
-			Object value = strings[i + 1];
+			final String property = String.valueOf(strings[i]);
+			final Object value = strings[i + 1];
 			if (value != null && !"".equals(value)) {
 				if (!"".equals(sb.toString()))
 					sb.append(" and " + property);
@@ -561,11 +591,11 @@ public class PreparedQueries {
 			}
 		}
 		final String preparedQueryString = baseQuery + sb.toString();
-		Query query = createQuery(preparedQueryString);
+		final Query query = createQuery(preparedQueryString);
 		log.info("Prepared query: " + preparedQueryString);
 		for (int i = 0; i < strings.length; i = i + 2) {
-			String property = String.valueOf(strings[i]);
-			Object value = strings[i + 1];
+			final String property = String.valueOf(strings[i]);
+			final Object value = strings[i + 1];
 			if (value != null && !"".equals(value)) {
 				log.info("Parameter: " + getPropertyName(property) + "=:" + value);
 				query.setParameter(getPropertyName(property), value);
@@ -576,22 +606,22 @@ public class PreparedQueries {
 
 	private static Query parseParametersForQuerySpecial(String baseQuery, String name, List<String> accessions,
 			Object... strings) {
-		StringBuilder sb = new StringBuilder();
-		StringBuilder sb2 = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
+		final StringBuilder sb2 = new StringBuilder();
 		// make a in ('element1','element2')
 		sb2.append(" where ").append(name).append(" in (");
 		for (int i = 0; i < accessions.size(); i++) {
 			if (i != 0) {
 				sb2.append(",");
 			}
-			String acc = accessions.get(i);
+			final String acc = accessions.get(i);
 			sb2.append("'").append(acc).append("'");
 		}
 		sb2.append(")");
 
 		for (int i = 0; i < strings.length; i = i + 2) {
-			String property = String.valueOf(strings[i]);
-			Object value = strings[i + 1];
+			final String property = String.valueOf(strings[i]);
+			final Object value = strings[i + 1];
 			if (value != null && !"".equals(value)) {
 
 				sb.append(" and ").append(property);
@@ -601,11 +631,11 @@ public class PreparedQueries {
 		sb2.append(sb);
 
 		final String preparedQueryString = baseQuery + sb2.toString();
-		Query query = createQuery(preparedQueryString);
+		final Query query = createQuery(preparedQueryString);
 		log.info("Prepared query: " + preparedQueryString);
 		for (int i = 0; i < strings.length; i = i + 2) {
-			String property = String.valueOf(strings[i]);
-			Object value = strings[i + 1];
+			final String property = String.valueOf(strings[i]);
+			final Object value = strings[i + 1];
 			if (value != null && !"".equals(value)) {
 				log.info("Parameter: " + getPropertyName(property) + "=:" + value);
 				query.setParameter(getPropertyName(property), value);
@@ -616,14 +646,14 @@ public class PreparedQueries {
 
 	private static Query parseParametersForQuerySpecial2(String baseQuery, String name, String variable,
 			Collection<Object> objects, Object... strings) {
-		StringBuilder sb = new StringBuilder();
-		StringBuilder sb2 = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
+		final StringBuilder sb2 = new StringBuilder();
 		// make a in ('element1','element2')
 		sb2.append(" where ").append(name).append(" in (:").append(variable).append(")");
 
 		for (int i = 0; i < strings.length; i = i + 2) {
-			String property = String.valueOf(strings[i]);
-			Object value = strings[i + 1];
+			final String property = String.valueOf(strings[i]);
+			final Object value = strings[i + 1];
 			if (value != null && !"".equals(value)) {
 
 				sb.append(" and ").append(property);
@@ -633,12 +663,12 @@ public class PreparedQueries {
 		sb2.append(sb);
 
 		final String preparedQueryString = baseQuery + sb2.toString();
-		Query query = createQuery(preparedQueryString);
+		final Query query = createQuery(preparedQueryString);
 		query.setParameterList(variable, objects);
 		log.info("Prepared query: " + preparedQueryString);
 		for (int i = 0; i < strings.length; i = i + 2) {
-			String property = String.valueOf(strings[i]);
-			Object value = strings[i + 1];
+			final String property = String.valueOf(strings[i]);
+			final Object value = strings[i + 1];
 			if (value != null && !"".equals(value)) {
 				log.info("Parameter: " + getPropertyName(property) + "=:" + value);
 				query.setParameter(getPropertyName(property), value);
@@ -670,7 +700,7 @@ public class PreparedQueries {
 		final Query query = parseParametersForQuery(PROTEINS_WITH_THRESHOLD, "protein_threshold.passThreshold=:pass",
 				pass, "threshold.name=:threshold_name", thresholdName, "project.tag=:project_name", projectTag);
 		final List<Protein> list = query.list();
-		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -692,7 +722,7 @@ public class PreparedQueries {
 		final Query query = parseParametersForQuery(PROTEINS_WITH_GENES, "gene.geneId=:gene_name", geneName,
 				"project.tag=:project_name", projectTag);
 		final List<Protein> list = query.list();
-		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -713,8 +743,8 @@ public class PreparedQueries {
 		final List projectList = ContextualSessionHandler.getCurrentSession().createCriteria(Project.class)
 				.add(Restrictions.eq("tag", projectTag)).list();
 		if (!projectList.isEmpty()) {
-			Project project = (Project) projectList.get(0);
-			Criteria criteria = ContextualSessionHandler.getCurrentSession()
+			final Project project = (Project) projectList.get(0);
+			final Criteria criteria = ContextualSessionHandler.getCurrentSession()
 					.createCriteria(RatioDescriptor.class, "ratioDescriptor")
 					.add(Restrictions.isNotEmpty("psmRatioValues"))
 					.createAlias("ratioDescriptor.conditionByExperimentalCondition1Id", "condition1")
@@ -733,8 +763,8 @@ public class PreparedQueries {
 		final List projectList = ContextualSessionHandler.getCurrentSession().createCriteria(Project.class)
 				.add(Restrictions.eq("tag", projectTag)).list();
 		if (!projectList.isEmpty()) {
-			Project project = (Project) projectList.get(0);
-			Criteria criteria = ContextualSessionHandler.getCurrentSession()
+			final Project project = (Project) projectList.get(0);
+			final Criteria criteria = ContextualSessionHandler.getCurrentSession()
 					.createCriteria(RatioDescriptor.class, "ratioDescriptor")
 					.add(Restrictions.isNotEmpty("proteinRatioValues"))
 					.createAlias("ratioDescriptor.conditionByExperimentalCondition1Id", "condition1")
@@ -753,8 +783,8 @@ public class PreparedQueries {
 		final List projectList = ContextualSessionHandler.getCurrentSession().createCriteria(Project.class)
 				.add(Restrictions.eq("tag", projectTag)).list();
 		if (!projectList.isEmpty()) {
-			Project project = (Project) projectList.get(0);
-			Criteria criteria = ContextualSessionHandler.getCurrentSession()
+			final Project project = (Project) projectList.get(0);
+			final Criteria criteria = ContextualSessionHandler.getCurrentSession()
 					.createCriteria(RatioDescriptor.class, "ratioDescriptor")
 					.add(Restrictions.isNotEmpty("peptideRatioValues"))
 					.createAlias("ratioDescriptor.conditionByExperimentalCondition1Id", "condition1")
@@ -796,6 +826,14 @@ public class PreparedQueries {
 
 	public static int getNumDifferentPeptides() {
 		final Query query = createQuery(NUM_DIFFERENT_PEPTIDES);
+		final Long num = (Long) query.uniqueResult();
+		return num.intValue();
+	}
+
+	private static final String NUM_PEPTIDES = "select count(sequence) from Peptide";
+
+	public static int getNumPeptides() {
+		final Query query = createQuery(NUM_PEPTIDES);
 		final Long num = (Long) query.uniqueResult();
 		return num.intValue();
 	}
@@ -844,7 +882,7 @@ public class PreparedQueries {
 		// if it is private, don't allow donwload
 		final Query query = parseParametersForQuery("select project from Project project", "project.tag=:projectTag",
 				projectTag);
-		Project project = (Project) query.list().get(0);
+		final Project project = (Project) query.list().get(0);
 		if (project != null && (project.isPrivate_() || project.isBig()))
 			return false;
 		return true;
@@ -859,7 +897,7 @@ public class PreparedQueries {
 		final Query query = parseParametersForQuery(PROTEINS_BY_TAXONOMY, "project.tag=:project_tag", projectTag,
 				"organism.taxonomyId=:taxonomy_id", ncbiTaxID, "organism.name=:organism_name", organismName);
 		final List<Protein> proteinList = query.list();
-		Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, proteinList);
 		return ret;
 	}
@@ -911,8 +949,8 @@ public class PreparedQueries {
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Protein> getProteinsWithAccession(String accession, String projectTag) {
-		Query query = parseParametersForQuery(PROTEINS_WITH_ACC, "protein_accession.accession=:accession", accession,
-				"project.tag=:projectTag", projectTag);
+		final Query query = parseParametersForQuery(PROTEINS_WITH_ACC, "protein_accession.accession=:accession",
+				accession, "project.tag=:projectTag", projectTag);
 		final List<Protein> list1 = query.list();
 		return list1;
 
@@ -926,9 +964,9 @@ public class PreparedQueries {
 		if (projectTag == null || "".equals(projectTag)) {
 			baseQuery = PROTEINS_WITH_ACC_NO_PROJECT;
 		}
-		Set<Object> set = new THashSet<Object>();
+		final Set<Object> set = new THashSet<Object>();
 		set.addAll(accessions);
-		Query query = parseParametersForQuerySpecial2(baseQuery, "protein_accession.accession", "accession", set,
+		final Query query = parseParametersForQuerySpecial2(baseQuery, "protein_accession.accession", "accession", set,
 				"project.tag=:projectTag", projectTag);
 		final List<Protein> list1 = query.list();
 		return list1;
@@ -945,7 +983,7 @@ public class PreparedQueries {
 	 * @return
 	 */
 	public static List<ProteinAccession> getProteinAccession(String accessionType) {
-		Query query = parseParametersForQuery(PROTEIN_ACCESSION_BY_TYPE,
+		final Query query = parseParametersForQuery(PROTEIN_ACCESSION_BY_TYPE,
 				"protein_accession.accessionType=:accessionType", accessionType);
 		final List<ProteinAccession> list1 = query.list();
 		return list1;
@@ -955,7 +993,7 @@ public class PreparedQueries {
 			+ "join msrun.proteins protein " + "join protein.conditions condition " + "join condition.project project";
 
 	public static List<Protein> getProteinsWithMSRun(String projectTag, String msRunID) {
-		Query query = parseParametersForQuery(PROTEINS_WITH_MSRUN, "msrun.runId=:runId", msRunID,
+		final Query query = parseParametersForQuery(PROTEINS_WITH_MSRUN, "msrun.runId=:runId", msRunID,
 				"project.tag=:projectTag", projectTag);
 		final List<Protein> list1 = query.list();
 		return list1;
@@ -964,7 +1002,7 @@ public class PreparedQueries {
 	private final static String PROTEINS_BY_MSRUN = "select distinct protein from Protein protein";
 
 	public static List<Protein> getProteinsByMSRun(MsRun msRun) {
-		Query query = parseParametersForQuery(PROTEINS_BY_MSRUN, "protein.msRun=:msRun", msRun);
+		final Query query = parseParametersForQuery(PROTEINS_BY_MSRUN, "protein.msRun=:msRun", msRun);
 		query.setCacheable(true);
 		final List<Protein> list1 = query.list();
 		return list1;
@@ -975,9 +1013,9 @@ public class PreparedQueries {
 		if (msRuns.isEmpty()) {
 			return Collections.emptyList();
 		}
-		Set<Object> set = new THashSet<Object>();
+		final Set<Object> set = new THashSet<Object>();
 		set.addAll(msRuns);
-		Query query = parseParametersForQuerySpecial2(PROTEINS_BY_MSRUN, "protein.msRun", "msRun", set);
+		final Query query = parseParametersForQuerySpecial2(PROTEINS_BY_MSRUN, "protein.msRun", "msRun", set);
 		query.setCacheable(true);
 		final List<Protein> list1 = query.list();
 		return list1;
@@ -988,20 +1026,20 @@ public class PreparedQueries {
 	private final static String PROTEIN_AMOUNT_TYPES_BY_CONDITION = "select distinct amountType from AmountType amountType join amountType.proteinAmounts proteinAmount";
 
 	public static Map<Condition, Set<AmountType>> getPSMAmountTypesByConditions(Collection<Condition> conditions) {
-		Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
-		for (Condition condition : conditions) {
+		final Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
+		for (final Condition condition : conditions) {
 			// PSM AMOUNTS
-			Set<Object> set = new THashSet<Object>();
+			final Set<Object> set = new THashSet<Object>();
 			set.add(condition);
-			Query query = parseParametersForQuerySpecial2(PSM_AMOUNT_TYPES_BY_CONDITION, "psmAmount.condition",
+			final Query query = parseParametersForQuerySpecial2(PSM_AMOUNT_TYPES_BY_CONDITION, "psmAmount.condition",
 					"condition", set);
 			query.setCacheable(true);
-			List<AmountType> list = query.list();
+			final List<AmountType> list = query.list();
 			if (!list.isEmpty()) {
 				if (map.containsKey(condition)) {
 					map.get(condition).addAll(list);
 				} else {
-					Set<AmountType> set2 = new THashSet<AmountType>();
+					final Set<AmountType> set2 = new THashSet<AmountType>();
 					set2.addAll(list);
 					map.put(condition, set2);
 				}
@@ -1011,20 +1049,20 @@ public class PreparedQueries {
 	}
 
 	public static Map<Condition, Set<AmountType>> getPeptideAmountTypesByConditions(Collection<Condition> conditions) {
-		Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
-		for (Condition condition : conditions) {
+		final Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
+		for (final Condition condition : conditions) {
 			// PEPTIDE AMOUNTS
-			Set<Object> set = new THashSet<Object>();
+			final Set<Object> set = new THashSet<Object>();
 			set.add(condition);
-			Query query = parseParametersForQuerySpecial2(PEPTIDE_AMOUNT_TYPES_BY_CONDITION, "peptideAmount.condition",
-					"condition", set);
+			final Query query = parseParametersForQuerySpecial2(PEPTIDE_AMOUNT_TYPES_BY_CONDITION,
+					"peptideAmount.condition", "condition", set);
 			query.setCacheable(true);
-			List<AmountType> list = query.list();
+			final List<AmountType> list = query.list();
 			if (!list.isEmpty()) {
 				if (map.containsKey(condition)) {
 					map.get(condition).addAll(list);
 				} else {
-					Set<AmountType> set2 = new THashSet<AmountType>();
+					final Set<AmountType> set2 = new THashSet<AmountType>();
 					set2.addAll(list);
 					map.put(condition, set2);
 				}
@@ -1035,20 +1073,20 @@ public class PreparedQueries {
 	}
 
 	public static Map<Condition, Set<AmountType>> getProteinAmountTypesByConditions(Collection<Condition> conditions) {
-		Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
-		for (Condition condition : conditions) {
+		final Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
+		for (final Condition condition : conditions) {
 			// PROTEIN AMOUNTS
-			Set<Object> set = new THashSet<Object>();
+			final Set<Object> set = new THashSet<Object>();
 			set.add(condition);
-			Query query = parseParametersForQuerySpecial2(PROTEIN_AMOUNT_TYPES_BY_CONDITION, "proteinAmount.condition",
-					"condition", set);
+			final Query query = parseParametersForQuerySpecial2(PROTEIN_AMOUNT_TYPES_BY_CONDITION,
+					"proteinAmount.condition", "condition", set);
 			query.setCacheable(true);
-			List<AmountType> list = query.list();
+			final List<AmountType> list = query.list();
 			if (!list.isEmpty()) {
 				if (map.containsKey(condition)) {
 					map.get(condition).addAll(list);
 				} else {
-					Set<AmountType> set2 = new THashSet<AmountType>();
+					final Set<AmountType> set2 = new THashSet<AmountType>();
 					set2.addAll(list);
 					map.put(condition, set2);
 				}
@@ -1061,24 +1099,34 @@ public class PreparedQueries {
 			+ "join psm.conditions condition " + "join condition.project project";
 
 	public static List<Psm> getPsmsWithMSRun(String projectTag, String msRunID) {
-		Query query = parseParametersForQuery(PSMS_WITH_MSRUN, "msrun.runId=:runId", msRunID, "project.tag=:projectTag",
-				projectTag);
+		final Query query = parseParametersForQuery(PSMS_WITH_MSRUN, "msrun.runId=:runId", msRunID,
+				"project.tag=:projectTag", projectTag);
 		final List<Psm> list1 = query.list();
+		return list1;
+	}
+
+	private final static String PEPTIDES_WITH_MSRUN = "select distinct peptide from " + "MsRun msrun "
+			+ "join msrun.peptides peptide " + "join peptide.conditions condition " + "join condition.project project";
+
+	public static List<Peptide> getPeptidesWithMSRun(String projectTag, String msRunID) {
+		final Query query = parseParametersForQuery(PEPTIDES_WITH_MSRUN, "msrun.runId=:runId", msRunID,
+				"project.tag=:projectTag", projectTag);
+		final List<Peptide> list1 = query.list();
 		return list1;
 	}
 
 	private final static String PSMS_BY_MSRUN = "select distinct psm from " + "Psm psm";
 
 	public static List<Psm> getPsmsByMSRun(MsRun msRun) {
-		Query query = parseParametersForQuery(PSMS_BY_MSRUN, "psm.msRun=:msrun", msRun);
+		final Query query = parseParametersForQuery(PSMS_BY_MSRUN, "psm.msRun=:msrun", msRun);
 		final List<Psm> list1 = query.list();
 		return list1;
 	}
 
 	public static List<Psm> getPsmsByMSRuns(Collection<MsRun> msRuns) {
-		Set<Object> set = new THashSet<Object>();
+		final Set<Object> set = new THashSet<Object>();
 		set.addAll(msRuns);
-		Query query = parseParametersForQuerySpecial2(PSMS_BY_MSRUN, "psm.msRun", "msRun", set);
+		final Query query = parseParametersForQuerySpecial2(PSMS_BY_MSRUN, "psm.msRun", "msRun", set);
 		final List<Psm> list1 = query.list();
 		return list1;
 	}
@@ -1087,7 +1135,7 @@ public class PreparedQueries {
 			+ "join msrun.project project";
 
 	public static List<MsRun> getMSRunsByProject(String projectTag) {
-		Query query = parseParametersForQuery(MSRUNS_BY_PROJECT, "project.tag=:projectTag", projectTag);
+		final Query query = parseParametersForQuery(MSRUNS_BY_PROJECT, "project.tag=:projectTag", projectTag);
 		final List<MsRun> list1 = query.list();
 		return list1;
 	}
@@ -1099,6 +1147,92 @@ public class PreparedQueries {
 	public static List<Psm> getPSMsContainingPTM(String ptmName, String projectTag) {
 		return parseParametersForQuery(PSM_WITH_PTM, "ptm.name=:name", ptmName, "project.tag=:projectTag", projectTag)
 				.list();
+	}
+
+	private final static String PEPTIDES_WITH_AMOUNT = "select distinct peptide from "
+			+ "Peptide peptide join peptide.peptideAmounts peptideAmount " + "join peptideAmount.condition condition "
+			+ "join peptideAmount.amountType amountType " + "join condition.project project";
+
+	public static List<Peptide> getPeptidesWithPeptideAmount(String projectTag, String conditionName,
+			String amountTypeString) {
+		return parseParametersForQuery(PEPTIDES_WITH_AMOUNT, "project.tag=:projectTag", projectTag,
+				"condition.name=:conditionName", conditionName, "amountType.name=:amountType", amountTypeString).list();
+	}
+
+	private final static String PEPTIDES_WITH_LABELED_AMOUNT = "select distinct peptide from "
+			+ "Peptide peptide join peptide.peptideAmounts peptideAmount " + "join peptideAmount.condition condition "
+			+ "join condition.sample sample " + "join sample.label label " + "join condition.project project";
+
+	public static List<Peptide> getPeptidesWithLabeledAmount(String projectTag, String labelName, Boolean singleton) {
+		final Query query = parseParametersForQuery(PEPTIDES_WITH_LABELED_AMOUNT, "project.tag=:project_tag",
+				projectTag, "label.name=:label_name", labelName, "peptideAmount.singleton=:singleton", singleton);
+		final List<Peptide> peptideList = query.list();
+		return peptideList;
+	}
+
+	private final static String PEPTIDES_WITH_RATIOS = "select distinct peptide from "
+			+ "RatioDescriptor ratioDescriptor "
+			+ "join ratioDescriptor.conditionByExperimentalCondition1Id condition1 "
+			+ "join ratioDescriptor.conditionByExperimentalCondition2Id condition2 "
+			+ "join condition1.project project1 " + "join condition2.project project2 "
+			+ "join ratioDescriptor.peptideRatioValues ratio_values " + "join ratio_values.peptide peptide";
+
+	public static Set<Peptide> getPeptidesWithRatios(String condition1Name, String condition2Name, String projectTag,
+			String ratioName) {
+		final List<Peptide> list = parseParametersForQuery(PEPTIDES_WITH_RATIOS, "condition1.name=:condition1Name",
+				condition1Name, "condition2.name=:condition2Name", condition2Name, "project1.tag=:project1Name",
+				projectTag, "project2.tag=:project2Name", projectTag, "ratioDescriptor.description=:ratioName",
+				ratioName).list();
+		// retrieve also the opposite ratios
+		final List<Peptide> list2 = parseParametersForQuery(PEPTIDES_WITH_RATIOS, "condition1.name=:condition1Name",
+				condition2Name, "condition2.name=:condition2Name", condition1Name, "project1.tag=:project1Name",
+				projectTag, "project2.tag=:project2Name", projectTag, "ratioDescriptor.description=:ratioName",
+				ratioName).list();
+		return PersistenceUtils.peptideUnion(list, list2);
+	}
+
+	private final static String PEPTIDES_WITH_SCORES = "select distinct peptide from " + "PeptideScore peptide_score "
+			+ "join peptide_score.peptide peptide " + "join peptide_score.confidenceScoreType score_type "
+			+ "join peptide.conditions condition " + "join condition.project project";
+
+	public static List<Peptide> getPeptidesWithScores(String scoreNameString, String scoreTypeString,
+			String projectTag) {
+		final Query query = parseParametersForQuery(PEPTIDES_WITH_SCORES, "peptide_score.name=:score_name",
+				scoreNameString, "score_type.name=:score_type", scoreTypeString, "project.tag=:projectTag", projectTag);
+		final List<Peptide> list1 = query.list();
+		return list1;
+	}
+
+	private static final String PEPTIDES_WITH_WITH_PTM_SCORES = "select distinct peptide from " + "PtmSite ptm_site "
+			+ "join ptm_site.ptm ptm " + "join ptm.peptide peptide " + "join ptm_site.confidenceScoreType score_type "
+			+ "join peptide.conditions condition " + "join condition.project project";
+
+	public static List<Peptide> getPeptidesWithPTMScores(String scoreNameString, String scoreTypeString,
+			String projectTag) {
+		final Query query2 = parseParametersForQuery(PEPTIDES_WITH_WITH_PTM_SCORES,
+				"ptm_site.confidenceScoreName=:score_name", scoreNameString, "score_type.name=:score_type",
+				scoreTypeString, "project.tag=:projectTag", projectTag);
+		final List<Peptide> list2 = query2.list();
+		return list2;
+	}
+
+	private final static String PEPTIDE_WITH_PTM = "select distinct peptide from " + "Project project "
+			+ "join project.conditions condition " + "join condition.peptides peptide " + "join peptide.ptms ptm ";
+
+	public static List<Peptide> getPeptidesContainingPTM(String ptmName, String projectTag) {
+		return parseParametersForQuery(PEPTIDE_WITH_PTM, "ptm.name=:name", ptmName, "project.tag=:projectTag",
+				projectTag).list();
+	}
+
+	private static final String PEPTIDES_BY_TAXONOMY = "select distinct peptide from "
+			+ "Peptide peptide join peptide.proteins protein " + "join protein.organism organism "
+			+ "join protein.conditions condition " + "join condition.project project";
+
+	public static List<Peptide> getPeptidesWithTaxonomy(String projectTag, String organismName, String ncbiTaxID) {
+		final Query query = parseParametersForQuery(PEPTIDES_BY_TAXONOMY, "project.tag=:project_tag", projectTag,
+				"organism.taxonomyId=:taxonomy_id", ncbiTaxID, "organism.name=:organism_name", organismName);
+		final List<Peptide> peptideList = query.list();
+		return peptideList;
 	}
 
 }

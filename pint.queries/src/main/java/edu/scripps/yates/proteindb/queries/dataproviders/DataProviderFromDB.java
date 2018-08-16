@@ -3,17 +3,18 @@ package edu.scripps.yates.proteindb.queries.dataproviders;
 import java.util.Map;
 import java.util.Set;
 
+import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 
 /**
- * This interface provides the method for a system that retrieves the proteins
- * from a DATABASE system
+ * This interface provides the method for a system that retrieves the proteins,
+ * peptides and Psms from a DATABASE system
  *
  * @author Salva
  *
  */
-public interface ProteinProviderFromDB {
+public interface DataProviderFromDB {
 
 	/**
 	 * Gets a protein Map using the primary accession as key
@@ -32,6 +33,14 @@ public interface ProteinProviderFromDB {
 	 */
 
 	public Map<String, Set<Psm>> getPsmMap(boolean testMode);
+
+	/**
+	 * Gets a peptide Set
+	 *
+	 * @return
+	 */
+
+	public Set<Peptide> getPeptideSet(boolean testMode);
 
 	/**
 	 * Set a constriction in the protein provider to only take proteins from the

@@ -14,7 +14,8 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.NumericalCondition;
 import edu.scripps.yates.proteindb.queries.NumericalconditionOperator;
 import edu.scripps.yates.proteindb.queries.Query;
-import edu.scripps.yates.proteindb.queries.dataproviders.ProteinProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
+import edu.scripps.yates.proteindb.queries.dataproviders.peptides.PeptideProviderFromPeptideRatios;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProteinRatiosAndScore;
 import edu.scripps.yates.proteindb.queries.dataproviders.psm.PsmProviderFromPsmRatios;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
@@ -22,6 +23,8 @@ import edu.scripps.yates.proteindb.queries.semantic.AbstractQuery;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
+import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
+import edu.scripps.yates.proteindb.queries.semantic.QueriablePeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
@@ -55,7 +58,7 @@ public class QueryFromRatioCommand extends AbstractQuery {
 
 		final String[] split = MyCommandTokenizer.splitCommand(commandReference.getCommandValue());
 		if (split.length == 6) {
-			String aggregationLevelString = split[0].trim();
+			final String aggregationLevelString = split[0].trim();
 			if (!"".equals(aggregationLevelString)) {
 
 				aggregationLevel = AggregationLevel.getAggregationLevelByString(aggregationLevelString);
@@ -145,10 +148,10 @@ public class QueryFromRatioCommand extends AbstractQuery {
 		boolean specifiedRatioPresent = false;
 
 		if (psmRatios != null && !psmRatios.isEmpty()) {
-			for (PsmRatioValue psmRatio : psmRatios) {
+			for (final PsmRatioValue psmRatio : psmRatios) {
 
 				valid = true;
-				double ratioValue = getAppropiateValue(psmRatio, conditionProject1.getConditionName(),
+				final double ratioValue = getAppropiateValue(psmRatio, conditionProject1.getConditionName(),
 						conditionProject2.getConditionName());
 				if (ratioName != null) {
 					final String description = psmRatio.getRatioDescriptor().getDescription();
@@ -207,6 +210,77 @@ public class QueryFromRatioCommand extends AbstractQuery {
 
 	}
 
+	private boolean queryOverPeptide(QueriablePeptideSet peptide) {
+
+		final Set<PeptideRatioValue> peptideRatios = PersistenceUtils.getPeptideRatiosBetweenTwoConditions(
+				peptide.getPeptideRatioValues(), conditionProject1.getConditionName(),
+				conditionProject2.getConditionName(), null);
+		boolean valid = false;
+		boolean specifiedRatioPresent = false;
+
+		if (peptideRatios != null && !peptideRatios.isEmpty()) {
+			for (final PeptideRatioValue peptideRatio : peptideRatios) {
+
+				valid = true;
+				final double ratioValue = getAppropiateValue(peptideRatio, conditionProject1.getConditionName(),
+						conditionProject2.getConditionName());
+				if (ratioName != null) {
+					final String description = peptideRatio.getRatioDescriptor().getDescription();
+					if (!ratioName.equalsIgnoreCase(description)) {
+						continue;
+					} else {
+						specifiedRatioPresent = true;
+						// =Nan
+						if (numericalCondition != null && numericalCondition.isNanValue()
+								&& NumericalconditionOperator.EQUAL.equals(numericalCondition.getOperator())) {
+							continue;
+						}
+					}
+				}
+
+				if (valid && (numericalCondition == null || (numericalCondition != null
+						&& !numericalCondition.isNanValue() && !numericalCondition.matches(ratioValue)))) {
+					continue;
+				}
+
+				if (valid && scoreThresholdQuery != null) {
+					if (peptideRatio.getConfidenceScoreValue() != null) {
+						String scoreType = null;
+						String scoreValue = null;
+						if (peptideRatio.getConfidenceScoreType() != null) {
+							scoreType = peptideRatio.getConfidenceScoreType().getName();
+						}
+						if (peptideRatio.getConfidenceScoreValue() != null) {
+							scoreValue = peptideRatio.getConfidenceScoreValue().toString();
+						}
+						valid = scoreThresholdQuery.evaluateScore(peptideRatio.getConfidenceScoreName(), scoreType,
+								scoreValue);
+					} else {
+						continue;
+					}
+				}
+
+				if (valid) {
+					return true;
+				}
+			}
+		}
+		// if we dont have found the specified ratio type and the
+		// numerical condition is =Nan, add to results
+		if (!specifiedRatioPresent
+				&& (numericalCondition == null || (numericalCondition != null && numericalCondition.isNanValue()
+						&& NumericalconditionOperator.EQUAL == numericalCondition.getOperator()))) {
+			return true;
+		}
+		if (!specifiedRatioPresent && NumericalconditionOperator.NOT_EQUAL == numericalCondition.getOperator()
+				&& !numericalCondition.isNanValue()) {
+			return true;
+		}
+
+		return false;
+
+	}
+
 	private boolean queryOverProtein(QueriableProteinSet queriableProtein) {
 		// protein ratios
 		boolean specifiedRatioPresent = false;
@@ -221,7 +295,7 @@ public class QueryFromRatioCommand extends AbstractQuery {
 				log.info("*****" + this + proteinRatios.size()
 						+ " protein ratios between these 2 conditions in the protein");
 			}
-			for (ProteinRatioValue proteinRatio : proteinRatios) {
+			for (final ProteinRatioValue proteinRatio : proteinRatios) {
 				if (ratioName != null) {
 					if (!ratioName.equals(proteinRatio.getRatioDescriptor().getDescription())) {
 						continue;
@@ -234,7 +308,7 @@ public class QueryFromRatioCommand extends AbstractQuery {
 						}
 					}
 				}
-				double ratioValue = getAppropiateValue(proteinRatio, conditionProject1.getConditionName(),
+				final double ratioValue = getAppropiateValue(proteinRatio, conditionProject1.getConditionName(),
 						conditionProject2.getConditionName());
 
 				if ((numericalCondition == null && scoreThresholdQuery == null) || (numericalCondition != null
@@ -258,7 +332,7 @@ public class QueryFromRatioCommand extends AbstractQuery {
 									+ proteinRatio.getConfidenceScoreName() + " confscorevalue: " + scoreValue
 									+ " confscoretype: " + scoreType);
 						}
-						boolean valid = scoreThresholdQuery.evaluateScore(proteinRatio.getConfidenceScoreName(),
+						final boolean valid = scoreThresholdQuery.evaluateScore(proteinRatio.getConfidenceScoreName(),
 								scoreType, scoreValue);
 						if (isTheProteinToLog(queriableProtein)) {
 							log.info("***** result=" + valid);
@@ -356,23 +430,45 @@ public class QueryFromRatioCommand extends AbstractQuery {
 	}
 
 	@Override
+	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
+
+		switch (aggregationLevel) {
+		case PROTEIN:
+
+			final boolean queryOverProtein = queryOverProtein(link.getQueriableProtein());
+			return queryOverProtein;
+
+		case PEPTIDE:
+
+			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptide());
+			return queryOverPeptide;
+
+		default:
+			throw new IllegalArgumentException("Aggregation level not supported");
+		}
+
+	}
+
+	@Override
 	public AggregationLevel getAggregationLevel() {
 		return aggregationLevel;
 	}
 
 	@Override
-	public ProteinProviderFromDB initProtenProvider() {
-		ProteinProviderFromDB ret = null;
+	public DataProviderFromDB initProtenProvider() {
+		DataProviderFromDB ret = null;
 		switch (aggregationLevel) {
 		case PROTEIN:
 
 			log.info("Setting protein provider for getting proteins with ratios and scores");
 			ret = new ProteinProviderFromProteinRatiosAndScore(condition1, condition2, ratioName, numericalCondition,
 					scoreThresholdQuery);
-
 			break;
 		case PSM:
 			ret = new PsmProviderFromPsmRatios(condition1, condition2, ratioName);
+			break;
+		case PEPTIDE:
+			ret = new PeptideProviderFromPeptideRatios(condition1, condition2, ratioName);
 			break;
 		default:
 			throw new IllegalArgumentException("aggregation level is not acceptable");

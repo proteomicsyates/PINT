@@ -15,6 +15,7 @@ public class PintConfigurationProperties implements Serializable {
 	private Boolean preLoadPublicProjects;
 	private String projectsToPreLoad;
 	private String projectsToNotPreLoad;
+	private Boolean psmCentric;
 
 	public PintConfigurationProperties() {
 
@@ -98,6 +99,14 @@ public class PintConfigurationProperties implements Serializable {
 		this.omimKey = omimKey;
 	}
 
+	public Boolean getPsmCentric() {
+		return psmCentric;
+	}
+
+	public void setPsmCentric(Boolean psmCentric) {
+		this.psmCentric = psmCentric;
+	}
+
 	public boolean isSomeConfigurationMissing() {
 
 		if (adminPassword == null || "".equals(adminPassword)) {
@@ -109,13 +118,13 @@ public class PintConfigurationProperties implements Serializable {
 		// if (this.preLoadPublicProjects == null) {
 		// return true;
 		// }
-		if (this.db_password == null || "".equals(db_password)) {
+		if (db_password == null || "".equals(db_password)) {
 			return true;
 		}
-		if (this.db_url == null || "".equals(db_url)) {
+		if (db_url == null || "".equals(db_url)) {
 			return true;
 		}
-		if (this.db_username == null || "".equals(db_username)) {
+		if (db_username == null || "".equals(db_username)) {
 			return true;
 		}
 
