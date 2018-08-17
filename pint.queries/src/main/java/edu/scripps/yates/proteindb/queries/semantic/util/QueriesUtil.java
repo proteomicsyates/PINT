@@ -185,9 +185,6 @@ public class QueriesUtil {
 			final Set<String> peptideFullSequences = getPeptideMap(proteinSet).keySet();
 			for (final String peptideFullSequence : peptideFullSequences) {
 				final Set<Peptide> peptideSet = totalPeptideMap.get(peptideFullSequence);
-				if (peptideFullSequence.equals("VIHDNFGIVEGLMTTVHAITAT(79.9663)QK")) {
-					log.info(peptideSet);
-				}
 
 				final LinkBetweenQueriableProteinSetAndPeptideSet proteinSet2PeptideLink = new LinkBetweenQueriableProteinSetAndPeptideSet(
 						proteinSet, peptideSet);
@@ -206,10 +203,6 @@ public class QueriesUtil {
 		int numNewLinks = 0;
 		for (final String peptideFullSequence : totalPeptideMap.keySet()) {
 			final Set<Peptide> peptideSet = totalPeptideMap.get(peptideFullSequence);
-			if (peptideFullSequence.equals("VIHDNFGIVEGLMTTVHAITAT(79.9663)QK")) {
-				log.info(peptideSet);
-			}
-
 			final Set<String> proteinAccs = getProteinMap(peptideSet).keySet();
 			for (final String proteinAcc : proteinAccs) {
 				final Set<Protein> proteinSet = totalProteinMap.get(proteinAcc);
