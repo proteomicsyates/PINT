@@ -980,7 +980,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 				final QueryResult result = getQueryResultFromQuery(expressionTree, projectTags, testMode);
 
-				final Map<String, Set<QueriableProteinSet>> proteins = result.getProteins();
+				final Map<String, QueriableProteinSet> proteins = result.getProteins();
 				log.info(proteins.size() + " proteins comming from command  '" + queryText + "'");
 				if (!proteins.isEmpty()) {
 

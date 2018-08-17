@@ -954,6 +954,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 			lightVersion.setPtms(getPtms());
 			lightVersion.setPtmScoreString(getPTMScoreString());
 			lightVersion.setPtmString(getPTMString());
+			lightVersion.setFullSequence(getFullSequence());
 		}
 		return lightVersion;
 	}

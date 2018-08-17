@@ -44,7 +44,7 @@ import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
 import edu.scripps.yates.shared.model.ThresholdBean;
 import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.set.hash.THashSet;
+import gnu.trove.map.hash.THashMap;
 
 /**
  * Adapter for creating a single {@link ProteinBean} from a {@link Collection}
@@ -57,60 +57,61 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	private final static Logger log = Logger.getLogger(ProteinBeanAdapterFromProteinSet.class);
 	// private final static Map<String, ProteinBean> map = new THashMap<String,
 	// ProteinBean>();
-	private final Set<QueriableProteinSet> queriableProteins;
+	private final QueriableProteinSet queriableProtein;
 	// private final String primaryAcc;
 	private final Set<String> hiddenPTMs;
 	private final boolean psmCentric;
+	public final java.util.Map<String, ProteinBean> map = new THashMap<String, ProteinBean>();
 
 	public ProteinBeanAdapterFromProteinSet(Collection<Protein> proteins, Set<String> hiddenPTMs, boolean psmCentric) {
 		this.psmCentric = psmCentric;
 		// primaryAcc = primaryAcc;
 		this.hiddenPTMs = hiddenPTMs;
-		queriableProteins = new THashSet<QueriableProteinSet>();
 
-		if (proteins != null) {
-			// for (Protein protein : proteins) {
-			queriableProteins.add(QueriableProteinSet.getInstance(proteins, false));
-			// }
-			// removed. 19 April 2015. ProteinPSMLinks have to be created all at
-			// once with all proteins in the dataset. Otherwise, the links will
-			// be cleared each time createProteinPSMLink is called.
-			// // create links
-			// List<ProteinPSMLink> links = QueriesUtil
-			// .createProteinPSMLinks(proteins);
-			// for (ProteinPSMLink proteinPSMLink : links) {
-			// queriableProteins.add(proteinPSMLink.getQueriableProtein());
-			// }
-		}
+		// for (Protein protein : proteins) {
+		queriableProtein = QueriableProteinSet.getInstance(proteins, false);
+		// }
+		// removed. 19 April 2015. ProteinPSMLinks have to be created all at
+		// once with all proteins in the dataset. Otherwise, the links will
+		// be cleared each time createProteinPSMLink is called.
+		// // create links
+		// List<ProteinPSMLink> links = QueriesUtil
+		// .createProteinPSMLinks(proteins);
+		// for (ProteinPSMLink proteinPSMLink : links) {
+		// queriableProteins.add(proteinPSMLink.getQueriableProtein());
+		// }
 
 	}
 
-	public ProteinBeanAdapterFromProteinSet(Set<QueriableProteinSet> queriableProteins, Set<String> hiddenPTMs,
+	public ProteinBeanAdapterFromProteinSet(QueriableProteinSet queriableProteins, Set<String> hiddenPTMs,
 			boolean psmCentric) {
-		this.queriableProteins = queriableProteins;
+		queriableProtein = queriableProteins;
 		this.hiddenPTMs = hiddenPTMs;
 		this.psmCentric = psmCentric;
 	}
 
 	@Override
 	public ProteinBean adapt() {
+		final String primaryAccession = queriableProtein.getPrimaryAccession();
+		if (map.containsKey(primaryAccession)) {
+			return map.get(primaryAccession);
+		}
 		ProteinBean ret = null;
 		// if (primaryAcc != null && map.containsKey(primaryAcc)) {
 		// ret = map.get(primaryAcc);
 		// } else {
 		ret = new ProteinBean();
-
+		map.put(primaryAccession, ret);
 		// if (primaryAcc != null)
 		// map.put(primaryAcc, ret);
 		// }
-		for (final QueriableProteinSet queriableProtein : queriableProteins) {
-			if (Thread.currentThread().isInterrupted()) {
-				throw new PintRuntimeException(PINT_ERROR_TYPE.THREAD_INTERRUPTED);
-			}
 
-			addProteinInformationToProteinBean(ret, queriableProtein, hiddenPTMs);
-
+		if (Thread.currentThread().isInterrupted()) {
+			throw new PintRuntimeException(PINT_ERROR_TYPE.THREAD_INTERRUPTED);
 		}
+
+		addProteinInformationToProteinBean(ret, queriableProtein, hiddenPTMs);
+
 		return ret;
 	}
 

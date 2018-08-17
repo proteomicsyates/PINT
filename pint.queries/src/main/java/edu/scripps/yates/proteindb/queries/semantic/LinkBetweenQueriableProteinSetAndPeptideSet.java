@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -8,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
+import edu.scripps.yates.utilities.hash.HashGenerator;
 
 public class LinkBetweenQueriableProteinSetAndPeptideSet {
 	private static final Logger log = Logger.getLogger(LinkBetweenQueriableProteinSetAndPeptideSet.class);
@@ -17,12 +19,13 @@ public class LinkBetweenQueriableProteinSetAndPeptideSet {
 	// evaluatedProtein2PSMLinks = new THashMap<Boolean,
 	// Set<QueriableProtein2PSMLink>>();
 	private Set<LinkBetweenQueriableProteinSetAndPeptideSet> linkSetForSameProtein;
+	private int hashCode = -1;
 
 	public LinkBetweenQueriableProteinSetAndPeptideSet(Collection<Protein> proteins, Collection<Peptide> peptides) {
 		this(QueriableProteinSet.getInstance(proteins, false), QueriablePeptideSet.getInstance(peptides, false));
 	}
 
-	public LinkBetweenQueriableProteinSetAndPeptideSet(QueriableProteinSet queriableProteinSet,
+	private LinkBetweenQueriableProteinSetAndPeptideSet(QueriableProteinSet queriableProteinSet,
 			QueriablePeptideSet queriablePeptideSet) {
 		this.queriableProteinSet = queriableProteinSet;
 		queriablePeptide = queriablePeptideSet;
@@ -30,6 +33,30 @@ public class LinkBetweenQueriableProteinSetAndPeptideSet {
 		this.queriableProteinSet.addLinkToPeptide(this);
 		queriablePeptide.addLink(this);
 
+	}
+
+	@Override
+	public int hashCode() {
+		if (hashCode == -1) {
+			final List<String> list = new ArrayList<String>();
+			list.addAll(queriableProteinSet.getProteinAccessions());
+			list.add(queriablePeptide.getSequence());
+			hashCode = HashGenerator.generateHash(list);
+		}
+		return hashCode;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof LinkBetweenQueriableProteinSetAndPeptideSet) {
+			final LinkBetweenQueriableProteinSetAndPeptideSet link2 = (LinkBetweenQueriableProteinSetAndPeptideSet) obj;
+			if (link2.getQueriableProtein() == getQueriableProtein()
+					&& link2.getQueriablePeptide() == getQueriablePeptide()) {
+				return true;
+			}
+			return false;
+		}
+		return super.equals(obj);
 	}
 
 	/**

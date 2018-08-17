@@ -16,8 +16,8 @@ public class QueryResult {
 	private final Collection<LinkBetweenQueriableProteinSetAndPSM> validLinksBetweenProteinsAndPSMs;
 	private final Collection<LinkBetweenQueriableProteinSetAndPeptideSet> validLinksBetweenProteinsAndPeptides;
 
-	private Map<String, Set<QueriableProteinSet>> proteinMap;
-	private Map<String, Set<QueriablePeptideSet>> peptideMap;
+	private Map<String, QueriableProteinSet> proteinMap;
+	private Map<String, QueriablePeptideSet> peptideMap;
 	private Set<QueriablePsm> psmSet;
 
 	/**
@@ -53,12 +53,12 @@ public class QueryResult {
 	/**
 	 * @return the proteins
 	 */
-	public Map<String, Set<QueriableProteinSet>> getProteins() {
+	public Map<String, QueriableProteinSet> getProteins() {
 		if (proteinMap == null) {
 			if (validLinksBetweenProteinsAndPSMs != null) {
 				log.info("Getting proteins from the query Result, from " + validLinksBetweenProteinsAndPSMs.size()
 						+ " protein-PSM links");
-				proteinMap = new THashMap<String, Set<QueriableProteinSet>>();
+				proteinMap = new THashMap<String, QueriableProteinSet>();
 				final Iterator<LinkBetweenQueriableProteinSetAndPSM> linksIterator = validLinksBetweenProteinsAndPSMs
 						.iterator();
 				while (linksIterator.hasNext()) {
@@ -73,7 +73,7 @@ public class QueryResult {
 			} else if (validLinksBetweenProteinsAndPeptides != null) {
 				log.info("Getting proteins from the query Result, from " + validLinksBetweenProteinsAndPeptides.size()
 						+ " protein-peptide links");
-				proteinMap = new THashMap<String, Set<QueriableProteinSet>>();
+				proteinMap = new THashMap<String, QueriableProteinSet>();
 				final Iterator<LinkBetweenQueriableProteinSetAndPeptideSet> linksIterator = validLinksBetweenProteinsAndPeptides
 						.iterator();
 				while (linksIterator.hasNext()) {
@@ -94,12 +94,12 @@ public class QueryResult {
 	/**
 	 * @return the proteins
 	 */
-	public Map<String, Set<QueriablePeptideSet>> getPeptides() {
+	public Map<String, QueriablePeptideSet> getPeptides() {
 		if (peptideMap == null) {
 			if (validLinksBetweenProteinsAndPeptides != null) {
 				log.info("Getting proteins from the query Result, from " + validLinksBetweenProteinsAndPeptides.size()
 						+ " protein-peptide links");
-				peptideMap = new THashMap<String, Set<QueriablePeptideSet>>();
+				peptideMap = new THashMap<String, QueriablePeptideSet>();
 				final Iterator<LinkBetweenQueriableProteinSetAndPeptideSet> linksIterator = validLinksBetweenProteinsAndPeptides
 						.iterator();
 				while (linksIterator.hasNext()) {
@@ -117,28 +117,20 @@ public class QueryResult {
 		return peptideMap;
 	}
 
-	private static void addToMap(Map<String, Set<QueriableProteinSet>> map, QueriableProteinSet queriableProtein) {
+	private static void addToMap(Map<String, QueriableProteinSet> map, QueriableProteinSet queriableProtein) {
 		if (map != null) {
 			final String primaryAcc = queriableProtein.getPrimaryAccession();
-			if (map.containsKey(primaryAcc)) {
-				map.get(primaryAcc).add(queriableProtein);
-			} else {
-				final Set<QueriableProteinSet> set = new THashSet<QueriableProteinSet>();
-				set.add(queriableProtein);
-				map.put(primaryAcc, set);
+			if (!map.containsKey(primaryAcc)) {
+				map.put(primaryAcc, queriableProtein);
 			}
 		}
 	}
 
-	private static void addToMap(Map<String, Set<QueriablePeptideSet>> map, QueriablePeptideSet queriablePeptide) {
+	private static void addToMap(Map<String, QueriablePeptideSet> map, QueriablePeptideSet queriablePeptide) {
 		if (map != null) {
 			final String fullSequence = queriablePeptide.getFullSequence();
 			if (map.containsKey(fullSequence)) {
-				map.get(fullSequence).add(queriablePeptide);
-			} else {
-				final Set<QueriablePeptideSet> set = new THashSet<QueriablePeptideSet>();
-				set.add(queriablePeptide);
-				map.put(fullSequence, set);
+				map.put(fullSequence, queriablePeptide);
 			}
 		}
 	}

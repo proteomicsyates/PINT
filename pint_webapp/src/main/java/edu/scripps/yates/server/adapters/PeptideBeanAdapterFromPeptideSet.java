@@ -1,6 +1,7 @@
 package edu.scripps.yates.server.adapters;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +35,7 @@ import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -45,36 +47,42 @@ import gnu.trove.set.hash.THashSet;
  */
 public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 	private final static Logger log = Logger.getLogger(PeptideBeanAdapterFromPeptideSet.class);
-	private final Set<Peptide> peptideSet = new THashSet<Peptide>();
+	private final QueriablePeptideSet queriablePeptideSet;
 	private final boolean psmCentric;
 	private final Collection<String> hiddenPTMs;
-
-	public PeptideBeanAdapterFromPeptideSet(Collection<Peptide> peptideSet, Set<String> hiddenPTMs,
-			boolean psmCentric) {
-		this.peptideSet.addAll(peptideSet);
-		this.psmCentric = psmCentric;
-		this.hiddenPTMs = hiddenPTMs;
-	}
+	public static final java.util.Map<String, PeptideBean> map = new THashMap<String, PeptideBean>();
+	private static final Set<String> fullSequences = new HashSet<String>();
 
 	public PeptideBeanAdapterFromPeptideSet(QueriablePeptideSet queriablePeptideSet, Set<String> hiddenPTMs,
 			boolean psmCentric) {
-		peptideSet.addAll(queriablePeptideSet.getIndividualPeptides());
+		this.queriablePeptideSet = queriablePeptideSet;
 		this.psmCentric = psmCentric;
 		this.hiddenPTMs = hiddenPTMs;
 	}
 
 	@Override
 	public PeptideBean adapt() {
+		if (map.containsKey(queriablePeptideSet.getFullSequence())) {
+			return map.get(queriablePeptideSet.getFullSequence());
+		}
+		if (queriablePeptideSet.getFullSequence().equals("VIHDNFGIVEGLMTTVHAITAT(79.9663)QK")) {
+			log.info(queriablePeptideSet);
+		}
+		if (fullSequences.contains(queriablePeptideSet.getFullSequence())) {
+			log.info(queriablePeptideSet);
+		}
+		fullSequences.add(queriablePeptideSet.getFullSequence());
 		PeptideBean ret = null;
 		// if (primaryAcc != null && map.containsKey(primaryAcc)) {
 		// ret = map.get(primaryAcc);
 		// } else {
 		ret = new PeptideBean();
+		map.put(queriablePeptideSet.getFullSequence(), ret);
 		ret.setNumPSMs(0);
 		// if (primaryAcc != null)
 		// map.put(primaryAcc, ret);
 		// }
-		for (final Peptide peptide : peptideSet) {
+		for (final Peptide peptide : queriablePeptideSet.getIndividualPeptides()) {
 			addPeptideInformation(ret, peptide);
 		}
 

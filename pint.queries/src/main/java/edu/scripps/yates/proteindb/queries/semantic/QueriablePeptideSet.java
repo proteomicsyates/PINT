@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -65,6 +66,11 @@ public class QueriablePeptideSet {
 
 	private QueriablePeptideSet(Collection<Peptide> peptides) {
 		this.peptides.addAll(peptides);
+		// quality check
+		final Set<String> fullSequence = peptides.stream().map(p -> p.getFullSequence()).collect(Collectors.toSet());
+		if (fullSequence.size() != 1) {
+			log.info("wrong");
+		}
 	}
 
 	/**

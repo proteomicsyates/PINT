@@ -22,8 +22,6 @@ import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import edu.scripps.yates.annotations.omim.OmimEntry;
 import edu.scripps.yates.annotations.omim.OmimRetriever;
@@ -45,16 +43,13 @@ import edu.scripps.yates.proteindb.persistence.Parameter;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
-import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.queries.cache.Cache;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
@@ -71,7 +66,6 @@ import edu.scripps.yates.server.adapters.ProteinAnnotationBeanAdapter;
 import edu.scripps.yates.server.adapters.ProteinBeanAdapterFromProteinSet;
 import edu.scripps.yates.server.adapters.RatioDescriptorAdapter;
 import edu.scripps.yates.server.cache.ServerCacheDefaultViewByProjectTag;
-import edu.scripps.yates.server.cache.ServerCachePSMBeansByPSMDBId;
 import edu.scripps.yates.server.cache.ServerCacheProjectBeanByProjectTag;
 import edu.scripps.yates.server.cache.ServerCacheProteinAccessionsByFileKey;
 import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
@@ -116,7 +110,6 @@ import edu.scripps.yates.utilities.grouping.PAnalyzer;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.ipi.UniprotEntry;
-import edu.scripps.yates.utilities.memory.MemoryUsageReport;
 import edu.scripps.yates.utilities.model.factories.AccessionEx;
 import edu.scripps.yates.utilities.pi.ParIterator;
 import edu.scripps.yates.utilities.pi.ParIterator.Schedule;
@@ -1102,7 +1095,7 @@ public class RemoteServicesTasks {
 
 				final QueryResult result = expressionTree.getQueryResults();
 
-				final Map<String, Set<QueriableProteinSet>> proteins = result.getProteins();
+				final Map<String, QueriableProteinSet> proteins = result.getProteins();
 				log.info(proteins.size() + " proteins comming from command '" + queryText + "'");
 
 				// adapt experimental conditions first, so that the protein to
@@ -1132,19 +1125,18 @@ public class RemoteServicesTasks {
 				log.info(proteinBeans.size() + " protein beans created");
 
 				// peptides
-				final Map<String, Set<QueriablePeptideSet>> peptideMap = result.getPeptides();
+				final Map<String, QueriablePeptideSet> peptideMap = result.getPeptides();
 				log.info(peptideMap.size() + " Peptides comming from command '" + queryText + "'");
 				i = 0;
 				for (final String sequence : peptideMap.keySet()) {
 					i++;
-					for (final QueriablePeptideSet queriablePeptide : peptideMap.get(sequence)) {
+					final QueriablePeptideSet queriablePeptide = peptideMap.get(sequence);
 
-						final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(queriablePeptide,
-								getHiddenPTMs(projectTags), psmCentric).adapt();
-						// add to current dataset
-						DataSetsManager.getDataSet(sessionID, projectString, psmCentric).addPeptide(peptideBeanAdapted);
-						log.debug(i + " / " + peptideMap.size() + " peptides adapted to beans");
-					}
+					final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(queriablePeptide,
+							getHiddenPTMs(projectTags), psmCentric).adapt();
+					// add to current dataset
+					DataSetsManager.getDataSet(sessionID, projectString, psmCentric).addPeptide(peptideBeanAdapted);
+					log.debug(i + " / " + peptideMap.size() + " peptides adapted to beans");
 				}
 
 				log.info("Exporting protein beans to file");
@@ -1320,7 +1312,7 @@ public class RemoteServicesTasks {
 	 * @return
 	 */
 	public static Set<ProteinBean> createProteinBeansFromQueriableProteins(String sessionID,
-			Map<String, Set<QueriableProteinSet>> proteins, Set<String> hiddenPTMs, String projectTagString,
+			Map<String, QueriableProteinSet> proteins, Set<String> hiddenPTMs, String projectTagString,
 			boolean proteinLevelQuery, boolean psmCentric) {
 		log.info("Creating protein beans from " + proteins.size() + " different Proteins");
 		final Set<ProteinBean> ret = new THashSet<ProteinBean>();
@@ -1338,11 +1330,11 @@ public class RemoteServicesTasks {
 			if (numProteins == SharedConstants.MAX_NUM_PROTEINS)// test purposes
 				break;
 
-			final Set<QueriableProteinSet> proteinSet = proteins.get(proteinAcc);
+			final QueriableProteinSet proteinSet = proteins.get(proteinAcc);
 			ProteinBean proteinBeanAdapted = null;
 			// added in Jan 2018 to reuse the proteinBeans in the cache that
 			// will survive there if the query is all about protein level.
-			final Integer proteinDBId = proteinSet.iterator().next().getIndividualProteins().iterator().next().getId();
+			final Integer proteinDBId = proteinSet.getIndividualProteins().iterator().next().getId();
 			if (proteinLevelQuery && ServerCacheProteinBeansByProteinDBId.getInstance().contains(proteinDBId)) {
 				proteinBeanAdapted = ServerCacheProteinBeansByProteinDBId.getInstance().getFromCache(proteinDBId);
 			} else {
@@ -1362,10 +1354,10 @@ public class RemoteServicesTasks {
 	}
 
 	public static Set<ProteinBean> createProteinBeansFromQueriableProteinsInParallel(String sessionID,
-			Map<String, Set<QueriableProteinSet>> proteins, Set<String> hiddenPTMs, String projectTagString,
+			Map<String, QueriableProteinSet> proteins, Set<String> hiddenPTMs, String projectTagString,
 			boolean psmCentric) {
 		final int threadCount = SystemCoreManager.getAvailableNumSystemCores();
-		final ParIterator<Set<QueriableProteinSet>> iterator = ParIteratorFactory.createParIterator(proteins.values(),
+		final ParIterator<QueriableProteinSet> iterator = ParIteratorFactory.createParIterator(proteins.values(),
 				threadCount, Schedule.GUIDED);
 
 		final Reducible<Set<ProteinBean>> reducibleProteinSet = new Reducible<Set<ProteinBean>>();
@@ -1409,209 +1401,12 @@ public class RemoteServicesTasks {
 		return proteinList;
 	}
 
-	/**
-	 * Creates the Set of {@link PeptideBean} from the peptides. These peptides
-	 * will be linked to the corresponding {@link ProteinBean} and
-	 * {@link PSMBean} that should be accessible from the corresponding
-	 * {@link Cache} instances for {@link ProteinBean} and {@link PSMBean},
-	 * otherwise a {@link IllegalArgumentException} is thrown.
-	 *
-	 * @param sessionID
-	 * @param peptideMap
-	 * @param proteinLevelQuery
-	 * @param hiddenPTMs
-	 * @param b
-	 * @return
-	 */
-	public static Set<PeptideBean> createPeptideBeansFromPeptideMap(String sessionID,
-			Map<String, Set<Peptide>> peptideMap, boolean proteinLevelQuery, boolean psmCentric,
-			Set<String> hiddenPTMs) {
-		if (ServerCacheProteinBeansByProteinDBId.getInstance().isEmpty()) {
-			throw new IllegalArgumentException(
-					"ServerCacheProteinBeansByProteinDBId is empty. That is going to be needed when creating the peptide beans, so call before to createProteinBeansFromQueriableProteins");
-		}
-		final Set<PeptideBean> ret = new THashSet<PeptideBean>();
-		// create a PeptideBean for each peptide set sharing
-		// the same sequence:
-		log.info("Creating PeptideBeans from " + peptideMap.size() + " different peptides");
-
-		int numPeptides = 0;
-		final int percentage = 0;
-		final ProgressCounter counter = new ProgressCounter(peptideMap.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0,
-				true);
-		counter.setSuffix("peptides adapted to beans");
-		final Set<Peptide> peptidesToRelease = new THashSet<Peptide>();
-		for (final String sequence : peptideMap.keySet()) {
-			numPeptides++;
-			final Set<Peptide> peptideSet = peptideMap.get(sequence);
-			// changed in Jan 2018
-			// the psmBeans when is a protein level query, they will be
-			// available in the cache
-			PeptideBean peptideBeanAdapted = null;
-			if (psmCentric) {
-				final Integer psmID = ((Psm) peptideSet.iterator().next().getPsms().iterator().next()).getId();
-				if (proteinLevelQuery && ServerCachePSMBeansByPSMDBId.getInstance().contains(psmID)) {
-					final PSMBean psmBean = ServerCachePSMBeansByPSMDBId.getInstance().getFromCache(psmID);
-					peptideBeanAdapted = psmBean.getPeptideBean();
-				}
-			}
-			if (peptideBeanAdapted == null) {
-				peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(peptideSet, hiddenPTMs, psmCentric).adapt();
-			}
-			ret.add(peptideBeanAdapted);
-			peptidesToRelease.addAll(peptideSet);
-			if (peptidesToRelease.size() >= CHUNK_TO_RELEASE) {
-				cleanUpPeptidesFromSession(peptidesToRelease, psmCentric);
-				peptidesToRelease.clear();
-				if (MemoryUsageReport.getFreeMemoryPercentage() < 10.0) {
-					log.info("calling to Garbage collector");
-					System.gc();
-					log.info(MemoryUsageReport.getMemoryUsageReport());
-				}
-				log.info(MemoryUsageReport.getMemoryUsageReport());
-			}
-			// add to current dataset
-			DataSetsManager.getDataSet(sessionID, null, psmCentric).addPeptide(peptideBeanAdapted);
-			final String printIfNecessary = counter.printIfNecessary();
-			if (!"".equals(printIfNecessary)) {
-				log.info(printIfNecessary);
-			}
-			counter.increment();
-		}
-		cleanUpPeptidesFromSession(peptidesToRelease, psmCentric);
-		peptidesToRelease.clear();
-		return ret;
-	}
-
-	private static void cleanUpPeptidesFromSession(Collection<Peptide> peptides, boolean psmCentric) {
-		for (final Peptide peptide : peptides) {
-			lookForInterruption();
-
-			ContextualSessionHandler.getSessionFactory(null, null, null).getCache().evictEntity(Peptide.class,
-					peptide.getId());
-			ContextualSessionHandler.getCurrentSession().evict(peptide);
-			cleanUpProteinsFromSession(peptide.getProteins());
-			if (psmCentric) {
-				cleanUpPsmsFromSession(peptide.getPsms());
-			}
-		}
-
-	}
-
-	private static void cleanUpProteinsFromSession(Collection<Protein> proteins) {
-		final SessionFactory sessionFactory = ContextualSessionHandler.getSessionFactory(null, null, null);
-		final org.hibernate.Cache cache = sessionFactory.getCache();
-		final Session currentSession = ContextualSessionHandler.getCurrentSession();
-
-		for (final Protein protein : proteins) {
-			lookForInterruption();
-
-			cache.evictEntity(Protein.class, protein.getId());
-			currentSession.evict(protein);
-		}
-
-	}
-
-	private static void cleanUpPsmsFromSession(Collection<Psm> psms) {
-		final org.hibernate.Cache cache = ContextualSessionHandler.getSessionFactory(null, null, null).getCache();
-		final Session currentSession = ContextualSessionHandler.getCurrentSession();
-
-		for (final Psm psm : psms) {
-			lookForInterruption();
-
-			cache.evictEntity(Psm.class, psm.getId());
-			currentSession.evict(psm);
-		}
-
-	}
-
 	private static void lookForInterruption() {
 		if (Thread.currentThread().isInterrupted()) {
 			log.info("This thread has been interrupted by other thread.");
 			throw new PintRuntimeException(PINT_ERROR_TYPE.THREAD_INTERRUPTED);
 		}
 
-	}
-
-	public static Set<PeptideBean> createPeptideBeansFromPeptideMapInParallel(String sessionID,
-			Map<String, Set<Peptide>> peptideMap, boolean psmCentric, Set<String> hiddenPTMs) {
-
-		// int threadCount =
-		// SystemCoreManager.getAvailableNumSystemCores(SharedConstants.MAX_NUMBER_PARALLEL_PROCESSES);
-		// log.info("Creating " + peptideMap.size() + " peptide beans using " +
-		// threadCount
-		// + " cores out of " + Runtime.getRuntime().availableProcessors());
-		// ParIterator<QueriableProteinSet2PSMLink> iterator =
-		// ParIteratorFactory.createParIterator(links,
-		// threadCount, Schedule.GUIDED);
-		//
-		// Reducible<List<QueriableProteinSet2PSMLink>> reducibleLinkMap = new
-		// Reducible<List<QueriableProteinSet2PSMLink>>();
-		// List<ProteinPSMLinkParallelProcesor> runners = new
-		// ArrayList<ProteinPSMLinkParallelProcesor>();
-		// for (int numCore = 0; numCore < threadCount; numCore++) {
-		// // take current DB session
-		// ProteinPSMLinkParallelProcesor runner = new
-		// ProteinPSMLinkParallelProcesor(iterator,
-		// reducibleLinkMap, queryBinaryTree);
-		// runners.add(runner);
-		// runner.start();
-		// }
-		// if (iterator.getAllExceptions().length > 0) {
-		// throw new
-		// IllegalArgumentException(iterator.getAllExceptions()[0].getException());
-		// }
-		// // Main thread waits for worker threads to complete
-		// for (int k = 0; k < threadCount; k++) {
-		// try {
-		// runners.get(k).join();
-		// } catch (InterruptedException e) {
-		// e.printStackTrace();
-		// }
-		// }
-		//
-		// Reduction<List<QueriableProteinSet2PSMLink>> linkReduction = new
-		// Reduction<List<QueriableProteinSet2PSMLink>>() {
-		// @Override
-		// public List<QueriableProteinSet2PSMLink>
-		// reduce(List<QueriableProteinSet2PSMLink> first,
-		// List<QueriableProteinSet2PSMLink> second) {
-		// first.addAll(second);
-		// return first;
-		// }
-		//
-		// };
-		// links = reducibleLinkMap.reduce(linkReduction);
-		// numDiscardedLinks = 0;
-		// long time = 0;
-		// for (int k = 0; k < threadCount; k++) {
-		// numDiscardedLinks = +runners.get(k).getNumDiscardedLinks();
-		// time = +runners.get(k).getRunningTime();
-		// }
-		// log.info(links.size() + " Protein-PSM links remain after " + numRound
-		// + " round. " + numDiscardedLinks
-		// + " were discarded in " + time / 1000 + "sg");
-		//
-		//
-
-		final Set<PeptideBean> ret = new THashSet<PeptideBean>();
-		// create a PeptideBean for each peptide set ssharing
-		// the same sequence:
-		log.info("Creating PeptideBeans from " + peptideMap.size() + " different peptides");
-
-		int numPeptides = 0;
-		for (final String sequence : peptideMap.keySet()) {
-			numPeptides++;
-			final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(peptideMap.get(sequence),
-					hiddenPTMs, psmCentric).adapt();
-			ret.add(peptideBeanAdapted);
-			// add to current dataset
-			if (sessionID != null) {
-				DataSetsManager.getDataSet(sessionID, null, psmCentric).addPeptide(peptideBeanAdapted);
-			}
-			log.info(numPeptides + " / " + peptideMap.size() + " peptides adapted to beans");
-		}
-		return ret;
 	}
 
 	private static Map<String, Map<String, Set<AmountType>>> psmAmountMapByProject = new THashMap<String, Map<String, Set<AmountType>>>();

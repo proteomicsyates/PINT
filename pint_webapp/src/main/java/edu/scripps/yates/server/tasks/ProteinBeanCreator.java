@@ -14,7 +14,7 @@ import edu.scripps.yates.utilities.pi.reductions.Reducible;
 import gnu.trove.set.hash.THashSet;
 
 public class ProteinBeanCreator extends Thread {
-	private final ParIterator<Set<QueriableProteinSet>> iterator;
+	private final ParIterator<QueriableProteinSet> iterator;
 	private final Reducible<Set<ProteinBean>> reducibleMap;
 	private static final Logger log = Logger.getLogger(ProteinBeanCreator.class);
 	private final Set<String> hiddenPTMs;
@@ -22,7 +22,7 @@ public class ProteinBeanCreator extends Thread {
 	private final int numThread;
 	private final boolean psmCentric;
 
-	public ProteinBeanCreator(ParIterator<Set<QueriableProteinSet>> iterator, Reducible<Set<ProteinBean>> reducibleMap,
+	public ProteinBeanCreator(ParIterator<QueriableProteinSet> iterator, Reducible<Set<ProteinBean>> reducibleMap,
 			Set<String> hiddenPTMs, boolean psmCentric) {
 		this.iterator = iterator;
 		this.reducibleMap = reducibleMap;
@@ -41,7 +41,7 @@ public class ProteinBeanCreator extends Thread {
 		while (iterator.hasNext()) {
 			numProteins++;
 			try {
-				final Set<QueriableProteinSet> proteinSet = iterator.next();
+				final QueriableProteinSet proteinSet = iterator.next();
 				final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs,
 						psmCentric).adapt();
 				ret.add(proteinBeanAdapted);
