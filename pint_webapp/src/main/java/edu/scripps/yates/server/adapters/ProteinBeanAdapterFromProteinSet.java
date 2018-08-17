@@ -61,7 +61,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	// private final String primaryAcc;
 	private final Set<String> hiddenPTMs;
 	private final boolean psmCentric;
-	public final java.util.Map<String, ProteinBean> map = new THashMap<String, ProteinBean>();
+	public static final java.util.Map<String, ProteinBean> map = new THashMap<String, ProteinBean>();
 
 	public ProteinBeanAdapterFromProteinSet(Collection<Protein> proteins, Set<String> hiddenPTMs, boolean psmCentric) {
 		this.psmCentric = psmCentric;
@@ -81,6 +81,10 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// queriableProteins.add(proteinPSMLink.getQueriableProtein());
 		// }
 
+	}
+
+	public static void clearStaticMap() {
+		map.clear();
 	}
 
 	public ProteinBeanAdapterFromProteinSet(QueriableProteinSet queriableProteins, Set<String> hiddenPTMs,

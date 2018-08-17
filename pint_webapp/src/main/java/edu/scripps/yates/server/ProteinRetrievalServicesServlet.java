@@ -57,9 +57,11 @@ import edu.scripps.yates.server.adapters.PSMBeanAdapter;
 import edu.scripps.yates.server.adapters.PSMRatioBeanAdapter;
 import edu.scripps.yates.server.adapters.PTMBeanAdapter;
 import edu.scripps.yates.server.adapters.PTMSiteBeanAdapter;
+import edu.scripps.yates.server.adapters.PeptideBeanAdapterFromPeptideSet;
 import edu.scripps.yates.server.adapters.PeptideRatioBeanAdapter;
 import edu.scripps.yates.server.adapters.ProjectBeanAdapter;
 import edu.scripps.yates.server.adapters.ProteinAnnotationBeanAdapter;
+import edu.scripps.yates.server.adapters.ProteinBeanAdapterFromProteinSet;
 import edu.scripps.yates.server.adapters.ProteinRatioBeanAdapter;
 import edu.scripps.yates.server.adapters.SampleBeanAdapter;
 import edu.scripps.yates.server.adapters.ThresholdBeanAdapter;
@@ -1100,6 +1102,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		SampleBeanAdapter.clearStaticMap();
 		ThresholdBeanAdapter.clearStaticMap();
 		TissueBeanAdapter.clearStaticMap();
+		PeptideBeanAdapterFromPeptideSet.clearStaticMap();
+		ProteinBeanAdapterFromProteinSet.clearStaticMap();
 		log.info("Static beans objects by DB Identifiers cleared");
 
 	}

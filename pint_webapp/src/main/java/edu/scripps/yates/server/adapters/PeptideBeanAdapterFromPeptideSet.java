@@ -1,7 +1,6 @@
 package edu.scripps.yates.server.adapters;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +50,6 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 	private final boolean psmCentric;
 	private final Collection<String> hiddenPTMs;
 	public static final java.util.Map<String, PeptideBean> map = new THashMap<String, PeptideBean>();
-	private static final Set<String> fullSequences = new HashSet<String>();
 
 	public PeptideBeanAdapterFromPeptideSet(QueriablePeptideSet queriablePeptideSet, Set<String> hiddenPTMs,
 			boolean psmCentric) {
@@ -60,18 +58,15 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 		this.hiddenPTMs = hiddenPTMs;
 	}
 
+	public static void clearStaticMap() {
+		map.clear();
+	}
+
 	@Override
 	public PeptideBean adapt() {
 		if (map.containsKey(queriablePeptideSet.getFullSequence())) {
 			return map.get(queriablePeptideSet.getFullSequence());
 		}
-		if (queriablePeptideSet.getFullSequence().equals("VIHDNFGIVEGLMTTVHAITAT(79.9663)QK")) {
-			log.info(queriablePeptideSet);
-		}
-		if (fullSequences.contains(queriablePeptideSet.getFullSequence())) {
-			log.info(queriablePeptideSet);
-		}
-		fullSequences.add(queriablePeptideSet.getFullSequence());
 		PeptideBean ret = null;
 		// if (primaryAcc != null && map.containsKey(primaryAcc)) {
 		// ret = map.get(primaryAcc);
