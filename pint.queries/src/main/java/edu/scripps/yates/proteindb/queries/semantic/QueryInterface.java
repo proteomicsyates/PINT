@@ -387,8 +387,8 @@ public class QueryInterface {
 					// }
 				}
 			} else {
-				linksBetweenProteinsAndPeptides = QueriesUtil
-						.createProteinPeptideLinks(proteinProvider.getProteinMap(testMode));
+				final Map<String, Set<Protein>> proteinMap = proteinProvider.getProteinMap(testMode);
+				linksBetweenProteinsAndPeptides = QueriesUtil.createProteinPeptideLinks(proteinMap);
 				invalidLinksBetweenProteinsAndPeptides = new ArrayList<LinkBetweenQueriableProteinSetAndPeptideSet>();
 				if (needLinkEvaluation) {
 
