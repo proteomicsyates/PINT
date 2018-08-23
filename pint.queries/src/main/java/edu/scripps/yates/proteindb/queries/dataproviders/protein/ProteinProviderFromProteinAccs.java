@@ -30,6 +30,9 @@ public class ProteinProviderFromProteinAccs extends ProteinDataProvider {
 	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
 			result = new THashMap<String, Set<Protein>>();
+			if (accs.isEmpty()) {
+				return result;
+			}
 			int numProteins = 0;
 			if (projectTags != null) {
 				for (final String projectTag : projectTags) {
