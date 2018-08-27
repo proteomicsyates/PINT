@@ -62,7 +62,8 @@
    </key>
    <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PeptideScore"/>
   </set>
-  <set fetch="select" lazy="true" name="proteins" sort="unsorted" table="protein_has_peptide">
+  <set fetch="join" lazy="extra" name="proteins" table="protein_has_peptide" batch-size="100">
+<!--   <set fetch="select" lazy="true" name="proteins" sort="unsorted" table="protein_has_peptide"> -->
    <key>
     <column name="Peptide_id" not-null="true"/>
    </key>
