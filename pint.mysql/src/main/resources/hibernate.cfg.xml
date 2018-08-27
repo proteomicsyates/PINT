@@ -6,15 +6,15 @@
     <session-factory>
        
         <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
-        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
 <!--         <property name="hibernate.connection.password">xxxxx</property> -->
 <!--         <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/interactome_db</property> -->
 <!--         <property name="hibernate.connection.username">xxxx</property> -->
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
         <property name="hibernate.search.autoregister_listeners">true</property>
+        
+        
         <property name="hibernate.show_sql">false</property>
-        
-        
        
 		<property name="hibernate.c3p0.max_statements">50</property>
 		<!-- // If this is a number greater than 0, C3P0 will test all idle, 
