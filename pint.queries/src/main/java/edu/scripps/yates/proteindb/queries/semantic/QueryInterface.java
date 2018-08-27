@@ -17,6 +17,7 @@ import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProvider
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromAmountCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromComplexAnnotationCommand;
+import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromGeneNameCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromPTMCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromProteinAccessionsCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSEQCommand;
@@ -131,6 +132,14 @@ public class QueryInterface {
 				}
 			}
 			if (abstractQuery instanceof QueryFromTaxonomyCommand) {
+				// annotate the proteins in this case because the protein
+				// taxonomy is going to be needed in the query
+				if (abstractQuery.getAggregationLevel() == AggregationLevel.PROTEIN) {
+					ProteinAnnotator.getInstance(null).annotateProteins(this.proteinProvider.getProteinMap(testMode));
+					break;
+				}
+			}
+			if (abstractQuery instanceof QueryFromGeneNameCommand) {
 				// annotate the proteins in this case because the protein
 				// taxonomy is going to be needed in the query
 				if (abstractQuery.getAggregationLevel() == AggregationLevel.PROTEIN) {
