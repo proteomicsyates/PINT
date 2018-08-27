@@ -78,16 +78,6 @@
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>pint.queries</artifactId>
     	<version>${pint.modules.version}</version>
-    	<exclusions>
-    		<exclusion>
-    			<artifactId>logback-classic</artifactId>
-    			<groupId>ch.qos.logback</groupId>
-    		</exclusion>
-    		<exclusion>
-    			<artifactId>logback-core</artifactId>
-    			<groupId>ch.qos.logback</groupId>
-    		</exclusion>
-    	</exclusions>
     </dependency>
     
     <dependency>
@@ -154,12 +144,12 @@
         <version>3.2.1</version>
         <exclusions>
         	<exclusion>
-        		<artifactId>logback-classic</artifactId>
         		<groupId>ch.qos.logback</groupId>
+        		<artifactId>logback-core</artifactId>
         	</exclusion>
         	<exclusion>
-        		<artifactId>logback-core</artifactId>
         		<groupId>ch.qos.logback</groupId>
+        		<artifactId>logback-classic</artifactId>
         	</exclusion>
         </exclusions>
     </dependency>
@@ -183,16 +173,12 @@
     			<artifactId>validation-api</artifactId>
     		</exclusion>
     		<exclusion>
-    			<groupId>org.jboss.logging</groupId>
-    			<artifactId>jboss-logging</artifactId>
-    		</exclusion>
-    		<exclusion>
-    			<artifactId>logback-classic</artifactId>
     			<groupId>ch.qos.logback</groupId>
-    		</exclusion>
-    		<exclusion>
     			<artifactId>logback-core</artifactId>
+    		</exclusion>
+    		<exclusion>
     			<groupId>ch.qos.logback</groupId>
+    			<artifactId>logback-classic</artifactId>
     		</exclusion>
     	</exclusions>
     </dependency>
@@ -207,12 +193,12 @@
     	<version>1.0.0-SNAPSHOT</version>
     	<exclusions>
     		<exclusion>
-    			<artifactId>logback-classic</artifactId>
     			<groupId>ch.qos.logback</groupId>
+    			<artifactId>logback-core</artifactId>
     		</exclusion>
     		<exclusion>
-    			<artifactId>logback-core</artifactId>
     			<groupId>ch.qos.logback</groupId>
+    			<artifactId>logback-classic</artifactId>
     		</exclusion>
     	</exclusions>
     </dependency>
