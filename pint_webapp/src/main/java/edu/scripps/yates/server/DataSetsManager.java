@@ -11,17 +11,24 @@ public class DataSetsManager {
 	private static final Map<String, DataSet> dataSetMap = new THashMap<String, DataSet>();
 	private final static Logger log = Logger.getLogger(DataSetsManager.class);
 
-	public static DataSet getDataSet(String sessionID, String name, boolean psmCentric) {
+	public static DataSet getDataSet(String sessionID, String name, boolean createIfNotExist, boolean psmCentric) {
 
-		if (!dataSetMap.containsKey(sessionID) || dataSetMap.get(sessionID) == null) {
-			log.info("Creating new dataset '" + name + "' for sessionID: " + sessionID);
+		if (createIfNotExist && (!dataSetMap.containsKey(sessionID) || dataSetMap.get(sessionID) == null)) {
+			log.info("Creating new dataset '" + name + "' for sessionID: " + sessionID + " from thread "
+					+ Thread.currentThread().getId());
 			final DataSet dataSet = new DataSet(sessionID, name, psmCentric);
 			dataSetMap.put(sessionID, dataSet);
 			log.info(printStatistics());
 			log.info("");
 		}
 		final DataSet ret = dataSetMap.get(sessionID);
+		if (ret == null) {
+			return DataSet.emptyDataSet();
+		}
 		ret.setLatestAccess(new Date());
+		if (name != null) {
+			ret.setName(name);
+		}
 		return ret;
 	}
 
@@ -40,8 +47,7 @@ public class DataSetsManager {
 				// get, if any, any thread that is ongoing building the dataset
 				// for that session.
 				// if exists, it is because the user went away from one dataset
-				// and loaded the other. So that, we
-				// want to cancel that thread.
+				// and loaded the other. So that, we want to cancel that thread.
 				try {
 					final Thread thread = dataSet.getActiveDatasetThread();
 					if (thread != Thread.currentThread()) {
@@ -50,12 +56,13 @@ public class DataSetsManager {
 						thread.interrupt();
 					}
 				} catch (final SecurityException e) {
+					e.printStackTrace();
 				}
 				log.info("Clearing dataset '" + dataSet.getName() + "' from sessionID: " + sessionID);
 				dataSet.clearDataSet();
 
 			} else {
-				log.info("There was no dataset with sessionID: " + sessionID);
+				log.info("There is no dataset with sessionID: " + sessionID);
 			}
 		}
 		final String printStatistics = printStatistics();
