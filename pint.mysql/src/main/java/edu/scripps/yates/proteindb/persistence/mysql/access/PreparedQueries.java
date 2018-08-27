@@ -12,6 +12,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.exception.GenericJDBCException;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.AmountType;
@@ -791,8 +792,13 @@ public class PreparedQueries {
 					.createAlias("ratioDescriptor.conditionByExperimentalCondition2Id", "condition2")
 					.add(Restrictions.and(Restrictions.eq("condition1.project", project),
 							Restrictions.eqOrIsNull("condition2.project", project)));
-			final List<RatioDescriptor> list = criteria.list();
-			return list;
+			try {
+				final List<RatioDescriptor> list = criteria.list();
+				return list;
+			} catch (final GenericJDBCException e) {
+				e.printStackTrace();
+				throw e;
+			}
 
 		}
 		return Collections.emptyList();
