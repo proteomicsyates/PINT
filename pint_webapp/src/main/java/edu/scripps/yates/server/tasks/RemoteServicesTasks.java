@@ -181,8 +181,9 @@ public class RemoteServicesTasks {
 			String projectTag) {
 
 		final String lockTag = projectTag + "_uniprot_annotation";
-		LockerByTag.lock(lockTag, null);
 		try {
+			LockerByTag.lock(lockTag, null);
+			log.info("Annotating " + proteins.size() + " proteins");
 			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
 					UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 					UniprotProteinRetrievalSettings.getInstance().isUseIndex(), true, true);
@@ -203,7 +204,9 @@ public class RemoteServicesTasks {
 				}
 			}
 
-			return uplr.getAnnotatedProteins(uniprotVersion, uniprotACCs);
+			final Map<String, Entry> annotatedProteins = uplr.getAnnotatedProteins(uniprotVersion, uniprotACCs);
+			log.info(annotatedProteins.size() + " annotations retrieved for " + proteins.size() + " proteins");
+			return annotatedProteins;
 		} finally {
 			LockerByTag.unlock(lockTag, null);
 		}
@@ -1109,13 +1112,14 @@ public class RemoteServicesTasks {
 
 				final List<ProteinBean> proteinBeans = new ArrayList<ProteinBean>();
 				int i = 0;
+				final DataSet dataSet = DataSetsManager.getDataSet(sessionID, projectString, true, psmCentric);
 				for (final String proteinAcc : proteins.keySet()) {
 					final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(
 							proteins.get(proteinAcc), RemoteServicesTasks.getHiddenPTMs(projectTags), psmCentric)
 									.adapt();
 
 					// add to current dataset
-					DataSetsManager.getDataSet(sessionID, projectString, psmCentric).addProtein(proteinBeanAdapted);
+					dataSet.addProtein(proteinBeanAdapted);
 					i++;
 					log.debug(i + " / " + proteins.size() + " proteins adapted to beans");
 					// final ProteinBean proteinBeanFromProtein = new
@@ -1135,7 +1139,7 @@ public class RemoteServicesTasks {
 					final PeptideBean peptideBeanAdapted = new PeptideBeanAdapterFromPeptideSet(queriablePeptide,
 							getHiddenPTMs(projectTags), psmCentric).adapt();
 					// add to current dataset
-					DataSetsManager.getDataSet(sessionID, projectString, psmCentric).addPeptide(peptideBeanAdapted);
+					dataSet.addPeptide(peptideBeanAdapted);
 					log.debug(i + " / " + peptideMap.size() + " peptides adapted to beans");
 				}
 
@@ -1143,11 +1147,10 @@ public class RemoteServicesTasks {
 				final String urlString = FilenameUtils
 						.getName(DataExporter.exportProteins(proteinBeans, queryText, psmCentric).getAbsolutePath());
 
-				final Pair<DataSet, String> pair = new Pair<DataSet, String>(
-						DataSetsManager.getDataSet(sessionID, projectString, psmCentric), urlString);
+				final Pair<DataSet, String> pair = new Pair<DataSet, String>(dataSet, urlString);
 				// set datasetReady
-				DataSetsManager.getDataSet(sessionID, projectString, psmCentric).setReady(true);
-				log.info("Dataset created: " + DataSetsManager.getDataSet(sessionID, projectString, psmCentric));
+				dataSet.setReady(true);
+				log.info("Dataset created: " + dataSet);
 
 				ret.put(queryText, pair);
 				// ContextualSessionHandler.finishGoodTransaction();
@@ -1259,7 +1262,7 @@ public class RemoteServicesTasks {
 			final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs,
 					psmCentric).adapt();
 			if (sessionID != null) {
-				DataSetsManager.getDataSet(sessionID, null, psmCentric).addProtein(proteinBeanAdapted);
+				DataSetsManager.getDataSet(sessionID, null, true, psmCentric).addProtein(proteinBeanAdapted);
 			}
 			ret.add(proteinBeanAdapted);
 			log.info(numProteins++ + " / " + proteins.size() + " proteins: "
@@ -1284,7 +1287,7 @@ public class RemoteServicesTasks {
 			final ProteinBean proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs,
 					psmCentric).adapt();
 			if (sessionID != null) {
-				DataSetsManager.getDataSet(sessionID, null, psmCentric).addProtein(proteinBeanAdapted);
+				DataSetsManager.getDataSet(sessionID, null, true, psmCentric).addProtein(proteinBeanAdapted);
 			}
 			ret.add(proteinBeanAdapted);
 			log.info(numProteins++ + " / " + proteins.size() + " proteins: "
@@ -1341,7 +1344,8 @@ public class RemoteServicesTasks {
 				proteinBeanAdapted = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs, psmCentric).adapt();
 			}
 			if (sessionID != null) {
-				DataSetsManager.getDataSet(sessionID, projectTagString, psmCentric).addProtein(proteinBeanAdapted);
+				DataSetsManager.getDataSet(sessionID, projectTagString, true, psmCentric)
+						.addProtein(proteinBeanAdapted);
 			}
 			ret.add(proteinBeanAdapted);
 
@@ -1389,7 +1393,7 @@ public class RemoteServicesTasks {
 				ret.addAll(second);
 				if (sessionID != null) {
 					for (final ProteinBean proteinBeanAdapted : ret) {
-						DataSetsManager.getDataSet(sessionID, projectTagString, psmCentric)
+						DataSetsManager.getDataSet(sessionID, projectTagString, true, psmCentric)
 								.addProtein(proteinBeanAdapted);
 					}
 				}
