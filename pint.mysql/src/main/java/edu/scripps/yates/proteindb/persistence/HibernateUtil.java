@@ -166,7 +166,7 @@ public class HibernateUtil {
 
 	private void checkDBConnection(String dbURL, String dbUsername, String dbPassword) throws SQLException {
 		checkDriver();
-		final Connection connection = DriverManager.getConnection(dbURL + "?useSSL=false", dbUsername, dbPassword);
+		final Connection connection = DriverManager.getConnection(dbURL, dbUsername, dbPassword);
 		log.info("Database connected using " + dbURL + " " + dbUsername + " password (not shown)");
 		connection.close();
 	}
