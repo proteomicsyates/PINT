@@ -1202,7 +1202,7 @@ public class DataExporter {
 
 	public static File exportProteinsForReactome(String sessionID, ServletContext servletContext, boolean psmCentric)
 			throws PintException {
-		final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, psmCentric);
+		final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, psmCentric);
 		if (dataSet == null || dataSet.isEmpty() || !dataSet.isReady()) {
 			if (dataSet != null && !dataSet.getActiveDatasetThread().isAlive()) {
 				DataSetsManager.removeDataSet(sessionID);
