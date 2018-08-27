@@ -21,6 +21,7 @@ import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromPTMCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromProteinAccessionsCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSEQCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSimpleAnnotationCommand;
+import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromTaxonomyCommand;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import edu.scripps.yates.utilities.cores.SystemCoreManager;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
@@ -124,6 +125,14 @@ public class QueryInterface {
 			if (abstractQuery instanceof QueryFromSEQCommand) {
 				// annotate the proteins in this case because the protein
 				// sequence is going to be needed in the query
+				if (abstractQuery.getAggregationLevel() == AggregationLevel.PROTEIN) {
+					ProteinAnnotator.getInstance(null).annotateProteins(this.proteinProvider.getProteinMap(testMode));
+					break;
+				}
+			}
+			if (abstractQuery instanceof QueryFromTaxonomyCommand) {
+				// annotate the proteins in this case because the protein
+				// taxonomy is going to be needed in the query
 				if (abstractQuery.getAggregationLevel() == AggregationLevel.PROTEIN) {
 					ProteinAnnotator.getInstance(null).annotateProteins(this.proteinProvider.getProteinMap(testMode));
 					break;
