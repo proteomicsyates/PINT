@@ -20,6 +20,7 @@ import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 public class QueriesUtil {
 	public static final Logger log = Logger.getLogger(QueriesUtil.class);
@@ -143,49 +144,78 @@ public class QueriesUtil {
 
 	public static List<LinkBetweenQueriableProteinSetAndPeptideSet> createProteinPeptideLinks(
 			Map<String, Set<Protein>> totalProteinMap) {
+		// keep the ids of the proteins in the method parameter map, which are
+		// the ones that are valid,
+		// then, getting the proteins from the peptides, we will not get any
+		// other protein that has an id not in that group
+		final TIntHashSet validProteinIDs = new TIntHashSet();
 		log.info("Creating proteinPeptideLinks from a proteinMap of size: " + totalProteinMap.size());
 		int numProteins = 0;
 		int numPeptides = 0;
-
 		final Map<String, Set<Peptide>> totalPeptideMap = new THashMap<String, Set<Peptide>>();
 		// clear links before create them
-		for (final Set<Protein> proteinSet : totalProteinMap.values()) {
+		for (final String proteinACC : totalProteinMap.keySet()) {
+			final Set<Protein> proteinSet = totalProteinMap.get(proteinACC);
+			for (final Protein protein : proteinSet) {
+				validProteinIDs.add(protein.getId());
+			}
 			QueriableProteinSet.getInstance(proteinSet, true).clearLinks();
 			numProteins += proteinSet.size();
 			final Map<String, Set<Peptide>> peptideMap = getPeptideMap(proteinSet);
-			for (final Set<Peptide> peptideSet : peptideMap.values()) {
+			for (final String fullSequence : peptideMap.keySet()) {
+				final Set<Peptide> peptideSet = peptideMap.get(fullSequence);
 				QueriablePeptideSet.getInstance(peptideSet, true).clearLinks();
 				numPeptides += peptideSet.size();
+				if (totalPeptideMap.containsKey(fullSequence)) {
+					totalPeptideMap.get(fullSequence).addAll(peptideSet);
+				} else {
+					final Set<Peptide> set = new THashSet<Peptide>();
+					set.addAll(peptideSet);
+					totalPeptideMap.put(fullSequence, set);
+				}
 			}
-			totalPeptideMap.putAll(peptideMap);
+
 		}
+
 		log.info("proteinPeptideLinks cleared for  " + numProteins + " proteins and " + numPeptides
 				+ " Peptides doing: proteins->peptides");
 		numProteins = 0;
 		numPeptides = 0;
-		for (final Set<Peptide> peptideSet : totalPeptideMap.values()) {
+		for (final String fullSequence : totalPeptideMap.keySet()) {
+			final Set<Peptide> peptideSet = totalPeptideMap.get(fullSequence);
 			QueriablePeptideSet.getInstance(peptideSet, true).clearLinks();
 			numPeptides += peptideSet.size();
-			final Map<String, Set<Protein>> proteinMap = getProteinMap(peptideSet);
-			for (final Set<Protein> proteinSet : proteinMap.values()) {
+			final Map<String, Set<Protein>> proteinMap = getProteinMap(peptideSet, validProteinIDs);
+			for (final String proteinACC : proteinMap.keySet()) {
+				final Set<Protein> proteinSet = proteinMap.get(proteinACC);
 				QueriableProteinSet.getInstance(proteinSet, true).clearLinks();
 				numProteins += proteinSet.size();
+				if (totalProteinMap.containsKey(proteinACC)) {
+					totalProteinMap.get(proteinACC).addAll(proteinSet);
+				} else {
+					final Set<Protein> set = new THashSet<Protein>();
+					set.addAll(proteinSet);
+					totalProteinMap.put(proteinACC, set);
+				}
 			}
-			totalProteinMap.putAll(proteinMap);
+
 		}
 
-		log.info("proteinPeptideLinks cleared for  " + numProteins + " proteins and " + numPeptides
-				+ " Peptides doing: peptides->proteins");
+		log.info("proteinPeptideLinks cleared for  " + numProteins + " proteins and  " + numPeptides
+				+ " Peptides doing: peptides->proteins ");
 
 		final Map<String, Set<LinkBetweenQueriableProteinSetAndPeptideSet>> linkMapByProteinAcc = new THashMap<String, Set<LinkBetweenQueriableProteinSetAndPeptideSet>>();
 		final Set<LinkBetweenQueriableProteinSetAndPeptideSet> ret = new THashSet<LinkBetweenQueriableProteinSetAndPeptideSet>();
 
 		// proteins -> peptides
-		for (final Set<Protein> proteinSet : totalProteinMap.values()) {
-			final Set<String> peptideFullSequences = getPeptideMap(proteinSet).keySet();
-			for (final String peptideFullSequence : peptideFullSequences) {
+		for (final String proteinACC : totalProteinMap.keySet()) {
+			final Set<Protein> proteinSet = totalProteinMap.get(proteinACC);
+			final Map<String, Set<Peptide>> peptideMap = getPeptideMap(proteinSet);
+			for (final String peptideFullSequence : peptideMap.keySet()) {
 				final Set<Peptide> peptideSet = totalPeptideMap.get(peptideFullSequence);
-
+				if (peptideSet == null) {
+					log.info(peptideFullSequence + " not found in peptides of proteins " + proteinACC);
+				}
 				final LinkBetweenQueriableProteinSetAndPeptideSet proteinSet2PeptideLink = new LinkBetweenQueriableProteinSetAndPeptideSet(
 						proteinSet, peptideSet);
 				ret.add(proteinSet2PeptideLink);
@@ -203,7 +233,7 @@ public class QueriesUtil {
 		int numNewLinks = 0;
 		for (final String peptideFullSequence : totalPeptideMap.keySet()) {
 			final Set<Peptide> peptideSet = totalPeptideMap.get(peptideFullSequence);
-			final Set<String> proteinAccs = getProteinMap(peptideSet).keySet();
+			final Set<String> proteinAccs = getProteinMap(peptideSet, validProteinIDs).keySet();
 			for (final String proteinAcc : proteinAccs) {
 				final Set<Protein> proteinSet = totalProteinMap.get(proteinAcc);
 				final LinkBetweenQueriableProteinSetAndPeptideSet proteinSet2PeptideLink = new LinkBetweenQueriableProteinSetAndPeptideSet(
@@ -240,17 +270,21 @@ public class QueriesUtil {
 		return retList;
 	}
 
-	private static Map<String, Set<Protein>> getProteinMap(Set<Peptide> peptideSet) {
+	private static Map<String, Set<Protein>> getProteinMap(Set<Peptide> peptideSet, TIntHashSet validProteinIDs) {
 		final Map<String, Set<Protein>> map = new THashMap<String, Set<Protein>>();
 		for (final Peptide peptide : peptideSet) {
 			final Set<Protein> proteins = peptide.getProteins();
 			for (final Protein protein : proteins) {
-				if (map.containsKey(protein.getAcc())) {
-					map.get(protein.getAcc()).add(protein);
+				if (validProteinIDs.contains(protein.getId())) {
+					if (map.containsKey(protein.getAcc())) {
+						map.get(protein.getAcc()).add(protein);
+					} else {
+						final Set<Protein> set = new THashSet<Protein>();
+						set.add(protein);
+						map.put(protein.getAcc(), set);
+					}
 				} else {
-					final Set<Protein> set = new THashSet<Protein>();
-					set.add(protein);
-					map.put(protein.getAcc(), set);
+					log.debug("Protein " + protein.getId() + " was not in the original valid protein set");
 				}
 			}
 		}
