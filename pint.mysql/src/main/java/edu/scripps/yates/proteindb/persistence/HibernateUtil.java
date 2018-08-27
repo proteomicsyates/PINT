@@ -15,16 +15,16 @@ import org.hibernate.cfg.Configuration;
 // if false: uses production database (using hibernate.cfg.xml)
 public class HibernateUtil {
 	private final SessionFactory sessionFactory;
-	private String dbUserName;
-	private String dbPassword;
-	private String dbURL;
+	private final String dbUserName;
+	private final String dbPassword;
+	private final String dbURL;
 	private static Logger log = Logger.getLogger(HibernateUtil.class);
 	private static HibernateUtil instance;
 	private static boolean testEnabled;
 	private static String errorMessage;
 
 	private HibernateUtil(String dbUsername, String dbPassword, String dbURL) {
-		this.dbUserName = dbUsername;
+		dbUserName = dbUsername;
 		this.dbPassword = dbPassword;
 		this.dbURL = dbURL;
 		sessionFactory = buildSessionFactory(dbUsername, dbPassword, dbURL);
@@ -67,7 +67,7 @@ public class HibernateUtil {
 	}
 
 	private boolean isTest() {
-		Map<String, String> env = System.getenv();
+		final Map<String, String> env = System.getenv();
 		if (HibernateUtil.testEnabled || (env.get("SERVER_TEST") != null && env.get("SERVER_TEST").equals("true"))) {
 			return true;
 		}
@@ -91,7 +91,7 @@ public class HibernateUtil {
 				// return new Configuration().configure(new
 				// ClassPathResource("hibernate.cfg.test.xml").getFile()).buildSessionFactory();
 
-				URL testCfgFileResource = getClass().getResource("/hibernate.cfg.test.xml");
+				final URL testCfgFileResource = getClass().getResource("/hibernate.cfg.test.xml");
 				if (testCfgFileResource != null) {
 					configure = new Configuration().configure(testCfgFileResource);
 				} else {
@@ -100,7 +100,7 @@ public class HibernateUtil {
 			}
 			if (configure == null) {
 				log.info("SERVER_TEST != TRUE -> using hibernate.cfg.xml");
-				URL resource = getClass().getResource("/hibernate.cfg.xml");
+				final URL resource = getClass().getResource("/hibernate.cfg.xml");
 				configure = new Configuration().configure(resource);
 			}
 			// overwrite url, username and password if defined in a
@@ -138,12 +138,14 @@ public class HibernateUtil {
 					throw new IllegalArgumentException("Password is required to connect to the database");
 				}
 			}
-
+			configure.setProperty("hibernate.connection.requireSSL", "false");
+			configure.setProperty("hibernate.connection.useSSL", "false");
+			configure.setProperty("hibernate.connection.autoReconnect", "true");
 			// check DB connection first
 			checkDBConnection(configure.getProperty("hibernate.connection.url"),
 					configure.getProperty("hibernate.connection.username"),
 					configure.getProperty("hibernate.connection.password"));
-			SessionFactory buildSessionFactory = configure.buildSessionFactory();
+			final SessionFactory buildSessionFactory = configure.buildSessionFactory();
 			errorMessage = null;
 			return buildSessionFactory;
 
@@ -152,7 +154,7 @@ public class HibernateUtil {
 			// return new Configuration().configure(cpr.getFile())
 			// .buildSessionFactory();
 
-		} catch (Throwable ex) {
+		} catch (final Throwable ex) {
 			errorMessage = ex.getMessage();
 			// Make sure you log the exception, as it might be swallowed
 			ex.printStackTrace();
@@ -164,7 +166,7 @@ public class HibernateUtil {
 
 	private void checkDBConnection(String dbURL, String dbUsername, String dbPassword) throws SQLException {
 		checkDriver();
-		Connection connection = DriverManager.getConnection(dbURL, dbUsername, dbPassword);
+		final Connection connection = DriverManager.getConnection(dbURL + "?useSSL=false", dbUsername, dbPassword);
 		log.info("Database connected using " + dbURL + " " + dbUsername + " password (not shown)");
 		connection.close();
 	}
@@ -173,9 +175,9 @@ public class HibernateUtil {
 		log.info("Loading driver...");
 
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver");
 			log.info("Driver loaded!");
-		} catch (ClassNotFoundException e) {
+		} catch (final ClassNotFoundException e) {
 			throw new IllegalStateException("Cannot find the driver in the classpath!", e);
 		}
 	}
