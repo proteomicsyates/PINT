@@ -729,4 +729,8 @@ public class DataSet {
 		}
 		return scoreTypes.stream().collect(Collectors.toList()).stream().sorted().collect(Collectors.toList());
 	}
+
+	public static DataSet emptyDataSet() {
+		return new DataSet(null, null, false);
+	}
 }
