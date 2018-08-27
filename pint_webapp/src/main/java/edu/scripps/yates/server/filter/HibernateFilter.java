@@ -40,7 +40,7 @@ public class HibernateFilter implements Filter {
 				ContextualSessionHandler.printStatistics();
 				ContextualSessionHandler.openSession();
 				ContextualSessionHandler.beginGoodTransaction();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 				log.error(e);
 			}
@@ -48,7 +48,8 @@ public class HibernateFilter implements Filter {
 			// pass the request along the filter chain
 			chain.doFilter(request, response);
 			// ContextualSessionHandler.finishGoodTransaction();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
+			ex.printStackTrace();
 			log.warn("Rolling back transaction due to error: " + ex.getMessage());
 			ContextualSessionHandler.rollbackTransaction();
 			log.warn("Transaction rolled back");
@@ -70,7 +71,7 @@ public class HibernateFilter implements Filter {
 				ContextualSessionHandler.printStatistics();
 				ContextualSessionHandler.closeSession();
 				ContextualSessionHandler.printStatistics();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				log.error("Error closing session: " + e.getMessage());
 			}
 			// SessionPerKeyHandler.printStatistics();
