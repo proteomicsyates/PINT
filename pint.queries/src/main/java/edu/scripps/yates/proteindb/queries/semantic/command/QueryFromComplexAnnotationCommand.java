@@ -19,6 +19,7 @@ import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.proteomicsmodel.UniprotLineHeader;
+import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.strings.StringUtils;
 import gnu.trove.set.hash.THashSet;
 
@@ -97,7 +98,8 @@ public class QueryFromComplexAnnotationCommand extends AbstractQuery {
 	public boolean evaluate(QueriableProteinSet protein) {
 		// annotateProtein(protein, uniprotVersion);
 
-		final Set<ProteinAnnotation> proteinAnnotations = protein.getProteinAnnotations();
+		final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = protein
+				.getProteinAnnotations();
 		return evaluate(proteinAnnotations);
 	}
 
@@ -164,7 +166,7 @@ public class QueryFromComplexAnnotationCommand extends AbstractQuery {
 		return true;
 	}
 
-	public boolean evaluate(Set<ProteinAnnotation> proteinAnnotations) {
+	public boolean evaluateHibernateAnnotation(Set<ProteinAnnotation> proteinAnnotations) {
 		if (proteinAnnotations != null) {
 			int numMatchedAnnotations = 0;
 			// to be included in the result, at least one annotation
@@ -239,4 +241,78 @@ public class QueryFromComplexAnnotationCommand extends AbstractQuery {
 		return false;
 	}
 
+	public boolean evaluate(Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations) {
+		if (proteinAnnotations != null) {
+			int numMatchedAnnotations = 0;
+			// to be included in the result, at least one annotation
+			// will have to be present
+			for (final edu.scripps.yates.utilities.proteomicsmodel.AnnotationType annotationType : annotationTypes) {
+				final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations2 = ModelUtils
+						.getProteinAnnotations(proteinAnnotations, annotationType);
+				for (final edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation proteinAnnotation : proteinAnnotations2) {
+
+					// NAME==null
+					if ("".equals(annotationNameString)) {
+
+						// NAME==null VALUE!=null
+						if (!"".equals(annotationValueString)) {
+
+							if (StringUtils.compareStrings(proteinAnnotation.getName(), annotationValueString, true,
+									true, false)
+									|| StringUtils.compareStrings(proteinAnnotation.getValue(), annotationValueString,
+											true, true, false)) {
+								numMatchedAnnotations++;
+								// no restriction on the number
+								// of times that that annotation
+								// must be present
+								if (numericalCondition == null) {
+									return true;
+								}
+							}
+
+						} else {
+							// NAME==null VALUE===null
+							numMatchedAnnotations++;
+							if (numericalCondition == null) {
+								return true;
+							}
+						}
+
+					} else {
+						// NAME!=null
+						if (StringUtils.compareStrings(proteinAnnotation.getName(), annotationNameString, true, true,
+								false)) {
+
+							// NAME!=null VALUE!=null
+							if (!"".equals(annotationValueString)) {
+								if (StringUtils.compareStrings(proteinAnnotation.getValue(), annotationValueString,
+										true, true, false)) {
+									// no restriction on the number
+									// of times that that annotation
+									// must be present
+									numMatchedAnnotations++;
+									if (numericalCondition == null) {
+										return true;
+									}
+								}
+							} else {
+								// NAME!=null VALUE==null
+								numMatchedAnnotations++;
+								if (numericalCondition == null) {
+
+									return true;
+								}
+							}
+						}
+					}
+
+				}
+				if (numericalCondition != null && numericalCondition.matches(numMatchedAnnotations)) {
+					return true;
+				}
+
+			}
+		}
+		return false;
+	}
 }

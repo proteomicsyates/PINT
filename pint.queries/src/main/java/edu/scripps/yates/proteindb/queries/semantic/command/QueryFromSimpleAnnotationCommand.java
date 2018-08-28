@@ -59,10 +59,51 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 				+ commandReference.getCommand().getFormat());
 	}
 
-	public boolean evaluate(Set<ProteinAnnotation> proteinAnnotations) {
+	public boolean evaluate(Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations) {
 		if (proteinAnnotations != null) {
 			final boolean found = false;
-			final Map<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType, Integer> map = new THashMap<edu.scripps.yates.proteindb.persistence.mysql.AnnotationType, Integer>();
+			final Map<edu.scripps.yates.utilities.proteomicsmodel.AnnotationType, Integer> map = new THashMap<edu.scripps.yates.utilities.proteomicsmodel.AnnotationType, Integer>();
+			// to be included in the result, at least one annotation
+			// will have to be present
+			for (final edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation proteinAnnotation : proteinAnnotations) {
+
+				// NAME!=null
+				if (StringUtils.compareStrings(proteinAnnotation.getName(), annotationString, true, true, false)
+						|| StringUtils.compareStrings(proteinAnnotation.getValue(), annotationString, true, true,
+								false)) {
+					if (numericalCondition == null) {
+						log.debug(proteinAnnotation.getAnnotationType() + ":" + proteinAnnotation.getName() + " -- "
+								+ proteinAnnotation.getValue());
+						return true;
+					} else {
+						if (map.containsKey(proteinAnnotation.getAnnotationType())) {
+							final Integer num = map.get(proteinAnnotation.getAnnotationType());
+							map.put(proteinAnnotation.getAnnotationType(), num + 1);
+						} else {
+							map.put(proteinAnnotation.getAnnotationType(), 1);
+						}
+					}
+				}
+			}
+			if (!found && numericalCondition != null) {
+				final Set<edu.scripps.yates.utilities.proteomicsmodel.AnnotationType> keySet = map.keySet();
+				for (final edu.scripps.yates.utilities.proteomicsmodel.AnnotationType annotationType : keySet) {
+					if (numericalCondition.matches(map.get(annotationType))) {
+
+						return true;
+					}
+				}
+
+			}
+		}
+
+		return false;
+	}
+
+	public boolean evaluateHibernateAnnotations(Set<ProteinAnnotation> proteinAnnotations) {
+		if (proteinAnnotations != null) {
+			final boolean found = false;
+			final Map<AnnotationType, Integer> map = new THashMap<AnnotationType, Integer>();
 			// to be included in the result, at least one annotation
 			// will have to be present
 			for (final ProteinAnnotation proteinAnnotation : proteinAnnotations) {
@@ -72,8 +113,8 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 						|| StringUtils.compareStrings(proteinAnnotation.getValue(), annotationString, true, true,
 								false)) {
 					if (numericalCondition == null) {
-						log.debug(proteinAnnotation.getAnnotationType().getName() + ":" + proteinAnnotation.getName()
-								+ " -- " + proteinAnnotation.getValue());
+						log.debug(proteinAnnotation.getAnnotationType() + ":" + proteinAnnotation.getName() + " -- "
+								+ proteinAnnotation.getValue());
 						return true;
 					} else {
 						if (map.containsKey(proteinAnnotation.getAnnotationType())) {
@@ -101,7 +142,8 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 	}
 
 	public boolean evaluate(QueriableProteinSet protein) {
-		final Set<ProteinAnnotation> proteinAnnotations = protein.getProteinAnnotations();
+		final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = protein
+				.getProteinAnnotations();
 		return evaluate(proteinAnnotations);
 	}
 

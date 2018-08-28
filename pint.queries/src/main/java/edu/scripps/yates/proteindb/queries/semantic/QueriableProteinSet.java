@@ -25,7 +25,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount;
-import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinScore;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
@@ -34,6 +33,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAccessionAda
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
