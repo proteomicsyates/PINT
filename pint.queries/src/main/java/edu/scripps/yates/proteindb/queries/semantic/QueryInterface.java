@@ -9,7 +9,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.queries.LogicalOperator;
 import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProjects;
@@ -265,8 +264,8 @@ public class QueryInterface {
 		log.info("Performing a pre evaluation of the proteins checking their annotations...");
 		log.info("Checking " + proteinMap.size() + " proteins");
 		for (final String proteinAcc : proteinMap.keySet()) {
-			final Set<ProteinAnnotation> annotations = ProteinAnnotator.getInstance(uniprotKBVersion)
-					.getProteinAnnotationByProteinAcc(proteinAcc);
+			final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> annotations = ProteinAnnotator
+					.getInstance(uniprotKBVersion).getProteinAnnotationByProteinAcc(proteinAcc);
 			boolean valid = true;
 			for (final AbstractQuery abstractQuery : annotationQueries) {
 				boolean evaluationResult = true;
