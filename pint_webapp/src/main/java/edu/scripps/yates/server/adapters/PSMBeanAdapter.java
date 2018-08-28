@@ -172,7 +172,10 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 			if (fullSequence == null) {
 				return cleanSequence;
 			}
-			if (hiddenPTMs == null || hiddenPTMs.isEmpty() || ptms == null || ptms.isEmpty()) {
+			if (hiddenPTMs == null || hiddenPTMs.isEmpty() || ptms == null ||
+			// this means that it doesnt have ptms
+			// ptms.isEmpty() is an expensive query
+					(!fullSequence.contains("(") && !fullSequence.contains("["))) {
 				return fullSequence;
 			}
 			final List<Integer> ptmsPositionsToHidde = new ArrayList<Integer>();
