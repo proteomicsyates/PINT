@@ -8,15 +8,16 @@ public abstract class AbstractServerCacheForCollections<T, C extends Collection<
 
 	@Override
 	public void addtoCache(C collection, K key) {
-		WriteLock writeLock = lock.writeLock();
+		final WriteLock writeLock = lock.writeLock();
 		try {
 			writeLock.lock();
-			if (map.containsKey(key)) {
-				map.get(key).addAll(collection);
+			final K processedKey = processKey(key);
+			if (map.containsKey(processedKey)) {
+				map.get(processedKey).addAll(collection);
 			} else {
-				C col = createCollection();
+				final C col = createCollection();
 				col.addAll(collection);
-				map.put(key, col);
+				map.put(processedKey, col);
 			}
 		} finally {
 			writeLock.unlock();
