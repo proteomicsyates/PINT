@@ -10,8 +10,6 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
-import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAnnotationAdapter;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -31,7 +29,7 @@ public class ProteinAnnotator {
 
 	private final UniprotProteinRetriever uplr;
 	private final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = new THashMap<String, edu.scripps.yates.utilities.proteomicsmodel.Protein>();
-	private final Map<String, Set<ProteinAnnotation>> annotationsByProteinAcc = new THashMap<String, Set<ProteinAnnotation>>();
+	private final Map<String, Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation>> annotationsByProteinAcc = new THashMap<String, Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation>>();
 
 	private ProteinAnnotator(String uniprotKBVersion) {
 		uplr = new UniprotProteinRetriever(uniprotKBVersion,
@@ -60,9 +58,7 @@ public class ProteinAnnotator {
 				for (final edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation proteinAnnotation : proteinAnnotations) {
 					final Set<Protein> proteinSet = proteinMap.get(accession);
 					for (final Protein protein : proteinSet) {
-						final ProteinAnnotation proteinAnnotationNew = new ProteinAnnotationAdapter(proteinAnnotation,
-								null).adapt();
-						addAnnotationByProtein(protein, proteinAnnotationNew);
+						addAnnotationByProtein(protein, proteinAnnotation);
 					}
 				}
 
@@ -91,7 +87,8 @@ public class ProteinAnnotator {
 	// }
 	// }
 	// }
-	private void addAnnotationByProtein(Protein protein, ProteinAnnotation proteinAnnotation) {
+	private void addAnnotationByProtein(Protein protein,
+			edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation proteinAnnotation) {
 		if (protein != null) {
 			final String uniprotACC = FastaParser.getUniProtACC(protein.getAcc());
 
@@ -100,7 +97,7 @@ public class ProteinAnnotator {
 				if (annotationsByProteinAcc.containsKey(uniprotACC)) {
 					annotationsByProteinAcc.get(uniprotACC).add(proteinAnnotation);
 				} else {
-					final Set<ProteinAnnotation> set = new THashSet<ProteinAnnotation>();
+					final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> set = new THashSet<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation>();
 					set.add(proteinAnnotation);
 					annotationsByProteinAcc.put(uniprotACC, set);
 				}
@@ -114,7 +111,8 @@ public class ProteinAnnotator {
 		annotationsByProteinAcc.clear();
 	}
 
-	public Set<ProteinAnnotation> getProteinAnnotationByProteinAcc(String accession) {
+	public Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> getProteinAnnotationByProteinAcc(
+			String accession) {
 		if (annotationsByProteinAcc.containsKey(accession)) {
 			return annotationsByProteinAcc.get(accession);
 		}
