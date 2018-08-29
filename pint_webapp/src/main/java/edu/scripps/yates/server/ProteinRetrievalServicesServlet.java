@@ -287,7 +287,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		logMethodCall(enclosingMethod);
-		final String projectTagsString = getProjectTagString(projectTags);
+		final String projectTagsString = getProjectTagString(projectTags, defaultQueryIndex);
 		log.info("GET PROTEINS FROM PROJECT '" + projectTagsString + "' IN SESSION: " + sessionID);
 		log.info(++times + " times getting proteins from project ");
 		GetProteinsFromProjectTask task = null;
@@ -386,7 +386,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	}
 
-	private String getProjectTagString(Set<String> projectTags) {
+	private String getProjectTagString(Set<String> projectTags, Integer defaultQueryIndex) {
 		final List<String> list = new ArrayList<String>();
 		list.addAll(projectTags);
 		Collections.sort(list);
@@ -397,6 +397,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				sb.append(",");
 			}
 			sb.append(string);
+		}
+		if (defaultQueryIndex != null) {
+			sb.append(" query index: " + defaultQueryIndex);
 		}
 		return sb.toString();
 	}
@@ -945,15 +948,15 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			// attach the project Tags to the queryInOrder, otherwise, if
 			// someone execute one query in one project, and then another one in
 			// other project, it would return the results of the first one.
-			final String projectTagsString = getProjectTagString(projectTags);
+			final String projectTagsString = getProjectTagString(projectTags, null);
 			final String key = projectTagsString + ": " + queryInOrder;
 			if (ServerCacheProteinBeansByQueryString.getInstance().contains(key)) {
 				log.info("Getting proteinBeans from cache for query: " + key + " in session '" + sessionID + "'");
 				final List<ProteinBean> ret = ServerCacheProteinBeansByQueryString.getInstance().getFromCache(key);
 				if (!ret.isEmpty()) {
 					// SEND TRACKING EMAIL. Testing it...
-					sendTrackingEmail(getProjectTagString(projectTags) + "\t" + queryInOrder,
-							"Triggered by query: " + queryText, "Getting dataset from server cache");
+					sendTrackingEmail(projectTagsString + "\t" + queryInOrder, "Triggered by query: " + queryText,
+							"Getting dataset from server cache");
 					// SEND TRACKING EMAIL
 					// add to the dataset
 					for (final ProteinBean proteinBean : ret) {
@@ -1005,8 +1008,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					log.info(proteins.size() + " protein before annotate");
 					// I do not save the annotated proteins because they will be
 					// accessed from the queriableProteinSets
-					RemoteServicesTasks.annotateProteinsWithUniprot(proteins.keySet(), null,
-							getProjectTagString(projectTags));
+					RemoteServicesTasks.annotateProteinsWithUniprot(proteins.keySet(), null, projectTagsString);
 					log.info(proteins.size() + " protein after annotate");
 
 					log.info("Creating Protein beans in session '" + sessionID + "'");
@@ -1015,8 +1017,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					// getHiddenPTMs(projectTags),
 					// getProjectTagString(projectTags));
 					RemoteServicesTasks.createProteinBeansFromQueriableProteins(sessionID, proteins,
-							getHiddenPTMs(projectTags), getProjectTagString(projectTags),
-							expressionTree.isProteinLevelQuery(), getPSMCentric());
+							getHiddenPTMs(projectTags), projectTagsString, expressionTree.isProteinLevelQuery(),
+							getPSMCentric());
 					// proteins have to be before creating peptides, because
 					// when peptides are created, the cache of the proteins is
 					// used.
@@ -1114,7 +1116,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			// look into server cache using the expression
 			final String queryInOrder = expressionTree.printInOrder();
 			// SEND TRACKING EMAIL.
-			sendTrackingEmail(getProjectTagString(projectTags) + "\t" + queryInOrder,
+			sendTrackingEmail(getProjectTagString(projectTags, null) + "\t" + queryInOrder,
 					"Triggered by query: " + queryInOrder);
 			// SEND TRACKING EMAIL
 
