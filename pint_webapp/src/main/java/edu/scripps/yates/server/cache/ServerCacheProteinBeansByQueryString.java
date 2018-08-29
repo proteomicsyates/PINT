@@ -13,7 +13,7 @@ public class ServerCacheProteinBeansByQueryString
 
 	@Override
 	public String processKey(String key) {
-		return key.replaceAll(" ", "");
+		return key;// key.replaceAll(" ", "");
 	}
 
 	public static ServerCacheProteinBeansByQueryString getInstance() {
