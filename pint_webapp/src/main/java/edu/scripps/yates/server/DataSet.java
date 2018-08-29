@@ -417,7 +417,7 @@ public class DataSet {
 	}
 
 	public List<PeptideBean> getPeptidesFromPeptideProvider(ContainsPeptides peptideProvider) {
-		log.info("Getting PSMs from psmProvider");
+		log.info("Getting peptides from peptideProvider");
 		if (peptideProvider instanceof ProteinBean) {
 			log.info("peptideProvider is a Protein");
 			return getPeptidesFromProtein((ProteinBean) peptideProvider);
@@ -526,6 +526,9 @@ public class DataSet {
 							+ " peptides");
 					return peptides2;
 				}
+			} else {
+				log.warn("Protein not found in proteins by unique protein bean identifier");
+				return Collections.emptyList();
 			}
 		}
 		log.info("Protein is null...returning empty Peptide list");
