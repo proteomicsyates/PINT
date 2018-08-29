@@ -57,7 +57,7 @@ public class DefaultViewReader {
 		defaultView.setPeptidesSortedBy(ColumnName.PEPTIDE_SEQUENCE);
 
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(defaultViewConfigurationFile));
+			final BufferedReader br = new BufferedReader(new FileReader(defaultViewConfigurationFile));
 
 			try {
 				int numDefaultQuery = 0;
@@ -68,9 +68,9 @@ public class DefaultViewReader {
 				boolean projectDescriptionBoolean = false;
 				boolean projectInstructionBoolean = false;
 				boolean projectViewCommentBoolean = false;
-				StringBuilder projectDescription = new StringBuilder();
-				StringBuilder projectInstructions = new StringBuilder();
-				StringBuilder projectViewComments = new StringBuilder();
+				final StringBuilder projectDescription = new StringBuilder();
+				final StringBuilder projectInstructions = new StringBuilder();
+				final StringBuilder projectViewComments = new StringBuilder();
 				String line = null;
 				while ((line = br.readLine()) != null) {
 					line = line.trim();
@@ -166,7 +166,9 @@ public class DefaultViewReader {
 					}
 
 					if (ServerConstants.DEFAULT_QUERY_STRING.equals(property)) {
-						defaultView.addProjectNamedQueries(value, numDefaultQuery++);
+						if (!"".equals(value)) {
+							defaultView.addProjectNamedQueries(value, numDefaultQuery++);
+						}
 						continue;
 					}
 					if (ServerConstants.DEFAULT_TAB.equals(property)) {
@@ -226,7 +228,7 @@ public class DefaultViewReader {
 						if (value != null) {
 							try {
 								defaultView.setProteinPageSize(Integer.valueOf(value));
-							} catch (NumberFormatException e) {
+							} catch (final NumberFormatException e) {
 
 							}
 						}
@@ -236,7 +238,7 @@ public class DefaultViewReader {
 						if (value != null) {
 							try {
 								defaultView.setProteinGroupPageSize(Integer.valueOf(value));
-							} catch (NumberFormatException e) {
+							} catch (final NumberFormatException e) {
 
 							}
 						}
@@ -246,7 +248,7 @@ public class DefaultViewReader {
 						if (value != null) {
 							try {
 								defaultView.setPeptidePageSize(Integer.valueOf(value));
-							} catch (NumberFormatException e) {
+							} catch (final NumberFormatException e) {
 
 							}
 						}
@@ -256,7 +258,7 @@ public class DefaultViewReader {
 						if (value != null) {
 							try {
 								defaultView.setPsmPageSize(Integer.valueOf(value));
-							} catch (NumberFormatException e) {
+							} catch (final NumberFormatException e) {
 
 							}
 						}
@@ -267,13 +269,13 @@ public class DefaultViewReader {
 							try {
 								if (value.contains(",")) {
 									final String[] split = value.split(",");
-									for (String ptm : split) {
+									for (final String ptm : split) {
 										defaultView.addHiddenPTMs(ptm.trim());
 									}
 								} else {
 									defaultView.addHiddenPTMs(value);
 								}
-							} catch (NumberFormatException e) {
+							} catch (final NumberFormatException e) {
 
 							}
 						}
@@ -281,51 +283,51 @@ public class DefaultViewReader {
 					}
 					// columns
 					if (proteinGroupColumns) {
-						ColumnName columnName = ColumnName.getByPropertyName(property);
+						final ColumnName columnName = ColumnName.getByPropertyName(property);
 						if (columnName != null) {
-							Boolean view = Boolean.valueOf(value);
+							final Boolean view = Boolean.valueOf(value);
 							if (view != null) {
 								defaultView.getProteinGroupDefaultView()
 										.add(new ColumnWithVisibility(columnName, view));
 							}
 						}
 					} else if (proteinColumns) {
-						ColumnName columnName = ColumnName.getByPropertyName(property);
+						final ColumnName columnName = ColumnName.getByPropertyName(property);
 						if (columnName != null) {
-							Boolean view = Boolean.valueOf(value);
+							final Boolean view = Boolean.valueOf(value);
 							if (view != null) {
 								defaultView.getProteinDefaultView().add(new ColumnWithVisibility(columnName, view));
 							}
 						}
 					} else if (peptideColumns) {
-						ColumnName columnName = ColumnName.getByPropertyName(property);
+						final ColumnName columnName = ColumnName.getByPropertyName(property);
 						if (columnName != null) {
-							Boolean view = Boolean.valueOf(value);
+							final Boolean view = Boolean.valueOf(value);
 							if (view != null) {
 								defaultView.getPeptideDefaultView().add(new ColumnWithVisibility(columnName, view));
 							}
 						}
 					} else if (psmColumns) {
-						ColumnName columnName = ColumnName.getByPropertyName(property);
+						final ColumnName columnName = ColumnName.getByPropertyName(property);
 						if (columnName != null) {
-							Boolean view = Boolean.valueOf(value);
+							final Boolean view = Boolean.valueOf(value);
 							if (view != null) {
 								defaultView.getPsmDefaultView().add(new ColumnWithVisibility(columnName, view));
 							}
 						}
 					}
 				}
-			} catch (IOException e) {
+			} catch (final IOException e) {
 
 				e.printStackTrace();
 			} finally {
 				try {
 					br.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 			}
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
 		}
 
@@ -421,7 +423,7 @@ public class DefaultViewReader {
 			writer.write(
 					ServerConstants.DEFAULT_VIEW_METADATA + "\t" + ServerConstants.PROTEIN_GROUP_COLUMNS + NEWLINE);
 			List<ColumnWithVisibility> columns = ProteinGroupColumns.getInstance().getColumns();
-			for (ColumnWithVisibility columnWithVisibility : columns) {
+			for (final ColumnWithVisibility columnWithVisibility : columns) {
 				writer.write(ServerConstants.DEFAULT_VIEW_COLUMNS + "\t" + columnWithVisibility.getColumn().name() + "="
 						+ columnWithVisibility.isVisible() + NEWLINE);
 			}
@@ -440,7 +442,7 @@ public class DefaultViewReader {
 					+ NEWLINE);
 			writer.write(ServerConstants.DEFAULT_VIEW_METADATA + "\t" + ServerConstants.PROTEIN_COLUMNS + NEWLINE);
 			columns = ProteinColumns.getInstance().getColumns();
-			for (ColumnWithVisibility columnWithVisibility : columns) {
+			for (final ColumnWithVisibility columnWithVisibility : columns) {
 				writer.write(ServerConstants.DEFAULT_VIEW_COLUMNS + "\t" + columnWithVisibility.getColumn().name() + "="
 						+ columnWithVisibility.isVisible() + NEWLINE);
 			}
@@ -459,7 +461,7 @@ public class DefaultViewReader {
 					+ NEWLINE);
 			writer.write(ServerConstants.DEFAULT_VIEW_METADATA + "\t" + ServerConstants.PEPTIDE_COLUMNS + NEWLINE);
 			columns = PeptideColumns.getInstance().getColumns();
-			for (ColumnWithVisibility columnWithVisibility : columns) {
+			for (final ColumnWithVisibility columnWithVisibility : columns) {
 				writer.write(ServerConstants.DEFAULT_VIEW_COLUMNS + "\t" + columnWithVisibility.getColumn().name() + "="
 						+ columnWithVisibility.isVisible() + NEWLINE);
 			}
@@ -479,19 +481,19 @@ public class DefaultViewReader {
 					ServerConstants.DEFAULT_VIEW_METADATA + "\t" + ServerConstants.PSM_PAGE_SIZE + "=" + 50 + NEWLINE);
 			writer.write(ServerConstants.DEFAULT_VIEW_METADATA + "\t" + ServerConstants.PSM_COLUMNS + NEWLINE);
 			columns = PSMColumns.getInstance().getColumns();
-			for (ColumnWithVisibility columnWithVisibility : columns) {
+			for (final ColumnWithVisibility columnWithVisibility : columns) {
 				writer.write(ServerConstants.DEFAULT_VIEW_COLUMNS + "\t" + columnWithVisibility.getColumn().name() + "="
 						+ columnWithVisibility.isVisible() + NEWLINE);
 			}
 			writer.write(
 					ServerConstants.DEFAULT_VIEW_METADATA + "\t" + ServerConstants.END_COLUMNS + NEWLINE + NEWLINE);
 
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			ex.printStackTrace();
 		} finally {
 			try {
 				writer.close();
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				ex.printStackTrace();
 			}
 		}
