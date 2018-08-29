@@ -42,20 +42,12 @@ public class PendingTasksManager {
 		return tasks.get(taskType);
 	}
 
-	public static void addPendingTasks(TaskType taskType, Collection<String> keys) {
-
-		final List<String> pendingTaskKeys = getPendingTaskKeys(taskType);
-		for (final String key : pendingTaskKeys) {
-			pendingTaskKeys.add(key);
-			notifyPendingTaskControllers(OPERATION.ADD);
-		}
-
-	}
-
-	public static void addPendingTask(TaskType taskType, String key) {
+	public static String addPendingTask(TaskType taskType, String key) {
+		key = key + "-" + System.currentTimeMillis();
 		final List<String> pendingTaskKeys = getPendingTaskKeys(taskType);
 		pendingTaskKeys.add(key);
 		notifyPendingTaskControllers(OPERATION.ADD);
+		return key;
 	}
 
 	private static void notifyPendingTaskControllers(OPERATION add) {

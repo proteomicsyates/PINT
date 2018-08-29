@@ -47,8 +47,8 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsPeptid
 			} else if (object instanceof ProteinGroupBean) {
 				keyTMP = ((ProteinGroupBean) object).getPrimaryAccessionsString();
 			}
-			final String key = keyTMP;
-			PendingTasksManager.addPendingTask(TaskType.PROTEINS_BY_PEPTIDE, key);
+
+			final String taskKey = PendingTasksManager.addPendingTask(TaskType.PROTEINS_BY_PEPTIDE, keyTMP);
 			service.getProteinsByPeptide(sessionID, object, new AsyncCallback<ProteinPeptideCluster>() {
 
 				@Override
@@ -56,7 +56,7 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsPeptid
 					try {
 						showSharingPeptidesTablePanel(object, result);
 					} finally {
-						PendingTasksManager.removeTask(TaskType.PROTEINS_BY_PEPTIDE, key);
+						PendingTasksManager.removeTask(TaskType.PROTEINS_BY_PEPTIDE, taskKey);
 					}
 				}
 
@@ -65,7 +65,7 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsPeptid
 					try {
 						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
 					} finally {
-						PendingTasksManager.removeTask(TaskType.PROTEINS_BY_PEPTIDE, key);
+						PendingTasksManager.removeTask(TaskType.PROTEINS_BY_PEPTIDE, taskKey);
 					}
 				}
 			});

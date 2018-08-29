@@ -102,7 +102,6 @@ import edu.scripps.yates.shared.util.DefaultView.TAB;
 import edu.scripps.yates.shared.util.FileDescriptor;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
-import edu.scripps.yates.shared.util.sublists.ProteinBeanSubList;
 import edu.scripps.yates.shared.util.sublists.ProteinGroupBeanSubList;
 import edu.scripps.yates.shared.util.sublists.QueryResultSubLists;
 
@@ -973,14 +972,14 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				final String logMessage = TaskType.GROUP_PROTEINS.getSingleTaskMessage("");
 				updateStatus(logMessage);
 
-				// add PendingTask
-				PendingTasksManager.addPendingTask(TaskType.GROUP_PROTEINS, "");
-				proteinGroupTablePanel.clearTable();
 				Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
 					@Override
 					public void execute() {
 						GWT.log("Sending proteins to group");
+						// add PendingTask
+						final String taskKey = PendingTasksManager.addPendingTask(TaskType.GROUP_PROTEINS, "");
+						proteinGroupTablePanel.clearTable();
 						proteinRetrievingService.groupProteins(sessionID,
 								proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(),
 								proteinGroupTablePanel.getDataGrid().getPageSize(),
@@ -990,7 +989,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									public void onFailure(Throwable caught) {
 										updateStatus(caught);
 										// remove PendingTask
-										PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, "");
+										PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, taskKey);
 									}
 
 									@Override
@@ -1001,7 +1000,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											loadProteinGroupsOnGrid(0, proteinGroupSubList);
 										}
 										// remove PendingTask
-										PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, "");
+										PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, taskKey);
 									}
 
 								});
@@ -1350,7 +1349,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		queryEditorPanel.setLinksToResultsVisible(false);
 		queryEditorPanel.updateQueryResult(null);
 		// add pending task
-		PendingTasksManager.addPendingTask(TaskType.QUERY_SENT, queryText);
+		final String taskKey = PendingTasksManager.addPendingTask(TaskType.QUERY_SENT, queryText);
 		// set status
 		updateStatus("Sending query '" + queryText + "' to server...");
 		// send query to server
@@ -1365,7 +1364,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							queryEditorPanel.setSendingStatusText(null);
 						} finally {
 							// remove pending task
-							PendingTasksManager.removeTask(TaskType.QUERY_SENT, queryText);
+							PendingTasksManager.removeTask(TaskType.QUERY_SENT, taskKey);
 						}
 					}
 
@@ -1421,7 +1420,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							// }
 						} finally {
 							// remove pending task
-							PendingTasksManager.removeTask(TaskType.QUERY_SENT, queryText);
+							PendingTasksManager.removeTask(TaskType.QUERY_SENT, taskKey);
 						}
 					}
 				});
@@ -2088,11 +2087,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		}
 		proteinGroupTablePanel.setEmptyTableWidget("Please wait. Protein groups will be loaded in the table...");
 		peptideOnlyTablePanel.setEmptyTableWidget("Please wait. Peptides will be loaded in the table...");
+		clearTablesLinksAndStatusText();
+		if (loadedProjects != null && !loadedProjects.isEmpty()) {
 
-		if (loadedProjects == null || loadedProjects.isEmpty()) {
-			// loadProteinsOnGrid(null);
-			loadProteinsOnGrid(0, null);
-		} else {
 			String plural = "";
 			if (loadedProjects.size() > 1)
 				plural = "s";
@@ -2124,7 +2121,6 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			peptideOnlyTablePanel.setEmptyTableWidget("Please wait for Peptides to be loaded...");
 			if (!loadedProjects.isEmpty()) {
 
-				PendingTasksManager.addPendingTasks(TaskType.PROTEINS_BY_PROJECT, loadedProjects);
 				if (Pint.psmCentric) {
 					// remove the score columns for psms
 					psmTablePanel.removeColumn(ColumnName.PSM_SCORE);
@@ -2134,8 +2130,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				} else {
 					peptideTablePanel.removeColumn(ColumnName.PEPTIDE_SCORE);
 					peptideTablePanel.removeColumn(ColumnName.PTM_SCORE);
+					peptideOnlyTablePanel.removeColumn(ColumnName.PEPTIDE_SCORE);
 				}
-				peptideOnlyTablePanel.removeColumn(ColumnName.PEPTIDE_SCORE);
 
 				// remove the score columns for proteins
 				proteinTablePanel.removeColumn(ColumnName.PROTEIN_SCORE);
@@ -2155,6 +2151,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				}
 				final String projectTagsString = sb.toString();
 				GWT.log("Getting proteins from project " + projectTagsString);
+				final String taskKey = PendingTasksManager.addPendingTask(TaskType.PROTEINS_BY_PROJECT,
+						projectTagsString);
 				proteinRetrievingService.getProteinsFromProjects(sessionID, loadedProjects, uniprotVersion,
 						proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), defaultQueryIndex, testMode,
 						new AsyncCallback<QueryResultSubLists>() {
@@ -2166,7 +2164,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									updateStatus(caught);
 								} finally {
 									// removePending task
-									PendingTasksManager.removeTasks(TaskType.PROTEINS_BY_PROJECT, loadedProjects);
+									PendingTasksManager.removeTask(TaskType.PROTEINS_BY_PROJECT, taskKey);
 								}
 							}
 
@@ -2231,7 +2229,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									}
 								} finally {
 									// removePending task
-									PendingTasksManager.removeTasks(TaskType.PROTEINS_BY_PROJECT, loadedProjects);
+									PendingTasksManager.removeTask(TaskType.PROTEINS_BY_PROJECT, taskKey);
 								}
 							}
 						});
@@ -2268,27 +2266,30 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	}
 
-	private void loadProteinsOnGrid(int start, final ProteinBeanSubList result) {
-		if (result == null || result.isEmpty()) {
-			proteinGroupTablePanel.clearTable();
-			proteinTablePanel.clearTable();
-			if (Pint.psmCentric) {
-				psmTablePanel.clearTable();
-				psmOnlyTablePanel.clearTable();
-			} else {
-				peptideTablePanel.clearTable();
-			}
-			queryEditorPanel.setLinksToResultsVisible(false);
-			queryEditorPanel.setSendingStatusText(null);
+	private void clearTablesLinksAndStatusText() {
+		// if (result == null || result.isEmpty()) {
+		proteinGroupTablePanel.clearTable();
+		proteinTablePanel.clearTable();
+		if (Pint.psmCentric) {
+			psmTablePanel.clearTable();
+			psmOnlyTablePanel.clearTable();
 		} else {
-
-			// fill the grid
-			proteinTablePanel.getAsyncDataProvider().updateRowCount(result.getTotalNumber(), true);
-			proteinTablePanel.getAsyncDataProvider().updateRowData(start, result.getDataList());
-			// proteinTablePanel.reloadData();
-			proteinTablePanel.refreshData();
-			selectDataTab(proteinTablePanel);
+			peptideTablePanel.clearTable();
+			peptideOnlyTablePanel.clearTable();
 		}
+		queryEditorPanel.setLinksToResultsVisible(false);
+		queryEditorPanel.setSendingStatusText(null);
+		// } else {
+		//
+		// // fill the grid
+		// proteinTablePanel.getAsyncDataProvider().updateRowCount(result.getTotalNumber(),
+		// true);
+		// proteinTablePanel.getAsyncDataProvider().updateRowData(start,
+		// result.getDataList());
+		// // proteinTablePanel.reloadData();
+		// proteinTablePanel.refreshData();
+		// selectDataTab(proteinTablePanel);
+		// }
 
 	}
 
@@ -2534,8 +2535,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						@Override
 						public void onClick(ClickEvent event) {
 							showLoadingDialog("Cancelling...", null, null);
-							final String stamp = String.valueOf(System.currentTimeMillis());
-							PendingTasksManager.addPendingTask(TaskType.CANCELLING_REQUEST, stamp);
+							final String taskKey = PendingTasksManager.addPendingTask(TaskType.CANCELLING_REQUEST, "");
 							proteinRetrievingService.cancelQuery(sessionID, new AsyncCallback<Void>() {
 								@Override
 								public void onFailure(Throwable caught) {
@@ -2543,7 +2543,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									updateStatus("Error trying to cancel task");
 									updateStatus(caught);
 									hiddeLoadingDialog();
-									PendingTasksManager.removeTask(TaskType.CANCELLING_REQUEST, stamp);
+									PendingTasksManager.removeTask(TaskType.CANCELLING_REQUEST, taskKey);
 								}
 
 								@Override
@@ -2551,7 +2551,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									for (final String pendingTaskKey : pendingTaskKeys) {
 										PendingTasksManager.removeTask(taskType, pendingTaskKey);
 									}
-									PendingTasksManager.removeTask(TaskType.CANCELLING_REQUEST, stamp);
+									PendingTasksManager.removeTask(TaskType.CANCELLING_REQUEST, taskKey);
 									updateStatus("Task cancelled.");
 									hiddeLoadingDialog();
 								}
