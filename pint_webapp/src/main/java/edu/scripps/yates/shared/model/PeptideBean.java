@@ -70,10 +70,10 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	private String ptmString;
 	private String ptmScoreString;
 	private Map<ExperimentalConditionBean, Integer> numPSMsByCondition;
+	private static int uniqueIdentifier = 0;
 
 	public PeptideBean() {
-
-		peptideBeanUniqueIdentifier = hashCode();
+		peptideBeanUniqueIdentifier = uniqueIdentifier++;
 	}
 
 	/**

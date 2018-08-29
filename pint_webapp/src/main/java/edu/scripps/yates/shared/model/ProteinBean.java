@@ -83,9 +83,10 @@ public class ProteinBean
 	private Set<Integer> peptideDBIds = new HashSet<Integer>();
 	private Map<String, ScoreBean> scores = new HashMap<String, ScoreBean>();
 	private Map<ExperimentalConditionBean, Integer> numPSMsByCondition;
+	private static int uniqueIdentifiers = 0;
 
 	public ProteinBean() {
-		proteinBeanUniqueIdentifier = hashCode();
+		proteinBeanUniqueIdentifier = uniqueIdentifiers++;
 	}
 
 	/**
