@@ -62,9 +62,10 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	private static final int rowProjectDataDescription2 = 6;
 	private static final int rowProjectDataDescription3 = 7;
 	private static final int rowProjectPublicationLink = 8;
-	private static final int rowProjectRecommendedQueries = 9;
+	private static final int rowLoadWholeProjectLink = 9;
+	private static final int rowProjectRecommendedQueries = 10;
 	private final QueryPanel queryPanel;
-	private boolean testMode;
+	private final boolean testMode;
 	private DefaultView defaultView;
 
 	private ProjectStatsFromProjectItemPanel(QueryPanel queryPanel, boolean testMode, ProjectBean projectBean,
@@ -80,13 +81,13 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	private FlexTable getProjectGeneralInformationPanel(ProjectBean projectBean) {
 		GWT.log("getting project general information panel: " + projectBean);
 
-		FlexTable table = new FlexTable();
+		final FlexTable table = new FlexTable();
 		// status
 
 		final Label label1 = new Label("Project status:");
 		label1.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectStatus, 0, label1);
-		Label projectStatus = getProjectStatus(projectBean);
+		final Label projectStatus = getProjectStatus(projectBean);
 		table.setWidget(rowProjectStatus, 1, projectStatus);
 		table.getCellFormatter().setAlignment(rowProjectStatus, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
@@ -123,8 +124,8 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		final Label label5 = new Label("General description:");
 		label5.setStyleName("ProjectItemIndividualItemTitle");
 		table.setWidget(rowProjectDescription, 0, label5);
-		SafeHtml safeHtml = new SafeHtmlBuilder().appendHtmlConstant(projectBean.getDescription()).toSafeHtml();
-		HTMLPanel htmlPanel = new HTMLPanel(safeHtml);
+		final SafeHtml safeHtml = new SafeHtmlBuilder().appendHtmlConstant(projectBean.getDescription()).toSafeHtml();
+		final HTMLPanel htmlPanel = new HTMLPanel(safeHtml);
 		htmlPanel.setStyleName("justifiedText");
 		table.setWidget(rowProjectDescription, 1, htmlPanel);
 		table.getCellFormatter().setAlignment(rowProjectDescription, 0, HasHorizontalAlignment.ALIGN_LEFT,
@@ -136,9 +137,9 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			final Label label8 = new Label("Detailed description:");
 			label8.setStyleName("ProjectItemIndividualItemTitle");
 			table.setWidget(rowProjectDataDescription1, 0, label8);
-			SafeHtml safeHtml2 = new SafeHtmlBuilder()
+			final SafeHtml safeHtml2 = new SafeHtmlBuilder()
 					.appendHtmlConstant(defaultView.getProjectDescription().replace("\n", "<br>")).toSafeHtml();
-			HTMLPanel htmlPanel2 = new HTMLPanel(safeHtml2);
+			final HTMLPanel htmlPanel2 = new HTMLPanel(safeHtml2);
 			htmlPanel2.setStyleName("justifiedText");
 			table.setWidget(rowProjectDataDescription1, 1, htmlPanel2);
 			table.getCellFormatter().setAlignment(rowProjectDataDescription1, 0, HasHorizontalAlignment.ALIGN_LEFT,
@@ -151,9 +152,9 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			final Label label9 = new Label("Data description:");
 			label9.setStyleName("ProjectItemIndividualItemTitle");
 			table.setWidget(rowProjectDataDescription2, 0, label9);
-			SafeHtml safeHtml2 = new SafeHtmlBuilder()
+			final SafeHtml safeHtml2 = new SafeHtmlBuilder()
 					.appendHtmlConstant(defaultView.getProjectInstructions().replace("\n", "<br>")).toSafeHtml();
-			HTMLPanel htmlPanel2 = new HTMLPanel(safeHtml2);
+			final HTMLPanel htmlPanel2 = new HTMLPanel(safeHtml2);
 			htmlPanel2.setStyleName("justifiedText");
 			table.setWidget(rowProjectDataDescription2, 1, htmlPanel2);
 			table.getCellFormatter().setAlignment(rowProjectDataDescription2, 0, HasHorizontalAlignment.ALIGN_LEFT,
@@ -166,9 +167,9 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			final Label label10 = new Label("Data view comments:");
 			label10.setStyleName("ProjectItemIndividualItemTitle");
 			table.setWidget(rowProjectDataDescription3, 0, label10);
-			SafeHtml safeHtml2 = new SafeHtmlBuilder()
+			final SafeHtml safeHtml2 = new SafeHtmlBuilder()
 					.appendHtmlConstant(defaultView.getProjectViewComments().replace("\n", "<br>")).toSafeHtml();
-			HTMLPanel htmlPanel2 = new HTMLPanel(safeHtml2);
+			final HTMLPanel htmlPanel2 = new HTMLPanel(safeHtml2);
 			htmlPanel2.setStyleName("justifiedText");
 			table.setWidget(rowProjectDataDescription3, 1, htmlPanel2);
 			table.getCellFormatter().setAlignment(rowProjectDataDescription3, 0, HasHorizontalAlignment.ALIGN_LEFT,
@@ -185,31 +186,49 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 				HasVerticalAlignment.ALIGN_TOP);
 		table.getCellFormatter().setAlignment(rowProjectPublicationLink, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		// default queries
-		final Label label7 = new Label("Recommended queries:");
+		// query to load the whole project again
+		final Label label7 = new Label("Query to load the whole project again:");
 		label7.setStyleName("ProjectItemIndividualItemTitle");
-		table.setWidget(rowProjectRecommendedQueries, 0, label7);
+		table.setWidget(rowLoadWholeProjectLink, 0, label7);
+		table.getCellFormatter().setAlignment(rowLoadWholeProjectLink, 0, HasHorizontalAlignment.ALIGN_LEFT,
+				HasVerticalAlignment.ALIGN_TOP);
+
+		final Panel loadWholeProjectPanel = MyWelcomeProjectPanel.getLinkToLoadProject(null, queryPanel, testMode,
+				"defaultQueryLinkSmall", projectBean.getTag());
+
+		table.setWidget(rowLoadWholeProjectLink, 1, loadWholeProjectPanel);
+		table.getCellFormatter().setAlignment(rowLoadWholeProjectLink, 1, HasHorizontalAlignment.ALIGN_LEFT,
+				HasVerticalAlignment.ALIGN_TOP);
+
+		// default queries
+		final Label label8 = new Label("Recommended queries:");
+		label8.setStyleName("ProjectItemIndividualItemTitle");
+		table.setWidget(rowProjectRecommendedQueries, 0, label8);
 		table.getCellFormatter().setAlignment(rowProjectRecommendedQueries, 0, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 		int row = rowProjectRecommendedQueries;
-		List<Panel> defaultQueriesPanels = getDefaultQueriesPanels();
-		for (Panel panel : defaultQueriesPanels) {
+		final List<Panel> defaultQueriesPanels = getDefaultQueriesPanels();
+		for (final Panel panel : defaultQueriesPanels) {
 			table.setWidget(row, 1, panel);
 			table.getCellFormatter().setAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT,
 					HasVerticalAlignment.ALIGN_TOP);
 			row++;
 		}
+
 		return table;
 	}
 
 	private List<Panel> getDefaultQueriesPanels() {
-		List<Panel> ret = new ArrayList<Panel>();
+		final List<Panel> ret = new ArrayList<Panel>();
 		if (defaultView != null && defaultView.getProjectNamedQueries() != null) {
-			boolean defaultOne = true;
-			for (ProjectNamedQuery recommendedQueries : defaultView.getProjectNamedQueries()) {
-				ret.add(MyWelcomeProjectPanel.getLinkToDataView(null, recommendedQueries, defaultOne, queryPanel,
-						testMode, "defaultQueryLinkSmall"));
-				defaultOne = false;
+			if (defaultView.getProjectNamedQueries().isEmpty()) {
+				ret.add(MyWelcomeProjectPanel.getLinkToLoadProject(null, queryPanel, testMode, "defaultQueryLinkSmall",
+						defaultView.getProjectTag()));
+			} else {
+				for (final ProjectNamedQuery recommendedQueries : defaultView.getProjectNamedQueries()) {
+					ret.add(MyWelcomeProjectPanel.getLinkToDataView(null, recommendedQueries, queryPanel, testMode,
+							"defaultQueryLinkSmall"));
+				}
 			}
 		}
 		return ret;
@@ -226,13 +245,13 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 
 	private Label getEscapedString(String string, boolean skipStyle) {
 		if (string != null) {
-			Label label = new Label(string);
+			final Label label = new Label(string);
 			if (!skipStyle) {
 				label.setStyleName("no-wrap");
 			}
 			return label;
 		} else {
-			Label label = new Label("Not available");
+			final Label label = new Label("Not available");
 			if (!skipStyle) {
 				label.setStyleName("no-wrap");
 			}
@@ -242,7 +261,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 
 	private Widget getProjectDate(Date date) {
 		if (date != null) {
-			DateLabel label = new DateLabel(
+			final DateLabel label = new DateLabel(
 					com.google.gwt.i18n.client.DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG));
 			label.setValue(date);
 			label.setStyleName("no-wrap");
@@ -254,11 +273,11 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 
 	private Label getProjectStatus(ProjectBean projectBean) {
 		if (projectBean.isPublicAvailable()) {
-			Label label = new Label("Public");
+			final Label label = new Label("Public");
 			label.setStyleName("no-wrap");
 			return label;
 		} else {
-			Label label = new Label("This project is private");
+			final Label label = new Label("This project is private");
 			label.setStyleName("no-wrap");
 			return label;
 		}
@@ -272,14 +291,14 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	@Override
 	public void requestNumGenes(final ProjectBean projectBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
-		Image imageLoader = new Image(smallLoader);
+		final Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowGenes, 1, imageLoader);
 		super.proteinRetrievingService.getNumGenes(projectBean.getTag(), new AsyncCallback<Integer>() {
 
 			@Override
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumGenes(result);
-				Label numGenesLabel = new Label(format.format(result));
+				final Label numGenesLabel = new Label(format.format(result));
 				numGenesLabel.setStyleName("no-wrap");
 				if (projectBean.equals(selectedItem.getT())) {
 					rightPanel.setWidget(rowGenes, 1, numGenesLabel);
@@ -299,14 +318,14 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	@Override
 	public void requestNumPSMs(final ProjectBean projectBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
-		Image imageLoader = new Image(smallLoader);
+		final Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowPSMs, 1, imageLoader);
 		super.proteinRetrievingService.getNumPSMs(projectBean.getTag(), new AsyncCallback<Integer>() {
 
 			@Override
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumPSMs(result);
-				Label numPSMsLabel = new Label(format.format(result));
+				final Label numPSMsLabel = new Label(format.format(result));
 				numPSMsLabel.setStyleName("no-wrap");
 				if (projectBean.equals(selectedItem.getT())) {
 					rightPanel.setWidget(rowPSMs, 1, numPSMsLabel);
@@ -325,14 +344,14 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	@Override
 	public void requestNumPeptides(final ProjectBean projectBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
-		Image imageLoader = new Image(smallLoader);
+		final Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowPeptides, 1, imageLoader);
 		super.proteinRetrievingService.getNumDifferentPeptides(projectBean.getTag(), new AsyncCallback<Integer>() {
 
 			@Override
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumPeptides(result);
-				Label numPeptidesLabel = new Label(format.format(result));
+				final Label numPeptidesLabel = new Label(format.format(result));
 				numPeptidesLabel.setStyleName("no-wrap");
 				if (projectBean.equals(selectedItem.getT())) {
 					rightPanel.setWidget(rowPeptides, 1, numPeptidesLabel);
@@ -352,14 +371,14 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	@Override
 	public void requestNumProteins(final ProjectBean projectBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
-		Image imageLoader = new Image(smallLoader);
+		final Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowProteins, 1, imageLoader);
 		super.proteinRetrievingService.getNumDifferentProteins(projectBean.getTag(), new AsyncCallback<Integer>() {
 
 			@Override
 			public void onSuccess(Integer result) {
 				projectStatsMap.get(projectBean).setNumProteins(result);
-				Label numProteinsLabel = new Label(format.format(result));
+				final Label numProteinsLabel = new Label(format.format(result));
 				numProteinsLabel.setStyleName("no-wrap");
 				if (projectBean.equals(selectedItem.getT())) {
 					rightPanel.setWidget(rowProteins, 1, numProteinsLabel);
@@ -379,14 +398,14 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	@Override
 	public void requestNumMSRuns(final ProjectBean projectBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
-		Image imageLoader = new Image(smallLoader);
+		final Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowMSRuns, 1, imageLoader);
 		super.proteinRetrievingService.getMsRunsFromProject(projectBean.getTag(), new AsyncCallback<Set<String>>() {
 
 			@Override
 			public void onSuccess(Set<String> result) {
 				projectStatsMap.get(projectBean).setNumMSRuns(result.size());
-				Label numMSRunsLabel = new Label(format.format(result.size()));
+				final Label numMSRunsLabel = new Label(format.format(result.size()));
 				numMSRunsLabel.setStyleName("no-wrap");
 				if (projectBean.equals(selectedItem.getT())) {
 					rightPanel.setWidget(rowMSRuns, 1, numMSRunsLabel);
@@ -407,7 +426,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	public void afterUpdateParent(ProjectBean projectBean) {
 		GWT.log("afterUpdateParent beginning projectBan: " + projectBean);
 		// add the general description panel to the left
-		FlexTable leftPanel = getProjectGeneralInformationPanel(projectBean);
+		final FlexTable leftPanel = getProjectGeneralInformationPanel(projectBean);
 		setUniqueItemToList(leftPanel);
 		setCaption("'" + projectBean.getTag() + "' summary");
 		selectFirstItem();

@@ -77,7 +77,7 @@ public class DefaultView implements Serializable {
 	}
 
 	public boolean getProteinDefaultView(ColumnName columnName) {
-		for (ColumnWithVisibility columnWithVisibility : proteinDefaultView) {
+		for (final ColumnWithVisibility columnWithVisibility : proteinDefaultView) {
 			if (columnWithVisibility.getColumn() == columnName)
 				return columnWithVisibility.isVisible();
 		}
@@ -100,7 +100,7 @@ public class DefaultView implements Serializable {
 	}
 
 	public boolean getProteinGroupDefaultView(ColumnName columnName) {
-		for (ColumnWithVisibility columnWithVisibility : proteinGroupDefaultView) {
+		for (final ColumnWithVisibility columnWithVisibility : proteinGroupDefaultView) {
 			if (columnWithVisibility.getColumn() == columnName)
 				return columnWithVisibility.isVisible();
 		}
@@ -123,7 +123,7 @@ public class DefaultView implements Serializable {
 	}
 
 	public boolean getPSMDefaultView(ColumnName columnName) {
-		for (ColumnWithVisibility columnWithVisibility : psmDefaultView) {
+		for (final ColumnWithVisibility columnWithVisibility : psmDefaultView) {
 			if (columnWithVisibility.getColumn() == columnName)
 				return columnWithVisibility.isVisible();
 		}
@@ -505,20 +505,20 @@ public class DefaultView implements Serializable {
 		if (value == null) {
 			return;
 		}
-		ProjectNamedQuery projectNameQuery = new ProjectNamedQuery();
+		final ProjectNamedQuery projectNameQuery = new ProjectNamedQuery();
 
 		if (value.contains(QUERY_NAME_SEPARATOR)) {
 			final String[] split = value.split(QUERY_NAME_SEPARATOR);
 			projectNameQuery.setName(split[0].trim());
 			projectNameQuery.setQuery(split[1].trim());
 		} else {
-			if ("".equals(value.trim())) {
-				projectNameQuery.setName("Load the whole project");
-				projectNameQuery.setQuery("COND[," + projectTag + "]");
-			} else {
-				projectNameQuery.setName("Query_" + projectNamedQueries.size() + 1);
-				projectNameQuery.setQuery(value.trim());
-			}
+			// if ("".equals(value.trim())) {
+			// // projectNameQuery.setName("Load the whole project");
+			// // projectNameQuery.setQuery("COND[," + projectTag + "]");
+			// } else {
+			projectNameQuery.setName("Query_" + projectNamedQueries.size() + 1);
+			projectNameQuery.setQuery(value.trim());
+			// }
 		}
 		projectNameQuery.setIndex(index);
 		projectNamedQueries.add(projectNameQuery);

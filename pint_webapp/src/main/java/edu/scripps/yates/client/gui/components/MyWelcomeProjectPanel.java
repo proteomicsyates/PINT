@@ -64,11 +64,11 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 		cptnpnlBigProject.setCaptionHTML("Important notice");
 		cptnpnlBigProject.setStyleName("WelcomeProjectPanelBigProjectPanel");
 		add(cptnpnlBigProject);
-		String noticeText = "Regular queries have been disabled in this dataset."
+		final String noticeText = "Regular queries have been disabled in this dataset."
 				+ "<br>However you can still look for invidual proteins/genes in the 'query' panel."
 				+ "<br>In order to do that, go to the 'Query' tab and type something in the 'Simple query editor' text box.";
-		SafeHtml bigProjectNoticeSafeHtml = new SafeHtmlBuilder().appendHtmlConstant(noticeText).toSafeHtml();
-		HTMLPanel importantNoticeHtml = new HTMLPanel(bigProjectNoticeSafeHtml);
+		final SafeHtml bigProjectNoticeSafeHtml = new SafeHtmlBuilder().appendHtmlConstant(noticeText).toSafeHtml();
+		final HTMLPanel importantNoticeHtml = new HTMLPanel(bigProjectNoticeSafeHtml);
 		importantNoticeHtml.setStyleName("WelcomeProjectPanelBigProjectPanelHtml");
 		cptnpnlBigProject.setContentWidget(importantNoticeHtml);
 		importantNoticeHtml.setSize("100%", "100%");
@@ -80,12 +80,13 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 		// replace all \n by <br>
 		projectDescription = projectDescription.replace("\n", "<br>");
 
-		CaptionPanel cptnpnlProjectDescription = new CaptionPanel("Project description");
+		final CaptionPanel cptnpnlProjectDescription = new CaptionPanel("Project description");
 		cptnpnlProjectDescription.setCaptionHTML("Project short description");
 		cptnpnlProjectDescription.setStyleName("WelcomeProjectPanelInternalPanel");
 		add(cptnpnlProjectDescription);
 
-		SafeHtml projectDescriptionSafeHtml = new SafeHtmlBuilder().appendHtmlConstant(projectDescription).toSafeHtml();
+		final SafeHtml projectDescriptionSafeHtml = new SafeHtmlBuilder().appendHtmlConstant(projectDescription)
+				.toSafeHtml();
 
 		projectDescriptionHtml = new HTMLPanel(projectDescriptionSafeHtml);
 		projectDescriptionHtml.setStyleName("WelcomeProjectPanelInternalPanelHtml");
@@ -98,12 +99,12 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 		}
 		// replace all \n by <br>
 		projectInstructions = projectInstructions.replace("\n", "<br>");
-		CaptionPanel captionPanel = new CaptionPanel("Project description");
+		final CaptionPanel captionPanel = new CaptionPanel("Project description");
 		captionPanel.setCaptionHTML("Data description");
 		captionPanel.setStyleName("WelcomeProjectPanelInternalPanel");
 		add(captionPanel);
 
-		SafeHtml projectInstructionsSafeHtml = new SafeHtmlBuilder().appendHtmlConstant(projectInstructions)
+		final SafeHtml projectInstructionsSafeHtml = new SafeHtmlBuilder().appendHtmlConstant(projectInstructions)
 				.toSafeHtml();
 
 		projectInstructionsHtml = new HTMLPanel(projectInstructionsSafeHtml);
@@ -118,11 +119,11 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 		// replace all \n by <br>
 		projectViewComments = projectViewComments.replace("\n", "<br>");
 
-		CaptionPanel cptnpnlDataViewComments = new CaptionPanel("Data view comments");
+		final CaptionPanel cptnpnlDataViewComments = new CaptionPanel("Data view comments");
 		cptnpnlDataViewComments.setStyleName("WelcomeProjectPanelInternalPanel");
 		add(cptnpnlDataViewComments);
 
-		SafeHtml projectViewCommentsSafeHtml = new SafeHtmlBuilder().appendHtmlConstant(projectViewComments)
+		final SafeHtml projectViewCommentsSafeHtml = new SafeHtmlBuilder().appendHtmlConstant(projectViewComments)
 				.toSafeHtml();
 
 		projectViewCommentsHtml = new HTMLPanel(projectViewCommentsSafeHtml);
@@ -130,47 +131,39 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 		cptnpnlDataViewComments.setContentWidget(projectViewCommentsHtml);
 		projectViewCommentsHtml.setSize("100%", "100%");
 
-		CaptionPanel availableQueriesCaptionPanel = new CaptionPanel("REcommended queries for this project");
+		final CaptionPanel availableQueriesCaptionPanel = new CaptionPanel("Available data for this project");
 		availableQueriesCaptionPanel.setStyleName("WelcomeProjectPanelInternalPanel");
 		add(availableQueriesCaptionPanel);
 
-		StringBuilder availableQueriesString = new StringBuilder();
+		final StringBuilder availableQueriesString = new StringBuilder();
 		final List<ProjectNamedQuery> projectNamedQueries = defaultView.getProjectNamedQueries();
-		List<Panel> clickableLabels = new ArrayList<Panel>();
+		final List<Panel> clickableLabels = new ArrayList<Panel>();
 		if (!projectBean.isBig()) {
-			if (projectNamedQueries.isEmpty()) {
-				availableQueriesString
-						.append("The project will be fully loaded by default. No recommended queries were defined.");
-			} else {
-				if (projectNamedQueries.size() == 1) {
-					availableQueriesString.append("Recommended query for this project:\n");
+			availableQueriesString.append(
+					"The data associated with this project is being loaded. Once it is loaded, you can explore or you can query the data.\n");
+			if (!projectNamedQueries.isEmpty()) {
 
-				} else {
-					availableQueriesString.append(
-							"Several recommended queries were defined for this project. The one marked with (*) will be automatically loaded. Click on any other to load that view:\n");
-				}
+				availableQueriesString
+						.append("Click in the query below to load a subset of the data associated with the project.\n");
+
 				for (int index = 0; index < projectNamedQueries.size(); index++) {
-					ProjectNamedQuery projectNamedQuery = projectNamedQueries.get(index);
-					boolean defaultOne = false;
-					if (index == 0 && projectNamedQueries.size() > 1) {
-						defaultOne = true;
-					}
-					clickableLabels.add(getLinkToDataView(this.parentWindow, projectNamedQuery, defaultOne, queryPanel,
-							testMode, "defaultQueryLink"));
+					final ProjectNamedQuery projectNamedQuery = projectNamedQueries.get(index);
+					clickableLabels.add(getLinkToDataView(this.parentWindow, projectNamedQuery, queryPanel, testMode,
+							"defaultQueryLink"));
 				}
 			}
 		} else {
 			availableQueriesString.append("Default views are disabled for this project.\n");
 		}
-		SafeHtml availableQueriesContent = new SafeHtmlBuilder().appendEscapedLines(availableQueriesString.toString())
-				.toSafeHtml();
+		final SafeHtml availableQueriesContent = new SafeHtmlBuilder()
+				.appendEscapedLines(availableQueriesString.toString()).toSafeHtml();
 
 		availableQueriesHtmlPanel = new HTMLPanel(availableQueriesContent);
 		availableQueriesHtmlPanel.setStyleName("WelcomeProjectPanelInternalPanelHtml");
 		availableQueriesCaptionPanel.setContentWidget(availableQueriesHtmlPanel);
 		availableQueriesHtmlPanel.setSize("100%", "100%");
 
-		for (Panel panel : clickableLabels) {
+		for (final Panel panel : clickableLabels) {
 			availableQueriesHtmlPanel.add(panel);
 		}
 
@@ -184,14 +177,14 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 	 * @return
 	 */
 	public static Panel getLinkToDataView(WindowBox parentWindowBox, final ProjectNamedQuery projectNamedQuery,
-			boolean defaultOne, QueryPanel queryPanel, boolean testMode, String styleName) {
-		Panel ret = new HorizontalPanel();
-		ret.getElement().setAttribute("cellpadding", "5");
-		String queryName = projectNamedQuery.getName();
-		if (defaultOne) {
-			queryName = "(*) " + queryName;
+			QueryPanel queryPanel, boolean testMode, String styleName) {
+		final Panel ret = new HorizontalPanel();
+		if (parentWindowBox != null) {
+			ret.getElement().setAttribute("cellpadding", "5");
 		}
-		final Label nameLabel = new Label(queryName);
+		final String queryName = projectNamedQuery.getName();
+
+		final Label nameLabel = new Label(queryName + ": " + projectNamedQuery.getQuery());
 		nameLabel.setWidth("100%");
 		if (styleName != null) {
 			nameLabel.setStyleName(styleName);
@@ -209,6 +202,41 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 				}
 				queryPanel.loadProteinsFromProject(null, projectNamedQuery.getIndex(), projectNamedQuery.getName(),
 						testMode);
+			}
+		});
+		ret.add(nameLabel);
+		return ret;
+	}
+
+	/**
+	 *
+	 * @param projectNamedQuery
+	 * @param defaultOne
+	 *            print an '*' before the query name
+	 * @return
+	 */
+	public static Panel getLinkToLoadProject(WindowBox parentWindowBox, QueryPanel queryPanel, boolean testMode,
+			String styleName, String projectTag) {
+		final Panel ret = new HorizontalPanel();
+		if (parentWindowBox != null) {
+			ret.getElement().setAttribute("cellpadding", "0");
+		}
+		final Label nameLabel = new Label("Load the whole project: COND[, " + projectTag + "]");
+		nameLabel.setWidth("100%");
+		if (styleName != null) {
+			nameLabel.setStyleName(styleName);
+		}
+		nameLabel.getElement().getStyle().setFontWeight(FontWeight.BOLD);
+		nameLabel.setTitle("Load the whole project: COND[, " + projectTag + "]");
+		nameLabel.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				// close this panel first
+				if (parentWindowBox != null) {
+					parentWindowBox.hide();
+				}
+				queryPanel.loadProteinsFromProject(null, null, null, testMode);
 			}
 		});
 		ret.add(nameLabel);
