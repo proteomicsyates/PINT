@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.gwt.core.client.GWT;
-
 public class PendingTasksManager {
 	private static final Map<TaskType, List<String>> tasks = new HashMap<TaskType, List<String>>();
 	private static final Set<PendingTaskHandler> controllers = new HashSet<PendingTaskHandler>();
@@ -28,6 +26,13 @@ public class PendingTasksManager {
 		controllers.add(controller);
 	}
 
+	/**
+	 * Returns a list of pending tasks keys of one type.<br>
+	 * Returns an empty List if there is no task of that type
+	 * 
+	 * @param taskType
+	 * @return
+	 */
 	public static List<String> getPendingTaskKeys(TaskType taskType) {
 		// to ensure to return an empty set:
 		if (!tasks.containsKey(taskType)) {
@@ -39,27 +44,18 @@ public class PendingTasksManager {
 
 	public static void addPendingTasks(TaskType taskType, Collection<String> keys) {
 
-		for (final String key : keys) {
-			GWT.log("Adding task with key: " + key);
-		}
 		final List<String> pendingTaskKeys = getPendingTaskKeys(taskType);
 		for (final String key : pendingTaskKeys) {
-			if (!pendingTaskKeys.contains(key)) {
-				pendingTaskKeys.add(key);
-				notifyPendingTaskControllers(OPERATION.ADD);
-
-			}
+			pendingTaskKeys.add(key);
+			notifyPendingTaskControllers(OPERATION.ADD);
 		}
 
 	}
 
 	public static void addPendingTask(TaskType taskType, String key) {
 		final List<String> pendingTaskKeys = getPendingTaskKeys(taskType);
-		if (!pendingTaskKeys.contains(key)) {
-			pendingTaskKeys.add(key);
-			notifyPendingTaskControllers(OPERATION.ADD);
-
-		}
+		pendingTaskKeys.add(key);
+		notifyPendingTaskControllers(OPERATION.ADD);
 	}
 
 	private static void notifyPendingTaskControllers(OPERATION add) {
