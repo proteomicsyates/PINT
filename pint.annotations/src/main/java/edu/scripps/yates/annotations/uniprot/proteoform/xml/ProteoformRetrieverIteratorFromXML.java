@@ -24,6 +24,7 @@ public class ProteoformRetrieverIteratorFromXML implements Iterator<Proteoform> 
 												// retrieved everytime the list
 												// of proteoform is empty
 	private final List<Proteoform> proteoformList = new ArrayList<Proteoform>();
+	private boolean listFinished;
 
 	public ProteoformRetrieverIteratorFromXML(Collection<String> uniprotACCs, boolean retrieveProteoforms,
 			boolean retrieveIsoforms, boolean retrievePTMs, String uniprotVersion, UniprotProteinLocalRetriever uplr) {
@@ -45,7 +46,7 @@ public class ProteoformRetrieverIteratorFromXML implements Iterator<Proteoform> 
 		if (currentAccIndex >= accs.size()) {
 			return false;
 		}
-		if (proteoformList.isEmpty()) {
+		if (proteoformList.isEmpty() && !listFinished) {
 			loadList();
 		}
 		if (proteoformList.isEmpty()) {
@@ -62,6 +63,7 @@ public class ProteoformRetrieverIteratorFromXML implements Iterator<Proteoform> 
 		if (!proteoformList.isEmpty()) {
 			final Proteoform ret = proteoformList.get(0);
 			proteoformList.remove(0);
+
 			return ret;
 		}
 		return null;
@@ -69,7 +71,7 @@ public class ProteoformRetrieverIteratorFromXML implements Iterator<Proteoform> 
 
 	private void loadList() {
 		final int nextIndex = Math.min(currentAccIndex + CHUNCK_SIZE, accs.size() - 1);
-		final List<String> accList = accs.subList(currentAccIndex, nextIndex);
+		final List<String> accList = accs.subList(currentAccIndex, nextIndex + 1);
 		currentAccIndex = nextIndex;
 		final Map<String, List<Proteoform>> proteoformsFromList = UniprotProteoformRetrieverFromXML
 				.getProteoformsFromList(accList, retrieveProteoforms, retrieveIsoforms, retrievePTMs, uniprotVersion,
@@ -79,6 +81,9 @@ public class ProteoformRetrieverIteratorFromXML implements Iterator<Proteoform> 
 			set.addAll(proteoforms);
 		}
 		proteoformList.addAll(set);
+		if (currentAccIndex == accs.size() - 1) {
+			listFinished = true;
+		}
 	}
 
 }
