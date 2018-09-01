@@ -1,9 +1,13 @@
 package edu.scripps.yates.annotations.uniprot.proteoform.fasta;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+
+import org.apache.log4j.Logger;
 
 import com.google.common.collect.Iterators;
 
@@ -21,6 +25,7 @@ import edu.scripps.yates.utilities.fasta.FastaReader;
  *
  */
 public class ProteoFormFastaReader extends FastaReader {
+	private final static Logger log = Logger.getLogger(ProteoFormFastaReader.class);
 	private final UniprotProteoformRetriever proteoFormRetriever;
 	private final Set<String> canonicalUniprotEntries;
 
@@ -46,7 +51,18 @@ public class ProteoFormFastaReader extends FastaReader {
 
 	@Override
 	public Iterator<Fasta> getFastas() throws IOException {
-		return Iterators.concat(super.getFastas(), getProteoFormFastaIterator());
+		final Iterator<Fasta> fastas = super.getFastas();
+		final Iterator<Fasta> proteoFormFastaIterator = getProteoFormFastaIterator();
+		if (fastas.hasNext() && proteoFormFastaIterator.hasNext()) {
+			return Iterators.concat(fastas, proteoFormFastaIterator);
+		} else if (fastas.hasNext()) {
+			return fastas;
+		} else if (proteoFormFastaIterator.hasNext()) {
+			return proteoFormFastaIterator;
+		} else {
+			final List<Fasta> emptyList = new ArrayList<Fasta>();
+			return emptyList.iterator();
+		}
 	}
 
 	private Iterator<Fasta> getProteoFormFastaIterator() throws IOException {
@@ -60,6 +76,7 @@ public class ProteoFormFastaReader extends FastaReader {
 		} else {
 			uniprotACCs = getUniprotACCsFromFasta();
 		}
+
 		// look for proteoforms of the proteins
 		final Iterator<Proteoform> proteoformList = proteoFormRetriever.getProteoformIterator(uniprotACCs);
 
