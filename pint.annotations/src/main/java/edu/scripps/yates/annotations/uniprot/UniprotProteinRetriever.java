@@ -38,7 +38,7 @@ public class UniprotProteinRetriever {
 	}
 
 	public void setCacheEnabled(boolean enableCache) {
-		this.uniprotLocalRetriever.setCacheEnabled(enableCache);
+		uniprotLocalRetriever.setCacheEnabled(enableCache);
 	}
 
 	public Set<String> getUniprotVersionsForProjects(Map<String, Date> uploadDatesByProjectTags) {
@@ -207,6 +207,13 @@ public class UniprotProteinRetriever {
 		return ret;
 	}
 
+	/**
+	 * Returns a map in which the key is the accession and the value is the
+	 * protein sequence
+	 * 
+	 * @param accession
+	 * @return
+	 */
 	public Map<String, String> getAnnotatedProteinSequence(String accession) {
 		final Set<String> accessions = new THashSet<String>();
 		accessions.add(accession);
