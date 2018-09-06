@@ -78,7 +78,7 @@ public class SemanticTranslator {
 		case PTM:
 			query = new QueryFromPTMCommand(commandReference, AggregationLevel.PEPTIDE);
 			return query;
-		case SEQ:
+		case SEQUENCE:
 			query = new QueryFromSEQCommand(commandReference);
 			return query;
 		default:
