@@ -6,10 +6,7 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Label;
-import edu.scripps.yates.proteindb.persistence.mysql.PeptideAmount;
-import edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
-import edu.scripps.yates.proteindb.persistence.mysql.PsmAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 import edu.scripps.yates.proteindb.queries.Query;
 import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
@@ -131,19 +128,17 @@ public class QueryFromLabelCommand extends AbstractQuery {
 
 	private boolean queryOverProtein(QueriableProteinSet protein) {
 
-		final Set<ProteinAmount> proteinAmounts = protein.getProteinAmounts();
-		if (proteinAmounts != null) {
-			for (final ProteinAmount proteinAmount : proteinAmounts) {
-				final Condition condition = proteinAmount.getCondition();
-				if (condition != null) {
-					final Sample sample = condition.getSample();
-					if (sample != null) {
-						final Label label = sample.getLabel();
-						if (label.getName().equalsIgnoreCase(labelString)) {
-							return true;
-						}
+		final Set<Condition> conditions = protein.getConditions();
+		if (conditions != null) {
+			for (final Condition condition : conditions) {
+				final Sample sample = condition.getSample();
+				if (sample != null) {
+					final Label label = sample.getLabel();
+					if (label.getName().equalsIgnoreCase(labelString)) {
+						return true;
 					}
 				}
+
 			}
 		}
 		return false;
@@ -153,23 +148,21 @@ public class QueryFromLabelCommand extends AbstractQuery {
 	private boolean queryOverPsm(Psm psm) {
 		boolean anyOtherLabel = false;
 		boolean targetLabel = false;
-		final Set<PsmAmount> psmAmounts = psm.getPsmAmounts();
-		if (psmAmounts != null) {
+		final Set<Condition> conditions = psm.getConditions();
+		if (conditions != null) {
 
-			for (final PsmAmount psmAmount : psmAmounts) {
-				final Condition condition = psmAmount.getCondition();
-				if (condition != null) {
-					final Sample sample = condition.getSample();
-					if (sample != null) {
-						final Label label = sample.getLabel();
-						final String labelName = label.getName();
-						if (labelName.equalsIgnoreCase(labelString)) {
-							targetLabel = true;
-						} else {
-							anyOtherLabel = true;
-						}
+			for (final Condition condition : conditions) {
+				final Sample sample = condition.getSample();
+				if (sample != null) {
+					final Label label = sample.getLabel();
+					final String labelName = label.getName();
+					if (labelName.equalsIgnoreCase(labelString)) {
+						targetLabel = true;
+					} else {
+						anyOtherLabel = true;
 					}
 				}
+
 			}
 		}
 		if (targetLabel) {
@@ -187,23 +180,21 @@ public class QueryFromLabelCommand extends AbstractQuery {
 	private boolean queryOverPeptide(QueriablePeptideSet peptideSet) {
 		boolean anyOtherLabel = false;
 		boolean targetLabel = false;
-		final Set<PeptideAmount> psmAmounts = peptideSet.getPeptideAmounts();
-		if (psmAmounts != null) {
+		final Set<Condition> conditions = peptideSet.getConditions();
+		if (conditions != null) {
 
-			for (final PeptideAmount peptideAmount : psmAmounts) {
-				final Condition condition = peptideAmount.getCondition();
-				if (condition != null) {
-					final Sample sample = condition.getSample();
-					if (sample != null) {
-						final Label label = sample.getLabel();
-						final String labelName = label.getName();
-						if (labelName.equalsIgnoreCase(labelString)) {
-							targetLabel = true;
-						} else {
-							anyOtherLabel = true;
-						}
+			for (final Condition condition : conditions) {
+				final Sample sample = condition.getSample();
+				if (sample != null) {
+					final Label label = sample.getLabel();
+					final String labelName = label.getName();
+					if (labelName.equalsIgnoreCase(labelString)) {
+						targetLabel = true;
+					} else {
+						anyOtherLabel = true;
 					}
 				}
+
 			}
 		}
 		if (targetLabel) {
