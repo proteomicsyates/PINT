@@ -223,7 +223,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		mainPanel.addSouth(textAreaStatus, 100.0);
 		textAreaStatus.setSize("100%", "100%");
 		textAreaStatus.setVisibleLines(4);
-		textAreaStatus.setText("Starting data view...");
+		textAreaStatus.setText("Starting dataset view...");
 		textAreaStatus.setReadOnly(true);
 
 		final SplitLayoutPanel splitLayoutPanel = new SplitLayoutPanel(7);
@@ -879,10 +879,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		scrollProjectInformationPanel = new ScrollPanel(projectInformationPanel);
 		firstLevelTabPanel.add(scrollProjectInformationPanel, "Project information");
 		scrollQueryPanel = new ScrollPanel(queryEditorPanel);
+		firstLevelTabPanel.add(layoutPanel, "Dataset view");
 		firstLevelTabPanel.add(scrollQueryPanel, "Query");
-		firstLevelTabPanel.add(layoutPanel, "Data view");
 
-		menuUpStackLayoutPanel.add(commandsPanel, "Query commands", HEADER_HEIGHT);
+		menuUpStackLayoutPanel.add(commandsPanel, "Filters / Query commands", HEADER_HEIGHT);
 		menuUpStackLayoutPanel.add(annotationsTypePanel, "Annotation Types", HEADER_HEIGHT);
 		menuUpStackLayoutPanel.add(uniprotHeaderLinesPanel, "Uniprot Header Line", HEADER_HEIGHT);
 		menuUpStackLayoutPanel.add(scoreTypesPanel, "Score Types", HEADER_HEIGHT);

@@ -34,7 +34,9 @@ public enum Command {
 	// PTM
 	PTM("PTM", "PTM[PTM_name, PTM_mass_diff_Dalton, Dalton_tolerance, Numerical_condition]"),
 	// SEQ
-	SEQUENCE("SEQ", "SEQ[Aggregation_level, regular_expression]");
+	SEQUENCE("SEQ", "SEQ[Aggregation_level, regular_expression]"),
+	// TISSUE
+	TISSUE("TIS", "TIS[CSV_tissue_name]");
 
 	private final String abbreviation;
 	private final String format;

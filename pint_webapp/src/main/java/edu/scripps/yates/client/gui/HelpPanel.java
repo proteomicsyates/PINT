@@ -107,7 +107,7 @@ public class HelpPanel extends InitializableComposite {
 		verticalPanel_2.add(simplePanel_1);
 
 		InlineHTML nlnhtmlPintProvidesA = new InlineHTML(
-				"PINT provides a set of different commands to query over the data.<br>\r\n<br>\r\nThe list of commands and examples of use are available in the following help document:<br>\r\n<ul>\r\n<li><a href=\"PINT_help_Query_Commands.pdf\" class=\"linkPINT\" target=\"_blank\">How to query data in PINT [PDF]</a> [updated: April 17, 2015]</li>\r\n</ul>\r\nAfter sending a query, it will be processed by the server and the resulting list of proteins will be automatically showed in the 'data view' tab. The corresponding PSMs and protein groups will be showed in the appropiate tabs.<br>\r\n<br>\r\nAs can be readed in the previous help document, commands can be combined in logical operations (using !, AND, OR, XOR operators)");
+				"PINT provides a set of different commands to query over the data.<br>\r\n<br>\r\nThe list of commands and examples of use are available in the following help document:<br>\r\n<ul>\r\n<li><a href=\"PINT_help_Query_Commands.pdf\" class=\"linkPINT\" target=\"_blank\">How to query data in PINT [PDF]</a> [updated: April 17, 2015]</li>\r\n</ul>\r\nAfter sending a query, it will be processed by the server and the resulting list of proteins will be automatically showed in the 'dataset view' tab. The corresponding PSMs and protein groups will be showed in the appropiate tabs.<br>\r\n<br>\r\nAs can be readed in the previous help document, commands can be combined in logical operations (using !, AND, OR, XOR operators)");
 		simplePanel_1.setWidget(nlnhtmlPintProvidesA);
 		nlnhtmlPintProvidesA.setSize("100%", "100%");
 

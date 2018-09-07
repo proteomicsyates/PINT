@@ -29,6 +29,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinScore;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
+import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAccessionAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.utilities.fasta.FastaParser;
@@ -67,6 +68,7 @@ public class QueriableProteinSet {
 	private THashSet<Gene> genes;
 	private THashSet<Condition> conditions;
 	private Organism organism;
+	private Set<Tissue> tissues;
 	private static UniprotProteinLocalRetriever uplr;
 
 	private final static Logger log = Logger.getLogger(QueriableProteinSet.class);
@@ -358,6 +360,17 @@ public class QueriableProteinSet {
 			}
 		}
 		return conditions;
+	}
+
+	public Set<Tissue> getTissues() {
+		if (tissues == null) {
+			tissues = new THashSet<Tissue>();
+			for (Condition condition : getConditions()) {
+				Tissue tissue = condition.getSample().getTissue();
+				tissues.add(tissue);
+			}
+		}
+		return tissues;
 	}
 
 	/**

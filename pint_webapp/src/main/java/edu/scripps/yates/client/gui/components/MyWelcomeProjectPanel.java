@@ -31,10 +31,10 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 	private static final String defaultProjectDescriptionString = "This interactive page of PInt tool will allow you to actually look at the data of this project.\n";
 	private static final String defaultProjectInstructionsString = "How to navegate in this page:\n"
 			+ "There are two main tabs:\n"
-			+ "The 'Query' tab allows to write queries to filter the data. Look at 'Query commands' left menu to see available commands.\n"
-			+ "The 'Data view' tab shows the actual data, divided into three subtabs: 'Individual proteins view' (showing the list of proteins in the dataset), "
+			+ "The 'Query' tab allows to write queries to filter the data. Look at 'Filters / Query commands' left menu to see available commands.\n"
+			+ "The 'Dataset view' tab shows the actual data, divided into three subtabs: 'Individual proteins view' (showing the list of proteins in the dataset), "
 			+ "'Protein groups view' (showing the groups comming from PAnalyzer protein inference algorithm)"
-			+ " and 'PSMs view' (containing all PSMs in the dataset).\n"
+			+ " and 'Peptides view' (containing all Peptides in the dataset).\n"
 			+ "At the left of the page, the tool shows a set of menus with information about the project(s) and "
 			+ "experimental conditions that have been loaded, as well as interactive controls to change the view of the data tables (upper half of left menus).\n"
 			+ "It also provides some menus for the possible values the user should use in the different query commands (botton half of left menus).";
@@ -190,7 +190,7 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 			nameLabel.setStyleName(styleName);
 		}
 		nameLabel.getElement().getStyle().setFontWeight(FontWeight.BOLD);
-		nameLabel.setTitle("Click here to load this data view:\n\t" + projectNamedQuery.getName() + ": '"
+		nameLabel.setTitle("Click here to load this dataset view:\n\t" + projectNamedQuery.getName() + ": '"
 				+ projectNamedQuery.getQuery() + "'");
 		nameLabel.addClickHandler(new ClickHandler() {
 

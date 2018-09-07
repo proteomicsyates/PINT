@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -11,6 +12,7 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -862,5 +864,29 @@ public class PreparedCriteria {
 					condition.getId()));
 		}
 		return ret;
+	}
+
+	public static List<Protein> getProteinsWithTissues(String projectTag, Set<String> tissueNames) {
+		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Protein.class, "protein")
+				.createAlias("protein.conditions", "condition")//
+				.createAlias("condition.sample", "sample")//
+				.createAlias("sample.tissue", "tissue");//
+		LogicalExpression or = null;
+
+		for (String tissueName : tissueNames) {
+			LogicalExpression newOr = Restrictions.or(Restrictions.eq("tissue.tissueId", tissueName),
+					Restrictions.eq("tissue.name", tissueName));
+			if (or == null) {
+				or = newOr;
+			} else {
+				or = Restrictions.or(or, newOr);
+			}
+		}
+		cr.add(or);
+		if (projectTag != null) {
+			cr.add(Restrictions.eq("project.tag", projectTag));
+		}
+		cr.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		return cr.list();
 	}
 }

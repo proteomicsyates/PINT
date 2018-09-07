@@ -284,7 +284,7 @@ public class Pint implements EntryPoint {
 			} else {
 				queryPanel = new QueryPanel(sessionID, projectTags, testMode);
 			}
-			queryPanel.showLoadingDialog("Loading data view...", null, null);
+			queryPanel.showLoadingDialog("Loading dataset view...", null, null);
 			History.newItem(TargetHistory.QUERY.getTargetHistory());
 
 		} else {

@@ -15,6 +15,7 @@ import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromScoreComman
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSimpleAnnotationCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromTaxonomyCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromThresholdCommand;
+import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromTissueCommand;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 
@@ -81,6 +82,8 @@ public class SemanticTranslator {
 		case SEQUENCE:
 			query = new QueryFromSEQCommand(commandReference);
 			return query;
+		case TISSUE:
+			query = new QueryFromTissueCommand(commandReference);
 		default:
 			break;
 		}
