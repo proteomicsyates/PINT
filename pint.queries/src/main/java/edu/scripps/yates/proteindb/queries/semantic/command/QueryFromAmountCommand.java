@@ -1,10 +1,12 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
+import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmAmount;
@@ -74,7 +76,8 @@ public class QueryFromAmountCommand extends AbstractQuery {
 							+ "'. Allowed values are: " + AmountType.getValuesString());
 				}
 
-				if (amountType == AmountType.SPC && aggregationLevel != AggregationLevel.PROTEIN) {
+				if (amountType == AmountType.SPC && (aggregationLevel != AggregationLevel.PROTEIN
+						&& aggregationLevel != AggregationLevel.PEPTIDE)) {
 					throw new MalformedQueryException("SPC amount type is only valid for aggregation level of "
 							+ AggregationLevel.PROTEIN.name());
 				}
@@ -187,7 +190,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 	}
 
 	private boolean queryOverPeptide(QueriablePeptideSet peptide) {
-		final Set<PeptideAmount> peptideAmounts = getPeptideAmountsByType(peptide);
+		final Set<PeptideAmount> peptideAmounts = peptide.getPeptideAmounts(getAmountType());
 		boolean amountFound = false;
 		for (final PeptideAmount peptideAmount : peptideAmounts) {
 			if (condition.passCondition(peptideAmount.getCondition())) {
@@ -221,21 +224,6 @@ public class QueryFromAmountCommand extends AbstractQuery {
 				ret.add(psmAmount);
 			} else if (amountType != null && psmAmount.getAmountType().getName().equalsIgnoreCase(amountType.name())) {
 				ret.add(psmAmount);
-				continue;
-			}
-		}
-		return ret;
-	}
-
-	private Set<PeptideAmount> getPeptideAmountsByType(QueriablePeptideSet peptide) {
-		final Set<PeptideAmount> ret = new THashSet<PeptideAmount>();
-		final Set<PeptideAmount> peptideAmounts = peptide.getPeptideAmounts();
-		for (final PeptideAmount peptideAmount : peptideAmounts) {
-			if (amountType == null) {
-				ret.add(peptideAmount);
-			} else if (amountType != null
-					&& peptideAmount.getAmountType().getName().equalsIgnoreCase(amountType.name())) {
-				ret.add(peptideAmount);
 				continue;
 			}
 		}
@@ -278,9 +266,23 @@ public class QueryFromAmountCommand extends AbstractQuery {
 		spc.setAmountType(new edu.scripps.yates.proteindb.persistence.mysql.AmountType(AmountType.SPC.name()));
 		spc.setManualSPC(false);
 		int spcNum = 0;
-		for (final LinkBetweenQueriableProteinSetAndPSM link : protein.getLinksToPSMs()) {
-			if (link.getQueriablePsm().getConditions().contains(condition)) {
-				spcNum++;
+
+		if (protein.getLinksToPSMs() != null) {
+			for (final LinkBetweenQueriableProteinSetAndPSM link : protein.getLinksToPSMs()) {
+				if (link.getQueriablePsm().getConditions().contains(condition)) {
+					spcNum++;
+				}
+			}
+		} else {
+			for (final LinkBetweenQueriableProteinSetAndPeptideSet link : protein.getLinksToPeptides()) {
+				if (link.getQueriablePeptide().getConditions().contains(condition)) {
+					final List<Peptide> peptides = link.getQueriablePeptide().getIndividualPeptides();
+					for (final Peptide peptide : peptides) {
+						if (peptide.getConditions().contains(condition)) {
+							spcNum += peptide.getNumPsms();
+						}
+					}
+				}
 			}
 		}
 		spc.setValue(spcNum);
