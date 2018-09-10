@@ -1232,6 +1232,25 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	@Override
+	public List<ProjectBean> getProjectBeans(Set<String> projectTags) throws PintException {
+		try {
+			final Method enclosingMethod = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(enclosingMethod);
+			final List<ProjectBean> ret = new ArrayList<ProjectBean>();
+			for (final String projectTag : projectTags) {
+				ret.add(getProjectBean(projectTag));
+			}
+			return ret;
+		} catch (final Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException)
+				throw e;
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+	}
+
+	@Override
 	public int getNumExperiments() throws PintException {
 		try {
 			final Method enclosingMethod = new Object() {
