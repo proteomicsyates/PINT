@@ -39,9 +39,7 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 			+ "experimental conditions that have been loaded, as well as interactive controls to change the view of the data tables (upper half of left menus).\n"
 			+ "It also provides some menus for the possible values the user should use in the different query commands (botton half of left menus).";
 
-	private final QueryPanel queryPanel;
 	private final CaptionPanel cptnpnlBigProject;
-	private final boolean testMode;
 	private final WindowBox parentWindow;
 
 	/**
@@ -55,8 +53,6 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 	public MyWelcomeProjectPanel(WindowBox parentWindow, ProjectBean projectBean, DefaultView defaultView,
 			QueryPanel queryPanel, boolean testMode) {
 		this.parentWindow = parentWindow;
-		this.testMode = testMode;
-		this.queryPanel = queryPanel;
 		setStyleName("WelcomeProjectPanel");
 
 		cptnpnlBigProject = new CaptionPanel("Important notice");
