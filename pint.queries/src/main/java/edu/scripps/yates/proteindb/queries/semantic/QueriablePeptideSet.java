@@ -22,6 +22,9 @@ import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
+import edu.scripps.yates.proteindb.persistence.mysql.adapter.AmountTypeAdapter;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToPeptideTableMapper;
+import edu.scripps.yates.utilities.model.enums.AmountType;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -131,7 +134,8 @@ public class QueriablePeptideSet {
 		if (conditions == null) {
 			conditions = new THashSet<Condition>();
 			for (final Peptide peptide : getIndividualPeptides()) {
-				conditions.addAll(peptide.getConditions());
+				final List<Condition> conditions2 = ConditionToPeptideTableMapper.getInstance().getConditions(peptide);
+				conditions.addAll(conditions2);
 			}
 		}
 		return conditions;
@@ -191,21 +195,40 @@ public class QueriablePeptideSet {
 	/**
 	 * Gets a {@link Set} of {@link ProteinAmount} from the {@link Protein},
 	 * assuring that they are linked to the current session
+	 * 
+	 * @param amountType
 	 *
 	 * @return
 	 */
 
-	public Set<PeptideAmount> getPeptideAmounts() {
+	public Set<PeptideAmount> getPeptideAmounts(AmountType amountType) {
 		if (peptideAmounts == null) {
 			peptideAmounts = new THashSet<PeptideAmount>();
+
 			for (final Peptide peptide : getIndividualPeptides()) {
-				final Set<PeptideAmount> peptideAmounts2 = peptide.getPeptideAmounts();
-				for (PeptideAmount peptideAmount : peptideAmounts2) {
-					if (!ContextualSessionHandler.getCurrentSession().contains(peptideAmount)) {
-						peptideAmount = (PeptideAmount) ContextualSessionHandler.getCurrentSession()
-								.merge(peptideAmount);
+				boolean hasSPC = false;
+				if (AmountType.SPC != amountType) {
+					final Set<PeptideAmount> peptideAmounts2 = peptide.getPeptideAmounts();
+					for (PeptideAmount peptideAmount : peptideAmounts2) {
+						if (peptideAmount.getAmountType().getName()
+								.equalsIgnoreCase(edu.scripps.yates.utilities.model.enums.AmountType.SPC.name())) {
+							hasSPC = true;
+						}
+						if (!ContextualSessionHandler.getCurrentSession().contains(peptideAmount)) {
+							peptideAmount = (PeptideAmount) ContextualSessionHandler.getCurrentSession()
+									.merge(peptideAmount);
+						}
+						peptideAmounts.add(peptideAmount);
 					}
-					peptideAmounts.add(peptideAmount);
+				}
+				if (!hasSPC) {
+					final Set<Condition> conditions2 = peptide.getConditions();
+					for (final Condition condition : conditions2) {
+						final PeptideAmount spc = new PeptideAmount(peptide,
+								new AmountTypeAdapter(edu.scripps.yates.utilities.model.enums.AmountType.SPC).adapt(),
+								condition, peptide.getNumPsms());
+						peptideAmounts.add(spc);
+					}
 				}
 			}
 		}
