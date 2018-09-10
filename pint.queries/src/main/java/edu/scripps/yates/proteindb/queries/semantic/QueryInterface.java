@@ -8,7 +8,11 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
+import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToPeptideTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToProteinTableMapper;
 import edu.scripps.yates.proteindb.queries.LogicalOperator;
 import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProjects;
@@ -322,6 +326,16 @@ public class QueryInterface {
 			List<LinkBetweenQueriableProteinSetAndPSM> invalidLinksBetweenProteinsAndPSMs = null;
 			List<LinkBetweenQueriableProteinSetAndPeptideSet> linksBetweenProteinsAndPeptides = null;
 			List<LinkBetweenQueriableProteinSetAndPeptideSet> invalidLinksBetweenProteinsAndPeptides = null;
+			// initialize project items mappings
+			// important to optimize the method getConditions() from
+			// QueriableProteinSet and QueriablePeptideSet
+			// ProjectItemsMapping.getInstance().loadMappings(projectTags);
+			final List<Condition> conditions = getConditions(projectTags);
+			for (final Condition condition : conditions) {
+				ConditionToProteinTableMapper.getInstance().addObject1(condition);
+				ConditionToPeptideTableMapper.getInstance().addObject1(condition);
+			}
+			//
 			if (psmCentric) {
 				linksBetweenProteinsAndPSMs = QueriesUtil
 						.createProteinPSMLinks(proteinProvider.getProteinMap(testMode));
@@ -493,6 +507,15 @@ public class QueryInterface {
 
 		}
 		return queryResult;
+	}
+
+	private List<Condition> getConditions(Set<String> projectTags) {
+		final List<Condition> conditions = new ArrayList<Condition>();
+		for (final String projectTag : projectTags) {
+			conditions.addAll(PreparedCriteria.getConditionsByProjectCriteria(projectTag));
+
+		}
+		return conditions;
 	}
 
 	private boolean allQueriesAreTheSameAggregationLevel(QueryBinaryTree queryBinaryTree2) {
