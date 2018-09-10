@@ -32,6 +32,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAccessionAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToProteinTableMapper;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
@@ -351,12 +352,12 @@ public class QueriableProteinSet {
 	 *
 	 * @return
 	 */
-
 	public Set<Condition> getConditions() {
 		if (conditions == null) {
 			conditions = new THashSet<Condition>();
 			for (final Protein protein : getIndividualProteins()) {
-				conditions.addAll(protein.getConditions());
+				final List<Condition> conditions2 = ConditionToProteinTableMapper.getInstance().getConditions(protein);
+				conditions.addAll(conditions2);
 			}
 		}
 		return conditions;
@@ -365,8 +366,8 @@ public class QueriableProteinSet {
 	public Set<Tissue> getTissues() {
 		if (tissues == null) {
 			tissues = new THashSet<Tissue>();
-			for (Condition condition : getConditions()) {
-				Tissue tissue = condition.getSample().getTissue();
+			for (final Condition condition : getConditions()) {
+				final Tissue tissue = condition.getSample().getTissue();
 				tissues.add(tissue);
 			}
 		}
