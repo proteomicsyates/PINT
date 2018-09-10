@@ -873,8 +873,8 @@ public class PreparedCriteria {
 				.createAlias("sample.tissue", "tissue");//
 		LogicalExpression or = null;
 
-		for (String tissueName : tissueNames) {
-			LogicalExpression newOr = Restrictions.or(Restrictions.eq("tissue.tissueId", tissueName),
+		for (final String tissueName : tissueNames) {
+			final LogicalExpression newOr = Restrictions.or(Restrictions.eq("tissue.tissueId", tissueName),
 					Restrictions.eq("tissue.name", tissueName));
 			if (or == null) {
 				or = newOr;
@@ -888,5 +888,49 @@ public class PreparedCriteria {
 		}
 		cr.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		return cr.list();
+	}
+
+	public static List<Condition> getConditionsByProjectCriteria(String projectTag) {
+		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Condition.class, "condition")
+				.createAlias("condition.project", "project");
+		cr.add(Restrictions.eq("project.tag", projectTag));
+		cr.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		final List<Condition> list = cr.list();
+		return list;
+	}
+
+	public static List<Integer> getProteinIDsByConditionCriteria(Condition condition) {
+		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Protein.class, "protein")
+				.createAlias("protein.conditions", "condition");
+		cr.add(Restrictions.eq("condition", condition));
+		cr.setProjection(Projections.projectionList().add(Projections.distinct(Projections.property("protein.id"))));
+		final List<Integer> list = cr.list();
+		return list;
+	}
+
+	public static List<Integer> getPsmIDsByConditionCriteria(Condition condition) {
+		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Psm.class, "psm")
+				.createAlias("psm.conditions", "condition");
+		cr.add(Restrictions.eq("condition", condition));
+		cr.setProjection(Projections.projectionList().add(Projections.distinct(Projections.property("psm.id"))));
+		final List<Integer> list = cr.list();
+		return list;
+	}
+
+	public static List<Integer> getPeptideIDsByConditionCriteria(Condition condition) {
+		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Peptide.class, "peptide")
+				.createAlias("peptide.conditions", "condition");
+		cr.add(Restrictions.eq("condition", condition));
+		cr.setProjection(Projections.projectionList().add(Projections.distinct(Projections.property("peptide.id"))));
+		final List<Integer> list = cr.list();
+		return list;
+	}
+
+	public static List<Condition> getConditionsByIDs(Collection<Integer> ids) {
+		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Condition.class, "condition");
+		cr.add(Restrictions.in("condition.id", ids));
+		cr.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		final List<Condition> list = cr.list();
+		return list;
 	}
 }
