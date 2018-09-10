@@ -1,6 +1,7 @@
 package edu.scripps.yates.client.gui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -20,10 +21,13 @@ import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -33,6 +37,7 @@ import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.StackLayoutPanel;
@@ -54,6 +59,7 @@ import edu.scripps.yates.client.gui.components.MyVerticalCheckBoxListPanel;
 import edu.scripps.yates.client.gui.components.MyVerticalConditionsListBoxPanel;
 import edu.scripps.yates.client.gui.components.MyVerticalListBoxPanel;
 import edu.scripps.yates.client.gui.components.MyVerticalProteinInferenceCommandPanel;
+import edu.scripps.yates.client.gui.components.MyWarningMultipleProjectsLoadedPanel;
 import edu.scripps.yates.client.gui.components.MyWelcomeProjectPanel;
 import edu.scripps.yates.client.gui.components.PSMTablePanel;
 import edu.scripps.yates.client.gui.components.PeptideTablePanel;
@@ -1405,7 +1411,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							}
 
 							// if (!defaultViewsApplied) {
-							requestDefaultViews(loadedProjectBeanSet.iterator().next(), true, false, true,
+							requestDefaultViews(loadedProjectBeanSet.iterator().next(), true, false, false, true,
 									loadedProjectBeanSet.containsBigProject(), testMode);
 							proteinGroupTablePanel.reloadData();
 							proteinTablePanel.reloadData();
@@ -1884,66 +1890,140 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		loadedProjects.clear();
 		loadedProjectBeanSet.clear();
 		loadedProjects.addAll(projectTags);
-		for (final String projectTag : projectTags) {
-			proteinRetrievingService.getProjectBean(projectTag, new AsyncCallback<ProjectBean>() {
+		final String projectTagString = getProjectTagString(projectTags);
+		proteinRetrievingService.getProjectBeans(projectTags, new AsyncCallback<List<ProjectBean>>() {
 
-				@Override
-				public void onFailure(Throwable caught) {
-					PendingTasksManager.removeTask(TaskType.PROTEINS_BY_PROJECT, projectTag);
+			@Override
+			public void onFailure(Throwable caught) {
 
-					loadedProjects.remove(projectTag);
-					loadingDialog.hide();
-					updateStatus(caught);
-					final MyDialogBox errorDialog = new MyDialogBox(
-							"Error loading project: '" + projectTag + "':\n" + caught.getMessage(), true, false, false,
-							getTimerOnClosingLoadingDialog(), null);
-					errorDialog.center();
-				}
+				PendingTasksManager.removeAllTasks(TaskType.PROTEINS_BY_PROJECT);
 
-				@Override
-				public void onSuccess(ProjectBean projectBean) {
-					loadedProjectBeanSet.add(projectBean);
+				loadedProjects.removeAll(projectTags);
+				loadingDialog.hide();
+				updateStatus(caught);
+				final MyDialogBox errorDialog = new MyDialogBox(
+						"Error loading project(s): '" + projectTagString + "':\n" + caught.getMessage(), true, false,
+						false, getTimerOnClosingLoadingDialog(), null);
+				errorDialog.center();
+			}
 
-					GWT.log("project bean " + projectBean.getTag() + " received");
-					if (projectTags.size() > 1) {
+			@Override
+			public void onSuccess(List<ProjectBean> projectBeans) {
+				loadedProjectBeanSet.addAll(projectBeans);
+
+				GWT.log("project bean " + projectTagString + " received");
+				if (projectTags.size() > 1) {
+					for (final String projectTag : projectTags) {
 						projectListPanel.getListBox().addItem(
 								SharedDataUtils.getNewElementNameForProject(projectTag, projectListPanel.getListBox()),
 								projectTag);
-					} else {
-						projectListPanel.getListBox().addItem(projectTag, projectTag);
 					}
-					// if all projects are received
-					if (loadedProjectBeanSet.size() == loadedProjects.size()) {
-						// show the welcome box
-						final boolean showWelcome = true;
-						final ProjectBean projectBeanForDisplay = loadedProjectBeanSet.getBigProject() != null
-								? loadedProjectBeanSet.getBigProject() : projectBean;
-						final boolean modifyColumns = loadedProjectBeanSet.containsBigProject();
-						final boolean changeToDataTab = false;
-						requestDefaultViews(projectBeanForDisplay, modifyColumns, showWelcome, changeToDataTab,
-								loadedProjectBeanSet.containsBigProject(), testMode);
-						// load the project
-						if (loadedProjectBeanSet.containsBigProject()) {
-							// disable queries for big projects. Only allow
-							// simple ones.
-							queryEditorPanel.enableQueries(false);
-							// change default empty message on tables
-							final String emptyLabelString = "Project will not be loaded by default. Please go to 'Query' tab and use the 'Simple Query Editor'";
-							proteinTablePanel.setEmptyTableWidget(emptyLabelString);
-							proteinGroupTablePanel.setEmptyTableWidget(emptyLabelString);
-							peptideOnlyTablePanel.setEmptyTableWidget(emptyLabelString);
-							psmTablePanel.setEmptyTableWidget(emptyLabelString);
-
-						} else {
-							loadProteinsFromProject(null, null, null, testMode);
-						}
-					}
+				} else {
+					projectListPanel.getListBox().addItem(projectBeans.get(0).getTag(), projectBeans.get(0).getTag());
 				}
-			});
-		}
+				// if all projects are received
+				if (loadedProjectBeanSet.size() == loadedProjects.size()) {
+					checkLoadedProjectsAndLoadProjects(projectBeans, true, testMode);
+
+				}
+			}
+		});
 
 		loadStaticDataFromProjects(projectTags);
 		loadSimpleQuerySuggestions(projectTags);
+	}
+
+	protected void checkLoadedProjectsAndLoadProjects(List<ProjectBean> projectBeans, boolean checkPrivateProjects,
+			boolean testMode) {
+		// show the welcome box
+		final boolean showWelcome = true;
+		final ProjectBean projectBeanForDisplay = loadedProjectBeanSet.getBigProject() != null
+				? loadedProjectBeanSet.getBigProject() : projectBeans.get(0);
+		final boolean modifyColumns = loadedProjectBeanSet.containsBigProject();
+		final boolean containsPrivateProject = loadedProjectBeanSet.containsPrivateProject();
+		if (checkPrivateProjects && containsPrivateProject) {
+			// ask for login
+			loginToOpenPrivateProjects(projectBeans, testMode);
+			return;
+		}
+		final boolean changeToDataTab = false;
+		final boolean showMaxNumberOfProjectsAtOnceMessage = loadedProjectBeanSet
+				.size() > SharedConstants.MAX_NUM_PROJECTS_LOADED_AT_ONCE;
+		requestDefaultViews(projectBeanForDisplay, modifyColumns, showWelcome, showMaxNumberOfProjectsAtOnceMessage,
+				changeToDataTab, loadedProjectBeanSet.containsBigProject(), testMode);
+		// load the project
+		if (loadedProjectBeanSet.containsBigProject()) {
+			// disable queries for big projects. Only allow
+			// simple ones.
+			queryEditorPanel.enableQueries(false);
+			// change default empty message on tables
+			final String emptyLabelString = "Project will not be loaded by default. "
+					+ "Please go to 'Query' tab and use the 'Simple Query Editor'";
+			proteinTablePanel.setEmptyTableWidget(emptyLabelString);
+			proteinGroupTablePanel.setEmptyTableWidget(emptyLabelString);
+			peptideTablePanel.setEmptyTableWidget(emptyLabelString);
+			if (Pint.psmCentric) {
+				psmTablePanel.setEmptyTableWidget(emptyLabelString);
+				psmOnlyTablePanel.setEmptyTableWidget(emptyLabelString);
+			} else {
+				peptideOnlyTablePanel.setEmptyTableWidget(emptyLabelString);
+			}
+
+		} else if (showMaxNumberOfProjectsAtOnceMessage) {
+			// enable queries
+			queryEditorPanel.enableQueries(true);
+			final String emptyLabelString = "The projects will not be automatically loaded because they are more than one. "
+					+ "Please go to 'Query' tab to query data over the two projects";
+			proteinTablePanel.setEmptyTableWidget(emptyLabelString);
+			proteinGroupTablePanel.setEmptyTableWidget(emptyLabelString);
+			peptideTablePanel.setEmptyTableWidget(emptyLabelString);
+			if (Pint.psmCentric) {
+				psmTablePanel.setEmptyTableWidget(emptyLabelString);
+				psmOnlyTablePanel.setEmptyTableWidget(emptyLabelString);
+			} else {
+				peptideOnlyTablePanel.setEmptyTableWidget(emptyLabelString);
+			}
+		} else {
+			loadProteinsFromProject(null, null, null, testMode);
+		}
+	}
+
+	private void loginToOpenPrivateProjects(List<ProjectBean> projectBeans, boolean testMode) {
+		// check first the login
+		final PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
+				"Some projects are private.\nYou need the PINT master password to be able to query them:");
+		loginPanel.addCloseHandler(new CloseHandler<PopupPanel>() {
+
+			@Override
+			public void onClose(CloseEvent<PopupPanel> event) {
+				final PopupPanel popup = event.getTarget();
+				final Widget widget = popup.getWidget();
+				if (widget instanceof PopUpPanelPasswordChecker) {
+					final PopUpPanelPasswordChecker loginPanel = (PopUpPanelPasswordChecker) widget;
+					if (loginPanel.isLoginOK()) {
+						checkLoadedProjectsAndLoadProjects(projectBeans, false, testMode);
+					} else {
+						History.newItem(TargetHistory.BROWSE.getTargetHistory());
+					}
+				}
+			}
+		});
+		loginPanel.show();
+
+	}
+
+	private String getProjectTagString(Collection<String> projectTags) {
+		final List<String> list = new ArrayList<String>();
+		list.addAll(projectTags);
+		Collections.sort(list);
+		final StringBuilder sb = new StringBuilder();
+		for (final String projectTag : list) {
+			if (!"".equals(sb.toString())) {
+				sb.append(",");
+			}
+			sb.append(projectTag);
+		}
+		return sb.toString();
 	}
 
 	private Timer getTimerOnClosingLoadingDialog() {
@@ -2142,14 +2222,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				// final ProteinsByProjectLoadingDialog progressDialog = new
 				// ProteinsByProjectLoadingDialog(sessionID,
 				// projectTag, uniprotVersion);
-				final StringBuilder sb = new StringBuilder();
-				for (final String projectTag : loadedProjects) {
-					if (!"".equals(sb.toString())) {
-						sb.append(",");
-					}
-					sb.append(projectTag);
-				}
-				final String projectTagsString = sb.toString();
+
+				final String projectTagsString = getProjectTagString(loadedProjects);
 				GWT.log("Getting proteins from project " + projectTagsString);
 				final String taskKey = PendingTasksManager.addPendingTask(TaskType.PROTEINS_BY_PROJECT,
 						projectTagsString);
@@ -2198,8 +2272,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 												.getInstance().contains(projectTag)) {
 											final DefaultView defaultView = ClientCacheDefaultViewByProjectTag
 													.getInstance().getFromCache(projectTag);
-											applyDefaultViews(loadedProjectBeanSet.getByTag(projectTag), defaultView,
-													true, false, true, false, testMode);
+											applyDefaultViews(loadedProjectBeanSet.getByTag(projectTag), loadedProjects,
+													defaultView, true, false, false, true, false, testMode);
 										}
 
 										// load on the grid
@@ -2316,8 +2390,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	 * @param bigProject
 	 */
 	private void requestDefaultViews(final ProjectBean projectBean, final boolean modifyColumns,
-			final boolean showWelcomeWindowBox, final boolean changeToDataTab, final boolean bigProject,
-			final boolean testMode) {
+			final boolean showWelcomeWindowBox, boolean showMaxNumberOfProjectsAtOnceMessage,
+			final boolean changeToDataTab, final boolean bigProject, final boolean testMode) {
 		if (loadedProjects.isEmpty()) {
 			return;
 		}
@@ -2330,8 +2404,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 				final DefaultView defaultViews = ClientCacheDefaultViewByProjectTag.getInstance()
 						.getFromCache(projectTag);
-				applyDefaultViews(projectBean, defaultViews, modifyColumns, showWelcomeWindowBox, changeToDataTab,
-						bigProject, testMode);
+				applyDefaultViews(projectBean, loadedProjects, defaultViews, modifyColumns, showWelcomeWindowBox,
+						showMaxNumberOfProjectsAtOnceMessage, changeToDataTab, bigProject, testMode);
 				projectInformationPanel.addProjectView(projectBean, defaultViews);
 			} else {
 				GWT.log("Requesting default view of project " + projectTag + " ");
@@ -2353,8 +2427,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							// only apply default views of the projectBean in
 							// the parameters
 							if (projectBean.getTag().equals(projectTag)) {
-								applyDefaultViews(projectBean, defaultViews, modifyColumns, showWelcomeWindowBox,
-										changeToDataTab, bigProject, testMode);
+								applyDefaultViews(projectBean, loadedProjects, defaultViews, modifyColumns,
+										showWelcomeWindowBox, showMaxNumberOfProjectsAtOnceMessage, changeToDataTab,
+										bigProject, testMode);
 							}
 							ClientCacheDefaultViewByProjectTag.getInstance().addtoCache(defaultViews, projectTag);
 							final ProjectBean projectBean2 = loadedProjectBeanSet.getByTag(projectTag);
@@ -2439,41 +2514,42 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	}
 
-	private void applyDefaultViews(ProjectBean projectBean, DefaultView defaultViews, boolean modifyColumns,
-			boolean showWelcomeWindowBox, boolean changeToDataTab, boolean bigProject, boolean testMode) {
+	private void applyDefaultViews(ProjectBean projectBean, Set<String> loadedprojects, DefaultView defaultViews,
+			boolean modifyColumns, boolean showWelcomeWindowBox, boolean showMaxNumberOfProjectsAtOnceMessage,
+			boolean changeToDataTab, boolean bigProject, boolean testMode) {
 
 		if (modifyColumns) {
 			setDefaultViewInTables(defaultViews);
 			setDefaultViewInCheckBoxes(defaultViews);
 		}
-		// if (selectFirstRowAfterDefaultView) {
-		// GWT.log("Selecting First row in tables");
-		// final ProteinBean firstRowProteinBean = proteinTablePanel
-		// .getFirstRowProteinBean();
-		// if (firstRowProteinBean != null) {
-		// loadPSMsOnPSMGrid(firstRowProteinBean.getDbIds());
-		// }
-		// final ProteinGroupBean firstRowProteinGroupBean =
-		// proteinGroupTablePanel
-		// .getFirstRowProteinGroupBean();
-		// if (firstRowProteinGroupBean != null) {
-		// loadPSMsOnPSMGrid(firstRowProteinGroupBean.getDbIds());
-		// }
-		// // proteinTablePanel.selectFirstRow();
-		// // proteinGroupTablePanel.selectFirstRow();
-		// // psmTablePanel.selectFirstRow();
-		// }
-		if (showWelcomeWindowBox) {
+		if (showMaxNumberOfProjectsAtOnceMessage) {
+			GWT.log("Showing warning of multiple projects");
+			welcomeToProjectWindowBox = new WindowBox(true, true, true, true, false);
+			welcomeToProjectWindowBox.setAnimationEnabled(true);
+			final List<String> list = new ArrayList<String>();
+			list.addAll(loadedprojects);
+			Collections.sort(list);
+			welcomeToProjectWindowBox.setWidget(new MyWarningMultipleProjectsLoadedPanel(list));
+			welcomeToProjectWindowBox.setText("Multiple projects loaded");
+			final DoSomethingTask<Void> doSomething = new DoSomethingTask<Void>() {
+				@Override
+				public Void doSomething() {
+					onTaskRemovedOrAdded();
+					// show project information tab when closing
+					selectProjectInfoTab();
+					return null;
+				}
+			};
+			// add loadingDialogShowerTask to close event
+			welcomeToProjectWindowBox.addCloseEventDoSomethingTask(doSomething);
+			welcomeToProjectWindowBox.setGlassEnabled(true);
+			welcomeToProjectWindowBox.center();
+		} else if (showWelcomeWindowBox) {
 			GWT.log("Showing welcome window for project");
-
-			// TODO only show the dialog if some information is present in the
-			// defaultViews
-
 			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
 				@Override
 				public void execute() {
-					// TODO Auto-generated method stub
 					welcomeToProjectWindowBox = new WindowBox(true, true, true, true, false);
 					welcomeToProjectWindowBox.setAnimationEnabled(true);
 					welcomeToProjectWindowBox.setWidget(new MyWelcomeProjectPanel(welcomeToProjectWindowBox,

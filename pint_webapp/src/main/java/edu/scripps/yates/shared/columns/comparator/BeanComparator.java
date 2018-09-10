@@ -195,8 +195,8 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 	}
 
 	protected static int compareNumberStrings(String string1, String string2, boolean ignoreCase) {
-		String tmp1 = string1;
-		String tmp2 = string2;
+		final String tmp1 = string1;
+		final String tmp2 = string2;
 		if ("".equals(string1) || string1 == null) {
 			return -1;
 		}
@@ -204,10 +204,10 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 			return 1;
 		}
 		try {
-			Double d1 = Double.valueOf(tmp1);
-			Double d2 = Double.valueOf(tmp2);
+			final Double d1 = Double.valueOf(tmp1);
+			final Double d2 = Double.valueOf(tmp2);
 			return d1.compareTo(d2);
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			return compareStrings(tmp1, tmp2, ignoreCase);
 		}
 
@@ -271,9 +271,54 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 			return 0;
 		}
 		if (ignoreCase) {
-			return string1.compareToIgnoreCase(string2);
+			final int ret1 = string1.compareToIgnoreCase(string2);
+			return ret1;
 		} else {
-			return string1.compareTo(string2);
+			final int ret2 = string1.compareTo(string2);
+			return ret2;
+		}
+	}
+
+	/**
+	 * Compares strings taking into account that they could be null, so we want
+	 * that in that case, the null strings were at the end, which depends in the
+	 * order, determined by ignoreCase.
+	 *
+	 * @param string1
+	 * @param string2
+	 * @param ascendant
+	 * @param ignoreCase
+	 * @return
+	 */
+	protected static int compareStrings(String string1, String string2, boolean ignoreCase, String nonNullString1,
+			String nonNullString2) {
+		if ("".equals(string1)) {
+			string1 = null;
+		}
+		if ("".equals(string2)) {
+			string2 = null;
+		}
+		if (string1 == null && string2 != null) {
+			return 1;
+		}
+		if (string1 != null && string2 == null) {
+			return -1;
+		}
+		if (string1 == null && string2 == null) {
+			return 0;
+		}
+		if (ignoreCase) {
+			final int ret1 = string1.compareToIgnoreCase(string2);
+			if (ret1 == 0) {
+				return nonNullString1.compareToIgnoreCase(nonNullString2);
+			}
+			return ret1;
+		} else {
+			final int ret2 = string1.compareTo(string2);
+			if (ret2 == 0) {
+				nonNullString1.compareTo(nonNullString2);
+			}
+			return ret2;
 		}
 	}
 
@@ -319,17 +364,17 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 						ratios2, ratioScoreName);
 				String value1 = null;
 				String value2 = null;
-				for (ScoreBean scoreBean : ratioValues1) {
+				for (final ScoreBean scoreBean : ratioValues1) {
 					value1 = scoreBean.getValue();
 
 				}
 
-				for (ScoreBean scoreBean : ratioValues2) {
+				for (final ScoreBean scoreBean : ratioValues2) {
 					value2 = scoreBean.getValue();
 				}
 				try {
 					return compareNumbers(Double.valueOf(value1), Double.valueOf(value2));
-				} catch (NumberFormatException e) {
+				} catch (final NumberFormatException e) {
 					return value1.compareTo(value2);
 				}
 
@@ -339,7 +384,7 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 				return -1;
 			}
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 
 		}
 		return 0;
