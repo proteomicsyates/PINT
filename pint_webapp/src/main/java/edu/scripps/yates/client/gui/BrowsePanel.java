@@ -589,9 +589,9 @@ public class BrowsePanel extends InitializableComposite {
 				numSelectedProjectsLabel.setStyleName(null);
 				numSelectedProjects2.setStyleName(null);
 			} else {
-				final String text = "Some selected project is not available yet";
+				final String text = "Some selected project is private. You will need the PINT master password to open them.";
 				numSelectedProjectsLabel.setText(text);
-				btnQueryOverSelected.setEnabled(false);
+				btnQueryOverSelected.setEnabled(true);
 				btnQueryOverSelected.setTitle(text);
 				btnPSEAQuant.setEnabled(false);
 				btnPSEAQuant.setTitle(text);
