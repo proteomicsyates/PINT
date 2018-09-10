@@ -96,7 +96,7 @@ public class ProjectInformationPanel extends Composite {
 			flexTableInWest.setWidget(numRow++, 0, panel);
 
 			if (numRow == 1) {
-				loadDefaultView(projectBean, defaultView);
+				loadDefaultView(projectBean, defaultView, true);
 			}
 		}
 	}
@@ -112,7 +112,7 @@ public class ProjectInformationPanel extends Composite {
 				}
 				if (selectedPanel != null) {
 					final ProjectBean selectedProject = projectsByPanels.get(selectedPanel);
-					loadDefaultView(selectedProject, defaultViewsByProjectBean.get(selectedProject));
+					loadDefaultView(selectedProject, defaultViewsByProjectBean.get(selectedProject), true);
 				}
 			}
 		};
@@ -148,7 +148,7 @@ public class ProjectInformationPanel extends Composite {
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
 				GWT.log("On mouse over event");
-				loadDefaultView(projectBean, defaultView);
+				loadDefaultView(projectBean, defaultView, true);
 
 			}
 		};
@@ -156,7 +156,7 @@ public class ProjectInformationPanel extends Composite {
 		return mouseOverHandler;
 	}
 
-	private void loadDefaultView(ProjectBean projectBean, DefaultView defaultView) {
+	private void loadDefaultView(ProjectBean projectBean, DefaultView defaultView, boolean resetItems) {
 		if (!defaultView.equals(currentDefaultViewShowed)) {
 			// MyWelcomeProjectPanel panel = new
 			// MyWelcomeProjectPanel(projectBean, defaultView, queryPanel,
@@ -166,11 +166,11 @@ public class ProjectInformationPanel extends Composite {
 			gridInCenter.getColumnFormatter().setWidth(1, "400px");
 			// projectStats
 			final ProjectStatsFromProjectItemPanel projectStatsItemPanel = ProjectStatsFromProjectItemPanel
-					.getInstance(queryPanel, testMode, projectBean, defaultView);
+					.getInstance(queryPanel, testMode, projectBean, defaultView, resetItems);
 			gridInCenter.setWidget(0, 0, projectStatsItemPanel);
 			gridInCenter.getFlexCellFormatter().setColSpan(0, 0, 2);
 			// conditions
-			final ConditionsItemPanel conditionsItemPanel = ConditionsItemPanel.getInstance(projectBean);
+			final ConditionsItemPanel conditionsItemPanel = ConditionsItemPanel.getInstance(projectBean, resetItems);
 			gridInCenter.setWidget(1, 0, conditionsItemPanel);
 			conditionsItemPanel.addOnItemSelectedEvent(new DoSomethingTask2<ExperimentalConditionBean>() {
 				@Override
@@ -191,7 +191,7 @@ public class ProjectInformationPanel extends Composite {
 			});
 
 			// msRuns
-			final MSRunsItemPanel msRunsItemPanel = MSRunsItemPanel.getInstance(projectBean);
+			final MSRunsItemPanel msRunsItemPanel = MSRunsItemPanel.getInstance(projectBean, resetItems);
 			gridInCenter.setWidget(2, 0, msRunsItemPanel);
 			msRunsItemPanel.addOnItemSelectedEvent(new DoSomethingTask2<MSRunBean>() {
 				@Override
@@ -211,7 +211,7 @@ public class ProjectInformationPanel extends Composite {
 			});
 
 			// samples
-			final SamplesItemPanel samplesItemPanel = SamplesItemPanel.getInstance(projectBean);
+			final SamplesItemPanel samplesItemPanel = SamplesItemPanel.getInstance(projectBean, resetItems);
 			gridInCenter.setWidget(3, 0, samplesItemPanel);
 			samplesItemPanel.addOnItemSelectedEvent(new DoSomethingTask2<SampleBean>() {
 				@Override
@@ -231,7 +231,7 @@ public class ProjectInformationPanel extends Composite {
 				}
 			});
 			// organisms
-			final OrganismsItemPanel organismItemPanel = OrganismsItemPanel.getInstance(projectBean);
+			final OrganismsItemPanel organismItemPanel = OrganismsItemPanel.getInstance(projectBean, resetItems);
 			gridInCenter.setWidget(4, 0, organismItemPanel);
 
 			currentDefaultViewShowed = defaultView;
