@@ -944,13 +944,15 @@ public class ClientSafeHtmlUtils {
 		final Map<String, List<Pair<Integer, Integer>>> startingPositions = p.getStartingPositions();
 		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
 		final Set<ProteinBean> proteins = p.getProteins();
+
 		final Map<String, ProteinBean> proteinBeanByAccession = SharedDataUtils
 				.getProteinBeansByPrimaryAccession(proteins);
 		// get a list of proteins according to the order of the primary
 		// accessions
 		final List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
 		for (final AccessionBean acc : primaryAccessions) {
-			proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
+			final ProteinBean protein = proteinBeanByAccession.get(acc.getAccession());
+			proteinBeanList.add(protein);
 		}
 		return getUniprotFeatureSafeHtml(startingPositions, proteinBeanList, featureTypes);
 	}
@@ -963,7 +965,8 @@ public class ClientSafeHtmlUtils {
 			final Map<UniprotFeatureBean, Set<ProteinBean>> proteinBeansByUniprotFeatureBean = new HashMap<UniprotFeatureBean, Set<ProteinBean>>();
 			for (final ProteinBean p : proteinBeans) {
 
-				if (startingPositionsByProtein.containsKey(p.getPrimaryAccession().getAccession())) {
+				final AccessionBean primaryAccession = p.getPrimaryAccession();
+				if (startingPositionsByProtein.containsKey(primaryAccession.getAccession())) {
 					final List<UniprotFeatureBean> uniprotFeatureList = p.getUniprotFeaturesByFeatureType(featureType);
 					if (uniprotFeatureList.isEmpty()) {
 						continue;
@@ -974,7 +977,7 @@ public class ClientSafeHtmlUtils {
 						if (uniprotFeature.getPositionStart() > -1 && uniprotFeature.getPositionEnd() > -1) {
 
 							final List<Pair<Integer, Integer>> startingPositions = startingPositionsByProtein
-									.get(p.getPrimaryAccession().getAccession());
+									.get(primaryAccession.getAccession());
 							final SEQUENCE_OVERLAPPING sequenceOverlapping = SharedDataUtils
 									.isPeptideIncludedInThatRange(startingPositions, uniprotFeature.getPositionStart(),
 											uniprotFeature.getPositionEnd());
