@@ -18,11 +18,11 @@ import edu.scripps.yates.shared.model.SampleBean;
 public class SamplesItemPanel extends AbstractItemPanel<ProjectBean, SampleBean> {
 	private static SamplesItemPanel instance;
 
-	public static SamplesItemPanel getInstance(ProjectBean projectBean) {
+	public static SamplesItemPanel getInstance(ProjectBean projectBean, boolean resetItems) {
 		if (instance == null) {
 			instance = new SamplesItemPanel(projectBean);
 		} else {
-			instance.updateParent(projectBean);
+			instance.updateParent(projectBean, resetItems);
 		}
 		return instance;
 	}
@@ -37,7 +37,7 @@ public class SamplesItemPanel extends AbstractItemPanel<ProjectBean, SampleBean>
 	private SamplesItemPanel(ProjectBean projectBean) {
 		super("Samples", projectBean);
 		// add description panel in the right
-		FlexTable flexTable = new FlexTable();
+		final FlexTable flexTable = new FlexTable();
 		labelCondition = new Label("");
 		flexTable.setWidget(0, 0, labelCondition);
 		flexTable.getFlexCellFormatter().setColSpan(0, 0, 2);
@@ -63,7 +63,7 @@ public class SamplesItemPanel extends AbstractItemPanel<ProjectBean, SampleBean>
 		flexTable.setWidget(2, 1, labeledLabel);
 		flexTable.getFlexCellFormatter().setAlignment(2, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		updateParent(projectBean);
+		updateParent(projectBean, true);
 
 		addRightPanel(flexTable);
 
@@ -71,13 +71,15 @@ public class SamplesItemPanel extends AbstractItemPanel<ProjectBean, SampleBean>
 	}
 
 	@Override
-	public void updateParent(ProjectBean projectBean) {
-		clearItemList();
+	public void updateParent(ProjectBean projectBean, boolean resetItems) {
+		if (resetItems) {
+			clearItemList();
+		}
 		if ((projectBean != null && !projectBean.equals(currentParent)) || getItems().isEmpty()) {
 			currentParent = projectBean;
 			int numSamples = 0;
 			final List<ExperimentalConditionBean> conditions = projectBean.getConditions();
-			Set<SampleBean> sampleSet = new HashSet<SampleBean>();
+			final Set<SampleBean> sampleSet = new HashSet<SampleBean>();
 			for (final ExperimentalConditionBean conditionBean : conditions) {
 				final SampleBean sample = conditionBean.getSample();
 				if (sample != null) {
@@ -88,7 +90,7 @@ public class SamplesItemPanel extends AbstractItemPanel<ProjectBean, SampleBean>
 					}
 				}
 			}
-			String plural = numSamples > 1 ? "s" : "";
+			final String plural = numSamples > 1 ? "s" : "";
 			setCaption(numSamples + " Sample" + plural);
 			selectFirstItem();
 		} else {
@@ -100,14 +102,14 @@ public class SamplesItemPanel extends AbstractItemPanel<ProjectBean, SampleBean>
 	public void selectItem(SampleBean sample) {
 		if (sample != null) {
 			label.setVisible(true);
-			String description = getStringNotAvailable("description", sample.getDescription());
+			final String description = getStringNotAvailable("description", sample.getDescription());
 			descriptionLabel.setText(description);
 			labelCondition.setText("Sample '" + sample.getId() + "':");
 
 			label2.setVisible(true);
-			String labeled = sample.getLabel() != null ? getLabelDescription(sample.getLabel()) : "-";
+			final String labeled = sample.getLabel() != null ? getLabelDescription(sample.getLabel()) : "-";
 			labeledLabel.setText(labeled);
-			selectedItemStatsPanel = ProjectStatsFromSampleItemPanel.getInstance(sample);
+			selectedItemStatsPanel = ProjectStatsFromSampleItemPanel.getInstance(sample, true);
 		} else {
 			label.setVisible(false);
 			descriptionLabel.setText(null);
@@ -117,7 +119,7 @@ public class SamplesItemPanel extends AbstractItemPanel<ProjectBean, SampleBean>
 	}
 
 	private String getLabelDescription(LabelBean label) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		if (label != null) {
 			sb.append(label.getName());
 			if (label.getMassDiff() != null) {

@@ -60,70 +60,70 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 		super(title, parent, keepLeftPanel, smallList);
 		// add description panel in the right
 		rightPanel = new FlexTable();
-		Label label1 = new Label("Number of experimental conditions:");
+		final Label label1 = new Label("Number of experimental conditions:");
 		label1.setStyleName("ProjectItemIndividualItemTitle");
 		rightPanel.setWidget(rowConditions, 0, label1);
 		rightPanel.getFlexCellFormatter().setAlignment(rowConditions, 0, HasHorizontalAlignment.ALIGN_RIGHT,
 				HasVerticalAlignment.ALIGN_TOP);
-		Label numConditionsLabel = new Label();
+		final Label numConditionsLabel = new Label();
 		rightPanel.setWidget(rowConditions, 1, numConditionsLabel);
 		rightPanel.getFlexCellFormatter().setAlignment(rowConditions, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		Label label2 = new Label("Number of samples:");
+		final Label label2 = new Label("Number of samples:");
 		label2.setStyleName("ProjectItemIndividualItemTitle");
 		rightPanel.setWidget(rowSamples, 0, label2);
 		rightPanel.getFlexCellFormatter().setAlignment(rowSamples, 0, HasHorizontalAlignment.ALIGN_RIGHT,
 				HasVerticalAlignment.ALIGN_TOP);
-		Label numSamplesLabel = new Label();
+		final Label numSamplesLabel = new Label();
 		rightPanel.setWidget(rowSamples, 1, numSamplesLabel);
 		rightPanel.getFlexCellFormatter().setAlignment(rowSamples, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		Label label3 = new Label("Number of MS runs:");
+		final Label label3 = new Label("Number of MS runs:");
 		label3.setStyleName("ProjectItemIndividualItemTitle");
 		rightPanel.setWidget(rowMSRuns, 0, label3);
 		rightPanel.getFlexCellFormatter().setAlignment(rowMSRuns, 0, HasHorizontalAlignment.ALIGN_RIGHT,
 				HasVerticalAlignment.ALIGN_TOP);
-		Label numMSRunsLabel = new Label();
+		final Label numMSRunsLabel = new Label();
 		rightPanel.setWidget(rowMSRuns, 1, numMSRunsLabel);
 		rightPanel.getFlexCellFormatter().setAlignment(rowMSRuns, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 
-		Label label4 = new Label("Number of proteins:");
+		final Label label4 = new Label("Number of proteins:");
 		label4.setStyleName("ProjectItemIndividualItemTitle");
 		rightPanel.setWidget(rowProteins, 0, label4);
 		rightPanel.getFlexCellFormatter().setAlignment(rowProteins, 0, HasHorizontalAlignment.ALIGN_RIGHT,
 				HasVerticalAlignment.ALIGN_TOP);
-		Label numProteinsLabel = new Label();
+		final Label numProteinsLabel = new Label();
 		rightPanel.setWidget(rowProteins, 1, numProteinsLabel);
 		rightPanel.getFlexCellFormatter().setAlignment(rowProteins, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 
-		Label label7 = new Label("Number of genes:");
+		final Label label7 = new Label("Number of genes:");
 		label7.setStyleName("ProjectItemIndividualItemTitle");
 		rightPanel.setWidget(rowGenes, 0, label7);
 		rightPanel.getFlexCellFormatter().setAlignment(rowGenes, 0, HasHorizontalAlignment.ALIGN_RIGHT,
 				HasVerticalAlignment.ALIGN_TOP);
-		Label numGenesLabel = new Label();
+		final Label numGenesLabel = new Label();
 		rightPanel.setWidget(rowGenes, 1, numGenesLabel);
 		rightPanel.getFlexCellFormatter().setAlignment(rowGenes, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 
-		Label label5 = new Label("Number of peptides:");
+		final Label label5 = new Label("Number of peptides:");
 		label5.setStyleName("ProjectItemIndividualItemTitle");
 		rightPanel.setWidget(rowPeptides, 0, label5);
 		rightPanel.getFlexCellFormatter().setAlignment(rowPeptides, 0, HasHorizontalAlignment.ALIGN_RIGHT,
 				HasVerticalAlignment.ALIGN_TOP);
-		Label numPeptidesLabel = new Label();
+		final Label numPeptidesLabel = new Label();
 		rightPanel.setWidget(rowPeptides, 1, numPeptidesLabel);
 		rightPanel.getFlexCellFormatter().setAlignment(rowPeptides, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 
-		Label label6 = new Label("Number PSMs:");
+		final Label label6 = new Label("Number PSMs:");
 		label6.setStyleName("ProjectItemIndividualItemTitle");
 		rightPanel.setWidget(rowPSMs, 0, label6);
 		rightPanel.getFlexCellFormatter().setAlignment(rowPSMs, 0, HasHorizontalAlignment.ALIGN_RIGHT,
 				HasVerticalAlignment.ALIGN_TOP);
-		Label numPSMsLabel = new Label();
+		final Label numPSMsLabel = new Label();
 		rightPanel.setWidget(rowPSMs, 1, numPSMsLabel);
 		rightPanel.getFlexCellFormatter().setAlignment(rowPSMs, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
@@ -133,13 +133,15 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 		// to force the update
 		currentParent = null;
 		// update
-		updateParent(parent);
+		updateParent(parent, true);
 	}
 
 	@Override
-	public void updateParent(T parent) {
+	public void updateParent(T parent, boolean resetItems) {
 		try {
-			clearItemList();
+			if (resetItems) {
+				clearItemList();
+			}
 			if (parent != null) {
 				if (parent.equals(currentParent)) {
 					// return;
@@ -180,7 +182,7 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 		}
 
 		if (projectStats.getNumConditions() != null) {
-			Label label = new Label(format.format(projectStats.getNumConditions()));
+			final Label label = new Label(format.format(projectStats.getNumConditions()));
 			label.setStyleName("no-wrap");
 			rightPanel.setWidget(rowConditions, 1, label);
 		} else {
@@ -189,7 +191,7 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 			}
 		}
 		if (projectStats.getNumSamples() != null) {
-			Label label = new Label(format.format(projectStats.getNumSamples()));
+			final Label label = new Label(format.format(projectStats.getNumSamples()));
 			label.setStyleName("no-wrap");
 			rightPanel.setWidget(rowSamples, 1, label);
 		} else {
@@ -198,7 +200,7 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 			}
 		}
 		if (projectStats.getNumMSRuns() != null) {
-			Label label = new Label(format.format(projectStats.getNumMSRuns()));
+			final Label label = new Label(format.format(projectStats.getNumMSRuns()));
 			label.setStyleName("no-wrap");
 			rightPanel.setWidget(rowMSRuns, 1, label);
 		} else {
@@ -207,7 +209,7 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 			}
 		}
 		if (projectStats.getNumProteins() != null) {
-			Label label = new Label(format.format(projectStats.getNumProteins()));
+			final Label label = new Label(format.format(projectStats.getNumProteins()));
 			label.setStyleName("no-wrap");
 			rightPanel.setWidget(rowProteins, 1, label);
 		} else {
@@ -216,7 +218,7 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 			}
 		}
 		if (projectStats.getNumGenes() != null) {
-			Label label = new Label(format.format(projectStats.getNumGenes()));
+			final Label label = new Label(format.format(projectStats.getNumGenes()));
 			label.setStyleName("no-wrap");
 			rightPanel.setWidget(rowGenes, 1, label);
 		} else {
@@ -225,7 +227,7 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 			}
 		}
 		if (projectStats.getNumPeptides() != null) {
-			Label label = new Label(format.format(projectStats.getNumPeptides()));
+			final Label label = new Label(format.format(projectStats.getNumPeptides()));
 			label.setStyleName("no-wrap");
 			rightPanel.setWidget(rowPeptides, 1, label);
 		} else {
@@ -234,7 +236,7 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 			}
 		}
 		if (projectStats.getNumPSMs() != null) {
-			Label label = new Label(String.valueOf(format.format(projectStats.getNumPSMs())));
+			final Label label = new Label(String.valueOf(format.format(projectStats.getNumPSMs())));
 			label.setStyleName("no-wrap");
 			rightPanel.setWidget(rowPSMs, 1, label);
 		} else {
@@ -250,7 +252,7 @@ public abstract class AbstractProjectStatsItemPanel<T> extends AbstractItemPanel
 
 	private ProjectStats<T> getProjectStats(T t) {
 		if (!projectStatsMap.containsKey(t)) {
-			ProjectStats<T> stats = createProjectStats(t);
+			final ProjectStats<T> stats = createProjectStats(t);
 			projectStatsMap.put(t, stats);
 		}
 		return projectStatsMap.get(t);

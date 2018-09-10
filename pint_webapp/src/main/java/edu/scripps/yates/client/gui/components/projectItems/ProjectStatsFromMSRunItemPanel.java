@@ -13,11 +13,11 @@ import edu.scripps.yates.shared.model.projectStats.ProjectStatsFromMSRun;
 public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPanel<MSRunBean> {
 	private static ProjectStatsFromMSRunItemPanel instance;
 
-	public static ProjectStatsFromMSRunItemPanel getInstance(MSRunBean t) {
+	public static ProjectStatsFromMSRunItemPanel getInstance(MSRunBean t, boolean resetItems) {
 		if (instance == null) {
 			instance = new ProjectStatsFromMSRunItemPanel(t);
 		} else {
-			instance.updateParent(t);
+			instance.updateParent(t, resetItems);
 		}
 		return instance;
 	}
@@ -29,7 +29,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 	@Override
 	public void requestNumGenes(final MSRunBean msRunBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
-		Image imageLoader = new Image(smallLoader);
+		final Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowGenes, 1, imageLoader);
 		super.proteinRetrievingService.getNumGenes(msRunBean.getProject().getTag(), msRunBean,
 				new AsyncCallback<Integer>() {
@@ -37,7 +37,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 					@Override
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(msRunBean).setNumGenes(result);
-						Label numGenesLabel = new Label(format.format(result));
+						final Label numGenesLabel = new Label(format.format(result));
 						numGenesLabel.setStyleName("no-wrap");
 						if (msRunBean.equals(selectedItem.getT())) {
 							rightPanel.setWidget(rowGenes, 1, numGenesLabel);
@@ -57,7 +57,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 	@Override
 	public void requestNumPSMs(final MSRunBean msRunBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
-		Image imageLoader = new Image(smallLoader);
+		final Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowPSMs, 1, imageLoader);
 		super.proteinRetrievingService.getNumPSMs(msRunBean.getProject().getTag(), msRunBean,
 				new AsyncCallback<Integer>() {
@@ -65,7 +65,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 					@Override
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(msRunBean).setNumPSMs(result);
-						Label numPSMsLabel = new Label(format.format(result));
+						final Label numPSMsLabel = new Label(format.format(result));
 						numPSMsLabel.setStyleName("no-wrap");
 						if (msRunBean.equals(selectedItem.getT())) {
 							rightPanel.setWidget(rowPSMs, 1, numPSMsLabel);
@@ -84,7 +84,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 	@Override
 	public void requestNumPeptides(final MSRunBean msRunBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
-		Image imageLoader = new Image(smallLoader);
+		final Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowPeptides, 1, imageLoader);
 		super.proteinRetrievingService.getNumDifferentPeptides(msRunBean.getProject().getTag(), msRunBean,
 				new AsyncCallback<Integer>() {
@@ -92,7 +92,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 					@Override
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(msRunBean).setNumPeptides(result);
-						Label numPeptidesLabel = new Label(format.format(result));
+						final Label numPeptidesLabel = new Label(format.format(result));
 						numPeptidesLabel.setStyleName("no-wrap");
 						if (msRunBean.equals(selectedItem.getT())) {
 							rightPanel.setWidget(rowPeptides, 1, numPeptidesLabel);
@@ -112,7 +112,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 	@Override
 	public void requestNumProteins(final MSRunBean msRunBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
-		Image imageLoader = new Image(smallLoader);
+		final Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowProteins, 1, imageLoader);
 		super.proteinRetrievingService.getNumDifferentProteins(msRunBean.getProject().getTag(), msRunBean,
 				new AsyncCallback<Integer>() {
@@ -120,7 +120,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 					@Override
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(msRunBean).setNumProteins(result);
-						Label numProteinsLabel = new Label(format.format(result));
+						final Label numProteinsLabel = new Label(format.format(result));
 						numProteinsLabel.setStyleName("no-wrap");
 						if (msRunBean.equals(selectedItem.getT())) {
 							rightPanel.setWidget(rowProteins, 1, numProteinsLabel);
@@ -155,7 +155,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 	@Override
 	public void requestNumConditions(final MSRunBean msRunBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
-		Image imageLoader = new Image(smallLoader);
+		final Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowConditions, 1, imageLoader);
 		super.proteinRetrievingService.getNumConditions(msRunBean.getProject().getTag(), msRunBean,
 				new AsyncCallback<Integer>() {
@@ -163,7 +163,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 					@Override
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(msRunBean).setNumConditions(result);
-						Label numConditionsLabel = new Label(format.format(result));
+						final Label numConditionsLabel = new Label(format.format(result));
 						numConditionsLabel.setStyleName("no-wrap");
 						if (msRunBean.equals(selectedItem.getT())) {
 							rightPanel.setWidget(rowConditions, 1, numConditionsLabel);
@@ -183,7 +183,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 	@Override
 	public void requestNumSamples(final MSRunBean msRunBean) {
 		final ImageResource smallLoader = clientBundle.smallLoader();
-		Image imageLoader = new Image(smallLoader);
+		final Image imageLoader = new Image(smallLoader);
 		rightPanel.setWidget(rowSamples, 1, imageLoader);
 		super.proteinRetrievingService.getNumSamples(msRunBean.getProject().getTag(), msRunBean,
 				new AsyncCallback<Integer>() {
@@ -191,7 +191,7 @@ public class ProjectStatsFromMSRunItemPanel extends AbstractProjectStatsItemPane
 					@Override
 					public void onSuccess(Integer result) {
 						projectStatsMap.get(msRunBean).setNumSamples(result);
-						Label numSamplesLabel = new Label(format.format(result));
+						final Label numSamplesLabel = new Label(format.format(result));
 						numSamplesLabel.setStyleName("no-wrap");
 						if (msRunBean.equals(selectedItem.getT())) {
 							rightPanel.setWidget(rowSamples, 1, numSamplesLabel);

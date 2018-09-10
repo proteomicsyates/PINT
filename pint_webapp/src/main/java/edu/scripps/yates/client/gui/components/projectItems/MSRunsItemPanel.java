@@ -16,11 +16,11 @@ import edu.scripps.yates.shared.model.ProjectBean;
 public class MSRunsItemPanel extends AbstractItemPanel<ProjectBean, MSRunBean> {
 	private static MSRunsItemPanel instance;
 
-	public static MSRunsItemPanel getInstance(ProjectBean projectBean) {
+	public static MSRunsItemPanel getInstance(ProjectBean projectBean, boolean resetItems) {
 		if (instance == null) {
 			instance = new MSRunsItemPanel(projectBean);
 		} else {
-			instance.updateParent(projectBean);
+			instance.updateParent(projectBean, resetItems);
 		}
 		return instance;
 	}
@@ -34,7 +34,7 @@ public class MSRunsItemPanel extends AbstractItemPanel<ProjectBean, MSRunBean> {
 	private MSRunsItemPanel(ProjectBean projectBean) {
 		super("MS runs", projectBean);
 		// add description panel in the right
-		FlexTable rightFlexTable = new FlexTable();
+		final FlexTable rightFlexTable = new FlexTable();
 		labelMSRun = new Label("");
 		rightFlexTable.setWidget(0, 0, labelMSRun);
 		rightFlexTable.getFlexCellFormatter().setColSpan(0, 0, 2);
@@ -61,7 +61,7 @@ public class MSRunsItemPanel extends AbstractItemPanel<ProjectBean, MSRunBean> {
 		rightFlexTable.setWidget(2, 1, dateLabel);
 		rightFlexTable.getFlexCellFormatter().setAlignment(2, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		updateParent(projectBean);
+		updateParent(projectBean, true);
 
 		addRightPanel(rightFlexTable);
 
@@ -69,8 +69,10 @@ public class MSRunsItemPanel extends AbstractItemPanel<ProjectBean, MSRunBean> {
 	}
 
 	@Override
-	public void updateParent(ProjectBean projectBean) {
-		clearItemList();
+	public void updateParent(ProjectBean projectBean, boolean resetItems) {
+		if (resetItems) {
+			clearItemList();
+		}
 		if ((projectBean != null && !projectBean.equals(currentParent)) || getItems().isEmpty()) {
 			currentParent = projectBean;
 
@@ -79,7 +81,7 @@ public class MSRunsItemPanel extends AbstractItemPanel<ProjectBean, MSRunBean> {
 			for (final MSRunBean msrunBean : msRuns) {
 				addItemToList(msrunBean.getId(), msrunBean);
 			}
-			String plural = msRuns.size() > 1 ? "s" : "";
+			final String plural = msRuns.size() > 1 ? "s" : "";
 			setCaption(msRuns.size() + " MS run" + plural);
 			selectFirstItem();
 		} else {
@@ -91,7 +93,7 @@ public class MSRunsItemPanel extends AbstractItemPanel<ProjectBean, MSRunBean> {
 	public void selectItem(MSRunBean msRunBean) {
 		if (msRunBean != null) {
 			label.setVisible(true);
-			String path = getStringNotAvailable("path", msRunBean.getPath());
+			final String path = getStringNotAvailable("path", msRunBean.getPath());
 			pathLabel.setText(path);
 			labelMSRun.setText("MS run '" + msRunBean.getId() + "':");
 
@@ -102,7 +104,7 @@ public class MSRunsItemPanel extends AbstractItemPanel<ProjectBean, MSRunBean> {
 				label2.setVisible(false);
 				dateLabel.setValue(null);
 			}
-			selectedItemStatsPanel = ProjectStatsFromMSRunItemPanel.getInstance(msRunBean);
+			selectedItemStatsPanel = ProjectStatsFromMSRunItemPanel.getInstance(msRunBean, true);
 		} else {
 			label.setVisible(false);
 			pathLabel.setText(null);

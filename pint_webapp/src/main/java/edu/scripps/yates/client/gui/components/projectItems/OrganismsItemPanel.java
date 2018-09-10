@@ -25,11 +25,11 @@ import edu.scripps.yates.shared.util.SharedConstants;
 public class OrganismsItemPanel extends AbstractItemPanel<ProjectBean, OrganismBean> {
 	private static OrganismsItemPanel instance;
 
-	public static OrganismsItemPanel getInstance(ProjectBean projectBean) {
+	public static OrganismsItemPanel getInstance(ProjectBean projectBean, boolean resetItems) {
 		if (instance == null) {
 			instance = new OrganismsItemPanel(projectBean);
 		} else {
-			instance.updateParent(projectBean);
+			instance.updateParent(projectBean, resetItems);
 		}
 		return instance;
 	}
@@ -57,7 +57,7 @@ public class OrganismsItemPanel extends AbstractItemPanel<ProjectBean, OrganismB
 		flexTable.getFlexCellFormatter().setAlignment(1, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
 
-		updateParent(projectBean);
+		updateParent(projectBean, false);
 
 		addRightPanel(flexTable);
 
@@ -65,11 +65,13 @@ public class OrganismsItemPanel extends AbstractItemPanel<ProjectBean, OrganismB
 	}
 
 	@Override
-	public void updateParent(ProjectBean projectBean) {
-
+	public void updateParent(ProjectBean projectBean, boolean resetItems) {
+		if (resetItems) {
+			clearItemList();
+		}
 		if ((projectBean != null && !projectBean.equals(currentParent)) || getItems().isEmpty()) {
 			currentParent = projectBean;
-			clearItemList();
+
 			askForOrganismInProject(projectBean.getTag());
 			selectFirstItem();
 

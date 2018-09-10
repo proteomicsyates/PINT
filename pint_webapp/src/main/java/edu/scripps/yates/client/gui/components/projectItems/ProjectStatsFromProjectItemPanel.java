@@ -35,14 +35,14 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	private static ProjectStatsFromProjectItemPanel instance;
 
 	public static ProjectStatsFromProjectItemPanel getInstance(QueryPanel queryPanel, boolean testMode, ProjectBean t,
-			DefaultView defaultView) {
+			DefaultView defaultView, boolean resetItems) {
 		if (instance == null) {
 			GWT.log("creating project stats from project item panel");
 			instance = new ProjectStatsFromProjectItemPanel(queryPanel, testMode, t, defaultView);
 			GWT.log("project stats from project item panel created");
 		} else {
 			GWT.log("Updating parent with project");
-			instance.updateParent(t);
+			instance.updateParent(t, resetItems);
 			GWT.log("setting recommended queries nd default view");
 			instance.setDefaultView(defaultView);
 		}
@@ -74,7 +74,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 		this.defaultView = defaultView;
 		this.queryPanel = queryPanel;
 		this.testMode = testMode;
-		super.updateParent(projectBean);
+		super.updateParent(projectBean, true);
 
 	}
 

@@ -14,11 +14,11 @@ import edu.scripps.yates.shared.model.ProjectBean;
 public class ConditionsItemPanel extends AbstractItemPanel<ProjectBean, ExperimentalConditionBean> {
 	private static ConditionsItemPanel instance;
 
-	public static ConditionsItemPanel getInstance(ProjectBean projectBean) {
+	public static ConditionsItemPanel getInstance(ProjectBean projectBean, boolean resetItems) {
 		if (instance == null) {
 			instance = new ConditionsItemPanel(projectBean);
 		} else {
-			instance.updateParent(projectBean);
+			instance.updateParent(projectBean, resetItems);
 		}
 		return instance;
 	}
@@ -32,7 +32,7 @@ public class ConditionsItemPanel extends AbstractItemPanel<ProjectBean, Experime
 	private ConditionsItemPanel(ProjectBean projectBean) {
 		super("Conditions", projectBean);
 		// add description panel in the right
-		FlexTable rightFlexTable = new FlexTable();
+		final FlexTable rightFlexTable = new FlexTable();
 		labelCondition = new Label("");
 		rightFlexTable.setWidget(0, 0, labelCondition);
 		rightFlexTable.getFlexCellFormatter().setColSpan(0, 0, 2);
@@ -58,7 +58,7 @@ public class ConditionsItemPanel extends AbstractItemPanel<ProjectBean, Experime
 		rightFlexTable.setWidget(2, 1, sampleLabel);
 		rightFlexTable.getFlexCellFormatter().setAlignment(2, 1, HasHorizontalAlignment.ALIGN_LEFT,
 				HasVerticalAlignment.ALIGN_TOP);
-		updateParent(projectBean);
+		updateParent(projectBean, true);
 
 		addRightPanel(rightFlexTable);
 
@@ -66,8 +66,10 @@ public class ConditionsItemPanel extends AbstractItemPanel<ProjectBean, Experime
 	}
 
 	@Override
-	public void updateParent(ProjectBean projectBean) {
-		clearItemList();
+	public void updateParent(ProjectBean projectBean, boolean resetItems) {
+		if (resetItems) {
+			clearItemList();
+		}
 		if ((projectBean != null && !projectBean.equals(currentParent)) || getItems().isEmpty()) {
 			currentParent = projectBean;
 
@@ -76,7 +78,7 @@ public class ConditionsItemPanel extends AbstractItemPanel<ProjectBean, Experime
 			for (final ExperimentalConditionBean conditionBean : conditions) {
 				addItemToList(conditionBean.getId(), conditionBean);
 			}
-			String plural = conditions.size() > 1 ? "s" : "";
+			final String plural = conditions.size() > 1 ? "s" : "";
 			setCaption(conditions.size() + " Condition" + plural);
 			selectFirstItem();
 		} else {
@@ -88,7 +90,7 @@ public class ConditionsItemPanel extends AbstractItemPanel<ProjectBean, Experime
 	public void selectItem(ExperimentalConditionBean conditionBean) {
 		if (conditionBean != null) {
 			label.setVisible(true);
-			String description = getStringNotAvailable("description", conditionBean.getDescription());
+			final String description = getStringNotAvailable("description", conditionBean.getDescription());
 			descriptionLabel.setText(description);
 			labelCondition.setText("Condition '" + conditionBean.getId() + "':");
 
@@ -99,7 +101,7 @@ public class ConditionsItemPanel extends AbstractItemPanel<ProjectBean, Experime
 				label2.setVisible(false);
 				sampleLabel.setText(null);
 			}
-			selectedItemStatsPanel = ProjectStatsFromConditionItemPanel.getInstance(conditionBean);
+			selectedItemStatsPanel = ProjectStatsFromConditionItemPanel.getInstance(conditionBean, true);
 		} else {
 			label.setVisible(false);
 			descriptionLabel.setText(null);

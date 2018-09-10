@@ -110,7 +110,7 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 	}
 
 	public void addRightPanel(Widget widget) {
-		int row = 0;
+		final int row = 0;
 		int col = 1;
 		if (!includeList) {
 			col = 0;
@@ -143,9 +143,9 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 	 *            a title to add to the item
 	 */
 	protected void addItemToList(String itemName, final T item, String titleOnItem) {
-		FlowPanel panel = new FlowPanel();
+		final FlowPanel panel = new FlowPanel();
 		panel.setTitle(titleOnItem);
-		Label label = new Label(itemName);
+		final Label label = new Label(itemName);
 		label.setWordWrap(false);
 		label.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		panel.add(label);
@@ -156,11 +156,11 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 		listPanel.add(panel);
 
 		// mouseoverhandler to show description
-		MouseOverHandler mouseOverHandler = new MouseOverHandler() {
+		final MouseOverHandler mouseOverHandler = new MouseOverHandler() {
 
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
-				T previousSelectedItem = selectedItem;
+				final T previousSelectedItem = selectedItem;
 				if (!item.equals(previousSelectedItem) && previousSelectedItem != null) {
 					// deselect the previous one
 					panelsByItem.get(previousSelectedItem).setStyleName("ProjectItemPanel");
@@ -172,7 +172,7 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 
 		// onMouseOuthandler to unselect the item and select the selected item
 		// if available
-		MouseOutHandler mouseoutHandler = new MouseOutHandler() {
+		final MouseOutHandler mouseoutHandler = new MouseOutHandler() {
 
 			@Override
 			public void onMouseOut(MouseOutEvent event) {
@@ -189,7 +189,7 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 		addMouseOutHandlerToItem(item, mouseoutHandler, MouseOutEvent.getType());
 
 		// onClick handler
-		ClickHandler clickHandler = new ClickHandler() {
+		final ClickHandler clickHandler = new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
@@ -291,10 +291,10 @@ public abstract class AbstractItemPanel<Y, T> extends Composite {
 
 	public abstract void selectItem(T item);
 
-	public abstract void updateParent(Y parent);
+	public abstract void updateParent(Y parent, boolean resetItems);
 
 	private void doAfterSelection(T item) {
-		for (DoSomethingTask2<T> doSomethingTask : doSomethingTaskAfterSelection) {
+		for (final DoSomethingTask2<T> doSomethingTask : doSomethingTaskAfterSelection) {
 			doSomethingTask.doSomething(item);
 		}
 	}
