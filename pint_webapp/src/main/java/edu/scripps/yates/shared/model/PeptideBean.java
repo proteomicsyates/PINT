@@ -83,6 +83,10 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		return peptideBeanUniqueIdentifier;
 	}
 
+	public void setProteins(Set<ProteinBean> proteins) {
+		this.proteins = proteins;
+	}
+
 	/**
 	 * @return the dbId
 	 */
@@ -338,7 +342,6 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	}
 
 	public boolean addProteinToPeptide(ProteinBean protein) {
-
 		if (protein == null || proteins.contains(protein) || proteinDBIds.containsAll(protein.getDbIds())) {
 			return false;
 		}
@@ -358,10 +361,6 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		// protein.addPSMtoProtein(psmBean);
 		// }
 		return true;
-	}
-
-	public void setProteins(Set<ProteinBean> proteins) {
-		this.proteins = proteins;
 	}
 
 	public Set<ProteinBean> getProteins() {
@@ -920,7 +919,6 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	public PeptideBean cloneToLightPeptideBean() {
 
 		if (lightVersion == null) {
-
 			seqs.add(getSequence());
 			lightVersion = new PeptideBean();
 			lightVersion.setAmounts(getAmounts());
@@ -955,6 +953,11 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 			lightVersion.setPtmScoreString(getPTMScoreString());
 			lightVersion.setPtmString(getPTMString());
 			lightVersion.setFullSequence(getFullSequence());
+
+			for (final ProteinBean proteinBean : getProteins()) {
+				final ProteinBean lightProtein = proteinBean.cloneToLightProteinBean();
+				lightVersion.addProteinToPeptide(lightProtein);
+			}
 		}
 		return lightVersion;
 	}
