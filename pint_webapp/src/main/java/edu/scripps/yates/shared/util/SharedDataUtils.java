@@ -1312,10 +1312,9 @@ public class SharedDataUtils {
 						final SEQUENCE_OVERLAPPING included = isPeptideIncludedInThatRange(startingPositions,
 								uniprotFeature.getPositionStart(), uniprotFeature.getPositionEnd());
 						if (included != SEQUENCE_OVERLAPPING.NOT_COVERED) {
+							sb.append(uniprotFeature.getFeatureType() + " ");
 							if (uniprotFeature.getDescription() != null) {
 								sb.append(uniprotFeature.getDescription());
-							} else {
-								sb.append(uniprotFeature.getFeatureType());
 							}
 
 							if (uniprotFeature.getPositionStart() == uniprotFeature.getPositionEnd()) {
@@ -1332,7 +1331,9 @@ public class SharedDataUtils {
 				// there is not starting positions for this peptide in this
 				// protein
 			}
-			sb.append(SharedConstants.NEW_LINE_JAVA);
+			if (proteinBeans.size() > 1) {
+				sb.append(SharedConstants.NEW_LINE_JAVA);
+			}
 		}
 		return sb.toString();
 	}
