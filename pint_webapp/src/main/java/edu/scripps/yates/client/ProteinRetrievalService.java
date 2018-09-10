@@ -54,6 +54,8 @@ public interface ProteinRetrievalService extends RemoteService {
 
 	ProjectBean getProjectBean(String projectTag) throws PintException;
 
+	List<ProjectBean> getProjectBeans(Set<String> projectTags) throws PintException;
+
 	QueryResultSubLists getProteinsFromProjects(String sessionID, Set<String> projectTags, String uniprotVersion,
 			boolean separateNonConclusiveProteins, Integer defaultQueryIndex, boolean testMode) throws PintException;
 
