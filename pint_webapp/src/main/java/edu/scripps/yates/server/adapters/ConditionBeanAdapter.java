@@ -2,12 +2,12 @@ package edu.scripps.yates.server.adapters;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
-import edu.scripps.yates.server.util.tablemapper.ConditionToPeptideTableMapper;
-import edu.scripps.yates.server.util.tablemapper.ConditionToProteinTableMapper;
-import edu.scripps.yates.server.util.tablemapper.PeptideAmountToPeptideTableMapper;
-import edu.scripps.yates.server.util.tablemapper.PeptideRatioToPeptideTableMapper;
-import edu.scripps.yates.server.util.tablemapper.ProteinAmountToProteinTableMapper;
-import edu.scripps.yates.server.util.tablemapper.ProteinRatioToProteinTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToPeptideTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToProteinTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.PeptideAmountToPeptideTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.PeptideRatioToPeptideTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ProteinAmountToProteinTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ProteinRatioToProteinTableMapper;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.ProjectBean;
 import gnu.trove.map.hash.TIntObjectHashMap;

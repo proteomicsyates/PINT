@@ -2,8 +2,8 @@ package edu.scripps.yates.server.adapters;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
-import edu.scripps.yates.server.util.tablemapper.MSRunToPeptideTableMapper;
-import edu.scripps.yates.server.util.tablemapper.MSRunToProteinTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.MSRunToPeptideTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.MSRunToProteinTableMapper;
 import edu.scripps.yates.shared.model.MSRunBean;
 import gnu.trove.map.hash.TIntObjectHashMap;
 

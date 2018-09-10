@@ -1,7 +1,9 @@
-package edu.scripps.yates.server.util.tablemapper;
+package edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
@@ -38,4 +40,16 @@ public class ConditionToPeptideTableMapper extends AbstractTableMapper<Condition
 		return y.getId();
 	}
 
+	public List<Condition> getConditions(Peptide peptide) {
+		final TIntArrayList mapIDs1 = mapIDs1(peptide);
+		final List<Condition> ret = new ArrayList<Condition>();
+		for (final int id : mapIDs1.toArray()) {
+			final Condition condition = ContextualSessionHandler.load(id, Condition.class);
+			if (condition != null) {
+				ret.add(condition);
+			}
+		}
+
+		return ret;
+	}
 }

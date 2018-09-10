@@ -1,4 +1,4 @@
-package edu.scripps.yates.server.util.tablemapper;
+package edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
