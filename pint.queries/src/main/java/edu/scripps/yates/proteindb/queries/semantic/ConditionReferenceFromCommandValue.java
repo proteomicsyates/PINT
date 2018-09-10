@@ -49,7 +49,7 @@ public class ConditionReferenceFromCommandValue {
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof Condition) {
-				Condition condition = (Condition) obj;
+				final Condition condition = (Condition) obj;
 
 				if (conditionName != null && (condition.getName().equalsIgnoreCase(conditionName)
 						|| conditionName.equalsIgnoreCase(condition.getDescription())) && projectTag == null) {
@@ -89,7 +89,7 @@ public class ConditionReferenceFromCommandValue {
 					throw new MalformedQueryException(
 							"Condition name and project name cannot be null at the same time");
 				}
-				ConditionProject conditionProject = new ConditionProject(conditionName, projectTag);
+				final ConditionProject conditionProject = new ConditionProject(conditionName, projectTag);
 				conditionProjects.add(conditionProject);
 			}
 			return;
@@ -109,7 +109,7 @@ public class ConditionReferenceFromCommandValue {
 	 * @return
 	 */
 	private boolean passCondition(Collection<Condition> conditions) {
-		for (Condition condition : conditions) {
+		for (final Condition condition : conditions) {
 			if (passCondition(condition))
 				return true;
 		}
@@ -124,9 +124,9 @@ public class ConditionReferenceFromCommandValue {
 	 * @return
 	 */
 	public boolean passAllConditions(Collection<Condition> conditions) {
-		for (ConditionProject conditionProject : conditionProjects) {
+		for (final ConditionProject conditionProject : conditionProjects) {
 			boolean found = false;
-			for (Condition condition : conditions) {
+			for (final Condition condition : conditions) {
 				if (conditionProject.equals(condition)) {
 					found = true;
 					break;
@@ -178,6 +178,10 @@ public class ConditionReferenceFromCommandValue {
 	 * @return
 	 */
 	public boolean passCondition(QueriableProteinSet protein) {
+		final Set<String> projectTags = new THashSet<String>();
+		for (final ConditionProject conditionProject : conditionProjects) {
+			projectTags.add(conditionProject.projectTag);
+		}
 		final Set<Condition> conditions = protein.getConditions();
 		return passCondition(conditions);
 	}
@@ -191,7 +195,7 @@ public class ConditionReferenceFromCommandValue {
 	 * @return
 	 */
 	public boolean passConditionProteins(Set<Protein> proteins) {
-		for (Protein protein2 : proteins) {
+		for (final Protein protein2 : proteins) {
 			if (passCondition(protein2))
 				return true;
 		}
@@ -219,7 +223,7 @@ public class ConditionReferenceFromCommandValue {
 	 * @return
 	 */
 	public boolean passConditionPeptides(Set<Peptide> peptides) {
-		for (Peptide peptide : peptides) {
+		for (final Peptide peptide : peptides) {
 			if (passCondition(peptide))
 				return true;
 		}
@@ -258,7 +262,7 @@ public class ConditionReferenceFromCommandValue {
 	 * @return
 	 */
 	public boolean passConditionPsms(Set<Psm> psms) {
-		for (Psm psm : psms) {
+		for (final Psm psm : psms) {
 			if (passCondition(psm))
 				return true;
 		}
