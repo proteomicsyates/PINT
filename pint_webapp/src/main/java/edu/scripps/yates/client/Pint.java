@@ -550,15 +550,10 @@ public class Pint implements EntryPoint {
 						}
 					});
 				}
-				if (historyToken.startsWith(TargetHistory.LOAD_PROJECT.getTargetHistory()))
-
-				{
+				if (historyToken.startsWith(TargetHistory.LOAD_PROJECT.getTargetHistory())) {
 					parseProjectValues(historyToken);
-
 				}
-				if (historyToken.contains(TargetHistory.PSEAQUANT.getTargetHistory()))
-
-				{
+				if (historyToken.contains(TargetHistory.PSEAQUANT.getTargetHistory())) {
 					GWT.runAsync(new RunAsyncCallback() {
 
 						@Override
