@@ -11,7 +11,7 @@ public class ProjectsBeanSet extends HashSet<ProjectBean> {
 	private static final long serialVersionUID = -8607110413169328450L;
 
 	public boolean containsProject(String projectTag) {
-		for (ProjectBean projectBean : this) {
+		for (final ProjectBean projectBean : this) {
 			if (projectBean.getTag().equals(projectTag)) {
 				return true;
 			}
@@ -20,7 +20,7 @@ public class ProjectsBeanSet extends HashSet<ProjectBean> {
 	}
 
 	public boolean containsBigProject() {
-		for (ProjectBean projectBean : this) {
+		for (final ProjectBean projectBean : this) {
 			if (projectBean.isBig()) {
 				return true;
 			}
@@ -28,8 +28,17 @@ public class ProjectsBeanSet extends HashSet<ProjectBean> {
 		return false;
 	}
 
+	public boolean containsPrivateProject() {
+		for (final ProjectBean projectBean : this) {
+			if (!projectBean.isPublicAvailable()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public ProjectBean getBigProject() {
-		for (ProjectBean projectBean : this) {
+		for (final ProjectBean projectBean : this) {
 			if (projectBean.isBig()) {
 				return projectBean;
 			}
@@ -38,7 +47,7 @@ public class ProjectsBeanSet extends HashSet<ProjectBean> {
 	}
 
 	public ProjectBean getByTag(String projectTag) {
-		for (ProjectBean projectBean : this) {
+		for (final ProjectBean projectBean : this) {
 			if (projectBean.getTag().equals(projectTag)) {
 				return projectBean;
 			}
