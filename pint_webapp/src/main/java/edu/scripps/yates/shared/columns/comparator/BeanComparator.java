@@ -282,12 +282,16 @@ public abstract class BeanComparator<T> implements Comparator<T>, Serializable {
 	/**
 	 * Compares strings taking into account that they could be null, so we want
 	 * that in that case, the null strings were at the end, which depends in the
-	 * order, determined by ignoreCase.
-	 *
+	 * order, determined by ignoreCase. The nonNullString1 and 2 are secondary
+	 * parameters to sort by just in case the result is 0 by the default
+	 * parameters
+	 * 
 	 * @param string1
 	 * @param string2
 	 * @param ascendant
 	 * @param ignoreCase
+	 * @param nonNullString1
+	 * @param nonNullString2
 	 * @return
 	 */
 	protected static int compareStrings(String string1, String string2, boolean ignoreCase, String nonNullString1,
