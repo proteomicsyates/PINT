@@ -15,7 +15,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.POIXMLException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -25,6 +24,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import edu.scripps.yates.excel.util.ColumnIndexManager;
+import edu.scripps.yates.utilities.files.FileUtils;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
@@ -53,9 +53,9 @@ public class ExcelReader {
 		this.filePath = filePath;
 		final int[] sheetNumbers = getColumnNames(minSheetIndex, maxSheetIndex).keys();
 		if (log.isDebugEnabled()) {
-			for (int sheetNum : sheetNumbers) {
+			for (final int sheetNum : sheetNumbers) {
 				final List<String> list = getColumnNames(minSheetIndex, maxSheetIndex).get(sheetNum);
-				for (String string : list) {
+				for (final String string : list) {
 					log.debug(string);
 				}
 
@@ -66,13 +66,13 @@ public class ExcelReader {
 	}
 
 	public File saveAsTXT(String separator) throws IOException {
-		File output = new File(new File(filePath).getParentFile().getAbsolutePath() + File.separator
+		final File output = new File(new File(filePath).getParentFile().getAbsolutePath() + File.separator
 				+ FilenameUtils.getBaseName(filePath) + ".txt");
-		FileWriter fw = new FileWriter(output);
+		final FileWriter fw = new FileWriter(output);
 		int rowNumber = 1;
 		List<String> stringValues = getStringValues(0, rowNumber);
 		while (!stringValues.isEmpty()) {
-			for (String value : stringValues) {
+			for (final String value : stringValues) {
 				String string = "";
 				if (value != null) {
 					string = value;
@@ -90,16 +90,16 @@ public class ExcelReader {
 	}
 
 	public List<String> getStringValues(int sheetNumber, int rowNumber) throws IOException {
-		List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<String>();
 
-		Workbook wb = getWorkbook();
+		final Workbook wb = getWorkbook();
 
-		Sheet sheet = wb.getSheetAt(sheetNumber);
-		Row row = sheet.getRow(rowNumber);
+		final Sheet sheet = wb.getSheetAt(sheetNumber);
+		final Row row = sheet.getRow(rowNumber);
 		if (row != null) {
-			int max = row.getLastCellNum();
+			final int max = row.getLastCellNum();
 			for (int i = 0; i < max; i++) {
-				Cell cell = row.getCell(i, Row.RETURN_NULL_AND_BLANK);
+				final Cell cell = row.getCell(i, Row.RETURN_NULL_AND_BLANK);
 				if (cell != null) {
 					switch (cell.getCellType()) {
 					case Cell.CELL_TYPE_STRING:
@@ -127,14 +127,15 @@ public class ExcelReader {
 	private Row getRow(int sheetNumber, int numRow) {
 		try {
 			return getWorkbook().getSheetAt(sheetNumber).getRow(numRow);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
 	public String getStringValue(int sheetNumber, int numRow, String colLetter) {
-		return getStringValue(sheetNumber, numRow, CellReference.convertColStringToIndex(colLetter));
+		return getStringValue(sheetNumber, numRow,
+				org.apache.poi.ss.util.CellReference.convertColStringToIndex(colLetter));
 	}
 
 	public String getStringValue(int sheetNumber, int numRow, int numCol) {
@@ -149,22 +150,23 @@ public class ExcelReader {
 
 				try {
 					return cell.getStringCellValue();
-				} catch (IllegalStateException e) {
+				} catch (final IllegalStateException e) {
 					try {
 						return String.valueOf(cell.getNumericCellValue());
-					} catch (IllegalStateException e2) {
+					} catch (final IllegalStateException e2) {
 						return String.valueOf(cell.getBooleanCellValue());
 					}
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
 	public String getNumberValue(int sheetNumber, int numRow, String colLetter) {
-		return getNumberValue(sheetNumber, numRow, CellReference.convertColStringToIndex(colLetter));
+		return getNumberValue(sheetNumber, numRow,
+				org.apache.poi.ss.util.CellReference.convertColStringToIndex(colLetter));
 	}
 
 	public String getNumberValue(int sheetNumber, int numRow, int numCol) {
@@ -181,10 +183,10 @@ public class ExcelReader {
 			try {
 				final double numericCellValue = cell.getNumericCellValue();
 				return String.valueOf(numericCellValue);
-			} catch (IllegalStateException e) {
+			} catch (final IllegalStateException e) {
 				return cell.getStringCellValue();
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -192,15 +194,15 @@ public class ExcelReader {
 
 	public Map<String, String> getColumnValuePairs(int sheetNumber, int rowNumber) throws IOException {
 
-		Map<String, String> ret = new THashMap<String, String>();
+		final Map<String, String> ret = new THashMap<String, String>();
 
-		List<String> columnNamesOfTheSheet = getColumnNames(sheetNumber, sheetNumber).get(sheetNumber);
+		final List<String> columnNamesOfTheSheet = getColumnNames(sheetNumber, sheetNumber).get(sheetNumber);
 
-		Row row = getRow(sheetNumber, rowNumber);
+		final Row row = getRow(sheetNumber, rowNumber);
 		if (row != null) {
 
 			for (int colIndex = 0; colIndex < columnNamesOfTheSheet.size(); colIndex++) {
-				Cell cell = row.getCell(colIndex);
+				final Cell cell = row.getCell(colIndex);
 
 				final String columnName = columnNamesOfTheSheet.get(colIndex);
 
@@ -218,7 +220,7 @@ public class ExcelReader {
 								ret.put(columnName, String.valueOf(cell.getNumericCellValue()));
 							}
 
-						} catch (Exception e) {
+						} catch (final Exception e) {
 							ret.put(columnName, String.valueOf(cell.getNumericCellValue()));
 						}
 						break;
@@ -285,24 +287,35 @@ public class ExcelReader {
 		Workbook wb = null;
 		try {
 			try {
+				if (FilenameUtils.getExtension(filePath).equalsIgnoreCase("csv")) {
+					final String excelFilePath = FilenameUtils.getFullPath(filePath)
+							+ FilenameUtils.getBaseName(filePath) + ".xlsx";
+					FileUtils.separatedValuesToXLSX(filePath, excelFilePath, ",");
+					filePath = excelFilePath;
+				} else if (FilenameUtils.getExtension(filePath).equalsIgnoreCase("tsv")) {
+					final String excelFilePath = FilenameUtils.getFullPath(filePath)
+							+ FilenameUtils.getBaseName(filePath) + ".xlsx";
+					FileUtils.separatedValuesToXLSX(filePath, excelFilePath, "\t");
+					filePath = excelFilePath;
+				}
 				input = new BufferedInputStream(new FileInputStream(filePath));
 				wb = new XSSFWorkbook(input);
 				wb.setMissingCellPolicy(missingCellPolicy);
 
-			} catch (POIXMLException e) {
+			} catch (final POIXMLException e) {
 				input = new BufferedInputStream(new FileInputStream(filePath));
 				wb = new HSSFWorkbook(input);
 				wb.setMissingCellPolicy(missingCellPolicy);
 			}
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		} finally {
 			if (input != null)
 				try {
 					input.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 		}
