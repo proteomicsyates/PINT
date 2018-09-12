@@ -84,9 +84,9 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 		super(sessionID, importJobID, "Input data file " + numDataSource++, true);
 		// fileFormat
 
-		Label formatLabel = new Label("File format:");
+		final Label formatLabel = new Label("File format:");
 		addWidget(formatLabel);
-		FlowPanel horizPanel = new FlowPanel();
+		final FlowPanel horizPanel = new FlowPanel();
 		formatCombo = new ListBox();
 		formatCombo.setMultipleSelect(false);
 		addFormats(formatCombo);
@@ -146,7 +146,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 		});
 
 		// fileName
-		Label fileNameLabel = new Label("File name:");
+		final Label fileNameLabel = new Label("File name:");
 		addWidget(fileNameLabel);
 		fileName = new TextBox();
 		fileName.setEnabled(false);
@@ -156,7 +156,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 		fileName.addKeyUpHandler(getResetUploadedFileHandler());
 		addWidget(fileName);
 
-		String radioButtonGroupName = "sshserver or upload file" + hashCode();
+		final String radioButtonGroupName = "sshserver or upload file" + hashCode();
 		// server ref
 		locatedInServerRadioButton = new RadioButton(radioButtonGroupName, "Located in server");
 		locatedInServerRadioButton.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
@@ -201,7 +201,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 		addWidget(serverRefCombo);
 
 		// relativePath
-		Label relatvePathLabel = new Label("Relative path on server");
+		final Label relatvePathLabel = new Label("Relative path on server");
 		addWidget(relatvePathLabel);
 		relativePath = new TextBox();
 		relativePath.setEnabled(false);
@@ -211,7 +211,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 		addWidget(relativePath);
 
 		// check access to remote file
-		HorizontalPanel checkPanel = new HorizontalPanel();
+		final HorizontalPanel checkPanel = new HorizontalPanel();
 		checkPanel.setStyleName("ServerDisclosurePanelErrorFlowPanel");
 		checkAccessButton = new Button("Check access");
 		checkAccessButton.setEnabled(false);
@@ -286,7 +286,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 				if (oldID == null || newID == null || oldID.equals(newID))
 					return;
 				if (uploadFileRadioButton.getValue() && fileUploaded) {
-					FileNameWithTypeBean oldFile = new FileNameWithTypeBean();
+					final FileNameWithTypeBean oldFile = new FileNameWithTypeBean();
 					FileFormat fileFormat = null;
 					if (formatCombo.getSelectedIndex() > 0)
 						fileFormat = FileFormat
@@ -295,7 +295,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 					oldFile.setId(oldID);
 					oldFile.setFileName(fileName.getText());
 
-					FileNameWithTypeBean newFile = new FileNameWithTypeBean();
+					final FileNameWithTypeBean newFile = new FileNameWithTypeBean();
 					newFile.setFileFormat(fileFormat);
 					newFile.setFileName(fileName.getText());
 					newFile.setId(newID);
@@ -362,7 +362,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 	}
 
 	private OnStartUploaderHandler getOnStartUploaderHandler() {
-		OnStartUploaderHandler ret = new OnStartUploaderHandler() {
+		final OnStartUploaderHandler ret = new OnStartUploaderHandler() {
 
 			@Override
 			public void onStart(IUploader uploader) {
@@ -377,7 +377,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 	 * Updates the ServletPath
 	 */
 	private void updateUploaderServletPath() {
-		String format = formatCombo.getValue(formatCombo.getSelectedIndex());
+		final String format = formatCombo.getValue(formatCombo.getSelectedIndex());
 		uploader.setServletPath("dataFilesProject.gupld?" + SharedConstants.JOB_ID_PARAM + "=" + importJobID + "&"
 				+ SharedConstants.FILE_ID_PARAM + "=" + getID() + "&" + SharedConstants.FILE_FORMAT + "=" + format);
 
@@ -390,7 +390,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 	 * @return
 	 */
 	private KeyUpHandler getResetUploadedFileHandler() {
-		KeyUpHandler ret = new KeyUpHandler() {
+		final KeyUpHandler ret = new KeyUpHandler() {
 
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
@@ -411,10 +411,10 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 	 * @return
 	 */
 	private OnFinishUploaderHandler getOnFinishUploaderHandler() {
-		OnFinishUploaderHandler onfinish = new OnFinishUploaderHandler() {
+		final OnFinishUploaderHandler onfinish = new OnFinishUploaderHandler() {
 			@Override
 			public void onFinish(IUploader uploader) {
-				Status status = uploader.getStatus();
+				final Status status = uploader.getStatus();
 				if (status.equals(Status.SUCCESS)) {
 					final UploadedInfo serverInfo = uploader.getServerInfo();
 					final String fileNameUploaded = serverInfo.getFileName();
@@ -427,6 +427,8 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 					registerFileNameWithTypeBeanOnServer();
 					checkAccessButton.setEnabled(true);
 
+				} else {
+					showMessage(uploader.getServerRawResponse());
 				}
 			}
 		};
@@ -488,7 +490,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 	}
 
 	private ClickHandler getCheckAccessClickHandler() {
-		ClickHandler ret = new ClickHandler() {
+		final ClickHandler ret = new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
@@ -511,7 +513,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 		updateGUIFromObjectData();
 
 		if (locatedInServerRadioButton.getValue()) {
-			RemoteFileWithTypeBean remoteFile = new RemoteFileWithTypeBean();
+			final RemoteFileWithTypeBean remoteFile = new RemoteFileWithTypeBean();
 			remoteFile.setId(getID());
 			remoteFile.setFileName(fileName.getText());
 			remoteFile.setFileFormat(
@@ -544,7 +546,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 				}
 			});
 		} else if (uploadFileRadioButton.getValue()) {
-			FileNameWithTypeBean remoteFile = new FileNameWithTypeBean();
+			final FileNameWithTypeBean remoteFile = new FileNameWithTypeBean();
 			remoteFile.setFileName(fileName.getText());
 			final String itemText = formatCombo.getItemText(formatCombo.getSelectedIndex());
 			final FileFormat fileFormatFromString = FileFormat.getFileFormatFromString(itemText);
@@ -600,7 +602,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 	private void addFormats(ListBox formatCombo2) {
 		formatCombo.addItem("");
 
-		for (FileFormat format : FileFormat.values()) {
+		for (final FileFormat format : FileFormat.values()) {
 			formatCombo.addItem(format.getName(), format.name());
 		}
 
@@ -762,7 +764,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 		// updateRepresentedObject();
 		updateGUIFromObjectData();
 		if (uploadFileRadioButton.getValue() && fileUploaded) {
-			FileNameWithTypeBean ret = new FileNameWithTypeBean();
+			final FileNameWithTypeBean ret = new FileNameWithTypeBean();
 			ret.setFileName(dataSource.getFileName());
 			ret.setFileFormat(dataSource.getFormat());
 			if (dataSource.getFormat() == FileFormat.FASTA) {
@@ -772,7 +774,7 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 			if (ret.isValid())
 				return ret;
 		} else if (locatedInServerRadioButton.getValue()) {
-			RemoteFileWithTypeBean ret = new RemoteFileWithTypeBean();
+			final RemoteFileWithTypeBean ret = new RemoteFileWithTypeBean();
 			ret.setFileName(dataSource.getFileName());
 			ret.setFileFormat(dataSource.getFormat());
 			ret.setServer(dataSource.getServer());
