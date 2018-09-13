@@ -171,14 +171,9 @@ CREATE TABLE IF NOT EXISTS `interactome_db`.`Protein` (
   `length` INT NULL,
   `pi` DOUBLE NULL,
   `mw` DOUBLE NULL,
-  `Organism_taxonomyID` VARCHAR(90) NOT NULL,
+  `Organism_taxonomyID` VARCHAR(90),
   `MS_Run_id` INT NOT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_Protein_Organism1`
-    FOREIGN KEY (`Organism_taxonomyID`)
-    REFERENCES `interactome_db`.`Organism` (`taxonomyID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `fk_Protein_MS_Run1`
     FOREIGN KEY (`MS_Run_id`)
     REFERENCES `interactome_db`.`MS_Run` (`id`)
