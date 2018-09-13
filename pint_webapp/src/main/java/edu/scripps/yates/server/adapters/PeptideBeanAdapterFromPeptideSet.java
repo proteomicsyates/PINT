@@ -87,8 +87,10 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 	private void addPeptideInformation(PeptideBean ret, Peptide peptide) {
 
 		ret.addDbId(peptide.getId());
-		ret.setNumPSMs(ret.getNumPSMs() + peptide.getNumPsms());
 
+		if (peptide.getNumPsms() != null) {
+			ret.setNumPSMs(ret.getNumPSMs() + peptide.getNumPsms());
+		}
 		if (peptide.getSequence() != null) {
 			ret.setLength(peptide.getSequence().length());
 			ret.setSequence(peptide.getSequence());
@@ -286,8 +288,10 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 					if (!ret.getNumPSMsByCondition().containsKey(conditionBean)) {
 						ret.getNumPSMsByCondition().put(conditionBean, 0);
 					}
-					ret.getNumPSMsByCondition().put(conditionBean,
-							ret.getNumPSMsByCondition().get(conditionBean) + peptide.getNumPsms());
+					if (peptide.getNumPsms() != null) {
+						ret.getNumPSMsByCondition().put(conditionBean,
+								ret.getNumPSMsByCondition().get(conditionBean) + peptide.getNumPsms());
+					}
 					if (psmCentric) {
 						if (ret.getPSMDBIdsByCondition().containsKey(conditionBean)) {
 							final Set<Integer> set = new THashSet<Integer>();
