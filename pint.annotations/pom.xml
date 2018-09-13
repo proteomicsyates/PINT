@@ -59,7 +59,7 @@
     <dependency>
         <groupId>uk.ac.ebi.uniprot</groupId>
         <artifactId>japi</artifactId>
-        <version>1.0.21</version>
+        <version>1.0.19</version>
         <exclusions>
         	<exclusion>
         		<groupId>org.jboss.logging</groupId>
