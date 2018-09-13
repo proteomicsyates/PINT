@@ -32,21 +32,21 @@ public class AmountAdapterByExcel implements edu.scripps.yates.utilities.pattern
 	@Override
 	public Amount adapt() {
 		try {
-			AmountType amountType = AmountType.valueOf(amountCfg.getType().name());
+			final AmountType amountType = AmountType.valueOf(amountCfg.getType().name());
 
 			final ExcelColumn amountValuesColumn = excelFileReader
 					.getExcelColumnFromReference(amountCfg.getColumnRef());
 
 			final List<Object> amountValues = amountValuesColumn.getValues();
 			final AmountCombinationType combinationType = amountCfg.getCombinationType();
-			CombinationType combinationType2 = CombinationType.getCombinationType(combinationType.name());
+			final CombinationType combinationType2 = CombinationType.getCombinationType(combinationType.name());
 			final Double value = Double.valueOf(amountValues.get(rowIndex).toString());
 			if (value != null) {
-				AmountEx amount = new AmountEx((double) amountValues.get(rowIndex), amountType, expCondition);
+				final AmountEx amount = new AmountEx((double) amountValues.get(rowIndex), amountType, expCondition);
 				amount.setCombinationType(combinationType2);
 				return amount;
 			}
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			e.printStackTrace();
 			log.warn("Error getting amount value from row: " + rowIndex);
 		}
