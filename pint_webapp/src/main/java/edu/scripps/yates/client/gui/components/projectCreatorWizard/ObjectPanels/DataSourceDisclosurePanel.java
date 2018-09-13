@@ -378,8 +378,13 @@ public class DataSourceDisclosurePanel extends ClosableWithTitlePanel
 	 */
 	private void updateUploaderServletPath() {
 		final String format = formatCombo.getValue(formatCombo.getSelectedIndex());
-		uploader.setServletPath("dataFilesProject.gupld?" + SharedConstants.JOB_ID_PARAM + "=" + importJobID + "&"
-				+ SharedConstants.FILE_ID_PARAM + "=" + getID() + "&" + SharedConstants.FILE_FORMAT + "=" + format);
+
+		final String path = "dataFilesProject.gupld?" + SharedConstants.JOB_ID_PARAM + "=" + importJobID + "&"
+				+ SharedConstants.FILE_ID_PARAM + "=" + getID() + "&" + SharedConstants.FILE_FORMAT + "=" + format;
+		final String oldPath = uploader.getServletPath();
+		if (!path.equals(oldPath)) {
+			uploader.setServletPath(path);
+		}
 
 	}
 
