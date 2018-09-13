@@ -28,21 +28,21 @@ public class ProjectStatsParent {
 	}
 
 	public List<String> getMSRunIDs() {
-		List<String> list = new ArrayList<String>();
+		final List<String> list = new ArrayList<String>();
 		list.addAll(statsFromMSRuns.keySet());
 		Collections.sort(list);
 		return list;
 	}
 
 	public List<String> getConditionIDs() {
-		List<String> list = new ArrayList<String>();
+		final List<String> list = new ArrayList<String>();
 		list.addAll(statsFromConditions.keySet());
 		Collections.sort(list);
 		return list;
 	}
 
 	public List<String> getSampleIDs() {
-		List<String> list = new ArrayList<String>();
+		final List<String> list = new ArrayList<String>();
 		list.addAll(statsFromSamples.keySet());
 		Collections.sort(list);
 		return list;
@@ -57,7 +57,7 @@ public class ProjectStatsParent {
 			return statsFromMSRuns.get(msRun.getRunID());
 		}
 		final ProjectStatsFromMSRun projectStatsFromMSRun = new ProjectStatsFromMSRun(msRun);
-		statsFromMSRuns.put(projectTag, projectStatsFromMSRun);
+		statsFromMSRuns.put(msRun.getRunID(), projectStatsFromMSRun);
 		return projectStatsFromMSRun;
 	}
 
@@ -66,7 +66,7 @@ public class ProjectStatsParent {
 			return statsFromSamples.get(sample.getId());
 		}
 		final ProjectStats projectStatsFromSample = new ProjectStatsFromSample(sample);
-		statsFromSamples.put(projectTag, projectStatsFromSample);
+		statsFromSamples.put(sample.getId(), projectStatsFromSample);
 		return projectStatsFromSample;
 	}
 
@@ -94,7 +94,7 @@ public class ProjectStatsParent {
 		}
 		final ProjectStatsFromExperimentalCondition projectStatsFromCondition = new ProjectStatsFromExperimentalCondition(
 				condition);
-		statsFromConditions.put(projectTag, projectStatsFromCondition);
+		statsFromConditions.put(condition.getId(), projectStatsFromCondition);
 		return projectStatsFromCondition;
 	}
 
