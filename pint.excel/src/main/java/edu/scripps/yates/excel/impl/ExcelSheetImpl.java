@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -29,43 +28,43 @@ public class ExcelSheetImpl implements ExcelSheet {
 	public ExcelSheetImpl(Sheet sheet, int sheetIndex) {
 		name = sheet.getSheetName();
 		this.sheetIndex = sheetIndex;
-		TShortObjectHashMap<String> columnIndexMap = new TShortObjectHashMap<String>();
+		final TShortObjectHashMap<String> columnIndexMap = new TShortObjectHashMap<String>();
 		final int lastRowNum = sheet.getLastRowNum();
 		for (int rowIndex = 0; rowIndex <= lastRowNum; rowIndex++) {
 			final Row row = sheet.getRow(rowIndex);
 			if (row != null) {
 				if (rowIndex == 0) {
 					// create the columns
-					short minColIx = row.getFirstCellNum();
-					short maxColIx = row.getLastCellNum();
+					final short minColIx = row.getFirstCellNum();
+					final short maxColIx = row.getLastCellNum();
 					for (short colIx = minColIx; colIx < maxColIx; colIx++) {
-						Cell cell = row.getCell(colIx);
+						final Cell cell = row.getCell(colIx);
 						if (cell == null) {
 							continue;
 						}
 						final String headerName = cell.getStringCellValue();
 						columnIndexMap.put(colIx, headerName);
 						columnHeaders.add(headerName);
-						String columnKey = CellReference.convertNumToColString(colIx);
+						final String columnKey = org.apache.poi.ss.util.CellReference.convertNumToColString(colIx);
 						columnKeys.add(columnKey);
 
-						ExcelColumn excelColumn = new ExcelColumnImpl(columnKey, headerName);
+						final ExcelColumn excelColumn = new ExcelColumnImpl(columnKey, headerName);
 
 						columnMap.put(columnKey, excelColumn);
 					}
 				} else {
 					// data cells
-					short minColIx = row.getFirstCellNum();
-					short maxColIx = row.getLastCellNum();
+					final short minColIx = row.getFirstCellNum();
+					final short maxColIx = row.getLastCellNum();
 					for (short colIx = minColIx; colIx < maxColIx; colIx++) {
 						if (!columnIndexMap.containsKey(colIx))
 							continue;
-						Cell cell = row.getCell(colIx);
+						final Cell cell = row.getCell(colIx);
 						Object cellValue = null;
 						if (cell != null) {
 							cellValue = getCellValue(cell);
 						}
-						String columnKey = CellReference.convertNumToColString(colIx);
+						final String columnKey = org.apache.poi.ss.util.CellReference.convertNumToColString(colIx);
 						final ExcelColumnImpl excelColumn = (ExcelColumnImpl) columnMap.get(columnKey);
 
 						excelColumn.addData(rowIndex, cellValue);
@@ -75,8 +74,8 @@ public class ExcelSheetImpl implements ExcelSheet {
 		}
 		log.debug("Sheet '" + name + "' processed.");
 		log.debug("Number of columns :" + columnMap.size());
-		for (String columnKey : columnKeys) {
-			log.debug(columnKey + " " + columnMap.get(columnKey).getValues().size() + " values");
+		for (final String columnKey : columnKeys) {
+			log.debug(columnKey + " " + columnMap.get(columnKey).getSize() + " values");
 		}
 	}
 
@@ -92,10 +91,10 @@ public class ExcelSheetImpl implements ExcelSheet {
 			case Cell.CELL_TYPE_FORMULA:
 				try {
 					return Double.valueOf(cell.getStringCellValue());
-				} catch (NumberFormatException ex) {
+				} catch (final NumberFormatException ex) {
 					return cell.getStringCellValue();
 
-				} catch (IllegalStateException ex) {
+				} catch (final IllegalStateException ex) {
 					return cell.getNumericCellValue();
 
 				}
@@ -103,16 +102,16 @@ public class ExcelSheetImpl implements ExcelSheet {
 			case Cell.CELL_TYPE_NUMERIC:
 				try {
 					return Double.valueOf(cell.getNumericCellValue());
-				} catch (NumberFormatException ex) {
+				} catch (final NumberFormatException ex) {
 					return cell.getStringCellValue();
 
 				}
 			case Cell.CELL_TYPE_STRING:
 				try {
 					return Double.valueOf(cell.getNumericCellValue());
-				} catch (NumberFormatException ex) {
+				} catch (final NumberFormatException ex) {
 					return cell.getStringCellValue();
-				} catch (IllegalStateException ex) {
+				} catch (final IllegalStateException ex) {
 					return cell.getStringCellValue();
 
 				}
@@ -143,8 +142,8 @@ public class ExcelSheetImpl implements ExcelSheet {
 
 	@Override
 	public List<ExcelColumn> getColumns() {
-		List<ExcelColumn> ret = new ArrayList<ExcelColumn>();
-		for (String columnKey : columnKeys) {
+		final List<ExcelColumn> ret = new ArrayList<ExcelColumn>();
+		for (final String columnKey : columnKeys) {
 			ret.add(columnMap.get(columnKey));
 		}
 		return ret;
@@ -157,8 +156,8 @@ public class ExcelSheetImpl implements ExcelSheet {
 
 	@Override
 	public List<ExcelColumn> getNumericalColumns() {
-		List<ExcelColumn> ret = new ArrayList<ExcelColumn>();
-		for (String columnKey : columnKeys) {
+		final List<ExcelColumn> ret = new ArrayList<ExcelColumn>();
+		for (final String columnKey : columnKeys) {
 			final ExcelColumn excelColumn = columnMap.get(columnKey);
 			if (excelColumn.isNumerical())
 				ret.add(excelColumn);
@@ -168,8 +167,8 @@ public class ExcelSheetImpl implements ExcelSheet {
 
 	@Override
 	public List<ExcelColumn> getNonNumericalColumns() {
-		List<ExcelColumn> ret = new ArrayList<ExcelColumn>();
-		for (String columnKey : columnKeys) {
+		final List<ExcelColumn> ret = new ArrayList<ExcelColumn>();
+		for (final String columnKey : columnKeys) {
 			final ExcelColumn excelColumn = columnMap.get(columnKey);
 			if (!excelColumn.isNumerical())
 				ret.add(excelColumn);
