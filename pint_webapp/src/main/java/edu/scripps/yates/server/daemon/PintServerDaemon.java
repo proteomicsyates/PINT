@@ -14,6 +14,7 @@ import org.hibernate.SessionFactory;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
+import edu.scripps.yates.server.daemon.tasks.DeleteHiddenProjects;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
 import edu.scripps.yates.server.daemon.tasks.PreLoadPublicProjects;
 import edu.scripps.yates.server.daemon.tasks.ProteinAccessionsUpdater;
@@ -64,7 +65,11 @@ public class PintServerDaemon implements ServletContextListener {
 
 		final boolean isTestServer = ServerUtil.isTestServer();
 		log.info("Is a test server: " + isTestServer);
-		if (SharedConstants.DAEMON_TASKS_ENABLED) {// && !isTestServer) {
+		if (SharedConstants.DAEMON_TASKS_ENABLED
+		//
+		// && !isTestServer
+		//
+		) {
 			// /////////////////////////////////////////////////
 			// REGISTER MAINTENANCE TASKS HERE
 
@@ -74,8 +79,7 @@ public class PintServerDaemon implements ServletContextListener {
 			// pintServerDaemonTasks.add(new
 			// ProteinAccessionsUpdaterScroll(sce.getServletContext()));
 
-			// pintServerDaemonTasks.add(new
-			// DeleteHiddenProjects(servletContext));
+			pintServerDaemonTasks.add(new DeleteHiddenProjects(sce.getServletContext()));
 			// pintServerDaemonTasks.add(new GeneInformationConsolidation(
 			// servletContext));
 			// pintServerDaemonTasks.add(new
