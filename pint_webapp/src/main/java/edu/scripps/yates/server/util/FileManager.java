@@ -471,6 +471,20 @@ public class FileManager {
 		return file;
 	}
 
+	public static File getLatestDeletedProjectsFile(ServletContext context) {
+		File file = null;
+		if (!isTest()) {
+			file = new File(
+					getProjectFilesPath(context) + File.separator + ServerConstants.PINT_LATEST_DELETED_PROJECTS_FILE);
+		} else {
+			file = new File(
+					getProjectFilesPath(context) + File.separator + ServerConstants.PINT_LATEST_DELETED_PROJECTS_FILE);
+		}
+		log.debug("Getting latest deleted projects file: " + file.getAbsolutePath());
+
+		return file;
+	}
+
 	private static boolean isTest() {
 		final Map<String, String> env = System.getenv();
 		if (env.get("SERVER_TEST") != null && env.get("SERVER_TEST").equals("true")) {
