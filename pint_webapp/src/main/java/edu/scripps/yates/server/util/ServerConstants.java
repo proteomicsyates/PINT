@@ -45,6 +45,7 @@ public class ServerConstants {
 	// this file should be located at the PINT_HOME_FOLDER
 	public static final String PINT_PROPERTIES_FILE_NAME = "pint.properties";
 	public static final String PINT_TEST_PROPERTIES_FILE_NAME = "pint_test.properties";
+	public static final String PINT_LATEST_DELETED_PROJECTS_FILE = "pint_latest_deleted_projects.txt";
 
 	public static boolean psmCentricByDefault = false;
 
