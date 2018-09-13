@@ -92,6 +92,7 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 				ret.getPsms().add(hibPsm);
 				hibPsm.setPeptide(ret);
 			}
+			ret.setNumPsms(psMs.size());
 		} else {
 			// peptide has to have psms
 			throw new IllegalArgumentException("peptide has to have psms");
