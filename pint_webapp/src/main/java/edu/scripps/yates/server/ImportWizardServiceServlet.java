@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletConfig;
@@ -106,6 +107,7 @@ import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
 import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
 import edu.scripps.yates.utilities.xml.XMLSchemaValidatorErrorHandler;
 import edu.scripps.yates.utilities.xml.XmlSchemaValidator;
+import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 import psidev.psi.tools.validator.ValidatorMessage;
 
@@ -115,6 +117,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	private ControlVocabularyManager cvManager;
 	private List<String> scoreTypes;
 	private List<String> ptmNames;
+	private final Map<File, ExcelFileImpl> excelFileReaders = new THashMap<File, ExcelFileImpl>();
 	private final static List<String> tissues = new ArrayList<String>();
 	private final static List<String> organisms = new ArrayList<String>();
 	private static int numMaxInSuggestionLists = Integer.MAX_VALUE;
@@ -154,22 +157,23 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public int startNewImportProcess(String sessionID, String projectTag, List<FileNameWithTypeBean> dataFileNames,
 			List<RemoteFileWithTypeBean> remoteFilesWithTypes) throws PintException {
 		// create new identifier for the process
-		int importProcessIdentifier = generateNewImportProcessID();
+		final int importProcessIdentifier = generateNewImportProcessID();
 		// check if the project name is not used before
 		// checkProjectAvailability(projectTag);
 		// check if all data files are present
-		List<FileWithFormat> files = checkDataFileAvailabilities(importProcessIdentifier, dataFileNames);
+		final List<FileWithFormat> files = checkDataFileAvailabilities(importProcessIdentifier, dataFileNames);
 		// check if all remote files are accessible
 		checkRemoteFilesAvailabilities(sessionID, remoteFilesWithTypes);
 		// get the files to the local system
-		List<RemoteFileWithType> remoteFiles = getRemoteFilesWithType(importProcessIdentifier, remoteFilesWithTypes);
+		final List<RemoteFileWithType> remoteFiles = getRemoteFilesWithType(importProcessIdentifier,
+				remoteFilesWithTypes);
 
 		// index data files by process ID
 		FileManager.indexFilesByImportProcessID(importProcessIdentifier, files);
 		// index remote files by process ID
 		FileManager.indexRemoteFilesByImportProcessID(importProcessIdentifier, remoteFiles);
 		// create projectCfgFile
-		File cfgFile = createImportCfgFile(importProcessIdentifier, projectTag, files, remoteFiles);
+		final File cfgFile = createImportCfgFile(importProcessIdentifier, projectTag, files, remoteFiles);
 		// index projectCfgFile by process ID
 		FileManager.indexProjectCfgFileByImportProcessID(importProcessIdentifier, cfgFile);
 		return importProcessIdentifier;
@@ -182,9 +186,9 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		ImportCfgFileParserUtil.getPintImportCfgFromJobID(jobID);
 
 		// divide the files into the RemoteFiles and the local ones:
-		List<RemoteFileWithTypeBean> remoteFiles = new ArrayList<RemoteFileWithTypeBean>();
-		List<FileNameWithTypeBean> localFiles = new ArrayList<FileNameWithTypeBean>();
-		for (FileNameWithTypeBean dataFile : dataFiles) {
+		final List<RemoteFileWithTypeBean> remoteFiles = new ArrayList<RemoteFileWithTypeBean>();
+		final List<FileNameWithTypeBean> localFiles = new ArrayList<FileNameWithTypeBean>();
+		for (final FileNameWithTypeBean dataFile : dataFiles) {
 			if (dataFile instanceof RemoteFileWithTypeBean) {
 				remoteFiles.add((RemoteFileWithTypeBean) dataFile);
 			} else {
@@ -194,7 +198,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 		// check if all data files are present
 		checkRemoteFilesAvailabilities(sessionID, remoteFiles);
-		List<FileWithFormat> availableLocalFiles = checkDataFileAvailabilities(jobID, localFiles);
+		final List<FileWithFormat> availableLocalFiles = checkDataFileAvailabilities(jobID, localFiles);
 
 		// index data files by process ID
 		if (!availableLocalFiles.isEmpty())
@@ -208,7 +212,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		// get import data object
 		final PintImportCfg pintImportCfg = ImportCfgFileParserUtil.getPintImportCfgFromJobID(jobID);
 
-		List<FileNameWithTypeBean> list = new ArrayList<FileNameWithTypeBean>();
+		final List<FileNameWithTypeBean> list = new ArrayList<FileNameWithTypeBean>();
 		list.add(dataFile);
 		addDataFiles(sessionID, jobID, list);
 	}
@@ -222,7 +226,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		// check if all remote files are accessible
 		checkRemoteFilesAvailabilities(sessionID, remoteFilesWithTypes);
 		// get the files locally
-		List<RemoteFileWithType> remoteFiles = getRemoteFilesWithType(jobID, remoteFilesWithTypes);
+		final List<RemoteFileWithType> remoteFiles = getRemoteFilesWithType(jobID, remoteFilesWithTypes);
 		// index files
 		FileManager.indexRemoteFilesByImportProcessID(jobID, remoteFiles);
 
@@ -231,7 +235,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public void addRemoteFile(String sessionID, int jobID, RemoteFileWithTypeBean remoteFilesWithType)
 			throws PintException {
-		List<RemoteFileWithTypeBean> remotefileWithTypeBeanList = new ArrayList<RemoteFileWithTypeBean>();
+		final List<RemoteFileWithTypeBean> remotefileWithTypeBeanList = new ArrayList<RemoteFileWithTypeBean>();
 		remotefileWithTypeBeanList.add(remoteFilesWithType);
 		addRemoteFiles(sessionID, jobID, remotefileWithTypeBeanList);
 	}
@@ -240,7 +244,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public int startNewImportProcess(String sessionID, String uploadedProjectCfgFileName) throws PintException {
 		// create new identifier for the process
 
-		File cfgFile = FileManager.getProjectXmlFile(uploadedProjectCfgFileName);
+		final File cfgFile = FileManager.getProjectXmlFile(uploadedProjectCfgFileName);
 
 		// read file and get the project object
 		final PintImportCfg pintImportCfg = ImportCfgFileParserUtil.getPintImportFromFile(cfgFile);
@@ -260,7 +264,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public ProjectBean getProjectBean(String sessionID, int jobID) throws PintException {
 		final PintImportCfg pintImportCfg = ImportCfgFileParserUtil.getPintImportCfgFromJobID(jobID);
-		ProjectBean projectbean = new ProjectBeanAdapter(pintImportCfg.getProject()).adapt();
+		final ProjectBean projectbean = new ProjectBeanAdapter(pintImportCfg.getProject()).adapt();
 		return projectbean;
 
 	}
@@ -269,9 +273,9 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public PintImportCfgBean getPintImportCfgTypeBean(String sessionID, int jobID) throws PintException {
 		try {
 			final PintImportCfg pintImportCfg = ImportCfgFileParserUtil.getPintImportCfgFromJobID(jobID);
-			PintImportCfgBean ret = new PintImportCfgBeanAdapter(pintImportCfg).adapt();
+			final PintImportCfgBean ret = new PintImportCfgBeanAdapter(pintImportCfg).adapt();
 			return ret;
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.IMPORT_XML_SCHEMA_ERROR);
 		}
@@ -281,8 +285,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public List<String> getOrganismList(String sessionID) {
 		log.info("Getting organism list");
 		if (organisms.isEmpty()) {
-			List<UniprotOrganism> uniprotOrganims = UniprotSpeciesCodeMap.getInstance().getOrganisms();
-			for (UniprotOrganism uniprotOrganism : uniprotOrganims) {
+			final List<UniprotOrganism> uniprotOrganims = UniprotSpeciesCodeMap.getInstance().getOrganisms();
+			for (final UniprotOrganism uniprotOrganism : uniprotOrganims) {
 				// TODO remove
 				if (organisms.size() == numMaxInSuggestionLists)
 					break;
@@ -302,7 +306,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			if (tissues.isEmpty()) {
 				final List<ControlVocabularyTerm> possibleValues = TissuesTypes.getInstance(cvManager)
 						.getPossibleValues();
-				for (ControlVocabularyTerm controlVocabularyTerm : possibleValues) {
+				for (final ControlVocabularyTerm controlVocabularyTerm : possibleValues) {
 					// TODO remove
 					if (tissues.size() == numMaxInSuggestionLists)
 						break;
@@ -319,7 +323,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public void checkServerAccessibility(String sessionID, ServerTypeBean server) throws PintException {
 		final String password = server.getPassword();
-		boolean accessOK = RemoteSSHFileReference.loginCheck(server.getHostName(), server.getUserName(), password);
+		final boolean accessOK = RemoteSSHFileReference.loginCheck(server.getHostName(), server.getUserName(),
+				password);
 		if (!accessOK)
 			throw new PintException("Error connecting to server '" + server.getHostName() + "'",
 					PINT_ERROR_TYPE.REMOTE_SERVER_NOT_REACHABLE);
@@ -338,11 +343,11 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		} else {
 			try {
 				final String password = server.getPassword();
-				RemoteSSHFileReference remoteFile = new RemoteSSHFileReference(server.getHostName(),
+				final RemoteSSHFileReference remoteFile = new RemoteSSHFileReference(server.getHostName(),
 						server.getUserName(), password, remoteFileWithTypeBean.getFileName(), null);
 				remoteFile.setRemotePath(remoteFileWithTypeBean.getRemotePath());
 				errorMessage = remoteFile.isAvailable();
-			} catch (IllegalArgumentException e) {
+			} catch (final IllegalArgumentException e) {
 				errorMessage = e.getMessage();
 			}
 		}
@@ -357,7 +362,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		final PintImportCfg pintImportCfg = factory.createPintImportCfg();
 		pintImportCfg.setImportID(importProcessIdentifier);
 
-		ProjectType project = factory.createProjectType();
+		final ProjectType project = factory.createProjectType();
 		project.setTag(projectTag);
 		pintImportCfg.setProject(project);
 		pintImportCfg.setFileSet(new FileSetAdapter(files, remoteFilesWithTypes).adapt());
@@ -446,12 +451,12 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	private List<FileWithFormat> checkDataFileAvailabilities(int jobID, List<FileNameWithTypeBean> dataFileNames)
 			throws PintException {
 
-		List<String> filesNotFound = new ArrayList<String>();
-		List<FileWithFormat> ret = new ArrayList<FileWithFormat>();
+		final List<String> filesNotFound = new ArrayList<String>();
+		final List<FileWithFormat> ret = new ArrayList<FileWithFormat>();
 		if (dataFileNames == null || dataFileNames.isEmpty())
 			return ret;
 		log.info("Checking file availabilities of " + dataFileNames.size() + " files");
-		for (FileNameWithTypeBean dataFileName : dataFileNames) {
+		for (final FileNameWithTypeBean dataFileName : dataFileNames) {
 			final File dataFile = FileManager.getDataFile(jobID, dataFileName.getFileName(), dataFileName.getId(),
 					dataFileName.getFileFormat());
 			if (!dataFile.exists()) {
@@ -475,8 +480,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		}
 
 		if (!filesNotFound.isEmpty()) {
-			StringBuilder sb = new StringBuilder();
-			for (String fileNotFound : filesNotFound) {
+			final StringBuilder sb = new StringBuilder();
+			for (final String fileNotFound : filesNotFound) {
 				if (!"".equals(sb.toString()))
 					sb.append(",");
 				sb.append(fileNotFound);
@@ -498,7 +503,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	private void checkRemoteFilesAvailabilities(String sessionID,
 			List<RemoteFileWithTypeBean> remoteFilesWithTypesBeans) throws PintException {
 
-		for (RemoteFileWithTypeBean remoteFileWithTypeBean : remoteFilesWithTypesBeans) {
+		for (final RemoteFileWithTypeBean remoteFileWithTypeBean : remoteFilesWithTypesBeans) {
 			checkRemoteFileInfoAccessibility(sessionID, remoteFileWithTypeBean);
 		}
 	}
@@ -513,23 +518,23 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	 */
 	private List<RemoteFileWithType> getRemoteFilesWithType(int jobID,
 			List<RemoteFileWithTypeBean> remoteFilesWithTypesBeans) throws PintException {
-		List<RemoteFileWithType> ret = new ArrayList<RemoteFileWithType>();
+		final List<RemoteFileWithType> ret = new ArrayList<RemoteFileWithType>();
 		if (remoteFilesWithTypesBeans == null)
 			return ret;
-		for (RemoteFileWithTypeBean remoteFileWithTypeBean : remoteFilesWithTypesBeans) {
-			File outputFile = FileManager.getDataFile(jobID, remoteFileWithTypeBean.getFileName(),
+		for (final RemoteFileWithTypeBean remoteFileWithTypeBean : remoteFilesWithTypesBeans) {
+			final File outputFile = FileManager.getDataFile(jobID, remoteFileWithTypeBean.getFileName(),
 					remoteFileWithTypeBean.getId(), remoteFileWithTypeBean.getFileFormat());
 			final ServerTypeBean serverBean = remoteFileWithTypeBean.getServer();
-			RemoteSSHFileReference remoteFileReference = new RemoteSSHFileReference(serverBean.getHostName(),
+			final RemoteSSHFileReference remoteFileReference = new RemoteSSHFileReference(serverBean.getHostName(),
 					serverBean.getUserName(), serverBean.getPassword(), remoteFileWithTypeBean.getFileName(),
 					outputFile);
 			remoteFileReference.setRemotePath(remoteFileWithTypeBean.getRemotePath());
 			FormatType fileType = null;
 			if (remoteFileWithTypeBean.getFileFormat() != null)
 				fileType = FormatType.fromValue(remoteFileWithTypeBean.getFileFormat().name().toLowerCase());
-			ServerType server = new ServerTypeAdapter(serverBean).adapt();
-			RemoteFileWithType remoteFile = new RemoteFileWithType(remoteFileWithTypeBean.getId(), remoteFileReference,
-					fileType, server, remoteFileWithTypeBean.getFastaDigestionBean());
+			final ServerType server = new ServerTypeAdapter(serverBean).adapt();
+			final RemoteFileWithType remoteFile = new RemoteFileWithType(remoteFileWithTypeBean.getId(),
+					remoteFileReference, fileType, server, remoteFileWithTypeBean.getFastaDigestionBean());
 			ret.add(remoteFile);
 
 		}
@@ -544,11 +549,22 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	 */
 	private void checkProjectAvailability(String projectTag) throws PintException {
 		final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans();
-		for (ProjectBean projectBean : projectBeans) {
+		for (final ProjectBean projectBean : projectBeans) {
 			if (projectBean.getTag().equalsIgnoreCase(projectTag))
 				throw new PintException("Project '" + projectTag + "' already exists in the server",
 						PINT_ERROR_TYPE.PROJECT_ALREADY_IN_SERVER);
 		}
+	}
+
+	public ExcelFileImpl getExcelReader(File file) throws IOException {
+		ExcelFileImpl excelFile = null;
+		if (excelFileReaders.containsKey(file)) {
+			excelFile = excelFileReaders.get(file);
+		} else {
+			excelFile = new ExcelFileImpl(file);
+			excelFileReaders.put(file, excelFile);
+		}
+		return excelFile;
 	}
 
 	@Override
@@ -561,15 +577,16 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 					"File '" + excelDataReference.getExcelFileNameWithTypeBean().getId() + "' not found in server",
 					PINT_ERROR_TYPE.FILE_NOT_FOUND_IN_SERVER);
 		try {
-			ExcelFileImpl excelFile = new ExcelFileImpl(file.getFile());
+			final ExcelFileImpl excelFile = getExcelReader(file.getFile());
+
 			final ExcelSheet excelSheet = excelFile.getSheetMap().get(excelDataReference.getSheetName());
 			if (excelSheet != null) {
 				final ExcelColumn excelColumn = excelSheet.getColumnMap().get(excelDataReference.getColumnKey());
 				if (excelColumn != null) {
 					final List<Object> randomValues = excelColumn.getRandomValues(numValues);
 					if (randomValues != null) {
-						List<String> ret = new ArrayList<String>();
-						for (Object randomValue : randomValues) {
+						final List<String> ret = new ArrayList<String>();
+						for (final Object randomValue : randomValues) {
 							if (randomValue == null)
 								ret.add("");
 							else
@@ -579,7 +596,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 					}
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.FILE_READING_ERROR);
 		}
@@ -589,10 +606,10 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 	@Override
 	public List<String> getAvailableACCTypes(String sessionID) {
-		List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<String>();
 
 		final AccessionTypeBean[] values = AccessionTypeBean.values();
-		for (AccessionTypeBean accessionType : values) {
+		for (final AccessionTypeBean accessionType : values) {
 			ret.add(accessionType.name());
 		}
 		return ret;
@@ -610,8 +627,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public List<FileFormat> getFileFormats(String sessionID) throws PintException {
 		final FormatType[] values = FormatType.values();
-		List<FileFormat> ret = new ArrayList<FileFormat>();
-		for (FormatType format : values) {
+		final List<FileFormat> ret = new ArrayList<FileFormat>();
+		for (final FormatType format : values) {
 			final FileFormat fileFormatFromString = FileFormat.getFileFormatFromString(format.name());
 			if (fileFormatFromString != null)
 				ret.add(fileFormatFromString);
@@ -623,10 +640,10 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 	@Override
 	public List<DataSourceBean> getDataSourceBeans(String sessionID, int jobID) throws PintException {
-		List<DataSourceBean> ret = new ArrayList<DataSourceBean>();
+		final List<DataSourceBean> ret = new ArrayList<DataSourceBean>();
 		final PintImportCfg pintImportCfg = ImportCfgFileParserUtil.getPintImportCfgFromJobID(jobID);
 		if (pintImportCfg.getFileSet() != null) {
-			for (FileType fileType : pintImportCfg.getFileSet().getFile()) {
+			for (final FileType fileType : pintImportCfg.getFileSet().getFile()) {
 				ret.add(new DataSourceBeanAdapter(fileType, pintImportCfg.getServers()).adapt());
 			}
 		}
@@ -653,7 +670,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 						PINT_ERROR_TYPE.FILE_NOT_SUPPORTED_FOR_THIS_CALL);
 			}
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new PintException(e, PINT_ERROR_TYPE.FILE_READING_ERROR);
 		}
 	}
@@ -685,7 +702,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 					}
 				}
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.FILE_READING_ERROR);
 		}
@@ -708,12 +725,12 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			final List<FileWithFormat> filesByImportProcessID = FileManager.getFilesByImportProcessID(jobID, null);
 			if (filesByImportProcessID != null) {
 				log.info("Adding attached files information from " + filesByImportProcessID.size() + " files");
-				for (FileWithFormat fileWithFormat : filesByImportProcessID) {
+				for (final FileWithFormat fileWithFormat : filesByImportProcessID) {
 					log.info("Adding attached files information from: " + fileWithFormat.getFile().getAbsoluteFile());
 					// look if the Id is already in the fileset, and in that
 					// case, update the fileType
 					FileType found = null;
-					for (FileType fileType : pintImportCfg.getFileSet().getFile()) {
+					for (final FileType fileType : pintImportCfg.getFileSet().getFile()) {
 						if (fileType.getId().equals(fileWithFormat.getId()))
 							found = fileType;
 					}
@@ -746,7 +763,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			validateImportConfigurationFile(savedFileCfg);
 			return true;
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
 				throw e;
@@ -757,7 +774,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	private void decryptPasswords(PintImportCfg pintImportCfg) {
 		if (pintImportCfg != null) {
 			if (pintImportCfg.getServers() != null) {
-				for (ServerType server : pintImportCfg.getServers().getServer()) {
+				for (final ServerType server : pintImportCfg.getServers().getServer()) {
 					server.setPassword(CryptoUtil.decrypt(server.getPassword()));
 				}
 			}
@@ -768,12 +785,12 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public void validateImportConfigurationFile(File savedFileCfg) throws PintException {
 
 		try {
-			StringBuilder errorString = new StringBuilder();
+			final StringBuilder errorString = new StringBuilder();
 			final PintImportCfg pintImportCfg = ImportCfgFileParserUtil.getPintImportFromFile(savedFileCfg);
 			// check experimental conditions
 			if (pintImportCfg.getProject() != null && pintImportCfg.getProject().getExperimentalConditions() != null) {
-				for (ExperimentalConditionType conditionType : pintImportCfg.getProject().getExperimentalConditions()
-						.getExperimentalCondition()) {
+				for (final ExperimentalConditionType conditionType : pintImportCfg.getProject()
+						.getExperimentalConditions().getExperimentalCondition()) {
 					boolean valid = true;
 					if (conditionType.getIdentificationInfo() == null
 							&& conditionType.getQuantificationInfo() == null) {
@@ -798,8 +815,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			}
 			// check ratios
 			boolean someRatio = false;
-			Set<String> conditionsInRatios = new THashSet<String>();
-			List<RemoteFilesRatioType> remoteFilesRatioTypes = new ArrayList<RemoteFilesRatioType>();
+			final Set<String> conditionsInRatios = new THashSet<String>();
+			final List<RemoteFilesRatioType> remoteFilesRatioTypes = new ArrayList<RemoteFilesRatioType>();
 			if (pintImportCfg.getProject() != null && pintImportCfg.getProject().getExperimentalConditions() != null) {
 				final RatiosType ratios = pintImportCfg.getProject().getRatios();
 				if (ratios != null) {
@@ -820,7 +837,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 						someRatio = true;
 					}
 
-					for (RemoteFilesRatioType remoteFilesRatioType : remoteFilesRatioTypes) {
+					for (final RemoteFilesRatioType remoteFilesRatioType : remoteFilesRatioTypes) {
 						validateRemoteFilesRatio(errorString, remoteFilesRatioType,
 								pintImportCfg.getProject().getExperimentalConditions());
 						final String numerator = remoteFilesRatioType.getNumerator().getConditionRef();
@@ -840,10 +857,10 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 						&& pintImportCfg.getProject().getExperimentalDesign() != null) {
 					int numLabels = 0;
 					if (pintImportCfg.getProject().getExperimentalDesign().getLabelSet() != null) {
-						for (LabelType label : pintImportCfg.getProject().getExperimentalDesign().getLabelSet()
+						for (final LabelType label : pintImportCfg.getProject().getExperimentalDesign().getLabelSet()
 								.getLabel()) {
 							numLabels++;
-							QuantificationLabel quantLabel = QuantificationLabel.getByName(label.getId());
+							final QuantificationLabel quantLabel = QuantificationLabel.getByName(label.getId());
 							if (quantLabel == null) {
 								errorString.append("Label '" + label.getId()
 										+ "' not recognized. Try to select one of the following values:\n'"
@@ -863,9 +880,9 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			if (!conditionsInRatios.isEmpty()) {
 				if (pintImportCfg.getProject().getExperimentalConditions() != null) {
 					if (pintImportCfg.getProject().getExperimentalConditions().getExperimentalCondition() != null) {
-						List<Pair<String, String>> conditionPairsInRatios = new ArrayList<Pair<String, String>>();
-						Set<String> samplesInRatios = new THashSet<String>();
-						for (ExperimentalConditionType condition : pintImportCfg.getProject()
+						final List<Pair<String, String>> conditionPairsInRatios = new ArrayList<Pair<String, String>>();
+						final Set<String> samplesInRatios = new THashSet<String>();
+						for (final ExperimentalConditionType condition : pintImportCfg.getProject()
 								.getExperimentalConditions().getExperimentalCondition()) {
 							if (conditionsInRatios.contains(condition.getId())) {
 								if (condition.getSampleRef() != null) {
@@ -875,11 +892,11 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 											+ "' has to be linked to a sample\n");
 								}
 							}
-							for (RemoteFilesRatioType remoteFileRatio : remoteFilesRatioTypes) {
+							for (final RemoteFilesRatioType remoteFileRatio : remoteFilesRatioTypes) {
 								// numerator
 								if (remoteFileRatio.getNumerator().getConditionRef().equals(condition.getId())) {
 									boolean found = false;
-									for (Pair<String, String> conditionPair : conditionPairsInRatios) {
+									for (final Pair<String, String> conditionPair : conditionPairsInRatios) {
 										// if first element is numerator
 										if (conditionPair.getFirstElement().equals(condition.getId())) {
 											// and second element is denominator
@@ -890,7 +907,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 										}
 									}
 									if (!found) {
-										Pair<String, String> newPair = new Pair<String, String>(
+										final Pair<String, String> newPair = new Pair<String, String>(
 												remoteFileRatio.getNumerator().getConditionRef(),
 												remoteFileRatio.getDenominator().getConditionRef());
 										conditionPairsInRatios.add(newPair);
@@ -900,7 +917,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 								// denominator
 								if (remoteFileRatio.getDenominator().getConditionRef().equals(condition.getId())) {
 									boolean found = false;
-									for (Pair<String, String> conditionPair : conditionPairsInRatios) {
+									for (final Pair<String, String> conditionPair : conditionPairsInRatios) {
 										// if second element is denominator
 										if (conditionPair.getSecondElement().equals(condition.getId())) {
 											// and first element is numerator
@@ -911,7 +928,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 										}
 									}
 									if (!found) {
-										Pair<String, String> newPair = new Pair<String, String>(
+										final Pair<String, String> newPair = new Pair<String, String>(
 												remoteFileRatio.getNumerator().getConditionRef(),
 												remoteFileRatio.getDenominator().getConditionRef());
 										conditionPairsInRatios.add(newPair);
@@ -921,9 +938,9 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 						}
 						// translate conditionPairsInRatios to
 						// samplesPairsInRatios
-						for (ExperimentalConditionType condition : pintImportCfg.getProject()
+						for (final ExperimentalConditionType condition : pintImportCfg.getProject()
 								.getExperimentalConditions().getExperimentalCondition()) {
-							for (Pair<String, String> conditionPair : conditionPairsInRatios) {
+							for (final Pair<String, String> conditionPair : conditionPairsInRatios) {
 								if (conditionPair.getFirstElement().equals(condition.getId())) {
 									if (condition.getSampleRef() != null) {
 										conditionPair.setFirstElement(condition.getSampleRef());
@@ -936,19 +953,19 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 								}
 							}
 						}
-						List<Pair<String, String>> samplePairsInRatios = conditionPairsInRatios;
+						final List<Pair<String, String>> samplePairsInRatios = conditionPairsInRatios;
 
 						if (pintImportCfg.getProject().getExperimentalDesign() != null
 								&& pintImportCfg.getProject().getExperimentalDesign().getSampleSet() != null) {
-							for (SampleType sample : pintImportCfg.getProject().getExperimentalDesign().getSampleSet()
-									.getSample()) {
+							for (final SampleType sample : pintImportCfg.getProject().getExperimentalDesign()
+									.getSampleSet().getSample()) {
 								if (samplesInRatios.contains(sample.getId())) {
 									if (sample.getLabelRef() == null) {
 										errorString.append("Sample '" + sample.getId()
 												+ "' has to be linked to a Label, because it has been referentiated by an experimental condition that is defined in a quantitative ratio.\n");
 									}
 								}
-								for (Pair<String, String> pair : samplePairsInRatios) {
+								for (final Pair<String, String> pair : samplePairsInRatios) {
 									if (pair.getFirstElement().equals(sample.getId())) {
 										pair.setFirstElement(sample.getLabelRef());
 									}
@@ -970,13 +987,13 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 				}
 			}
 
-			URL schemaLocation = this.getClass().getClassLoader().getResource(ServerConstants.PROJECT_XML_CFG);
-			Reader reader = new FileReader(savedFileCfg);
+			final URL schemaLocation = this.getClass().getClassLoader().getResource(ServerConstants.PROJECT_XML_CFG);
+			final Reader reader = new FileReader(savedFileCfg);
 			final XMLSchemaValidatorErrorHandler errorHandler = XmlSchemaValidator.validate(reader,
 					XmlSchemaValidator.getSchema(schemaLocation));
 			if (!errorHandler.getErrorsAsValidatorMessages().isEmpty()) {
 
-				for (ValidatorMessage validatorMessage : errorHandler.getErrorsAsValidatorMessages()) {
+				for (final ValidatorMessage validatorMessage : errorHandler.getErrorsAsValidatorMessages()) {
 					if (!"".equals(errorString.toString()))
 						errorString.append("\n");
 					errorString.append(translateValidatorMessageIntoUserMessage(validatorMessage.getMessage()));
@@ -985,10 +1002,10 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			}
 			if (!"".equals(errorString.toString()))
 				throw new PintException(errorString.toString(), PINT_ERROR_TYPE.IMPORT_XML_SCHEMA_ERROR);
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.FILE_NOT_FOUND_IN_SERVER);
-		} catch (SAXException e) {
+		} catch (final SAXException e) {
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.IMPORT_XML_SCHEMA_ERROR);
 		}
@@ -1033,6 +1050,10 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		if (message.contains("Attribute 'score_type' must appear on element 'ratio_score'.")) {
 			return "Ratio score MUST have a ratio type description";
 		}
+		if (message.contains(
+				"Invalid content was found starting with element 'ratio_score'. One of '{protein_accession, peptide_sequence, psm_id, numerator}' is expected")) {
+			return "You have to define the experimental conditions used in the ratio";
+		}
 		// if not recognized
 		return message;
 	}
@@ -1074,14 +1095,14 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 					+ pintImportCfgBean.getProject().getTag());
 
 			// save import xml file
-			boolean valid = saveImportConfiguration(jobID, pintImportCfgBean);
+			final boolean valid = saveImportConfiguration(jobID, pintImportCfgBean);
 			final File projectCfgFileByImportProcessID = FileManager.getProjectCfgFileByImportProcessID(jobID);
 			if (!valid) {
 				// this will throw a PintException with the error messages
 				validateImportConfigurationFile(projectCfgFileByImportProcessID);
 			}
 			// save project into the database
-			ImportCfgFileReader importReader = new ImportCfgFileReader();
+			final ImportCfgFileReader importReader = new ImportCfgFileReader();
 			// TODO
 			ImportCfgFileReader.ignoreDTASelectParameterT = true;
 			// TODO
@@ -1102,7 +1123,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 			final String encryptedProjectTag = CryptoUtil.encrypt(pintImportCfgBean.getProject().getTag());
 			return encryptedProjectTag;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
 				throw e;
@@ -1118,27 +1139,27 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			throw new PintException("The file " + file.getFileName() + " is not an Excel file",
 					PINT_ERROR_TYPE.FILE_NOT_SUPPORTED_FOR_THIS_CALL);
 
-		List<FileNameWithTypeBean> dataFileNames = new ArrayList<FileNameWithTypeBean>();
+		final List<FileNameWithTypeBean> dataFileNames = new ArrayList<FileNameWithTypeBean>();
 		dataFileNames.add(file);
 		checkDataFileAvailabilities(jobId, dataFileNames);
 
 		final File excelFile = FileManager.getDataFile(jobId, file.getFileName(), file.getId(), file.getFileFormat());
 		ExcelFileImpl reader;
 		try {
-			reader = new ExcelFileImpl(excelFile);
-			FileTypeBean ret = new FileTypeBean();
+			reader = getExcelReader(excelFile);
+			final FileTypeBean ret = new FileTypeBean();
 			ret.setId(file.getId());
 			final List<ExcelSheet> excelSheets = reader.getSheets();
 			if (!excelSheets.isEmpty()) {
 				ret.setSheets(new SheetsTypeBean());
 			}
-			for (ExcelSheet excelSheet : excelSheets) {
-				SheetTypeBean sheetBean = new SheetTypeBean();
+			for (final ExcelSheet excelSheet : excelSheets) {
+				final SheetTypeBean sheetBean = new SheetTypeBean();
 				sheetBean.setId(file.getId() + SharedConstants.EXCEL_ID_SEPARATOR + excelSheet.getName());
 				final List<ExcelColumn> excelColumns = excelSheet.getColumns();
 				if (excelColumns != null) {
-					for (ExcelColumn excelColumn : excelColumns) {
-						ColumnTypeBean columnBean = new ColumnTypeBean();
+					for (final ExcelColumn excelColumn : excelColumns) {
+						final ColumnTypeBean columnBean = new ColumnTypeBean();
 						columnBean.setHeader(excelColumn.getHeader());
 						columnBean.setId(sheetBean.getId() + SharedConstants.EXCEL_ID_SEPARATOR + excelColumn.getKey());
 						sheetBean.getColumn().add(columnBean);
@@ -1147,7 +1168,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 				ret.getSheets().getSheet().add(sheetBean);
 			}
 			return ret;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.FILE_READING_ERROR);
 		}
@@ -1157,10 +1178,10 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public List<String> getScoreTypes(String sessionID) {
 		if (scoreTypes == null) {
 			scoreTypes = new ArrayList<String>();
-			Set<String> set = new THashSet<String>();
+			final Set<String> set = new THashSet<String>();
 			// TODO take the possible values from here?
 			final List<ControlVocabularyTerm> possibleValues = Score.getInstance(cvManager).getPossibleValues();
-			for (ControlVocabularyTerm controlVocabularyTerm : possibleValues) {
+			for (final ControlVocabularyTerm controlVocabularyTerm : possibleValues) {
 				set.add(controlVocabularyTerm.getPreferredName());
 			}
 
@@ -1174,11 +1195,11 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public List<String> getPTMNames(String sessionID) {
 		if (ptmNames == null) {
 			ptmNames = new ArrayList<String>();
-			Set<String> set = new THashSet<String>();
+			final Set<String> set = new THashSet<String>();
 			// TODO take the possible values from here?
 			final List<ControlVocabularyTerm> possibleValues = PeptideModificationName.getInstance(cvManager)
 					.getPossibleValues();
-			for (ControlVocabularyTerm controlVocabularyTerm : possibleValues) {
+			for (final ControlVocabularyTerm controlVocabularyTerm : possibleValues) {
 				set.add(controlVocabularyTerm.getPreferredName());
 			}
 
@@ -1199,7 +1220,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			oldDataFile.delete();
 
 			// remove oldDataFile parent folder
-			File parentFile = oldDataFile.getParentFile();
+			final File parentFile = oldDataFile.getParentFile();
 
 			edu.scripps.yates.utilities.files.FileUtils.removeFolderIfEmtpy(parentFile, true);
 
@@ -1229,14 +1250,14 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 			FileUtils.moveFile(oldDataFile, newDataFile);
 			// remove oldDataFile parent folder if empty recursively
-			File parentFile = oldDataFile.getParentFile();
+			final File parentFile = oldDataFile.getParentFile();
 
 			edu.scripps.yates.utilities.files.FileUtils.removeFolderIfEmtpy(parentFile, true);
 
 			// remove old index
 			if (fileOLD.getFileFormat() != null) { // only if has a format has
 				// been indexed before
-				FormatType format = FormatType.fromValue(fileOLD.getFileFormat().name().toLowerCase());
+				final FormatType format = FormatType.fromValue(fileOLD.getFileFormat().name().toLowerCase());
 				final FileWithFormat oldFileWithFormat = new FileWithFormat(fileOLD.getId(), oldDataFile, format,
 						fileOLD.getFastaDigestionBean());
 				FileManager.removeFromIndexFileByImportProcessID(jobID, oldFileWithFormat);
@@ -1246,7 +1267,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 				FileManager.indexFileByImportProcessID(jobID, newFileWithFormat);
 			}
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new PintException(e, PINT_ERROR_TYPE.MOVING_FILE_ERROR);
 		} finally {
