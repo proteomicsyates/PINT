@@ -16,4 +16,6 @@ public interface ExcelColumn {
 	public boolean isNumerical();
 
 	public boolean isBinary();
+
+	public int getSize();
 }
