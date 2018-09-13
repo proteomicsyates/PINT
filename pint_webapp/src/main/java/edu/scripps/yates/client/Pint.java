@@ -43,7 +43,7 @@ import edu.scripps.yates.shared.util.CryptoUtil;
 
 public class Pint implements EntryPoint {
 
-	public static Boolean psmCentric;
+	private static boolean psmCentric = false; // by default
 	private QueryPanel queryPanel;
 	private MainPanel mainPanel;
 	private BrowsePanel browsePanel;
@@ -57,7 +57,14 @@ public class Pint implements EntryPoint {
 	private boolean testMode = false;
 	private final Logger log = Logger.getLogger("");
 	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
-	private final static boolean defaultPSMCentric = false;
+
+	public static void setPSMCentric(boolean b) {
+		psmCentric = b;
+	}
+
+	public static boolean getPSMCentric() {
+		return psmCentric;
+	}
 
 	@Override
 	public void onModuleLoad() {
@@ -128,9 +135,6 @@ public class Pint implements EntryPoint {
 					@Override
 					public void onSuccess(PintConfigurationProperties properties) {
 						psmCentric = properties.getPsmCentric();
-						if (psmCentric == null) {
-							psmCentric = defaultPSMCentric;
-						}
 						if (forceToShowPanel || properties.isSomeConfigurationMissing()) {
 							showConfigurationPanel(properties);
 						} else {
@@ -245,7 +249,8 @@ public class Pint implements EntryPoint {
 			} else {
 				projectTags.add(decodedProjectTag);
 			}
-			queryPanel = new QueryPanel(sessionID, projectTags, testMode);
+			final boolean directAccess = true;
+			queryPanel = new QueryPanel(sessionID, projectTags, testMode, directAccess);
 			History.newItem(TargetHistory.QUERY.getTargetHistory());
 		}
 
@@ -282,7 +287,9 @@ public class Pint implements EntryPoint {
 
 			if (queryPanel != null && queryPanel.hasLoadedThisProjects(projectTags)) {
 			} else {
-				queryPanel = new QueryPanel(sessionID, projectTags, testMode);
+				final boolean directAccess = false; // if private, they has to
+													// login
+				queryPanel = new QueryPanel(sessionID, projectTags, testMode, directAccess);
 			}
 			queryPanel.showLoadingDialog("Loading dataset view...", null, null);
 			History.newItem(TargetHistory.QUERY.getTargetHistory());

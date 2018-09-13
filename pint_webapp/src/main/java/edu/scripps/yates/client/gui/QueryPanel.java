@@ -191,9 +191,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	private Timer timer;
 	private final QueryHelpPanel helpPanel;
 
-	public QueryPanel(String sessionID, Set<String> projectTags, boolean testMode) {
+	public QueryPanel(String sessionID, Set<String> projectTags, boolean testMode, boolean directAccess) {
 		this(sessionID, testMode);
-		loadProjectListFromServer(projectTags, testMode);
+		loadProjectListFromServer(projectTags, testMode, directAccess);
 		// PSEA QUANT
 		final PSEAQuantFormPanel pseaQuantFormPanel = new PSEAQuantFormPanel(loadedProjects);
 		final ScrollPanel pseaQuantScrollPanel = new ScrollPanel(pseaQuantFormPanel);
@@ -389,11 +389,12 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						.isSelected(ColumnName.PROTEIN_AMOUNT);
 				final boolean showProteinAmounts = proteinColumnNamesPanel.isSelected(ColumnName.PROTEIN_AMOUNT);
 				final boolean showPeptideAmounts = peptideColumnNamesPanel.isSelected(ColumnName.PEPTIDE_AMOUNT);
-				final boolean showPSMAmounts = Pint.psmCentric && psmColumnNamesPanel.isSelected(ColumnName.PSM_AMOUNT);
+				final boolean showPSMAmounts = Pint.getPSMCentric()
+						&& psmColumnNamesPanel.isSelected(ColumnName.PSM_AMOUNT);
 
 				boolean showProteinGroupSPCPercondition = false;
 				boolean showProteinSPCPercondition = false;
-				if (Pint.psmCentric) {
+				if (Pint.getPSMCentric()) {
 					showProteinGroupSPCPercondition = proteinGroupColumnNamesPanel
 							.isSelected(ColumnName.SPC_PER_CONDITION);
 					showProteinSPCPercondition = proteinColumnNamesPanel.isSelected(ColumnName.SPC_PER_CONDITION);
@@ -420,10 +421,11 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				final boolean showPeptideRatioGraphs = peptideColumnNamesPanel
 						.isSelected(ColumnName.PEPTIDE_RATIO_GRAPH);
 
-				final boolean showPsmRatios = Pint.psmCentric && psmColumnNamesPanel.isSelected(ColumnName.PSM_RATIO);
-				final boolean showPsmRatioScores = Pint.psmCentric
+				final boolean showPsmRatios = Pint.getPSMCentric()
+						&& psmColumnNamesPanel.isSelected(ColumnName.PSM_RATIO);
+				final boolean showPsmRatioScores = Pint.getPSMCentric()
 						&& psmColumnNamesPanel.isSelected(ColumnName.PSM_RATIO_SCORE);
-				final boolean showPsmRatioGraphs = Pint.psmCentric
+				final boolean showPsmRatioGraphs = Pint.getPSMCentric()
 						&& psmColumnNamesPanel.isSelected(ColumnName.PSM_RATIO_GRAPH);
 
 				final ListBox listbox = (ListBox) event.getSource();
@@ -624,7 +626,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showPeptideAmounts) {
 							peptideOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
 									conditionNames, projectName, false);
-							if (!Pint.psmCentric) {
+							if (!Pint.getPSMCentric()) {
 								peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_AMOUNT,
 										conditionNames, projectName, false);
 							}
@@ -632,7 +634,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showPeptideRatios) {
 							peptideOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO,
 									conditionNames, projectName, false);
-							if (!Pint.psmCentric) {
+							if (!Pint.getPSMCentric()) {
 								peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO,
 										conditionNames, projectName, false);
 							}
@@ -640,7 +642,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showPeptideRatioGraphs) {
 							peptideOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_GRAPH,
 									conditionNames, projectName, false);
-							if (!Pint.psmCentric) {
+							if (!Pint.getPSMCentric()) {
 								peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_GRAPH,
 										conditionNames, projectName, false);
 							}
@@ -648,7 +650,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showPeptideRatioScores) {
 							peptideOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_SCORE,
 									conditionNames, projectName, false);
-							if (!Pint.psmCentric) {
+							if (!Pint.getPSMCentric()) {
 								peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.PEPTIDE_RATIO_SCORE,
 										conditionNames, projectName, false);
 							}
@@ -656,7 +658,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						if (showPeptideSPCPercondition) {
 							peptideOnlyTablePanel.showOrHideExperimentalConditionColumn(ColumnName.SPC_PER_CONDITION,
 									conditionNames, projectName, false);
-							if (!Pint.psmCentric) {
+							if (!Pint.getPSMCentric()) {
 								peptideTablePanel.showOrHideExperimentalConditionColumn(ColumnName.SPC_PER_CONDITION,
 										conditionNames, projectName, false);
 							}
@@ -717,7 +719,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		proteinColumnNamesPanel = new MyVerticalCheckBoxListPanel<ProteinBean>(proteinTablePanel.getColumnManager());
 
 		// PSM COLUMN NAMES
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			asyncDataProviderForPSMsOfSelectedProtein = new AsyncPSMBeanListFromPsmProvider(sessionID);
 			psmTablePanel = new PSMTablePanel(sessionID, "Select one protein to load PSMs", null,
 					asyncDataProviderForPSMsOfSelectedProtein, SharedConstants.TABLE_WITH_MULTIPLE_SELECTION,
@@ -731,7 +733,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		}
 		layoutPanel = new LayoutPanel();
 		// TODO
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			layoutPanel.add(psmTablePanel);
 			layoutPanel.setWidgetBottomHeight(psmTablePanel, 0, Unit.PCT, 50, Unit.PCT);
 			psmColumnNamesPanel = new MyVerticalCheckBoxListPanel<PSMBean>(psmTablePanel.getColumnManager());
@@ -755,7 +757,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				proteinGroupTablePanel.getColumnManager());
 
 		// PSM ONLY TAB
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			psmOnlyTablePanel = new PSMTablePanel(sessionID, null, this, new AsyncPSMBeanListDataProvider(sessionID),
 					SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, "PSM ONLY table", this);
 			psmColumnNamesPanel.addColumnManager(psmOnlyTablePanel.getColumnManager());
@@ -764,7 +766,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// PEPTIDE ONLY TAB
 		peptideOnlyTablePanel = new PeptideTablePanel(sessionID, null, this,
 				new AsyncPeptideBeanListDataProvider(sessionID), SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, this);
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			peptideColumnNamesPanel = new MyVerticalCheckBoxListPanel<PeptideBean>(
 					peptideOnlyTablePanel.getColumnManager());
 		}
@@ -774,7 +776,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 		// create a handler in order to retrieve the PSMs from a selected
 		// peptide and add them to the psm table
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			peptideOnlyTablePanel.addSelectionHandler(createPeptideSelectionHandler());
 		}
 		// create a handler in order to retrieve the PSMs from a selected
@@ -786,7 +788,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		proteinGroupTablePanel.addSelectionHandler(createProteinGroupSelectionHandler());
 
 		// two tabs, one for the protein and the other for the protein groups
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			secondLevelTabPanel = new ScrolledTabLayoutPanel(psmOnlyTablePanel, null);
 		} else {
 			secondLevelTabPanel = new ScrolledTabLayoutPanel(null, peptideOnlyTablePanel);
@@ -794,7 +796,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		secondLevelTabPanel.add(proteinGroupTablePanel, "Protein Groups");
 		secondLevelTabPanel.add(proteinTablePanel, "Proteins");
 		secondLevelTabPanel.add(peptideOnlyTablePanel, "Peptides");
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			secondLevelTabPanel.add(psmOnlyTablePanel, "PSMs");
 		}
 		secondLevelTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
@@ -812,7 +814,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					} else if (item == 2) {
 						// peptideTablePanel.reloadData();
 						peptideOnlyTablePanel.refreshData();
-					} else if (item == 3 && Pint.psmCentric) {
+					} else if (item == 3 && Pint.getPSMCentric()) {
 						// psmOnlyTablePanel.reloadData();
 						psmOnlyTablePanel.refreshData();
 					}
@@ -902,7 +904,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				HEADER_HEIGHT);
 		menuUpStackLayoutPanel.add(new ScrollPanel(proteinColumnNamesPanel), "Protein columns", HEADER_HEIGHT);
 		menuUpStackLayoutPanel.add(new ScrollPanel(peptideColumnNamesPanel), "Peptide columns", HEADER_HEIGHT);
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			menuUpStackLayoutPanel.add(new ScrollPanel(psmColumnNamesPanel), "PSM columns", HEADER_HEIGHT);
 		}
 		initStackPanel();
@@ -1040,7 +1042,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			public void onSelectionChange(SelectionChangeEvent event) {
 				GWT.log("Selection event in protein table");
 				// psmTablePanel.clearTable();
-				if (Pint.psmCentric) {
+				if (Pint.getPSMCentric()) {
 					psmTablePanel.setLoadingWidget();
 				} else {
 					peptideTablePanel.setLoadingWidget();
@@ -1054,7 +1056,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					final Object selectedObject = selectionModel.getSelectedObject();
 					if (selectedObject != null) {
 						final ProteinBean selectedProtein = (ProteinBean) selectedObject;
-						if (Pint.psmCentric) {
+						if (Pint.getPSMCentric()) {
 							asyncDataProviderForPSMsOfSelectedProtein.setPSMProvider(selectedProtein);
 							// psmTablePanel.reloadData();
 							psmTablePanel.refreshData();
@@ -1064,7 +1066,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						}
 					}
 					final Widget widget = null;
-					if (Pint.psmCentric) {
+					if (Pint.getPSMCentric()) {
 						psmTablePanel.setEmptyTableWidget(widget);
 					} else {
 						peptideTablePanel.setEmptyTableWidget(widget);
@@ -1115,7 +1117,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			public void onSelectionChange(SelectionChangeEvent event) {
 				// psmTablePanel.clearTable();
 				final Object source = event.getSource();
-				if (Pint.psmCentric) {
+				if (Pint.getPSMCentric()) {
 					psmTablePanel.setLoadingWidget();
 				} else {
 					peptideTablePanel.setLoadingWidget();
@@ -1125,7 +1127,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					final Object selectedObject = selectionModel.getSelectedObject();
 					if (selectedObject != null) {
 						final ProteinGroupBean selectedProteinGroup = (ProteinGroupBean) selectedObject;
-						if (Pint.psmCentric) {
+						if (Pint.getPSMCentric()) {
 							asyncDataProviderForPSMsOfSelectedProtein.setPSMProvider(selectedProteinGroup);
 							psmTablePanel.refreshData();
 						} else {
@@ -1136,7 +1138,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					}
 					final Widget widget = null;
 					// set default widget
-					if (Pint.psmCentric) {
+					if (Pint.getPSMCentric()) {
 						psmTablePanel.setEmptyTableWidget(widget);
 					} else {
 						peptideTablePanel.setEmptyTableWidget(widget);
@@ -1324,7 +1326,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	protected void sendQueryToServer(final String queryText, String uniprotVersion, final boolean testMode) {
 
 		// set empty table widget on PSM table
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			psmTablePanel.setEmptyTableWidget(PSMTablePanel.SELECT_PROTEIN_TO_LOAD_PSMS_TEXT);
 		} else {
 			peptideTablePanel.setEmptyTableWidget(PeptideTablePanel.SELECT_PEPTIDE_TO_LOAD_PSMS_TEXT);
@@ -1343,7 +1345,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		final String logMessage = "Waiting for query results...";
 		proteinGroupTablePanel.setEmptyTableWidget(logMessage);
 		proteinTablePanel.setEmptyTableWidget(logMessage);
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			psmOnlyTablePanel.setEmptyTableWidget(logMessage);
 			psmTablePanel.setEmptyTableWidget(logMessage);
 		} else {
@@ -1381,7 +1383,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							queryEditorPanel.updateQueryResult(result);
 							proteinGroupTablePanel.setEmptyTableWidget(nullString);
 							proteinTablePanel.setEmptyTableWidget(nullString);
-							if (Pint.psmCentric) {
+							if (Pint.getPSMCentric()) {
 								psmOnlyTablePanel.setEmptyTableWidget(nullString);
 								psmTablePanel.setEmptyTableWidget(PSMTablePanel.SELECT_PROTEIN_TO_LOAD_PSMS_TEXT);
 							} else {
@@ -1389,7 +1391,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 										.setEmptyTableWidget(PeptideTablePanel.SELECT_PEPTIDE_TO_LOAD_PSMS_TEXT);
 							}
 							peptideOnlyTablePanel.setEmptyTableWidget(nullString);
-							if (Pint.psmCentric) {
+							if (Pint.getPSMCentric()) {
 								updateStatus(result.getPsmSubList().getTotalNumber() + " psms received.");
 							}
 							updateStatus(result.getPeptideSubList().getTotalNumber() + " peptides received.");
@@ -1415,7 +1417,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									loadedProjectBeanSet.containsBigProject(), testMode);
 							proteinGroupTablePanel.reloadData();
 							proteinTablePanel.reloadData();
-							if (Pint.psmCentric) {
+							if (Pint.getPSMCentric()) {
 								psmOnlyTablePanel.reloadData();
 								psmTablePanel.reloadData();
 							} else {
@@ -1456,7 +1458,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			}
 			proteinGroupTablePanel.removeColumn(ColumnName.PROTEIN_AMOUNT);
 			proteinTablePanel.removeColumn(ColumnName.PROTEIN_AMOUNT);
-			if (Pint.psmCentric) {
+			if (Pint.getPSMCentric()) {
 				psmTablePanel.removeColumn(ColumnName.PSM_AMOUNT);
 				psmOnlyTablePanel.removeColumn(ColumnName.PSM_AMOUNT);
 				proteinGroupTablePanel.removeColumn(ColumnName.SPC_PER_CONDITION);
@@ -1520,7 +1522,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	}
 
 	private void addAmountColumns(final String projectTag, final String conditionName, final String conditionSymbol) {
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			addPSMAmountColumns(projectTag, conditionName, conditionSymbol);
 		}
 		addPeptideAmountColumns(projectTag, conditionName, conditionSymbol);
@@ -1542,7 +1544,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				MyVerticalCheckBoxListPanel.getKeyName(ColumnName.SPC_PER_CONDITION, conditionName, conditionSymbol,
 						AmountType.SPC.name(), projectTag));
 		// to proteins
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			final ColumnWithVisibility proteinColumn = ProteinColumns.getInstance()
 					.getColumn(ColumnName.SPC_PER_CONDITION);
 			proteinTablePanel.addColumnForConditionAmount(ColumnName.SPC_PER_CONDITION, proteinColumn.isVisible(),
@@ -1758,7 +1760,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		if (result != null && !result.isEmpty()) {
 			for (final String scoreName : result) {
 				scoreNamesPanel.getListBox().addItem(scoreName);
-				if (Pint.psmCentric) {
+				if (Pint.getPSMCentric()) {
 					psmTablePanel.addColumnForScore(scoreName, ColumnName.PSM_SCORE);
 					psmOnlyTablePanel.addColumnForScore(scoreName, ColumnName.PSM_SCORE);
 					psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PSM_SCORE, scoreName,
@@ -1775,7 +1777,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		if (result != null && !result.isEmpty()) {
 			for (final String scoreName : result) {
 				scoreNamesPanel.getListBox().addItem(scoreName);
-				if (Pint.psmCentric) {
+				if (Pint.getPSMCentric()) {
 					psmTablePanel.addColumnForScore(scoreName, ColumnName.PTM_SCORE);
 					psmOnlyTablePanel.addColumnForScore(scoreName, ColumnName.PTM_SCORE);
 					psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PTM_SCORE, scoreName,
@@ -1873,7 +1875,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	 *            if true, it will only load a certain number of
 	 *            proteins/peptides/psms
 	 */
-	public void loadProjectListFromServer(final Set<String> projectTags, final boolean testMode) {
+	public void loadProjectListFromServer(final Set<String> projectTags, final boolean testMode, boolean directAccess) {
 
 		if (projectTags == null || projectTags.isEmpty()) {
 			final String msg = "There is not projects to load. Please, select projects from 'Browse' section";
@@ -1923,7 +1925,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				}
 				// if all projects are received
 				if (loadedProjectBeanSet.size() == loadedProjects.size()) {
-					checkLoadedProjectsAndLoadProjects(projectBeans, true, testMode);
+					checkLoadedProjectsAndLoadProjects(projectBeans, true, testMode, directAccess);
 
 				}
 			}
@@ -1934,16 +1936,16 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	}
 
 	protected void checkLoadedProjectsAndLoadProjects(List<ProjectBean> projectBeans, boolean checkPrivateProjects,
-			boolean testMode) {
+			boolean testMode, boolean directAccess) {
 		// show the welcome box
 		final boolean showWelcome = true;
 		final ProjectBean projectBeanForDisplay = loadedProjectBeanSet.getBigProject() != null
 				? loadedProjectBeanSet.getBigProject() : projectBeans.get(0);
 		final boolean modifyColumns = loadedProjectBeanSet.containsBigProject();
 		final boolean containsPrivateProject = loadedProjectBeanSet.containsPrivateProject();
-		if (checkPrivateProjects && containsPrivateProject) {
+		if (checkPrivateProjects && containsPrivateProject && !directAccess) {
 			// ask for login
-			loginToOpenPrivateProjects(projectBeans, testMode);
+			loginToOpenPrivateProjects(projectBeans, testMode, directAccess);
 			return;
 		}
 		final boolean changeToDataTab = false;
@@ -1962,7 +1964,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			proteinTablePanel.setEmptyTableWidget(emptyLabelString);
 			proteinGroupTablePanel.setEmptyTableWidget(emptyLabelString);
 			peptideTablePanel.setEmptyTableWidget(emptyLabelString);
-			if (Pint.psmCentric) {
+			if (Pint.getPSMCentric()) {
 				psmTablePanel.setEmptyTableWidget(emptyLabelString);
 				psmOnlyTablePanel.setEmptyTableWidget(emptyLabelString);
 			} else {
@@ -1977,7 +1979,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			proteinTablePanel.setEmptyTableWidget(emptyLabelString);
 			proteinGroupTablePanel.setEmptyTableWidget(emptyLabelString);
 			peptideTablePanel.setEmptyTableWidget(emptyLabelString);
-			if (Pint.psmCentric) {
+			if (Pint.getPSMCentric()) {
 				psmTablePanel.setEmptyTableWidget(emptyLabelString);
 				psmOnlyTablePanel.setEmptyTableWidget(emptyLabelString);
 			} else {
@@ -1988,7 +1990,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		}
 	}
 
-	private void loginToOpenPrivateProjects(List<ProjectBean> projectBeans, boolean testMode) {
+	private void loginToOpenPrivateProjects(List<ProjectBean> projectBeans, boolean testMode, boolean directAccess) {
 		// check first the login
 		final PopUpPanelPasswordChecker loginPanel = new PopUpPanelPasswordChecker(true, true, "PINT security",
 				"Some projects are private.\nYou need the PINT master password to be able to query them:");
@@ -2001,7 +2003,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				if (widget instanceof PopUpPanelPasswordChecker) {
 					final PopUpPanelPasswordChecker loginPanel = (PopUpPanelPasswordChecker) widget;
 					if (loginPanel.isLoginOK()) {
-						checkLoadedProjectsAndLoadProjects(projectBeans, false, testMode);
+						checkLoadedProjectsAndLoadProjects(projectBeans, false, testMode, directAccess);
 					} else {
 						History.newItem(TargetHistory.BROWSE.getTargetHistory());
 					}
@@ -2159,7 +2161,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		proteinGroupTablePanel.setVisible(false);
 		proteinTablePanel.setVisible(true);
 		proteinTablePanel.setEmptyTableWidget("Please wait. Proteins will be loaded in the table...");
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			psmTablePanel.setEmptyTableWidget("Please wait. PSMs will be loaded in the table...");
 			psmOnlyTablePanel.setEmptyTableWidget("Please wait. PSMs will be loaded in the table...");
 		} else {
@@ -2184,7 +2186,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 			// clear proteins in the table
 			proteinTablePanel.clearTable();
-			if (Pint.psmCentric) {
+			if (Pint.getPSMCentric()) {
 				// clear psms in the table
 				psmTablePanel.clearTable();
 				// emtpy PSM only panel
@@ -2201,7 +2203,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			peptideOnlyTablePanel.setEmptyTableWidget("Please wait for Peptides to be loaded...");
 			if (!loadedProjects.isEmpty()) {
 
-				if (Pint.psmCentric) {
+				if (Pint.getPSMCentric()) {
 					// remove the score columns for psms
 					psmTablePanel.removeColumn(ColumnName.PSM_SCORE);
 					psmOnlyTablePanel.removeColumn(ColumnName.PSM_SCORE);
@@ -2248,7 +2250,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									// progressDialog.finishAndHide(2000);
 									queryEditorPanel.updateQueryResult(result);
 									if (result != null) {
-										if (Pint.psmCentric) {
+										if (Pint.getPSMCentric()) {
 											updateStatus(result.getPsmSubList().getTotalNumber() + " psms received.");
 										}
 										updateStatus(
@@ -2257,7 +2259,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 												result.getProteinSubList().getTotalNumber() + " proteins received.");
 										updateStatus(result.getProteinGroupSubList().getTotalNumber()
 												+ " protein groups received.");
-										if (Pint.psmCentric) {
+										if (Pint.getPSMCentric()) {
 											addPSMScoreNames(result.getPsmScores());
 										}
 										addProteinScoreNames(result.getProteinScores());
@@ -2290,7 +2292,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 										// result.getProteinGroupSubList());
 
 										if (result.isEmpty()) {
-											if (Pint.psmCentric) {
+											if (Pint.getPSMCentric()) {
 												psmOnlyTablePanel.setEmptyTableWidget("No data to show");
 												psmTablePanel.setEmptyTableWidget("No data to show");
 											} else {
@@ -2317,7 +2319,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	@Override
 	public void hiddePanel() {
 		// hidde psmtable, the one that is below the proteins
-		if (Pint.psmCentric && layoutPanel.getWidgetIndex(psmTablePanel) >= 0) {
+		if (Pint.getPSMCentric() && layoutPanel.getWidgetIndex(psmTablePanel) >= 0) {
 			layoutPanel.setWidgetBottomHeight(psmTablePanel, 0, Unit.PCT, 0, Unit.PCT);
 		} else if (layoutPanel.getWidgetIndex(peptideTablePanel) >= 0) {
 			layoutPanel.setWidgetBottomHeight(peptideTablePanel, 0, Unit.PCT, 0, Unit.PCT);
@@ -2329,7 +2331,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	@Override
 	public void showPanel() {
-		if (Pint.psmCentric && layoutPanel.getWidgetIndex(psmTablePanel) >= 0) {
+		if (Pint.getPSMCentric() && layoutPanel.getWidgetIndex(psmTablePanel) >= 0) {
 			layoutPanel.setWidgetBottomHeight(psmTablePanel, 0, Unit.PCT, 50, Unit.PCT);
 		} else if (layoutPanel.getWidgetIndex(peptideTablePanel) >= 0) {
 			layoutPanel.setWidgetBottomHeight(peptideTablePanel, 0, Unit.PCT, 50, Unit.PCT);
@@ -2344,7 +2346,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// if (result == null || result.isEmpty()) {
 		proteinGroupTablePanel.clearTable();
 		proteinTablePanel.clearTable();
-		if (Pint.psmCentric) {
+		if (Pint.getPSMCentric()) {
 			psmTablePanel.clearTable();
 			psmOnlyTablePanel.clearTable();
 		} else {
@@ -2368,7 +2370,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	}
 
 	public void selectDataTab(AbstractDataTable table) {
-		if ((Pint.psmCentric && table == psmOnlyTablePanel) || table == peptideOnlyTablePanel
+		if ((Pint.getPSMCentric() && table == psmOnlyTablePanel) || table == peptideOnlyTablePanel
 				|| table == proteinGroupTablePanel || table == proteinTablePanel) {
 			GWT.log("Changing tab to " + table.getClass().getName());
 			firstLevelTabPanel.selectTab(layoutPanel);
@@ -2459,7 +2461,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					selectDataTab(proteinGroupTablePanel);
 					break;
 				case PSM:
-					if (Pint.psmCentric) {
+					if (Pint.getPSMCentric()) {
 						selectDataTab(psmOnlyTablePanel);
 					}
 					break;
@@ -2485,7 +2487,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				// tables
 				proteinGroupTablePanel.setDefaultView(defaultViews);
 				proteinTablePanel.setDefaultView(defaultViews);
-				if (Pint.psmCentric) {
+				if (Pint.getPSMCentric()) {
 					psmTablePanel.setDefaultView(defaultViews);
 					psmOnlyTablePanel.setDefaultView(defaultViews);
 				} else {
@@ -2503,7 +2505,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			public void execute() {
 				GWT.log("Setting default view in checkboxes");
 				// checkboxes
-				if (Pint.psmCentric) {
+				if (Pint.getPSMCentric()) {
 					psmColumnNamesPanel.setDefaultView(defaultViews.getPsmDefaultView());
 				}
 				peptideColumnNamesPanel.setDefaultView(defaultViews.getPeptideDefaultView());
@@ -2729,7 +2731,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						proteinGroupTablePanel.removeColumn(ColumnName.PROTEIN_RATIO);
 						proteinTablePanel.removeColumn(ColumnName.PROTEIN_RATIO_SCORE);
 
-						if (Pint.psmCentric) {
+						if (Pint.getPSMCentric()) {
 							psmTablePanel.removeColumn(ColumnName.PSM_RATIO);
 							psmOnlyTablePanel.removeColumn(ColumnName.PSM_RATIO);
 							psmTablePanel.removeColumn(ColumnName.PSM_RATIO_SCORE);
@@ -2903,7 +2905,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 													PeptideColumns.getInstance()
 															.getColumn(ColumnName.PEPTIDE_RATIO_GRAPH).isVisible(),
 													condition1, letter1, condition2, letter2, projectTag, ratioName);
-											if (!Pint.psmCentric) {
+											if (!Pint.getPSMCentric()) {
 												peptideTablePanel.addColumnForConditionRatio(ColumnName.PEPTIDE_RATIO,
 														peptideRatioColumn.isVisible(), condition1, letter1, condition2,
 														letter2, projectTag, ratioName);
@@ -2927,7 +2929,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 																.getColumn(ColumnName.PEPTIDE_RATIO_SCORE).isVisible(),
 														condition1, letter1, condition2, letter2, projectTag, ratioName,
 														peptideRatioScoreName);
-												if (!Pint.psmCentric) {
+												if (!Pint.getPSMCentric()) {
 													peptideTablePanel.addColumnForConditionRatioScore(
 															ColumnName.PEPTIDE_RATIO_SCORE,
 															PeptideColumns.getInstance()
@@ -2952,7 +2954,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											}
 											break;
 										case PSM:
-											if (Pint.psmCentric) {
+											if (Pint.getPSMCentric()) {
 												// add checkbox for ProteinRatio
 												// for
 												// that ratio

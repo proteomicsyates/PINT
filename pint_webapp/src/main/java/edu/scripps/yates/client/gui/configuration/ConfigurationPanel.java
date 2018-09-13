@@ -406,7 +406,7 @@ public class ConfigurationPanel extends WindowBox {
 						pintConfigurationProperties.setPsmCentric(checkBox.getValue());
 						labelIsPSMCentric.setText(getStatusText(checkBox.getValue()));
 						// set client variable
-						Pint.psmCentric = checkBox.getValue();
+						Pint.setPSMCentric(checkBox.getValue());
 						//
 						grid.setWidget(0, 0, getGreenTickIcon());
 						button.setEnabled(true);

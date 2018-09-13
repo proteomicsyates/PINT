@@ -3,7 +3,6 @@ package edu.scripps.yates.shared.columns;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.scripps.yates.client.Pint;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
@@ -63,7 +62,9 @@ public class ProteinGroupColumns implements ColumnProvider<ProteinGroupBean> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.SEQUENCE_COUNT, true);
 			columns.add(col);
-			if (Pint.psmCentric) {
+			if (
+			// Pint.psmCentric
+			false) {
 				col = new ColumnWithVisibility(ColumnName.SPECTRUM_COUNT, true);
 				columns.add(col);
 				col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
