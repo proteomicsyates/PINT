@@ -19,6 +19,7 @@ public class ExcelColumnImpl implements ExcelColumn {
 	private boolean isNumerical = true;
 
 	private final Set<String> stringValues = new THashSet<String>();
+	private ArrayList<Object> list;
 
 	public ExcelColumnImpl(String key, String headerName) {
 		this.headerName = headerName;
@@ -37,13 +38,25 @@ public class ExcelColumnImpl implements ExcelColumn {
 
 	@Override
 	public List<Object> getValues() {
-		List<Object> ret = new ArrayList<Object>();
-		for (int i = 1; i <= lastNonEmptyRow; i++) {
-			// if (!values.containsKey(i))
-			// break;
-			ret.add(values.get(i));
+		if (list == null) {
+			list = new ArrayList<Object>();
 		}
-		return ret;
+		if (list.size() != lastNonEmptyRow) {
+			list.clear();
+			for (int i = 1; i <= lastNonEmptyRow; i++) {
+				// if (!values.containsKey(i))
+				// break;
+				list.add(values.get(i));
+			}
+		}
+		// final List<Object> ret = new ArrayList<Object>();
+		// for (int i = 1; i <= lastNonEmptyRow; i++) {
+		// // if (!values.containsKey(i))
+		// // break;
+		// ret.add(values.get(i));
+		// }
+		// return ret;
+		return list;
 	}
 
 	@Override
@@ -53,12 +66,12 @@ public class ExcelColumnImpl implements ExcelColumn {
 
 	@Override
 	public List<Object> getRandomValues(int numValues) {
-		Random random = new Random(System.currentTimeMillis());
+		final Random random = new Random(System.currentTimeMillis());
 		int numElements = 0;
 		if (numValues > values.size())
 			numValues = values.size();
-		List<Object> ret = new ArrayList<Object>();
-		TIntHashSet indexSet = new TIntHashSet();
+		final List<Object> ret = new ArrayList<Object>();
+		final TIntHashSet indexSet = new TIntHashSet();
 		while (numElements < numValues) {
 			final int index = random.nextInt(values.size()) + 1;
 			// don't repeat the index
@@ -91,6 +104,11 @@ public class ExcelColumnImpl implements ExcelColumn {
 	@Override
 	public boolean isBinary() {
 		return stringValues.size() == 2;
+	}
+
+	@Override
+	public int getSize() {
+		return values.size();
 	}
 
 }
