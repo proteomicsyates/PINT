@@ -288,7 +288,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	// }
 
 	private Set<Protein> getProteins(int rowIndex, boolean grabProteinIfNoProteinAmount) {
-		log.info("Getting proteins from row " + rowIndex + " on condition " + expCondition.getName() + " and run "
+		log.debug("Getting proteins from row " + rowIndex + " on condition " + expCondition.getName() + " and run "
 				+ msRun.getId());
 		final Set<Protein> ret = new THashSet<Protein>();
 
