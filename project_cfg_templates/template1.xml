@@ -5,24 +5,13 @@
             <format>excel</format>
             <sheets>
                 <sheet id="Excel file with ratios##sheet1">
-                    <column id="Excel file with ratios##sheet1##A" header="#" number="false"/>
-                    <column id="Excel file with ratios##sheet1##B" header="Level 1" number="false"/>
-                    <column id="Excel file with ratios##sheet1##C" header="Level 2" number="false"/>
-                    <column id="Excel file with ratios##sheet1##D" header="ACC" number="false"/>
-                    <column id="Excel file with ratios##sheet1##E" header="desc" number="false"/>
-                    <column id="Excel file with ratios##sheet1##F" header="sequence" number="false"/>
-                    <column id="Excel file with ratios##sheet1##G" header="Mascot:expectation value" number="false"/>
-                    <column id="Excel file with ratios##sheet1##H" header="Mascot:score" number="false"/>
-                    <column id="Excel file with ratios##sheet1##I" header="pep.occurr." number="false"/>
-                    <column id="Excel file with ratios##sheet1##J" header="unique" number="false"/>
-                    <column id="Excel file with ratios##sheet1##K" header="exp.m/z" number="false"/>
-                    <column id="Excel file with ratios##sheet1##L" header="calc.m/z" number="false"/>
-                    <column id="Excel file with ratios##sheet1##M" header="m/z error" number="false"/>
-                    <column id="Excel file with ratios##sheet1##N" header="rt" number="false"/>
-                    <column id="Excel file with ratios##sheet1##O" header="z" number="false"/>
-                    <column id="Excel file with ratios##sheet1##P" header="miss" number="false"/>
-                    <column id="Excel file with ratios##sheet1##Q" header="modif.seq." number="false"/>
-                    <column id="Excel file with ratios##sheet1##R" header="modifs" number="false"/>
+                    <column id="Excel file with ratios##sheet1##A" header="acc" number="false"/>
+                    <column id="Excel file with ratios##sheet1##B" header="description" number="false"/>
+                    <column id="Excel file with ratios##sheet1##C" header="sequence" number="false"/>
+                    <column id="Excel file with ratios##sheet1##D" header="pep score 1" number="false"/>
+                    <column id="Excel file with ratios##sheet1##E" header="pep score 2" number="false"/>
+                    <column id="Excel file with ratios##sheet1##F" header="ratio score" number="false"/>
+                    <column id="Excel file with ratios##sheet1##G" header="ratio" number="false"/>
                 </sheet>
             </sheets>
         </file>
@@ -34,15 +23,15 @@
                 <description></description>
                 <identification_info>
                     <excel_ident_info msRunRef="Run 1">
-                        <protein_accession groups="true" group_separator="," columnRef="Excel file with ratios##sheet1##D">
+                        <protein_accession groups="true" group_separator="," columnRef="Excel file with ratios##sheet1##A">
                             <regexp>.*</regexp>
                         </protein_accession>
-                        <protein_description groups="true" group_separator="," columnRef="Excel file with ratios##sheet1##E">
+                        <protein_description groups="true" group_separator="," columnRef="Excel file with ratios##sheet1##B">
                             <regexp>.*</regexp>
                         </protein_description>
-                        <sequence columnRef="Excel file with ratios##sheet1##F"/>
-                        <psm_score score_name="Mascot:expectation value" score_type="Mascot expect value" columnRef="Excel file with ratios##sheet1##G"/>
-                        <psm_score score_name="Mascot:score" score_type="Mascot score" columnRef="Excel file with ratios##sheet1##H"/>
+                        <sequence columnRef="Excel file with ratios##sheet1##C"/>
+                        <psm_score score_name="Mascot:expectation value" score_type="Mascot expect value" columnRef="Excel file with ratios##sheet1##D"/>
+                        <psm_score score_name="Mascot:score" score_type="Mascot score" columnRef="Excel file with ratios##sheet1##E"/>
                     </excel_ident_info>
                 </identification_info>
             </experimental_condition>
@@ -50,15 +39,15 @@
                 <description></description>
                 <identification_info>
                     <excel_ident_info msRunRef="Run 1">
-                        <protein_accession groups="true" group_separator="," columnRef="Excel file with ratios##sheet1##D">
+                        <protein_accession groups="true" group_separator="," columnRef="Excel file with ratios##sheet1##A">
                             <regexp>.*</regexp>
                         </protein_accession>
-                        <protein_description groups="true" group_separator="," columnRef="Excel file with ratios##sheet1##E">
+                        <protein_description groups="true" group_separator="," columnRef="Excel file with ratios##sheet1##B">
                             <regexp>.*</regexp>
                         </protein_description>
-                        <sequence columnRef="Excel file with ratios##sheet1##F"/>
-                        <psm_score score_name="Mascot:score" score_type="Mascot:score" columnRef="Excel file with ratios##sheet1##H"/>
-                        <psm_score score_name="Mascot:expectation value" score_type="Mascot:expectation value" columnRef="Excel file with ratios##sheet1##G"/>
+                        <sequence columnRef="Excel file with ratios##sheet1##C"/>
+                        <psm_score score_name="Mascot:score" score_type="Mascot:score" columnRef="Excel file with ratios##sheet1##E"/>
+                        <psm_score score_name="Mascot:expectation value" score_type="Mascot:expectation value" columnRef="Excel file with ratios##sheet1##D"/>
                         <discard_decoys>Reverse</discard_decoys>
                     </excel_ident_info>
                 </identification_info>
@@ -66,10 +55,10 @@
         </experimental_conditions>
         <ratios>
             <peptide_amount_ratios>
-                <excel_ratio name="Ratio 1" columnRef="Excel file with ratios##sheet1##O" msRunRef="Run 1">
+                <excel_ratio name="Ratio 1" columnRef="Excel file with ratios##sheet1##G" msRunRef="Run 1">
                     <numerator conditionRef="Condition A"/>
                     <denominator conditionRef="Condition B"/>
-                    <ratio_score score_name="confidence score" score_type="probability" columnRef="Excel file with ratios##sheet1##M"/>
+                    <ratio_score score_name="confidence score" score_type="probability" columnRef="Excel file with ratios##sheet1##F"/>
                 </excel_ratio>
             </peptide_amount_ratios>
         </ratios>
