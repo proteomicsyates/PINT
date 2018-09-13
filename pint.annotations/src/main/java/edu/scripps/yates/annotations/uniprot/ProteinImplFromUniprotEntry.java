@@ -206,7 +206,8 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		if (comments != null) {
 			for (final CommentType comment : comments) {
 				final AnnotationType annotationType = AnnotationType.translateStringToAnnotationType(comment.getType());
-				if ("tissue specificity".equals(annotationType.getKey()) && comment.getText() != null) {
+				if (annotationType != null && "tissue specificity".equals(annotationType.getKey())
+						&& comment.getText() != null) {
 					// in this case, the text can contains different phrases,
 					// each of them can start by "isoform 4 is expressed..."
 					// in that case, only include the ones for the appropiate
@@ -265,7 +266,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		if (features != null) {
 			for (final FeatureType feature : features) {
 				final AnnotationType annotationType = AnnotationType.translateStringToAnnotationType(feature.getType());
-				if (skipFeature(feature)) {
+				if (annotationType == null || skipFeature(feature)) {
 					continue;
 				}
 
@@ -297,10 +298,13 @@ public class ProteinImplFromUniprotEntry implements Protein {
 		// protein existence (PE)
 		final ProteinExistenceType proteinExistence = entry.getProteinExistence();
 		if (proteinExistence != null) {
-			final ProteinAnnotation annotation = new ProteinAnnotationEx(
-					AnnotationType.translateStringToAnnotationType(proteinExistence.getType()),
-					proteinExistence.getType());
-			ret.add(annotation);
+			final AnnotationType annotationType = AnnotationType
+					.translateStringToAnnotationType(proteinExistence.getType());
+			if (annotationType != null) {
+				final ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType,
+						proteinExistence.getType());
+				ret.add(annotation);
+			}
 		}
 
 		// DB reference (DR)
