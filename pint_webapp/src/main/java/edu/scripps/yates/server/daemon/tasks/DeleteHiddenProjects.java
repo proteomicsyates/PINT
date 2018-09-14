@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 
 				@Override
 				public int compare(ProjectBean o1, ProjectBean o2) {
-					return o1.getDbId().compareTo(o2.getDbId());
+					return o2.getDbId().compareTo(o1.getDbId());
 				}
 			};
 			final List<String> projectTags = RemoteServicesTasks.getProjectBeans(true).stream()
@@ -116,6 +117,9 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 
 	private List<String> getLatestProjectsTriedToBeDeleted(ServletContext servletContext) throws IOException {
 		final File file = FileManager.getLatestDeletedProjectsFile(servletContext);
+		if (!file.exists()) {
+			return Collections.emptyList();
+		}
 		final List<String> projectPaths = Files.lines(file.toPath()).map(line -> line.trim())
 				.collect(Collectors.toList());
 		return projectPaths;
