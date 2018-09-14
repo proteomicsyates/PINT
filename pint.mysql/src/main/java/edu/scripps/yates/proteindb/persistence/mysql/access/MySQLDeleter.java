@@ -717,6 +717,7 @@ public class MySQLDeleter {
 				ContextualSessionHandler.finishGoodTransaction();
 				log.info("Transaction finished.");
 			}
+			ContextualSessionHandler.beginGoodTransaction();
 			if (initialMSRunNumber == 0) {
 				initialMSRunNumber = msRuns.size();
 			}
