@@ -17,7 +17,6 @@ import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
 import edu.scripps.yates.server.daemon.tasks.DeleteHiddenProjects;
 import edu.scripps.yates.server.daemon.tasks.PintServerDaemonTask;
 import edu.scripps.yates.server.daemon.tasks.PreLoadPublicProjects;
-import edu.scripps.yates.server.daemon.tasks.ProteinAccessionsUpdater;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerUtil;
 import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
@@ -74,12 +73,14 @@ public class PintServerDaemon implements ServletContextListener {
 			// REGISTER MAINTENANCE TASKS HERE
 
 			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", sce.getServletContext()));
-			pintServerDaemonTasks.add(new ProteinAccessionsUpdater(sce.getServletContext()));
 			// disabled because it seems that it has some problems
 			// pintServerDaemonTasks.add(new
 			// ProteinAccessionsUpdaterScroll(sce.getServletContext()));
 
 			pintServerDaemonTasks.add(new DeleteHiddenProjects(sce.getServletContext()));
+			// pintServerDaemonTasks.add(new
+			// ProteinAccessionsUpdater(sce.getServletContext()));
+
 			// pintServerDaemonTasks.add(new GeneInformationConsolidation(
 			// servletContext));
 			// pintServerDaemonTasks.add(new
