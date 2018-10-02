@@ -7,16 +7,8 @@ For more information about how to install PINT, how to configure it, how to subm
 ## How to get PINT
 You can download the latest version of the web application in a war file at: [http://sealion.scripps.edu/PINT/]  
   
-Alternatively, you can get it from our **maven repository**:  
-  
-**Dependency:**  
-```
-<dependency>  
-  <groupId>edu.scripps.yates</groupId>  
-  <artifactId>pint_webapp</artifactId>  
-  <version>0.2.0-SNAPSHOT</version>  
-</dependency>  
-```  
+All source code is in this github project. 
+It is divided in different modules, being [**pint_webapp**](https://github.com/proteomicsyates/PINT/tree/master/pint_webapp) the actual web application. All its dependencies can be retrieved by maven using the following Maven repositories:
   
 **Maven repositories:**  
  ```
