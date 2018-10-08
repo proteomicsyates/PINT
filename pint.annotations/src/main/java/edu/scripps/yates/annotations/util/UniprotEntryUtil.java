@@ -65,7 +65,7 @@ public class UniprotEntryUtil {
 				}
 			}
 		}
-		return null;
+		return ret;
 	}
 
 	public static String getProteinSequence(Entry entry) {
