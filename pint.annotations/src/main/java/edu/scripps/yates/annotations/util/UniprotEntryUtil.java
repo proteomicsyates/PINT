@@ -45,15 +45,19 @@ public class UniprotEntryUtil {
 		}
 	}
 
-	public static String getENSGID(Entry entry) {
+	private static final String ENSEMBL = "Ensembl";
+	private static final String GENE_ID = "gene ID";
+
+	public static Set<String> getENSGIDs(Entry entry) {
+		final Set<String> ret = new THashSet<String>();
 		if (entry != null) {
 			if (entry.getDbReference() != null) {
 				for (final DbReferenceType dbReference : entry.getDbReference()) {
-					if ("Ensembl".equals(dbReference.getType())) {
+					if (ENSEMBL.equals(dbReference.getType())) {
 						if (dbReference.getProperty() != null) {
 							for (final PropertyType property : dbReference.getProperty()) {
-								if ("gene ID".equals(property.getType())) {
-									return property.getValue();
+								if (GENE_ID.equals(property.getType())) {
+									ret.add(property.getValue());
 								}
 							}
 						}
