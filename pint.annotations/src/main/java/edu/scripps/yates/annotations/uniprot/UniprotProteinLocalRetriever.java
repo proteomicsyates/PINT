@@ -46,6 +46,8 @@ import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.memory.MemoryUsageReport;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
+import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
+import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -365,7 +367,18 @@ public class UniprotProteinLocalRetriever {
 		final Set<String> accsToSearch = new THashSet<>();
 		for (final String acc : accessions) {
 			// only search for the uniprot ones
-			final String uniProtACC = FastaParser.getUniProtACC(acc);
+			String uniProtACC = FastaParser.getUniProtACC(acc);
+			if (uniProtACC == null) {
+				// lets see if it is a gene ID
+				if (acc.contains("_")) {
+					final String taxonomyCode = acc.split("_")[1];
+					final UniprotOrganism uniprotOrganism = UniprotSpeciesCodeMap.getInstance().get(taxonomyCode);
+					if (uniprotOrganism != null) {
+						// it is a gene name, so it is fine
+						uniProtACC = acc;
+					}
+				}
+			}
 			if (uniProtACC != null && !FastaParser.isContaminant(acc) && !FastaParser.isReverse(acc)) {
 				if (!FastaParser.isProteoform(uniProtACC)) {
 					accsToSearch.add(uniProtACC);
@@ -755,7 +768,9 @@ public class UniprotProteinLocalRetriever {
 			// if (accessionsToQuery.contains(nonIsoFormAcc))
 			map.put(accession, entry);
 		}
-
+		for (final String name : entry.getName()) {
+			map.put(name, entry);
+		}
 	}
 
 	protected static void addEntryToCache(UniprotEntryCache cache, Entry entry) {

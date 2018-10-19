@@ -37,7 +37,7 @@ public class UniprotFastaRetrieverThread extends Thread {
 
 				final Entry fastaEntry = UniprotFastaRetriever.getFastaEntry(accession);
 				if (fastaEntry != null) {
-					ret.put(accession, fastaEntry);
+					UniprotProteinLocalRetriever.addEntryToMap(ret, fastaEntry);
 				} else {
 					log.debug("Adding " + accession + " to the list of proteins with no FASTA sequence available.");
 					UniprotProteinRemoteRetriever.entriesWithNoFASTA.add(accession);

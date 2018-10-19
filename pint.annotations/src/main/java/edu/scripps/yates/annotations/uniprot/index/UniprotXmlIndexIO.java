@@ -94,6 +94,11 @@ public class UniprotXmlIndexIO extends TextFileIndexMultiThreadSafeIO {
 				accs.add(acc);
 			}
 		}
+		if (entry.getName() != null) {
+			for (final String name : entry.getName()) {
+				accs.add(name);
+			}
+		}
 		return accs;
 
 	}

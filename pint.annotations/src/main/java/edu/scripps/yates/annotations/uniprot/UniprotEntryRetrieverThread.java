@@ -149,16 +149,17 @@ public class UniprotEntryRetrieverThread extends Thread {
 				log.debug("Response parsed in " + DatesUtil.getDescriptiveTimeFromMillisecs(t3 - t2));
 				totalSubmitted += accs.size();
 				for (final Entry entry : entries) {
-					final List<String> accessions = entry.getAccession();
-					for (final String acc : accessions) {
-
-						// only use the keys of the list of accessions
-						// provided
-						if (accs.contains(acc)) {
-							foundSet.add(acc);
-							ret.put(acc, entry);
-						}
-					}
+					UniprotProteinLocalRetriever.addEntryToMap(ret, entry);
+					// final List<String> accessions = entry.getAccession();
+					// for (final String acc : accessions) {
+					//
+					// // only use the keys of the list of accessions
+					// // provided
+					// if (accs.contains(acc)) {
+					// foundSet.add(acc);
+					//
+					// }
+					// }
 				}
 			}
 			totalFound += foundSet.size();
