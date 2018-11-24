@@ -164,42 +164,41 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					final Proteoform originalvariant = new Proteoform(acc, originalSequence, acc, originalSequence,
 							name, description, gene, taxonomy, ProteoformType.MAIN_ENTRY, true);
 					ret.get(acc).add(originalvariant);
-					if (!retrieveProteoforms && !retrieveIsoforms) {
-						// do not look further
-						continue;
 
-					}
 					// query for variants
-					final List<FeatureType> features = UniprotEntryUtil.getFeatures(entry,
-							uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.VARIANT);
-					for (final FeatureType feature : features) {
+					if (retrieveProteoforms) {
+						final List<FeatureType> features = UniprotEntryUtil.getFeatures(entry,
+								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.VARIANT);
+						for (final FeatureType feature : features) {
 
-						final Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, name, description,
-								feature, originalSequence, gene, taxonomy).adapt();
-						ret.get(acc).add(variant);
-					}
-					// alternative products
-					final List<CommentType> alternativeProductsComments = UniprotEntryUtil.getComments(entry,
-							uk.ac.ebi.kraken.interfaces.uniprot.comments.CommentType.ALTERNATIVE_PRODUCTS);
-					// store isoforms ACCs
-					final Set<String> isoformsACCs = new HashSet<String>();
-					for (final CommentType alternativeProductsComment : alternativeProductsComments) {
-						final List<IsoformType> isoforms = alternativeProductsComment.getIsoform();
-						for (final IsoformType alternativeProductsIsoform : isoforms) {
-							final String isoformACC = alternativeProductsIsoform.getId().get(0);
-							if (alternativeProductsIsoform.getSequence() != null
-									&& alternativeProductsIsoform.getSequence().getRef() != null) {
-								isoformSequenceReferences.put(isoformACC,
-										alternativeProductsIsoform.getSequence().getRef());
-							}
-							if (alternativeProductsIsoform.getSequence() != null
-									&& !"displayed".equals(alternativeProductsIsoform.getSequence().getType())) {
-								isoformsACCs.add(isoformACC);
-							}
+							final Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, name, description,
+									feature, originalSequence, gene, taxonomy).adapt();
+							ret.get(acc).add(variant);
 						}
 					}
-					// retrieve isoform sequences
 					if (retrieveIsoforms) {
+						// alternative products
+						final List<CommentType> alternativeProductsComments = UniprotEntryUtil.getComments(entry,
+								uk.ac.ebi.kraken.interfaces.uniprot.comments.CommentType.ALTERNATIVE_PRODUCTS);
+						// store isoforms ACCs
+						final Set<String> isoformsACCs = new HashSet<String>();
+						for (final CommentType alternativeProductsComment : alternativeProductsComments) {
+							final List<IsoformType> isoforms = alternativeProductsComment.getIsoform();
+							for (final IsoformType alternativeProductsIsoform : isoforms) {
+								final String isoformACC = alternativeProductsIsoform.getId().get(0);
+								if (alternativeProductsIsoform.getSequence() != null
+										&& alternativeProductsIsoform.getSequence().getRef() != null) {
+									isoformSequenceReferences.put(isoformACC,
+											alternativeProductsIsoform.getSequence().getRef());
+								}
+								if (alternativeProductsIsoform.getSequence() != null
+										&& !"displayed".equals(alternativeProductsIsoform.getSequence().getType())) {
+									isoformsACCs.add(isoformACC);
+								}
+							}
+						}
+						// retrieve isoform sequences
+
 						for (final String isoformACC : isoformsACCs) {
 							if (annotatedProteins.containsKey(isoformACC)) {
 								final Entry isoformEntry = annotatedProteins.get(isoformACC);
@@ -220,22 +219,23 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 							}
 						}
 					}
-
-					// sequence conflicts
-					final Collection<FeatureType> conflicts = UniprotEntryUtil.getFeatures(entry,
-							uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CONFLICT);
-					for (final FeatureType feature : conflicts) {
-						final Proteoform variant = new ProteoformAdapterFromConflictFeature(acc, name, description,
-								feature, originalSequence, gene, taxonomy).adapt();
-						ret.get(acc).add(variant);
-					}
-					// mutagens
-					final Collection<FeatureType> mutagens = UniprotEntryUtil.getFeatures(entry,
-							uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.MUTAGEN);
-					for (final FeatureType feature : mutagens) {
-						final Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, name, description,
-								feature, originalSequence, gene, taxonomy).adapt();
-						ret.get(acc).add(variant);
+					if (retrieveProteoforms) {
+						// sequence conflicts
+						final Collection<FeatureType> conflicts = UniprotEntryUtil.getFeatures(entry,
+								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CONFLICT);
+						for (final FeatureType feature : conflicts) {
+							final Proteoform variant = new ProteoformAdapterFromConflictFeature(acc, name, description,
+									feature, originalSequence, gene, taxonomy).adapt();
+							ret.get(acc).add(variant);
+						}
+						// mutagens
+						final Collection<FeatureType> mutagens = UniprotEntryUtil.getFeatures(entry,
+								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.MUTAGEN);
+						for (final FeatureType feature : mutagens) {
+							final Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, name, description,
+									feature, originalSequence, gene, taxonomy).adapt();
+							ret.get(acc).add(variant);
+						}
 					}
 					// ptms
 					if (retrievePTMs) {
