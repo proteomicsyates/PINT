@@ -164,7 +164,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					final Proteoform originalvariant = new Proteoform(acc, originalSequence, acc, originalSequence,
 							name, description, gene, taxonomy, ProteoformType.MAIN_ENTRY, true);
 					ret.get(acc).add(originalvariant);
-					if (!retrieveProteoforms) {
+					if (!retrieveProteoforms && !retrieveIsoforms) {
 						// do not look further
 						continue;
 
