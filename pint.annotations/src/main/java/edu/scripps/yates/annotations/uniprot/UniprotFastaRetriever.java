@@ -28,7 +28,7 @@ public class UniprotFastaRetriever {
 	public static Entry getFastaEntry(String uniprotACC) throws URISyntaxException, IOException, InterruptedException {
 
 		final StringBuilder locationBuilder = new StringBuilder(
-				"http://www.uniprot.org/uniprot/" + uniprotACC + ".fasta");
+				"https://www.uniprot.org/uniprot/" + uniprotACC + ".fasta");
 		String location = locationBuilder.toString();
 		location = location.replace(" ", "%20");
 		final URL url = new URL(location).toURI().toURL();
