@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 public class Proteoform {
 	private final String id;
 	private final String seq;
@@ -29,9 +31,24 @@ public class Proteoform {
 		this.taxonomy = taxonomy;
 		this.proteoformType = proteoformType;
 		this.original = original;
-		if (description.equals(name)) {
-			System.out.println("asdf");
+
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Proteoform) {
+			final Proteoform p = (Proteoform) obj;
+			if (p.getId().equals(getId())) {
+				return true;
+			}
+			return false;
 		}
+		return super.equals(obj);
 	}
 
 	public Proteoform(String originalACC, String originalSeq, String id, String seq, String name, String description,
