@@ -353,16 +353,19 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 		return missingAccessions;
 	}
 
+	@Override
 	public Map<String, Entry> getAnnotatedProtein(String uniprotVersion, String accession) {
 		final Set<String> accessions = new THashSet<>();
 		accessions.add(accession);
 		return getAnnotatedProteins(uniprotVersion, accessions);
 	}
 
+	@Override
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions) {
 		return getAnnotatedProteins(uniprotVersion, accessions, retrieveFastaIsoforms);
 	}
 
+	@Override
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions,
 			boolean retrieveFastaIsoforms) {
 		final Set<String> accsToSearch = new THashSet<>();
@@ -785,14 +788,17 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 
 	}
 
+	@Override
 	public boolean isCacheEnabled() {
 		return cacheEnabled;
 	}
 
+	@Override
 	public void setCacheEnabled(boolean cacheEnabled) {
 		UniprotProteinLocalRetriever.cacheEnabled = cacheEnabled;
 	}
 
+	@Override
 	public void setRetrieveFastaIsoforms(boolean b) {
 		retrieveFastaIsoforms = b;
 
