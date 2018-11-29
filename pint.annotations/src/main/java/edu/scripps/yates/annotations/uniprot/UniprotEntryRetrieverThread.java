@@ -31,10 +31,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.uniprot.xml.ObjectFactory;
-import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.annotations.util.PropertiesUtil;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ObjectFactory;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.http.ThreadSafeHttpClient;
 import edu.scripps.yates.utilities.jaxb.JaxbThreadSafe;

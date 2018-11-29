@@ -9,8 +9,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.uniprot.xml.SequenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.SequenceType;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;

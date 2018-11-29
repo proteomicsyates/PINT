@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.annotations.util.UniprotEntryUtil;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.util.Pair;
 
 public class UniprotXmlIndexIterator implements Iterator<Entry> {

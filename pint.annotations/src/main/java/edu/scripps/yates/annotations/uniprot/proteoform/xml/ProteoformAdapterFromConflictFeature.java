@@ -3,7 +3,7 @@ package edu.scripps.yates.annotations.uniprot.proteoform.xml;
 import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
 import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformType;
 import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformUtil;
-import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.pattern.Adapter;
 

@@ -19,9 +19,9 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.uniprot.xml.GeneNameType;
-import edu.scripps.yates.annotations.uniprot.xml.GeneType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneNameType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import gnu.trove.map.hash.THashMap;

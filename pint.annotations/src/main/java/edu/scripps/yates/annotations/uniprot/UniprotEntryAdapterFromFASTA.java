@@ -1,15 +1,15 @@
 package edu.scripps.yates.annotations.uniprot;
 
-import edu.scripps.yates.annotations.uniprot.xml.DbReferenceType;
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.uniprot.xml.EvidencedStringType;
-import edu.scripps.yates.annotations.uniprot.xml.GeneNameType;
-import edu.scripps.yates.annotations.uniprot.xml.GeneType;
-import edu.scripps.yates.annotations.uniprot.xml.OrganismNameType;
-import edu.scripps.yates.annotations.uniprot.xml.OrganismType;
-import edu.scripps.yates.annotations.uniprot.xml.ProteinType;
-import edu.scripps.yates.annotations.uniprot.xml.ProteinType.RecommendedName;
-import edu.scripps.yates.annotations.uniprot.xml.SequenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.DbReferenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.EvidencedStringType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneNameType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.OrganismNameType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.OrganismType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.SequenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.RecommendedName;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.pattern.Adapter;
 

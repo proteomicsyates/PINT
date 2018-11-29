@@ -37,10 +37,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.index.UniprotXmlIndex;
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.uniprot.xml.ObjectFactory;
-import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.annotations.util.UniprotEntryCache;
+import edu.scripps.yates.utilities.annotations.UniprotProteinLocalRetrieverInterface;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ObjectFactory;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.memory.MemoryUsageReport;
@@ -51,7 +52,7 @@ import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public class UniprotProteinLocalRetriever {
+public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieverInterface {
 	private static final Logger log = Logger.getLogger(UniprotProteinLocalRetriever.class);
 	public static final String UNIPROT_RELEASES_DATES_FILE_NAME = "uniprot_releases_dates.txt";
 

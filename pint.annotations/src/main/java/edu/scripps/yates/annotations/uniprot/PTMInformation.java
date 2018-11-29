@@ -3,8 +3,8 @@ package edu.scripps.yates.annotations.uniprot;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.uniprot.xml.EvidenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.EvidenceType;
 
 public class PTMInformation {
 	private final String modificationName;

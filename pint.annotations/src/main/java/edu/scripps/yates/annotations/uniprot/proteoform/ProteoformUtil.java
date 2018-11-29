@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
-import edu.scripps.yates.annotations.uniprot.xml.LocationType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.FeatureType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.LocationType;
 import uk.ac.ebi.kraken.interfaces.common.Value;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.ConflictFeature;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.ConflictReport;

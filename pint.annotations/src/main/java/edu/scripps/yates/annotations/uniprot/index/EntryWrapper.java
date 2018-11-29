@@ -10,20 +10,20 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.annotations.uniprot.xml.CommentType;
-import edu.scripps.yates.annotations.uniprot.xml.DbReferenceType;
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.uniprot.xml.EvidenceType;
-import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
-import edu.scripps.yates.annotations.uniprot.xml.GeneLocationType;
-import edu.scripps.yates.annotations.uniprot.xml.GeneType;
-import edu.scripps.yates.annotations.uniprot.xml.KeywordType;
-import edu.scripps.yates.annotations.uniprot.xml.OrganismType;
-import edu.scripps.yates.annotations.uniprot.xml.ProteinExistenceType;
-import edu.scripps.yates.annotations.uniprot.xml.ProteinType;
-import edu.scripps.yates.annotations.uniprot.xml.ReferenceType;
-import edu.scripps.yates.annotations.uniprot.xml.SequenceType;
-import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.CommentType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.DbReferenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.EvidenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.FeatureType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneLocationType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.KeywordType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.OrganismType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinExistenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ReferenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.SequenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Uniprot;
 
 public class EntryWrapper extends Entry {
 	private final static Logger log = Logger.getLogger(EntryWrapper.class);

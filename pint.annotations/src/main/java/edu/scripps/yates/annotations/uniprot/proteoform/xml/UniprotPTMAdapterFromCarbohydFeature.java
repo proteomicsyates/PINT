@@ -6,7 +6,7 @@ import edu.scripps.yates.annotations.uniprot.UniprotPTMCVReader;
 import edu.scripps.yates.annotations.uniprot.UniprotPTMCVTerm;
 import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformUtil;
 import edu.scripps.yates.annotations.uniprot.proteoform.UniprotPTM;
-import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.utilities.pattern.Adapter;
 
 public class UniprotPTMAdapterFromCarbohydFeature implements Adapter<UniprotPTM> {

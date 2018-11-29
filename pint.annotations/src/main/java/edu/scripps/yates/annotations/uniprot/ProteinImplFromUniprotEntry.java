@@ -13,30 +13,30 @@ import org.apache.log4j.Logger;
 
 import com.compomics.util.protein.AASequenceImpl;
 
-import edu.scripps.yates.annotations.uniprot.xml.CommentType;
-import edu.scripps.yates.annotations.uniprot.xml.DbReferenceType;
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.uniprot.xml.EvidenceType;
-import edu.scripps.yates.annotations.uniprot.xml.EvidencedStringType;
-import edu.scripps.yates.annotations.uniprot.xml.FeatureType;
-import edu.scripps.yates.annotations.uniprot.xml.GeneNameType;
-import edu.scripps.yates.annotations.uniprot.xml.GeneType;
-import edu.scripps.yates.annotations.uniprot.xml.IsoformType;
-import edu.scripps.yates.annotations.uniprot.xml.IsoformType.Name;
-import edu.scripps.yates.annotations.uniprot.xml.KeywordType;
-import edu.scripps.yates.annotations.uniprot.xml.LocationType;
-import edu.scripps.yates.annotations.uniprot.xml.OrganismNameType;
-import edu.scripps.yates.annotations.uniprot.xml.OrganismType;
-import edu.scripps.yates.annotations.uniprot.xml.PropertyType;
-import edu.scripps.yates.annotations.uniprot.xml.ProteinExistenceType;
-import edu.scripps.yates.annotations.uniprot.xml.ProteinType;
-import edu.scripps.yates.annotations.uniprot.xml.ProteinType.AlternativeName;
-import edu.scripps.yates.annotations.uniprot.xml.ProteinType.RecommendedName;
-import edu.scripps.yates.annotations.uniprot.xml.ProteinType.SubmittedName;
-import edu.scripps.yates.annotations.uniprot.xml.ReferenceType;
-import edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Plasmid;
-import edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Strain;
-import edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Transposon;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.CommentType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.DbReferenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.EvidenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.EvidencedStringType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.FeatureType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneNameType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.IsoformType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.KeywordType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.LocationType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.OrganismNameType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.OrganismType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.PropertyType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinExistenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ReferenceType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.IsoformType.Name;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.AlternativeName;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.RecommendedName;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.SubmittedName;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Plasmid;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Strain;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Transposon;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
@@ -393,8 +393,8 @@ public class ProteinImplFromUniprotEntry implements Protein {
 								final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.transposon,
 										transposon.getValue(), sb.toString());
 								ret.add(annotation);
-							} else if (obj instanceof edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Tissue) {
-								final edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Tissue tissue = (edu.scripps.yates.annotations.uniprot.xml.SourceDataType.Tissue) obj;
+							} else if (obj instanceof edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Tissue) {
+								final edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Tissue tissue = (edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Tissue) obj;
 								final StringBuilder sb = new StringBuilder();
 								getValueFromEvidences(sb, tissue.getEvidence());
 								final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.tissue,

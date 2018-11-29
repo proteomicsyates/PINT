@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.cache.AbstractCache;
 
 public class UniprotEntryCache extends AbstractCache<Entry, String> {

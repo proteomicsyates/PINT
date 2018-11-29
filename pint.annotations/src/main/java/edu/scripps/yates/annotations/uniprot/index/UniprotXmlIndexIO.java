@@ -13,9 +13,9 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.annotations.util.IndexException;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.utilities.index.TextFileIndexIO;
 import edu.scripps.yates.utilities.index.TextFileIndexMultiThreadSafeIO;
 import gnu.trove.set.hash.THashSet;

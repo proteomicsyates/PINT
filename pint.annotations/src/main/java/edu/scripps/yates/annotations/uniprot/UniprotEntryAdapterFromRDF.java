@@ -8,10 +8,10 @@ import java.util.GregorianCalendar;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.uniprot.xml.EvidencedStringType;
-import edu.scripps.yates.annotations.uniprot.xml.ProteinType;
-import edu.scripps.yates.annotations.uniprot.xml.ProteinType.RecommendedName;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.EvidencedStringType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.RecommendedName;
 import edu.scripps.yates.utilities.pattern.Adapter;
 
 public class UniprotEntryAdapterFromRDF implements Adapter<Entry> {
