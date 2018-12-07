@@ -13,10 +13,10 @@ import edu.scripps.yates.utilities.annotations.uniprot.xml.CommentType.Absorptio
 import edu.scripps.yates.utilities.annotations.uniprot.xml.CommentType.Disease;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.CommentType.TemperatureDependence;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.IsoformType.Name;
-import edu.scripps.yates.utilities.model.factories.ProteinAnnotationEx;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ProteinAnnotationEx;
 import gnu.trove.set.hash.THashSet;
 
 public class ProteinAnnotationsFromCommentAdapter implements Adapter<Set<ProteinAnnotation>> {

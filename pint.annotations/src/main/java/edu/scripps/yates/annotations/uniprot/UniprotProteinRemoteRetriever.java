@@ -42,7 +42,7 @@ import edu.scripps.yates.utilities.pi.reductions.Reducible;
 import edu.scripps.yates.utilities.pi.reductions.Reduction;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
-import edu.scripps.yates.utilities.util.Pair;
+import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -458,9 +458,9 @@ public class UniprotProteinRemoteRetriever {
 						return new UniprotEntryAdapterFromFASTA(accession, fastaHeader, sequence.toString()).adapt();
 					}
 					fastaHeader = split[i];
-					final Pair<String, String> accession2 = FastaParser.getACC(fastaHeader);
+					final Accession accession2 = FastaParser.getACC(fastaHeader);
 					sequence = new StringBuilder();
-					if (accession2.getFirstelement().equals(accession)) {
+					if (accession2.getAccession().equals(accession)) {
 						takeSequence = true;
 					}
 				} else {

@@ -22,6 +22,7 @@ import edu.scripps.yates.utilities.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneNameType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.IsoformType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.IsoformType.Name;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.KeywordType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.LocationType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.OrganismNameType;
@@ -29,40 +30,27 @@ import edu.scripps.yates.utilities.annotations.uniprot.xml.OrganismType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.PropertyType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinExistenceType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType;
-import edu.scripps.yates.utilities.annotations.uniprot.xml.ReferenceType;
-import edu.scripps.yates.utilities.annotations.uniprot.xml.IsoformType.Name;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.AlternativeName;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.RecommendedName;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.SubmittedName;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.ReferenceType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Plasmid;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Strain;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Transposon;
 import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.grouping.GroupablePeptide;
-import edu.scripps.yates.utilities.grouping.ProteinEvidence;
-import edu.scripps.yates.utilities.grouping.ProteinGroup;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.model.factories.AccessionEx;
-import edu.scripps.yates.utilities.model.factories.GeneEx;
-import edu.scripps.yates.utilities.model.factories.OrganismEx;
-import edu.scripps.yates.utilities.model.factories.ProteinAnnotationEx;
+import edu.scripps.yates.utilities.proteomicsmodel.AbstractProtein;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
-import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
-import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.Gene;
-import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.Organism;
-import edu.scripps.yates.utilities.proteomicsmodel.PSM;
-import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
-import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
-import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
-import edu.scripps.yates.utilities.proteomicsmodel.Score;
-import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
-import gnu.trove.set.hash.THashSet;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.AccessionEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.GeneEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.OrganismEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ProteinAnnotationEx;
 
-public class ProteinImplFromUniprotEntry implements Protein {
+public class ProteinImplFromUniprotEntry extends AbstractProtein {
 	private static Logger log = Logger.getLogger(ProteinImplFromUniprotEntry.class);
 	public static final String ANNOTATION_SEPARATOR = "###";
 	private final static String GO = "GO";
@@ -75,41 +63,24 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	public static final String ORIGINAL = "original";
 	private final SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 	private final Entry entry;
-	private final List<Accession> secondaryAccessions = new ArrayList<Accession>();
-	private Accession primaryAccession;
-	private ProteinEvidence evidence;
-	private ProteinGroup proteinGroup;
-	private Organism organism;
-	private final Set<Amount> amounts = new THashSet<Amount>();
-	private final Set<Condition> conditions = new THashSet<Condition>();
-	private final Set<Ratio> ratios = new THashSet<Ratio>();
-	private final Set<Score> scores = new THashSet<Score>();
-	private final Set<PSM> psms = new THashSet<PSM>();
 	private boolean organismParsed;
-	private MSRun msRun;
-	private int length = 0;
 	private boolean lengthParsed;
-	private double pi;
-	private double mw;
 	private boolean mwParsed;
-	private final Set<Peptide> peptides = new THashSet<Peptide>();
-	private final Set<Gene> genes = new THashSet<Gene>();
 	private boolean genesParsed;
+	private boolean annotationsParsed;
 
 	public ProteinImplFromUniprotEntry(Entry proteinEntry) {
 		entry = proteinEntry;
-		primaryAccession = getPrimaryAccession();
-
+		parsePrimaryAndSecondaryAccessionsFromEntry(proteinEntry);
 	}
 
-	private boolean isIsoform() {
-		if (primaryAccession.getAccessionType() == AccessionType.UNIPROT) {
-			final String accession = primaryAccession.getAccession();
-			final String version = FastaParser.getIsoformVersion(accession);
-			if (version != null) {
-				return true;
-			}
+	private boolean isIsoform(String accession) {
+
+		final String version = FastaParser.getIsoformVersion(accession);
+		if (version != null) {
+			return true;
 		}
+
 		return false;
 	}
 
@@ -122,13 +93,13 @@ public class ProteinImplFromUniprotEntry implements Protein {
 					for (final GeneNameType geneName : gene.getName()) {
 						final GeneEx geneEx = new GeneEx(geneName.getValue());
 						geneEx.setGeneType(geneName.getType());
-						genes.add(geneEx);
+						addGene(geneEx);
 					}
 				}
 			}
 			genesParsed = true;
 		}
-		return genes;
+		return super.getGenes();
 	}
 
 	private List<String> getDescriptions() {
@@ -200,266 +171,277 @@ public class ProteinImplFromUniprotEntry implements Protein {
 
 	@Override
 	public Set<ProteinAnnotation> getAnnotations() {
-		final Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
-		// comments (CC):
-		final List<CommentType> comments = entry.getComment();
-		if (comments != null) {
-			for (final CommentType comment : comments) {
-				final AnnotationType annotationType = AnnotationType.translateStringToAnnotationType(comment.getType());
-				if (annotationType != null && "tissue specificity".equals(annotationType.getKey())
-						&& comment.getText() != null) {
-					// in this case, the text can contains different phrases,
-					// each of them can start by "isoform 4 is expressed..."
-					// in that case, only include the ones for the appropiate
-					// isoform
-					for (final EvidencedStringType text : comment.getText()) {
-						if (text.getValue() != null) {
-							final List<String> phrases = new ArrayList<String>();
-							if (text.getValue().contains(".")) {
-								final String[] split = text.getValue().split("\\.");
-								final List<String> asList = Arrays.asList(split);
-								phrases.addAll(asList);
-							} else {
-								phrases.add(text.getValue());
-							}
-							final Pattern isoformPattern = Pattern.compile("isoform (\\d+)");
-							final StringBuilder sb = new StringBuilder();
-							for (final String phrase : phrases) {
-								final Matcher matcher = isoformPattern.matcher(phrase.toLowerCase());
-								if (matcher.find()) {
-									// if found, only get if when the isoform
-									// number is correct
-									if (isIsoform()) {
-										if (FastaParser.getIsoformVersion(getAccession()).equals(matcher.group(1))) {
+		if (!annotationsParsed) {
+			// comments (CC):
+			final List<CommentType> comments = entry.getComment();
+			if (comments != null) {
+				for (final CommentType comment : comments) {
+					final AnnotationType annotationType = AnnotationType
+							.translateStringToAnnotationType(comment.getType());
+					if (annotationType != null && "tissue specificity".equals(annotationType.getKey())
+							&& comment.getText() != null) {
+						// in this case, the text can contains different
+						// phrases,
+						// each of them can start by "isoform 4 is expressed..."
+						// in that case, only include the ones for the
+						// appropiate
+						// isoform
+						for (final EvidencedStringType text : comment.getText()) {
+							if (text.getValue() != null) {
+								final List<String> phrases = new ArrayList<String>();
+								if (text.getValue().contains(".")) {
+									final String[] split = text.getValue().split("\\.");
+									final List<String> asList = Arrays.asList(split);
+									phrases.addAll(asList);
+								} else {
+									phrases.add(text.getValue());
+								}
+								final Pattern isoformPattern = Pattern.compile("isoform (\\d+)");
+								final StringBuilder sb = new StringBuilder();
+								for (final String phrase : phrases) {
+									final Matcher matcher = isoformPattern.matcher(phrase.toLowerCase());
+									if (matcher.find()) {
+										// if found, only get if when the
+										// isoform
+										// number is correct
+										if (isIsoform(getAccession())) {
+											if (FastaParser.getIsoformVersion(getAccession())
+													.equals(matcher.group(1))) {
+												if (!"".equals(sb.toString())) {
+													sb.append(" ");
+												}
+												sb.append(phrase.trim()).append(".");
+											}
+										}
+									} else {
+										// not found, only get it if we are in
+										// the canonical entry
+										if (!isIsoform(getAccession())) {
 											if (!"".equals(sb.toString())) {
 												sb.append(" ");
 											}
 											sb.append(phrase.trim()).append(".");
 										}
 									}
-								} else {
-									// not found, only get it if we are in the
-									// canonical entry
-									if (!isIsoform()) {
-										if (!"".equals(sb.toString())) {
-											sb.append(" ");
-										}
-										sb.append(phrase.trim()).append(".");
-									}
 								}
+								final ProteinAnnotationEx proteinAnnotationEx = new ProteinAnnotationEx(annotationType,
+										comment.getType(), sb.toString());
+								addProteinAnnotation(proteinAnnotationEx);
 							}
-							final ProteinAnnotationEx proteinAnnotationEx = new ProteinAnnotationEx(annotationType,
-									comment.getType(), sb.toString());
-							ret.add(proteinAnnotationEx);
 						}
+					} else {
+						final Set<ProteinAnnotation> annotations = new ProteinAnnotationsFromCommentAdapter(comment)
+								.adapt();
+						for (final ProteinAnnotation proteinAnnotation : annotations) {
+							addProteinAnnotation(proteinAnnotation);
+						}
+
 					}
-				} else {
-					final Set<ProteinAnnotation> annotations = new ProteinAnnotationsFromCommentAdapter(comment)
-							.adapt();
-					ret.addAll(annotations);
 				}
 			}
-		}
 
-		// features (FT):
-		final List<FeatureType> features = entry.getFeature();
-		if (features != null) {
-			for (final FeatureType feature : features) {
-				final AnnotationType annotationType = AnnotationType.translateStringToAnnotationType(feature.getType());
-				if (annotationType == null || skipFeature(feature)) {
-					continue;
-				}
-
-				// the the description as the annotation name if available.
-				// Otherwise, take the type
-				String annotName = feature.getDescription();
-				if (annotName == null || "".equals(annotName)) {
-					annotName = feature.getType();
-					if (annotName == null || "".equals(annotName)) {
+			// features (FT):
+			final List<FeatureType> features = entry.getFeature();
+			if (features != null) {
+				for (final FeatureType feature : features) {
+					final AnnotationType annotationType = AnnotationType
+							.translateStringToAnnotationType(feature.getType());
+					if (annotationType == null || skipFeature(feature)) {
 						continue;
 					}
-				}
-				final ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType, annotName,
-						getValueFromFeature(feature));
-				ret.add(annotation);
-			}
-		}
 
-		// keywords (KW)
-		final List<KeywordType> keywords = entry.getKeyword();
-		if (keywords != null) {
-			for (final KeywordType keyword : keywords) {
-				final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.uniprotKeyword,
-						keyword.getValue(), getValueFromKeyword(keyword));
-				ret.add(annotation);
-			}
-		}
-
-		// protein existence (PE)
-		final ProteinExistenceType proteinExistence = entry.getProteinExistence();
-		if (proteinExistence != null) {
-			final AnnotationType annotationType = AnnotationType
-					.translateStringToAnnotationType(proteinExistence.getType());
-			if (annotationType != null) {
-				final ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType,
-						proteinExistence.getType());
-				ret.add(annotation);
-			}
-		}
-
-		// DB reference (DR)
-		final List<DbReferenceType> dbReferences = entry.getDbReference();
-		if (dbReferences != null) {
-			for (final DbReferenceType dbReference : dbReferences) {
-
-				// <dbReference type="GO" id="GO:0000166">
-				// <property type="term" value="F:nucleotide binding"/>
-				// <property type="evidence" value="IEA:InterPro"/>
-				// </dbReference>
-				// <dbReference type="PhosphoSite" id="P16884"/>
-				// <dbReference type="UCSC" id="RGD:3159">
-				// <property type="organism name" value="rat"/>
-				// </dbReference>
-
-				final StringBuilder sb = new StringBuilder();
-				final List<PropertyType> properties = dbReference.getProperty();
-				if (properties != null) {
-					for (final PropertyType property : properties) {
-						appendIfNotEmpty(sb, ANNOTATION_SEPARATOR);
-						sb.append(property.getType() + ":" + property.getValue());
+					// the the description as the annotation name if available.
+					// Otherwise, take the type
+					String annotName = feature.getDescription();
+					if (annotName == null || "".equals(annotName)) {
+						annotName = feature.getType();
+						if (annotName == null || "".equals(annotName)) {
+							continue;
+						}
 					}
+					final ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType, annotName,
+							getValueFromFeature(feature));
+					addProteinAnnotation(annotation);
 				}
-				if (dbReference.getEvidence() != null) {
-					getValueFromEvidences(sb, dbReference.getEvidence());
-				}
-				final AnnotationType annotationType = AnnotationType
-						.translateStringToAnnotationType(dbReference.getType());
-				if (annotationType != null) {
-					final ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType, dbReference.getId(),
-							sb.toString());
-					ret.add(annotation);
-				}
-
 			}
-		}
 
-		// Tissue (RC)
-		// <reference key="5">
-		// <citation type="submission" date="2007-07" db="UniProtKB">
-		// <authorList>
-		// <person name="Lubec G."/>
-		// <person name="Pradeep J.J.P."/>
-		// <person name="Afjehi-Sadat L."/>
-		// <person name="Kang S.U."/>
-		// </authorList>
-		// </citation>
-		// <scope>
-		// PROTEIN SEQUENCE OF 39-52; 165-178; 229-256; 272-290; 349-368;
-		// 389-399 AND 401-424
-		// </scope>
-		// <scope>IDENTIFICATION BY MASS SPECTROMETRY</scope>
-		// <source>
-		// <strain>Sprague-Dawley</strain>
-		// <tissue>Brain</tissue>
-		// <tissue>Spinal cord</tissue>
-		// </source>
-		// </reference>
-		final List<ReferenceType> references = entry.getReference();
-		if (references != null) {
-			for (final ReferenceType reference : references) {
-				if (reference.getSource() != null) {
-					final List<Object> strainOrPlasmidOrTransposon = reference.getSource()
-							.getStrainOrPlasmidOrTransposon();
-					if (strainOrPlasmidOrTransposon != null) {
-						for (final Object obj : strainOrPlasmidOrTransposon) {
-							if (obj instanceof Strain) {
-								final Strain strain = (Strain) obj;
-								final StringBuilder sb = new StringBuilder();
-								getValueFromEvidences(sb, strain.getEvidence());
-								final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.strain,
-										strain.getValue(), sb.toString());
-								ret.add(annotation);
-							} else if (obj instanceof Plasmid) {
-								final Plasmid plasmid = (Plasmid) obj;
-								final StringBuilder sb = new StringBuilder();
-								getValueFromEvidences(sb, plasmid.getEvidence());
-								final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.plasmid,
-										plasmid.getValue(), sb.toString());
-								ret.add(annotation);
-							} else if (obj instanceof Transposon) {
-								final Transposon transposon = (Transposon) obj;
-								final StringBuilder sb = new StringBuilder();
-								getValueFromEvidences(sb, transposon.getEvidence());
-								final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.transposon,
-										transposon.getValue(), sb.toString());
-								ret.add(annotation);
-							} else if (obj instanceof edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Tissue) {
-								final edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Tissue tissue = (edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Tissue) obj;
-								final StringBuilder sb = new StringBuilder();
-								getValueFromEvidences(sb, tissue.getEvidence());
-								final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.tissue,
-										tissue.getValue(), sb.toString());
-								ret.add(annotation);
+			// keywords (KW)
+			final List<KeywordType> keywords = entry.getKeyword();
+			if (keywords != null) {
+				for (final KeywordType keyword : keywords) {
+					final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.uniprotKeyword,
+							keyword.getValue(), getValueFromKeyword(keyword));
+					addProteinAnnotation(annotation);
+				}
+			}
+
+			// protein existence (PE)
+			final ProteinExistenceType proteinExistence = entry.getProteinExistence();
+			if (proteinExistence != null) {
+				final AnnotationType annotationType = AnnotationType
+						.translateStringToAnnotationType(proteinExistence.getType());
+				if (annotationType != null) {
+					final ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType,
+							proteinExistence.getType());
+					addProteinAnnotation(annotation);
+				}
+			}
+
+			// DB reference (DR)
+			final List<DbReferenceType> dbReferences = entry.getDbReference();
+			if (dbReferences != null) {
+				for (final DbReferenceType dbReference : dbReferences) {
+
+					// <dbReference type="GO" id="GO:0000166">
+					// <property type="term" value="F:nucleotide binding"/>
+					// <property type="evidence" value="IEA:InterPro"/>
+					// </dbReference>
+					// <dbReference type="PhosphoSite" id="P16884"/>
+					// <dbReference type="UCSC" id="RGD:3159">
+					// <property type="organism name" value="rat"/>
+					// </dbReference>
+
+					final StringBuilder sb = new StringBuilder();
+					final List<PropertyType> properties = dbReference.getProperty();
+					if (properties != null) {
+						for (final PropertyType property : properties) {
+							appendIfNotEmpty(sb, ANNOTATION_SEPARATOR);
+							sb.append(property.getType() + ":" + property.getValue());
+						}
+					}
+					if (dbReference.getEvidence() != null) {
+						getValueFromEvidences(sb, dbReference.getEvidence());
+					}
+					final AnnotationType annotationType = AnnotationType
+							.translateStringToAnnotationType(dbReference.getType());
+					if (annotationType != null) {
+						final ProteinAnnotation annotation = new ProteinAnnotationEx(annotationType,
+								dbReference.getId(), sb.toString());
+						addProteinAnnotation(annotation);
+					}
+
+				}
+			}
+
+			// Tissue (RC)
+			// <reference key="5">
+			// <citation type="submission" date="2007-07" db="UniProtKB">
+			// <authorList>
+			// <person name="Lubec G."/>
+			// <person name="Pradeep J.J.P."/>
+			// <person name="Afjehi-Sadat L."/>
+			// <person name="Kang S.U."/>
+			// </authorList>
+			// </citation>
+			// <scope>
+			// PROTEIN SEQUENCE OF 39-52; 165-178; 229-256; 272-290; 349-368;
+			// 389-399 AND 401-424
+			// </scope>
+			// <scope>IDENTIFICATION BY MASS SPECTROMETRY</scope>
+			// <source>
+			// <strain>Sprague-Dawley</strain>
+			// <tissue>Brain</tissue>
+			// <tissue>Spinal cord</tissue>
+			// </source>
+			// </reference>
+			final List<ReferenceType> references = entry.getReference();
+			if (references != null) {
+				for (final ReferenceType reference : references) {
+					if (reference.getSource() != null) {
+						final List<Object> strainOrPlasmidOrTransposon = reference.getSource()
+								.getStrainOrPlasmidOrTransposon();
+						if (strainOrPlasmidOrTransposon != null) {
+							for (final Object obj : strainOrPlasmidOrTransposon) {
+								if (obj instanceof Strain) {
+									final Strain strain = (Strain) obj;
+									final StringBuilder sb = new StringBuilder();
+									getValueFromEvidences(sb, strain.getEvidence());
+									final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.strain,
+											strain.getValue(), sb.toString());
+									addProteinAnnotation(annotation);
+								} else if (obj instanceof Plasmid) {
+									final Plasmid plasmid = (Plasmid) obj;
+									final StringBuilder sb = new StringBuilder();
+									getValueFromEvidences(sb, plasmid.getEvidence());
+									final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.plasmid,
+											plasmid.getValue(), sb.toString());
+									addProteinAnnotation(annotation);
+								} else if (obj instanceof Transposon) {
+									final Transposon transposon = (Transposon) obj;
+									final StringBuilder sb = new StringBuilder();
+									getValueFromEvidences(sb, transposon.getEvidence());
+									final ProteinAnnotation annotation = new ProteinAnnotationEx(
+											AnnotationType.transposon, transposon.getValue(), sb.toString());
+									addProteinAnnotation(annotation);
+								} else if (obj instanceof edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Tissue) {
+									final edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Tissue tissue = (edu.scripps.yates.utilities.annotations.uniprot.xml.SourceDataType.Tissue) obj;
+									final StringBuilder sb = new StringBuilder();
+									getValueFromEvidences(sb, tissue.getEvidence());
+									final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.tissue,
+											tissue.getValue(), sb.toString());
+									addProteinAnnotation(annotation);
+								}
 							}
 						}
 					}
 				}
 			}
-		}
 
-		// reviewed or unreviewed
-		final String dataset = entry.getDataset();
-		if ("Swiss-Prot".equalsIgnoreCase(dataset)) {
-			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.status, "reviewed");
-			ret.add(annotation);
-		} else if ("TrEMBL".equalsIgnoreCase(dataset)) {
-			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.status, "unreviewed");
-			ret.add(annotation);
-		}
+			// reviewed or unreviewed
+			final String dataset = entry.getDataset();
+			if ("Swiss-Prot".equalsIgnoreCase(dataset)) {
+				final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.status, "reviewed");
+				addProteinAnnotation(annotation);
+			} else if ("TrEMBL".equalsIgnoreCase(dataset)) {
+				final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.status, "unreviewed");
+				addProteinAnnotation(annotation);
+			}
 
-		// entry creation date
-		if (entry.getCreated() != null) {
-			final Calendar calendar = entry.getCreated().toGregorianCalendar();
-			formatter.setTimeZone(calendar.getTimeZone());
-			final String dateString = formatter.format(calendar.getTime());
-			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_creation_date,
-					dateString);
-			ret.add(annotation);
-		}
+			// entry creation date
+			if (entry.getCreated() != null) {
+				final Calendar calendar = entry.getCreated().toGregorianCalendar();
+				formatter.setTimeZone(calendar.getTimeZone());
+				final String dateString = formatter.format(calendar.getTime());
+				final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_creation_date,
+						dateString);
+				addProteinAnnotation(annotation);
+			}
 
-		// entry modified
-		if (entry.getModified() != null) {
-			final Calendar calendar = entry.getModified().toGregorianCalendar();
-			formatter.setTimeZone(calendar.getTimeZone());
-			final String dateString = formatter.format(calendar.getTime());
-			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_modified, dateString);
-			ret.add(annotation);
-		}
+			// entry modified
+			if (entry.getModified() != null) {
+				final Calendar calendar = entry.getModified().toGregorianCalendar();
+				formatter.setTimeZone(calendar.getTimeZone());
+				final String dateString = formatter.format(calendar.getTime());
+				final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_modified, dateString);
+				addProteinAnnotation(annotation);
+			}
 
-		// entry version
-		if (entry.getVersion() > 0) {
-			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_version,
-					String.valueOf(entry.getVersion()));
-			ret.add(annotation);
-		}
+			// entry version
+			if (entry.getVersion() > 0) {
+				final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.entry_version,
+						String.valueOf(entry.getVersion()));
+				addProteinAnnotation(annotation);
+			}
 
-		// sequence modified
-		if (entry.getSequence() != null && entry.getSequence().getModified() != null) {
-			final Calendar calendar = entry.getSequence().getModified().toGregorianCalendar();
-			formatter.setTimeZone(calendar.getTimeZone());
-			final String dateString = formatter.format(calendar.getTime());
-			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.sequence_modified, dateString);
-			ret.add(annotation);
-		}
+			// sequence modified
+			if (entry.getSequence() != null && entry.getSequence().getModified() != null) {
+				final Calendar calendar = entry.getSequence().getModified().toGregorianCalendar();
+				formatter.setTimeZone(calendar.getTimeZone());
+				final String dateString = formatter.format(calendar.getTime());
+				final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.sequence_modified,
+						dateString);
+				addProteinAnnotation(annotation);
+			}
 
-		// sequence version
-		if (entry.getSequence() != null && entry.getSequence().getVersion() > -1) {
-			final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.sequence_modified,
-					String.valueOf(entry.getSequence().getVersion()));
-			ret.add(annotation);
+			// sequence version
+			if (entry.getSequence() != null && entry.getSequence().getVersion() > -1) {
+				final ProteinAnnotation annotation = new ProteinAnnotationEx(AnnotationType.sequence_modified,
+						String.valueOf(entry.getSequence().getVersion()));
+				addProteinAnnotation(annotation);
+			}
+			annotationsParsed = true;
 		}
-
-		return ret;
+		return super.getAnnotations();
 	}
 
 	/**
@@ -616,103 +598,65 @@ public class ProteinImplFromUniprotEntry implements Protein {
 			sb.append(string);
 	}
 
-	@Override
-	public Set<Amount> getAmounts() {
-		return amounts;
-	}
-
-	@Override
-	public Set<Condition> getConditions() {
-		return conditions;
-	}
-
-	@Override
-	public Set<Ratio> getRatios() {
-		return ratios;
-	}
-
-	@Override
-	public Set<Threshold> getThresholds() {
-		return null;
-	}
-
-	@Override
-	public Boolean passThreshold(String thresholdName) {
-		return null;
-	}
-
-	@Override
-	public Set<PSM> getPSMs() {
-		return psms;
-	}
-
-	@Override
-	public int getDBId() {
-		return -1;
-	}
-
-	@Override
-	public Accession getPrimaryAccession() {
-		if (primaryAccession == null) {
-			final List<String> entryAccessions = entry.getAccession();
-			if (!entryAccessions.isEmpty()) {
-				int numAcc = 0;
-				for (final String accession : entryAccessions) {
-					if (numAcc == 0) {
-						primaryAccession = new AccessionEx(accession, AccessionType.UNIPROT);
-						final List<String> descriptions = getDescriptions();
-						if (!descriptions.isEmpty())
-							((AccessionEx) primaryAccession).setDescription(descriptions.get(0));
-						if (descriptions.size() > 1) {
-							for (int j = 1; j < descriptions.size(); j++) {
-								((AccessionEx) primaryAccession).addAlternativeName(descriptions.get(j));
-							}
+	private void parsePrimaryAndSecondaryAccessionsFromEntry(Entry entry) {
+		Accession primaryAccession = null;
+		final List<String> entryAccessions = entry.getAccession();
+		if (!entryAccessions.isEmpty()) {
+			int numAcc = 0;
+			for (final String accession : entryAccessions) {
+				if (numAcc == 0) {
+					primaryAccession = new AccessionEx(accession, AccessionType.UNIPROT);
+					final List<String> descriptions = getDescriptions();
+					if (!descriptions.isEmpty())
+						((AccessionEx) primaryAccession).setDescription(descriptions.get(0));
+					if (descriptions.size() > 1) {
+						for (int j = 1; j < descriptions.size(); j++) {
+							((AccessionEx) primaryAccession).addAlternativeName(descriptions.get(j));
 						}
-						// if it is an isoform, go to <isoform> in the Entry and
-						// look for alternative names
-						if (isIsoform()) {
-							final String isoformVersion = FastaParser.getIsoformVersion(accession);
-							final IsoformType isoformType = getIsoformType(primaryAccession.getAccession());
-							if (isoformType != null && isoformType.getName() != null) {
-								for (final Name name : isoformType.getName()) {
-									// skip when:
-									// <id>P04637-8</id>
-									// <name>8</name>
-									if (!name.getValue().equals(isoformVersion)) {
-										((AccessionEx) primaryAccession).addAlternativeName(name.getValue());
-									}
-								}
-								// add the <text> as an alternativeName:
-								// <text>Produced by alternative promoter usage
-								// and alternative splicing.</text>
-								if (isoformType.getText() != null) {
-									for (final EvidencedStringType evidencedString : isoformType.getText()) {
-										if (evidencedString.getValue() != null) {
-											((AccessionEx) primaryAccession)
-													.addAlternativeName(evidencedString.getValue());
-										}
-									}
-								}
-							}
-						}
-					} else {
-						final AccessionEx secondaryAccession = new AccessionEx(accession, AccessionType.UNIPROT);
-						final List<String> descriptions = getDescriptions();
-						if (!descriptions.isEmpty())
-							secondaryAccession.setDescription(descriptions.get(0));
-						if (descriptions.size() > 1) {
-							for (int j = 1; j < descriptions.size(); j++) {
-								secondaryAccession.addAlternativeName(descriptions.get(j));
-							}
-						}
-						secondaryAccessions.add(secondaryAccession);
 					}
-					numAcc++;
+					// if it is an isoform, go to <isoform> in the Entry and
+					// look for alternative names
+					if (isIsoform(accession)) {
+						final String isoformVersion = FastaParser.getIsoformVersion(accession);
+						final IsoformType isoformType = getIsoformType(primaryAccession.getAccession());
+						if (isoformType != null && isoformType.getName() != null) {
+							for (final Name name : isoformType.getName()) {
+								// skip when:
+								// <id>P04637-8</id>
+								// <name>8</name>
+								if (!name.getValue().equals(isoformVersion)) {
+									((AccessionEx) primaryAccession).addAlternativeName(name.getValue());
+								}
+							}
+							// add the <text> as an alternativeName:
+							// <text>Produced by alternative promoter usage
+							// and alternative splicing.</text>
+							if (isoformType.getText() != null) {
+								for (final EvidencedStringType evidencedString : isoformType.getText()) {
+									if (evidencedString.getValue() != null) {
+										((AccessionEx) primaryAccession).addAlternativeName(evidencedString.getValue());
+									}
+								}
+							}
+						}
+					}
+				} else {
+					final AccessionEx secondaryAccession = new AccessionEx(accession, AccessionType.UNIPROT);
+					final List<String> descriptions = getDescriptions();
+					if (!descriptions.isEmpty())
+						secondaryAccession.setDescription(descriptions.get(0));
+					if (descriptions.size() > 1) {
+						for (int j = 1; j < descriptions.size(); j++) {
+							secondaryAccession.addAlternativeName(descriptions.get(j));
+						}
+					}
+					addSecondaryAccession(secondaryAccession);
 				}
-
+				numAcc++;
 			}
+
 		}
-		return primaryAccession;
+		setPrimaryAccession(primaryAccession);
 	}
 
 	/**
@@ -742,12 +686,7 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	}
 
 	@Override
-	public String getAccession() {
-		return getPrimaryAccession().getAccession();
-	}
-
-	@Override
-	public int getLength() {
+	public Integer getLength() {
 		if (getSequence() != null && !"".equals(getSequence())) {
 			return getSequence().length();
 		}
@@ -762,18 +701,14 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	}
 
 	@Override
-	public double getPi() {
-		return pi;
-	}
-
-	@Override
-	public double getMW() {
+	public Double getMw() {
 		if (!mwParsed) {
 			final String sequence = getSequence();
 			if (sequence != null && !"".equals(sequence)) {
 				try {
 					final double mass = new AASequenceImpl(sequence).getMass();
 					if (mass > 0.0) {
+						setMw(mass);
 						return mass;
 					}
 				} catch (final Exception e) {
@@ -782,11 +717,11 @@ public class ProteinImplFromUniprotEntry implements Protein {
 			}
 
 			if (entry.getSequence() != null) {
-				mw = entry.getSequence().getMass();
+				setMw(Integer.valueOf(entry.getSequence().getMass()).doubleValue());
 			}
 			mwParsed = true;
 		}
-		return mw;
+		return super.getMw();
 	}
 
 	@Override
@@ -797,44 +732,9 @@ public class ProteinImplFromUniprotEntry implements Protein {
 	}
 
 	@Override
-	public void setEvidence(ProteinEvidence evidence) {
-		this.evidence = evidence;
-	}
-
-	@Override
-	public void setProteinGroup(ProteinGroup proteinGroup) {
-		this.proteinGroup = proteinGroup;
-
-	}
-
-	@Override
-	public Set<Score> getScores() {
-		return scores;
-	}
-
-	@Override
-	public List<Accession> getSecondaryAccessions() {
-		return secondaryAccessions;
-	}
-
-	@Override
-	public Set<Peptide> getPeptides() {
-		return peptides;
-	}
-
-	@Override
-	public ProteinEvidence getEvidence() {
-		return evidence;
-	}
-
-	@Override
-	public ProteinGroup getProteinGroup() {
-		return proteinGroup;
-	}
-
-	@Override
 	public Organism getOrganism() {
 		if (!organismParsed) {
+			Organism organism = null;
 			final OrganismType uniprotOrganism = entry.getOrganism();
 			if (uniprotOrganism != null) {
 				String organismName = null;
@@ -852,107 +752,17 @@ public class ProteinImplFromUniprotEntry implements Protein {
 				}
 				if (ncbiTaxID != null) {
 					organism = new OrganismEx(ncbiTaxID);
-					if (organismName != null)
-						((OrganismEx) organism).setName(organismName);
+					if (organismName != null) {
+						organism.setName(organismName);
+					}
 				} else {
 					organism = new OrganismEx(organismName);
 				}
 			}
+			setOrganism(organism);
 			organismParsed = true;
 		}
-		return organism;
-	}
-
-	@Override
-	public MSRun getMSRun() {
-		return msRun;
-	}
-
-	@Override
-	public List<GroupablePeptide> getGroupablePeptides() {
-		final List<GroupablePeptide> list = new ArrayList<GroupablePeptide>();
-		list.addAll(getPSMs());
-		return list;
-	}
-
-	@Override
-	public void addScore(Score score) {
-		if (!scores.contains(score))
-			scores.add(score);
-
-	}
-
-	@Override
-	public void addRatio(Ratio ratio) {
-		if (!ratios.contains(ratio))
-			ratios.add(ratio);
-
-	}
-
-	@Override
-	public void addAmount(Amount amount) {
-		if (!amounts.contains(amount))
-			amounts.add(amount);
-
-	}
-
-	@Override
-	public void addCondition(Condition condition) {
-		if (!conditions.contains(condition))
-			conditions.add(condition);
-
-	}
-
-	@Override
-	public void addPSM(PSM psm) {
-		if (!psms.contains(psm))
-			psms.add(psm);
-
-	}
-
-	@Override
-	public void setOrganism(Organism organism) {
-		this.organism = organism;
-
-	}
-
-	@Override
-	public void setMSRun(MSRun msRun) {
-		this.msRun = msRun;
-
-	}
-
-	@Override
-	public void setMw(double mw) {
-		this.mw = mw;
-
-	}
-
-	@Override
-	public void setPi(double pi) {
-		this.pi = pi;
-
-	}
-
-	@Override
-	public void setLength(int length) {
-		this.length = length;
-
-	}
-
-	@Override
-	public void addPeptide(Peptide peptide) {
-		if (!peptides.contains(peptide)) {
-			peptides.add(peptide);
-		}
-
-	}
-
-	@Override
-	public void addGene(Gene gene) {
-		if (!genes.contains(gene))
-			genes.add(gene);
-
+		return super.getOrganism();
 	}
 
 }

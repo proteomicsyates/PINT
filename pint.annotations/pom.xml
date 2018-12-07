@@ -44,7 +44,7 @@
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>utilities</artifactId>
-    	<version>1.5-SNAPSHOT</version>
+    	<version>1.6-SNAPSHOT</version>
     	<exclusions>
             <exclusion>
                <groupId>batik</groupId>
@@ -148,7 +148,7 @@
   <organization>
   	<name>TSRI</name>
   </organization>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <parent>
   	<groupId>edu.scripps.yates</groupId>
   	<artifactId>pint.parent</artifactId>
