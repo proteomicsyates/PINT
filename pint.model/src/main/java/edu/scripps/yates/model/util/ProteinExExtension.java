@@ -8,13 +8,13 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.ipi.UniprotEntry;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.model.factories.AccessionEx;
-import edu.scripps.yates.utilities.model.factories.GeneEx;
-import edu.scripps.yates.utilities.model.factories.OrganismEx;
-import edu.scripps.yates.utilities.model.factories.ProteinEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Organism;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.AccessionEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.GeneEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.OrganismEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ProteinEx;
 import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
 import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
 

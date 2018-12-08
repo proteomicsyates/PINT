@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.dtaselectparser.util.DTASelectPSM;
@@ -16,15 +17,7 @@ import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.model.enums.AmountType;
-import edu.scripps.yates.utilities.model.factories.AccessionEx;
-import edu.scripps.yates.utilities.model.factories.AmountEx;
-import edu.scripps.yates.utilities.model.factories.GeneEx;
-import edu.scripps.yates.utilities.model.factories.MSRunEx;
-import edu.scripps.yates.utilities.model.factories.OrganismEx;
-import edu.scripps.yates.utilities.model.factories.PeptideEx;
-import edu.scripps.yates.utilities.model.factories.ProteinAnnotationEx;
+import edu.scripps.yates.utilities.parsers.idparser.IdentificationsParser;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
@@ -39,6 +32,15 @@ import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.AccessionEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.AmountEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.GeneEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.MSRunEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.OrganismEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.PeptideEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ProteinAnnotationEx;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
@@ -123,52 +125,53 @@ public class ProteinImplFromDTASelect implements Protein {
 	}
 
 	private void createAmounts() {
-		Set<Condition> conditions = new THashSet<Condition>();
+		final Set<Condition> conditions = new THashSet<Condition>();
 		conditions.addAll(getConditions());
 		if (conditions.isEmpty()) {
 			// I just need one element, I dont care if it is null
 			conditions.add(null);
 		}
-		for (Condition condition : conditions) {
-			if (this.getNSAF() != null) {
-				Amount amount = new AmountEx(getNSAF(), AmountType.NSAF, condition);
-				this.amounts.add(amount);
+		for (final Condition condition : conditions) {
+			if (getNSAF() != null) {
+				final Amount amount = new AmountEx(getNSAF(), AmountType.NSAF, condition);
+				amounts.add(amount);
 			}
-			if (this.getNSAFNorm() >= 0) {
-				Amount amount = new AmountEx(getNSAFNorm(), AmountType.NSAF_NORM, condition);
-				this.amounts.add(amount);
+			if (getNSAFNorm() >= 0) {
+				final Amount amount = new AmountEx(getNSAFNorm(), AmountType.NSAF_NORM, condition);
+				amounts.add(amount);
 			}
-			if (this.getEMPai() != null) {
-				Amount amount = new AmountEx(getEMPai(), AmountType.EMPAI, condition);
-				this.amounts.add(amount);
+			if (getEMPai() != null) {
+				final Amount amount = new AmountEx(getEMPai(), AmountType.EMPAI, condition);
+				amounts.add(amount);
 			}
-			if (this.getEMPaiCov() >= 0) {
-				Amount amount = new AmountEx(getEMPaiCov(), AmountType.EMPAI_COV, condition);
-				this.amounts.add(amount);
+			if (getEMPaiCov() >= 0) {
+				final Amount amount = new AmountEx(getEMPaiCov(), AmountType.EMPAI_COV, condition);
+				amounts.add(amount);
 			}
 		}
 	}
 
 	@Override
-	public int getDBId() {
-		return hashCode();
+	public int getUniqueID() {
+		return HashCodeBuilder.reflectionHashCode(this, false);
 	}
 
 	@Override
 	public Accession getPrimaryAccession() {
 
 		if (primaryAccession == null) {
-			primaryAccession = getPrimaryAccessionFromDTASelectProtein(dtaSelectProtein, secondaryAccessions);
+			primaryAccession = getPrimaryAccessionFromDTASelectProtein(dtaSelectProtein, null);
 		}
 		return primaryAccession;
 	}
 
 	public static Accession getPrimaryAccessionFromDTASelectProtein(DTASelectProtein protein,
 			Collection<Accession> secondaryAccessions) {
-		Accession primaryAccession = ProteinDTASelectParser.getProteinAccessionFromDTASelectProtein(protein);
+		Accession primaryAccession = IdentificationsParser.getProteinAccessionFromProtein(protein.getAccession(),
+				protein.getDescription());
 		final Pair<String, String> acc = FastaParser.getACC(primaryAccession.getAccession());
 		if (acc.getSecondElement().equals("IPI")) {
-			Pair<Accession, Set<Accession>> pair = IPI2UniprotACCMap.getInstance()
+			final Pair<Accession, Set<Accession>> pair = IPI2UniprotACCMap.getInstance()
 					.getPrimaryAndSecondaryAccessionsFromIPI(primaryAccession);
 			if (pair.getFirstelement() != null) {
 				primaryAccession = pair.getFirstelement();
@@ -177,10 +180,10 @@ public class ProteinImplFromDTASelect implements Protein {
 				secondaryAccessions.addAll(pair.getSecondElement());
 			}
 		} else if (acc.getSecondElement().equals("UNIPROT")) {
-			List<String> ipis = IPI2UniprotACCMap.getInstance().map2IPI(acc.getFirstelement());
+			final List<String> ipis = IPI2UniprotACCMap.getInstance().map2IPI(acc.getFirstelement());
 
 			if (secondaryAccessions != null && ipis != null) {
-				for (String ipi : ipis) {
+				for (final String ipi : ipis) {
 					secondaryAccessions.add(new AccessionEx(ipi, AccessionType.IPI));
 				}
 
@@ -197,6 +200,9 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public List<Accession> getSecondaryAccessions() {
+		if (secondaryAccessions == null || secondaryAccessions.isEmpty()) {
+			getPrimaryAccessionFromDTASelectProtein(dtaSelectProtein, secondaryAccessions);
+		}
 		return secondaryAccessions;
 	}
 
@@ -215,7 +221,7 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public Set<ProteinAnnotation> getAnnotations() {
-		Set<ProteinAnnotation> set = new THashSet<ProteinAnnotation>();
+		final Set<ProteinAnnotation> set = new THashSet<ProteinAnnotation>();
 
 		final String proteinExistence = FastaParser
 				.getProteinExistenceFromFastaHeader(dtaSelectProtein.getDescription());
@@ -255,17 +261,17 @@ public class ProteinImplFromDTASelect implements Protein {
 	}
 
 	@Override
-	public Set<PSM> getPSMs() {
+	public List<PSM> getPSMs() {
 		if (!psmsParsed) {
-			final List<DTASelectPSM> dtaSelectPSMs = dtaSelectProtein.getPSMs();
-			for (DTASelectPSM dtaSelectPSM : dtaSelectPSMs) {
+			final List<PSM> dtaSelectPSMs = dtaSelectProtein.getPSMs();
+			for (final PSM dtaSelectPSM : dtaSelectPSMs) {
 				if (forceAllPSMsToBeFromThisMSRun) {
-					dtaSelectPSM.setMsRunId(getMSRun().getRunId());
+					dtaSelectPSM.setMSRun(getMSRun());
 				}
 				// only assign the ones from the same msRun, that is, raw
 				// fileName otherwise, we are going to assign psms to a protein
 				// belonging to another MSRun
-				if (dtaSelectPSM.getMsRunId().equals(msrun.getRunId())) {
+				if (dtaSelectPSM.getMSRun().getRunId().equals(msrun.getRunId())) {
 					PSM psm = null;
 					// if
 					// (PSMImplFromDTASelect.psmMap.containsKey(dtaSelectPSM)) {
@@ -275,7 +281,7 @@ public class ProteinImplFromDTASelect implements Protein {
 						psm.addProtein(this);
 						psms.add(psm);
 					} else {
-						psm = new PSMImplFromDTASelect(dtaSelectPSM, msrun);
+						psm = new PSMImplFromDTASelect((DTASelectPSM) dtaSelectPSM, msrun);
 						StaticProteomicsModelStorage.addPSM(psm, msrun, null);
 						psms.add(psm);
 						psm.addProtein(this);
@@ -290,27 +296,10 @@ public class ProteinImplFromDTASelect implements Protein {
 						peptide = new PeptideEx(sequence, msrun);
 						StaticProteomicsModelStorage.addPeptide(peptide, msrun, null);
 					}
-					// Map<String, Peptide> peptideMap = null;
-					// if
-					// (PSMImplFromDTASelect.peptideMapByMSRun.containsKey(msrun.getRunId()))
-					// {
-					// peptideMap =
-					// PSMImplFromDTASelect.peptideMapByMSRun.get(msrun.getRunId());
-					// } else {
-					// peptideMap = new THashMap<String, Peptide>();
-					// PSMImplFromDTASelect.peptideMapByMSRun.put(msrun.getRunId(),
-					// peptideMap);
-					// }
-					// if (peptideMap.containsKey(sequence)) {
-					// peptide = peptideMap.get(sequence);
-					// } else {
-					// peptide = new PeptideEx(sequence, msrun);
-					// peptideMap.put(sequence, peptide);
-					// }
 
 					peptide.addPSM(psm);
 					psm.setPeptide(peptide);
-					for (Protein protein : psm.getProteins()) {
+					for (final Protein protein : psm.getProteins()) {
 						protein.addPeptide(peptide);
 						peptide.addProtein(protein);
 					}
@@ -326,7 +315,7 @@ public class ProteinImplFromDTASelect implements Protein {
 	public Set<Peptide> getPeptides() {
 		if (!peptidesParsed) {
 
-			for (PSM psm : getPSMs()) {
+			for (final PSM psm : getPSMs()) {
 				final String sequence = psm.getSequence();
 				Peptide peptide = null;
 				if (StaticProteomicsModelStorage.containsPeptide(msrun, null, sequence)) {
@@ -410,9 +399,9 @@ public class ProteinImplFromDTASelect implements Protein {
 		if (!conditionsParsed) {
 
 			final Set<PSM> psMs2 = getPSMs();
-			for (PSM psm : psMs2) {
+			for (final PSM psm : psMs2) {
 				final Set<Condition> conditions2 = psm.getConditions();
-				for (Condition condition : conditions2) {
+				for (final Condition condition : conditions2) {
 					if (!conditions.contains(condition))
 						conditions.add(condition);
 				}
@@ -427,7 +416,7 @@ public class ProteinImplFromDTASelect implements Protein {
 		if (condition != null && !conditions.contains(condition)) {
 			conditions.add(condition);
 			// set condition to amounts
-			for (Amount amount : getAmounts()) {
+			for (final Amount amount : getAmounts()) {
 				if (amount.getCondition() == null && amount instanceof AmountEx) {
 					((AmountEx) amount).setCondition(condition);
 				}
@@ -450,7 +439,7 @@ public class ProteinImplFromDTASelect implements Protein {
 
 	@Override
 	public List<GroupablePeptide> getGroupablePeptides() {
-		List<GroupablePeptide> ret = new ArrayList<GroupablePeptide>();
+		final List<GroupablePeptide> ret = new ArrayList<GroupablePeptide>();
 		ret.addAll(getPSMs());
 		return ret;
 	}
@@ -482,7 +471,7 @@ public class ProteinImplFromDTASelect implements Protein {
 
 			//
 			psm.addProtein(this);
-			Peptide peptide = psm.getPeptide();
+			final Peptide peptide = psm.getPeptide();
 			if (peptide != null) {
 				addPeptide(peptide);
 				peptide.addProtein(this);
@@ -524,8 +513,8 @@ public class ProteinImplFromDTASelect implements Protein {
 		if (peptide != null && !peptides.contains(peptide)) {
 			peptides.add(peptide);
 			peptide.addProtein(this);
-			Set<PSM> psMs2 = peptide.getPSMs();
-			for (PSM psm : psMs2) {
+			final Set<PSM> psMs2 = peptide.getPSMs();
+			for (final PSM psm : psMs2) {
 				addPSM(psm);
 				psm.addProtein(this);
 			}
@@ -539,6 +528,7 @@ public class ProteinImplFromDTASelect implements Protein {
 			genes.add(gene);
 	}
 
+	@Override
 	public double getCoverage() {
 		return dtaSelectProtein.getCoverage();
 	}

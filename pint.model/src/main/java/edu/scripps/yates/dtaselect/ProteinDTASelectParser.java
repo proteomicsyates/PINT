@@ -18,17 +18,12 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.dtaselectparser.DTASelectCommandLineParameters;
 import edu.scripps.yates.dtaselectparser.DTASelectParser;
-import edu.scripps.yates.dtaselectparser.util.DTASelectPSM;
 import edu.scripps.yates.dtaselectparser.util.DTASelectProtein;
-import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.model.factories.AccessionEx;
-import edu.scripps.yates.utilities.proteomicsmodel.Accession;
+import edu.scripps.yates.utilities.parsers.idparser.IdentifiedPSMInterface;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
-import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -73,19 +68,19 @@ public class ProteinDTASelectParser {
 	public Map<String, Set<Protein>> getProteins() {
 		if (proteins == null) {
 			proteins = new THashMap<String, Set<Protein>>();
-			Collection<DTASelectProtein> dtaSelectProteins;
+			Collection<Protein> dtaSelectProteins;
 			try {
-				dtaSelectProteins = parser.getDTASelectProteins().values();
-				for (DTASelectProtein dtaSelectProtein : dtaSelectProteins) {
-					final List<DTASelectPSM> psMs2 = dtaSelectProtein.getPSMs();
+				dtaSelectProteins = parser.getProteins();
+				for (final DTASelectProtein dtaSelectProtein : dtaSelectProteins) {
+					final List<IdentifiedPSMInterface> psMs2 = dtaSelectProtein.getPSMs();
 					// take the MSRuns from psms
-					Set<String> msRunIDs = new THashSet<String>();
+					final Set<String> msRunIDs = new THashSet<String>();
 
-					for (DTASelectPSM dtaPSM : psMs2) {
+					for (final IdentifiedPSMInterface dtaPSM : psMs2) {
 						msRunIDs.add(dtaPSM.getRawFileName());
 					}
 
-					for (String msRunID : msRunIDs) {
+					for (final String msRunID : msRunIDs) {
 						Protein protein = new ProteinImplFromDTASelect(dtaSelectProtein, msRunID, false);
 
 						if (StaticProteomicsModelStorage.containsProtein(msRunID, null, protein.getAccession())) {
@@ -96,7 +91,7 @@ public class ProteinDTASelectParser {
 						}
 
 						if (!proteins.containsKey(protein.getAccession())) {
-							Set<Protein> set = new THashSet<Protein>();
+							final Set<Protein> set = new THashSet<Protein>();
 							set.add(protein);
 							proteins.put(protein.getAccession(), set);
 						} else {
@@ -104,49 +99,11 @@ public class ProteinDTASelectParser {
 						}
 					}
 				}
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 			}
 		}
 		return proteins;
-	}
-
-	/**
-	 * Parse DTASelectProtein locus for getting the primary accession, parsing
-	 * it accordingly
-	 *
-	 * @param dtaSelectProtein
-	 * @return
-	 */
-	public static Accession getProteinAccessionFromDTASelectProtein(DTASelectProtein dtaSelectProtein) {
-		if (dtaSelectProtein == null)
-			return null;
-		return getProteinAccessionFromDTASelectProtein(dtaSelectProtein.getLocus(), dtaSelectProtein.getDescription());
-	}
-
-	/**
-	 * Parse DTASelectProtein locus for getting the primary accession, parsing
-	 * it accordingly
-	 *
-	 * @param dtaSelectProtein
-	 * @return
-	 */
-	public static Accession getProteinAccessionFromDTASelectProtein(String dtaSelectProteinLocus, String description) {
-
-		String locus = dtaSelectProteinLocus;
-		if (locus == null || "".equals(locus))
-			return null;
-		AccessionEx primaryAccession = null;
-
-		final Pair<String, String> acc = FastaParser.getACC(locus);
-		AccessionType accType = AccessionType.fromValue(acc.getSecondElement());
-		if (accType == null) {
-			accType = AccessionType.IPI;
-		}
-		primaryAccession = new AccessionEx(acc.getFirstelement(), accType);
-
-		primaryAccession.setDescription(description);
-		return primaryAccession;
 	}
 
 	public void setDecoyPattern(String decoyPattern) {
@@ -175,7 +132,7 @@ public class ProteinDTASelectParser {
 	}
 
 	public String getDTASelectVersion() throws IOException {
-		return parser.getDTASelectVersion();
+		return parser.getSoftwareVersion();
 	}
 
 	public String getSearchEngineVersion() throws IOException {
@@ -187,7 +144,7 @@ public class ProteinDTASelectParser {
 	}
 
 	public DTASelectCommandLineParameters getCommandLineParameter() throws IOException {
-		return parser.getCommandLineParameter();
+		return (DTASelectCommandLineParameters) parser.getCommandLineParameter();
 	}
 
 	public List<String> getCommandLineParameterString() throws IOException {
@@ -201,9 +158,9 @@ public class ProteinDTASelectParser {
 	public Map<String, PSM> getPSMsByPSMID() {
 		if (psms == null) {
 			psms = new THashMap<String, PSM>();
-			for (Set<Protein> proteinSet : getProteins().values()) {
-				for (Protein dtaSelectProtein : proteinSet) {
-					for (PSM psm : dtaSelectProtein.getPSMs()) {
+			for (final Set<Protein> proteinSet : getProteins().values()) {
+				for (final Protein dtaSelectProtein : proteinSet) {
+					for (final PSM psm : dtaSelectProtein.getPSMs()) {
 						if (!psms.containsKey(psm.getIdentifier())) {
 							psms.put(psm.getIdentifier(), psm);
 						}

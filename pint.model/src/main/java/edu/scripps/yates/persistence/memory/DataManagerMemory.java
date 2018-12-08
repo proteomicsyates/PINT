@@ -7,7 +7,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.proteored.miapeapi.experiment.model.Experiment;
 
-import edu.scripps.yates.utilities.model.factories.MSRunEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
@@ -16,6 +15,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Tissue;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.MSRunEx;
 import gnu.trove.map.hash.THashMap;
 
 public class DataManagerMemory {

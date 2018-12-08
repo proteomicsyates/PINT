@@ -163,8 +163,8 @@ public class AnnotatedProteinImpl implements Protein {
 	}
 
 	@Override
-	public int getDBId() {
-		return protein.getDBId();
+	public int getUniqueID() {
+		return protein.getUniqueID();
 	}
 
 	@Override

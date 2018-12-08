@@ -8,12 +8,9 @@ import edu.scripps.yates.census.read.model.IsobaricQuantifiedPSM;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.cv.CVManager;
 import edu.scripps.yates.cv.CommonlyUsedCV;
-import edu.scripps.yates.model.util.PTMAdapter;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.PeptideRelation;
-import edu.scripps.yates.utilities.model.factories.PeptideEx;
-import edu.scripps.yates.utilities.model.factories.ScoreEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
@@ -23,6 +20,9 @@ import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import edu.scripps.yates.utilities.proteomicsmodel.adapters.PTMAdapter;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.PeptideEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ScoreEx;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.util.StringPosition;
 import gnu.trove.set.hash.THashSet;
@@ -226,7 +226,7 @@ public class PSMImplFromQuantifiedPSM implements PSM {
 	}
 
 	@Override
-	public int getDBId() {
+	public int getUniqueIdentifier() {
 		return -1;
 	}
 

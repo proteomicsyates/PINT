@@ -1,7 +1,7 @@
 package edu.scripps.yates.ncbi;
 
-import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.properties.PropertiesUtil;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 
 public class NCBIRetriever {
 	private static final String NCBI_SERVER_URL = "ncbi.server.url";
