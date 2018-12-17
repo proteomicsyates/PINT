@@ -19,7 +19,8 @@ import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
 import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformType;
 import edu.scripps.yates.annotations.uniprot.proteoform.UniprotPTM;
 import edu.scripps.yates.annotations.uniprot.proteoform.UniprotProteoformRetriever;
-import edu.scripps.yates.annotations.util.UniprotEntryUtil;
+import edu.scripps.yates.annotations.util.UniprotEntryEBIUtil;
+import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.CommentType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.FeatureType;
@@ -100,7 +101,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					for (final String acc : mainIsoforms) {
 						if (annotatedProteins.containsKey(acc)) {
 							final Entry mainEntry = annotatedProteins.get(acc);
-							final List<CommentType> alternativeProducts = UniprotEntryUtil.getComments(mainEntry,
+							final List<CommentType> alternativeProducts = UniprotEntryEBIUtil.getComments(mainEntry,
 									uk.ac.ebi.kraken.interfaces.uniprot.comments.CommentType.ALTERNATIVE_PRODUCTS);
 							for (final CommentType comment : alternativeProducts) {
 								if (comment.getIsoform() != null) {
@@ -167,7 +168,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 
 					// query for variants
 					if (retrieveProteoforms) {
-						final List<FeatureType> features = UniprotEntryUtil.getFeatures(entry,
+						final List<FeatureType> features = UniprotEntryEBIUtil.getFeatures(entry,
 								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.VARIANT);
 						for (final FeatureType feature : features) {
 
@@ -178,7 +179,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					}
 					if (retrieveIsoforms) {
 						// alternative products
-						final List<CommentType> alternativeProductsComments = UniprotEntryUtil.getComments(entry,
+						final List<CommentType> alternativeProductsComments = UniprotEntryEBIUtil.getComments(entry,
 								uk.ac.ebi.kraken.interfaces.uniprot.comments.CommentType.ALTERNATIVE_PRODUCTS);
 						// store isoforms ACCs
 						final Set<String> isoformsACCs = new HashSet<String>();
@@ -221,7 +222,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					}
 					if (retrieveProteoforms) {
 						// sequence conflicts
-						final Collection<FeatureType> conflicts = UniprotEntryUtil.getFeatures(entry,
+						final Collection<FeatureType> conflicts = UniprotEntryEBIUtil.getFeatures(entry,
 								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CONFLICT);
 						for (final FeatureType feature : conflicts) {
 							final Proteoform variant = new ProteoformAdapterFromConflictFeature(acc, name, description,
@@ -229,7 +230,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 							ret.get(acc).add(variant);
 						}
 						// mutagens
-						final Collection<FeatureType> mutagens = UniprotEntryUtil.getFeatures(entry,
+						final Collection<FeatureType> mutagens = UniprotEntryEBIUtil.getFeatures(entry,
 								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.MUTAGEN);
 						for (final FeatureType feature : mutagens) {
 							final Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, name, description,
@@ -239,7 +240,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					}
 					// ptms
 					if (retrievePTMs) {
-						final Collection<FeatureType> modifiedResiduesFeatures = UniprotEntryUtil.getFeatures(entry,
+						final Collection<FeatureType> modifiedResiduesFeatures = UniprotEntryEBIUtil.getFeatures(entry,
 								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.MOD_RES);
 						for (final FeatureType feature : modifiedResiduesFeatures) {
 							final UniprotPTM uniprotPTM = new UniprotPTMAdapterFromFeature(feature).adapt();
@@ -247,7 +248,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								originalvariant.addPTM(uniprotPTM);
 							}
 						}
-						final Collection<FeatureType> siteFeatures = UniprotEntryUtil.getFeatures(entry,
+						final Collection<FeatureType> siteFeatures = UniprotEntryEBIUtil.getFeatures(entry,
 								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.SITE);
 						for (final FeatureType feature : siteFeatures) {
 							final UniprotPTM uniprotPTM = new UniprotPTMAdapterFromFeature(feature).adapt();
@@ -255,7 +256,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								originalvariant.addPTM(uniprotPTM);
 							}
 						}
-						final Collection<FeatureType> carbohydFeatures = UniprotEntryUtil.getFeatures(entry,
+						final Collection<FeatureType> carbohydFeatures = UniprotEntryEBIUtil.getFeatures(entry,
 								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CARBOHYD);
 						for (final FeatureType feature : carbohydFeatures) {
 							final UniprotPTM uniprotPTM = new UniprotPTMAdapterFromCarbohydFeature(feature).adapt();
@@ -263,7 +264,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								originalvariant.addPTM(uniprotPTM);
 							}
 						}
-						final Collection<FeatureType> crosslinkFeatures = UniprotEntryUtil.getFeatures(entry,
+						final Collection<FeatureType> crosslinkFeatures = UniprotEntryEBIUtil.getFeatures(entry,
 								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CROSSLNK);
 						for (final FeatureType feature : crosslinkFeatures) {
 							final List<UniprotPTM> uniprotPTMs = new UniprotPTMAdapterFromCrosslinkFeature(feature)

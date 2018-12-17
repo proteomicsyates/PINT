@@ -19,7 +19,7 @@ import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
 import edu.scripps.yates.annotations.uniprot.proteoform.ProteoformType;
 import edu.scripps.yates.annotations.uniprot.proteoform.UniprotPTM;
 import edu.scripps.yates.annotations.uniprot.proteoform.UniprotProteoformRetriever;
-import edu.scripps.yates.annotations.util.UniprotEntryUtil;
+import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;

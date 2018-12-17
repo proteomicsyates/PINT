@@ -701,15 +701,15 @@ public class ProteinImplFromUniprotEntry extends AbstractProtein {
 	}
 
 	@Override
-	public Double getMw() {
+	public Float getMw() {
 		if (!mwParsed) {
 			final String sequence = getSequence();
 			if (sequence != null && !"".equals(sequence)) {
 				try {
 					final double mass = new AASequenceImpl(sequence).getMass();
 					if (mass > 0.0) {
-						setMw(mass);
-						return mass;
+						setMw(Double.valueOf(mass).floatValue());
+						return super.getMw();
 					}
 				} catch (final Exception e) {
 					e.printStackTrace();
@@ -717,7 +717,7 @@ public class ProteinImplFromUniprotEntry extends AbstractProtein {
 			}
 
 			if (entry.getSequence() != null) {
-				setMw(Integer.valueOf(entry.getSequence().getMass()).doubleValue());
+				setMw(Integer.valueOf(entry.getSequence().getMass()).floatValue());
 			}
 			mwParsed = true;
 		}
