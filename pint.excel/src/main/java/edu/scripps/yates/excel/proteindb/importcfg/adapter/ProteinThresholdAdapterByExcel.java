@@ -7,9 +7,9 @@ import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.proteindb.importcfg.ExcelFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdentificationExcelType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ProteinThresholdType;
-import edu.scripps.yates.utilities.model.factories.ProteinThresholdEx;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ProteinThresholdEx;
 import gnu.trove.set.hash.THashSet;
 
 public class ProteinThresholdAdapterByExcel implements Adapter<Set<Threshold>> {

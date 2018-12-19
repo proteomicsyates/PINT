@@ -3,7 +3,7 @@ package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 import java.io.Serializable;
 import java.util.Map;
 
-import edu.scripps.yates.utilities.model.enums.AmountType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType;
 import gnu.trove.map.hash.THashMap;
 
 public class AmountTypeAdapter

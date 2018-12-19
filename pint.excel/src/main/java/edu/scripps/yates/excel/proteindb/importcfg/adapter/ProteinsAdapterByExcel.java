@@ -1,6 +1,7 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,23 +26,22 @@ import edu.scripps.yates.model.util.ProteinExExtension;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.ipi.UniprotEntry;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.model.factories.AccessionEx;
-import edu.scripps.yates.utilities.model.factories.PSMEx;
-import edu.scripps.yates.utilities.model.factories.PeptideEx;
-import edu.scripps.yates.utilities.model.factories.ProteinEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.Gene;
+import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
+import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.AccessionEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ProteinEx;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
-import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.set.hash.THashSet;
 
 public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.pattern.Adapter<Set<Protein>> {
@@ -49,8 +49,10 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	private final IdentificationExcelType excelCfg;
 	private final ExcelFileReader excelFileReader;
 	private final Condition expCondition;
-	private final MsRunType msRun;
+	private final Set<MSRun> msRuns = new THashSet<MSRun>();
 	private final Sample sample;
+	// this is the MSRun that will be used to assign to PSMs
+	private MSRun psmsMSRun;
 
 	// in order to take the same protein for different psms
 	// private final static Map<String, Map<String, ProteinEx>>
@@ -73,13 +75,19 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	 * @param organism
 	 */
 	public ProteinsAdapterByExcel(IdentificationExcelType excelTypeCfg, ExcelFileReader excelFileReader,
-			Condition expCondition, MsRunType msRun, Sample sample) {
+			Condition expCondition, Collection<MsRunType> msRuns, Sample sample, Project project) {
 		excelCfg = excelTypeCfg;
 		this.excelFileReader = excelFileReader;
 		this.expCondition = expCondition;
-		this.msRun = msRun;
-		this.sample = sample;
 
+		for (final MsRunType msRunType : msRuns) {
+			final MSRun msRun = new MSRunAdapter(msRunType, project).adapt();
+			this.msRuns.add(msRun);
+			if (psmsMSRun == null) {
+				psmsMSRun = msRun;
+			}
+		}
+		this.sample = sample;
 	}
 
 	@Override
@@ -144,8 +152,8 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 					String noParsedProteinDescription = null;
 					if (proteinDescriptionCfg != null)
 						noParsedProteinDescription = applyRegexp(proteinDescToParse, proteinDescriptionCfg.getRegexp());
-					final Pair<String, String> proteinAccessionType = FastaParser.getACC(proteinAcc);
-					if (!proteinAccessionType.getSecondElement().equals(AccessionType.IPI.name())) {
+					final Accession proteinAccessionType = FastaParser.getACC(proteinAcc);
+					if (proteinAccessionType.getAccessionType() != AccessionType.IPI) {
 
 						accessions.add(proteinAcc);
 					} else {
@@ -163,7 +171,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 						if (!somethingFound) {
 
 							final AccessionEx accession = new AccessionEx(proteinAcc,
-									AccessionType.fromValue(proteinAccessionType.getSecondElement()));
+									proteinAccessionType.getAccessionType());
 							// has to be non parsed protein description for
 							// letting map2Uniprot use the information in
 							// the header to get the map if possible
@@ -206,37 +214,34 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 			for (final Protein protein : proteinSet) {
 				// addProteinByMSRunIDAndRowIndex(msRun.getId(), rowIndex,
 				// protein);
-				StaticProteomicsModelStorage.addProtein(protein, msRun.getId(), expCondition.getName());
+				StaticProteomicsModelStorage.addProtein(protein, msRuns, expCondition.getName());
 			}
 
 			if (!proteinSet.isEmpty()) {
 				if (excelCfg.getSequence() != null) {
 					// get the psms
-					final PSM psm = new PSMAdapterByExcel(rowIndex, excelCfg, excelFileReader, msRun, expCondition)
+					final PSM psm = new PSMAdapterByExcel(rowIndex, excelCfg, excelFileReader, psmsMSRun, expCondition)
 							.adapt();
 					if (psm != null) {
 						// add the psm to the proteins
 						// add the proteins to the psm
 						for (final Protein protein : proteinSet) {
-							((ProteinEx) protein).addPSM(psm);
-							((PSMEx) psm).addProtein(protein);
+							protein.addPSM(psm, true);
 						}
 					}
 
 					// get the peptides
-					final Peptide peptide = new PeptideAdapterByExcel(rowIndex, excelCfg, excelFileReader, msRun,
+					final Peptide peptide = new PeptideAdapterByExcel(rowIndex, excelCfg, excelFileReader, msRuns,
 							expCondition).adapt();
 					if (peptide != null) {
 						// peptide - psm
 						if (psm != null) {
-							((PSMEx) psm).setPeptide(peptide);
-							((PeptideEx) peptide).addPSM(psm);
+							psm.setPeptide(peptide, true);
 						}
 						// add the peptide to the proteins
 						// add the proteins to the peptide
 						for (final Protein protein : proteinSet) {
-							((ProteinEx) protein).addPeptide(peptide);
-							((PeptideEx) peptide).addProtein(protein);
+							protein.addPeptide(peptide, true);
 						}
 					}
 				}
@@ -250,46 +255,9 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 		return ret;
 	}
 
-	// private List<Protein> getAmountsFromExcelReaderOLD() {
-	// List<Protein> ret = new ArrayList<Protein>();
-	// final ProteinAmountsType proteinAmountsCfg = excelExpConditionCfg
-	// .getProteinAmounts();
-	//
-	// for (edu.scripps.yates.excel.proteindb.importcfg.jaxb.AmountType
-	// proteinAmountCfg : proteinAmountsCfg
-	// .getProteinAmount()) {
-	//
-	// AmountType amountType = AmountType.valueOf(proteinAmountCfg
-	// .getType().name());
-	//
-	// final ExcelColumn proteinAmountValuesColumn = excelFileReader
-	// .getExcelColumnFromReference(proteinAmountCfg
-	// .getColumnRef());
-	//
-	// final List<Object> proteinAmountValues = proteinAmountValuesColumn
-	// .getValues();
-	// int rowIndex = 0;
-	// for (Object object : proteinAmountValues) {
-	// Double value = (Double) object;
-	// HashMap<String, Protein> proteins = getProteins(rowIndex);
-	// for (Protein protein : proteins.values()) {
-	// AmountEx proteinAmount = new AmountEx(value, amountType,
-	// expCondition);
-	// // if (protein instanceof ProteinEx) {
-	// ((ProteinEx) protein).addAmount(proteinAmount);
-	// // }
-	// ret.add(proteinAmount);
-	// }
-	// rowIndex++;
-	// }
-	//
-	// }
-	// return ret;
-	// }
-
 	private Set<Protein> getProteins(int rowIndex, boolean grabProteinIfNoProteinAmount) {
-		log.debug("Getting proteins from row " + rowIndex + " on condition " + expCondition.getName() + " and run "
-				+ msRun.getId());
+		log.debug("Getting proteins from row " + rowIndex + " on condition " + expCondition.getName() + " and "
+				+ msRuns.size() + " MS runs.");
 		final Set<Protein> ret = new THashSet<Protein>();
 
 		final ProteinAccessionType proteinAccessionCfg = excelCfg.getProteinAccession();
@@ -326,7 +294,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 			if (proteinDescriptionsToParse != null && i < proteinDescriptionsToParse.size())
 				proteinDescriptionToParse = proteinDescriptionsToParse.get(i).trim();
 			String proteinAcc = null;
-			Pair<String, String> proteinAccession = null;
+			Accession proteinAccession = null;
 			try {
 				if (excelCfg.getDiscardDecoys() != null && !"".equals(excelCfg.getDiscardDecoys())) {
 					final String decoyAcc = applyRegexp(proteinAccToParse, excelCfg.getDiscardDecoys());
@@ -349,18 +317,16 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 			if (proteinDescriptionCfg != null)
 				proteinDescription = applyRegexp(proteinDescriptionToParse, proteinDescriptionCfg.getRegexp());
 			proteinDescription = FastaParser.getDescription(proteinDescription);
-			final AccessionEx accession = new AccessionEx(proteinAcc,
-					AccessionType.fromValue(proteinAccession.getSecondElement()));
+			final AccessionEx accession = new AccessionEx(proteinAcc, proteinAccession.getAccessionType());
 			accession.setDescription(proteinDescription);
 
 			Protein protein = new ProteinExExtension(accession, sample.getOrganism());
 			// IMPORTANT: use accession.getAccession instead of proteinAcc just
 			// in case that in AccessionEx the accession changes
-			if (StaticProteomicsModelStorage.containsProtein(msRun.getId(), expCondition.getName(),
-					protein.getAccession())) {
+			if (StaticProteomicsModelStorage.containsProtein(msRuns, expCondition.getName(), protein.getAccession())) {
 				// protein = proteinMap.get(accession.getAccession());
 				protein = StaticProteomicsModelStorage
-						.getProtein(msRun.getId(), expCondition.getName(), protein.getAccession()).iterator().next();
+						.getProtein(expCondition.getName(), protein.getAccession(), msRuns).iterator().next();
 			} else {
 
 				// change on 11/14/2014... be careful
@@ -372,10 +338,11 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 				// if the primary accession is not uniprot, check it remotely
 				// using the description of the protein if possible
 				addUniprotInformation((ProteinEx) protein);
-				if (StaticProteomicsModelStorage.containsProtein(msRun.getId(), expCondition.getName(),
+				if (StaticProteomicsModelStorage.containsProtein(msRuns, expCondition.getName(),
 						protein.getAccession())) {
-					final Protein proteinOLD = StaticProteomicsModelStorage.getProtein(msRun.getId(),
-							expCondition.getName(), protein.getPrimaryAccession().getAccession()).iterator().next();
+					final Protein proteinOLD = StaticProteomicsModelStorage
+							.getProtein(expCondition.getName(), protein.getPrimaryAccession().getAccession(), msRuns)
+							.iterator().next();
 					// add to map with also the secondary accession
 					if (protein.getSecondaryAccessions() != null) {
 						for (final Accession secondaryAcc : protein.getSecondaryAccessions()) {
@@ -384,7 +351,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 							}
 							// add again in order to be indexed by the new
 							// accessions:
-							StaticProteomicsModelStorage.addProtein(proteinOLD, msRun.getId(), expCondition.getName());
+							StaticProteomicsModelStorage.addProtein(proteinOLD, msRuns, expCondition.getName());
 							// proteinMap.put(secondaryAcc.getAccession(),
 							// proteinOLD);
 						}
@@ -407,9 +374,11 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 
 				}
 			}
-			StaticProteomicsModelStorage.addProtein(protein, msRun.getId(), expCondition.getName(), rowIndex);
+			StaticProteomicsModelStorage.addProtein(protein, msRuns, expCondition.getName(), rowIndex);
 			// msrun
-			protein.setMSRun(new MSRunAdapter(msRun).adapt());
+			for (final MSRun msRun : msRuns) {
+				protein.addMSRun(msRun);
+			}
 			// condition
 			protein.addCondition(expCondition);
 
@@ -446,40 +415,6 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 				}
 
 			}
-			// protein ratios
-			// if (proteinRatiosCfg != null) {
-			// final List<AmountRatioType> ratioListCfg = proteinRatiosCfg
-			// .getAmountRatio();
-			// for (AmountRatioType ratioCfg : ratioListCfg) {
-			// if (ratioCfg.getNominator().getConditionRef()
-			// .equals(conditionID)
-			// || ratioCfg.getDenominator().getConditionRef()
-			// .equals(conditionID)) {
-			// final ExcelColumn ratioExcelColumn = excelFileReader
-			// .getExcelColumnFromReference(ratioCfg
-			// .getColumnRef());
-			// if (rowIndex < ratioExcelColumn.getValues().size()) {
-			// final Object ratioValueObj = ratioExcelColumn
-			// .getValues().get(rowIndex);
-			// if (ratioValueObj != null) {
-			// try {
-			// double ratioValue = Double
-			// .valueOf(ratioValueObj.toString());
-			// protein.addRatio(new AmountRatioAdapter(
-			// ratioCfg.getName(), ratioValue,
-			// ratioCfg.getNominator()
-			// .getConditionRef(),
-			// ratioCfg.getDenominator()
-			// .getConditionRef(), sample,
-			// project).adapt());
-			// } catch (NumberFormatException e) {
-			// // do nothing
-			// }
-			// }
-			// }
-			// }
-			// }
-			// }
 
 		}
 		// protein annotations
@@ -499,8 +434,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 					excelFileReader).adapt();
 			for (final Threshold threshold : proteinThresholds) {
 				for (final Protein protein : ret) {
-					final ProteinEx proteinEx = (ProteinEx) protein;
-					proteinEx.addProteinThreshold(threshold);
+					protein.addThreshold(threshold);
 				}
 			}
 		}
@@ -575,8 +509,8 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 						protein.setLength(annotatedProtein.getLength());
 
 					// mol w
-					if (annotatedProtein.getMW() > 0)
-						protein.setMw(annotatedProtein.getMW());
+					if (annotatedProtein.getMw() > 0)
+						protein.setMw(annotatedProtein.getMw());
 
 					// pi
 					if (annotatedProtein.getPi() > 0)

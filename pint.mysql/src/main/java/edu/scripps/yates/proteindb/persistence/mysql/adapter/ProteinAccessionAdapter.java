@@ -8,9 +8,9 @@ import java.util.Map;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import gnu.trove.map.hash.THashMap;
 
 public class ProteinAccessionAdapter implements Adapter<ProteinAccession>, Serializable {

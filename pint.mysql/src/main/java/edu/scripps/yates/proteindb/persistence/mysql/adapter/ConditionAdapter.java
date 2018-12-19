@@ -2,6 +2,7 @@ package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,13 +14,13 @@ import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.hash.THashSet;
@@ -60,7 +61,7 @@ public class ConditionAdapter
 		}
 
 		final Sample hibSample = new SampleAdapter(expConditionModel.getSample()).adapt();
-		edu.scripps.yates.proteindb.persistence.mysql.Condition ret = new Condition(hibProject, hibSample,
+		final edu.scripps.yates.proteindb.persistence.mysql.Condition ret = new Condition(hibProject, hibSample,
 				expConditionModel.getName());
 		map.put(expConditionModel.hashCode(), ret);
 		conditionsByNameAndProject.put(expConditionModel.getName() + expConditionModel.getProject().getTag(), ret);
@@ -80,14 +81,15 @@ public class ConditionAdapter
 			final int size = proteins.size();
 			log.info("containing " + size + " proteins");
 
-			ProgressCounter counter = new ProgressCounter(proteins.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
+			final ProgressCounter counter = new ProgressCounter(proteins.size(), ProgressPrintingType.PERCENTAGE_STEPS,
+					0);
 
 			final Iterator<Protein> iterator = proteins.iterator();
 			while (iterator.hasNext()) {
 				counter.increment();
 
-				Protein protein = iterator.next();
-				String printIfNecessary = counter.printIfNecessary();
+				final Protein protein = iterator.next();
+				final String printIfNecessary = counter.printIfNecessary();
 				// log.info(protein.hashCode());
 				if (printIfNecessary != null && !"".equals(printIfNecessary)) {
 					log.info(printIfNecessary + " of proteins adapted in condition " + expConditionModel.getName()
@@ -95,14 +97,14 @@ public class ConditionAdapter
 				}
 				final Set<Peptide> peptides = protein.getPeptides();
 
-				for (Peptide peptide : peptides) {
+				for (final Peptide peptide : peptides) {
 					final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(peptide,
 							hibProject).adapt();
 					ret.getPeptides().add(hibPeptide);
 				}
 
-				final Set<PSM> psMs = protein.getPSMs();
-				for (PSM psm : psMs) {
+				final List<PSM> psMs = protein.getPSMs();
+				for (final PSM psm : psMs) {
 					final Psm hibPSM = new PSMAdapter(psm, hibProject).adapt();
 					ret.getPsms().add(hibPSM);
 				}
@@ -118,17 +120,17 @@ public class ConditionAdapter
 			// now try to relate all the objects
 			log.info("Relating identification objects on condition " + ret.getName());
 
-			for (Protein protein : proteins) {
+			for (final Protein protein : proteins) {
 				final edu.scripps.yates.proteindb.persistence.mysql.Protein hibProtein = new ProteinAdapter(protein,
 						hibProject).adapt();
 				final Set<Peptide> peptides2 = protein.getPeptides();
-				for (Peptide peptide : peptides2) {
+				for (final Peptide peptide : peptides2) {
 					final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(peptide,
 							hibProject).adapt();
 					hibProtein.getPeptides().add(hibPeptide);
 					hibPeptide.getProteins().add(hibProtein);
-					final Set<PSM> psms = peptide.getPSMs();
-					for (PSM psm : psms) {
+					final List<PSM> psms = peptide.getPSMs();
+					for (final PSM psm : psms) {
 						final Psm hibPSM = new PSMAdapter(psm, hibProject).adapt();
 						hibPSM.setPeptide(hibPeptide);
 						hibPSM.getProteins().add(hibProtein);
@@ -136,8 +138,8 @@ public class ConditionAdapter
 						hibProtein.getPsms().add(hibPSM);
 					}
 				}
-				final Set<PSM> psms2 = protein.getPSMs();
-				for (PSM psm2 : psms2) {
+				final List<PSM> psms2 = protein.getPSMs();
+				for (final PSM psm2 : psms2) {
 					final Psm hibPSM = new PSMAdapter(psm2, hibProject).adapt();
 
 					final Peptide peptide = psm2.getPeptide();
@@ -158,7 +160,7 @@ public class ConditionAdapter
 			log.info("Getting PSMs and Peptides directly from condition");
 			final Set<PSM> psMs = expConditionModel.getPSMs();
 			log.debug(psMs.size() + " psms in condition " + expConditionModel.getName());
-			for (PSM psm : psMs) {
+			for (final PSM psm : psMs) {
 				final Psm hibPSM = new PSMAdapter(psm, hibProject).adapt();
 				final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(
 						psm.getPeptide(), hibProject).adapt();
@@ -195,13 +197,13 @@ public class ConditionAdapter
 	}
 
 	private void annotateMissingProteinsFromUniprot() {
-		Set<String> uniprotAccs = new THashSet<String>();
+		final Set<String> uniprotAccs = new THashSet<String>();
 		final Set<Protein> proteins = expConditionModel.getProteins();
-		for (Protein protein : proteins) {
+		for (final Protein protein : proteins) {
 			final Accession primaryAccession = protein.getPrimaryAccession();
 			if (!uniprotAccs.contains(primaryAccession.getAccession())
 					&& primaryAccession.getAccessionType().equals(AccessionType.UNIPROT)) {
-				if (primaryAccession.getDescription() == null || protein.getLength() <= 0 || protein.getMW() <= 0) {
+				if (primaryAccession.getDescription() == null || protein == null || protein.getMw() == null) {
 					uniprotAccs.add(primaryAccession.getAccession());
 				}
 			}
@@ -212,7 +214,7 @@ public class ConditionAdapter
 		// adapter
 		if (!uniprotAccs.isEmpty()) {
 			log.info("Retrieving information from Uniprot of " + uniprotAccs.size() + " proteins");
-			UniprotProteinRetriever uplr = new UniprotProteinRetriever(null,
+			final UniprotProteinRetriever uplr = new UniprotProteinRetriever(null,
 					UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 					UniprotProteinRetrievalSettings.getInstance().isUseIndex());
 			final Map<String, Protein> annotatedProteins = uplr.getAnnotatedProteins(uniprotAccs);

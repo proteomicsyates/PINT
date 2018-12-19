@@ -12,15 +12,15 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.criterion.Projections;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
+import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.ipi.UniprotEntry;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.util.Pair;
+import edu.scripps.yates.utilities.proteomicsmodel.Accession;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -71,11 +71,11 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 			final Set<String> accs = new THashSet<String>();
 			while (proteins.next()) {
 				final String acc = proteins.getString(0);
-				final Pair<String, String> accessionWithType = FastaParser.getACC(acc);
-				if (accessionWithType.getSecondElement().equals("UNIPROT")) {
-					accs.add(accessionWithType.getFirstelement());
-				} else if (accessionWithType.getSecondElement().equals("IPI")) {
-					final List<UniprotEntry> map2Uniprot = ipi2uniprot.map2Uniprot(accessionWithType.getFirstelement());
+				final Accession accessionWithType = FastaParser.getACC(acc);
+				if (accessionWithType.getAccessionType() == AccessionType.UNIPROT) {
+					accs.add(accessionWithType.getAccession());
+				} else if (accessionWithType.getAccessionType() == AccessionType.IPI) {
+					final List<UniprotEntry> map2Uniprot = ipi2uniprot.map2Uniprot(accessionWithType.getAccession());
 					for (final UniprotEntry uniprotEntry : map2Uniprot) {
 						accs.add(uniprotEntry.getAcc());
 					}
@@ -94,16 +94,16 @@ public class ProteinAccessionsUpdater extends PintServerDaemonTask {
 				final edu.scripps.yates.proteindb.persistence.mysql.Protein protein = (Protein) proteins.get(0);
 				System.out.println(++i + "\t" + protein.getId());
 				final String proteinAccession = protein.getAcc();
-				final Pair<String, String> accPair = FastaParser.getACC(proteinAccession);
-				final String accType = accPair.getSecondElement();
-				final String accession = accPair.getFirstelement();
+				final Accession accPair = FastaParser.getACC(proteinAccession);
+				final AccessionType accType = accPair.getAccessionType();
+				final String accession = accPair.getAccession();
 				String ipiAcc = null;
 				String uniprotAcc = null;
 
-				if (accType.equals(AccessionType.IPI.name())) {
+				if (accType == AccessionType.IPI) {
 					log.info("It contains a IPI acc");
 					ipiAcc = accession;
-				} else if (accType.equals(AccessionType.UNIPROT.name())) {
+				} else if (accType == AccessionType.UNIPROT) {
 					uniprotAcc = proteinAccession;
 				}
 

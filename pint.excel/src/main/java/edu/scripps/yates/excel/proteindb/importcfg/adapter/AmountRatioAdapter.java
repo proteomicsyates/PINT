@@ -1,10 +1,10 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
-import edu.scripps.yates.utilities.model.enums.AggregationLevel;
-import edu.scripps.yates.utilities.model.factories.RatioEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AggregationLevel;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.RatioEx;
 
 public class AmountRatioAdapter implements edu.scripps.yates.utilities.pattern.Adapter<RatioEx> {
 	private final String ratioName;

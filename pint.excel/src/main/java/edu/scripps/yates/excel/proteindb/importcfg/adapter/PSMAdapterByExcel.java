@@ -5,15 +5,15 @@ import java.util.List;
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.proteindb.importcfg.ExcelFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdentificationExcelType;
-import edu.scripps.yates.excel.proteindb.importcfg.jaxb.MsRunType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ScoreType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SequenceType;
 import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.model.factories.PSMEx;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
+import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.PSMEx;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 
 public class PSMAdapterByExcel implements Adapter<PSM> {
@@ -25,14 +25,15 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 	private final int rowIndex;
 	private final IdentificationExcelType excelCfg;
 	private final ExcelFileReader excelFileReader;
-	private final MsRunType msRun;
+	private final MSRun msRun;
 	private final Condition condition;
 
 	// private static final Map<String, TIntObjectHashMap< Set<PSM>>>
-	// psmsByMSRunAndRowIndex = new THashMap<String, TIntObjectHashMap< Set<PSM>>>();
+	// psmsByMSRunAndRowIndex = new THashMap<String, TIntObjectHashMap<
+	// Set<PSM>>>();
 
 	public PSMAdapterByExcel(int rowIndex, IdentificationExcelType excelCfg, ExcelFileReader excelFileReader,
-			MsRunType msRun, Condition condition) {
+			MSRun msRun, Condition condition) {
 		this.rowIndex = rowIndex;
 		this.excelCfg = excelCfg;
 		this.excelFileReader = excelFileReader;
@@ -50,9 +51,9 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 
 			final String rawPsmSequence = psmSequenceColumn.getValues().get(rowIndex).toString();
 
-			String psmId = (rowIndex + 1) + "-" + msRun.getId();
+			final String psmId = (rowIndex + 1) + "-" + msRun.getRunId();
 
-			String cleanPsmSequence = FastaParser.cleanSequence(rawPsmSequence);
+			final String cleanPsmSequence = FastaParser.cleanSequence(rawPsmSequence);
 
 			PSM psm = null;
 			// Map<String, PSMEx> psmMap = null;
@@ -62,25 +63,24 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 			// psmMap = new THashMap<String, PSMEx>();
 			// psmMapByMSRunID.put(msRun.getId(), psmMap);
 			// }
-			if (StaticProteomicsModelStorage.containsPSM(msRun.getId(), null, rowIndex, psmId)) {
-				psm = StaticProteomicsModelStorage.getPSM(msRun.getId(), null, rowIndex, psmId).iterator().next();
+			if (StaticProteomicsModelStorage.containsPSM(msRun.getRunId(), null, rowIndex, psmId)) {
+				psm = StaticProteomicsModelStorage.getPSM(msRun.getRunId(), null, rowIndex, psmId).iterator().next();
 			} else {
 				psm = new PSMEx(psmId, cleanPsmSequence, rawPsmSequence);
-				psm.setMSRun(new MSRunAdapter(msRun).adapt());
+				psm.setMSRun(msRun);
 
 				// psmMap.put(psmId, psm);
 			}
 			psm.addCondition(condition);
 			// addPSMByMSRunIDAndRowIndex(msRun.getId(), rowIndex, psm);
-			StaticProteomicsModelStorage.addPSM(psm, msRun.getId(), condition.getName(), rowIndex);
+			StaticProteomicsModelStorage.addPSM(psm, msRun.getRunId(), condition.getName(), rowIndex);
 
 			// modifications
 
-			List<PTM> ptms = new PTMListAdapter(psmId, rowIndex, rawPsmSequence, excelCfg, excelFileReader).adapt();
-			for (PTM ptm : ptms) {
-				if (psm instanceof PSMEx) {
-					((PSMEx) psm).addPtm(ptm);
-				}
+			final List<PTM> ptms = new PTMListAdapter(psmId, rowIndex, rawPsmSequence, excelCfg, excelFileReader)
+					.adapt();
+			for (final PTM ptm : ptms) {
+				psm.addPTM(ptm);
 			}
 
 			// ratios
@@ -102,12 +102,12 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 			// }
 			// scores
 			if (excelCfg.getPsmScore() != null) {
-				for (ScoreType scoreCfg : excelCfg.getPsmScore()) {
+				for (final ScoreType scoreCfg : excelCfg.getPsmScore()) {
 					psm.addScore(new ScoreAdapter(scoreCfg, excelFileReader, rowIndex).adapt());
 				}
 			}
 			return psm;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -158,7 +158,8 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 	// private static void addPSMByMSRunIDAndRowIndex(String msRunRef, int
 	// rowIndex, PSM psm) {
 	// if (psmsByMSRunAndRowIndex.containsKey(msRunRef)) {
-	// final TIntObjectHashMap< Set<PSM>> map = psmsByMSRunAndRowIndex.get(msRunRef);
+	// final TIntObjectHashMap< Set<PSM>> map =
+	// psmsByMSRunAndRowIndex.get(msRunRef);
 	// addPSMByRowIndex(map, rowIndex, psm);
 	// } else {
 	// TIntObjectHashMap< Set<PSM>> map = new TIntObjectHashMap< Set<PSM>>();
@@ -167,7 +168,8 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 	// }
 	// }
 	//
-	// private static void addPSMByRowIndex(TIntObjectHashMap< Set<PSM>> map, int
+	// private static void addPSMByRowIndex(TIntObjectHashMap< Set<PSM>> map,
+	// int
 	// rowIndex, PSM psm) {
 	// if (map.containsKey(rowIndex)) {
 	// map.get(rowIndex).add(psm);

@@ -10,9 +10,9 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.utilities.model.enums.CombinationType;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType;
 
 public class PSMRatioValueAdapter
 		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue>, Serializable {

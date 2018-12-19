@@ -26,11 +26,11 @@ import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.ipi.UniprotEntry;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.model.enums.AggregationLevel;
+import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AggregationLevel;
 import edu.scripps.yates.utilities.strings.StringUtils;
-import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.THashSet;
 
@@ -205,12 +205,11 @@ public class QueryFromSEQCommand extends AbstractQuery {
 	private String getProteinSequence(QueriableProteinSet protein) {
 		final String acc = protein.getPrimaryAccession();
 		final Set<String> uniprotACCs = new THashSet<String>();
-		final Pair<String, String> accPair = FastaParser.getACC(acc);
-		if (accPair != null && accPair.getSecondElement() == AccessionType.UNIPROT.name()) {
-			uniprotACCs.add(accPair.getFirstelement());
-		} else if (accPair != null && accPair.getSecondElement() == AccessionType.IPI.name()) {
-			final List<UniprotEntry> map2Uniprot = IPI2UniprotACCMap.getInstance()
-					.map2Uniprot(accPair.getFirstelement());
+		final Accession accPair = FastaParser.getACC(acc);
+		if (accPair != null && accPair.getAccessionType() == AccessionType.UNIPROT) {
+			uniprotACCs.add(accPair.getAccession());
+		} else if (accPair != null && accPair.getAccessionType() == AccessionType.IPI) {
+			final List<UniprotEntry> map2Uniprot = IPI2UniprotACCMap.getInstance().map2Uniprot(accPair.getAccession());
 			if (map2Uniprot != null) {
 				for (final UniprotEntry uniprotEntry : map2Uniprot) {
 					uniprotACCs.add(uniprotEntry.getAcc());

@@ -27,8 +27,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
@@ -42,6 +40,8 @@ import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantQuantType;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantReplicate;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantResult;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantSupportedOrganism;
+import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.maths.Maths;
 import edu.scripps.yates.utilities.util.Pair;

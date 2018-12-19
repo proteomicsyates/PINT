@@ -28,10 +28,10 @@ public class ProteinExExtension extends ProteinEx {
 	public ProteinExExtension(Accession accession, Organism organism) {
 		super(accession.getAccessionType(), accession.getAccession(), organism);
 
-		List<AccessionEx> uniprotAccs = getUniprotAssociatedAccessions(accession);
+		final List<AccessionEx> uniprotAccs = getUniprotAssociatedAccessions(accession);
 		if (!uniprotAccs.isEmpty()) {
 			// take the first as primary accession
-			Accession previousPrimaryAcc = primaryAccession;
+			final Accession previousPrimaryAcc = getPrimaryAccession();
 			final AccessionEx uniprotAcc = uniprotAccs.get(0);
 			uniprotAcc.setDescription(previousPrimaryAcc.getDescription());
 			uniprotAcc.setAlternativeNames(previousPrimaryAcc.getAlternativeNames());
@@ -45,14 +45,14 @@ public class ProteinExExtension extends ProteinEx {
 		}
 		// parse the description
 		// get gene
-		final String gene = FastaParser.getGeneFromFastaHeader(primaryAccession.getDescription());
+		final String gene = FastaParser.getGeneFromFastaHeader(getPrimaryAccession().getDescription());
 		if (gene != null) {
-			genes.add(new GeneEx(gene));
+			addGene(new GeneEx(gene));
 		}
 		// get taxonomy
-		if (this.organism == null) {
-			final String organismName = FastaParser.getOrganismNameFromFastaHeader(primaryAccession.getDescription(),
-					primaryAccession.getAccession());
+		if (getOrganism() == null) {
+			final String organismName = FastaParser.getOrganismNameFromFastaHeader(
+					getPrimaryAccession().getDescription(), getPrimaryAccession().getAccession());
 			if (organismName != null) {
 				final UniprotOrganism uniprotOrganism = UniprotSpeciesCodeMap.getInstance().get(organismName);
 				if (uniprotOrganism != null) {
@@ -66,7 +66,6 @@ public class ProteinExExtension extends ProteinEx {
 			}
 
 		}
-		numInstances++;
 		// log.debug(numInstances + " proteinEx");
 	}
 
@@ -78,12 +77,12 @@ public class ProteinExExtension extends ProteinEx {
 	 * @return
 	 */
 	private List<AccessionEx> getUniprotAssociatedAccessions(Accession ipiAcc) {
-		List<AccessionEx> list = new ArrayList<AccessionEx>();
+		final List<AccessionEx> list = new ArrayList<AccessionEx>();
 		if (ipiAcc.getAccessionType().equals(AccessionType.IPI)) {
 			final List<UniprotEntry> map2Uniprot = IPI2UniprotACCMap.getInstance().map2Uniprot(ipiAcc.getAccession());
 
 			if (map2Uniprot != null && !map2Uniprot.isEmpty()) {
-				for (UniprotEntry uniprotEntry : map2Uniprot) {
+				for (final UniprotEntry uniprotEntry : map2Uniprot) {
 					list.add(new AccessionEx(uniprotEntry.getAcc(), AccessionType.UNIPROT));
 				}
 			}

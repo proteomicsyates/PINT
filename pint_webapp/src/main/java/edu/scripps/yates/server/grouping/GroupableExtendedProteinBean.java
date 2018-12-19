@@ -29,7 +29,7 @@ public class GroupableExtendedProteinBean implements GroupableProtein {
 	}
 
 	@Override
-	public int getDBId() {
+	public int getUniqueID() {
 		// using the hascode to differentiate
 		return protein.hashCode();
 	}

@@ -9,7 +9,7 @@ import edu.scripps.yates.proteindb.queries.dataproviders.PeptideDataProvider;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue;
 import edu.scripps.yates.proteindb.queries.semantic.ConditionReferenceFromCommandValue.ConditionProject;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
-import edu.scripps.yates.utilities.model.enums.AmountType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType;
 import gnu.trove.set.hash.THashSet;
 
 public class PeptideProviderFromPeptideAmounts extends PeptideDataProvider {

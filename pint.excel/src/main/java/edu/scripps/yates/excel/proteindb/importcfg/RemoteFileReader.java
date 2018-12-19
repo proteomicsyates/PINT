@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -23,9 +24,8 @@ import edu.scripps.yates.census.read.model.RatioDescriptor;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
 import edu.scripps.yates.census.read.util.IonExclusion;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
-import edu.scripps.yates.dbindex.DBIndexInterface;
+import edu.scripps.yates.dbindex.DBIndexImpl;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParamsImpl;
-import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
 import edu.scripps.yates.dtaselectparser.DTASelectParser;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FastaDisgestionType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FileReferenceType;
@@ -36,8 +36,12 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteInfoType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServerType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServersType;
 import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
+import edu.scripps.yates.mzidentmlparser.MzIdentMLIdentificationsParser;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
+import edu.scripps.yates.utilities.parsers.idparser.IdentificationsParser;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class RemoteFileReader {
 	private final static Logger log = Logger.getLogger(RemoteFileReader.class);
@@ -46,7 +50,7 @@ public class RemoteFileReader {
 	private final Map<String, CensusChroParser> censusChroParsers = new THashMap<String, CensusChroParser>();
 	private final Map<String, CensusOutParser> censusOutParsers = new THashMap<String, CensusOutParser>();
 
-	private final Map<String, DTASelectParser> dtaSelectParsers = new THashMap<String, DTASelectParser>();
+	private final Map<String, IdentificationsParser> identificationParsers = new THashMap<String, IdentificationsParser>();
 	private final Map<String, FastaDisgestionType> fastaDigestionByFileId = new THashMap<String, FastaDisgestionType>();
 
 	private final List<IonExclusion> censusIonExlusions = new ArrayList<IonExclusion>();
@@ -74,14 +78,14 @@ public class RemoteFileReader {
 		this.ratioDescriptorsByFile = ratioDescriptorsByFile;
 		final List<FileType> files = fileSet.getFile();
 
-		for (FileType fileType : files) {
+		for (final FileType fileType : files) {
 			RemoteSSHFileReference remoteFile = null;
 			// if it is not an excel file
 			if (fileType.getFormat() != FormatType.EXCEL) {
-				String id = fileType.getId();
+				final String id = fileType.getId();
 
 				if (fileType.getServerRef() != null) {
-					ServerType server = ImportCfgUtil.getReferencedServer(fileType.getServerRef(), servers);
+					final ServerType server = ImportCfgUtil.getReferencedServer(fileType.getServerRef(), servers);
 					File file = null;
 					if (fileType.getFormat() == FormatType.FASTA && fastaIndexFolder != null) {
 						file = new File(fastaIndexFolder.getAbsolutePath() + File.separator + fileType.getName());
@@ -99,7 +103,7 @@ public class RemoteFileReader {
 				} else if (fileType.getUrl() != null) {
 					// is in local file system
 					try {
-						URL url = new URL(fileType.getUrl()).toURI().toURL();
+						final URL url = new URL(fileType.getUrl()).toURI().toURL();
 						File destinationFile = null;
 						if (fileType.getFormat() == FormatType.FASTA) {
 							if (fastaIndexFolder != null) {
@@ -111,7 +115,7 @@ public class RemoteFileReader {
 								// location
 								log.debug("Copying fasta file to the dbIndex location");
 								destinationFile = new File(
-										DBIndexInterface.getDBIndexPath() + File.separator + fileType.getName());
+										DBIndexImpl.getDBIndexPath() + File.separator + fileType.getName());
 
 								log.debug("Copying file from URL " + url.toString() + " to the dbIndex location "
 										+ destinationFile.getAbsolutePath());
@@ -127,11 +131,11 @@ public class RemoteFileReader {
 							throw new IOException("Error copying file to " + destinationFile.getAbsolutePath());
 						remoteFile = new RemoteSSHFileReference(destinationFile);
 
-					} catch (URISyntaxException e) {
+					} catch (final URISyntaxException e) {
 						e.printStackTrace();
 						throw new IllegalArgumentException(
 								"The URL of the file id '" + id + "' is not well formed: " + fileType.getUrl());
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						e.printStackTrace();
 						throw new IllegalArgumentException(e);
 					}
@@ -155,21 +159,21 @@ public class RemoteFileReader {
 		return remoteFiles;
 	}
 
-	public CensusChroParser getCensusChroParser(String fileId) {
-		List<String> fileIds = new ArrayList<String>();
+	private CensusChroParser getCensusChroParser(String fileId) {
+		final List<String> fileIds = new ArrayList<String>();
 		fileIds.add(fileId);
 		return getCensusChroParser(fileIds);
 	}
 
-	public CensusOutParser getCensusOutParser(String fileId) {
-		List<String> fileIds = new ArrayList<String>();
+	private CensusOutParser getCensusOutParser(String fileId) {
+		final List<String> fileIds = new ArrayList<String>();
 		fileIds.add(fileId);
 		return getCensusOutParser(fileIds);
 	}
 
 	public CensusChroParser getCensusChroParser(Collection<String> fileIds) {
-		Map<File, String> fileIDByFiles = new THashMap<File, String>();
-		for (String fileId : fileIds) {
+		final Map<File, String> fileIDByFiles = new THashMap<File, String>();
+		for (final String fileId : fileIds) {
 			if (remoteFiles.containsKey(fileId) && types.containsKey(fileId)) {
 				final RemoteSSHFileReference remoteSSHServer = remoteFiles.get(fileId);
 				if (types.get(fileId) == FormatType.CENSUS_CHRO_XML) {
@@ -186,8 +190,8 @@ public class RemoteFileReader {
 				return censusChroParsers.get(key);
 			} else {
 				try {
-					CensusChroParser parser = new CensusChroParser();
-					for (File file : fileIDByFiles.keySet()) {
+					final CensusChroParser parser = new CensusChroParser();
+					for (final File file : fileIDByFiles.keySet()) {
 						final String fileID = fileIDByFiles.get(file);
 						final List<RatioDescriptor> ratioDescriptors = ratioDescriptorsByFile.get(fileID);
 						if (ratioDescriptors.size() == 1) {
@@ -198,7 +202,7 @@ public class RemoteFileReader {
 							QuantificationLabel labelL = null;
 							QuantificationLabel labelM = null;
 							QuantificationLabel labelH = null;
-							for (RatioDescriptor ratioDescriptor : ratioDescriptors) {
+							for (final RatioDescriptor ratioDescriptor : ratioDescriptors) {
 								final QuantificationLabel label1 = ratioDescriptor.getLabel1();
 								if (label1.isLight()) {
 									labelL = label1;
@@ -228,7 +232,7 @@ public class RemoteFileReader {
 					parser.addIonExclusions(censusIonExlusions);
 					censusChroParsers.put(key, parser);
 					return parser;
-				} catch (FileNotFoundException e) {
+				} catch (final FileNotFoundException e) {
 					e.printStackTrace();
 					log.warn(e.getMessage());
 				}
@@ -239,8 +243,8 @@ public class RemoteFileReader {
 	}
 
 	public CensusOutParser getCensusOutParser(Collection<String> fileIds) {
-		Map<File, String> fileIDByFiles = new THashMap<File, String>();
-		for (String fileId : fileIds) {
+		final Map<File, String> fileIDByFiles = new THashMap<File, String>();
+		for (final String fileId : fileIds) {
 			if (remoteFiles.containsKey(fileId) && types.containsKey(fileId)) {
 				final RemoteSSHFileReference remoteSSHServer = remoteFiles.get(fileId);
 				if (types.get(fileId) == FormatType.CENSUS_OUT_TXT) {
@@ -257,8 +261,8 @@ public class RemoteFileReader {
 				return censusOutParsers.get(key);
 			} else {
 				try {
-					CensusOutParser parser = new CensusOutParser();
-					for (File file : fileIDByFiles.keySet()) {
+					final CensusOutParser parser = new CensusOutParser();
+					for (final File file : fileIDByFiles.keySet()) {
 						final String fileID = fileIDByFiles.get(file);
 						final List<RatioDescriptor> ratioDescriptors = ratioDescriptorsByFile.get(fileID);
 						if (ratioDescriptors == null) {
@@ -275,7 +279,7 @@ public class RemoteFileReader {
 							QuantificationLabel labelL = null;
 							QuantificationLabel labelM = null;
 							QuantificationLabel labelH = null;
-							for (RatioDescriptor ratioDescriptor : ratioDescriptors) {
+							for (final RatioDescriptor ratioDescriptor : ratioDescriptors) {
 								final QuantificationLabel label1 = ratioDescriptor.getLabel1();
 								if (label1.isLight()) {
 									labelL = label1;
@@ -326,7 +330,7 @@ public class RemoteFileReader {
 						return parser;
 					}
 
-				} catch (FileNotFoundException e) {
+				} catch (final FileNotFoundException e) {
 					e.printStackTrace();
 					log.warn(e.getMessage());
 				}
@@ -336,7 +340,7 @@ public class RemoteFileReader {
 	}
 
 	private String getKey(Collection<File> fileCollection) {
-		List<File> list = new ArrayList<File>();
+		final List<File> list = new ArrayList<File>();
 		list.addAll(fileCollection);
 		// sort files by its name
 		Collections.sort(list, new java.util.Comparator<File>() {
@@ -347,7 +351,7 @@ public class RemoteFileReader {
 		});
 		// get the append of all the paths and names
 		String key = "";
-		for (File file : list) {
+		for (final File file : list) {
 			key += file.getAbsolutePath();
 		}
 		return key;
@@ -358,12 +362,12 @@ public class RemoteFileReader {
 			final RemoteSSHFileReference remoteSSHServer = remoteFiles.get(fileId);
 			if (types.get(fileId) == FormatType.DTA_SELECT_FILTER_TXT) {
 				try {
-					DTASelectParser parser = new DTASelectParser(fileId, remoteSSHServer);
+					final DTASelectParser parser = new DTASelectParser(fileId, remoteSSHServer);
 					return parser;
-				} catch (FileNotFoundException e) {
+				} catch (final FileNotFoundException e) {
 					e.printStackTrace();
 					log.warn(e.getMessage());
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 					log.warn(e.getMessage());
 				}
@@ -372,42 +376,67 @@ public class RemoteFileReader {
 		return null;
 	}
 
-	public DTASelectParser getDTASelectFilterParser(Collection<String> fileIds) {
-		List<File> files = new ArrayList<File>();
-		for (String fileId : fileIds) {
+	public List<IdentificationsParser> getIdentificationsParsers(Collection<String> fileIds) {
+		final Map<FormatType, Set<File>> fileByType = new THashMap<FormatType, Set<File>>();
+		for (final String fileId : fileIds) {
 			if (remoteFiles.containsKey(fileId) && types.containsKey(fileId)) {
 				final RemoteSSHFileReference remoteSSHServer = remoteFiles.get(fileId);
-				if (types.get(fileId) == FormatType.DTA_SELECT_FILTER_TXT) {
+				final FormatType fileType = types.get(fileId);
+				if (fileType == FormatType.DTA_SELECT_FILTER_TXT || fileType == FormatType.MZIDENTML) {
 					final File file = remoteSSHServer.getRemoteFile();
-					if (file != null)
-						files.add(file);
+					if (file != null) {
+						if (!fileByType.containsKey(fileType)) {
+							fileByType.put(fileType, new THashSet<File>());
+						}
+						fileByType.get(fileType).add(file);
+					}
 				}
 			}
 		}
-		if (!files.isEmpty()) {
-			final String key = getKey(files);
-			if (dtaSelectParsers.containsKey(key)) {
-				return dtaSelectParsers.get(key);
-			} else {
-				try {
-					DTASelectParser parser = new DTASelectParser(files);
-					dtaSelectParsers.put(key, parser);
-					return parser;
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-					log.warn(e.getMessage());
-				} catch (IOException e) {
-					e.printStackTrace();
-					log.warn(e.getMessage());
+		if (!fileByType.isEmpty()) {
+			final List<IdentificationsParser> ret = new ArrayList<IdentificationsParser>();
+
+			if (fileByType.containsKey(FormatType.DTA_SELECT_FILTER_TXT)) {
+				final Set<File> dtaSelectFiles = fileByType.get(FormatType.DTA_SELECT_FILTER_TXT);
+				final String key = getKey(dtaSelectFiles);
+				if (identificationParsers.containsKey(key)) {
+					ret.add(identificationParsers.get(key));
+				} else {
+					try {
+						final DTASelectParser parser = new DTASelectParser(dtaSelectFiles);
+						identificationParsers.put(key, parser);
+						ret.add(parser);
+					} catch (final FileNotFoundException e) {
+						e.printStackTrace();
+						log.warn(e.getMessage());
+					}
 				}
 			}
+			if (fileByType.containsKey(FormatType.MZIDENTML)) {
+				final Set<File> mzIdentMLFiles = fileByType.get(FormatType.MZIDENTML);
+				final String key = getKey(mzIdentMLFiles);
+				if (identificationParsers.containsKey(key)) {
+					ret.add(identificationParsers.get(key));
+				} else {
+					try {
+						final MzIdentMLIdentificationsParser parser = new MzIdentMLIdentificationsParser(
+								mzIdentMLFiles);
+						identificationParsers.put(key, parser);
+						ret.add(parser);
+					} catch (final FileNotFoundException e) {
+						e.printStackTrace();
+						log.warn(e.getMessage());
+					}
+				}
+			}
+			return ret;
 		}
 		return null;
 	}
 
 	public CensusChroParser getCensusChroParser(List<FileReferenceType> fileRef) {
 		if (fileRef != null) {
-			for (FileReferenceType fileReferenceType : fileRef) {
+			for (final FileReferenceType fileReferenceType : fileRef) {
 				final CensusChroParser censusParser = getCensusChroParser(fileReferenceType.getFileRef());
 				if (censusParser != null)
 					return censusParser;
@@ -418,7 +447,7 @@ public class RemoteFileReader {
 
 	public QuantParser getQuantParser(List<FileReferenceType> fileRef) {
 		if (fileRef != null) {
-			for (FileReferenceType fileReferenceType : fileRef) {
+			for (final FileReferenceType fileReferenceType : fileRef) {
 				final QuantParser quantParser = getQuantParser(fileReferenceType.getFileRef());
 				if (quantParser != null)
 					return quantParser;
@@ -429,7 +458,7 @@ public class RemoteFileReader {
 
 	public CensusOutParser getCensusOutParser(List<FileReferenceType> fileRef) {
 		if (fileRef != null) {
-			for (FileReferenceType fileReferenceType : fileRef) {
+			for (final FileReferenceType fileReferenceType : fileRef) {
 				final CensusOutParser censusParser = getCensusOutParser(fileReferenceType.getFileRef());
 				if (censusParser != null)
 					return censusParser;
@@ -438,9 +467,59 @@ public class RemoteFileReader {
 		return null;
 	}
 
+	public IdentificationsParser getIdentificationsParser(List<FileReferenceType> fileRef) {
+		if (fileRef != null) {
+			for (final FileReferenceType fileReferenceType : fileRef) {
+				final IdentificationsParser idParser = getIdentificationsParser(fileReferenceType.getFileRef());
+				if (idParser != null)
+					return idParser;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Gets either a census out parser or a census chro parser referred by the
+	 * fileRef
+	 *
+	 * @param fileRef
+	 * @return
+	 */
+	public IdentificationsParser getIdentificationsParser(String fileRef) {
+		final DTASelectParser dtaselectParser = getDTASelectFilterParser(fileRef);
+		if (dtaselectParser != null) {
+			return dtaselectParser;
+		}
+		final MzIdentMLIdentificationsParser mzIdentMLParser = getMzIdentMLIdentificationsParser(fileRef);
+		if (mzIdentMLParser != null) {
+			return mzIdentMLParser;
+		}
+		return null;
+	}
+
+	public MzIdentMLIdentificationsParser getMzIdentMLIdentificationsParser(String fileId) {
+		if (remoteFiles.containsKey(fileId) && types.containsKey(fileId)) {
+			final RemoteSSHFileReference remoteSSHServer = remoteFiles.get(fileId);
+			if (types.get(fileId) == FormatType.MZIDENTML) {
+				try {
+					final MzIdentMLIdentificationsParser parser = new MzIdentMLIdentificationsParser(fileId,
+							remoteSSHServer);
+					return parser;
+				} catch (final FileNotFoundException e) {
+					e.printStackTrace();
+					log.warn(e.getMessage());
+				} catch (final IOException e) {
+					e.printStackTrace();
+					log.warn(e.getMessage());
+				}
+			}
+		}
+		return null;
+	}
+
 	public DTASelectParser getDTASelectFilterParser(List<FileReferenceType> fileRef) {
 		if (fileRef != null) {
-			for (FileReferenceType fileReferenceType : fileRef) {
+			for (final FileReferenceType fileReferenceType : fileRef) {
 				final DTASelectParser dtaSelectParser = getDTASelectFilterParser(fileReferenceType.getFileRef());
 				if (dtaSelectParser != null)
 					return dtaSelectParser;
@@ -449,20 +528,20 @@ public class RemoteFileReader {
 		return null;
 	}
 
-	public DBIndexInterface getFastaDBIndex(RemoteInfoType remoteInfoType) {
+	public DBIndexImpl getFastaDBIndex(RemoteInfoType remoteInfoType) {
 		try {
 			final RemoteSSHFileReference remoteFastaFile = getRemoteFastaFile(remoteInfoType);
 			if (remoteFastaFile != null) {
 				return getFastaDBIndex(getRemoteFastaFileId(remoteInfoType), remoteFastaFile);
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}
 		return null;
 	}
 
-	public DBIndexInterface getFastaDBIndex(String fastaFileRef) {
+	public DBIndexImpl getFastaDBIndex(String fastaFileRef) {
 
 		final RemoteSSHFileReference remoteFastaFile = getRemoteFastaFile(fastaFileRef);
 		if (remoteFastaFile != null) {
@@ -472,17 +551,17 @@ public class RemoteFileReader {
 		return null;
 	}
 
-	private DBIndexInterface getFastaDBIndex(String fastaFileId, RemoteSSHFileReference remoteFastaFile) {
+	private DBIndexImpl getFastaDBIndex(String fastaFileId, RemoteSSHFileReference remoteFastaFile) {
 		try {
 			log.info("Trying to get from cache the DBIndex referenced by " + fastaFileId);
 			if (ImportCfgUtil.getDBIndexFromCache(fastaFileId) != null)
 				return ImportCfgUtil.getDBIndexFromCache(fastaFileId);
 			log.info("Not found in cache. TRying to build a new DBIndex referenced by " + fastaFileId);
-			FastaDisgestionType fastaDigestionType = getFastaDigestionType(fastaFileId);
-			File fastaFile = remoteFastaFile.getRemoteFile();
+			final FastaDisgestionType fastaDigestionType = getFastaDigestionType(fastaFileId);
+			final File fastaFile = remoteFastaFile.getRemoteFile();
 			if (fastaFile != null && fastaFile.exists()) {
 				log.info("Building DBIndex from fasta file at: " + fastaFile.getAbsolutePath());
-				final DBIndexSearchParams defaultDBIndexParams = DBIndexInterface.getDefaultDBIndexParams(fastaFile);
+				final DBIndexSearchParams defaultDBIndexParams = DBIndexImpl.getDefaultDBIndexParams(fastaFile);
 				if (fastaDigestionType != null) {
 					((DBIndexSearchParamsImpl) defaultDBIndexParams).setEnzymeArr(
 							fastaDigestionType.getCleavageAAs().toCharArray(), fastaDigestionType.getMisscleavages(),
@@ -496,14 +575,14 @@ public class RemoteFileReader {
 					((DBIndexSearchParamsImpl) defaultDBIndexParams)
 							.setH2OPlusProtonAdded(fastaDigestionType.isIsH2OPlusProtonAdded());
 				}
-				DBIndexInterface ret = new DBIndexInterface(defaultDBIndexParams);
+				final DBIndexImpl ret = new DBIndexImpl(defaultDBIndexParams);
 				ImportCfgUtil.saveDBIndexInCache(fastaFileId, ret);
 				return ret;
 			} else {
 				log.warn("Fasta file not found at: " + remoteFastaFile.getHostName() + " path:"
 						+ remoteFastaFile.getRemotePath());
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}
@@ -539,7 +618,7 @@ public class RemoteFileReader {
 
 	private RemoteSSHFileReference getRemoteFastaFile(RemoteInfoType remoteInfoType) {
 		if (remoteInfoType != null) {
-			for (FileReferenceType fileRef : remoteInfoType.getFileRef()) {
+			for (final FileReferenceType fileRef : remoteInfoType.getFileRef()) {
 				final RemoteSSHFileReference remoteFastaFile = getRemoteFastaFile(fileRef.getFileRef());
 				if (remoteFastaFile != null)
 					return remoteFastaFile;
@@ -551,7 +630,7 @@ public class RemoteFileReader {
 
 	private String getRemoteFastaFileId(RemoteInfoType remoteInfoType) {
 		if (remoteInfoType != null) {
-			for (FileReferenceType fileRef : remoteInfoType.getFileRef()) {
+			for (final FileReferenceType fileRef : remoteInfoType.getFileRef()) {
 				final RemoteSSHFileReference remoteFastaFile = getRemoteFastaFile(fileRef.getFileRef());
 				if (remoteFastaFile != null)
 					return fileRef.getFileRef();

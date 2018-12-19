@@ -1,6 +1,7 @@
 package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,9 +17,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.model.enums.AmountType;
-import edu.scripps.yates.utilities.model.factories.PeptideEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.Gene;
@@ -30,6 +28,9 @@ import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.PeptideEx;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import gnu.trove.map.hash.THashMap;
@@ -63,16 +64,19 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 
 		ret.setAcc(protein.getAccession());
 
-		if (protein.getLength() > 0)
+		if (protein.getLength() != null) {
 			ret.setLength(protein.getLength());
-		else
+		} else {
 			ret.setLength(getProteinLengthFromUniprot(protein));
-		if (protein.getMW() > 0)
-			ret.setMw(protein.getMW());
-		else
-			ret.setMw(getProteinMWFromUniprot(protein));
-		ret.setPi(protein.getPi());
-
+		}
+		if (protein.getMw() != null) {
+			ret.setMw(protein.getMw().doubleValue());
+		} else {
+			ret.setMw(getProteinMWFromUniprot(protein).doubleValue());
+		}
+		if (protein.getPi() != null) {
+			ret.setPi(protein.getPi().doubleValue());
+		}
 		// ret.getProteinAccessions().add(new
 		// ProteinAccessionAdapter(protein.getPrimaryAccession(),
 		// true).adapt());
@@ -198,11 +202,13 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		}
 
 		// msrun
-		final MSRun msRun = protein.getMSRun();
-		ret.setMsRun(new MSRunAdapter(msRun, hibProject).adapt());
+		final Set<MSRun> msRuns = protein.getMSRuns();
+		for (final MSRun msRun2 : msRuns) {
+			ret.getMsRuns().add(new MSRunAdapter(msRun2, hibProject).adapt());
+		}
 
 		// PSMS
-		final Set<PSM> psms2 = protein.getPSMs();
+		final List<PSM> psms2 = protein.getPSMs();
 		if (psms2 != null) {
 			for (final PSM psm : psms2) {
 				final Psm hibPsm = new PSMAdapter(psm, hibProject).adapt();
@@ -223,25 +229,25 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		} else {
 			// if there is not peptides, try to construct the peptides from
 			// PSMs and Proteins
-			final Set<PSM> psms = protein.getPSMs();
+			final List<PSM> psms = protein.getPSMs();
 			if (psms != null) {
 				final Map<String, Set<PSM>> psmMapBySequence = ModelUtils.getPSMMapBySequence(psms);
 
 				for (final String sequence : psmMapBySequence.keySet()) {
 					final Set<PSM> psmsWithThatSequence = psmMapBySequence.get(sequence);
 					Peptide peptide = null;
-					if (StaticProteomicsModelStorage.containsPeptide(msRun, null, sequence)) {
-						peptide = StaticProteomicsModelStorage.getSinglePeptide(msRun, null, sequence);
+					if (StaticProteomicsModelStorage.containsPeptide(msRuns, null, sequence)) {
+						peptide = StaticProteomicsModelStorage.getSinglePeptide(msRuns, null, sequence);
 					} else {
 						// create the peptide
-						peptide = new PeptideEx(sequence, msRun);
-						StaticProteomicsModelStorage.addPeptide(peptide, msRun, null);
+						peptide = new PeptideEx(sequence);
+
+						StaticProteomicsModelStorage.addPeptide(peptide, msRuns, null);
 					}
-					peptide.addProtein(protein);
+					peptide.addProtein(protein, true);
 					// add the relationships with the psms
 					for (final PSM psmWithThatSequence : psmsWithThatSequence) {
-						peptide.addPSM(psmWithThatSequence);
-						psmWithThatSequence.setPeptide(peptide);
+						peptide.addPSM(psmWithThatSequence, true);
 					}
 					// add to this protein
 					final edu.scripps.yates.proteindb.persistence.mysql.Peptide hibPeptide = new PeptideAdapter(peptide,
@@ -345,7 +351,7 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		return null;
 	}
 
-	private Double getProteinMWFromUniprot(edu.scripps.yates.utilities.proteomicsmodel.Protein protein) {
+	private Float getProteinMWFromUniprot(edu.scripps.yates.utilities.proteomicsmodel.Protein protein) {
 		if (protein.getPrimaryAccession().getAccessionType() != AccessionType.UNIPROT)
 			return null;
 		final UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
@@ -357,9 +363,9 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		if (annotatedProtein != null && !annotatedProtein.isEmpty()) {
 			final String nonIsoFormaAcc = FastaParser.getNoIsoformAccession(accession);
 			if (annotatedProtein.containsKey(accession) && annotatedProtein.get(accession) != null) {
-				return annotatedProtein.get(accession).getMW();
+				return annotatedProtein.get(accession).getMw();
 			} else if (annotatedProtein.containsKey(nonIsoFormaAcc) && annotatedProtein.get(nonIsoFormaAcc) != null) {
-				return annotatedProtein.get(nonIsoFormaAcc).getMW();
+				return annotatedProtein.get(nonIsoFormaAcc).getMw();
 			} else {
 				log.debug("check it out");
 			}

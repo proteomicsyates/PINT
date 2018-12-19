@@ -17,7 +17,7 @@ public class CombinationTypeAdapter implements Adapter<CombinationType>, Seriali
 	 * 
 	 */
 	private static final long serialVersionUID = -6274363811783352819L;
-	private final edu.scripps.yates.utilities.model.enums.CombinationType combinationType;
+	private final edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType combinationType;
 	private final ProteinAmount proteinAmount;
 	private final ProteinRatioValue proteinRatio;
 	private final PeptideAmount peptideAmount;
@@ -26,7 +26,7 @@ public class CombinationTypeAdapter implements Adapter<CombinationType>, Seriali
 	private final PsmRatioValue psmRatio;
 	private final static Map<String, CombinationType> map = new THashMap<String, CombinationType>();
 
-	public CombinationTypeAdapter(edu.scripps.yates.utilities.model.enums.CombinationType combinationType,
+	public CombinationTypeAdapter(edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType combinationType,
 			ProteinAmount proteinAmount) {
 		this.combinationType = combinationType;
 		this.proteinAmount = proteinAmount;
@@ -37,7 +37,7 @@ public class CombinationTypeAdapter implements Adapter<CombinationType>, Seriali
 		psmRatio = null;
 	}
 
-	public CombinationTypeAdapter(edu.scripps.yates.utilities.model.enums.CombinationType combinationType,
+	public CombinationTypeAdapter(edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType combinationType,
 			PeptideAmount peptideAmount) {
 		this.combinationType = combinationType;
 		this.peptideAmount = peptideAmount;
@@ -48,7 +48,7 @@ public class CombinationTypeAdapter implements Adapter<CombinationType>, Seriali
 		psmRatio = null;
 	}
 
-	public CombinationTypeAdapter(edu.scripps.yates.utilities.model.enums.CombinationType combinationType,
+	public CombinationTypeAdapter(edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType combinationType,
 			ProteinRatioValue proteinRatio) {
 		this.combinationType = combinationType;
 		this.proteinRatio = proteinRatio;
@@ -59,7 +59,7 @@ public class CombinationTypeAdapter implements Adapter<CombinationType>, Seriali
 		psmRatio = null;
 	}
 
-	public CombinationTypeAdapter(edu.scripps.yates.utilities.model.enums.CombinationType combinationType,
+	public CombinationTypeAdapter(edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType combinationType,
 			PsmAmount amount) {
 		this.combinationType = combinationType;
 		proteinRatio = null;
@@ -70,7 +70,7 @@ public class CombinationTypeAdapter implements Adapter<CombinationType>, Seriali
 		psmRatio = null;
 	}
 
-	public CombinationTypeAdapter(edu.scripps.yates.utilities.model.enums.CombinationType combinationType,
+	public CombinationTypeAdapter(edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType combinationType,
 			PeptideRatioValue ratio) {
 		this.combinationType = combinationType;
 		proteinRatio = null;
@@ -81,7 +81,7 @@ public class CombinationTypeAdapter implements Adapter<CombinationType>, Seriali
 		psmRatio = null;
 	}
 
-	public CombinationTypeAdapter(edu.scripps.yates.utilities.model.enums.CombinationType combinationType,
+	public CombinationTypeAdapter(edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType combinationType,
 			PsmRatioValue ratio) {
 		this.combinationType = combinationType;
 		proteinRatio = null;

@@ -9,8 +9,8 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.LabelType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.OrganismSetType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SampleType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.TissueSetType;
-import edu.scripps.yates.utilities.model.factories.SampleEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.SampleEx;
 import gnu.trove.map.hash.THashMap;
 
 public class SampleAdapter implements edu.scripps.yates.utilities.pattern.Adapter<Sample> {

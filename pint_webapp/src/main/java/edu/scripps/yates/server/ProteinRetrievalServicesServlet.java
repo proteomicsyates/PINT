@@ -31,8 +31,6 @@ import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRemoteRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.client.ProteinRetrievalService;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
@@ -139,6 +137,8 @@ import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;
 import edu.scripps.yates.shared.util.sublists.QueryResultSubLists;
 import edu.scripps.yates.utilities.alignment.nwalign.NWAlign;
 import edu.scripps.yates.utilities.alignment.nwalign.NWResult;
+import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.email.EmailSender;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
@@ -1339,7 +1339,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				final Set<Organism> organisms = PreparedQueries.getOrganismsByProject(projectTag);
 				final Set<OrganismBean> ret = new HashSet<OrganismBean>();
 				for (final Organism organism : organisms) {
-					if (organism.getName().equals(ModelUtils.ORGANISM_CONTAMINANT.getName())) {
+					if (organism.getName().equals(ModelUtils.getOrganismContaminant().getName())) {
 						continue;
 					}
 					ret.add(new OrganismBeanAdapter(organism).adapt());

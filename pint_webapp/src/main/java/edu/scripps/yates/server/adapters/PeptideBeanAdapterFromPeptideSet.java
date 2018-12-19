@@ -175,7 +175,11 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 					peptideAmountValueBean.setValue(peptideAmountValueWrapper.getValue());
 					peptideAmountValueBean.setManualSPC(peptideAmountValueWrapper.getManualSPC());
 					peptideAmountValueBean.setComposed(peptideAmountValueWrapper.getCombinationType() != null);
-					peptideAmountValueBean.setMsRun(new MSRunBeanAdapter(peptide.getMsRun(), false).adapt());
+					for (final Object obj : peptide.getMsRuns()) {
+						final MsRun msRun = (MsRun) obj;
+						peptideAmountValueBean.addMsRun(new MSRunBeanAdapter(msRun, false).adapt());
+					}
+
 				}
 				ret.addAmount(peptideAmountValueBean);
 			}
@@ -310,14 +314,17 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 			for (final int msRunID : msRunIDs.toArray()) {
 				MSRunBean msRunBean = MSRunBeanAdapter.getBeanByMSRunID(msRunID);
 				if (msRunBean == null) {
-					final MsRun msRun = peptide.getMsRun();
-					if (msRun.getId() == msRunID) {
-						msRunBean = new MSRunBeanAdapter(msRun, false).adapt();
+					final Set msRuns = peptide.getMsRuns();
+					for (final Object object : msRuns) {
+						final MsRun msRun = (MsRun) object;
+						if (msRun.getId() == msRunID) {
+							msRunBean = new MSRunBeanAdapter(msRun, false).adapt();
+							ret.addMSRun(msRunBean);
+						}
 					}
+
 				}
-				if (msRunBean != null) {
-					ret.addMSRun(msRunBean);
-				}
+
 			}
 		}
 

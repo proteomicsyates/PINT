@@ -7,16 +7,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
-import edu.scripps.yates.dbindex.DBIndexInterface;
-import edu.scripps.yates.dtaselect.ProteinDTASelectParser;
-import edu.scripps.yates.dtaselectparser.DTASelectParser;
-import edu.scripps.yates.dtaselectparser.util.DTASelectProtein;
+import edu.scripps.yates.dbindex.DBIndexImpl;
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.proteindb.importcfg.ExcelFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.RemoteFileReader;
@@ -33,12 +31,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteInfoType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SampleType;
 import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.excel.util.ExcelUtils;
-import edu.scripps.yates.utilities.model.factories.AmountEx;
-import edu.scripps.yates.utilities.model.factories.ConditionEx;
-import edu.scripps.yates.utilities.model.factories.PSMEx;
-import edu.scripps.yates.utilities.model.factories.PeptideEx;
-import edu.scripps.yates.utilities.model.factories.ProteinEx;
-import edu.scripps.yates.utilities.proteomicsmodel.Accession;
+import edu.scripps.yates.utilities.parsers.idparser.IdentificationsParser;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
@@ -46,6 +39,8 @@ import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.AmountEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ConditionEx;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import gnu.trove.map.hash.THashMap;
@@ -61,9 +56,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	private final MsRunsType msRunsCfg;
 	private final OrganismSetType organismTypeCfg;
 	private static final Map<String, Condition> conditionsById = new THashMap<String, Condition>();
-	private static final Map<String, Map<String, Set<Protein>>> proteinsByRunIDAndAcc = new THashMap<String, Map<String, Set<Protein>>>();
-	private static final Map<String, Set<Peptide>> peptidesByRunID = new THashMap<String, Set<Peptide>>();
-	private static final Map<String, Set<PSM>> psmsByRunID = new THashMap<String, Set<PSM>>();
+
 	private final Set<String> thereIsProteinSetReferenceFromExcelByMSRunID = new THashSet<String>();
 
 	public ConditionAdapter(ExperimentalConditionType expConditionCfg, MsRunsType msRunsType,
@@ -111,121 +104,54 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 				&& !expConditionCfg.getIdentificationInfo().getExcelIdentInfo().isEmpty()) {
 			log.info("containing " + expConditionCfg.getIdentificationInfo().getExcelIdentInfo().size()
 					+ "  excel information");
-			if (expConditionCfg.getId().equals("CAMK2_Immunoprecipitation")) {
-				log.info("asdf");
-			}
 			for (final IdentificationExcelType excelInfo : expConditionCfg.getIdentificationInfo()
 					.getExcelIdentInfo()) {
 				if (excelFileReader != null) {
 
 					final List<MsRunType> msRunCfgs = ImportCfgUtil.getMSRuns(excelInfo.getMsRunRef(), msRunsCfg,
 							ExcelUtils.MULTIPLE_ITEM_SEPARATOR);
-					for (final MsRunType msRunCfg : msRunCfgs) {
-						thereIsProteinSetReferenceFromExcelByMSRunID.add(msRunCfg.getId());
-						final ProteinsAdapterByExcel proteinsAdapterByExcel = new ProteinsAdapterByExcel(excelInfo,
-								excelFileReader, ret, msRunCfg, sample);
-						final Set<Protein> proteins = proteinsAdapterByExcel.adapt();
-						log.info(proteins.size() + " proteins from MS RUN: " + excelInfo.getMsRunRef());
-						addProteinsByRunID(project.getTag(), msRunCfg.getId(), proteins);
+					for (final MsRunType msRunType : msRunCfgs) {
+						thereIsProteinSetReferenceFromExcelByMSRunID.add(msRunType.getId());
+					}
+					final List<String> msRunIDs = msRunCfgs.stream().map(msRunType -> msRunType.getId())
+							.collect(Collectors.toList());
+					final ProteinsAdapterByExcel proteinsAdapterByExcel = new ProteinsAdapterByExcel(excelInfo,
+							excelFileReader, ret, msRunCfgs, sample, project);
+					final Set<Protein> proteins = proteinsAdapterByExcel.adapt();
+					log.info(proteins.size() + " proteins from MS RUN(s): " + excelInfo.getMsRunRef());
 
-						for (final Protein protein : proteins) {
-							// protein-condition
-							protein.addCondition(ret);
-							// condition-protein
+					for (final Protein protein : proteins) {
+						StaticProteomicsModelStorage.addProtein(protein, msRunIDs, expConditionCfg.getId());
+						// protein-condition
+						protein.addCondition(ret);
+						// condition-protein
 
-							ret.addProtein(protein);
+						ret.addProtein(protein);
 
-							final Set<PSM> psMs = protein.getPSMs();
-							if (psMs != null) {
-								addPSMsByRunID(project.getTag(), msRunCfg.getId(), psMs);
-								for (final PSM psm : psMs) {
-									if (psm == null)
-										continue;
-									ret.addPSM(psm);
-									// protein-psm
-									protein.addPSM(psm);
-									// psm-protein
-									psm.addProtein(protein);
-									// psm-condition
-									psm.addCondition(ret);
-								}
+						final List<PSM> psMs = protein.getPSMs();
+						if (psMs != null) {
+							for (final PSM psm : psMs) {
+								if (psm == null)
+									continue;
+								StaticProteomicsModelStorage.addPSM(psm, msRunIDs.get(0), expConditionCfg.getId());
+								ret.addPSM(psm);
+								// protein-psm
+								protein.addPSM(psm, true);
+								// psm-condition
+								psm.addCondition(ret);
 							}
-							final Set<Peptide> peptides = protein.getPeptides();
-							if (peptides != null) {
-								addPeptidesByRunID(project.getTag(), msRunCfg.getId(), peptides);
-								for (final Peptide peptide : peptides) {
-									ret.addPeptide(peptide);
-									peptide.addCondition(ret);
-								}
+						}
+						final Set<Peptide> peptides = protein.getPeptides();
+						if (peptides != null) {
+							for (final Peptide peptide : peptides) {
+								StaticProteomicsModelStorage.addPeptide(peptide, msRunIDs, expConditionCfg.getId());
+								ret.addPeptide(peptide);
+								peptide.addCondition(ret);
 							}
-							// they should be created anyway in the
-							// ProteinsAdapterByExcel.java
-							// // create the peptides if not created before
-							// if (excelInfo.getPeptideSequence() == null) {
-							// ModelUtils.createPeptides(protein);
-							// final Set<Peptide> peptides =
-							// protein.getPeptides();
-							// if (peptides != null && !peptides.isEmpty()) {
-							// for (Peptide peptide : peptides) {
-							// // peptide-condition
-							// peptide.addCondition(ret);
-							// // condition-peptide
-							// ret.addPeptide(peptide);
-							// // protein-peptide
-							// protein.addPeptide(peptide);
-							// // peptide-protein
-							// peptide.addProtein(protein);
-							// if (peptide.getPSMs() != null) {
-							// for (PSM psm : peptide.getPSMs()) {
-							// // protein-psm
-							// psm.addProtein(protein);
-							// protein.addPSM(psm);
-							// // psm-condition
-							// psm.addCondition(ret);
-							// ret.addPSM(psm);
-							// // psm-peptide
-							// psm.setPeptide(peptide);
-							// // peptide-psm
-							// peptide.addPSM(psm);
-							// }
-							// }
-							// }
-							// }
-							// }
-							// } else {
-							// // in case of not define the PSMs but the
-							// Peptides
-							// Set<Peptide> peptides = protein.getPeptides();
-							// for (Peptide peptide : peptides) {
-							// // peptide-condition
-							// peptide.addCondition(ret);
-							// // condition-peptide
-							// ret.addPeptide(peptide);
-							// // protein-peptide
-							// protein.addPeptide(peptide);
-							// // peptide-protein
-							// peptide.addProtein(protein);
-							// if (peptide.getPSMs() != null) {
-							// for (PSM psm : peptide.getPSMs()) {
-							// // protein-psm
-							// psm.addProtein(protein);
-							// protein.addPSM(psm);
-							// // psm-condition
-							// psm.addCondition(ret);
-							// ret.addPSM(psm);
-							// // psm-peptide
-							// psm.setPeptide(peptide);
-							// // peptide-psm
-							// peptide.addPSM(psm);
-							// }
-							// }
-							// }
-
 						}
 					}
 				}
 			}
-
 		}
 
 		if (expConditionCfg.getIdentificationInfo() != null && remoteFileReader != null) {
@@ -236,54 +162,60 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 			for (final RemoteInfoType remoteInfoCfg : identRemoteFilesInfo) {
 				final List<MsRunType> msRunCfgs = ImportCfgUtil.getMSRuns(remoteInfoCfg.getMsRunRef(), msRunsCfg,
 						ExcelUtils.MULTIPLE_ITEM_SEPARATOR);
-				for (final MsRunType msRunCfg : msRunCfgs) {
+				final List<String> msRunIDs = msRunCfgs.stream().map(msRunType -> msRunType.getId())
+						.collect(Collectors.toList());
+				// if (msRunCfg.getFastaFileRef() == null) {
+				final Map<String, Protein> remoteProteins = new ProteinsAdapterByRemoteFiles(remoteInfoCfg,
+						remoteFileReader, ret, msRunCfgs, organismTypeCfg).adapt();
 
-					// if (msRunCfg.getFastaFileRef() == null) {
-					final Map<String, Protein> remoteProteins = new ProteinsAdapterByRemoteFiles(remoteInfoCfg,
-							remoteFileReader, ret, msRunCfg, organismTypeCfg).adapt();
-
-					// if there is already proteins related to this MSRun, merge
-					// with them
-					if (getProteinsByRunID(project.getTag(), msRunCfg.getId()) != null
-							&& !getProteinsByRunID(project.getTag(), msRunCfg.getId()).isEmpty()) {
-						// only add other proteins if there is not a reference
-						// protein set from excel
-						final boolean addProteinsNotInOriginalProteinSet = !thereIsProteinSetReferenceFromExcelByMSRunID
-								.contains(msRunCfg.getId());
-						mergeProteins(getProteinsByRunID(project.getTag(), msRunCfg.getId()), remoteProteins,
-								addProteinsNotInOriginalProteinSet, project.getTag(), msRunCfg.getId());
-						for (final Protein protein : getProteinsByRunID(project.getTag(), msRunCfg.getId())) {
-							if (protein.getOrganism() == null) {
-								log.info(protein);
-							}
-							ret.addProtein(protein);
-							final Set<PSM> psMs = protein.getPSMs();
-							addPSMsByRunID(project.getTag(), msRunCfg.getId(), psMs);
-							for (final PSM psm : psMs) {
-								ret.addPSM(psm);
-							}
-							final Set<Peptide> peptides = protein.getPeptides();
-							for (final Peptide peptide : peptides) {
-								ret.addPeptide(peptide);
-							}
-							addPeptidesByRunID(project.getTag(), msRunCfg.getId(), peptides);
+				// if there is already proteins related to any of these MSRuns,
+				// merge with them
+				final String acc = null;
+				if (StaticProteomicsModelStorage.getProtein(msRunIDs, expConditionCfg.getId(), acc) != null
+						&& !StaticProteomicsModelStorage.getProtein(msRunIDs, expConditionCfg.getId(), acc).isEmpty()) {
+					// only add other proteins if there is not a reference
+					// protein set from excel
+					boolean addProteinsNotInOriginalProteinSet = true;
+					for (final MsRunType msRunType : msRunCfgs) {
+						if (thereIsProteinSetReferenceFromExcelByMSRunID.contains(msRunType.getId())) {
+							addProteinsNotInOriginalProteinSet = false;
 						}
-					} else {
-						log.info(
-								"Adding proteins directly from remote files into condition " + expConditionCfg.getId());
-						addProteinsByRunID(project.getTag(), msRunCfg.getId(), remoteProteins.values());
-						for (final Protein protein : remoteProteins.values()) {
-							ret.addProtein(protein);
-							final Set<PSM> psMs = protein.getPSMs();
-							addPSMsByRunID(project.getTag(), msRunCfg.getId(), psMs);
-							for (final PSM psm : psMs) {
-								ret.addPSM(psm);
-							}
-							final Set<Peptide> peptides = protein.getPeptides();
-							for (final Peptide peptide : peptides) {
-								ret.addPeptide(peptide);
-							}
-							addPeptidesByRunID(project.getTag(), msRunCfg.getId(), peptides);
+					}
+
+					mergeProteins(StaticProteomicsModelStorage.getProtein(msRunIDs, expConditionCfg.getId(), acc),
+							remoteProteins, addProteinsNotInOriginalProteinSet, project.getTag(), msRunIDs);
+					for (final Protein protein : StaticProteomicsModelStorage.getProtein(msRunIDs,
+							expConditionCfg.getId(), acc)) {
+						if (protein.getOrganism() == null) {
+							log.info(protein);
+						}
+						ret.addProtein(protein);
+						final List<PSM> psMs = protein.getPSMs();
+
+						for (final PSM psm : psMs) {
+							StaticProteomicsModelStorage.addPSM(psm, msRunIDs.get(0), expConditionCfg.getId());
+							ret.addPSM(psm);
+						}
+						final Set<Peptide> peptides = protein.getPeptides();
+						for (final Peptide peptide : peptides) {
+							StaticProteomicsModelStorage.addPeptide(peptide, msRunIDs, expConditionCfg.getId());
+							ret.addPeptide(peptide);
+						}
+					}
+				} else {
+					log.info("Adding proteins directly from remote files into condition " + expConditionCfg.getId());
+					for (final Protein protein : remoteProteins.values()) {
+						StaticProteomicsModelStorage.addProtein(protein, msRunIDs, expConditionCfg.getId());
+						ret.addProtein(protein);
+						final List<PSM> psMs = protein.getPSMs();
+						for (final PSM psm : psMs) {
+							StaticProteomicsModelStorage.addPSM(psm, msRunIDs.get(0), expConditionCfg.getId());
+							ret.addPSM(psm);
+						}
+						final Set<Peptide> peptides = protein.getPeptides();
+						for (final Peptide peptide : peptides) {
+							ret.addPeptide(peptide);
+							StaticProteomicsModelStorage.addPeptide(peptide, msRunIDs, expConditionCfg.getId());
 						}
 					}
 				}
@@ -319,9 +251,9 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 		for (final RemoteInfoType remoteInfoType : remoteFilesInfo) {
 
 			final String msRunRef = remoteInfoType.getMsRunRef();
-			DBIndexInterface dbIndex = null;
+			DBIndexImpl dbIndex = null;
 			final QuantParser quantParser = remoteFileReader.getQuantParser(remoteInfoType.getFileRef());
-			final DTASelectParser dtaSelectParser = remoteFileReader
+			final IdentificationsParser identificationsParser = remoteFileReader
 					.getDTASelectFilterParser(remoteInfoType.getFileRef());
 			dbIndex = remoteFileReader.getFastaDBIndex(remoteInfoType);
 
@@ -337,7 +269,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 				final Map<String, QuantifiedPSMInterface> quantPSMsMap = quantParser.getPSMMap();
 
 				if (quantPSMsMap != null) {
-					final Set<PSM> runPSMs = getPSMsByRunID(project.getTag(), msRunRef);
+					final Set<PSM> runPSMs = StaticProteomicsModelStorage.getPSM(msRunRef, condition.getName(), null);
 					for (final PSM runPSM : runPSMs) {
 						final String psmIdentifier = runPSM.getIdentifier();
 
@@ -354,31 +286,33 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 						}
 					}
 				}
-			} else if (dtaSelectParser != null) {
+			} else if (identificationsParser != null) {
 				// TODO
-				log.info("DTA Select parser is not null");
+				log.info("Identifications parser is not null");
 				if (remoteInfoType.getDiscardDecoys() != null)
-					dtaSelectParser.setDecoyPattern(remoteInfoType.getDiscardDecoys());
+					identificationsParser.setDecoyPattern(remoteInfoType.getDiscardDecoys());
 				if (dbIndex != null) {
-					dtaSelectParser.setDbIndex(dbIndex);
+					identificationsParser.setDbIndex(dbIndex);
 				}
 
 				try {
-					final Map<String, DTASelectProtein> dtaSelectProteinsMap = dtaSelectParser.getDTASelectProteins();
+					final Map<String, Protein> dtaSelectProteinsMap = identificationsParser.getProteinMap();
 
 					if (dtaSelectProteinsMap != null) {
-						// map the proteins with the appropiate parsed accession
-						final Map<String, DTASelectProtein> dtaSelectProteinsMap2 = new THashMap<String, DTASelectProtein>();
-						for (final DTASelectProtein dtaSelectProtein : dtaSelectProteinsMap.values()) {
-							dtaSelectProteinsMap2.put(ProteinDTASelectParser
-									.getProteinAccessionFromDTASelectProtein(dtaSelectProtein).getAccession(),
-									dtaSelectProtein);
+						// map the proteins with the appropriate parsed
+						// accession
+						final Map<String, Protein> dtaSelectProteinsMap2 = new THashMap<String, Protein>();
+						for (final Protein identifiedProtein : dtaSelectProteinsMap.values()) {
+							dtaSelectProteinsMap2.put(identificationsParser
+									.getProteinAccessionFromProtein(identifiedProtein).getAccession(),
+									identifiedProtein);
 						}
-						final Set<Protein> runProteins = getProteinsByRunID(project.getTag(), msRunRef);
+						final String acc = null;
+						final Set<Protein> runProteins = StaticProteomicsModelStorage.getProtein(msRunRef,
+								condition.getName(), acc);
 						for (final Protein runProtein : runProteins) {
 
-							final DTASelectProtein dtaSelectProtein = dtaSelectProteinsMap2
-									.get(runProtein.getAccession());
+							final Protein dtaSelectProtein = dtaSelectProteinsMap2.get(runProtein.getAccession());
 							if (dtaSelectProtein == null) {
 								log.warn(runProtein.getAccession()
 										+ " doesn't have quantitative information. Skipping it...");
@@ -387,19 +321,19 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 							// SPECTRAL COUNT AMOUNT
 							if (dtaSelectProtein.getSpectrumCount() != null) {
 								final AmountEx spcAmount = new AmountEx(dtaSelectProtein.getSpectrumCount(),
-										edu.scripps.yates.utilities.model.enums.AmountType.SPC, condition);
+										edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.SPC, condition);
 								runProtein.addAmount(spcAmount);
 							}
 							// NSAF AMOUNT
 							if (dtaSelectProtein.getNsaf() != null) {
 								final AmountEx nsafAmount = new AmountEx(dtaSelectProtein.getNsaf(),
-										edu.scripps.yates.utilities.model.enums.AmountType.NSAF, condition);
+										edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.NSAF, condition);
 								runProtein.addAmount(nsafAmount);
 							}
 							// EMPAI AMOUNT
 							if (dtaSelectProtein.getEmpai() != null) {
 								final AmountEx empaiAmount = new AmountEx(dtaSelectProtein.getEmpai(),
-										edu.scripps.yates.utilities.model.enums.AmountType.EMPAI, condition);
+										edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.EMPAI, condition);
 								runProtein.addAmount(empaiAmount);
 							}
 						}
@@ -434,14 +368,15 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					if (psmAmountsCfg != null && !psmAmountsCfg.isEmpty()) {
 						createPSMAmountsFromExcel(psmAmountsCfg, condition, msRunRef);
 					}
-					// Peptide AMOUNTS
-					if (peptideAmountsCfg != null && !peptideAmountsCfg.isEmpty()) {
-						createPeptideAmountsFromExcel(peptideAmountsCfg, condition, msRunRef);
-					}
-					// protein AMOUNTS
-					if (proteinAmountsCfg != null && !proteinAmountsCfg.isEmpty()) {
-						createProteinAmountsFromExcel(proteinAmountsCfg, condition, msRunRef);
-					}
+
+				}
+				// Peptide AMOUNTS
+				if (peptideAmountsCfg != null && !peptideAmountsCfg.isEmpty()) {
+					createPeptideAmountsFromExcel(peptideAmountsCfg, condition, msRunRefs);
+				}
+				// protein AMOUNTS
+				if (proteinAmountsCfg != null && !proteinAmountsCfg.isEmpty()) {
+					createProteinAmountsFromExcel(proteinAmountsCfg, condition, msRunRefs);
 				}
 			}
 		}
@@ -449,8 +384,8 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	}
 
 	private void createProteinAmountsFromExcel(List<AmountType> proteinAmountsCfg, Condition condition,
-			String msRunRef) {
-		final Set<Protein> runProteins = getProteinsByRunID(project.getTag(), msRunRef);
+			List<String> msRunIDs) {
+		final Set<Protein> runProteins = StaticProteomicsModelStorage.getProtein(msRunIDs, condition.getName(), null);
 		for (final AmountType amountCfg : proteinAmountsCfg) {
 			final ExcelColumn excelColumn = excelFileReader.getExcelColumnFromReference(amountCfg.getColumnRef());
 			for (int rowIndex = 0; rowIndex < excelColumn.getValues().size(); rowIndex++) {
@@ -461,12 +396,12 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					// final Set<Protein> rowProteins =
 					// ProteinsAdapterByExcel.getProteinsByMSRunAndRowIndex(msRunRef,
 					// rowIndex);
-					final Set<Protein> rowProteins = StaticProteomicsModelStorage.getProtein(msRunRef,
+					final Set<Protein> rowProteins = StaticProteomicsModelStorage.getProtein(msRunIDs,
 							condition.getName(), rowIndex, null);
 					for (final Protein rowProtein : rowProteins) {
 						if (runProteins != null) {
 							if (runProteins.contains(rowProtein)) {
-								((ProteinEx) rowProtein).addAmount(proteinAmount);
+								rowProtein.addAmount(proteinAmount);
 							}
 						}
 					}
@@ -476,7 +411,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	}
 
 	private void createPSMAmountsFromExcel(List<AmountType> psmAmountsCfg, Condition condition, String msRunRef) {
-		final Set<PSM> runPSMs = getPSMsByRunID(project.getTag(), msRunRef);
+		final Set<PSM> runPSMs = StaticProteomicsModelStorage.getPSM(msRunRef, condition.getName(), null);
 		for (final AmountType amountCfg : psmAmountsCfg) {
 			final ExcelColumn excelColumn = excelFileReader.getExcelColumnFromReference(amountCfg.getColumnRef());
 			for (int rowIndex = 0; rowIndex < excelColumn.getValues().size(); rowIndex++) {
@@ -492,7 +427,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 							null);
 					for (final PSM rowPSM : rowPSMs) {
 						if (runPSMs.contains(rowPSM)) {
-							((PSMEx) rowPSM).addAmount(psmAmount);
+							rowPSM.addAmount(psmAmount);
 						}
 					}
 				}
@@ -501,8 +436,9 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	}
 
 	private void createPeptideAmountsFromExcel(List<AmountType> peptideAmountsCfg, Condition condition,
-			String msRunRef) {
-		final Set<Peptide> runPeptides = getPeptidesByRunID(project.getTag(), msRunRef);
+			List<String> msRunRefs) {
+		final String seq = null;
+		final Set<Peptide> runPeptides = StaticProteomicsModelStorage.getPeptide(msRunRefs, condition.getName(), seq);
 		for (final AmountType amountCfg : peptideAmountsCfg) {
 			final ExcelColumn excelColumn = excelFileReader.getExcelColumnFromReference(amountCfg.getColumnRef());
 			for (int rowIndex = 0; rowIndex < excelColumn.getValues().size(); rowIndex++) {
@@ -512,11 +448,11 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					// assign just to the peptides in that rowIndex
 					// final Set<Peptide> rowPeptides =
 					// PeptideAdapterByExcel.peptideByRowIndex.get(rowIndex);
-					final Set<Peptide> rowPeptides = StaticProteomicsModelStorage.getPeptide(msRunRef,
+					final Set<Peptide> rowPeptides = StaticProteomicsModelStorage.getPeptide(msRunRefs,
 							condition.getName(), rowIndex, null);
 					for (final Peptide rowPeptide : rowPeptides) {
 						if (runPeptides.contains(rowPeptide)) {
-							((PeptideEx) rowPeptide).addAmount(peptideAmount);
+							rowPeptide.addAmount(peptideAmount);
 						}
 					}
 				}
@@ -540,7 +476,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	 * @return
 	 */
 	private void mergeProteins(Collection<Protein> originalProteins, Map<String, Protein> otherProteins,
-			boolean addProteinsNotInOriginalProteinSet, String projectTag, String msRunID) {
+			boolean addProteinsNotInOriginalProteinSet, String projectTag, List<String> msRunIDs) {
 		log.info("merging " + originalProteins.size() + " with " + otherProteins.size() + " proteins");
 		// index original proteins by accessions
 		final Map<String, Set<Protein>> originalProteinsMap = new THashMap<String, Set<Protein>>();
@@ -561,13 +497,12 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					final Protein otherProtein = otherProteins.get(otherProteinAccPrimitive);
 					for (final Protein originalProtein : originalProteinsMap.get(otherProteinAcc)) {
 						// merge protein
-						ImportCfgUtil.mergeProteins(originalProtein, otherProtein);
+						originalProtein.mergeWithProtein(otherProtein);
 					}
 					numValid++;
 				} else if (addProteinsNotInOriginalProteinSet) {
 					final Protein otherProtein = otherProteins.get(otherProteinAccPrimitive);
-					// add to the map
-					addProteinByRunID(projectTag, msRunID, otherProtein);
+					StaticProteomicsModelStorage.addProtein(otherProtein, msRunIDs, expConditionCfg.getId());
 					numValid++;
 				} else {
 					// log.debug(otherProteinAcc + " skipped");
@@ -594,12 +529,6 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 
 	}
 
-	private void addProteinByRunID(String projectTag, String msRunID, Protein otherProtein) {
-		final Set<Protein> proteins = new THashSet<Protein>();
-		proteins.add(otherProtein);
-		addProteinsByRunID(projectTag, msRunID, proteins);
-	}
-
 	public static Condition getConditionById(String projectTag, String conditionId) {
 		final String key = projectTag + conditionId;
 		return conditionsById.get(key);
@@ -610,130 +539,9 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 		conditionsById.put(key, condition);
 	}
 
-	private static void addProteinsByRunID(String projectTag, String msrunID, Collection<Protein> proteins) {
-
-		// because sometimes the run
-		// id is the same in
-		// different experiments
-		final String key = projectTag + msrunID;
-		if (proteinsByRunIDAndAcc.containsKey(key)) {
-			for (final Protein protein : proteins) {
-				final String accession = protein.getPrimaryAccession().getAccession();
-				if (proteinsByRunIDAndAcc.get(key).containsKey(accession)) {
-					proteinsByRunIDAndAcc.get(key).get(accession).add(protein);
-				} else {
-					final Set<Protein> set = new THashSet<Protein>();
-					set.add(protein);
-					proteinsByRunIDAndAcc.get(key).put(accession, set);
-				}
-				final List<Accession> secondaryAccessions = protein.getSecondaryAccessions();
-				if (secondaryAccessions != null) {
-					for (final Accession accession2 : secondaryAccessions) {
-						if (proteinsByRunIDAndAcc.get(key).containsKey(accession2.getAccession())) {
-							proteinsByRunIDAndAcc.get(key).get(accession2.getAccession()).add(protein);
-						} else {
-							final Set<Protein> set = new THashSet<Protein>();
-							set.add(protein);
-							proteinsByRunIDAndAcc.get(key).put(accession2.getAccession(), set);
-						}
-					}
-				}
-			}
-		} else {
-			final Map<String, Set<Protein>> map = new THashMap<String, Set<Protein>>();
-			for (final Protein protein : proteins) {
-				final String accession = protein.getPrimaryAccession().getAccession();
-				if (map.containsKey(accession)) {
-					map.get(accession).add(protein);
-				} else {
-					final Set<Protein> set = new THashSet<Protein>();
-					set.add(protein);
-					map.put(accession, set);
-				}
-				final List<Accession> secondaryAccessions = protein.getSecondaryAccessions();
-				if (secondaryAccessions != null) {
-					for (final Accession accession2 : secondaryAccessions) {
-						if (map.containsKey(accession2.getAccession())) {
-							map.get(accession2.getAccession()).add(protein);
-						} else {
-							final Set<Protein> set = new THashSet<Protein>();
-							set.add(protein);
-							map.put(accession2.getAccession(), set);
-						}
-					}
-				}
-			}
-			proteinsByRunIDAndAcc.put(key, map);
-
-		}
-	}
-
-	public static Set<Protein> getProteinsByRunID(String projectTag, String msRunRef) {
-		final String key = projectTag + msRunRef;
-		final Map<String, Set<Protein>> map = proteinsByRunIDAndAcc.get(key);
-
-		final Set<Protein> set = new THashSet<Protein>();
-		if (map != null) {
-			for (final Set<Protein> proteinSet : map.values()) {
-				for (final Protein protein : proteinSet) {
-					set.add(protein);
-				}
-			}
-		}
-		return set;
-	}
-
-	private static void addPeptidesByRunID(String projectTag, String msrunID, Collection<Peptide> peptides) {
-		// because sometimes the run
-		// id is the same in
-		// different experiments
-		final String key = projectTag + msrunID;
-		if (peptidesByRunID.containsKey(key)) {
-			peptidesByRunID.get(key).addAll(peptides);
-		} else {
-			final Set<Peptide> set = new THashSet<Peptide>();
-			set.addAll(peptides);
-			peptidesByRunID.put(key, set);
-		}
-	}
-
-	public static Set<Peptide> getPeptidesByRunID(String projectTag, String msRunRef) {
-		final String key = projectTag + msRunRef;
-		return peptidesByRunID.get(key);
-	}
-
-	private static void addPSMsByRunID(String projectTag, String msrunID, Collection<PSM> psms) {
-
-		// because sometimes the run
-		// id is the same in
-		// different experiments
-		final String key = projectTag + msrunID;
-		if (psmsByRunID.containsKey(key)) {
-			psmsByRunID.get(key).addAll(psms);
-		} else {
-			final Set<PSM> set = new THashSet<PSM>();
-			set.addAll(psms);
-			psmsByRunID.put(key, set);
-		}
-	}
-
-	public static Set<PSM> getPSMsByRunID(String projectTag, String msRunRef) {
-		final String key = projectTag + msRunRef;
-		return psmsByRunID.get(key);
-	}
-
 	protected static void clearStaticInformation() {
-		psmsByRunID.clear();
-		peptidesByRunID.clear();
-		proteinsByRunIDAndAcc.clear();
 		conditionsById.clear();
 
 	}
 
-	/**
-	 * @return the proteinsbyrunid
-	 */
-	public static Map<String, Map<String, Set<Protein>>> getProteinsbyrunidAndPrimaryAcc() {
-		return proteinsByRunIDAndAcc;
-	}
 }

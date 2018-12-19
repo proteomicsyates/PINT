@@ -23,8 +23,6 @@ import org.hibernate.HibernateException;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.server.util.FileManager;
@@ -37,6 +35,8 @@ import edu.scripps.yates.shared.model.projectStats.ProjectStats;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsImpl;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsParent;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsType;
+import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;

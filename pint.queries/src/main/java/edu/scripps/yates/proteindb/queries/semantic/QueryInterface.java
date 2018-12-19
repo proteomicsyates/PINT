@@ -28,13 +28,13 @@ import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromSimpleAnnot
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromTaxonomyCommand;
 import edu.scripps.yates.proteindb.queries.semantic.util.QueriesUtil;
 import edu.scripps.yates.utilities.cores.SystemCoreManager;
-import edu.scripps.yates.utilities.model.enums.AggregationLevel;
-import edu.scripps.yates.utilities.model.enums.AmountType;
 import edu.scripps.yates.utilities.pi.ParIterator;
 import edu.scripps.yates.utilities.pi.ParIterator.Schedule;
 import edu.scripps.yates.utilities.pi.ParIteratorFactory;
 import edu.scripps.yates.utilities.pi.reductions.Reducible;
 import edu.scripps.yates.utilities.pi.reductions.Reduction;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AggregationLevel;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType;
 import gnu.trove.set.hash.THashSet;
 
 public class QueryInterface {

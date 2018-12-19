@@ -3,8 +3,8 @@ package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 import java.util.Map;
 
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdDescriptionType;
-import edu.scripps.yates.utilities.model.factories.OrganismEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Organism;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.OrganismEx;
 import gnu.trove.map.hash.THashMap;
 
 public class OrganismAdapter implements edu.scripps.yates.utilities.pattern.Adapter<Organism> {

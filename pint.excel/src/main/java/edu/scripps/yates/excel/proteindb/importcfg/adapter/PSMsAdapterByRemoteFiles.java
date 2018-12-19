@@ -9,13 +9,10 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.census.read.CensusChroParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
-import edu.scripps.yates.censuschro.PSMImplFromQuantifiedPSM;
-import edu.scripps.yates.dtaselect.PSMImplFromDTASelect;
-import edu.scripps.yates.dtaselectparser.DTASelectParser;
-import edu.scripps.yates.dtaselectparser.util.DTASelectPSM;
 import edu.scripps.yates.excel.proteindb.importcfg.RemoteFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FileReferenceType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteInfoType;
+import edu.scripps.yates.utilities.parsers.idparser.IdentificationsParser;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
@@ -44,36 +41,38 @@ public class PSMsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pat
 	}
 
 	private Map<String, PSM> getPSMsFromRemoteFileReader() {
-		Map<String, PSM> retMap = new THashMap<String, PSM>();
+		final Map<String, PSM> retMap = new THashMap<String, PSM>();
 		// if there is identification data
 		if (remoteInfoCfg != null) {
 
 			final List<FileReferenceType> fileRefs = remoteInfoCfg.getFileRef();
-			Set<String> fileRefSet = new THashSet<String>();
+			final Set<String> fileRefSet = new THashSet<String>();
 			String fileRefString = "";
-			for (FileReferenceType fileReference : fileRefs) {
+			for (final FileReferenceType fileReference : fileRefs) {
 				final String fileRef = fileReference.getFileRef();
 				log.info("Reading identification data from remote files at: " + fileRef);
 				fileRefString += fileRef + ",";
 				fileRefSet.add(fileRef);
 			}
 			try {
-				final DTASelectParser dtaSelectFilterParser = remoteFileReader.getDTASelectFilterParser(fileRefSet);
+				final List<IdentificationsParser> identificationsParsers = remoteFileReader
+						.getIdentificationsParsers(fileRefSet);
 				final CensusChroParser censusChroParser = remoteFileReader.getCensusChroParser(fileRefSet);
-				if (dtaSelectFilterParser != null) {
-					final Map<String, DTASelectPSM> dtaSelectPSMs = dtaSelectFilterParser.getDTASelectPSMsByPSMID();
-					for (DTASelectPSM dtaSelectPSM : dtaSelectPSMs.values()) {
-						final PSMImplFromDTASelect psm = new PSMImplFromDTASelect(dtaSelectPSM, msrun);
-						psm.addCondition(expCondition);
-						StaticProteomicsModelStorage.addPSM(psm, msrun, expCondition.getName());
-						retMap.put(psm.getIdentifier(), psm);
+				if (identificationsParsers != null) {
+					for (final IdentificationsParser identificationsParser : identificationsParsers) {
+						final Map<String, PSM> dtaSelectPSMs = identificationsParser.getPSMsByPSMID();
+						for (final PSM psm : dtaSelectPSMs.values()) {
+							psm.addCondition(expCondition);
+							StaticProteomicsModelStorage.addPSM(psm, msrun, expCondition.getName());
+							retMap.put(psm.getIdentifier(), psm);
+						}
 					}
 				} else if (censusChroParser != null) {
 					if (remoteInfoCfg.getDiscardDecoys() != null)
 						censusChroParser.setDecoyPattern(remoteInfoCfg.getDiscardDecoys());
 					final Map<String, QuantifiedPSMInterface> quantifiedPSMs = censusChroParser.getPSMMap();
-					for (QuantifiedPSMInterface quantifiedPSM : quantifiedPSMs.values()) {
-						final PSMImplFromQuantifiedPSM psm = new PSMImplFromQuantifiedPSM(quantifiedPSM, msrun);
+					for (final QuantifiedPSMInterface psm : quantifiedPSMs.values()) {
+						psm.setMSRun(msrun);
 						psm.addCondition(expCondition);
 						StaticProteomicsModelStorage.addPSM(psm, msrun, expCondition.getName());
 						retMap.put(psm.getIdentifier(), psm);
@@ -82,7 +81,7 @@ public class PSMsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pat
 					throw new IllegalArgumentException("Remote file '" + fileRefString
 							+ "' is not reachable. Review the connection settings to server");
 				}
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 			}
 

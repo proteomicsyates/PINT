@@ -8,9 +8,9 @@ import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.utilities.model.enums.CombinationType;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType;
 
 public class PeptideRatioValueAdapter
 		implements Adapter<edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue>, Serializable {

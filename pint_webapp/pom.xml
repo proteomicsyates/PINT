@@ -19,7 +19,7 @@
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     
-    <pint.modules.version>0.2.0-SNAPSHOT</pint.modules.version>
+    <pint.modules.version>1.0.0-SNAPSHOT</pint.modules.version>
     
     <failOnMissingWebXml>false</failOnMissingWebXml>
   </properties>
@@ -156,17 +156,17 @@
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>dtaselectparser</artifactId>
-    	<version>1.1.1-SNAPSHOT</version>
+    	<version>1.1.2-SNAPSHOT</version>
     </dependency>
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>quant</artifactId>
-    	<version>1.0.0-SNAPSHOT</version>
+    	<version>1.0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>pint.annotations</artifactId>
-    	<version>1.0.1-SNAPSHOT</version>
+    	<version>1.0.2-SNAPSHOT</version>
     	<exclusions>
     		<exclusion>
     			<groupId>javax.validation</groupId>
@@ -185,12 +185,12 @@
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>dbindex</artifactId>
-    	<version>1.2.0-SNAPSHOT</version>
+    	<version>1.2.1-SNAPSHOT</version>
     </dependency>
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>pint.model</artifactId>
-    	<version>1.0.0-SNAPSHOT</version>
+    	<version>1.0.1-SNAPSHOT</version>
     	<exclusions>
     		<exclusion>
     			<groupId>ch.qos.logback</groupId>
@@ -206,7 +206,7 @@
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>utilities</artifactId>
-    	<version>1.5-SNAPSHOT</version>
+    	<version>1.6-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
@@ -284,10 +284,7 @@
 				
 	</repositories>
 
-  <parent>
-  	<groupId>edu.scripps.yates</groupId>
-  	<artifactId>pint.parent</artifactId>
-  	<version>0.2.0-SNAPSHOT</version>
-  	<relativePath>../pint.parent</relativePath>
-  </parent>
+ 
+	<groupId>edu.scripps.yates</groupId>
+	<version>1.0.0-SNAPSHOT</version>
 </project>

@@ -17,7 +17,7 @@ import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinS
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
-import edu.scripps.yates.utilities.model.enums.AggregationLevel;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AggregationLevel;
 
 /**
  * Implements a {@link Query} from PTM command:<br>

@@ -5,19 +5,21 @@
 // Generated on: 2017.03.11 at 03:44:17 PM PST 
 //
 
-
 package edu.scripps.yates.excel.proteindb.importcfg.jaxb;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for formatType.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
+ * Java class for formatType.
+ * 
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
+ * <p>
+ * 
  * <pre>
  * &lt;simpleType name="formatType">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
@@ -25,6 +27,7 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;enumeration value="census_out_txt"/>
  *     &lt;enumeration value="census_chro_xml"/>
  *     &lt;enumeration value="dta_select_filter_txt"/>
+ *     &lt;enumeration value="mzidentml"/>
  *     &lt;enumeration value="fasta"/>
  *   &lt;/restriction>
  * &lt;/simpleType>
@@ -35,33 +38,30 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum FormatType {
 
-    @XmlEnumValue("excel")
-    EXCEL("excel"),
-    @XmlEnumValue("census_out_txt")
-    CENSUS_OUT_TXT("census_out_txt"),
-    @XmlEnumValue("census_chro_xml")
-    CENSUS_CHRO_XML("census_chro_xml"),
-    @XmlEnumValue("dta_select_filter_txt")
-    DTA_SELECT_FILTER_TXT("dta_select_filter_txt"),
-    @XmlEnumValue("fasta")
-    FASTA("fasta");
-    private final String value;
+	@XmlEnumValue("excel")
+	EXCEL("excel"), @XmlEnumValue("census_out_txt")
+	CENSUS_OUT_TXT("census_out_txt"), @XmlEnumValue("census_chro_xml")
+	CENSUS_CHRO_XML("census_chro_xml"), @XmlEnumValue("dta_select_filter_txt")
+	DTA_SELECT_FILTER_TXT("dta_select_filter_txt"), @XmlEnumValue("mzidentml")
+	MZIDENTML("mzidentml"), @XmlEnumValue("fasta")
+	FASTA("fasta");
+	private final String value;
 
-    FormatType(String v) {
-        value = v;
-    }
+	FormatType(String v) {
+		value = v;
+	}
 
-    public String value() {
-        return value;
-    }
+	public String value() {
+		return value;
+	}
 
-    public static FormatType fromValue(String v) {
-        for (FormatType c: FormatType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
+	public static FormatType fromValue(String v) {
+		for (final FormatType c : FormatType.values()) {
+			if (c.value.equals(v)) {
+				return c;
+			}
+		}
+		throw new IllegalArgumentException(v);
+	}
 
 }

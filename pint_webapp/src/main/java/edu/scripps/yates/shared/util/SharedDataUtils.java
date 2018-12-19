@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -1515,5 +1516,17 @@ public class SharedDataUtils {
 				shb.append(new SafeHtmlBuilder().appendEscaped(String.valueOf(sequence.charAt(i))).toSafeHtml());
 		}
 		return shb.toSafeHtml();
+	}
+
+	public static String getMSRunsIDString(Set<MSRunBean> msRuns) {
+		final StringBuilder sb = new StringBuilder();
+		final List<String> msRunIDs = msRuns.stream().map(msRun -> msRun.getId()).sorted().collect(Collectors.toList());
+		for (final String msRunID : msRunIDs) {
+			if (!"".equals(sb.toString())) {
+				sb.append(",");
+			}
+			sb.append(msRunID);
+		}
+		return sb.toString();
 	}
 }

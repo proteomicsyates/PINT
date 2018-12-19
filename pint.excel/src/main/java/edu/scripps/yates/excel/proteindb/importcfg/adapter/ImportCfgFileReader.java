@@ -67,12 +67,6 @@ import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.ipi.UniprotEntry;
 import edu.scripps.yates.utilities.maths.Maths;
-import edu.scripps.yates.utilities.model.enums.AggregationLevel;
-import edu.scripps.yates.utilities.model.enums.CombinationType;
-import edu.scripps.yates.utilities.model.factories.AmountEx;
-import edu.scripps.yates.utilities.model.factories.ProjectEx;
-import edu.scripps.yates.utilities.model.factories.RatioEx;
-import edu.scripps.yates.utilities.model.factories.ScoreEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
@@ -86,6 +80,13 @@ import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AggregationLevel;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.AmountEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ProjectEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.RatioEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ScoreEx;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
@@ -718,7 +719,7 @@ public class ImportCfgFileReader {
 		addToMap(proteinMap2, accession, protein);
 
 		// index also by secondary accessions
-		final List<Accession> secondaryAccessions = protein.getSecondaryAccessions();
+		final Set<Accession> secondaryAccessions = protein.getSecondaryAccessions();
 		if (secondaryAccessions != null) {
 			for (final Accession secAcc : secondaryAccessions) {
 				addToMap(proteinMap2, secAcc.getAccession(), protein);
@@ -799,7 +800,7 @@ public class ImportCfgFileReader {
 					final Map<String, QuantifiedPSMInterface> quantPSMsMap = censusQuantParser.getPSMMap();
 
 					if (quantPSMsMap != null) {
-						final Set<PSM> runPSMs = ConditionAdapter.getPSMsByRunID(projectCfg.getTag(), msRunRef);
+						final Set<PSM> runPSMs = StaticProteomicsModelStorage.getPSM(msRunRef, null, null);
 						// aqui se usaa el msrun pero no en excel. Usarlo en
 						// excel, aunque sea opcionalmente?
 						if (runPSMs != null) {
@@ -815,7 +816,7 @@ public class ImportCfgFileReader {
 								// /////////////////////////////////////////////
 								// ratios (from ratios of
 								// peaks = pairs)
-								final Set<QuantRatio> ratios = quantifiedPSM.getRatios();
+								final Set<QuantRatio> ratios = quantifiedPSM.getQuantRatios();
 								if (ratios != null) {
 									final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
 									for (final QuantRatio quantRatio : ratios) {
@@ -1077,7 +1078,7 @@ public class ImportCfgFileReader {
 					final Map<String, QuantifiedPSMInterface> quantPSMsMap = censusQuantParser.getPSMMap();
 
 					if (quantPSMsMap != null) {
-						final Set<PSM> runPSMs = ConditionAdapter.getPSMsByRunID(projectCfg.getTag(), msRunRef);
+						final Set<PSM> runPSMs = StaticProteomicsModelStorage.getPSM(msRunRef, null, null);
 						// aqui se usaa el msrun pero no en excel. Usarlo en
 						// excel, aunque sea opcionalmente?
 						if (runPSMs != null) {
@@ -1093,7 +1094,7 @@ public class ImportCfgFileReader {
 								// /////////////////////////////////////////////
 								// ratios (from ratios of
 								// peaks = pairs)
-								final Set<QuantRatio> ratios = quantifiedPSM.getRatios();
+								final Set<QuantRatio> ratios = quantifiedPSM.getQuantRatios();
 								if (ratios != null) {
 									final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
 									for (final QuantRatio quantRatio : ratios) {
@@ -1362,8 +1363,10 @@ public class ImportCfgFileReader {
 					final Map<String, QuantifiedProteinInterface> quantProteinMap = censusQuantParser.getProteinMap();
 
 					if (quantProteinMap != null) {
-						final Set<Protein> runProteins = ConditionAdapter.getProteinsByRunID(projectCfg.getTag(),
-								msRunRef);
+						final String conditionID = null;
+						final String acc = null;
+						final Set<Protein> runProteins = StaticProteomicsModelStorage.getProtein(msRunRef, conditionID,
+								acc);
 						// aqui se usaa el msrun pero no en excel. Usarlo en
 						// excel, aunque sea opcionalmente?
 						if (runProteins != null) {
@@ -1372,7 +1375,7 @@ public class ImportCfgFileReader {
 								QuantifiedProteinInterface quantifiedProtein = quantProteinMap
 										.get(runProtein.getAccession());
 								if (quantifiedProtein == null) {
-									final List<Accession> secondaryAccessions = runProtein.getSecondaryAccessions();
+									final Set<Accession> secondaryAccessions = runProtein.getSecondaryAccessions();
 									for (final Accession accession : secondaryAccessions) {
 										if (quantProteinMap.containsKey(accession.getAccession())) {
 											quantifiedProtein = quantProteinMap.get(accession.getAccession());
@@ -1387,7 +1390,7 @@ public class ImportCfgFileReader {
 
 								// /////////////////////////////////////////////
 								// ratios
-								final Set<QuantRatio> ratios = quantifiedProtein.getRatios();
+								final Set<QuantRatio> ratios = quantifiedProtein.getQuantRatios();
 								if (ratios != null) {
 									final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
 									for (final QuantRatio quantRatio : ratios) {
@@ -1820,10 +1823,9 @@ public class ImportCfgFileReader {
 									proteinAccessionCfg.isGroups(), proteinAccessionCfg.getGroupSeparator(),
 									rawProteinAccession);
 							for (final String proteinAcc : proteinAccsToParse) {
-								final Pair<String, String> proteinAccession = FastaParser.getACC(proteinAcc);
+								final Accession proteinAccession = FastaParser.getACC(proteinAcc);
 								final List<String> uniprotAccs = new ArrayList<String>();
-								if (proteinAccession.getSecondElement()
-										.equals(edu.scripps.yates.utilities.model.enums.AccessionType.IPI.name())) {
+								if (proteinAccession.getAccessionType() == AccessionType.IPI) {
 									final List<UniprotEntry> entries = IPI2UniprotACCMap.getInstance()
 											.map2Uniprot(proteinAcc);
 									if (!entries.isEmpty()) {

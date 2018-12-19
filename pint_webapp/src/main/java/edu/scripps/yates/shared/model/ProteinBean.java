@@ -524,12 +524,15 @@ public class ProteinBean
 		}
 
 		// index by msRun
-		if (amountsByMSRunID.containsKey(proteinAmount.getMsRun())) {
-			amountsByMSRunID.get(proteinAmount.getMsRun()).add(proteinAmount);
-		} else {
-			final Set<AmountBean> set = new HashSet<AmountBean>();
-			set.add(proteinAmount);
-			amountsByMSRunID.put(proteinAmount.getMsRun(), set);
+		for (final MSRunBean msrunBean : proteinAmount.getMsRuns()) {
+
+			if (amountsByMSRunID.containsKey(msrunBean)) {
+				amountsByMSRunID.get(msrunBean).add(proteinAmount);
+			} else {
+				final Set<AmountBean> set = new HashSet<AmountBean>();
+				set.add(proteinAmount);
+				amountsByMSRunID.put(msrunBean, set);
+			}
 		}
 	}
 
@@ -668,7 +671,11 @@ public class ProteinBean
 		Collections.sort(ret, new Comparator<AmountBean>() {
 			@Override
 			public int compare(AmountBean o1, AmountBean o2) {
-				return o1.getMsRun().getRunID().compareTo(o2.getMsRun().getRunID());
+				final StringBuilder sb1 = new StringBuilder();
+				o1.getMsRuns().stream().map(msRun -> msRun.getId()).sorted().forEach(msRunID -> sb1.append(msRunID));
+				final StringBuilder sb2 = new StringBuilder();
+				o2.getMsRuns().stream().map(msRun -> msRun.getId()).sorted().forEach(msRunID -> sb2.append(msRunID));
+				return sb1.toString().compareTo(sb2.toString());
 			}
 		});
 		return ret;

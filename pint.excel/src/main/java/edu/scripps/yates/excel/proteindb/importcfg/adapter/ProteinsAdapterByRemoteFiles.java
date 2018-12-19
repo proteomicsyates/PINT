@@ -12,24 +12,18 @@ import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
-import edu.scripps.yates.censuschro.ProteinImplFromQuantifiedProtein;
-import edu.scripps.yates.dbindex.DBIndexInterface;
-import edu.scripps.yates.dtaselect.ProteinImplFromDTASelect;
-import edu.scripps.yates.dtaselectparser.DTASelectParser;
-import edu.scripps.yates.dtaselectparser.util.DTASelectProtein;
+import edu.scripps.yates.dbindex.DBIndexImpl;
 import edu.scripps.yates.excel.proteindb.importcfg.RemoteFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FileReferenceType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdDescriptionType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.MsRunType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.OrganismSetType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteInfoType;
-import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.ipi.UniprotEntry;
-import edu.scripps.yates.utilities.model.factories.AmountEx;
-import edu.scripps.yates.utilities.model.factories.OrganismEx;
-import edu.scripps.yates.utilities.model.factories.ProteinEx;
+import edu.scripps.yates.utilities.parsers.idparser.IdentificationsParser;
+import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
@@ -37,8 +31,9 @@ import edu.scripps.yates.utilities.proteomicsmodel.Organism;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.OrganismEx;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
-import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -47,15 +42,24 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 	private final Condition condition;
 	private final RemoteFileReader remoteFileReader;
 	private final RemoteInfoType remoteInfoCfg;
-	private final MSRun msrun;
+	private final Set<MSRun> msruns = new THashSet<MSRun>();
 	private final OrganismSetType organismSet;
+	// we assign this first msRun to all psms
+	private MSRun msrunForPSMs;
 
 	public ProteinsAdapterByRemoteFiles(RemoteInfoType remoteInfoCfg, RemoteFileReader remoteFileReader,
-			Condition expCondition, MsRunType msRunCfg, OrganismSetType organismSet) {
+			Condition expCondition, List<MsRunType> msRunCfgd, OrganismSetType organismSet) {
 		this.remoteInfoCfg = remoteInfoCfg;
 		condition = expCondition;
 		this.remoteFileReader = remoteFileReader;
-		msrun = new MSRunAdapter(msRunCfg).adapt();
+		for (final MsRunType msRunType : msRunCfgd) {
+
+			final MSRun msRun = new MSRunAdapter(msRunType).adapt();
+			msruns.add(msRun);
+			if (msrunForPSMs == null) {
+				msrunForPSMs = msRun;
+			}
+		}
 		this.organismSet = organismSet;
 	}
 
@@ -69,7 +73,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 
 		final List<FileReferenceType> fileRefs = remoteInfoCfg.getFileRef();
 		final Set<String> fileRefSet = new THashSet<String>();
-		DBIndexInterface fastaDBIndex = null;
+		DBIndexImpl fastaDBIndex = null;
 		for (final FileReferenceType fileReference : fileRefs) {
 			// try to get it as a FASTA file.
 			if (fastaDBIndex == null)
@@ -90,7 +94,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 		return retMap;
 	}
 
-	private Map<String, Protein> createProteinsFromRemoteFiles(Set<String> fileRefSet, DBIndexInterface fastaDBIndex)
+	private Map<String, Protein> createProteinsFromRemoteFiles(Set<String> fileRefSet, DBIndexImpl fastaDBIndex)
 			throws IOException {
 		final Map<String, Protein> retMap = new THashMap<String, Protein>();
 		String fileRefString = "";
@@ -102,24 +106,28 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 			fileRefString += fileReference;
 		}
 
-		// DTA Select PArser
-		final DTASelectParser dtaSelectFilterParser = remoteFileReader.getDTASelectFilterParser(fileRefSet);
-		if (dtaSelectFilterParser != null) {
-			if (remoteInfoCfg.getDiscardDecoys() != null) {
-				dtaSelectFilterParser.setDecoyPattern(remoteInfoCfg.getDiscardDecoys());
-			}
+		// set dbindex and decoy pattern
+		final List<IdentificationsParser> identificationsParsers = remoteFileReader
+				.getIdentificationsParsers(fileRefSet);
+		if (identificationsParsers != null) {
+			for (final IdentificationsParser identificationsParser : identificationsParsers) {
 
-			if (fastaDBIndex != null) {
-				dtaSelectFilterParser.setDbIndex(fastaDBIndex);
-			}
-			// throw an exception if t 0 parameter is not stated
-			final String parameterValue = dtaSelectFilterParser.getCommandLineParameter().getParameterValue("t");
-			if (!ImportCfgFileReader.ignoreDTASelectParameterT
-					&& (parameterValue == null || parameterValue.equals("0"))) {
-				throw new IllegalArgumentException(
-						"For a comprenhensive aggregation of the data, PINT enforces to use \"t 0\" parameter, which means:"
-								+ " \"-t 0    Show all spectra for each sequence\""
-								+ "\nIn order to ignore it, set ImportCfgFileReader.ignoreDTASelectParameterT = true;");
+				if (remoteInfoCfg.getDiscardDecoys() != null) {
+					identificationsParser.setDecoyPattern(remoteInfoCfg.getDiscardDecoys());
+				}
+
+				if (fastaDBIndex != null) {
+					identificationsParser.setDbIndex(fastaDBIndex);
+				}
+				// throw an exception if t 0 parameter is not stated
+				final String parameterValue = identificationsParser.getCommandLineParameter().getParameterValue("t");
+				if (!ImportCfgFileReader.ignoreDTASelectParameterT
+						&& (parameterValue == null || parameterValue.equals("0"))) {
+					throw new IllegalArgumentException(
+							"For a comprenhensive aggregation of the data, PINT enforces to use \"t 0\" parameter, which means:"
+									+ " \"-t 0    Show all spectra for each sequence\""
+									+ "\nIn order to ignore it, set ImportCfgFileReader.ignoreDTASelectParameterT = true;");
+				}
 			}
 		}
 		// Census CHRO parser
@@ -138,102 +146,92 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 		// retrieve accessions from uniprot first in order to retrieve all at
 		// once
 		if (!ImportCfgFileReader.ignoreUniprotAnnotations) {
-			loadUniprotAnnotations(dtaSelectFilterParser, quantParser);
+			loadUniprotAnnotations(identificationsParsers, quantParser);
 		} else {
 			log.info("Ignoring Uniprot annotations");
 		}
 
-		if (dtaSelectFilterParser != null) {
-			final Collection<DTASelectProtein> dtaSelectProteins = dtaSelectFilterParser.getDTASelectProteins()
-					.values();
-			for (final DTASelectProtein dtaSelectProtein : dtaSelectProteins) {
-				// change on Sept 20, 2017
-				// because getMSRunID in dtaselectpsms is different than the
-				// msrun.getid, and so, they were not added.
-				// Protein protein = new
-				// ProteinImplFromDTASelect(dtaSelectProtein, msrun, false);
-				Protein protein = null;
-				final String accession = ProteinImplFromDTASelect
-						.getPrimaryAccessionFromDTASelectProtein(dtaSelectProtein, null).getAccession();
+		if (identificationsParsers != null) {
+			for (final IdentificationsParser identificationsParser : identificationsParsers) {
 
-				// create protein impl from dtaselect, even if later it is in
-				// the static storage
-				// because if may contain the PSMs that the one in the static
-				// storage doesn't have
-				protein = new ProteinImplFromDTASelect(dtaSelectProtein, msrun, true);
-				// look in the static model storage first
+				final Collection<Protein> proteins = identificationsParser.getProteinMap().values();
+				for (Protein protein : proteins) {
+					// change on Sept 20, 2017
+					// because getMSRunID in dtaselectpsms is different than the
+					// msrun.getid, and so, they were not added.
+					// Protein protein = new
+					// ProteinImplFromDTASelect(dtaSelectProtein, msrun, false);
+					final String accession = protein.getAccession();
 
-				if (StaticProteomicsModelStorage.containsProtein(msrun.getRunId(), condition.getName(), accession)) {
-					final Protein proteinFromStaticStorage = StaticProteomicsModelStorage
-							.getProtein(msrun.getRunId(), condition.getName(), accession).iterator().next();
-					ImportCfgUtil.mergeProteins(proteinFromStaticStorage, protein);
-					protein = proteinFromStaticStorage;
-				}
+					// look in the static model storage first
 
-				StaticProteomicsModelStorage.addProtein(protein, msrun.getRunId(), condition.getName());
-				if (protein.getOrganism() == null) {
-					if (protein instanceof ProteinImplFromDTASelect) {
-						((ProteinImplFromDTASelect) protein).setOrganism(getOrganismFromConfFile());
-					} else if (protein instanceof ProteinEx) {
-						((ProteinEx) protein).setOrganism(getOrganismFromConfFile());
+					if (StaticProteomicsModelStorage.containsProtein(msruns, condition.getName(), accession)) {
+						final Protein proteinFromStaticStorage = StaticProteomicsModelStorage
+								.getProtein(condition.getName(), accession, msruns).iterator().next();
+						proteinFromStaticStorage.mergeWithProtein(protein);
+						protein = proteinFromStaticStorage;
 					}
-				}
 
-				protein.setMSRun(msrun);
-				if (condition == null) {
-					log.info("condition is null");
-				}
-				protein.addCondition(condition);
-				// set condition to amounts
-				if (protein.getAmounts() != null) {
-					for (final Amount amount : protein.getAmounts()) {
-						if (amount instanceof AmountEx) {
-							((AmountEx) amount).setCondition(condition);
-						} else {
-							log.info(amount.getClass());
+					StaticProteomicsModelStorage.addProtein(protein, msruns, condition.getName());
+					if (protein.getOrganism() == null) {
+						protein.setOrganism(getOrganismFromConfFile());
+					}
+					for (final MSRun msRun : msruns) {
+						protein.addMSRun(msRun);
+					}
+
+					if (condition == null) {
+						log.info("condition is null");
+					}
+					protein.addCondition(condition);
+					// set condition to amounts
+					if (protein.getAmounts() != null) {
+						for (final Amount amount : protein.getAmounts()) {
+							amount.setCondition(condition);
 						}
 					}
-				}
 
-				retMap.put(protein.getAccession(), protein);
-				final Set<PSM> psMs = protein.getPSMs();
-				if (psMs != null) {
-					for (final PSM psm : psMs) {
-						StaticProteomicsModelStorage.addPSM(psm, msrun.getRunId(), condition.getName());
-						psm.addCondition(condition);
+					retMap.put(protein.getAccession(), protein);
+					final List<PSM> psMs = protein.getPSMs();
+					if (psMs != null) {
+						for (final PSM psm : psMs) {
+							StaticProteomicsModelStorage.addPSM(psm, msrunForPSMs, condition.getName());
+							psm.addCondition(condition);
+						}
 					}
-				}
-				final Set<Peptide> peptides = protein.getPeptides();
-				if (peptides != null) {
-					for (final Peptide peptide : peptides) {
-						StaticProteomicsModelStorage.addPeptide(peptide, msrun.getRunId(), condition.getName());
-						peptide.addCondition(condition);
+					final Set<Peptide> peptides = protein.getPeptides();
+					if (peptides != null) {
+						for (final Peptide peptide : peptides) {
+							StaticProteomicsModelStorage.addPeptide(peptide, msruns, condition.getName());
+							peptide.addCondition(condition);
+						}
 					}
 				}
 			}
 		} else if (quantParser != null) {
 			final Map<String, QuantifiedProteinInterface> proteinMap = quantParser.getProteinMap();
-			for (final QuantifiedProteinInterface quantProtein : proteinMap.values()) {
-				Protein protein = new ProteinImplFromQuantifiedProtein(quantProtein, msrun, condition);
-				if (StaticProteomicsModelStorage.containsProtein(msrun.getRunId(), condition.getName(),
-						protein.getAccession())) {
-					protein = StaticProteomicsModelStorage
-							.getProtein(msrun.getRunId(), condition.getName(), protein.getAccession()).iterator()
-							.next();
+			for (Protein protein : proteinMap.values()) {
+				for (final MSRun msrun : msruns) {
+					protein.addMSRun(msrun);
 				}
-				StaticProteomicsModelStorage.addProtein(protein, msrun, condition.getName());
+				protein.addCondition(condition);
+				if (StaticProteomicsModelStorage.containsProtein(msruns, condition.getName(), protein.getAccession())) {
+					protein = StaticProteomicsModelStorage
+							.getProtein(condition.getName(), protein.getAccession(), msruns).iterator().next();
+				}
+				StaticProteomicsModelStorage.addProtein(protein, msruns, condition.getName());
 				retMap.put(protein.getAccession(), protein);
-				final Set<PSM> psMs = protein.getPSMs();
+				final List<PSM> psMs = protein.getPSMs();
 				if (psMs != null) {
 					for (final PSM psm : psMs) {
-						StaticProteomicsModelStorage.addPSM(psm, msrun, condition.getName());
+						StaticProteomicsModelStorage.addPSM(psm, msrunForPSMs, condition.getName());
 						psm.addCondition(condition);
 					}
 				}
 				final Set<Peptide> peptides = protein.getPeptides();
 				if (peptides != null) {
 					for (final Peptide peptide : peptides) {
-						StaticProteomicsModelStorage.addPeptide(peptide, msrun, condition.getName());
+						StaticProteomicsModelStorage.addPeptide(peptide, msruns, condition.getName());
 						peptide.addCondition(condition);
 					}
 				}
@@ -256,9 +254,9 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 		return organismEx;
 	}
 
-	private void loadUniprotAnnotations(DTASelectParser dtaSelectFilterParser, QuantParser quantParser)
+	private void loadUniprotAnnotations(List<IdentificationsParser> identificationsParsers, QuantParser quantParser)
 			throws IOException {
-		final Set<String> accessions = getUniprotAccs(dtaSelectFilterParser, quantParser);
+		final Set<String> accessions = getUniprotAccs(identificationsParsers, quantParser);
 		log.info("Getting annotations from " + accessions.size() + " proteins");
 		final UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
 				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
@@ -266,31 +264,34 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 		upr.getAnnotatedProteins(accessions);
 	}
 
-	private Set<String> getUniprotAccs(DTASelectParser dtaSelectFilterParser, QuantParser quantParser)
+	private Set<String> getUniprotAccs(List<IdentificationsParser> identificationsParsers, QuantParser quantParser)
 			throws IOException {
 		final Set<String> accessions = new THashSet<String>();
-		if (dtaSelectFilterParser != null) {
-			try {
-				final Set<String> locuses = dtaSelectFilterParser.getDTASelectProteins().keySet();
-				for (final String locus : locuses) {
+		if (identificationsParsers != null) {
+			for (final IdentificationsParser identificationsParser : identificationsParsers) {
 
-					final Pair<String, String> acc = FastaParser.getACC(locus);
-					final Set<String> uniProtAccs = new THashSet<String>();
-					if (acc.getSecondElement().equals("UNIPROT")) {
-						uniProtAccs.add(acc.getFirstelement());
-					} else if (acc.getSecondElement().equals("IPI")) {
-						final List<UniprotEntry> map2Uniprot = IPI2UniprotACCMap.getInstance()
-								.map2Uniprot(acc.getFirstelement());
-						for (final UniprotEntry uniprotEntry : map2Uniprot) {
-							uniProtAccs.add(uniprotEntry.getAcc());
+				try {
+					final Set<String> locuses = identificationsParser.getProteinMap().keySet();
+					for (final String locus : locuses) {
+
+						final Accession acc = FastaParser.getACC(locus);
+						final Set<String> uniProtAccs = new THashSet<String>();
+						if (acc.getAccessionType() == AccessionType.UNIPROT) {
+							uniProtAccs.add(acc.getAccession());
+						} else if (acc.getAccessionType() == AccessionType.IPI) {
+							final List<UniprotEntry> map2Uniprot = IPI2UniprotACCMap.getInstance()
+									.map2Uniprot(acc.getAccession());
+							for (final UniprotEntry uniprotEntry : map2Uniprot) {
+								uniProtAccs.add(uniprotEntry.getAcc());
+							}
+						}
+						if (!uniProtAccs.isEmpty()) {
+							accessions.addAll(uniProtAccs);
 						}
 					}
-					if (!uniProtAccs.isEmpty()) {
-						accessions.addAll(uniProtAccs);
-					}
+				} catch (final IOException e) {
+					e.printStackTrace();
 				}
-			} catch (final IOException e) {
-				e.printStackTrace();
 			}
 		}
 		if (quantParser != null) {

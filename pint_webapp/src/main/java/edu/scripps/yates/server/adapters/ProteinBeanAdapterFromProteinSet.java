@@ -177,13 +177,15 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 				for (final int msRunID : msRunIDs.toArray()) {
 					MSRunBean msRunBean = MSRunBeanAdapter.getBeanByMSRunID(msRunID);
 					if (msRunBean == null) {
-						final MsRun msRun = protein.getMsRun();
-						if (msRun.getId() == msRunID) {
-							msRunBean = new MSRunBeanAdapter(msRun, false).adapt();
+						final Set msRuns = protein.getMsRuns();
+						for (final Object object : msRuns) {
+							final MsRun msRun = (MsRun) object;
+							if (msRun.getId() == msRunID) {
+								msRunBean = new MSRunBeanAdapter(msRun, false).adapt();
+								proteinBean.addMsrun(msRunBean);
+							}
 						}
-					}
-					if (msRunBean != null) {
-						proteinBean.addMsrun(msRunBean);
+
 					}
 				}
 			}
@@ -209,7 +211,10 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 						proteinAmountValueBean.setValue(proteinAmountValueWrapper.getValue());
 						proteinAmountValueBean.setManualSPC(proteinAmountValueWrapper.getManualSPC());
 						proteinAmountValueBean.setComposed(proteinAmountValueWrapper.getCombinationType() != null);
-						proteinAmountValueBean.setMsRun(new MSRunBeanAdapter(protein.getMsRun(), false).adapt());
+						for (final Object object : protein.getMsRuns()) {
+							final MsRun msRun = (MsRun) object;
+							proteinAmountValueBean.addMsRun(new MSRunBeanAdapter(msRun, false).adapt());
+						}
 					}
 					proteinBean.addAmount(proteinAmountValueBean);
 				}

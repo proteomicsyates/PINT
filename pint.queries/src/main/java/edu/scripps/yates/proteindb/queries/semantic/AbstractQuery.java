@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.proteindb.queries.Query;
 import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
-import edu.scripps.yates.utilities.model.enums.AggregationLevel;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AggregationLevel;
 
 public abstract class AbstractQuery implements Query {
 	protected final CommandReference commandReference;

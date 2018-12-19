@@ -7,11 +7,11 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.proteindb.importcfg.ExcelFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.AmountCombinationType;
-import edu.scripps.yates.utilities.model.enums.AmountType;
-import edu.scripps.yates.utilities.model.enums.CombinationType;
-import edu.scripps.yates.utilities.model.factories.AmountEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.AmountEx;
 
 public class AmountAdapterByExcel implements edu.scripps.yates.utilities.pattern.Adapter<Amount> {
 	private static final Logger log = Logger.getLogger(AmountAdapterByExcel.class);

@@ -1,17 +1,21 @@
 package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 
+import java.util.Collection;
+import java.util.Set;
+
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.proteindb.importcfg.ExcelFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdentificationExcelType;
-import edu.scripps.yates.excel.proteindb.importcfg.jaxb.MsRunType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ScoreType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SequenceType;
 import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.model.factories.PeptideEx;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
+import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.PeptideEx;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
+import gnu.trove.set.hash.THashSet;
 
 public class PeptideAdapterByExcel implements Adapter<Peptide> {
 	// private final static Map<String, Map<String, PeptideEx>>
@@ -22,17 +26,18 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 	private final int rowIndex;
 	private final IdentificationExcelType excelCfg;
 	private final ExcelFileReader excelFileReader;
-	private final MsRunType msRun;
-	// public static final TIntObjectHashMap< Set<Peptide>> peptideByRowIndex = new
+	private final Set<MSRun> msRuns = new THashSet<MSRun>();
+	// public static final TIntObjectHashMap< Set<Peptide>> peptideByRowIndex =
+	// new
 	// TIntObjectHashMap< Set<Peptide>>();
 	private final Condition condition;
 
 	public PeptideAdapterByExcel(int rowIndex, IdentificationExcelType excelCfg, ExcelFileReader excelFileReader,
-			MsRunType msRun, Condition condition) {
+			Collection<MSRun> msRuns, Condition condition) {
 		this.rowIndex = rowIndex;
 		this.excelCfg = excelCfg;
 		this.excelFileReader = excelFileReader;
-		this.msRun = msRun;
+		this.msRuns.addAll(msRuns);
 		this.condition = condition;
 	}
 
@@ -46,7 +51,7 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 
 			final String rawPeptideSequence = peptideSequenceColumn.getValues().get(rowIndex).toString();
 
-			String cleanPeptideSequence = FastaParser.cleanSequence(rawPeptideSequence);
+			final String cleanPeptideSequence = FastaParser.cleanSequence(rawPeptideSequence);
 			//
 			// Map<String, PeptideEx> peptideMap = null;
 			// if (peptideMapByMSRunID.containsKey(msRun.getId())) {
@@ -57,16 +62,19 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 			// }
 
 			Peptide peptide = null;
-			if (StaticProteomicsModelStorage.containsPeptide(msRun.getId(), null, -1, cleanPeptideSequence)) {
-				peptide = StaticProteomicsModelStorage.getPeptide(msRun.getId(), null, -1, cleanPeptideSequence).iterator().next();
+			if (StaticProteomicsModelStorage.containsPeptide(msRuns, null, cleanPeptideSequence)) {
+				peptide = StaticProteomicsModelStorage.getSinglePeptide(msRuns, null, cleanPeptideSequence);
 			} else {
-				peptide = new PeptideEx(cleanPeptideSequence, new MSRunAdapter(msRun).adapt());
-
+				peptide = new PeptideEx(cleanPeptideSequence);
 				// peptideMap.put(cleanPeptideSequence, peptide);
 			}
+			for (final MSRun msRun2 : msRuns) {
+				peptide.addMSRun(msRun2);
+			}
+
 			peptide.addCondition(condition);
 			// addPeptideByRowIndex(rowIndex, peptide);
-			StaticProteomicsModelStorage.addPeptide(peptide, msRun.getId(), condition.getName(), rowIndex);
+			StaticProteomicsModelStorage.addPeptide(peptide, msRuns, condition.getName(), rowIndex);
 			// ratios
 			// DISABLED SINCE THE RATIOS ARE ASSIGNED TO THE PSMs ON
 			// ImportCfgFileReader
@@ -86,12 +94,12 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 			// }
 			// scores
 			if (excelCfg.getPeptideScore() != null) {
-				for (ScoreType scoreCfg : excelCfg.getPeptideScore()) {
+				for (final ScoreType scoreCfg : excelCfg.getPeptideScore()) {
 					peptide.addScore(new ScoreAdapter(scoreCfg, excelFileReader, rowIndex).adapt());
 				}
 			}
 			return peptide;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		return null;

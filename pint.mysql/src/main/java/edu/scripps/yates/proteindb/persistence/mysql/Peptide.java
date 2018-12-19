@@ -11,7 +11,7 @@ import java.util.Set;
 public class Peptide implements java.io.Serializable {
 
 	private Integer id;
-	private MsRun msRun;
+	private Set msRuns = new HashSet(0);
 	private String sequence;
 	private String fullSequence;
 	private Integer numPsms;
@@ -26,14 +26,14 @@ public class Peptide implements java.io.Serializable {
 	public Peptide() {
 	}
 
-	public Peptide(MsRun msRun, String sequence) {
-		this.msRun = msRun;
+	public Peptide(String sequence) {
+
 		this.sequence = sequence;
 	}
 
-	public Peptide(MsRun msRun, String sequence, String fullSequence, Integer numPsms, Set peptideAmounts,
+	public Peptide(Set msRuns, String sequence, String fullSequence, Integer numPsms, Set peptideAmounts,
 			Set peptideRatioValues, Set psms, Set conditions, Set peptideScores, Set proteins, Set ptms) {
-		this.msRun = msRun;
+		this.msRuns = msRuns;
 		this.sequence = sequence;
 		this.fullSequence = fullSequence;
 		setNumPsms(numPsms);
@@ -54,12 +54,12 @@ public class Peptide implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public MsRun getMsRun() {
-		return msRun;
+	public Set getMsRuns() {
+		return msRuns;
 	}
 
-	public void setMsRun(MsRun msRun) {
-		this.msRun = msRun;
+	public void setMsRun(Set msRuns) {
+		this.msRuns = msRuns;
 	}
 
 	public String getSequence() {

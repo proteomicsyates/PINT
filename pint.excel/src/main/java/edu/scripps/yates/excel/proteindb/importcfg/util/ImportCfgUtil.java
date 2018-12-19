@@ -10,7 +10,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.dbindex.DBIndexInterface;
+import edu.scripps.yates.dbindex.DBIndexImpl;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ExperimentalDesignType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FileReferenceType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FileSetType;
@@ -29,24 +29,17 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SampleType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServerType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServersType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.TissueSetType;
-import edu.scripps.yates.utilities.proteomicsmodel.Amount;
-import edu.scripps.yates.utilities.proteomicsmodel.Condition;
-import edu.scripps.yates.utilities.proteomicsmodel.Gene;
-import edu.scripps.yates.utilities.proteomicsmodel.PSM;
-import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
-import edu.scripps.yates.utilities.proteomicsmodel.Protein;
-import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 import gnu.trove.map.hash.THashMap;
 
 public class ImportCfgUtil {
 	private final static Logger log = Logger.getLogger(ImportCfgUtil.class);
-	private static final Map<String, DBIndexInterface> dbIndexes = new THashMap<String, DBIndexInterface>();
+	private static final Map<String, DBIndexImpl> dbIndexes = new THashMap<String, DBIndexImpl>();
 
 	public static SampleType getSampleCfg(String sampleRef, SampleSetType sampleSetType) {
 		if (sampleSetType != null) {
 			final List<SampleType> sample = sampleSetType.getSample();
-			for (SampleType sampleType : sample) {
+			for (final SampleType sampleType : sample) {
 				if (sampleType.getId().equals(sampleRef))
 					return sampleType;
 			}
@@ -56,7 +49,7 @@ public class ImportCfgUtil {
 
 	public static ServerType getReferencedServer(String serverRef, ServersType servers) {
 		if (servers != null) {
-			for (ServerType serverCfg : servers.getServer()) {
+			for (final ServerType serverCfg : servers.getServer()) {
 				if (serverCfg.getId().equals(serverRef))
 					return serverCfg;
 			}
@@ -67,7 +60,7 @@ public class ImportCfgUtil {
 
 	public static FileType getReferencedFile(String fileRef, FileSetType fileSetCfg) {
 		if (fileSetCfg != null) {
-			for (FileType fileCfg : fileSetCfg.getFile()) {
+			for (final FileType fileCfg : fileSetCfg.getFile()) {
 				if (fileCfg.getId().equals(fileRef))
 					return fileCfg;
 			}
@@ -90,19 +83,19 @@ public class ImportCfgUtil {
 	// }
 
 	public static List<MsRunType> getMSRuns(String msRunRefString, MsRunsType msRunsCfg, String separator) {
-		List<MsRunType> ret = new ArrayList<MsRunType>();
+		final List<MsRunType> ret = new ArrayList<MsRunType>();
 		if (msRunsCfg != null) {
-			for (MsRunType msRunCfg : msRunsCfg.getMsRun()) {
-				List<String> msRunIDs = new ArrayList<String>();
+			for (final MsRunType msRunCfg : msRunsCfg.getMsRun()) {
+				final List<String> msRunIDs = new ArrayList<String>();
 				if (msRunRefString.contains(separator)) {
 					final String[] split = msRunRefString.split(separator);
-					for (String string : split) {
+					for (final String string : split) {
 						msRunIDs.add(string);
 					}
 				} else {
 					msRunIDs.add(msRunRefString);
 				}
-				for (String msRunID : msRunIDs) {
+				for (final String msRunID : msRunIDs) {
 					if (msRunID.equals(msRunCfg.getId())) {
 						ret.add(msRunCfg);
 					}
@@ -115,14 +108,14 @@ public class ImportCfgUtil {
 
 	public static List<RemoteSSHFileReference> getRemoteFiles(RemoteInfoType remoteInfoType, FormatType format,
 			FileSetType fileSetCfg, ServersType servers) throws IOException {
-		List<RemoteSSHFileReference> ret = new ArrayList<RemoteSSHFileReference>();
-		for (FileReferenceType referenceFile : remoteInfoType.getFileRef()) {
-			FileType fileCfg = ImportCfgUtil.getReferencedFile(referenceFile.getFileRef(), fileSetCfg);
+		final List<RemoteSSHFileReference> ret = new ArrayList<RemoteSSHFileReference>();
+		for (final FileReferenceType referenceFile : remoteInfoType.getFileRef()) {
+			final FileType fileCfg = ImportCfgUtil.getReferencedFile(referenceFile.getFileRef(), fileSetCfg);
 			if (fileCfg != null) {
 				if (fileCfg.getFormat() == format) {
 					RemoteSSHFileReference remoteSSHServer = null;
 					if (fileCfg.getServerRef() != null) {
-						ServerType server = ImportCfgUtil.getReferencedServer(fileCfg.getServerRef(), servers);
+						final ServerType server = ImportCfgUtil.getReferencedServer(fileCfg.getServerRef(), servers);
 						remoteSSHServer = new RemoteSSHFileReference(server.getHostName(), server.getUserName(),
 								server.getPassword(), fileCfg.getName(),
 								File.createTempFile(getPrefix(fileCfg.getName()), null));
@@ -137,13 +130,13 @@ public class ImportCfgUtil {
 
 	public static List<RemoteSSHFileReference> getRemoteFiles(RemoteFilesRatioType remoteFilesRatioType,
 			FormatType format, FileSetType fileSetCfg, ServersType servers) throws IOException {
-		List<RemoteSSHFileReference> ret = new ArrayList<RemoteSSHFileReference>();
-		FileType fileCfg = ImportCfgUtil.getReferencedFile(remoteFilesRatioType.getFileRef(), fileSetCfg);
+		final List<RemoteSSHFileReference> ret = new ArrayList<RemoteSSHFileReference>();
+		final FileType fileCfg = ImportCfgUtil.getReferencedFile(remoteFilesRatioType.getFileRef(), fileSetCfg);
 		if (fileCfg != null) {
 			if (fileCfg.getFormat() == format) {
 				RemoteSSHFileReference remoteSSHServer = null;
 				if (fileCfg.getServerRef() != null) {
-					ServerType server = ImportCfgUtil.getReferencedServer(fileCfg.getServerRef(), servers);
+					final ServerType server = ImportCfgUtil.getReferencedServer(fileCfg.getServerRef(), servers);
 					remoteSSHServer = new RemoteSSHFileReference(server.getHostName(), server.getUserName(),
 							server.getPassword(), fileCfg.getName(),
 							File.createTempFile(getPrefix(fileCfg.getName()), null));
@@ -177,9 +170,9 @@ public class ImportCfgUtil {
 
 	public static List<FileType> getFilesCfg(RemoteInfoType remoteInfoType, FormatType format, FileSetType fileSetCfg)
 			throws IOException {
-		List<FileType> ret = new ArrayList<FileType>();
-		for (FileReferenceType referenceFile : remoteInfoType.getFileRef()) {
-			FileType fileCfg = ImportCfgUtil.getReferencedFile(referenceFile.getFileRef(), fileSetCfg);
+		final List<FileType> ret = new ArrayList<FileType>();
+		for (final FileReferenceType referenceFile : remoteInfoType.getFileRef()) {
+			final FileType fileCfg = ImportCfgUtil.getReferencedFile(referenceFile.getFileRef(), fileSetCfg);
 			if (fileCfg != null) {
 				if (fileCfg.getFormat() == format) {
 					ret.add(fileCfg);
@@ -190,23 +183,23 @@ public class ImportCfgUtil {
 	}
 
 	/**
-	 * Gets a {@link DBIndexInterface} from a {@link FileType}. If the
+	 * Gets a {@link DBIndexImpl} from a {@link FileType}. If the
 	 * {@link FileType} is a remote file, get it from remote location. Then,
 	 * store it in the dbIndex location. Otherwise
 	 *
 	 * @param fileCfg
 	 * @return
 	 */
-	public static DBIndexInterface getDBIndex(FileType fileCfg, ServersType servers) {
+	public static DBIndexImpl getDBIndex(FileType fileCfg, ServersType servers) {
 		try {
-			File fastaFile = new File(DBIndexInterface.getDBIndexPath() + File.separator + fileCfg.getName());
+			File fastaFile = new File(DBIndexImpl.getDBIndexPath() + File.separator + fileCfg.getName());
 
 			if (fileCfg.getServerRef() != null) {
-				ServerType serverCfg = ImportCfgUtil.getReferencedServer(fileCfg.getServerRef(), servers);
+				final ServerType serverCfg = ImportCfgUtil.getReferencedServer(fileCfg.getServerRef(), servers);
 				log.debug("Getting fasta file from " + serverCfg.getHostName() + " to " + fastaFile.getAbsolutePath());
 
 				// remote file
-				RemoteSSHFileReference remoteFile = new RemoteSSHFileReference(serverCfg.getHostName(),
+				final RemoteSSHFileReference remoteFile = new RemoteSSHFileReference(serverCfg.getHostName(),
 						serverCfg.getUserName(), serverCfg.getPassword(), fileCfg.getName(), fastaFile);
 				fastaFile = remoteFile.getOutputFile();
 			} else {
@@ -216,13 +209,13 @@ public class ImportCfgUtil {
 				FileUtils.copyURLToFile(url, fastaFile);
 			}
 			if (fastaFile.exists()) {
-				log.debug("Creating DBIndex on " + DBIndexInterface.getDBIndexPath());
-				DBIndexInterface ret = new DBIndexInterface(DBIndexInterface.getDefaultDBIndexParams(fastaFile));
+				log.debug("Creating DBIndex on " + DBIndexImpl.getDBIndexPath());
+				final DBIndexImpl ret = new DBIndexImpl(DBIndexImpl.getDefaultDBIndexParams(fastaFile));
 				// store in cache
 				ImportCfgUtil.dbIndexes.put(fileCfg.getName(), ret);
 				return ret;
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}
@@ -230,11 +223,11 @@ public class ImportCfgUtil {
 				"An error occurred when building dbindex from referenced fasta file " + fileCfg.getId());
 	}
 
-	public static DBIndexInterface getDBIndexFromCache(String dbName) {
+	public static DBIndexImpl getDBIndexFromCache(String dbName) {
 		return dbIndexes.get(dbName);
 	}
 
-	public static void saveDBIndexInCache(String fileId, DBIndexInterface dbIndex) {
+	public static void saveDBIndexInCache(String fileId, DBIndexImpl dbIndex) {
 		dbIndexes.put(fileId, dbIndex);
 	}
 
@@ -252,7 +245,7 @@ public class ImportCfgUtil {
 
 	public static SampleType getReferencedSample(String sampleRef, SampleSetType sampleSet) {
 		if (sampleSet != null) {
-			for (SampleType sampleType : sampleSet.getSample()) {
+			for (final SampleType sampleType : sampleSet.getSample()) {
 				if (sampleType.getId().equals(sampleRef))
 					return sampleType;
 			}
@@ -269,7 +262,7 @@ public class ImportCfgUtil {
 
 	private static LabelType getReferencedLabel(String labelRef, LabelSetType labelSet) {
 		if (labelSet != null) {
-			for (LabelType labelType : labelSet.getLabel()) {
+			for (final LabelType labelType : labelSet.getLabel()) {
 				if (labelType.getId().equals(labelRef))
 					return labelType;
 			}
@@ -279,7 +272,7 @@ public class ImportCfgUtil {
 
 	public static IdDescriptionType getReferencedOrganism(String organismRef, OrganismSetType organismSetType) {
 		if (organismSetType != null) {
-			for (IdDescriptionType organismType : organismSetType.getOrganism()) {
+			for (final IdDescriptionType organismType : organismSetType.getOrganism()) {
 				if (organismType.getId().equals(organismRef))
 					return organismType;
 			}
@@ -289,87 +282,12 @@ public class ImportCfgUtil {
 
 	public static IdDescriptionType getReferencedTissue(String tissueRef, TissueSetType tissueSetType) {
 		if (tissueSetType != null) {
-			for (IdDescriptionType tissueType : tissueSetType.getTissue()) {
+			for (final IdDescriptionType tissueType : tissueSetType.getTissue()) {
 				if (tissueType.getId().equals(tissueRef))
 					return tissueType;
 			}
 		}
 		return null;
-	}
-
-	public static void mergeProteins(Protein originalProtein, Protein otherProtein) {
-		if (originalProtein.hashCode() == otherProtein.hashCode())
-			return;
-		// scores
-		if (otherProtein.getScores() != null) {
-			for (Score score : otherProtein.getScores()) {
-				originalProtein.addScore(score);
-			}
-		}
-
-		// psms
-		if (otherProtein.getPSMs() != null) {
-			for (PSM psm : otherProtein.getPSMs()) {
-				// add if different psmID
-				boolean found = false;
-				for (PSM originalPSM : originalProtein.getPSMs()) {
-					if (originalPSM.getIdentifier().equals(psm.getIdentifier())) {
-						found = true;
-						break;
-					}
-				}
-				if (!found)
-					originalProtein.addPSM(psm);
-				// else
-				// log.info("Skipping this");
-			}
-		}
-
-		// peptides
-		if (otherProtein.getPeptides() != null) {
-			for (Peptide peptide : otherProtein.getPeptides()) {
-				originalProtein.addPeptide(peptide);
-			}
-		}
-		// length
-		if (originalProtein.getLength() <= 0)
-			originalProtein.setLength(otherProtein.getLength());
-
-		// pi
-		if (originalProtein.getPi() <= 0)
-			originalProtein.setPi(otherProtein.getPi());
-
-		// mw
-		if (originalProtein.getMW() <= 0)
-			originalProtein.setMw(otherProtein.getMW());
-
-		// organism
-		if (originalProtein.getOrganism() == null)
-			originalProtein.setOrganism(otherProtein.getOrganism());
-
-		// conditions
-		if (otherProtein.getConditions() != null) {
-			for (Condition condition : otherProtein.getConditions()) {
-				originalProtein.addCondition(condition);
-			}
-		}
-
-		// msrun
-		if (originalProtein.getMSRun() == null)
-			originalProtein.setMSRun(otherProtein.getMSRun());
-
-		// genes
-		if (otherProtein.getGenes() != null) {
-			for (Gene gene : otherProtein.getGenes()) {
-				originalProtein.addGene(gene);
-			}
-		}
-		// amounts
-		if (otherProtein.getAmounts() != null) {
-			for (Amount amount : otherProtein.getAmounts()) {
-				originalProtein.addAmount(amount);
-			}
-		}
 	}
 
 }

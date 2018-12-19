@@ -1,6 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>pint.excel</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
   <distributionManagement>
 		<repository>
 			<id>internal</id>
@@ -20,7 +21,7 @@
   	<dependency>
   		<groupId>edu.scripps.yates</groupId>
   		<artifactId>quant</artifactId>
-  		<version>1.0.0-SNAPSHOT</version>
+  		<version>1.0.1-SNAPSHOT</version>
   		<exclusions>
   			<exclusion>
   				<artifactId>dbindex</artifactId>
@@ -64,17 +65,22 @@
   	<dependency>
   		<groupId>edu.scripps.yates</groupId>
   		<artifactId>dtaselectparser</artifactId>
-  		<version>1.1.1-SNAPSHOT</version>
+  		<version>1.1.2-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>edu.scripps.yates</groupId>
   		<artifactId>pint.model</artifactId>
-  		<version>1.0.0-SNAPSHOT</version>
+  		<version>1.0.1-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>edu.scripps.yates</groupId>
   		<artifactId>dbindex</artifactId>
-  		<version>1.2.0-SNAPSHOT</version>
+  		<version>1.2.1-SNAPSHOT</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>edu.scripps.yates</groupId>
+  		<artifactId>MzIdentMLParser</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
   </dependencies>
   <properties>
@@ -129,13 +135,7 @@
 	      </plugin>
   	</plugins>
   </build>
-  <parent>
-  	<groupId>edu.scripps.yates</groupId>
-  	<artifactId>pint.parent</artifactId>
-  	<version>0.2.0-SNAPSHOT</version>
-  	<relativePath>..</relativePath>
-  </parent>
-  <organization>
+   <organization>
   	<name>TSRI</name>
   </organization>
   <name>Excel module</name>
@@ -166,4 +166,5 @@
         </snapshots>
     </repository>
    </repositories>
+  <groupId>edu.scripps.yates</groupId>
 </project>

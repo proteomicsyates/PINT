@@ -3,8 +3,8 @@ package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 import java.util.Map;
 
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdDescriptionType;
-import edu.scripps.yates.utilities.model.factories.TissueEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Tissue;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.TissueEx;
 import gnu.trove.map.hash.THashMap;
 
 public class TissueAdapter implements edu.scripps.yates.utilities.pattern.Adapter<Tissue> {

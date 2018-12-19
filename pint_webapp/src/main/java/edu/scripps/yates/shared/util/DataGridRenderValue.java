@@ -80,17 +80,17 @@ public class DataGridRenderValue implements Serializable {
 	public static DataGridRenderValue getAmountDataGridRenderValue(ContainsAmounts p, String conditionName,
 			AmountType amountType, String projectTag) {
 
-		StringBuilder combination = new StringBuilder();
+		final StringBuilder combination = new StringBuilder();
 
-		StringBuilder tooltip = new StringBuilder();
+		final StringBuilder tooltip = new StringBuilder();
 		Double combinationNotRounded = null;
 		if (p.hasCombinationAmounts(conditionName, projectTag)) {
-			StringBuilder nonCombination = new StringBuilder();
-			List<AmountBean> combinationAmounts = p.getCombinationAmount(conditionName, projectTag);
-			Set<String> combinationStringSet = new HashSet<String>();
-			for (AmountBean combinationAmount : combinationAmounts) {
+			final StringBuilder nonCombination = new StringBuilder();
+			final List<AmountBean> combinationAmounts = p.getCombinationAmount(conditionName, projectTag);
+			final Set<String> combinationStringSet = new HashSet<String>();
+			for (final AmountBean combinationAmount : combinationAmounts) {
 				if (combinationAmount.getAmountType() == amountType) {
-					String combinationString = amountType.getDescription() + combinationAmount.getValue();
+					final String combinationString = amountType.getDescription() + combinationAmount.getValue();
 					if (!combinationStringSet.contains(combinationString)) {
 						combinationStringSet.add(combinationString);
 						if (!"".equals(combination.toString())) {
@@ -108,19 +108,20 @@ public class DataGridRenderValue implements Serializable {
 
 			final List<AmountBean> nonCombinationAmounts = p.getNonCombinationAmounts(conditionName, projectTag);
 			if (nonCombinationAmounts != null && !nonCombinationAmounts.isEmpty()) {
-				Set<AmountBean> amounts = getAmountsByType(nonCombinationAmounts).get(amountType);
+				final Set<AmountBean> amounts = getAmountsByType(nonCombinationAmounts).get(amountType);
 
-				StringBuilder nonCombination = new StringBuilder();
-				List<Double> total = new ArrayList<Double>();
+				final StringBuilder nonCombination = new StringBuilder();
+				final List<Double> total = new ArrayList<Double>();
 				if (amounts != null) {
 					tooltip.append(SharedConstants.SEPARATOR + amountType);
-					for (AmountBean amountBean : amounts) {
+					for (final AmountBean amountBean : amounts) {
 						if (!"".equals(nonCombination.toString())) {
 							nonCombination.append(SharedConstants.SEPARATOR);
 						}
 						nonCombination.append(amountBean.getValue());
-						if (amountBean.getMsRun() != null) {
-							nonCombination.append(" ('" + amountBean.getMsRun().getRunID() + "')");
+						if (amountBean.getMsRuns() != null && !amountBean.getMsRuns().isEmpty()) {
+							nonCombination
+									.append(" ('" + SharedDataUtils.getMSRunsIDString(amountBean.getMsRuns()) + "')");
 						}
 						total.add(amountBean.getValue());
 					}
@@ -149,11 +150,11 @@ public class DataGridRenderValue implements Serializable {
 	public static DataGridRenderValue getSPCPerConditionDataGridRenderValue(ContainsPSMs p, String conditionName,
 			String projectTag) {
 
-		StringBuilder tooltip = new StringBuilder();
+		final StringBuilder tooltip = new StringBuilder();
 
 		tooltip.append("Experimental condition: " + conditionName);
 
-		int spc = p.getNumPSMsByCondition(projectTag, conditionName);
+		final int spc = p.getNumPSMsByCondition(projectTag, conditionName);
 		if (spc > 0) {
 			tooltip.append(SharedConstants.SEPARATOR + AmountType.SPC);
 			tooltip.append(SharedConstants.SEPARATOR + spc);
@@ -165,10 +166,10 @@ public class DataGridRenderValue implements Serializable {
 	}
 
 	private static Map<AmountType, Set<AmountBean>> getAmountsByType(List<AmountBean> amounts) {
-		Map<AmountType, Set<AmountBean>> map = new HashMap<AmountType, Set<AmountBean>>();
-		for (AmountBean amountBean : amounts) {
+		final Map<AmountType, Set<AmountBean>> map = new HashMap<AmountType, Set<AmountBean>>();
+		for (final AmountBean amountBean : amounts) {
 			if (!map.containsKey(amountBean.getAmountType())) {
-				Set<AmountBean> set = new HashSet<AmountBean>();
+				final Set<AmountBean> set = new HashSet<AmountBean>();
 				set.add(amountBean);
 				map.put(amountBean.getAmountType(), set);
 			} else {

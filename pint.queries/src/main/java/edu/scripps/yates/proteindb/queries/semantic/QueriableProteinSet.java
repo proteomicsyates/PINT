@@ -14,7 +14,6 @@ import com.google.common.collect.Iterables;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
-import edu.scripps.yates.annotations.util.UniprotEntryUtil;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Gene;
@@ -32,10 +31,11 @@ import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAccessionAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToProteinTableMapper;
+import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -556,7 +556,7 @@ public class QueriableProteinSet {
 		if (msRuns == null) {
 			msRuns = new THashSet<MsRun>();
 			for (final Protein protein : getIndividualProteins()) {
-				msRuns.add(protein.getMsRun());
+				msRuns.addAll(protein.getMsRuns());
 			}
 		}
 		return msRuns;

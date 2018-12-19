@@ -22,17 +22,33 @@
             <column name="Project_id" not-null="true" />
         </many-to-one>
         <!--  END NEW -->
-        <set name="peptides" table="peptide" inverse="true" lazy="true" fetch="select" >
+<!--         <set name="peptides" table="peptide" inverse="true" lazy="true" fetch="select" > -->
+<!--             <key> -->
+<!--                 <column name="MS_Run_id" not-null="true" /> -->
+<!--             </key> -->
+<!--             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Peptide" /> -->
+<!--         </set> -->
+        <set name="peptides" table="peptide_has_ms_runs" inverse="false" lazy="true" fetch="select" >
             <key>
-                <column name="MS_Run_id" not-null="true" />
+                <column name="Ms_Run_id" not-null="true" />
             </key>
-            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Peptide" />
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Peptide">
+                <column name="Peptide_id" not-null="true" />
+            </many-to-many>
         </set>
-        <set name="proteins" table="protein" inverse="true" lazy="true" fetch="select" >
+<!--         <set name="proteins" table="protein" inverse="true" lazy="true" fetch="select" > -->
+<!--             <key> -->
+<!--                 <column name="MS_Run_id" not-null="true" /> -->
+<!--             </key> -->
+<!--             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Protein" /> -->
+<!--         </set> -->
+        <set name="proteins" table="protein_has_ms_runs" inverse="false" lazy="true" fetch="select" >
             <key>
-                <column name="MS_Run_id" not-null="true" />
+                <column name="Ms_Run_id" not-null="true" />
             </key>
-            <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Protein" />
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Protein">
+                <column name="Protein_id" not-null="true" />
+            </many-to-many>
         </set>
         <set name="psms" table="psm" inverse="true" lazy="true" fetch="select" >
             <key>

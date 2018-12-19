@@ -17,7 +17,7 @@ import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromTaxonomyCom
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromThresholdCommand;
 import edu.scripps.yates.proteindb.queries.semantic.command.QueryFromTissueCommand;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
-import edu.scripps.yates.utilities.model.enums.AggregationLevel;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AggregationLevel;
 
 /**
  * This class will translate the query commands into a {@link QueryImpl} object

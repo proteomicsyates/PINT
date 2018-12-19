@@ -13,14 +13,15 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.ExcelSheet;
 import edu.scripps.yates.excel.impl.ExcelFileImpl;
-import edu.scripps.yates.model.util.PTMAdapter;
-import edu.scripps.yates.model.util.PTMSiteAdapter;
 import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.model.factories.PTMEx;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
+import edu.scripps.yates.utilities.proteomicsmodel.PTMPosition;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
+import edu.scripps.yates.utilities.proteomicsmodel.adapters.PTMAdapter;
+import edu.scripps.yates.utilities.proteomicsmodel.adapters.PTMSiteAdapter;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.PTMEx;
 import edu.scripps.yates.utilities.util.StringPosition;
 import gnu.trove.map.hash.TDoubleObjectHashMap;
 import gnu.trove.map.hash.THashMap;
@@ -46,6 +47,7 @@ public class ExcelUtils {
 	public static List<PTM> getPTMsFromRawSequence(String seq) {
 		final TDoubleObjectHashMap<PTM> map = new TDoubleObjectHashMap<PTM>();
 		if (FastaParser.somethingExtrangeInSequence(seq)) {
+			final String cleanSequence = FastaParser.cleanSequence(seq);
 			final List<StringPosition> massDiffsStrings = FastaParser.getInside(seq);
 			if (!massDiffsStrings.isEmpty()) {
 				for (final StringPosition stringMassDiffNumber : massDiffsStrings) {
@@ -58,12 +60,16 @@ public class ExcelUtils {
 						final double massDiff = Double.valueOf(stringMassDiffNumber.string);
 						if (!map.containsKey(massDiff)) {
 
-							final PTM ptm = new PTMAdapter(massDiff, aa, stringMassDiffNumber.position).adapt();
+							final PTM ptm = new PTMAdapter(massDiff,
+									aa, stringMassDiffNumber.position, PTMPosition
+											.getPTMPositionFromSequence(cleanSequence, stringMassDiffNumber.position))
+													.adapt();
 							map.put(massDiff, ptm);
 						} else {
 							// add a ptm site
 							final PTMEx ptm = (PTMEx) map.get(massDiff);
-							ptm.addPtmSite(new PTMSiteAdapter(aa, stringMassDiffNumber.position).adapt());
+							ptm.addPtmSite(new PTMSiteAdapter(aa, stringMassDiffNumber.position, PTMPosition
+									.getPTMPositionFromSequence(cleanSequence, stringMassDiffNumber.position)).adapt());
 						}
 					} catch (final NumberFormatException e) {
 						log.info(stringMassDiffNumber + " cannot be parsed as a number. " + e.getMessage());

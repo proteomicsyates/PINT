@@ -7,10 +7,10 @@ import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.proteindb.importcfg.ExcelFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdentificationExcelType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ProteinAnnotationType;
-import edu.scripps.yates.utilities.model.factories.ProteinAnnotationEx;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ProteinAnnotationEx;
 import gnu.trove.set.hash.THashSet;
 
 public class ProteinAnnotationsAdapterByExcel implements Adapter<Set<ProteinAnnotation>> {

@@ -29,15 +29,13 @@ import edu.scripps.yates.annotations.uniprot.ProteinImplFromUniprotEntry;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
-import edu.scripps.yates.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.census.analysis.QuantCondition;
 import edu.scripps.yates.census.read.CensusChroParser;
 import edu.scripps.yates.census.read.CensusOutParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
-import edu.scripps.yates.dbindex.DBIndexInterface;
+import edu.scripps.yates.dbindex.DBIndexImpl;
 import edu.scripps.yates.dtaselectparser.DTASelectParser;
-import edu.scripps.yates.dtaselectparser.util.DTASelectProtein;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.Parameter;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
@@ -102,6 +100,7 @@ import edu.scripps.yates.shared.model.projectCreator.RemoteFileWithTypeBean;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtils;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.cores.SystemCoreManager;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupablePeptide;
@@ -110,7 +109,6 @@ import edu.scripps.yates.utilities.grouping.PAnalyzer;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.ipi.UniprotEntry;
-import edu.scripps.yates.utilities.model.factories.AccessionEx;
 import edu.scripps.yates.utilities.pi.ParIterator;
 import edu.scripps.yates.utilities.pi.ParIterator.Schedule;
 import edu.scripps.yates.utilities.pi.ParIteratorFactory;
@@ -190,12 +188,14 @@ public class RemoteServicesTasks {
 			uplr.setCacheEnabled(true);
 			final Set<String> uniprotACCs = new THashSet<String>();
 			for (final String acc : proteins) {
-				final Pair<String, String> accType = FastaParser.getACC(acc);
-				if (accType.getSecondElement().equals("UNIPROT")) {
-					uniprotACCs.add(accType.getFirstelement());
-				} else if (accType.getSecondElement().equals("IPI")) {
+				final Accession accType = FastaParser.getACC(acc);
+				if (accType
+						.getAccessionType() == edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType.UNIPROT) {
+					uniprotACCs.add(accType.getAccession());
+				} else if (accType
+						.getAccessionType() == edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType.IPI) {
 					final List<UniprotEntry> map2Uniprot = IPI2UniprotACCMap.getInstance()
-							.map2Uniprot(accType.getFirstelement());
+							.map2Uniprot(accType.getAccession());
 					if (map2Uniprot != null && !map2Uniprot.isEmpty()) {
 						for (final UniprotEntry uniprotEntry : map2Uniprot) {
 							uniprotACCs.add(uniprotEntry.getAcc());
@@ -351,8 +351,8 @@ public class RemoteServicesTasks {
 					proteinBean.setLength(annotatedProtein.getLength());
 				}
 				// MW
-				if (annotatedProtein.getMW() > 0.0) {
-					proteinBean.setMw(annotatedProtein.getMW());
+				if (annotatedProtein.getMw() > 0.0) {
+					proteinBean.setMw(annotatedProtein.getMw());
 				}
 			}
 			// just add it to the map
@@ -736,10 +736,9 @@ public class RemoteServicesTasks {
 	}
 
 	private static String getAccession(QuantifiedProteinInterface quantProtein) {
-		Accession primaryAccession = new AccessionEx(quantProtein.getAccession(),
-				edu.scripps.yates.utilities.model.enums.AccessionType.fromValue(quantProtein.getAccessionType()));
-		final Pair<String, String> acc = FastaParser.getACC(primaryAccession.getAccession());
-		if (acc.getSecondElement().equals("IPI")) {
+		Accession primaryAccession = quantProtein.getPrimaryAccession();
+		final Accession acc = FastaParser.getACC(primaryAccession.getAccession());
+		if (acc.getAccessionType() == edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType.IPI) {
 			final Pair<Accession, Set<Accession>> pair = IPI2UniprotACCMap.getInstance()
 					.getPrimaryAndSecondaryAccessionsFromIPI(primaryAccession);
 			if (pair.getFirstelement() != null) {
@@ -819,7 +818,7 @@ public class RemoteServicesTasks {
 		}
 	}
 
-	private static DBIndexInterface getDBIndexInterface(int jobID, FileNameWithTypeBean fileNameWithTypeFasta) {
+	private static DBIndexImpl getDBIndexInterface(int jobID, FileNameWithTypeBean fileNameWithTypeFasta) {
 		if (fileNameWithTypeFasta == null)
 			return null;
 		if (fileNameWithTypeFasta instanceof RemoteFileWithTypeBean) {
@@ -827,18 +826,18 @@ public class RemoteServicesTasks {
 		} else {
 			final File fastaFile = FileManager.getDataFile(jobID, fileNameWithTypeFasta.getFileName(),
 					fileNameWithTypeFasta.getId(), fileNameWithTypeFasta.getFileFormat());
-			final DBIndexInterface ret = new DBIndexInterface(DBIndexInterface.getDefaultDBIndexParams(fastaFile));
+			final DBIndexImpl ret = new DBIndexImpl(DBIndexImpl.getDefaultDBIndexParams(fastaFile));
 			return ret;
 		}
 	}
 
-	private static DBIndexInterface getDBIndexInterface(RemoteFileWithTypeBean remoteFileNameWithTypeFasta) {
+	private static DBIndexImpl getDBIndexInterface(RemoteFileWithTypeBean remoteFileNameWithTypeFasta) {
 		if (remoteFileNameWithTypeFasta == null)
 			return null;
 		final RemoteSSHFileReference remoteSSHFastaFile = new RemoteSSHFileReferenceAdapter(remoteFileNameWithTypeFasta)
 				.adapt();
 		final File fastaFile = remoteSSHFastaFile.getRemoteFile();
-		final DBIndexInterface ret = new DBIndexInterface(DBIndexInterface.getDefaultDBIndexParams(fastaFile));
+		final DBIndexImpl ret = new DBIndexImpl(DBIndexImpl.getDefaultDBIndexParams(fastaFile));
 		return ret;
 	}
 
@@ -903,11 +902,12 @@ public class RemoteServicesTasks {
 				final DTASelectParser parser = new DTASelectParser(dtaSelectFilterFile.toURI().toURL());
 				if (fileNameWithTypeFasta != null)
 					parser.setDbIndex(getDBIndexInterface(jobID, fileNameWithTypeFasta));
-				final Map<String, DTASelectProtein> proteinMap = parser.getDTASelectProteins();
+				final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> proteinMap = parser
+						.getProteinMap();
 				for (final String proteinAcc : proteinMap.keySet()) {
 					// get the ProteinImpl in order to get the parsed Accession
-					final Pair<String, String> acc = FastaParser.getACC(proteinAcc);
-					parsedAccs.add(acc.getFirstelement());
+					final Accession acc = FastaParser.getACC(proteinAcc);
+					parsedAccs.add(acc.getAccession());
 				}
 				// add to cache
 				ServerCacheProteinAccessionsByFileKey.getInstance().addtoCache(parsedAccs,

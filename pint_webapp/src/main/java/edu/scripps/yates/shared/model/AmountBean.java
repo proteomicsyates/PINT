@@ -16,7 +16,7 @@ public class AmountBean implements Serializable {
 	private ExperimentalConditionBean experimentalCondition;
 	private boolean isComposed = false;
 
-	private MSRunBean msRun;
+	private Set<MSRunBean> msRuns;
 	private Boolean manualSPC;
 
 	public AmountBean() {
@@ -74,8 +74,8 @@ public class AmountBean implements Serializable {
 	}
 
 	public static Set<AmountBean> getComposedAmounts(Collection<AmountBean> amounts) {
-		Set<AmountBean> ret = new HashSet<AmountBean>();
-		for (AmountBean amount : amounts) {
+		final Set<AmountBean> ret = new HashSet<AmountBean>();
+		for (final AmountBean amount : amounts) {
 			if (amount.isComposed())
 				ret.add(amount);
 		}
@@ -86,16 +86,23 @@ public class AmountBean implements Serializable {
 	/**
 	 * @return the msRun
 	 */
-	public MSRunBean getMsRun() {
-		return msRun;
+	public Set<MSRunBean> getMsRuns() {
+		return msRuns;
 	}
 
 	/**
 	 * @param msRun
 	 *            the msRun to set
 	 */
-	public void setMsRun(MSRunBean msRun) {
-		this.msRun = msRun;
+	public void setMsRun(Set<MSRunBean> msRuns) {
+		this.msRuns = msRuns;
+	}
+
+	public void addMsRun(MSRunBean msRun) {
+		if (msRuns == null) {
+			msRuns = new HashSet<MSRunBean>();
+		}
+		msRuns.add(msRun);
 	}
 
 	public void setManualSPC(Boolean manualSPC) {

@@ -12,6 +12,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
+import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
@@ -42,8 +43,11 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 			return peptide2;
 		}
 
-		final MsRun msRun = new MSRunAdapter(peptide.getMSRun(), hibProject).adapt();
-		final Peptide ret = new Peptide(msRun, peptide.getSequence());
+		final Peptide ret = new Peptide(peptide.getSequence());
+		for (final MSRun msRun : peptide.getMSRuns()) {
+			final MsRun hibMsRun = new MSRunAdapter(msRun, hibProject).adapt();
+			ret.getMsRuns().add(hibMsRun);
+		}
 		ret.setFullSequence(ModelUtils.getFullSequence(peptide.getSequence(), peptide.getPTMs()));
 
 		map.put(peptide.hashCode(), ret);
@@ -85,7 +89,7 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 		}
 
 		// psms
-		final Set<PSM> psMs = peptide.getPSMs();
+		final List<PSM> psMs = peptide.getPSMs();
 		if (psMs != null && !psMs.isEmpty()) {
 			for (final PSM psm : psMs) {
 				final Psm hibPsm = new PSMAdapter(psm, hibProject).adapt();

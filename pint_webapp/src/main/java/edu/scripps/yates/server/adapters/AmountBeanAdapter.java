@@ -58,7 +58,7 @@ public class AmountBeanAdapter implements Adapter<AmountBean> {
 	public AmountBean adapt() {
 
 		final AmountBean ret = new AmountBean();
-		ret.setMsRun(new MSRunBeanAdapter(msRun, false).adapt());
+		ret.addMsRun(new MSRunBeanAdapter(msRun, false).adapt());
 		if (proteinAmount != null) {
 			if (mapPro.get().containsKey(proteinAmount.getId()))
 				return mapPro.get().get(proteinAmount.getId());

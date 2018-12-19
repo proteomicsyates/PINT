@@ -3,8 +3,8 @@ package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 import java.util.Map;
 
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.LabelType;
-import edu.scripps.yates.utilities.model.factories.LabelEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Label;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.LabelEx;
 import gnu.trove.map.hash.THashMap;
 
 public class LabelAdapter implements edu.scripps.yates.utilities.pattern.Adapter<Label> {

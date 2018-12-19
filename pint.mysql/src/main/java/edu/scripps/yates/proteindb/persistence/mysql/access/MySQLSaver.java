@@ -64,12 +64,15 @@ public class MySQLSaver {
 		if (protein.getId() != null)
 			return true;
 		// not save protein without PSMs
+		final Set<MsRun> msRuns = protein.getMsRuns();
 		if (protein.getPsms().isEmpty()) {
-			log.info("Not saving protein " + PersistenceUtils.getPrimaryAccession(protein).getAccession() + " in MSRun "
-					+ protein.getMsRun().getRunId() + " for not having PSMs");
+			log.info("Not saving protein " + PersistenceUtils.getPrimaryAccession(protein).getAccession() + " in "
+					+ msRuns.size() + " MSRun(s) for not having PSMs");
 			return false;
 		}
-		saveMSRun(protein.getMsRun());
+		for (final MsRun msrun : msRuns) {
+			saveMSRun(msrun);
+		}
 
 		// // organism
 		// final Organism organism = protein.getOrganism();
@@ -211,7 +214,10 @@ public class MySQLSaver {
 		}
 		if (peptide.getId() != null)
 			return;
-		saveMSRun(peptide.getMsRun());
+		final Set<MsRun> msRuns = peptide.getMsRuns();
+		for (final MsRun msRun : msRuns) {
+			saveMSRun(msRun);
+		}
 		if (peptide.getSequence() == null)
 			System.out.println("Sequence is null");
 

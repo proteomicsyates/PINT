@@ -78,7 +78,7 @@ public class PersistenceUtils {
 		ProteinAccession primaryAcc = null;
 		final String proteinAccession = protein.getAcc();
 
-		final String accessionType = FastaParser.getACC(proteinAccession).getSecondElement();
+		final String accessionType = FastaParser.getACC(proteinAccession).getAccessionType().name();
 		primaryAcc = new ProteinAccession(proteinAccession, accessionType, true);
 
 		return primaryAcc;

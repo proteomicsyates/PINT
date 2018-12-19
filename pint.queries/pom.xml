@@ -1,6 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>pint.queries</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 </properties>
@@ -67,7 +68,7 @@
   	<dependency>
   		<groupId>edu.scripps.yates</groupId>
   		<artifactId>pint.mysql</artifactId>
-  		<version>0.2.0-SNAPSHOT</version>
+  		<version>1.0.0-SNAPSHOT</version>
   		<exclusions>
   			<exclusion>
   				<artifactId>pint.model</artifactId>
@@ -89,20 +90,20 @@
 	<dependency>
   		<groupId>org.proteored.miape.api</groupId>
   		<artifactId>miape-api</artifactId>
-  		<version>1.9.7-SNAPSHOT</version>
+  		<version>1.9.8-SNAPSHOT</version>
   	</dependency>
 	<dependency>
 		<groupId>edu.scripps.yates</groupId>
 		<artifactId>pint.model</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.1-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>edu.scripps.yates</groupId>
+		<artifactId>utilities</artifactId>
+		<version>1.6-SNAPSHOT</version>
 	</dependency>
   </dependencies>
-  <parent>
-  	<groupId>edu.scripps.yates</groupId>
-  	<artifactId>pint.parent</artifactId>
-  	<version>0.2.0-SNAPSHOT</version>
-  	<relativePath>..</relativePath>
-  </parent>
+   
   <name>queries module</name>
   <organization>
   	<name>TSRI</name>
@@ -133,4 +134,5 @@
         </snapshots>
     </repository>
    </repositories>
+  <groupId>edu.scripps.yates</groupId>
 </project>

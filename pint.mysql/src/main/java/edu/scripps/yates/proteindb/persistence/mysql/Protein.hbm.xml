@@ -12,9 +12,9 @@
 <!--         <many-to-one name="organism" class="edu.scripps.yates.proteindb.persistence.mysql.Organism" fetch="select"> -->
 <!--             <column name="Organism_taxonomyID" length="90" not-null="true" /> -->
 <!--         </many-to-one> -->
-        <many-to-one name="msRun" class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" fetch="select">
-            <column name="MS_Run_id" not-null="true" />
-        </many-to-one>
+<!--         <many-to-one name="msRun" class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" fetch="select"> -->
+<!--             <column name="MS_Run_id" not-null="true" /> -->
+<!--         </many-to-one> -->
          <property name="acc" type="java.lang.String" >
             <column name="acc" not-null="true" />
         </property>
@@ -97,6 +97,14 @@
             </key>
             <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Peptide">
                 <column name="Peptide_id" not-null="true" />
+            </many-to-many>
+        </set>
+        <set name="msRuns" table="protein_has_ms_run" inverse="true" lazy="true" fetch="select" >
+            <key>
+                <column name="Protein_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.MSRun">
+                <column name="MS_Run_id" not-null="true" />
             </many-to-many>
         </set>
     </class>

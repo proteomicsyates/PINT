@@ -15,7 +15,7 @@ import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinS
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
-import edu.scripps.yates.utilities.model.enums.AggregationLevel;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AggregationLevel;
 import gnu.trove.set.hash.THashSet;
 
 /**

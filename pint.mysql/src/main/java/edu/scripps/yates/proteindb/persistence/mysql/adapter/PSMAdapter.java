@@ -40,9 +40,9 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 			final Psm psm2 = map.get(psm.hashCode());
 			return psm2;
 		}
-		MsRun msRun = new MSRunAdapter(psm.getMSRun(), hibProject).adapt();
+		final MsRun msRun = new MSRunAdapter(psm.getMSRun(), hibProject).adapt();
 
-		Psm ret = new Psm(msRun, null, psm.getSequence(), psm.getFullSequence());
+		final Psm ret = new Psm(msRun, null, psm.getSequence(), psm.getFullSequence());
 		map.put(psm.hashCode(), ret);
 		Peptide parentPeptide = null;
 		if (psm.getPeptide() != null) {
@@ -53,21 +53,33 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 		ret.setPeptide(parentPeptide);
 
 		ret.setPsmId(psm.getIdentifier());
-		ret.setCalMh(psm.getCalcMH());
-		ret.setIonProportion(psm.getIonProportion());
-		ret.setMh(psm.getExperimentalMH());
-		ret.setPi(psm.getPI());
-		ret.setPpmError(psm.getMassErrorPPM());
+		if (psm.getCalcMH() != null) {
+			ret.setCalMh(psm.getCalcMH().doubleValue());
+		}
+		if (psm.getIonProportion() != null) {
+			ret.setIonProportion(psm.getIonProportion().doubleValue());
+		}
+		if (psm.getExperimentalMH() != null) {
+			ret.setMh(psm.getExperimentalMH().doubleValue());
+		}
+		if (psm.getPi() != null) {
+			ret.setPi(psm.getPi().doubleValue());
+		}
+		if (psm.getMassErrorPPM() != null) {
+			ret.setPpmError(psm.getMassErrorPPM().doubleValue());
+		}
 		// ret.getProteins().add(protein);
-		ret.setSpr(psm.getSPR());
-		ret.setTotalIntensity(psm.getTotalIntensity());
+		ret.setSpr(psm.getSpr());
+		if (psm.getTotalIntensity() != null) {
+			ret.setTotalIntensity(psm.getTotalIntensity().doubleValue());
+		}
 		ret.setAfterSeq(psm.getAfterSeq());
 
 		ret.setBeforeSeq(psm.getBeforeSeq());
-		ret.setChargeState(psm.getChargeState());
+		ret.setChargeState(String.valueOf(psm.getChargeState()));
 		// ptms
 		if (psm.getPTMs() != null) {
-			for (PTM ptm : psm.getPTMs()) {
+			for (final PTM ptm : psm.getPTMs()) {
 				ret.getPtms().add(new PTMAdapter(ptm, ret).adapt());
 			}
 
@@ -75,14 +87,14 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 		// scores
 		final Set<Score> scores = psm.getScores();
 		if (scores != null) {
-			for (Score score : scores) {
+			for (final Score score : scores) {
 				ret.getPsmScores().add(new PSMScoreAdapter(score, ret).adapt());
 			}
 		}
 		// psm ratios
 		final Set<Ratio> peptideRatios = psm.getRatios();
 		if (peptideRatios != null) {
-			for (Ratio peptideRatioModel : peptideRatios) {
+			for (final Ratio peptideRatioModel : peptideRatios) {
 				if (!Double.isNaN(peptideRatioModel.getValue())) {
 					final PsmRatioValue hibProteinRatio = new PSMRatioValueAdapter(peptideRatioModel, ret, hibProject)
 							.adapt();
@@ -93,7 +105,7 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 		// amounts
 		if (psm.getAmounts() != null) {
 			// now adapt the proteins
-			for (Amount amount : psm.getAmounts()) {
+			for (final Amount amount : psm.getAmounts()) {
 				if (!Double.isNaN(amount.getValue())) {
 					ret.getPsmAmounts().add(new PSMAmountAdapter(amount, ret, hibProject).adapt());
 				}
@@ -105,14 +117,14 @@ public class PSMAdapter implements Adapter<Psm>, Serializable {
 
 		// proteins
 		if (psm.getProteins() != null) {
-			for (edu.scripps.yates.utilities.proteomicsmodel.Protein protein : psm.getProteins()) {
+			for (final edu.scripps.yates.utilities.proteomicsmodel.Protein protein : psm.getProteins()) {
 				ret.getProteins().add(new ProteinAdapter(protein, hibProject).adapt());
 			}
 		}
 
 		// conditions
 		if (psm.getConditions() != null) {
-			for (Condition condition : psm.getConditions()) {
+			for (final Condition condition : psm.getConditions()) {
 				ret.getConditions().add(new ConditionAdapter(condition, hibProject).adapt());
 			}
 		}

@@ -9,11 +9,11 @@ import edu.scripps.yates.excel.proteindb.importcfg.ExcelFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdentificationExcelType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.PtmScoreType;
 import edu.scripps.yates.excel.util.ExcelUtils;
-import edu.scripps.yates.utilities.model.factories.PTMSiteEx;
-import edu.scripps.yates.utilities.model.factories.ScoreEx;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.PTMSiteEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ScoreEx;
 import gnu.trove.map.hash.THashMap;
 
 public class PTMListAdapter implements edu.scripps.yates.utilities.pattern.Adapter<List<PTM>> {

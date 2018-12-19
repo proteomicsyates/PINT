@@ -3,9 +3,9 @@ package edu.scripps.yates.excel.proteindb.importcfg.adapter;
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.proteindb.importcfg.ExcelFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ScoreType;
-import edu.scripps.yates.utilities.model.factories.ScoreEx;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ScoreEx;
 
 public class ScoreAdapter implements Adapter<Score> {
 	private final ScoreType scoreCfg;
