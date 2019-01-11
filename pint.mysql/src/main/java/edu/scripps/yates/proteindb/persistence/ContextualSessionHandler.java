@@ -39,12 +39,12 @@ public class ContextualSessionHandler {
 	// private static final ThreadGroupLocal<Session> threadGroupSession = new
 	// ThreadGroupLocal<Session>();
 
-	private static Logger log = Logger.getLogger("log4j.logger.org.proteored");
+	private static Logger log = Logger.getLogger(ContextualSessionHandler.class);
 	private static Statistics statistics;
 
 	/**
-	 * Setup the session factory with a propertiesFile that contains the
-	 * username password and url for the connection to the db
+	 * Setup the session factory with a propertiesFile that contains the username
+	 * password and url for the connection to the db
 	 *
 	 * @param propertiesFile
 	 * @return
@@ -68,8 +68,8 @@ public class ContextualSessionHandler {
 	}
 
 	/**
-	 * query puede ser como: 'Select from Curso a order by a.titulo en realidad
-	 * no es SQL es Hibernate Query Languaje (HQL)
+	 * query puede ser como: 'Select from Curso a order by a.titulo en realidad no
+	 * es SQL es Hibernate Query Languaje (HQL)
 	 */
 	public static Query createQuery(String query) {
 		return getCurrentSession().createQuery(query);
@@ -101,7 +101,7 @@ public class ContextualSessionHandler {
 	 * Function that save a row in a table that is represented by an hibernate
 	 * object
 	 *
-	 * @param <T>
+	 * @param        <T>
 	 * @param object
 	 * @return
 	 */
@@ -116,7 +116,7 @@ public class ContextualSessionHandler {
 	 * Function that update a row in a table that is represented by an hibernate
 	 * object
 	 *
-	 * @param <T>
+	 * @param        <T>
 	 * @param object
 	 */
 	public static <T> void update(T object) {
@@ -127,7 +127,7 @@ public class ContextualSessionHandler {
 	 * Function that update a row in a table that is represented by an hibernate
 	 * object
 	 *
-	 * @param <T>
+	 * @param        <T>
 	 * @param object
 	 */
 	public static <T> void saveOrUpdate(T object) {
@@ -135,10 +135,9 @@ public class ContextualSessionHandler {
 	}
 
 	/**
-	 * Function that delete a row from a table where object is a row of the
-	 * table T
+	 * Function that delete a row from a table where object is a row of the table T
 	 *
-	 * @param <T>
+	 * @param        <T>
 	 * @param object
 	 */
 	public static <T> void delete(T object) {
@@ -161,10 +160,9 @@ public class ContextualSessionHandler {
 	/**
 	 * Function like Select * from clazz where primary_key = id
 	 *
-	 * @param <T>
+	 * @param       <T>
 	 * @param id
-	 * @param clazz
-	 *            hibernate class that corresponds to a table in the database
+	 * @param clazz hibernate class that corresponds to a table in the database
 	 * @return the object loaded or null if it is not found in the database
 	 */
 	@SuppressWarnings("unchecked")
@@ -178,13 +176,12 @@ public class ContextualSessionHandler {
 	}
 
 	/**
-	 * Function like select * from clazz where col1 == val1 col1 is a column of
-	 * type M
+	 * Function like select * from clazz where col1 == val1 col1 is a column of type
+	 * M
 	 *
-	 * @param <T>
-	 * @param <M>
-	 * @param listParameter
-	 *            list of Parameter objects
+	 * @param               <T>
+	 * @param               <M>
+	 * @param listParameter list of Parameter objects
 	 * @param clazz
 	 * @return the list of objects of the class = clazz
 	 */
@@ -202,7 +199,7 @@ public class ContextualSessionHandler {
 	/**
 	 * Function like select * from clazz
 	 *
-	 * @param <T>
+	 * @param       <T>
 	 *
 	 * @param clazz
 	 * @return the list of objects of the class = clazz
@@ -219,7 +216,7 @@ public class ContextualSessionHandler {
 	/**
 	 * Function like select * from clazz
 	 *
-	 * @param <T>
+	 * @param       <T>
 	 *
 	 * @param clazz
 	 * @return the list of objects of the class = clazz
@@ -236,7 +233,7 @@ public class ContextualSessionHandler {
 	/**
 	 * Function like select * from clazz
 	 *
-	 * @param <T>
+	 * @param          <T>
 	 *
 	 * @param clazz
 	 * @param readonly
@@ -254,7 +251,7 @@ public class ContextualSessionHandler {
 	/**
 	 * Function like select * from clazz
 	 *
-	 * @param <T>
+	 * @param       <T>
 	 *
 	 * @param clazz
 	 * @return the list of objects of the class = clazz
@@ -264,16 +261,14 @@ public class ContextualSessionHandler {
 	}
 
 	/**
-	 * Function like "select * from clazz where col1 == val1 and col2 == val2"
-	 * col1 is a <M1> type column and col2 is a <M2> type column
+	 * Function like "select * from clazz where col1 == val1 and col2 == val2" col1
+	 * is a <M1> type column and col2 is a <M2> type column
 	 *
-	 * @param <T>
-	 * @param <M2>
-	 * @param <M1>
-	 * @param listParameter
-	 *            :list of <M1> type values for the col1
-	 * @param listParameter2
-	 *            :list of <M2> type values for the col2
+	 * @param                <T>
+	 * @param                <M2>
+	 * @param                <M1>
+	 * @param listParameter  :list of <M1> type values for the col1
+	 * @param listParameter2 :list of <M2> type values for the col2
 	 * @param clazz
 	 * @return a list of objects from class T retrieved from the database
 	 */
@@ -290,19 +285,16 @@ public class ContextualSessionHandler {
 	}
 
 	/**
-	 * Function like "select * from clazz where col1 == val1 and col2 == val2"
-	 * col1 is a <M1> type column and col2 is a <M2> type column
+	 * Function like "select * from clazz where col1 == val1 and col2 == val2" col1
+	 * is a <M1> type column and col2 is a <M2> type column
 	 *
-	 * @param <M3>
-	 * @param <M1>
-	 * @param <T>
-	 * @param <M2>
-	 * @param listParameter
-	 *            :list of <M1> type values for the col1
-	 * @param listParameter2
-	 *            :list of <M2> type values for the col2
-	 * @param listParameter3
-	 *            :list of <M3> type values for the col3
+	 * @param                <M3>
+	 * @param                <M1>
+	 * @param                <T>
+	 * @param                <M2>
+	 * @param listParameter  :list of <M1> type values for the col1
+	 * @param listParameter2 :list of <M2> type values for the col2
+	 * @param listParameter3 :list of <M3> type values for the col3
 	 * @param clazz
 	 * @return a list of objects from class T retrieved from the database
 	 */
@@ -451,8 +443,8 @@ public class ContextualSessionHandler {
 	 * before committing the transaction and closing the session (depending on
 	 * setFlushMode(FlushMode), Transaction.commit() calls this method).
 	 *
-	 * Flushing is the process of synchronizing the underlying persistent store
-	 * with persistable state held in memory.
+	 * Flushing is the process of synchronizing the underlying persistent store with
+	 * persistable state held in memory.
 	 *
 	 */
 	public static void flush() {
@@ -470,8 +462,8 @@ public class ContextualSessionHandler {
 	}
 
 	/**
-	 * This open a session, but it will fail if the session factory was not
-	 * created before by calling to openSession(username, password, dbURL)
+	 * This open a session, but it will fail if the session factory was not created
+	 * before by calling to openSession(username, password, dbURL)
 	 * 
 	 * @return
 	 */
@@ -483,8 +475,8 @@ public class ContextualSessionHandler {
 	}
 
 	/**
-	 * Opens a session and if it is necessary creates a new sessionFactory using
-	 * the username password and dbURL provided.
+	 * Opens a session and if it is necessary creates a new sessionFactory using the
+	 * username password and dbURL provided.
 	 * 
 	 * @param username
 	 * @param password
