@@ -44,9 +44,8 @@ public class HibernateUtil {
 
 	/**
 	 *
-	 * @param testEnabled
-	 *            indicate if the sessionFactory is going to point to the test
-	 *            database or not
+	 * @param testEnabled indicate if the sessionFactory is going to point to the
+	 *                    test database or not
 	 * @return a singleton instance of the class
 	 */
 	public static HibernateUtil getInstance(boolean testEnabled, String dbUsername, String dbPassword, String dbURL) {
