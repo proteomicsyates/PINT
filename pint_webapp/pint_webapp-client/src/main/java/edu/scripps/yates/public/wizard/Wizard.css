@@ -1,0 +1,398 @@
+/* Default styles for the Wizard. Any of these can be overridden
+ * in a user's stylesheet if it is injected via that project's
+ * .gwt.xml file. Turn them off completely by setting the wizard's
+ * primary style name to something other than muse-gwt-Wizard.
+ */
+
+.muse-gwt-Wizard {
+	background-color: white;
+	border: 0px solid black;
+}
+
+.muse-gwt-Wizard .valignMiddle {
+	vertical-align: middle;
+}
+
+.muse-gwt-Wizard .rightBorder {
+	border-right: 2px solid grey;
+	height: 100%;
+}
+
+.muse-gwt-Wizard .leftBorder {
+	border-left: 2px solid grey;
+}
+
+.muse-gwt-Wizard .topBorder {
+	border-top: 2px solid grey;
+}
+
+.muse-gwt-Wizard .bottomBorder {
+	border-bottom: 2px solid grey;
+}
+ 
+
+.muse-gwt-Wizard .wizardPages {
+	padding: 5px;
+	width: 100%;
+  	height: 100%;
+  	font-size:14px;
+  	background-color: #e9f8f7;
+}
+
+.muse-gwt-Wizard .wizardPages .inactive {
+	color: #888888;
+	font-size:14px;
+}
+
+.muse-gwt-Wizard .wizardPages .active {
+	font-size:14px;
+}
+
+.muse-gwt-Wizard .wizardContent {
+	padding: 5px;
+	padding-left:10px;
+	padding-top:10px
+	width: 100%;
+/*   	height: 100%; */
+  	overflow-y: auto; 
+}
+
+.muse-gwt-Wizard .wizardTitle .gwt-HTML {
+	font-size: 17pt;
+	font-weight: bolder;
+	padding-left: 20px;
+	padding-top: 10px;
+	padding-bottom:13px;
+	float: left;
+	background-color: #e9f8f7;
+}
+
+.wizardWelcome {
+	padding: 3%;
+ }
+ .wizardRegularPage {
+	padding: 1.5%;
+ }
+.wizardWelcomelabel1{
+	font-size: 17pt;
+	font-weight: bolder;
+	padding-bottom: 20px;
+	white-space: pre-line;
+}
+.wizardWelcomelabel2{
+	font-size: 14pt;
+	padding-bottom: 10px;
+	white-space: pre-line;
+}
+
+.wizardBottomMessageLabel{
+	font-size: 20px;
+	padding-top: 40px;
+}
+
+.wizardNavigation{
+	
+}
+.wizardPageList{
+	font-size: 14px !important;
+}
+.wizardQuestionPanel{
+	background: #e9f8f7;
+    border-radius: 20px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.wizardQuestionLabel{
+	font-size: 2.0em;
+	font-family: Circular,arial,sans-serif;
+	text-align: center;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+.wizardExplanationLabel{
+	font-size: 1.5em;
+	color: #776868;
+	text-align: left;
+/* 	padding-top:30px; */
+/* 	padding-bottom: 20px; */
+	white-space: pre-line;
+}
+
+.wizard-Button {
+  font-size:17px !important;
+  margin: 0;
+  padding: 5px 7px;
+  text-decoration: none;
+  cursor: pointer;
+  cursor: hand;
+  font-size:small;
+  background: url("../hborder.png") repeat-x 0px -2077px;
+  border:1px solid #bbb;
+  border-bottom: 1px solid #a0a0a0;
+  border-radius: 3px;
+ -moz-border-radius: 3px;
+}
+.gwt-Button:active {
+  border: 1px inset #ccc;
+}
+.gwt-Button:hover {
+  border-color: #939393;
+}
+.gwt-Button[disabled] {
+  cursor: default;
+  color: #888;
+}
+.gwt-Button[disabled]:hover {
+  border: 1px outset #ccc;
+}
+.gwt-ProgressBar-shell {
+    border: 1px solid #1f2b31;
+    background-color: #67A7E3 ;
+    height: 16px;
+    width: 50%;
+    margin-left: 10px;
+}
+
+.gwt-ProgressBar-shell .gwt-ProgressBar-bar {
+    background-color:#BB4B44;
+}
+
+.gwt-ProgressBar-shell .gwt-ProgressBar-text {
+    padding: 3px;
+    margin: 0;
+    color: white;
+}
+
+.progressLabel {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+}
+.dropFilesLabel {
+    margin-top: 6px;
+    padding-top: 28px;
+    padding-bottom: 28px;
+    font-family: verdana, arial, sans-serif;
+    font-size: 12px;
+    color: #2d4b6d;
+    font-weight: bold;
+    text-align: center;
+    display: block;
+    border: 2px dashed #888888;
+    border-radius: 7px;
+}
+
+.dropFilesLabelHover {
+    border: 2px solid #444444;
+    color: #7c9647;
+}
+.cancelButton {
+    margin: 3px 0 -1px 2px;
+    cursor: hand;
+	cursor:pointer;
+    padding-left: 10px;
+}
+.clickable {
+	cursor: hand;
+	cursor:pointer;
+}
+.wizardProgressBarTable{
+	padding: 10px;
+}
+.wizardProgressBarRow{
+	padding-top: 10px;
+	padding-left: 10px;
+    width: 100%;
+}
+.wizardUploaderPanel{
+	padding:10px;
+}
+
+.wizardLabel3{
+	font-size: 14px;
+}
+.wizardCriticalMessage{
+	color: #ff0000;
+	font-size: 14px;
+}
+.wizardInfoMessage{
+	color: #808080;
+	font-size: 13px;
+}
+.linkText{
+	font-size: 14px; 
+	color: #BB4B44;
+}
+.linkText:hover{
+	font-size: 14px; 
+	color: #000000;
+}
+.wizardTextBox{
+	font-size: 14px;
+}
+.wizardTextBoxGrey{
+	font-size: 14px;
+	color: grey;
+}
+.wizardFormTextLabel{
+	font-size: 2.0em;
+	font-family: Circular,arial,sans-serif;
+	white-space: nowrap;
+}
+.wizardFormTextLabelError{
+	font-size: 2.0em;
+	font-family: Circular,arial,sans-serif;
+	white-space: nowrap;
+	color:red;
+}
+.wizardTextFormPanel{
+	background: #e9f8f7;
+    border-radius: 20px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+}
+
+.wizardNewSampleLabel{
+    margin-top: 11px;
+    margin-bottom: 11px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left:5px;
+    padding-right:5px;
+    font-family: verdana, arial, sans-serif;
+    font-size: 12px;
+    color: #2d4b6d;
+    font-weight: bold;
+    text-align: center;
+    display: block;
+    border: 2px dashed #888888;
+    border-radius: 7px;
+    cursor: hand;
+	cursor:pointer;
+	width: 15em;
+}
+
+.wizardNewSampleLabel:hover {
+    border: 2px solid #444444;
+    color: #7c9647;
+}
+.wizardSampleLabel{
+	margin-top: 11px;
+    padding-top: 28px;
+    padding-bottom: 28px;
+    padding-left:10px;
+    padding-right:10px;
+    font-family: verdana, arial, sans-serif;
+    font-size: 12px;
+    color: #2d4b6d;
+    font-weight: bold;
+    text-align: center;
+    display: block;
+    border: 2px solid #888888;
+    border-radius: 7px;
+    cursor: hand;
+	cursor:pointer;
+}
+.wizardItemWidget{
+	margin-top: 10px;
+	background: #e9f8f7;
+    border-radius: 20px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    border: 2px solid #888888;
+    border-radius: 7px;
+
+}
+.wizardItemWidgetNameLabel{
+/* 	margin-top: 11px; */
+/*     padding-top: 28px; */
+/*     padding-bottom: 28px; */
+/*     padding-left:10px; */
+    padding-right:10px;
+    font-family: verdana, arial, sans-serif;
+    font-size: 12px;
+    color: #2d4b6d;
+    font-weight: bold;
+    text-align: left;
+    display: block;
+    cursor: hand;
+	cursor:pointer;
+}
+.wizardItemWidgetNameLabel:hover {
+    color: #7c9647;
+}
+.wizardItemWidgetNameTextBox{
+	font-size: 1em;
+}
+.WizardItemWidgetPropertyNameLabel{
+	font-size: 1em;
+	color: #776868;
+	text-align: left;
+	white-space: pre-line;
+}
+.WizardItemWidgetPropertyValueLabel{
+	font-size: 1em;
+	color: #2d4b6d;
+	text-align: left;
+	white-space: pre-line;
+	width: 40em;
+    cursor: hand;
+	cursor:pointer;
+}
+.WizardItemWidgetPropertyValueLabel:hover{
+	color: #7c9647;
+}
+.WizardItemWidgetPropertyValueTextBox{
+	font-size: 1em;
+	width: 40em;
+}
+.WizardItemWidgetPropertyValueTextArea{
+	font-size: 1em;
+	width: 40em;
+	border-width: 0px;
+	padding: 0px;
+}
+.WizardButton{
+	-moz-box-shadow:inset 0px 1px 0px 0px #cf866c;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #cf866c;
+	box-shadow:inset 0px 1px 0px 0px #cf866c;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #d0451b), color-stop(1, #bc3315));
+	background:-moz-linear-gradient(top, #d0451b 5%, #bc3315 100%);
+	background:-webkit-linear-gradient(top, #d0451b 5%, #bc3315 100%);
+	background:-o-linear-gradient(top, #d0451b 5%, #bc3315 100%);
+	background:-ms-linear-gradient(top, #d0451b 5%, #bc3315 100%);
+	background:linear-gradient(to bottom, #d0451b 5%, #bc3315 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#d0451b', endColorstr='#bc3315',GradientType=0);
+	background-color:#d0451b;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	border:1px solid #942911;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:11px;
+	font-weight:bold;
+	padding:4px 12px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #854629;
+}
+.WizardButton:hover{
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #bc3315), color-stop(1, #d0451b));
+	background:-moz-linear-gradient(top, #bc3315 5%, #d0451b 100%);
+	background:-webkit-linear-gradient(top, #bc3315 5%, #d0451b 100%);
+	background:-o-linear-gradient(top, #bc3315 5%, #d0451b 100%);
+	background:-ms-linear-gradient(top, #bc3315 5%, #d0451b 100%);
+	background:linear-gradient(to bottom, #bc3315 5%, #d0451b 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#bc3315', endColorstr='#d0451b',GradientType=0);
+	background-color:#bc3315;
+}
+.WizardButton:active {
+	position:relative;
+	top:1px;
+}

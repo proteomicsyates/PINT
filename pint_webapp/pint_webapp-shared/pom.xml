@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>edu.scripps.yates</groupId>
+    <artifactId>pint_webapp</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>pint_webapp-shared</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.gwt</groupId>
+      <artifactId>gwt-servlet</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+    	<groupId>com.googlecode.gwt-crypto</groupId>
+    	<artifactId>gwt-crypto</artifactId>
+    	<version>2.3.0</version>
+    </dependency>
+    
+    <!-- Reactome -->
+	<dependency>
+       <groupId>org.reactome.server.utils</groupId>
+       <artifactId>reactome-utils</artifactId>
+       <version>1.0.3</version>
+    </dependency> 
+
+  	<dependency>
+        <groupId>org.reactome.web</groupId>
+        <artifactId>fireworks</artifactId>
+        <version>1.3.7</version>
+  	</dependency>
+    <dependency>
+    	<groupId>org.reactome.web.pwp</groupId>
+        <artifactId>model</artifactId>
+        <version>1.3.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.reactome.web</groupId>
+        <artifactId>diagram</artifactId>
+        <version>3.2.1</version>
+        <exclusions>
+        	<exclusion>
+        		<groupId>ch.qos.logback</groupId>
+        		<artifactId>logback-core</artifactId>
+        	</exclusion>
+        	<exclusion>
+        		<groupId>ch.qos.logback</groupId>
+        		<artifactId>logback-classic</artifactId>
+        	</exclusion>
+        </exclusions>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>

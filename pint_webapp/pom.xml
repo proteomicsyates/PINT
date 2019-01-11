@@ -1,290 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>pint_webapp</artifactId>
-  <packaging>war</packaging>
-  <name>Maven Archetype for GWT</name>
-
-  <properties>
-    <!-- Convenience property to set the GWT version -->
-    <gwtVersion>2.8.2</gwtVersion>
-
-    <!-- GWT needs at least java 1.7 -->
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    
-    <pint.modules.version>1.0.0-SNAPSHOT</pint.modules.version>
-    
-    <failOnMissingWebXml>false</failOnMissingWebXml>
-  </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.google.gwt</groupId>
-        <artifactId>gwt</artifactId>
-        <version>${gwtVersion}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
-  <dependencies>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-servlet</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-user</artifactId>
-      <scope>provided</scope>
-      <exclusions>
-      	<exclusion>
-      		<groupId>javax.validation</groupId>
-      		<artifactId>validation-api</artifactId>
-      	</exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-dev</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-    	<groupId>edu.scripps.yates</groupId>
-    	<artifactId>pint.excel</artifactId>
-    	<version>${pint.modules.version}</version>
-    </dependency>
-    <dependency>
-    	<groupId>edu.scripps.yates</groupId>
-    	<artifactId>pint.mysql</artifactId>
-    	<version>${pint.modules.version}</version>
-    </dependency>
-    <dependency>
-    	<groupId>edu.scripps.yates</groupId>
-    	<artifactId>pint.queries</artifactId>
-    	<version>${pint.modules.version}</version>
-    </dependency>
-    
-    <dependency>
-  		<groupId>com.googlecode.gwtupload</groupId>
-  		<artifactId>gwtupload</artifactId>
-  		<version>1.0.1</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.googlecode.gwt-crypto</groupId>
-  		<artifactId>gwt-crypto</artifactId>
-  		<version>2.3.0</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.google.gwt</groupId>
-  		<artifactId>gwt-incubator</artifactId>
-  		<version>2.0.1</version>
-  	</dependency>
-<!--   	<dependency> -->
-<!--   		<groupId>com.google.code.gwt-math</groupId> -->
-<!--   		<artifactId>gwt-math</artifactId> -->
-<!--   		<version>2.0.3</version> -->
-<!--   	</dependency> -->
-<!--   	<dependency> -->
-<!--   		<groupId>com.googlecode.charts4j</groupId> -->
-<!--   		<artifactId>charts4j</artifactId> -->
-<!--   		<version>1.3</version> -->
-<!--   	</dependency> -->
-  	<dependency>
-  		<groupId>commons-lang</groupId>
-  		<artifactId>commons-lang</artifactId>
-  		<version>2.6</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.apache.httpcomponents</groupId>
-  		<artifactId>httpmime</artifactId>
-  		<version>4.5.1</version>
-  	</dependency>
-  	
-  	<!-- Reactome -->
-<!--   	<dependency> -->
-<!-- 	    <groupId>uk.ac.ebi.pride.web</groupId> -->
-<!-- 	    <artifactId>pride-web-utils</artifactId> -->
-<!-- 	    <version>1.3.11</version> -->
-<!--     </dependency> -->
-  	<dependency>
-       <groupId>org.reactome.server.utils</groupId>
-       <artifactId>reactome-utils</artifactId>
-       <version>1.0.3</version>
-    </dependency> 
-
-  	<dependency>
-        <groupId>org.reactome.web</groupId>
-        <artifactId>fireworks</artifactId>
-        <version>1.3.7</version>
-  	</dependency>
-    <dependency>
-    	<groupId>org.reactome.web.pwp</groupId>
-        <artifactId>model</artifactId>
-        <version>1.3.0</version>
-    </dependency>
-    <dependency>
-        <groupId>org.reactome.web</groupId>
-        <artifactId>diagram</artifactId>
-        <version>3.2.1</version>
-        <exclusions>
-        	<exclusion>
-        		<groupId>ch.qos.logback</groupId>
-        		<artifactId>logback-core</artifactId>
-        	</exclusion>
-        	<exclusion>
-        		<groupId>ch.qos.logback</groupId>
-        		<artifactId>logback-classic</artifactId>
-        	</exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-    	<groupId>edu.scripps.yates</groupId>
-    	<artifactId>dtaselectparser</artifactId>
-    	<version>1.1.2-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-    	<groupId>edu.scripps.yates</groupId>
-    	<artifactId>quant</artifactId>
-    	<version>1.0.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-    	<groupId>edu.scripps.yates</groupId>
-    	<artifactId>pint.annotations</artifactId>
-    	<version>1.0.2-SNAPSHOT</version>
-    	<exclusions>
-    		<exclusion>
-    			<groupId>javax.validation</groupId>
-    			<artifactId>validation-api</artifactId>
-    		</exclusion>
-    		<exclusion>
-    			<groupId>ch.qos.logback</groupId>
-    			<artifactId>logback-core</artifactId>
-    		</exclusion>
-    		<exclusion>
-    			<groupId>ch.qos.logback</groupId>
-    			<artifactId>logback-classic</artifactId>
-    		</exclusion>
-    	</exclusions>
-    </dependency>
-    <dependency>
-    	<groupId>edu.scripps.yates</groupId>
-    	<artifactId>dbindex</artifactId>
-    	<version>1.2.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-    	<groupId>edu.scripps.yates</groupId>
-    	<artifactId>pint.model</artifactId>
-    	<version>1.0.1-SNAPSHOT</version>
-    	<exclusions>
-    		<exclusion>
-    			<groupId>ch.qos.logback</groupId>
-    			<artifactId>logback-core</artifactId>
-    		</exclusion>
-    		<exclusion>
-    			<groupId>ch.qos.logback</groupId>
-    			<artifactId>logback-classic</artifactId>
-    		</exclusion>
-    	</exclusions>
-    </dependency>
-
-    <dependency>
-    	<groupId>edu.scripps.yates</groupId>
-    	<artifactId>utilities</artifactId>
-    	<version>1.6-SNAPSHOT</version>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <!-- Output classes directly into the webapp, so that IDEs and "mvn process-classes" update them in DevMode -->
-    <outputDirectory>src/main/webapp/WEB-INF/classes</outputDirectory>
-	<finalName>pint</finalName>
-    <plugins>
-
-      <!-- Mojo's Maven Plugin for GWT -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>gwt-maven-plugin</artifactId>
-        <version>${gwtVersion}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-              <goal>test</goal>
-              <goal>generateAsync</goal>
-            </goals>
-            <configuration>
-            	<extraJvmArgs>-Xmx6024M -Xss1024k</extraJvmArgs>
-<!--             	<style>OBF</style> -->
-            	<style>DETAILED</style>
-            </configuration>
-          </execution>
-        </executions>
-        <!-- Plugin configuration. There are many available options, see 
-          gwt-maven-plugin documentation at codehaus.org -->
-        <configuration>
-          <runTarget>Pint.html</runTarget>
-          <modules>
-            <module>edu.scripps.yates.Pint</module>
-          </modules>
-          <finalName>Pint.war</finalName>
-        </configuration>
-      </plugin>
-    </plugins>
-   
-  </build>
-  
-	
-	<repositories>
-					<!-- EBI repo -->
-					<repository>
-						<id>nexus-ebi-repo</id>
-						<name>The EBI internal repository</name>
-						<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
-
-					</repository>
-					<!-- EBI SNAPSHOT repo -->
-					<repository>
-						<id>nexus-ebi-snapshot-repo</id>
-						<name>The EBI internal snapshot repository</name>
-						<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
-						
-					</repository>
-					<!--  EBI repo  -->
-					<repository>
-						<id>pst-release</id>
-						<name>EBI Nexus Repository</name>
-						<url>
-						http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release
-						</url>
-					</repository>
-					<!--  EBI SNAPSHOT repo  -->
-					<repository>
-						<id>pst-snapshots</id>
-						<name>EBI Nexus Snapshots Repository</name>
-						<url>
-						http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots
-						</url>
-					</repository>
-				
-	</repositories>
-
- 
 	<groupId>edu.scripps.yates</groupId>
+	<artifactId>pint_webapp</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.google.gwt</groupId>
+				<artifactId>gwt</artifactId>
+				<version>2.8.2</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>javax.servlet-api</artifactId>
+				<version>3.1.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>net.ltgt.gwt.maven</groupId>
+				<artifactId>gwt-maven-plugin</artifactId>
+				<inherited>false</inherited>
+				<configuration>
+					<launcherDir>${project.build.directory}/gwt/launcherDir</launcherDir>
+				</configuration>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<!-- Do not upgrade past 3.1 to avoid triggering https://issues.apache.org/jira/browse/MSOURCES-95 -->
+					<!-- Unless you use annotation processors, then upgrade to 3.5.1 at 
+						a minimum -->
+					<version>3.1</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-maven-plugin</artifactId>
+					<version>9.4.8.v20171121</version>
+				</plugin>
+				<plugin>
+					<groupId>net.ltgt.gwt.maven</groupId>
+					<artifactId>gwt-maven-plugin</artifactId>
+					<version>1.0-rc-9</version>
+					<extensions>true</extensions>
+					<configuration>
+						<sourceLevel>1.8</sourceLevel>
+						<failOnError>true</failOnError>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.1</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>package</phase>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.tomcat.maven</groupId>
+					<artifactId>tomcat7-maven-plugin</artifactId>
+					<version>2.2</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	<modules>
+		<module>pint_webapp-client</module>
+		<module>pint_webapp-shared</module>
+		<module>pint_webapp-server</module>
+	</modules>
+	<distributionManagement>
+		<repository>
+			<id>internal</id>
+			<url>http://sealion.scripps.edu/archiva/repository/internal/</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<url>http://sealion.scripps.edu/archiva/repository/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>

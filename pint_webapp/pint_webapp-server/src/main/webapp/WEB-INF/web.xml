@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+
+	<!-- Servlets -->
+	<servlet>
+		<servlet-name>greetServlet</servlet-name>
+		<servlet-class>edu.scripps.yates.GreetingServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>greetServlet</servlet-name>
+		<url-pattern>/pint/greet</url-pattern>
+	</servlet-mapping>
+
+	<!-- MODIFY THIS BEFORE SETTING UP YOUR SERVER -->
+	<!-- In this folder the pint.properties should be present -->
+	<context-param>
+		<param-name>PINT_HOME_PATH</param-name>
+		<param-value>/home/salvador/PInt</param-value>
+	</context-param>
+
+
+
+	<!-- ************************************* -->
+	<!-- DO NOT MODIFY ANYTHING FROM HERE -->
+	<!-- ************************************* -->
+
+	<!-- context-params -->
+	<!-- max size of the upload request -->
+	<context-param>
+		<param-name>maxSize</param-name>
+		<param-value>2147483647</param-value> <!-- 2Gb -->
+	</context-param>
+	<context-param>
+		<param-name>maxFileSize</param-name>
+		<param-value>2147483647</param-value> <!-- 2Gb -->
+	</context-param>
+
+	<context-param>
+		<!-- Useful in development mode to slow down the uploads in fast networks. 
+			Put the number of milliseconds to sleep in each block received in the server. 
+			false or 0, means don't use slow uploads -->
+		<param-name>slowUploads</param-name>
+		<param-value>0</param-value>
+		<!-- <param-value>200</param-value> -->
+	</context-param>
+
+	<!-- Filters -->
+	<filter>
+		<filter-name>exceptionFilter</filter-name>
+		<filter-class>edu.scripps.yates.server.filter.ExceptionFilter</filter-class>
+	</filter>
+	<filter>
+		<filter-name>hibernateFilter</filter-name>
+		<filter-class>edu.scripps.yates.server.filter.HibernateFilter</filter-class>
+	</filter>
+	<!-- <filter id="Filter_1492817520469"> -->
+	<!-- <filter-name>hibernateFilterManaged</filter-name> -->
+	<!-- <display-name>hibernateFilterManaged</display-name> -->
+	<!-- <filter-class>edu.scripps.yates.server.filter.HibernateFilterManaged</filter-class> -->
+	<!-- </filter> -->
+
+	<!-- filter mappings -->
+	<!-- filter to print stackTrace of unhandled exceptions -->
+	<filter-mapping>
+		<filter-name>exceptionFilter</filter-name>
+		<url-pattern>*</url-pattern>
+	</filter-mapping>
+	<!-- use hibernateFilter in all requests -->
+	<!-- <filter-mapping> -->
+	<!-- <filter-name>hibernateFilter</filter-name> -->
+	<!-- <url-pattern>*</url-pattern> -->
+	<!-- </filter-mapping> -->
+	<!-- use hibernateFilter in all requests -->
+	<!-- <filter-mapping> -->
+	<!-- <filter-name>hibernateFilterManaged</filter-name> -->
+	<!-- <url-pattern>*</url-pattern> -->
+	<!-- </filter-mapping> -->
+
+
+
+
+	<!-- listeners -->
+	<listener>
+		<listener-class>edu.scripps.yates.server.daemon.PintServerDaemon</listener-class>
+	</listener>
+
+	<!-- Servlets -->
+	<!-- Servlet serving data to client -->
+	<servlet>
+		<servlet-name>pintServlet</servlet-name>
+		<servlet-class>edu.scripps.yates.server.ProteinRetrievalServicesServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet>
+		<servlet-name>downloadServlet</servlet-name>
+		<servlet-class>edu.scripps.yates.server.FileDownloadServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>ProjectSaverService</servlet-name>
+		<servlet-class>edu.scripps.yates.server.ProjectSaverServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>ImportWizard</servlet-name>
+		<servlet-class>edu.scripps.yates.server.ImportWizardServiceServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>ConfigurationService</servlet-name>
+		<servlet-class>edu.scripps.yates.server.ConfigurationServiceServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>xmlProjectUploadServlet</servlet-name>
+		<!-- This is the default servlet, it puts files in session -->
+		<!-- <servlet-class>gwtupload.server.UploadServlet</servlet-class> -->
+		<servlet-class>edu.scripps.yates.server.upload.XmlProjectUploadServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<!-- <servlet-name>uploadServlet</servlet-name> -->
+		<servlet-name>dataFilesUploadServlet</servlet-name>
+		<!-- This is the default servlet, it puts files in session -->
+		<!-- <servlet-class>gwtupload.server.UploadServlet</servlet-class> -->
+		<servlet-class>edu.scripps.yates.server.upload.DataFilesUploadServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>NewFileUploadServlet</servlet-name>
+		<servlet-class>edu.scripps.yates.server.NewFileUploadServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>ReactomeRESTfulAPI</servlet-name>
+		<servlet-class>uk.ac.ebi.pride.web.util.servlet.proxy.ProxyServlet</servlet-class>
+		<init-param>
+			<param-name>proxyHost</param-name>
+			<param-value>reactome.org</param-value>
+		</init-param>
+		<init-param>
+			<param-name>proxyPort</param-name>
+			<param-value>80</param-value>
+		</init-param>
+		<init-param>
+			<param-name>proxyPath</param-name>
+			<param-value>/</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet>
+		<servlet-name>ReactomeFigures</servlet-name>
+		<servlet-class>uk.ac.ebi.pride.web.util.servlet.proxy.ProxyServlet</servlet-class>
+		<init-param>
+			<param-name>proxyHost</param-name>
+			<param-value>reactome.org</param-value>
+		</init-param>
+		<init-param>
+			<param-name>proxyPort</param-name>
+			<param-value>80</param-value>
+		</init-param>
+		<init-param>
+			<param-name>proxyPath</param-name>
+			<param-value>/figures</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet>
+		<servlet-name>ReactomeAnalysis</servlet-name>
+		<servlet-class>uk.ac.ebi.pride.web.util.servlet.proxy.ProxyServlet</servlet-class>
+		<init-param>
+			<param-name>proxyHost</param-name>
+			<param-value>reactome.org</param-value>
+		</init-param>
+		<init-param>
+			<param-name>proxyPort</param-name>
+			<param-value>80</param-value>
+		</init-param>
+		<init-param>
+			<param-name>proxyPath</param-name>
+			<param-value>/AnalysisService</param-value>
+		</init-param>
+	</servlet>
+
+<!-- 	<servlet> -->
+<!-- 		<servlet-name>remoteLogging</servlet-name> -->
+<!-- 		<servlet-class>com.google.gwt.logging.server.RemoteLoggingServiceImpl</servlet-class> -->
+<!-- 	</servlet> -->
+
+
+	<!-- servlet-mappings -->
+	<servlet-mapping>
+		<servlet-name>ReactomeRESTfulAPI</servlet-name>
+		<url-pattern>/reactome/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ReactomeFigures</servlet-name>
+		<url-pattern>/pint/figures/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ReactomeAnalysis</servlet-name>
+		<url-pattern>/reactome/AnalysisService/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>pintServlet</servlet-name>
+		<url-pattern>/pint/proteins</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>ConfigurationService</servlet-name>
+		<url-pattern>/pint/configuration</url-pattern>
+	</servlet-mapping>
+
+	<!-- Servlet to download files from server -->
+	<servlet-mapping>
+		<servlet-name>downloadServlet</servlet-name>
+		<!-- <url-pattern>/download</url-pattern> -->
+		<url-pattern>/pint/download</url-pattern>
+	</servlet-mapping>
+
+	<!-- Default page to serve -->
+	<servlet-mapping>
+		<servlet-name>ProjectSaverService</servlet-name>
+		<url-pattern>/pint/projectsaver</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>ImportWizard</servlet-name>
+		<url-pattern>/pint/importWizard</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>xmlProjectUploadServlet</servlet-name>
+		<url-pattern>/xmlProject.gupld</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>dataFilesUploadServlet</servlet-name>
+		<url-pattern>/dataFilesProject.gupld</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>NewFileUploadServlet</servlet-name>
+		<url-pattern>/newFileUpload</url-pattern>
+	</servlet-mapping>
+<!-- 	<servlet-mapping> -->
+<!-- 		<servlet-name>remoteLoggingServiceImpl</servlet-name> -->
+<!-- 		<url-pattern>/pint/logging</url-pattern> -->
+<!-- 	</servlet-mapping> -->
+
+<!-- 	<servlet-mapping> -->
+<!-- 		<servlet-name>remoteLogging</servlet-name> -->
+<!-- 		<url-pattern>/pint/remote_logging</url-pattern> -->
+<!-- 	</servlet-mapping> -->
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+
+</web-app>

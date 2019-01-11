@@ -1,0 +1,1859 @@
+#cabeceralogos td{
+ 	padding:10px;
+ }
+
+#closeButton {
+  margin: 15px 6px 6px;
+}
+
+* html .gwt-DecoratedTabBar .tabTopLeftInner,
+* html .gwt-DecoratedTabBar .tabTopRightInner {
+  width: 3px;
+  height: 3px;
+  overflow: hidden;
+}
+
+* html .gwt-DialogBox .dialogBottomLeftInner {
+  width: 10px;
+  height: 12px;
+  overflow: hidden;
+}
+
+* html .gwt-DialogBox .dialogBottomRightInner {
+  width: 12px;
+  height: 12px;
+  overflow: hidden;
+}
+
+* html .gwt-DialogBox .dialogTopLeftInner {
+  width: 10px;
+  overflow: hidden;
+}
+
+* html .gwt-DialogBox .dialogTopRightInner {
+  width: 12px;
+  overflow: hidden;
+}
+
+.DataSourceDisclosurePanelGreenLabel {
+	color: Green;
+}
+
+.DataSourceDisclosurePanelRedLabel {
+	color: Red;
+}
+
+.DecoradButtonsPanel-Title {
+	font-weight: bold;
+	font-size: 18px;
+}
+
+.DecorateButtonsPanel_pushButton {
+	width:128px;
+	height:128px;
+	float:left;
+}
+
+.DecorateButtonsPanel_pushButton-down {
+ 		width:128px;
+	height:128px;
+ 	border: 2px inset #ccc;
+ 		float:left;
+}
+
+.DecorateButtonsPanel_pushButton-down-hovering{
+		width:128px;
+	height:128px;
+	border: 2px inset #ccc;
+		float:left;
+}
+
+.DecorateButtonsPanel_pushButton-up {
+	width:128px;
+	height:128px;
+		float:left;
+}
+
+.DecorateButtonsPanel_pushButton-up-hovering{
+		width:128px;
+	height:128px;
+		float:left;
+}
+
+.DecoratedButtonsPanel {
+	padding: 25px;
+}
+
+.Domain{
+/* 	background-color: #71b360; */
+	background-image: url("sequence_marker.png");
+	max-height:100%;
+	max-width:100%;
+}
+.Domain:hover{
+/* 	background-image: #71b360; */
+	background-image: url("sequence_marker_hover.png");
+	max-height:100%;
+	max-width:100%;
+}
+.PositiveRatio{
+	background-image: url("sequence_marker_blue.png");
+	max-height:100%;
+	max-width:100%;
+}
+.PositiveRatio:hover{
+	background-image: url("sequence_marker_black.png");
+	max-height:100%;
+	max-width:100%;
+}
+.NegativeRatio{
+	background-image: url("sequence_marker_red.png");
+	max-height:100%;
+	max-width:100%;
+}
+.NegativeRatio:hover{
+	background-image: url("sequence_marker_black.png");
+	max-height:100%;
+	max-width:100%;
+}
+.ratioBox{
+	border-style: solid;
+    border-width: thin;
+    height: 1EM;
+}
+.EditableDisclosurePanel {
+	padding: 20px;
+}
+
+.EditableDisclosurePanelContainer {
+	display:block;
+	padding: 10px;
+	background-color: gainsboro;
+	border-radius:0px 0px 10px 10px;
+	margin: 0px;
+}
+
+.EditableDisclosurePanelContainer:hover {
+	background-color: #a4a4a4;
+}
+
+.EditableDisclosurePanelContentElement {
+		display:block;
+		margin: 10px;
+}
+
+.EditableDisclosurePanelHeader {
+	padding: 4px;
+	background-color: lightslategray;
+	border-radius:5px 5px 0px 0px;
+	margin: 10px 10px 0px 0px;
+}
+
+.EditableDisclosurePanelHeader-green {
+	padding: 4px;
+	background-color: Green;
+	border-radius:5px 5px 0px 0px;
+	margin: 10px 10px 0px 0px;
+}
+
+.EditableDisclosurePanelHeader-smallFont {
+	color: White;
+	font-size: 10px;
+}
+
+.ExcelColumnRefPanel {
+	border-bottom: solid;
+	width:100%;
+}
+
+.ExperimentalConditionEditorPanel {
+}
+
+.ExperimentalConditionEditorPanel_Content {
+}
+
+.ExperimentalConditionEditorPanel_Header {
+	padding: 20px;
+}
+
+.ExperimentalConditionEditorPanel_IdentificationData {
+	display:block;
+/* 	padding: 20px; */
+}
+
+.HorizontalPanelWithHeader {
+	background-color: floralwhite;
+	display:block;
+	width:100%;
+	height:100%;
+}
+
+.HorizontalPanelWithHeader-Container {
+	float:left;
+	width:99%;
+	min-height: 50px;
+	height:100%;
+	background-color: navajowhite;
+	margin-bottom:10px;
+	border-radius: 0px 0px 5px 5px;
+}
+
+.HorizontalPanelWithHeader-Content {
+	float:left;
+	margin:0px 0px 5px 5px;
+}
+
+.HorizontalPanelWithHeader-Header {
+	width:99%;
+	text-align: left;
+	background-color: #ccccff;
+	border-radius: 5px 5px 0px 0px;
+	float:left;
+}
+
+.HorizontalPanelWithHeader_Header-label {
+	width:100%;
+	margin: 10px;
+	white-space: nowrap;
+}
+
+.IdentificationInfoFromExcelEmptyPanel {
+	padding: 10px;
+	background-color: bisque;
+	display:block;
+}
+
+.IdentificationInfoFromExcelEmptyPanel-color {
+	padding: 10px;
+	font-weight: bold;
+	background-color: lightsteelblue;
+	display:block;
+}
+
+.IdentificationInfoFromExcelHoverPanel {
+	padding: 10px;
+	background-color: bisque;
+	display:block;
+}
+
+.IdentificationInfoFromExcelHoverPanelSelected {
+	font-weight: bold;
+	padding: 10px;
+	background-color: #ffac46;
+	display:block;
+}
+
+.IdentificationInfoFromExcelHoverPanel:hover {
+	font-weight: bold;
+	background-color: lightblue;
+	cursor: hand;
+	cursor:pointer;
+	display:block;
+}
+
+.IdentificationInfoRemoteFilePanel {
+	max-height: 400px;
+}
+
+.IdentificationInfoRemoteFilePanel_Label {
+	margin-right: 20px;
+}
+
+.MainPanel {
+	width:100%;
+	height:100%;
+}
+
+.PSEAQuantPanel {
+	display:block;
+	padding: 10px;
+	background-color: #F5F5DC;
+}
+
+.PSEAQuantPanel-Explanation-Label {
+	color: slategray;
+}
+
+.PSEAQuantPanel-MainTitle-Label  {
+	color: #CC9900;
+	font-weight: bold;
+	font-size: 20px;
+}
+
+.PSEAQuantPanel-Step {
+	display:block;
+	margin: 10px;
+	padding: 10px;
+}
+
+.PSEAQuantPanel-Title-Label {
+	font-weight: bold;
+	
+}
+
+.PeptideEvidence-Discriminating{
+	font-size:1EM;
+	font-family:'Courier New';
+	color: #339933;
+}
+
+.PeptideEvidence-Discriminating-bold{
+	font-size:1EM;
+	font-family:'Courier New';
+	font-weight:bolder;
+	color: #339933;
+}
+
+.PeptideEvidence-Nondiscriminating{
+	font-size:1EM;
+	font-family:'Courier New';
+	color: #CC9900;
+}
+
+.PeptideEvidence-Nondiscriminating-bold{
+	font-size:1EM;
+	font-family:'Courier New';
+	font-weight:bolder;
+	color: #CC9900;
+}
+
+.PeptideEvidence-Unique{
+	font-size:1EM;
+	font-family:'Courier New';
+	color: #0099FF;
+}
+
+.PeptideEvidence-Unique-bold{
+	font-size:1EM;
+	font-family:'Courier New';
+	font-weight:bolder;
+	color: #0099FF;
+}
+
+.ProjectConfigurationHeaderPanel {
+	background-color: lightblue;
+}
+
+.ProjectConfigurationHeaderPanelTopHeader {
+	padding: 20px;
+	font-size: larger;
+	font-weight: bold;
+	text-align: left;
+	display:block;
+}
+
+.ProjectConfigurationHeaderPanelTopHeader-button {
+	display:block;
+	padding: 0px 20px;
+	font-size: larger;
+	font-weight: bold;
+}
+
+.ProjectCreatorWizardStatusLabel {
+	display:block;
+	color: Red;
+	padding: 10px 5%;
+	width:90%;
+	font-family: Times New Roman;
+	vertical-align: middle;
+	text-align: center;
+	background-color: lightblue;
+}
+
+.ProjectInformationPanel{
+/* 	background-color: #F5F5DC; */
+	height:100%;
+	width:100%;
+}
+.ProjectInformationPanelLeft{
+/* 	padding: 5px 20px 5px 20px; */
+}
+.ProjectInformationProjectName{
+	background-color: #dcdaa7;
+	display:block;
+	padding: 20px 20px;
+	margin: 10px 5px 20px 0px;
+	cursor: hand;
+	cursor:pointer;
+	border-radius:10px 10px 10px 10px;
+}
+.ProjectInformationProjectName div{
+	font-size: 18px;
+}
+.ProjectInformationProjectName:hover  {
+	background-color: #a7a243;
+	cursor: hand;
+	cursor:pointer;
+}
+.ProjectInformationProjectName-Selected {
+	background-color: #a7a243;
+	display:block;
+	padding: 20px 20px;
+	margin: 10px 5px 20px 0px;
+	cursor: hand;
+	cursor:pointer;
+	border-radius:10px 10px 10px 10px;
+}
+.ProjectInformationProjectName-Selected div {
+	font-size: 18px;
+}
+
+.ProjectconfigurationHeaderPanelLeftComponents {
+	display:block;
+	margin-right: 10px;
+	margin-left: 20px;
+	padding: 5px;
+}
+
+.ProjectconfigurationHeaderTextArea {
+	width:200px;
+	display:block;
+}
+
+.ProteinEvidence-Ambiguous{
+	font-size:1EM;
+	font-family:'Courier New';
+	color: #339933;
+}
+
+.ProteinEvidence-Ambiguous-bold{
+	font-size:1EM;
+	font-family:'Courier New';
+	font-weight:bolder;
+	color: #339933;
+}
+
+.ProteinEvidence-Conclusive{
+	font-size:1EM;
+	font-family:'Courier New';
+	color: #0099FF;	
+}
+
+.ProteinEvidence-Conclusive-bold{
+	font-size:1EM;
+	font-family:'Courier New';
+	font-weight:bolder;
+	color: #0099FF;	
+}
+
+.ProteinEvidence-Filtered{
+	font-size:1EM;
+	font-family:'Courier New';
+	color: #999966;
+}
+
+.ProteinEvidence-Filtered-bold{
+	font-size:1EM;
+	font-family:'Courier New';
+	font-weight:bolder;
+	color: #999966;
+}
+
+.ProteinEvidence-Indistinguisable{
+	font-size:1EM;
+	font-family:'Courier New';
+	color: #CC9900;
+}
+
+.ProteinEvidence-Indistinguisable-bold{
+	font-size:1EM;
+	font-family:'Courier New';
+	font-weight:bolder;
+	color: #CC9900;
+}
+
+.ProteinEvidence-NonConclusive{
+	font-size:1EM;
+	font-family:'Courier New';
+	color: #ff5151;
+	
+}
+
+.ProteinEvidence-NonConclusive-bold{
+	font-size:1EM;
+	font-family:'Courier New';
+	font-weight:bolder;
+	color: #ff5151;
+}
+
+.ProteinExistence-Inferred{
+	color: #ED1FA5; /* pink */
+}
+
+.ProteinExistence-Predicted{
+	color: #20FAF7; /* light blue */
+}
+
+.ProteinExistence-Protein{
+	color: #127D09; /* green */
+}
+
+.ProteinExistence-Transcript{
+	color: #F71416; /* red */
+}
+
+.ProteinExistence-Uncertain{
+	color: #203FF5; /* blue */
+}
+
+.QueryPanel {
+	display:block;
+	margin: 10px;
+	padding: 10px;
+}
+
+.QueryPanel-horizontal {
+/* 		float:left; */
+	margin: 10px;
+	padding: 10px;
+	border-radius: 5px;
+	
+}
+
+.QueryPanel-vertical {
+		display:block;
+	margin: 10px;
+	padding: 10px;
+}
+
+.RegularExpressionTextBox_Black {
+		color: Black;
+}
+
+.RegularExpressionTextBox_Red {
+		color: Red;
+}
+
+.ReplicatePickerPanel {
+	display:block;
+}
+
+.ServerDisclosurePanelErrorFlowPanel {
+	padding: 5px;
+}
+
+.ServerDisclosurePanelErrorLabel {
+	color: Red;
+	text-decoration: blink;
+}
+
+.WelcomeProjectPanel {
+	padding: 5px 20px 5px 20px;
+/* 	background-color: beige; */
+    overflow-y: scroll;
+    min-width: 500px;
+    max-width: 950px;
+/*     height: 500px; */
+}
+
+.WelcomeProjectPanelInternalPanel {
+	padding: 10px 10px 10px 15px;
+	background-color: gainsboro;
+	border-radius: 5px;
+}
+.WelcomeProjectPanelInternalPanel legend {
+	font-weight: bolder;
+	font-size: small;
+}
+.WelcomeProjectPanelInternalPanelHtml {
+	vertical-align: text-top;
+	white-space: normal;
+	word-spacing: normal;
+	font-size: small !important;
+}
+
+.WelcomeProjectPanelBigProjectPanel {
+	padding: 10px 10px 10px 15px;
+	background-color: #ECB1B1;
+	border-radius: 5px;
+}
+.WelcomeProjectPanelBigProjectPanel legend {
+	font-weight: bolder;
+	color: #632020;
+    font-size: medium;
+}
+.WelcomeProjectPanelBigProjectPanelHtml {
+	vertical-align: text-top;
+	white-space: normal;
+	word-spacing: normal;
+	font-size: small !important;
+}
+.dialogTopCenterInner .Caption{
+	font-size: medium;
+}
+.aboutExplanation {
+	color: Black;
+	margin: 20px 5% 5% 10%;
+	font-size: 15px;
+}
+
+.aboutLine {
+	display:block;
+	width:100%;
+	color: linen;
+	margin-right: 2%;
+	margin-left: 2%;
+	margin-top: 1%;
+}
+
+.browserAvailableProjects {
+	display:block;
+	padding: 10px 10px 10px 20px;
+}
+
+.browserAvailableProjects legend {
+	color: darkolivegreen;
+	padding-bottom: 1px;
+	font-size: 18px;
+	font-weight: bolder;
+	vertical-align: baseline;
+	background-color: #fdf5e6
+}
+
+.browserExperimentInformation {
+	display:block;
+	padding: 10px 10px 10px 20px;
+	height: 500px;
+}
+.browserExperimentInformationTable {
+	display:block;
+}
+.browserExperimentInformation legend {
+	color: darkolivegreen;
+	padding-bottom: 1px;
+	font-size: 18px;
+	font-weight: bolder;
+	vertical-align: baseline;
+	background-color: #fdf5e6
+}
+
+.browserExperimentInformationItemHeader {
+ 	font-weight: bold;
+ }
+
+.browserLeftPart {
+	float:left;
+	width: 33%;
+	height:100%;
+	margin: 10px 1% 0px 1%;
+}
+.BrowserVerticalScroll{
+	height: 330px;
+}
+.browserRigthPart {
+	float:left;
+	width: 64%;
+	height:100%;
+	margin: 10px 1% 0px 0px;
+}
+
+.browserSelectedProject {
+	display:block;
+	padding: 10px;
+	margin:10px 1% 10px 1%;
+}
+
+.browserSelectedProject legend {
+	color: darkolivegreen;
+	font-size: 15px;
+	font-weight: bolder;
+	vertical-align: baseline;
+	background-color: #fdf5e6
+}
+
+.browserSelectedProjectRed {
+	color: red;
+	font-weight: bolder;
+
+}
+
+.buffer {
+/*     background-color: #f1f1f1; */
+	background-image: url("sequence_buffer.png");
+    max-height:100%;
+	max-width:100%;
+}
+.buffer:hover {
+/*     background-color: #E48080; */
+	background-image: url("sequence_buffer_hover.png");
+    max-height:100%;
+	max-width:100%;
+}
+.center{
+ 	text-align: left;
+ }
+
+.componentgap{
+                margin: 4px;
+
+}
+
+.defaultQueryLink {
+	color: black;
+	cursor:pointer;
+	cursor:hand;
+	font-weight:bold;
+	font-size:medium;
+}
+.defaultQueryLink:hover {
+	color: #203FF5; /* blue */
+	cursor:pointer;cursor:hand
+}
+.defaultQueryLinkSmall {
+	color: black;
+	cursor:pointer;
+	cursor:hand;
+	font-weight:bold;
+}
+
+.defaultQueryLinkSmall:hover {
+	color: #203FF5; /* blue */
+	cursor:pointer;cursor:hand
+}
+
+.demo-popup-footer
+{
+    padding                :    5px;
+    text-align             :    center;
+    width                  :    100%;
+}
+
+.demo-popup-message
+{
+    font-size              :    80%;
+    padding                :    15px;
+}
+
+.dialogVPanel {
+  margin: 5px;
+}
+
+.everythingElse {
+  margin-top: 5.0em; /* Same as the height of the headerContent */
+ }
+
+.fastaDigestionPanel {
+	margin: 10px;
+	padding: 5px;
+}
+
+.font-bold {
+	font-weight: bold;
+}
+
+.font-green {
+	color: Lime;
+}
+
+.font-red {
+	color: Red;
+}
+
+.ft-sequence {
+    text-align: center;
+    width: 200px;
+}
+
+.geneLink{
+    font-weight: bold;
+    color: blue;
+    text-decoration: none
+ }
+
+.geneLink:hover{
+    font-weight: bold;
+    color: red;
+    text-decoration: none
+ }
+
+.reactomeLink{
+    font-weight: bold;
+    color: blue;
+    text-decoration: none
+ }
+ .reactomeLink:hover{
+    font-weight: bold;
+    color: red;
+    text-decoration: none
+ }
+ 
+.geneNameLink{
+    font-weight: bold;
+ }
+
+.graphicalview {
+    height: 1EM;
+    cursor: hand;
+	cursor:pointer;
+    font-size:1EM;
+	font-family:'Courier New';
+	margin: 0px 0px 1px 0px;
+	float: left;
+}
+.graphicalviewRatio {
+    height: 1EM;
+    font-size:1EM;
+	font-family:'Courier New';
+	margin: 0px 0px 1px 0px;
+	float: left;
+}
+.bufferPositiveRatio {
+	background-image: url("sequence_marker_lightblue.png");
+    max-height:100%;
+	max-width:100%;
+}
+.bufferNegativeRatio {
+	background-image: url("sequence_marker_lightred.png");
+    max-height:100%;
+	max-width:100%;
+}
+.gwt-Button{
+	font-size: 12px;
+}
+
+.gwt-DecoratedTabBar {
+  background: #ccc;
+  padding-top: 6px;
+}
+
+.gwt-DecoratedTabBar .gwt-TabBarFirst {
+  width: 5px;  /* first tab distance from the left */
+}
+
+.gwt-DecoratedTabBar .gwt-TabBarItem {
+  border-collapse: collapse;
+  margin-left: 4px;
+}
+
+.gwt-DecoratedTabBar .gwt-TabBarItem-disabled .tabMiddleCenter {
+  cursor: default;
+  color: #999999;
+}
+
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabMiddleCenter {
+  cursor: default;
+  background: #fff;
+  color:#333;
+  font-weight:bold;
+}
+
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabMiddleLeft,
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabMiddleRight {
+  background: #fff;
+}
+
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabTopCenter {
+  background:#fff;
+}
+
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabTopLeft {
+  background: url(circles.png) no-repeat -6px 0px;
+  -background: url(circles_ie6.png) no-repeat -6px 0px;
+}
+
+.gwt-DecoratedTabBar .gwt-TabBarItem-selected .tabTopRight {
+  background: url(circles.png) no-repeat -9px 0px;
+  -background: url(circles_ie6.png) no-repeat -9px 0px;
+}
+
+.gwt-DecoratedTabBar .gwt-TabBarRest {
+}
+
+.gwt-DecoratedTabBar .tabMiddleCenter {
+  padding: 0px 5px 4px 5px;
+  cursor: pointer;
+  cursor: hand;
+  color: #fff;
+  font-weight: normal;
+  text-align: center;
+  background: #8E8E8E;
+}
+
+.gwt-DecoratedTabBar .tabMiddleLeft,
+.gwt-DecoratedTabBar .tabMiddleRight {
+  width: 3px;
+  padding: 0px;
+  background: #8E8E8E;
+}
+
+.gwt-DecoratedTabBar .tabMiddleLeftInner,
+.gwt-DecoratedTabBar .tabMiddleRightInner {
+  width: 1px;
+  height: 1px;
+}
+
+.gwt-DecoratedTabBar .tabTopCenter {
+  padding: 0px;
+  background: #8E8E8E;
+}
+
+.gwt-DecoratedTabBar .tabTopLeft {
+  background: url(circles.png) no-repeat 0px 0px;
+  -background: url(circles_ie6.png) no-repeat 0px 0px;
+}
+
+.gwt-DecoratedTabBar .tabTopLeft,
+.gwt-DecoratedTabBar .tabTopRight {
+  padding: 0px;
+  zoom: 1;
+}
+
+.gwt-DecoratedTabBar .tabTopLeftInner,
+.gwt-DecoratedTabBar .tabTopRightInner {
+  width: 3px;
+  height: 3px;
+}
+
+.gwt-DecoratedTabBar .tabTopRight {
+  background: url(circles.png) no-repeat -3px 0px;
+  -background: url(circles_ie6.png) no-repeat -3px 0px;
+}
+
+.gwt-DialogBox .Caption {
+  background: #F1F1F1;
+  padding: 4px 8px 4px 4px;
+  cursor: default;
+  font-family: Arial Unicode MS, Arial, sans-serif;
+  font-weight: bold;
+  border-bottom: 1px solid #bbbbbb;
+  border-top: 1px solid #D2D2D2;
+}
+
+.gwt-DialogBox .dialogBottomCenter {
+  background: url(hborder.png) repeat-x 0px -2945px;
+  -background: url(hborder_ie6.png) repeat-x 0px -2144px;
+}
+
+.gwt-DialogBox .dialogBottomLeft {
+  background: url(circles.png) no-repeat 0px -36px;
+  -background: url(circles_ie6.png) no-repeat 0px -36px;
+}
+
+.gwt-DialogBox .dialogBottomLeftInner {
+  width: 10px;
+  height: 12px;
+  zoom: 1;
+}
+
+.gwt-DialogBox .dialogBottomRight {
+  background: url(circles.png) no-repeat -8px -36px;
+  -background: url(circles_ie6.png) no-repeat -8px -36px;
+}
+
+.gwt-DialogBox .dialogBottomRightInner {
+  width: 12px;
+  height: 12px;
+  zoom: 1;
+}
+
+.gwt-DialogBox .dialogContent {
+    padding: 10px;
+}
+
+.DialogBox-content{
+	
+}
+.DialogBox-textlabel{
+	padding:5px;
+	font-size: 15px;
+}
+.Dialogbox-loadingBar{
+	padding-top: 15px;
+}
+.Dialogbox-button{
+	margin-top: 30px;
+}
+
+.gwt-DialogBox .dialogMiddleCenter {
+  padding: 3px;
+  background: white;
+}
+
+.gwt-DialogBox .dialogMiddleLeft {
+  background: url(vborder.png) repeat-y -31px 0px;
+}
+
+.gwt-DialogBox .dialogMiddleRight {
+  background: url(vborder.png) repeat-y -32px 0px;
+  -background: url(vborder_ie6.png) repeat-y -32px 0px;
+}
+
+.gwt-DialogBox .dialogTopLeft {
+  background: url(circles.png) no-repeat -20px 0px;
+  -background: url(circles_ie6.png) no-repeat -20px 0px;
+}
+
+.gwt-DialogBox .dialogTopLeftInner {
+  width: 10px;
+  height: 8px;
+  zoom: 1;
+}
+
+.gwt-DialogBox .dialogTopRight {
+  background: url(circles.png) no-repeat -28px 0px;
+  -background: url(circles_ie6.png) no-repeat -28px 0px;
+}
+
+.gwt-DialogBox .dialogTopRightInner {
+  width: 12px;
+  zoom: 1;
+}
+
+.gwt-DisclosurePanel .header {
+	color: Black;
+	padding: 5px;
+	font-size: 12px;
+	font-weight: bold;
+	vertical-align: middle;
+	text-align: center;
+	background-color: lightblue;
+}
+
+.gwt-Label {
+	font-size: 10px;
+}
+
+.gwt-PopupPanel {
+   border: 3px solid #000000;
+   padding: 3px;
+   background: white;
+}
+
+.gwt-PopupPanel .popupContent {
+   background: gray;
+	padding: 15px !important;
+	border: none;
+	background-color: lavender;
+	text-align             :    center;
+}
+
+.gwt-PopupPanelGlass {
+   background-color: #000;
+   opacity: 0.3;
+   filter: alpha(opacity=30);
+}
+
+.gwt-PopupPanelGlass {
+  background-color: #000;
+  opacity: 0.3;
+  filter: alpha(opacity=30);
+}
+
+.popUpPanelRedirector { 
+/* 	padding: 10px; */
+	
+}
+
+.popUpPanelRedirectorButtonContainer { 
+	text-align:center;
+	
+}
+.popUpPanelRedirectorMessage{
+	padding: 10px;
+	font-size: 15px;
+}
+.popUpPanelRedirectorTitle{
+	font-size: 20px;
+	font-weight: bold;
+	text-align: center;
+}
+
+.gwt-ProgressBar-shell {
+  border: 2px solid #faf9f7;
+  border-right: 2px solid #848280;
+  border-bottom: 2px solid #848280;
+  background-color: #AAAAAA;
+  height: 14pt;
+  width: 50%;
+}
+
+.gwt-ProgressBar-shell .gwt-ProgressBar-bar {
+  background-color: #67A7E3;
+}
+
+.gwt-ProgressBar-shell .gwt-ProgressBar-text {
+  padding: 0px;
+  margin: 0px;
+  color: white;
+}
+
+.gwt-StackLayoutPanel .gwt-StackLayoutPanelHeader {
+    padding-bottom: 0;
+}
+
+.gwt-StackLayoutPanel, .gwt-StackLayoutPanel .gwt-StackLayoutPanelHeader {
+	padding: 3px;
+	background-color: #D3DEF6;
+	font-size: 11px !important;
+}
+
+.gwt-StackLayoutPanelContent {
+	font-size: 10px;
+}
+
+.gwt-StackLayoutPanelHeader-hovering  {
+	color: #808000;
+}
+
+.gwt-TabLayoutPanel
+.gwt-TabLayoutPanelTab{
+	border-radius: 10px 10px 0px 0px !important;
+	padding: 3px 16px !important;
+}
+
+.gwt-TabLayoutPanelContentContainer{
+	border-style: none !important;
+}
+
+.gwt-TabLayoutPanelTab-hovering{
+	color: rgb(128, 128, 0);
+}
+
+.gwt-TabPanel {
+}
+
+.gwt-TabPanelBottom {
+  border-color: #ccc;
+  border-style: solid;
+  border-width: 0px 1px 1px;
+  overflow: hidden;
+  padding: 6px;
+}
+
+.gwt-TextArea {
+    border-radius: 5px !important;
+}
+
+.header { 
+        background-color:       #669966;
+        border-bottom-color:    #003300;
+        border-right-color: #003300;
+        border-top-color:   #99CC99;
+        border-left-color:  #99CC99;
+        color:                  #FFFFFF;
+        padding:                0px;
+        border-style:           solid;
+        border-width:           1px;
+        margin:                 0px;
+        font:                   bold 165% "Trebuchet MS",sans-serif;
+        display:block;
+        width:100%;
+/*         height:70px; */
+        }
+
+.headerContent{
+ 	position: fixed;
+ 	top: 0;
+  	left: 0;
+  	height: 5.0em;
+ 	width:100%;
+    padding:0;
+    background-color: white;
+    border-color: black;
+ }
+
+.headerPanel {
+	display:block;
+}
+
+.helpExplanation {
+	color: Black;
+	margin: 20px 5% 5% 10%;
+	font-size: 13px;
+}
+
+.helpMainPanel {
+	display:block;
+	margin: 2%;
+}
+
+.helpTable {
+	float:left;
+	width:26%;
+	color: linen;
+	margin-right: 2%;
+	margin-left: 2%;
+	margin-top: 1%;
+}
+
+.horizontalComponent{
+	float:left;
+}
+
+.horizontalComponent-alignLeft {
+	display: inline-block;
+margin-left: 0px;
+	padding-left: 0px;
+	text-align: left;
+}
+
+.html-list {
+  list-style:inside;
+  width:100%;
+ }
+
+.html-list li {
+  cursor: hand;
+  cursor:pointer;
+  padding:5px;
+ }
+
+.imagesHeader {
+ display: inline-block;
+/*  width:25px; */
+ padding: 10px;
+}
+
+.imagesHeader::after {
+  content: '';
+/*   width: 100%;  */
+  display: inline-block;
+}
+
+.incrementalTextBoxButton {
+	float:left;
+	vertical-align: middle;
+	text-align: center;
+}
+
+.labelFixedWidth {
+	font-size:1EM;
+	font-family:'Courier New';
+}
+
+.left{
+ 	text-align:left;
+ }
+
+.linkPINT {
+	color: #B8860B !important;
+	font-weight:bold;
+	text-decoration: none;
+}
+
+.linkPINT:hover {
+	color: #ff8000!important ;
+}
+
+.mainPageBoxExplanation {
+	height:100%;
+	padding-top: 0px;
+	vertical-align: top;
+	letter-spacing: normal;
+	text-align: left;
+	word-spacing: normal;
+	font-size:13px;
+}
+
+.mainPageBoxes {
+	float:left;
+	width:18%;
+	height:220px;
+	margin: 10px 0px 10px 10px;
+	padding: 2px 18px 18px 18px;
+	vertical-align: text-top;
+	background-color: bisque;
+	font-size:13px;
+}
+
+.mainPageBoxes:hover {
+	border: 2px solid darkgoldenrod;
+	padding: 0px 16px 16px 16px;
+	background-color: mistyrose;
+	cursor: hand;
+	cursor:pointer;
+}
+
+.mainPageDataStatistics {
+	float:left;
+	width:25%;
+	height: 220px;
+	margin: 10px;
+	padding: 18px;
+	background-color: lavender;
+}
+
+.mainPageDataStatistics-numbers{
+	font-size: 13px;
+}
+
+.mainPagePintExplanation {
+	float:left;
+	margin: 10px;
+	padding: 20px;
+	background-color: navajowhite;
+}
+
+.mainPagePintTitleExplanation {
+	font-size: 15px;
+	text-align: justify;
+}
+
+.menu1 {
+        background-color:      #336633;
+        border-bottom-color:   #003300;
+        border-right-color:    #003300;
+        border-left-color:     #99CC99;
+        border-top-color:      #99CC99;
+        color:                 #FFFFFF;
+        padding:               0px;
+        border-style:          solid;
+        border-width:          1px;
+        font:                  85% "Trebuchet MS",sans-serif;
+		display:block;
+		width:100%;
+       }
+
+.menu1button {
+             font:                  85% "Trebuchet MS",sans-serif;
+	display: inline-block;
+	width:9%;
+	color: #FFFFFF;
+	margin: 10px;
+	padding: 0px;
+	 
+	font-size: 14px;
+	text-align: center;
+	 
+             }
+
+.menu1button a:VISITED {
+	color: White;
+}
+
+.menu1button a:link {
+	color: White;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.menu1selectedbutton {
+             background-color:      #669966;
+             border-bottom-color:   #003300;
+             border-right-color:    #003300;
+             border-left-color:     #99CC99;
+             border-top-color:      #99CC99;
+             color:                 #336633;
+             padding:               0px;
+             border-style:          solid;
+             border-width:          0px;
+             margin:                5px;
+             font:                  85% "Trebuchet MS",sans-serif;
+             }
+
+.menu2 {
+        color:#A6A6A6;
+        padding: 0px;
+        border-style:none;
+        margin:0px;
+        font: 85% "Trebuchet MS",sans-serif;
+        }
+
+.menu2button {
+            font: 85% "Trebuchet MS",sans-serif;
+           display: inline-block;
+            width:9%;
+	color: #336633;
+	margin: 10px;
+	padding: 0px;
+	border: none;
+	font-size: 14px;
+	vertical-align: middle;
+	text-align: center;
+            
+            }
+
+.menu2button a:hover {
+	font-weight: bolder;
+}
+
+.menu2button a:link {
+
+	color: White;
+	font-weight: bold;
+	text-decoration: none;
+
+
+}
+
+.menu2button a:visited {
+	color: White;
+}
+
+.menu2selectedbutton { 
+                        color:#336633;
+                        background-color:     #669966;
+                        padding: 0px;
+                        border-style:none;
+                        margin:5px;
+                        font: 85% "Trebuchet MS",sans-serif;
+                    }
+
+.modifiedAA{
+ 	color: red;
+ 	font-weight: bold;
+ }
+
+.navigationBar {
+	display:block;
+	width:100%;
+	height:21px;
+	padding: 5px 0px 5px 20px;
+/* 	border: thin solid White; */
+	background-color: #E1EBEB;
+}
+
+.navigationPane{
+ background-color: #E1EBEB;
+ }
+
+.numbers {
+	margin: 5px;
+	padding: 5px;
+}
+
+.pintWord {
+	color: #cccc66;
+	font-size: 20px;
+	font-weight: bolder;
+	vertical-align: baseline;
+}
+
+.projectCreatorWizardTextArea {
+width:500px;
+height:300px;
+}
+
+.proteomics_integrator {
+	color: #cccc66;
+	padding-bottom: 1px;
+	font-size: 18px;
+	font-weight: bolder;
+	vertical-align: baseline;
+}
+
+.queryPanelDataTablesPanel {
+		width:100%;
+		height:100%;
+		float:left;
+}
+
+.queryPanelMainPanel {
+	display:block;
+	min-height:300px;
+	height:100%;
+	width:100%;
+}
+
+.queryPanelTextAreaPanel {
+	display:block;
+	width:100%;
+	height:100px;
+}
+
+.queryPanelcommandsMenu {
+	min-width: 200px;
+	width:100%;
+	height:100%;
+	float:left;
+}
+
+.replicatePickerPanel-Table {
+	padding: 5px;
+}
+
+.rigth{
+ 	text-align:right;
+ }
+
+.searchBox {
+	border: medium White;
+	text-align: right;
+}
+
+.sendButton {
+  display: block;
+  font-size: 16pt;
+}
+
+.serverResponseLabelError {
+  color: red;
+}
+
+.sharingPeptidesPanel {
+	display:block;
+	margin: 10px 0px;
+	padding: 10px;
+	overflow-y: scroll;
+    height: 500px;
+}
+
+.sharingPeptidesPanel-Elements{
+	display:block;
+	margin: 10px;
+}
+
+.tab-panel, .stack-panel, .split-panel{
+	margin-bottom: 25px;
+	margin-right: 20px;
+	background-color: white;
+}
+
+.tableHeader {
+	font-size: 10px;
+	padding: 0px 10px 0px 0px !important;
+	white-space: nowrap;
+    padding-right: 10px !important;
+}
+.tableHeaderCenter {
+	font-size: 10px;
+	padding: 0px 10px 0px 0px !important;
+	text-align: center !important;
+	white-space: nowrap;
+    padding-right: 10px !important;
+}
+.tableHeaderRight {
+	font-size: 10px;
+	padding: 0px 10px 0px 0px !important;
+	text-align: right !important;
+	white-space: nowrap;
+    padding-right: 10px !important;
+}
+.tableHeaderLeft {
+	font-size: 10px;
+	padding: 0px 10px 0px 0px !important;
+	text-align: left !important;
+	white-space: nowrap;
+    padding-right: 10px !important;
+}
+
+.textButtonColumn{
+	padding: 5px 7px;
+	border-radius: 5px 5px 5px 5px;
+}
+
+.textColumn{
+	padding: 0px 10px 0px 0px !important;
+	white-space: nowrap;
+}
+
+.clickableImageColumn { 
+	padding: 0px !important;
+ 	cursor: hand;
+	cursor:pointer;
+}
+.title1 {
+	color: darkgoldenrod;
+	font-size: 36px;
+	block:display;
+}
+
+.title2 {
+	color: darkgoldenrod;
+	font-size: 24px;
+	font-weight: bolder;
+}
+
+.uniprotAccLink{
+    font-weight: bold;
+    color: blue;
+    text-decoration: none
+ }
+
+.uniprotAccLink:hover{
+    font-weight: bold;
+    color: red;
+    text-decoration: none
+ }
+
+.verticalComponent{
+	display:block;
+}
+
+.verticalComponent-ContentElement {
+}
+
+.verticalComponent-alignLeft {
+display:block;
+	margin-left: 0px;
+	padding-left: 0px;
+	text-align: left;
+
+}
+
+.verticalComponentWithBorder{
+	display:block;
+	border: 1px solid Olive;
+}
+
+.whiteBackground{
+	background-color: white;
+	padding-top: 10;
+	 text-align: justify;
+	 height: 40px;
+	 width:100%;
+	 display:block;
+}
+
+.x-grid3-cell-inner {
+      overflow: visible;
+      white-space: normal !important;
+ }
+
+.x-grid3-hd-inner {
+     overflow: hidden;
+     padding: 3px 3px 3px 5px;
+     white-space: normal;
+}
+
+.yatesLabImg {
+	margin-left: 90%;
+}
+
+body { 
+	background-color: #fdf5e6 !important;
+	font-size: 10px !important;
+}
+
+browserSelectedProjectRed {
+}
+
+fieldset {
+	border: 1px solid Olive;
+}
+
+html>body .gwt-DecoratedTabBar {
+}
+
+img {
+    max-width: none;
+	border: 0;
+    margin: 0;
+    vertical-align: middle;
+}
+
+table td{
+	font-size: 10px ;/*!important;*/
+}
+.selectionLabel {
+	width:70%
+}
+.selectionButton {
+	width:30%
+}
+
+.reactome_diagram_container{
+	overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+.reactome_diagram {
+  	top: 0px;
+  	left: 0px;
+  	height: 600px;
+  	margin-top: 20px;
+}
+.reactome_fireworks{
+  	top: 0px;
+  	left: 0px;
+  	height: 600px;
+}
+.reactome_fireworks_container{
+	overflow: hidden;
+	width: 100%;
+    height: 100%;
+}
+
+.suggestPopupContent{
+    height: 200px;    
+    overflow-y: scroll;
+}
+
+.reactomePanelSubmit{
+	padding: 10px;
+}
+
+.featureType{
+	font-weight: bold;
+}
+.configurationPanel{
+	width: 600px;
+	height: 500px;
+	
+}
+.configurationPanel_welcome{
+	font-size: 20px;
+}
+.configurationPanel_welcome2{
+	font-size: 15px;
+}
+
+.configurationPanel_CaptionPanel{
+	padding: 10px;
+	font-size: 13px;
+	margin: 10px;
+}
+.configurationPanel_Grid{
+	padding: 10px;
+}
+.configurationPanel_Status{
+	font-style: normal;	
+	color: black;
+}
+
+.configurationPanel_Status_Error{
+	font-weight: bold;
+	color: red;
+}
+.checkLoginPopUp-title{
+	font-size: 20px;
+    font-weight: bold;
+    padding-bottom: 20px;
+}
+.checkLoginPopUp-message{
+	font-size: 15px;
+}
+.checkLoginPopUp-grid{
+	padding: 10px 20px 10px 10px;
+}
+.checkLoginPopUp-status{
+	font-weight: bold;
+	font-size: 20px;
+	color: red;
+}
+.ProjectItemPanel{
+	display:block;
+	padding: 10px;
+	background-color: gainsboro;
+	border-radius:0px 0px 10px 10px;
+	max-width: 400px;
+}
+.ProjectItemListPanel-big{
+	overflow-y: auto;
+	display:block;
+	border-radius:10px;
+//  max-height: 150px;
+	min-height: 150px;
+	min-width: 130px;
+	max-width: 800px;
+	vertical-align: top;
+	white-space: normal;
+	word-spacing: normal;
+	
+}
+.justifiedText{
+	text-align: justify;
+}
+.ProjectItemListPanel{
+	overflow-y: auto;
+	display:block;
+	border-radius:10px;
+	max-height: 150px;
+	min-height: 150px;
+	min-width: 130px;
+	max-width: 800px;
+	vertical-align: top;
+	white-space: normal;
+	word-spacing: normal;
+	
+}
+.ProjectItemListPanel-small{ 
+	overflow-y: auto;
+	display:block;
+	border-radius:10px;
+	max-height: 150px;
+//	min-height: 150px;
+	min-width: 130px;
+	max-width: 800px;
+	vertical-align: top;
+	white-space: normal;
+	word-spacing: normal;
+	
+}
+.ProjectItemPanel{
+	display:block;
+	padding: 10px;
+    background-color: #dcdaa7;
+	border-radius: 10px ;
+	cursor: hand;
+	cursor:pointer;
+	margin: 5px 0px 0px 0px;
+}
+.ProjectItemPanel:hover{
+	background-color: #a7a243;
+}
+.ProjectItemPanel-selected{
+	display:block;
+	padding: 10px;
+    background-color: #a7a243;
+	border-radius: 10px ;
+	cursor: hand;
+	cursor:pointer;
+	margin: 5px 0px 0px 0px;
+	
+}
+.ProjectItemMainPanel legend{
+	font-size: 14px;
+    font-weight: bold;
+}
+.ProjectItemMainPanel{
+	border-radius: 10px ;
+	min-width: 450px;
+/* 	max-width: 400px; */
+}
+.ProjectLoadedPanel legend{
+	font-size: 14px;
+    font-weight: bold;
+}
+.ProjectLoadedPanel{
+	border-radius: 10px ;
+}
+.ProjectItemContentPanel{
+/* 	vertical-align: top; */
+/* 	padding: 2px; */
+}
+.ProjectItemContentTitle{
+	font-size: 12px;
+    font-weight: bold;
+}
+.ProjectItemRightPanel{
+	overflow-y: auto;
+	max-height: 150px;
+	display: block;
+	word-break: break-word;
+}
+.ProjectItemIndividualItemTitle{
+	font-size: 11px;
+    font-weight: bold;
+    color: #808040;
+    white-space: nowrap;
+}
+.HorizontalScroll{
+	overflow-x: auto;
+}
+.fullyCoveredSequenceRegion{
+	color:#dc2505;
+}
+.partiallyCoveredSequenceRegion{
+	color: #8a9409;
+}
+.reactomeTableSpecies{
+	padding: 10px;
+}
+.no-wrap{
+	white-space: nowrap;
+}
+
+.queryPanelHelp{
+	padding: 100px;
+}
+
+.queryPanelHelpEmail{
+	font-size: 20px;
+    font-weight: bold;
+    color: #808040;
+}
+
+.queryPanelHelpText{
+	font-size: 20px;
+}
