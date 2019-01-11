@@ -32,12 +32,14 @@
   <table-filter match-catalog="interactome_db" match-name="protein"/>
   <table-filter match-catalog="interactome_db" match-name="psm_score"/>
   <table-filter match-catalog="interactome_db" match-name="peptide_score"/>
+  <table-filter match-catalog="interactome_db" match-name="peptide_has_msrun"/>
   <table-filter match-catalog="interactome_db" match-name="protein_score"/>
   <table-filter match-catalog="interactome_db" match-name="peptide_has_condition"/>
   <table-filter match-catalog="interactome_db" match-name="protein_has_gene"/>
   <table-filter match-catalog="interactome_db" match-name="protein_has_psm"/>
   <table-filter match-catalog="interactome_db" match-name="protein_has_peptide"/>
   <table-filter match-catalog="interactome_db" match-name="protein_has_condition"/>
+  <table-filter match-catalog="interactome_db" match-name="protein_has_msrun"/>
   <table-filter match-catalog="interactome_db" match-name="psm_has_condition"/>
   <table-filter match-catalog="interactome_db" match-name="protein_has_protein_accession"/>
   <table-filter match-catalog="interactome_db" match-name="sample_has_organism"/>
