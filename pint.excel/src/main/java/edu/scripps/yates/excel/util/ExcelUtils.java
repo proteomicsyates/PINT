@@ -32,6 +32,8 @@ public class ExcelUtils {
 	private final static String PARENTHESIS_REGEXP = ".*?([^\\(\\)]+)\\((\\S+?)\\)([^\\)\\(]+).*?";
 	private final static String POINTS_REGEXP = "\\w+?\\.(\\S+?)\\.\\w+?";
 	private static final Map<MSRun, Map<String, Peptide>> peptidesByMSRun = new THashMap<MSRun, Map<String, Peptide>>();
+	// IF YOU CHANGE THIS, YOU WILL HAVE TO CHANGE IT ALSO IN PINT
+	// SharedConstants.java
 	public static final String MULTIPLE_ITEM_SEPARATOR = ",";
 
 	// private static boolean somethingExtrangeInSequence(String seq) {
@@ -60,10 +62,8 @@ public class ExcelUtils {
 						final double massDiff = Double.valueOf(stringMassDiffNumber.string);
 						if (!map.containsKey(massDiff)) {
 
-							final PTM ptm = new PTMAdapter(massDiff,
-									aa, stringMassDiffNumber.position, PTMPosition
-											.getPTMPositionFromSequence(cleanSequence, stringMassDiffNumber.position))
-													.adapt();
+							final PTM ptm = new PTMAdapter(massDiff, aa, stringMassDiffNumber.position, PTMPosition
+									.getPTMPositionFromSequence(cleanSequence, stringMassDiffNumber.position)).adapt();
 							map.put(massDiff, ptm);
 						} else {
 							// add a ptm site
