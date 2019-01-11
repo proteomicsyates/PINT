@@ -28,7 +28,7 @@
 <!--             </key> -->
 <!--             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Peptide" /> -->
 <!--         </set> -->
-        <set name="peptides" table="peptide_has_ms_runs" inverse="false" lazy="true" fetch="select" >
+        <set name="peptides" table="peptide_has_ms_run" inverse="false" lazy="true" fetch="select" >
             <key>
                 <column name="Ms_Run_id" not-null="true" />
             </key>
@@ -42,7 +42,7 @@
 <!--             </key> -->
 <!--             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Protein" /> -->
 <!--         </set> -->
-        <set name="proteins" table="protein_has_ms_runs" inverse="false" lazy="true" fetch="select" >
+        <set name="proteins" table="protein_has_ms_run" inverse="false" lazy="true" fetch="select" >
             <key>
                 <column name="Ms_Run_id" not-null="true" />
             </key>
