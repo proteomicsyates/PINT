@@ -31,6 +31,9 @@ public class Proteoform {
 		this.taxonomy = taxonomy;
 		this.proteoformType = proteoformType;
 		this.original = original;
+//		if ("1".equals(FastaParser.getIsoformVersion(id))) {
+//			System.out.println("asdf");
+//		}
 
 	}
 

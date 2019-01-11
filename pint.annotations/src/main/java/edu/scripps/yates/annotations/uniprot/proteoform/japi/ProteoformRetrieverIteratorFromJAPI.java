@@ -11,11 +11,9 @@ import java.util.stream.Collectors;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.proteoform.Proteoform;
-import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtService;
 
 public class ProteoformRetrieverIteratorFromJAPI implements Iterator<Proteoform> {
 	private final Set<String> uniprotACCs = new HashSet<String>();
-	private final UniProtService service;
 	private final boolean retrieveIsoforms;
 	private final boolean retrievePTMs;
 	private final UniprotProteinLocalRetriever uplr;
@@ -26,9 +24,8 @@ public class ProteoformRetrieverIteratorFromJAPI implements Iterator<Proteoform>
 												// of proteoform is empty
 	private final List<Proteoform> proteoformList = new ArrayList<Proteoform>();
 
-	public ProteoformRetrieverIteratorFromJAPI(UniProtService service, Collection<String> uniprotACCs,
-			boolean retrieveIsoforms, boolean retrievePTMs, UniprotProteinLocalRetriever uplr) {
-		this.service = service;
+	public ProteoformRetrieverIteratorFromJAPI(Collection<String> uniprotACCs, boolean retrieveIsoforms,
+			boolean retrievePTMs, UniprotProteinLocalRetriever uplr) {
 		this.uniprotACCs.addAll(uniprotACCs);
 		this.retrieveIsoforms = retrieveIsoforms;
 		this.uplr = uplr;
@@ -48,8 +45,7 @@ public class ProteoformRetrieverIteratorFromJAPI implements Iterator<Proteoform>
 			final List<String> accList = accs.subList(currentAccIndex,
 					Math.min(currentAccIndex + CHUNCK_SIZE, accs.size() - 1));
 			final Map<String, List<Proteoform>> proteoformsFromList = UniprotProteoformJAPIRetriever.getProteoforms(
-					service, accList, UniprotProteoformJAPIRetriever.defaultChunkSize, retrieveIsoforms, retrievePTMs,
-					uplr);
+					accList, UniprotProteoformJAPIRetriever.defaultChunkSize, retrieveIsoforms, retrievePTMs, uplr);
 			final Set<Proteoform> set = new HashSet<Proteoform>();
 			for (final List<Proteoform> proteoforms : proteoformsFromList.values()) {
 				set.addAll(proteoforms);
