@@ -57,7 +57,7 @@ public enum FormatType {
 
 	public static FormatType fromValue(String v) {
 		for (final FormatType c : FormatType.values()) {
-			if (c.value.equals(v)) {
+			if (c.value.equalsIgnoreCase(v)) {
 				return c;
 			}
 		}
