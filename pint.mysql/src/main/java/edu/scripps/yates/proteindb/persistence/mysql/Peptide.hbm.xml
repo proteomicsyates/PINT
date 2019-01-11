@@ -10,11 +10,11 @@
    <column name="id"/>
    <generator class="identity"/>
   </id>
-<!--   <many-to-one -->
-<!--    class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" -->
-<!--    fetch="select" name="msRun"> -->
-<!--    <column name="MS_Run_id" not-null="true"/> -->
-<!--   </many-to-one> -->
+  <many-to-one
+   class="edu.scripps.yates.proteindb.persistence.mysql.MsRun"
+   fetch="select" name="msRun">
+   <column name="MS_Run_id" not-null="true"/>
+  </many-to-one>
   <property generated="never" lazy="false" name="sequence" type="string">
    <column length="400" name="sequence" not-null="true"/>
   </property>
@@ -81,7 +81,7 @@
             <key>
                 <column name="Peptide_id" not-null="true" />
             </key>
-            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.MSRun">
+            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.MsRun">
                 <column name="MS_Run_id" not-null="true" />
             </many-to-many>
         </set>

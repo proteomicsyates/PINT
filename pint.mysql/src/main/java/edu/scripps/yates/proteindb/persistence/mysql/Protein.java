@@ -14,6 +14,7 @@ public class Protein implements java.io.Serializable {
 	private Integer id;
 	private String acc;
 	private Set msRuns = new HashSet(0);
+	private MsRun msRun;
 	private Integer length;
 	private Double pi;
 	private Double mw;
@@ -70,8 +71,7 @@ public class Protein implements java.io.Serializable {
 	}
 
 	/**
-	 * @param acc
-	 *            the acc to set
+	 * @param acc the acc to set
 	 */
 	public void setAcc(String acc) {
 		this.acc = acc;
@@ -179,6 +179,14 @@ public class Protein implements java.io.Serializable {
 
 	public void setPeptides(Set peptides) {
 		this.peptides = peptides;
+	}
+
+	public MsRun getMsRun() {
+		return msRun;
+	}
+
+	public void setMsRun(MsRun msRun) {
+		this.msRun = msRun;
 	}
 
 }

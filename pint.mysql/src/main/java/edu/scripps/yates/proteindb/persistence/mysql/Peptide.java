@@ -12,6 +12,7 @@ public class Peptide implements java.io.Serializable {
 
 	private Integer id;
 	private Set msRuns = new HashSet(0);
+	private MsRun msRun;
 	private String sequence;
 	private String fullSequence;
 	private Integer numPsms;
@@ -56,10 +57,6 @@ public class Peptide implements java.io.Serializable {
 
 	public Set getMsRuns() {
 		return msRuns;
-	}
-
-	public void setMsRun(Set msRuns) {
-		this.msRuns = msRuns;
 	}
 
 	public String getSequence() {
@@ -140,6 +137,18 @@ public class Peptide implements java.io.Serializable {
 
 	public void setNumPsms(Integer numPsms) {
 		this.numPsms = numPsms;
+	}
+
+	public void setMsRuns(Set msRuns) {
+		this.msRuns = msRuns;
+	}
+
+	public MsRun getMsRun() {
+		return msRun;
+	}
+
+	public void setMsRun(MsRun msRun) {
+		this.msRun = msRun;
 	}
 
 }
