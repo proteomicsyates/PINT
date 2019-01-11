@@ -30,6 +30,7 @@ import uk.ac.ebi.kraken.interfaces.uniprot.comments.AlternativeProductsComment;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.AlternativeProductsIsoform;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.Comment;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.CommentType;
+import uk.ac.ebi.kraken.interfaces.uniprot.comments.IsoformSequenceStatus;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.CarbohydFeature;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.ConflictFeature;
 import uk.ac.ebi.kraken.interfaces.uniprot.features.CrosslinkFeature;
@@ -54,7 +55,6 @@ import uk.ac.ebi.uniprot.dataservice.query.Query;
  */
 public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetriever {
 	private static final Logger log = Logger.getLogger(UniprotProteoformJAPIRetriever.class);
-	private UniProtService service;
 	private final UniprotProteinLocalRetriever uplr;
 	private boolean retrievePTMs = true;
 	private boolean retrieveIsoforms = true;
@@ -66,10 +66,13 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 
 	/**
 	 * To call before getting variants
+	 * 
+	 * @return
 	 */
-	public static void startService(UniProtService service) {
-		service = Client.getServiceFactoryInstance().getUniProtQueryService();
-		service.start();
+	public static UniProtService createService() {
+		UniProtService service = Client.getServiceFactoryInstance().getUniProtQueryService();
+
+		return service;
 	}
 
 	/**
@@ -92,18 +95,19 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 
 	@Override
 	public Map<String, List<Proteoform>> getProteoforms(Collection<String> uniprotACCs) {
-		return getProteoforms(service, uniprotACCs, defaultChunkSize, retrieveIsoforms, retrievePTMs, uplr);
+		return getProteoforms(uniprotACCs, defaultChunkSize, retrieveIsoforms, retrievePTMs, uplr);
 	}
 
-	protected static Map<String, List<Proteoform>> getProteoforms(UniProtService service,
-			Collection<String> uniprotACCs, int chunkSize, boolean retrieveIsoforms, boolean retrievePTMs,
-			UniprotProteinLocalRetriever uplr) {
+	protected static Map<String, List<Proteoform>> getProteoforms(Collection<String> uniprotACCs, int chunkSize,
+			boolean retrieveIsoforms, boolean retrievePTMs, UniprotProteinLocalRetriever uplr) {
 		final Map<String, List<Proteoform>> ret = new HashMap<String, List<Proteoform>>();
 		final List<String> uniprotAccList = new ArrayList<String>();
 		uniprotAccList.addAll(uniprotACCs);
+		UniProtService service = null;
 		try {
 			// start service
-			startService(service);
+			service = createService();
+			service.start();
 			if (retrieveIsoforms) {
 				final Set<String> isoformsACCs = new HashSet<String>();
 				final List<String> toQuery = new ArrayList<String>();
@@ -222,9 +226,11 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 						final AlternativeProductsComment alternativeProducts = (AlternativeProductsComment) comment;
 						final List<AlternativeProductsIsoform> isoforms = alternativeProducts.getIsoforms();
 						for (final AlternativeProductsIsoform alternativeProductsIsoform : isoforms) {
-							final String isoformACC = alternativeProductsIsoform.getIds().get(0).getValue();
-							isoformsACCs.add(isoformACC);
-
+							if (alternativeProductsIsoform
+									.getIsoformSequenceStatus() != IsoformSequenceStatus.DISPLAYED) {
+								final String isoformACC = alternativeProductsIsoform.getIds().get(0).getValue();
+								isoformsACCs.add(isoformACC);
+							}
 						}
 					}
 					// retrieve isoform sequences
@@ -384,7 +390,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 
 	@Override
 	public Iterator<Proteoform> getProteoformIterator(Collection<String> uniprotACCs) {
-		return new ProteoformRetrieverIteratorFromJAPI(service, uniprotACCs, retrieveIsoforms, retrievePTMs, uplr);
+		return new ProteoformRetrieverIteratorFromJAPI(uniprotACCs, retrieveIsoforms, retrievePTMs, uplr);
 	}
 
 	@Override
