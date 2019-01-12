@@ -42,8 +42,7 @@ public abstract class ProjectStats<T> implements Serializable {
 	}
 
 	/**
-	 * @param numMSRuns
-	 *            the numMSRuns to set
+	 * @param numMSRuns the numMSRuns to set
 	 */
 	public void setNumMSRuns(Integer numMSRuns) {
 		this.numMSRuns = numMSRuns;
@@ -66,8 +65,7 @@ public abstract class ProjectStats<T> implements Serializable {
 	}
 
 	/**
-	 * @param numProteins
-	 *            the numProteins to set
+	 * @param numProteins the numProteins to set
 	 */
 	public void setNumProteins(Integer numProteins) {
 		this.numProteins = numProteins;
@@ -82,8 +80,7 @@ public abstract class ProjectStats<T> implements Serializable {
 	}
 
 	/**
-	 * @param numPeptides
-	 *            the numPeptides to set
+	 * @param numPeptides the numPeptides to set
 	 */
 	public void setNumPeptides(Integer numPeptides) {
 		this.numPeptides = numPeptides;
@@ -98,8 +95,7 @@ public abstract class ProjectStats<T> implements Serializable {
 	}
 
 	/**
-	 * @param numPSMs
-	 *            the numPSMs to set
+	 * @param numPSMs the numPSMs to set
 	 */
 	public void setNumPSMs(Integer numPSMs) {
 		this.numPSMs = numPSMs;
@@ -118,8 +114,7 @@ public abstract class ProjectStats<T> implements Serializable {
 	}
 
 	/**
-	 * @param numGenes
-	 *            the numGenes to set
+	 * @param numGenes the numGenes to set
 	 */
 	public void setNumGenes(Integer numGenes) {
 		this.numGenes = numGenes;
@@ -134,8 +129,7 @@ public abstract class ProjectStats<T> implements Serializable {
 	}
 
 	/**
-	 * @param t
-	 *            the t to set
+	 * @param t the t to set
 	 */
 	public void setT(T t) {
 		this.t = t;
@@ -150,6 +144,11 @@ public abstract class ProjectStats<T> implements Serializable {
 			}
 		}
 		return id;
+	}
+
+	@Override
+	public String toString() {
+		return getId();
 	}
 
 	public String getNumConditionsString(String projectTag) {
