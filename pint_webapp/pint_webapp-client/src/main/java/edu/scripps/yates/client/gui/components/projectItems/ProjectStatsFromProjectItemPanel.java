@@ -41,10 +41,11 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 			instance = new ProjectStatsFromProjectItemPanel(queryPanel, testMode, t, defaultView);
 			GWT.log("project stats from project item panel created");
 		} else {
+			GWT.log("setting recommended queries nd default view of project " + defaultView.getProjectTag());
+			instance.setDefaultView(defaultView);
 			GWT.log("Updating parent with project");
 			instance.updateParent(t, resetItems);
-			GWT.log("setting recommended queries nd default view");
-			instance.setDefaultView(defaultView);
+
 		}
 		return instance;
 	}
