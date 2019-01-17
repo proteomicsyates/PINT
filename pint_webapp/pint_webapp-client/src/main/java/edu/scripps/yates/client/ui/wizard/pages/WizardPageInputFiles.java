@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.pint.wizard.pages;
+package edu.scripps.yates.client.ui.wizard.pages;
 
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.InlineHTML;
@@ -7,8 +7,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.ui.wizard.WizardPageHelper;
+import edu.scripps.yates.client.ui.wizard.pages.panels.NewSelectInputFilesPanel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
-import edu.scripps.yates.client.ui.wizard.view.widget.NewSelectInputFilesPanel;
 import edu.scripps.yates.shared.model.FileFormat;
 
 public class WizardPageInputFiles extends AbstractWizardPage {
@@ -55,4 +55,13 @@ public class WizardPageInputFiles extends AbstractWizardPage {
 		super.beforeFirstShow();
 	}
 
+	@Override
+	public PageID getPageID() {
+		return PageIDController.getPageIDByPageClass(this.getClass());
+	}
+
+	@Override
+	protected void registerPageTitle(String title) {
+		PageTitleController.addPageTitle(this.getPageID(), title);
+	}
 }

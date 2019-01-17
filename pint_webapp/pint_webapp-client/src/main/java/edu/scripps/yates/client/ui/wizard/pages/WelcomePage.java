@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.pint.wizard.pages;
+package edu.scripps.yates.client.ui.wizard.pages;
 
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -86,5 +86,15 @@ public class WelcomePage extends AbstractWizardPage {
 	public void afterNext() {
 		GWT.log("afterNext");
 		super.afterNext();
+	}
+
+	@Override
+	public PageID getPageID() {
+		return PageIDController.getPageIDByPageClass(this.getClass());
+	}
+
+	@Override
+	protected void registerPageTitle(String title) {
+		PageTitleController.addPageTitle(this.getPageID(), title);
 	}
 }

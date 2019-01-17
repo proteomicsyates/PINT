@@ -33,7 +33,8 @@ public class PintException extends Exception implements Serializable {
 		VALUE_NOT_SUPPORTED, //
 		MAXIMUM_NUMBER_OF_PROJECTS_LOADED_AT_A_TIME, //
 		FORMATTER_MISSING_IN_SHARED_MODULE, //
-		ITEM_ID_REPEATED
+		ITEM_ID_REPEATED, //
+		WIZARD_PAGE_INCOMPLETE
 
 	};
 

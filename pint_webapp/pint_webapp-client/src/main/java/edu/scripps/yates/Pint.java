@@ -33,7 +33,6 @@ import edu.scripps.yates.client.gui.components.pseaquant.PSEAQuantFormPanel;
 import edu.scripps.yates.client.gui.configuration.ConfigurationPanel;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
-import edu.scripps.yates.client.pint.wizard.NewProjectCreatorWizard;
 import edu.scripps.yates.client.statusreporter.StatusReporterImpl;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.tasks.PendingTasksManager;
@@ -52,7 +51,7 @@ public class Pint implements EntryPoint {
 	 */
 	private static final String SERVER_ERROR = "An error occurred while "
 			+ "attempting to contact the server. Please check your network " + "connection and try again.";
-	private final boolean TESTING_WIZARD = false;
+
 	private static boolean psmCentric = false; // by default
 	private QueryPanel queryPanel;
 	private MainPanel mainPanel;
@@ -262,7 +261,7 @@ public class Pint implements EntryPoint {
 				projectTags.add(decodedProjectTag);
 			}
 			final boolean directAccess = true;
-			queryPanel = new QueryPanel(sessionID, projectTags, testMode, directAccess);
+			queryPanel = new QueryPanel(getSessionID(), projectTags, testMode, directAccess);
 			History.newItem(TargetHistory.QUERY.getTargetHistory());
 		}
 
@@ -301,7 +300,7 @@ public class Pint implements EntryPoint {
 			} else {
 				final boolean directAccess = false; // if private, they has to
 													// login
-				queryPanel = new QueryPanel(sessionID, projectTags, testMode, directAccess);
+				queryPanel = new QueryPanel(getSessionID(), projectTags, testMode, directAccess);
 			}
 			queryPanel.showLoadingDialog("Loading dataset view...", null, null);
 			History.newItem(TargetHistory.QUERY.getTargetHistory());
@@ -331,18 +330,14 @@ public class Pint implements EntryPoint {
 					@Override
 					public void onSuccess(String sessionID) {
 						GWT.log("New session id:" + sessionID);
-						Pint.this.sessionID = sessionID;
-						if (TESTING_WIZARD) {
-							GWT.log("STARTING WIZARD!!!");
-							final NewProjectCreatorWizard wizard = new NewProjectCreatorWizard(Pint.this.sessionID);
-							RootLayoutPanel.get().add(wizard);
-						} else {
-							loadScoreTypes();
-						}
+						Pint.this.setSessionID(sessionID);
+
+						loadScoreTypes();
+
 					}
 
 					private void loadScoreTypes() {
-						Pint.this.service.getScoreTypes(sessionID, new AsyncCallback<List<String>>() {
+						Pint.this.service.getScoreTypes(getSessionID(), new AsyncCallback<List<String>>() {
 
 							@Override
 							public void onFailure(Throwable caught) {
@@ -359,7 +354,7 @@ public class Pint implements EntryPoint {
 							}
 
 							private void loadPTMNames() {
-								Pint.this.service.getPTMNames(sessionID, new AsyncCallback<List<String>>() {
+								Pint.this.service.getPTMNames(getSessionID(), new AsyncCallback<List<String>>() {
 
 									@Override
 									public void onFailure(Throwable caught) {
@@ -377,7 +372,7 @@ public class Pint implements EntryPoint {
 									}
 
 									private void loadTissueList() {
-										Pint.this.service.getTissueList(sessionID, new AsyncCallback<List<String>>() {
+										Pint.this.service.getTissueList(getSessionID(), new AsyncCallback<List<String>>() {
 
 											@Override
 											public void onFailure(Throwable caught) {
@@ -526,7 +521,7 @@ public class Pint implements EntryPoint {
 							if (createProjectWizardPanel == null) {
 								// not create again to not let the user loose
 								// everything
-								createProjectWizardPanel = new ProjectCreatorWizard(sessionID);
+								createProjectWizardPanel = new ProjectCreatorWizard(getSessionID());
 							}
 							loadPanel(createProjectWizardPanel);
 						}
@@ -621,6 +616,14 @@ public class Pint implements EntryPoint {
 			}
 		});
 
+	}
+
+	public String getSessionID() {
+		return sessionID;
+	}
+
+	public void setSessionID(String sessionID) {
+		this.sessionID = sessionID;
 	}
 
 }

@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -24,6 +25,7 @@ import edu.scripps.yates.client.gui.components.HtmlList;
 import edu.scripps.yates.client.gui.components.HtmlList.ListType;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
+import edu.scripps.yates.client.pint.wizard.NewProjectCreatorWizard;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 
 public class MainPanel extends InitializableComposite {
@@ -36,6 +38,7 @@ public class MainPanel extends InitializableComposite {
 	private final HtmlList listItemPanel;
 	private final FocusPanel focusConfigurationPanel;
 	private final Pint pintEntryPoint;
+	private final boolean TESTING_WIZARD = true;
 
 	public MainPanel(Pint pintEntryPoint) {
 		this.pintEntryPoint = pintEntryPoint;
@@ -173,7 +176,13 @@ public class MainPanel extends InitializableComposite {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				History.newItem(TargetHistory.SUBMIT.getTargetHistory());
+				if (TESTING_WIZARD) {
+					GWT.log("STARTING WIZARD!!!");
+					final NewProjectCreatorWizard wizard = new NewProjectCreatorWizard(pintEntryPoint.getSessionID());
+					RootLayoutPanel.get().add(wizard);
+				} else {
+					History.newItem(TargetHistory.SUBMIT.getTargetHistory());
+				}
 			}
 		});
 		focusAccessDataPanel.addClickHandler(new ClickHandler() {

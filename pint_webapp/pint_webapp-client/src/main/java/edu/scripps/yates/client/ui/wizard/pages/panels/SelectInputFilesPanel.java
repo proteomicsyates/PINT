@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.ui.wizard.view.widget;
+package edu.scripps.yates.client.ui.wizard.pages.panels;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.client.ui.wizard.view.widget.WizardButton;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.util.SharedConstants;
 import gwtupload.client.IUploadStatus.Status;

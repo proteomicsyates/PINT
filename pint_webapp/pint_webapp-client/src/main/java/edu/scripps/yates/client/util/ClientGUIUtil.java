@@ -6,7 +6,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
+import com.google.gwt.user.client.ui.SuggestBox;
 
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ExcelColumnRefPanel;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ProjectCreatorWizardUtil;
@@ -20,7 +25,7 @@ public class ClientGUIUtil {
 	public static final String DEFAULT_WIDTH = "1024px";
 
 	public static Set<String> getSelectedItemsFromListBox(ListBox listBox) {
-		Set<String> selectedItems = new HashSet<String>();
+		final Set<String> selectedItems = new HashSet<String>();
 		for (int i = 0; i < listBox.getItemCount(); i++) {
 			if (listBox.isItemSelected(i)) {
 				selectedItems.add(listBox.getItemText(i));
@@ -30,7 +35,7 @@ public class ClientGUIUtil {
 	}
 
 	public static Set<String> getSelectedValuesFromListBox(ListBox listBox) {
-		Set<String> selectedItems = new HashSet<String>();
+		final Set<String> selectedItems = new HashSet<String>();
 		for (int i = 0; i < listBox.getItemCount(); i++) {
 			if (listBox.isItemSelected(i)) {
 				selectedItems.add(listBox.getValue(i));
@@ -40,7 +45,7 @@ public class ClientGUIUtil {
 	}
 
 	public static Set<String> getNonSelectedItemsFromListBox(ListBox listBox) {
-		Set<String> ret = new HashSet<String>();
+		final Set<String> ret = new HashSet<String>();
 		for (int i = 0; i < listBox.getItemCount(); i++) {
 			if (!listBox.isItemSelected(i)) {
 				ret.add(listBox.getItemText(i));
@@ -50,7 +55,7 @@ public class ClientGUIUtil {
 	}
 
 	public static Set<String> getNonSelectedValuesFromListBox(ListBox listBox) {
-		Set<String> ret = new HashSet<String>();
+		final Set<String> ret = new HashSet<String>();
 		for (int i = 0; i < listBox.getItemCount(); i++) {
 			if (!listBox.isItemSelected(i)) {
 				ret.add(listBox.getValue(i));
@@ -98,5 +103,19 @@ public class ClientGUIUtil {
 
 		}
 		return null;
+	}
+
+	public static void addSuggestionsDeferred(List<String> suggestions, SuggestBox suggestBox) {
+		GWT.log("About to call a deferred command to fill the suggestions");
+		Scheduler.get().scheduleDeferred(new Command() {
+
+			@Override
+			public void execute() {
+				GWT.log("Starting to add suggestions");
+				final MultiWordSuggestOracle suggestOracle = (MultiWordSuggestOracle) suggestBox.getSuggestOracle();
+				suggestOracle.addAll(suggestions);
+				GWT.log("Suggestions added");
+			}
+		});
 	}
 }

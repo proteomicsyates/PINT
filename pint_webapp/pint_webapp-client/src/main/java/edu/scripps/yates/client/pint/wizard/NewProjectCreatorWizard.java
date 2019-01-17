@@ -5,13 +5,16 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import edu.scripps.yates.ImportWizardServiceAsync;
-import edu.scripps.yates.client.pint.wizard.pages.WelcomePage;
-import edu.scripps.yates.client.pint.wizard.pages.WizardPageInputFiles;
-import edu.scripps.yates.client.pint.wizard.pages.WizardPageIsQuantitative;
-import edu.scripps.yates.client.pint.wizard.pages.WizardPageProject;
-import edu.scripps.yates.client.pint.wizard.pages.WizardPageSamples;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.Wizard;
+import edu.scripps.yates.client.ui.wizard.pages.WelcomePage;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageConditions;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageInputFiles;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageIsQuantitative;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageOrganisms;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageProject;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageSamples;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageTissues;
 
 public class NewProjectCreatorWizard extends Wizard<PintContext> {
 	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
@@ -31,7 +34,10 @@ public class NewProjectCreatorWizard extends Wizard<PintContext> {
 		addPage(new WizardPageProject());
 		addPage(new WizardPageInputFiles());
 		addPage(new WizardPageIsQuantitative());
+		addPage(new WizardPageOrganisms());
+		addPage(new WizardPageTissues());
 		addPage(new WizardPageSamples());
+		addPage(new WizardPageConditions());
 		setUseLazyPageLoading(true);
 		setButtonVisible(ButtonType.BUTTON_CANCEL, true);
 		// finish

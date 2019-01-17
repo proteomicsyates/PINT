@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.ui.wizard.view.widget;
+package edu.scripps.yates.client.ui.wizard.pages.widgets;
 
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.TextArea;

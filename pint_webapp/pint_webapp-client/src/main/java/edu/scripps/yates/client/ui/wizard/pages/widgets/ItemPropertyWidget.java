@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.ui.wizard.view.widget;
+package edu.scripps.yates.client.ui.wizard.pages.widgets;
 
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
@@ -101,6 +101,10 @@ public abstract class ItemPropertyWidget<T> extends FlexTable implements UpdateP
 		final TextBox textBox = new TextBox();
 		textBox.setStyleName(WizardStyles.WizardItemWidgetPropertyValueTextBox);
 		return textBox;
+	}
+
+	public TextBoxBase getTextBoxBase() {
+		return propertyValueTextBox;
 	}
 
 	private void editProperty(boolean edit) {

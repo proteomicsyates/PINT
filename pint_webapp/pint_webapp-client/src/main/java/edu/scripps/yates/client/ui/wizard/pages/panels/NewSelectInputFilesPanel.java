@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.ui.wizard.view.widget;
+package edu.scripps.yates.client.ui.wizard.pages.panels;
 
 import java.util.HashMap;
 import java.util.HashSet;

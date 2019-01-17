@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.ui.wizard.view.widget;
+package edu.scripps.yates.client.ui.wizard.pages.panels;
 
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.client.ui.wizard.view.widget.WizardButton;
 
 public class WizardQuestionPanel extends FlexTable {
 	private final String question;

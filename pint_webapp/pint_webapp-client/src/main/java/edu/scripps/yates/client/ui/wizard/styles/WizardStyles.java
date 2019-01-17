@@ -26,7 +26,7 @@ public class WizardStyles {
 	public static final String WizardFormTextLabelError = "wizardFormTextLabelError";
 
 	public static final String WizardTextFormPanel = "wizardTextFormPanel";
-	public static final String WizardNewSampleLabel = "wizardNewSampleLabel";
+	public static final String WizardNewItemLabel = "wizardNewSampleLabel";
 	public static final String WizardSampleLabel = "wizardSampleLabel";
 	public static final String WizardItemWidget = "wizardItemWidget";
 	public static final String WizardItemWidgetNameLabel = "wizardItemWidgetNameLabel";
@@ -36,5 +36,9 @@ public class WizardStyles {
 	public static final String WizardItemWidgetPropertyValueTextArea = "WizardItemWidgetPropertyValueTextArea";
 	public static final String WizardItemWidgetPropertyNameLabel = "WizardItemWidgetPropertyNameLabel";
 	public static final String WizardButton = "WizardButton";
-
+	public static final String WizardDraggableLabel = "WizardDraggableLabel";
+	public static final String WizardItemWidgetDragEnter = "WizardItemWidgetDragEnter";
+	public static final String WizardDragTargetLabel = "WizardDragTargetLabel";
+	public static final String WizardJumpToPage = "WizardJumpToPage";
+	public static final String WizardDraggableLabelFixed = "WizardDraggableLabelFixed";
 }

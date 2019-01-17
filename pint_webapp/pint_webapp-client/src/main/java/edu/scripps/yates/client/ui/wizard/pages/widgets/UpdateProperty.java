@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.ui.wizard.view.widget;
+package edu.scripps.yates.client.ui.wizard.pages.widgets;
 
 public interface UpdateProperty<T> {
 	public void updateItemObjectProperty(T item, String propertyValue);
