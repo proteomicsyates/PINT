@@ -27,6 +27,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -80,9 +81,8 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 
 	/**
 	 *
-	 * @param uniprotReleasesFolder
-	 *            if null, this will call to the
-	 *            {@link UniprotProteinRemoteRetriever}
+	 * @param uniprotReleasesFolder if null, this will call to the
+	 *                              {@link UniprotProteinRemoteRetriever}
 	 * @param useIndex
 	 */
 	public UniprotProteinLocalRetriever(File uniprotReleasesFolder, boolean useIndex, boolean ignoreReferences,
@@ -193,24 +193,33 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 			if (uniprotReleasesFile.exists()) {
 				Map<Object, Object> mapLines;
 				try {
-					mapLines = Files.lines(Paths.get(uniprotReleasesFile.toURI())).collect(Collectors
-							.toMap(line -> line.toString().split("\t")[1], line -> line.toString().split("\t")[0]));
+					Stream<String> stream = null;
+					try {
+						stream = Files.lines(Paths.get(uniprotReleasesFile.toURI()));
+						mapLines = stream.collect(Collectors.toMap(line -> line.toString().split("\t")[1],
+								line -> line.toString().split("\t")[0]));
 
-					for (final String projectTag : uploadedDateByProjectTags.keySet()) {
-						final Date uploadDate = uploadedDateByProjectTags.get(projectTag);
+						for (final String projectTag : uploadedDateByProjectTags.keySet()) {
+							final Date uploadDate = uploadedDateByProjectTags.get(projectTag);
 
-						for (final Object key : mapLines.keySet()) {
-							final DateFormat df = new SimpleDateFormat("yyyy MM dd");
-							Date uniprotReleaseDate;
-							try {
-								uniprotReleaseDate = df.parse(key.toString());
-								if (uploadDate.before(uniprotReleaseDate) || uploadDate.equals(uniprotReleaseDate)) {
-									ret.add(mapLines.get(key).toString());
+							for (final Object key : mapLines.keySet()) {
+								final DateFormat df = new SimpleDateFormat("yyyy MM dd");
+								Date uniprotReleaseDate;
+								try {
+									uniprotReleaseDate = df.parse(key.toString());
+									if (uploadDate.before(uniprotReleaseDate)
+											|| uploadDate.equals(uniprotReleaseDate)) {
+										ret.add(mapLines.get(key).toString());
+									}
+								} catch (final ParseException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
 								}
-							} catch (final ParseException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
 							}
+						}
+					} finally {
+						if (stream != null) {
+							stream.close();
 						}
 					}
 				} catch (final IOException e) {
