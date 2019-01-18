@@ -47,7 +47,7 @@ import edu.scripps.yates.shared.model.projectCreator.excel.SampleTypeBean;
  * @param <IB>
  */
 public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> extends FlexTable
-		implements StatusReporter {
+		implements StatusReporter, IDGenerator {
 	private final Wizard<PintContext> wizard;
 	private Label createNewItemLabel;
 	private SuggestBox createNewItemTextbox;
@@ -221,15 +221,15 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 	protected abstract List<IB> getItemBeansFromContext(PintContext context);
 
 	private boolean createItemBeanAndWidget(String itemName) {
-		final IB sampleObj = createNewItemBean(itemName);
+		final IB itemBean = createNewItemBean(itemName);
 		try {
-			addItemBeanToPintImportConfiguration(wizard.getContext(), sampleObj);
+			addItemBeanToPintImportConfiguration(wizard.getContext(), itemBean);
 		} catch (final PintException e) {
 			e.printStackTrace();
 			StatusReportersRegister.getInstance().notifyStatusReporters(e);
 			return false;
 		}
-		createItemWidget(sampleObj);
+		createItemWidget(itemBean);
 
 		return true;
 	}
@@ -237,9 +237,22 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 	private void createItemWidget(IB itemBean) {
 		final IW itemWidget = createNewItemWidget(itemBean);
 		itemWidget.addOnRemoveTask(getDoSomethingTaskOnRemove(wizard.getContext()));
-
+		itemWidget.addOnDuplicateItemBeanTask(getDoSomethingTaskOnDuplicateIteamBeanTask());
+		itemWidget.setIDGenerator(this);
 		createdItemsPanel.add(itemWidget);
 		createdOrNotItems.setText("Created " + itemName + "s:");
+	}
+
+	protected DoSomethingTask2<IB> getDoSomethingTaskOnDuplicateIteamBeanTask() {
+		final DoSomethingTask2<IB> ret = new DoSomethingTask2<IB>() {
+
+			@Override
+			public Void doSomething(IB itemBean) {
+				createItemWidget(itemBean);
+				return null;
+			}
+		};
+		return ret;
 	}
 
 	/**
@@ -293,4 +306,17 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 	}
 
 	public abstract void isReady() throws PintException;
+
+	@Override
+	public String getNewID(String id) {
+		// check whether the last character is a number
+		try {
+			int num = Integer.valueOf(id.substring(id.length() - 1));
+			// then substitute that one with the next number
+			id = id.substring(0, id.length() - 2) + (num++);
+		} catch (final NumberFormatException e) {
+			id = id + "_2";
+		}
+		return id;
+	}
 }

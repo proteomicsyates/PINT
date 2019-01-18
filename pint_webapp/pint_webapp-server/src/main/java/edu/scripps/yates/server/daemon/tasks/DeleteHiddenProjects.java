@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.ServletContext;
 
@@ -120,9 +121,16 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 		if (!file.exists()) {
 			return Collections.emptyList();
 		}
-		final List<String> projectPaths = Files.lines(file.toPath()).map(line -> line.trim())
-				.collect(Collectors.toList());
-		return projectPaths;
+		Stream<String> stream = null;
+		try {
+			stream = Files.lines(file.toPath()).map(line -> line.trim());
+			final List<String> projectPaths = stream.collect(Collectors.toList());
+			return projectPaths;
+		} finally {
+			if (stream != null) {
+				stream.close();
+			}
+		}
 	}
 
 	@Override

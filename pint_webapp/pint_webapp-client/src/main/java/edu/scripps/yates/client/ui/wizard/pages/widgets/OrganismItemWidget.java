@@ -17,7 +17,7 @@ public class OrganismItemWidget extends AbstractItemWidget<OrganismTypeBean> {
 	private ItemLongPropertyWidget<OrganismTypeBean> descriptionItemLongPropertyWidget;
 
 	public OrganismItemWidget(OrganismTypeBean organism, PintContext context) {
-		super(organism, context);
+		super(organism, context, false);
 
 		// description
 		descriptionItemLongPropertyWidget = new ItemLongPropertyWidget<OrganismTypeBean>("description:", organism) {
@@ -68,6 +68,12 @@ public class OrganismItemWidget extends AbstractItemWidget<OrganismTypeBean> {
 	public void updateReferencedItemBeanID(String data, DroppableFormat format) {
 		// do nothing
 
+	}
+
+	@Override
+	protected OrganismTypeBean duplicateItemBean(OrganismTypeBean itemBean) {
+		// not duplicable
+		return null;
 	}
 
 }

@@ -17,12 +17,14 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask2;
 import edu.scripps.yates.client.pint.wizard.PintContext;
+import edu.scripps.yates.client.ui.wizard.pages.panels.IDGenerator;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
 
@@ -35,8 +37,14 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 	private int numProperties = 0;
 	private final Map<DroppableFormat, ItemDropLabel> targetLabelsByFormat = new HashMap<DroppableFormat, ItemDropLabel>();
 	private final PintContext context;
+	private final List<DoSomethingTask2<IB>> doSomethingTaskOnDuplicateIteamBeanTasks = new ArrayList<DoSomethingTask2<IB>>();
+	private IDGenerator idGenerator;
 
 	protected AbstractItemWidget(IB itemBean, PintContext context) {
+		this(itemBean, context, true);
+	}
+
+	protected AbstractItemWidget(IB itemBean, PintContext context, boolean duplicable) {
 		this.itemBean = itemBean;
 		this.context = context;
 		this.setStyleName(WizardStyles.WizardItemWidget);
@@ -101,11 +109,27 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 				}
 			}
 		});
+		final HorizontalPanel buttons = new HorizontalPanel();
+		setWidget(0, 1, buttons);
+		getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
+		if (duplicable) {
+			// duplicate button
+			final Button duplicateButton = new Button("duplicate");
+			duplicateButton.setStyleName(WizardStyles.WizardButton);
+			duplicateButton.setTitle(duplicateButton.getText());
+			buttons.add(duplicateButton);
+			duplicateButton.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					duplicateItemBeanAndCreateWidget(itemBean);
+				}
+			});
+		}
+		// delete button
 		final Button deleteButton = new Button("delete");
 		deleteButton.setStyleName(WizardStyles.WizardButton);
 		deleteButton.setTitle(deleteButton.getText());
-		setWidget(0, 1, deleteButton);
-		getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
+		buttons.add(deleteButton);
 
 		deleteButton.addClickHandler(new ClickHandler() {
 
@@ -117,6 +141,20 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 		// ask for list of organisms
 		fillSuggestions(nameTextBox, context.getSessionID());
 	}
+
+	protected void duplicateItemBeanAndCreateWidget(IB itemBean) {
+		final IB duplicatedItemBean = duplicateItemBean(itemBean);
+		if (duplicatedItemBean == null) {
+			// this is because the duplicateItemBean is not implemented because this item is
+			// not duplicable
+		} else {
+			for (final DoSomethingTask2<IB> doSomethingTask2 : doSomethingTaskOnDuplicateIteamBeanTasks) {
+				doSomethingTask2.doSomething(duplicatedItemBean);
+			}
+		}
+	}
+
+	protected abstract IB duplicateItemBean(IB itemBean);
 
 	/**
 	 * Implementation to add suggestions to the nameTextBox. This will not be called
@@ -234,5 +272,18 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 
 	protected PintContext getContext() {
 		return this.context;
+	}
+
+	public void addOnDuplicateItemBeanTask(DoSomethingTask2<IB> doSomethingTaskOnDuplicateIteamBeanTask) {
+		this.doSomethingTaskOnDuplicateIteamBeanTasks.add(doSomethingTaskOnDuplicateIteamBeanTask);
+
+	}
+
+	public void setIDGenerator(IDGenerator idGenerator) {
+		this.idGenerator = idGenerator;
+	}
+
+	public String getNewID(String id) {
+		return idGenerator.getNewID(id);
 	}
 }

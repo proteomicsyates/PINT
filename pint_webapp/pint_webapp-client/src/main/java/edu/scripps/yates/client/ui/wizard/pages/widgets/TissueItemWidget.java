@@ -17,7 +17,7 @@ public class TissueItemWidget extends AbstractItemWidget<TissueTypeBean> {
 	private ItemLongPropertyWidget<TissueTypeBean> descriptionItemLongPropertyWidget;
 
 	public TissueItemWidget(TissueTypeBean tissue, PintContext context) {
-		super(tissue, context);
+		super(tissue, context, false);
 
 		// description
 		descriptionItemLongPropertyWidget = new ItemLongPropertyWidget<TissueTypeBean>("description:", tissue) {
@@ -69,6 +69,12 @@ public class TissueItemWidget extends AbstractItemWidget<TissueTypeBean> {
 	public void updateReferencedItemBeanID(String data, DroppableFormat format) {
 		// do nothing
 
+	}
+
+	@Override
+	protected TissueTypeBean duplicateItemBean(TissueTypeBean itemBean) {
+// do not duplicable
+		return null;
 	}
 
 }

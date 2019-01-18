@@ -55,4 +55,15 @@ public class ConditionItemWidget extends AbstractItemWidget<ExperimentalConditio
 // do nothing
 	}
 
+	@Override
+	protected ExperimentalConditionTypeBean duplicateItemBean(ExperimentalConditionTypeBean condition) {
+		final ExperimentalConditionTypeBean ret = new ExperimentalConditionTypeBean();
+		ret.setId(super.getNewID(condition.getId()));
+		ret.setDescription(condition.getDescription());
+		ret.setIdentificationInfo(condition.getIdentificationInfo());
+		ret.setQuantificationInfo(condition.getQuantificationInfo());
+		ret.setSampleRef(condition.getSampleRef());
+		return ret;
+	}
+
 }

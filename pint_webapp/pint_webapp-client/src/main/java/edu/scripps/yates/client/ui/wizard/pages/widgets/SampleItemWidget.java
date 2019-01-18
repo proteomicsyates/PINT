@@ -61,4 +61,15 @@ public class SampleItemWidget extends AbstractItemWidget<SampleTypeBean> {
 		// do nothing
 	}
 
+	@Override
+	protected SampleTypeBean duplicateItemBean(SampleTypeBean itemBean) {
+		final SampleTypeBean ret = new SampleTypeBean();
+		ret.setId(getNewID(itemBean.getId()));
+		ret.setDescription(itemBean.getDescription());
+		ret.setLabelRef(itemBean.getLabelRef());
+		ret.setOrganismRef(itemBean.getOrganismRef());
+		ret.setTissueRef(itemBean.getTissueRef());
+		return ret;
+	}
+
 }
