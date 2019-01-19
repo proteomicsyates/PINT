@@ -25,6 +25,7 @@ public class WizardPageSamples extends AbstractWizardPage {
 			+ "<li>to define 2 samples, one per condition and either do not associate them with labels or "
 			+ "associated them with 2 labels (can be two labels as '114-115' and '116-117')</li></ol> ";
 	private FlexTable panel;
+	private SamplesPanel samplePanel;
 
 	public WizardPageSamples() {
 		super("Samples definition");
@@ -55,25 +56,29 @@ public class WizardPageSamples extends AbstractWizardPage {
 	}
 
 	@Override
-	public void beforeShow() {
+	public void beforeFirstShow() {
 		// first column
-		final SamplesPanel samplePanel = new SamplesPanel(getWizard());
+		samplePanel = new SamplesPanel(getWizard());
 		panel.setWidget(3, 0, samplePanel);
 		panel.getFlexCellFormatter().setVerticalAlignment(3, 0, HasVerticalAlignment.ALIGN_TOP);
 		samplePanel.getElement().getStyle().setMarginTop(20, Unit.PX);
-		panel.getFlexCellFormatter().setRowSpan(3, 0, 2);
+//		panel.getFlexCellFormatter().setRowSpan(3, 0, 2);
 		super.registerItemPanel(samplePanel);
 
 		// second column
-		final ReferencedOrganismsPanel referencedOrganismPanel = new ReferencedOrganismsPanel(getWizard());
-		panel.setWidget(3, 1, referencedOrganismPanel);
+		final FlexTable rightColumnTable = new FlexTable();
+		panel.setWidget(3, 1, rightColumnTable);
 		panel.getFlexCellFormatter().setVerticalAlignment(3, 1, HasVerticalAlignment.ALIGN_TOP);
+
+		final ReferencedOrganismsPanel referencedOrganismPanel = new ReferencedOrganismsPanel(getWizard());
+		rightColumnTable.setWidget(0, 0, referencedOrganismPanel);
+		rightColumnTable.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
 		referencedOrganismPanel.getElement().getStyle().setMarginTop(20, Unit.PX);
 		referencedOrganismPanel.getElement().getStyle().setHeight(1, Unit.PX);
 
 		final ReferencedTissuesPanel referencedTissuesPanel = new ReferencedTissuesPanel(getWizard());
-		panel.setWidget(4, 0, referencedTissuesPanel);
-		panel.getFlexCellFormatter().setVerticalAlignment(4, 0, HasVerticalAlignment.ALIGN_TOP);
+		rightColumnTable.setWidget(1, 0, referencedTissuesPanel);
+		rightColumnTable.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_TOP);
 		referencedTissuesPanel.getElement().getStyle().setMarginTop(20, Unit.PX);
 		referencedTissuesPanel.getElement().getStyle().setHeight(1, Unit.PX);
 		super.beforeShow();

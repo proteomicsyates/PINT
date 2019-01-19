@@ -21,7 +21,7 @@ public class ConditionsPanel extends AbstractItemPanel<ConditionItemWidget, Expe
 	}
 
 	@Override
-	protected DoSomethingTask2<ExperimentalConditionTypeBean> getDoSomethingTaskOnRemove(PintContext context) {
+	protected DoSomethingTask2<ExperimentalConditionTypeBean> getDoSomethingTaskOnRemoveItemBean(PintContext context) {
 
 		return new DoSomethingTask2<ExperimentalConditionTypeBean>() {
 
@@ -85,4 +85,8 @@ public class ConditionsPanel extends AbstractItemPanel<ConditionItemWidget, Expe
 		}
 	}
 
+	@Override
+	public String getID() {
+		return getClass().getName();
+	}
 }

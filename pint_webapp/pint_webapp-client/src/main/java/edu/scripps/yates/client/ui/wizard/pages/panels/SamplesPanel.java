@@ -43,7 +43,7 @@ public class SamplesPanel extends AbstractItemPanel<SampleItemWidget, SampleType
 	}
 
 	@Override
-	protected DoSomethingTask2<SampleTypeBean> getDoSomethingTaskOnRemove(PintContext context) {
+	protected DoSomethingTask2<SampleTypeBean> getDoSomethingTaskOnRemoveItemBean(PintContext context) {
 
 		return new DoSomethingTask2<SampleTypeBean>() {
 
@@ -91,4 +91,8 @@ public class SamplesPanel extends AbstractItemPanel<SampleItemWidget, SampleType
 		}
 	}
 
+	@Override
+	public String getID() {
+		return getClass().getName();
+	}
 }

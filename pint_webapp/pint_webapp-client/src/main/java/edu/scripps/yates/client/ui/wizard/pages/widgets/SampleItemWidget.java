@@ -24,8 +24,8 @@ public class SampleItemWidget extends AbstractItemWidget<SampleTypeBean> {
 			}
 		});
 		// REFERENCES TO ORGANISM AND TISSUE
-		addDroppingAreaForReferencedItemBean("drop organism here", DroppableFormat.ORGANISM);
-		addDroppingAreaForReferencedItemBean("drop tissue/cell line here", DroppableFormat.TISSUE);
+		addDroppingAreaForReferencedItemBean("Organism", "drop organism here", DroppableFormat.ORGANISM);
+		addDroppingAreaForReferencedItemBean("Tissue/Cell line", "drop tissue/cell line here", DroppableFormat.TISSUE);
 		// if there is a reference to a sample, set the dropping label to the actual
 		// sample
 		if (sampleObj.getOrganismRef() != null) {

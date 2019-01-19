@@ -9,6 +9,7 @@ import java.util.Set;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestBox;
@@ -107,15 +108,25 @@ public class ClientGUIUtil {
 
 	public static void addSuggestionsDeferred(List<String> suggestions, SuggestBox suggestBox) {
 		GWT.log("About to call a deferred command to fill the suggestions");
-		Scheduler.get().scheduleDeferred(new Command() {
+		final Timer timer = new Timer() {
 
 			@Override
-			public void execute() {
-				GWT.log("Starting to add suggestions");
-				final MultiWordSuggestOracle suggestOracle = (MultiWordSuggestOracle) suggestBox.getSuggestOracle();
-				suggestOracle.addAll(suggestions);
-				GWT.log("Suggestions added");
+			public void run() {
+				Scheduler.get().scheduleDeferred(new Command() {
+
+					@Override
+					public void execute() {
+						GWT.log("Starting to add suggestions");
+						final MultiWordSuggestOracle suggestOracle = (MultiWordSuggestOracle) suggestBox
+								.getSuggestOracle();
+						suggestOracle.addAll(suggestions);
+						GWT.log("Suggestions added");
+					}
+				});
 			}
-		});
+		};
+		// run deferred in half second
+		timer.schedule(500);
+
 	}
 }

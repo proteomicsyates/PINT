@@ -30,15 +30,18 @@ public class WizardStyles {
 	public static final String WizardSampleLabel = "wizardSampleLabel";
 	public static final String WizardItemWidget = "wizardItemWidget";
 	public static final String WizardItemWidgetNameLabel = "wizardItemWidgetNameLabel";
+	public static final String WizardItemWidgetNameLabelNonClickable = "wizardItemWidgetNameLabelNonClickable";
 	public static final String WizardItemWidgetNameTextBox = "wizardItemWidgetNameTextBox";
 	public static final String WizardItemWidgetPropertyValueLabel = "WizardItemWidgetPropertyValueLabel";
 	public static final String WizardItemWidgetPropertyValueTextBox = "WizardItemWidgetPropertyValueTextBox";
 	public static final String WizardItemWidgetPropertyValueTextArea = "WizardItemWidgetPropertyValueTextArea";
 	public static final String WizardItemWidgetPropertyNameLabel = "WizardItemWidgetPropertyNameLabel";
 	public static final String WizardButton = "WizardButton";
+	public static final String WizardButtonSmall = "WizardButtonSmall";
 	public static final String WizardDraggableLabel = "WizardDraggableLabel";
 	public static final String WizardItemWidgetDragEnter = "WizardItemWidgetDragEnter";
 	public static final String WizardDragTargetLabel = "WizardDragTargetLabel";
 	public static final String WizardJumpToPage = "WizardJumpToPage";
 	public static final String WizardDraggableLabelFixed = "WizardDraggableLabelFixed";
+	public static final String WizardButtonMini = "WizardButtonMini";
 }

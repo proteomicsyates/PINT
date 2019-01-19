@@ -51,7 +51,7 @@ public class TissuesPanel extends AbstractItemPanel<TissueItemWidget, TissueType
 	}
 
 	@Override
-	protected DoSomethingTask2<TissueTypeBean> getDoSomethingTaskOnRemove(PintContext context) {
+	protected DoSomethingTask2<TissueTypeBean> getDoSomethingTaskOnRemoveItemBean(PintContext context) {
 
 		return new DoSomethingTask2<TissueTypeBean>() {
 
@@ -105,6 +105,11 @@ public class TissuesPanel extends AbstractItemPanel<TissueItemWidget, TissueType
 		if (getItemBeansFromContext(getWizard().getContext()).isEmpty()) {
 			throw new PintException("Create at least one Tissue/Cell line", PINT_ERROR_TYPE.WIZARD_PAGE_INCOMPLETE);
 		}
+	}
+
+	@Override
+	public String getID() {
+		return getClass().getName();
 	}
 
 }

@@ -25,7 +25,7 @@ public class ConditionItemWidget extends AbstractItemWidget<ExperimentalConditio
 					}
 				});
 		// enable dropping
-		addDroppingAreaForReferencedItemBean("drop sample here", DroppableFormat.SAMPLE);
+		addDroppingAreaForReferencedItemBean("Sample", "drop sample here", DroppableFormat.SAMPLE);
 		// if there is a reference to a sample, set the dropping label to the actual
 		// sample
 		if (conditionObject.getSampleRef() != null) {

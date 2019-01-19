@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -39,6 +40,10 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 	private final PintContext context;
 	private final List<DoSomethingTask2<IB>> doSomethingTaskOnDuplicateIteamBeanTasks = new ArrayList<DoSomethingTask2<IB>>();
 	private IDGenerator idGenerator;
+	private final List<ItemPropertyWidget<IB>> propertyWidgets = new ArrayList<ItemPropertyWidget<IB>>();
+	private final List<FlexTable> referencedItems = new ArrayList<FlexTable>();
+	private Button minimizeButton;
+	private boolean maximized = true;
 
 	protected AbstractItemWidget(IB itemBean, PintContext context) {
 		this(itemBean, context, true);
@@ -68,7 +73,6 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 			public void onClick(ClickEvent event) {
 				editName(true);
 				nameTextBox.setFocus(true);
-				;
 			}
 		});
 
@@ -115,7 +119,7 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 		if (duplicable) {
 			// duplicate button
 			final Button duplicateButton = new Button("duplicate");
-			duplicateButton.setStyleName(WizardStyles.WizardButton);
+			duplicateButton.setStyleName(WizardStyles.WizardButtonSmall);
 			duplicateButton.setTitle(duplicateButton.getText());
 			buttons.add(duplicateButton);
 			duplicateButton.addClickHandler(new ClickHandler() {
@@ -127,8 +131,9 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 		}
 		// delete button
 		final Button deleteButton = new Button("delete");
-		deleteButton.setStyleName(WizardStyles.WizardButton);
+		deleteButton.setStyleName(WizardStyles.WizardButtonSmall);
 		deleteButton.setTitle(deleteButton.getText());
+		deleteButton.getElement().getStyle().setMarginLeft(10, Unit.PX);
 		buttons.add(deleteButton);
 
 		deleteButton.addClickHandler(new ClickHandler() {
@@ -138,8 +143,62 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 				onRemoveItem(itemBean);
 			}
 		});
+		// minimize button
+		minimizeButton = new Button("-");
+		minimizeButton.setStyleName(WizardStyles.WizardButtonMini);
+		minimizeButton.setTitle("minimize");
+		minimizeButton.getElement().getStyle().setMarginLeft(10, Unit.PX);
+		buttons.add(minimizeButton);
+
+		minimizeButton.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				if (maximized) {
+					minimize();
+				} else {
+					maximize();
+				}
+			}
+		});
 		// ask for list of organisms
 		fillSuggestions(nameTextBox, context.getSessionID());
+	}
+
+	public boolean isMaximized() {
+		return maximized;
+	}
+
+	public void minimize() {
+		maximized = false;
+		// Hide any property of the item and any reference label
+		setPropertyItemsVisible(false);
+		setReferencedItemsVisible(false);
+		// change minimize button to maximize
+		minimizeButton.setText("+");
+		minimizeButton.setTitle("maximize");
+	}
+
+	public void maximize() {
+		maximized = true;
+		// show any property of the item and any reference label
+		setPropertyItemsVisible(true);
+		setReferencedItemsVisible(true);
+		// change minimize button to minimize
+		minimizeButton.setText("-");
+		minimizeButton.setTitle("minimize");
+	}
+
+	private void setPropertyItemsVisible(boolean visible) {
+		for (final ItemPropertyWidget<IB> propertyWidget : propertyWidgets) {
+			propertyWidget.setVisible(visible);
+		}
+	}
+
+	private void setReferencedItemsVisible(boolean visible) {
+		for (final FlexTable table : referencedItems) {
+			table.setVisible(visible);
+		}
 	}
 
 	protected void duplicateItemBeanAndCreateWidget(IB itemBean) {
@@ -181,6 +240,10 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 		return itemBean;
 	}
 
+	public String getItemBeanID() {
+		return getIDFromItemBean(getItemBean());
+	}
+
 	public void onRemoveItem(IB item) {
 		for (final DoSomethingTask2<IB> task : onRemoveTasks) {
 			task.doSomething(item);
@@ -197,6 +260,7 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 		numProperties++;
 		setWidget(numProperties, 0, itemLongPropertyWidget);
 		getFlexCellFormatter().setColSpan(numProperties, 0, 2);
+		propertyWidgets.add(itemLongPropertyWidget);
 	}
 
 	/**
@@ -206,14 +270,21 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 	 * @param droppingAreaText
 	 * @param format
 	 */
-	public void addDroppingAreaForReferencedItemBean(String droppingAreaText, DroppableFormat format) {
+	public void addDroppingAreaForReferencedItemBean(String referencedItemBeanName, String droppingAreaText,
+			DroppableFormat format) {
 
 		numProperties++;
+		final FlexTable table = new FlexTable();
+		this.referencedItems.add(table);
 		final ItemDropLabel droppingLabel = new ItemDropLabel(droppingAreaText, format, this);
 		this.targetLabelsByFormat.put(format, droppingLabel);
 		droppingLabel.setTitle(droppingAreaText);
 		droppingLabel.setStyleName(WizardStyles.WizardDragTargetLabel);
-		setWidget(numProperties, 0, droppingLabel);
+		final Label referencedItemBeanNameLabel = new Label(referencedItemBeanName + ":");
+		referencedItemBeanNameLabel.setStyleName(WizardStyles.WizardItemWidgetPropertyNameLabel);
+		table.setWidget(0, 0, referencedItemBeanNameLabel);
+		table.setWidget(0, 1, droppingLabel);
+		setWidget(numProperties, 0, table);
 		getFlexCellFormatter().setColSpan(numProperties, 0, 2);
 
 	}

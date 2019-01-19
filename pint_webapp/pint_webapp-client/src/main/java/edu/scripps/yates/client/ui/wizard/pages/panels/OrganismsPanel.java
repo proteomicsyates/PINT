@@ -50,7 +50,7 @@ public class OrganismsPanel extends AbstractItemPanel<OrganismItemWidget, Organi
 	}
 
 	@Override
-	protected DoSomethingTask2<OrganismTypeBean> getDoSomethingTaskOnRemove(PintContext context) {
+	protected DoSomethingTask2<OrganismTypeBean> getDoSomethingTaskOnRemoveItemBean(PintContext context) {
 
 		return new DoSomethingTask2<OrganismTypeBean>() {
 
@@ -106,4 +106,8 @@ public class OrganismsPanel extends AbstractItemPanel<OrganismItemWidget, Organi
 		}
 	}
 
+	@Override
+	public String getID() {
+		return getClass().getName();
+	}
 }

@@ -70,7 +70,10 @@ public abstract class AbstractReferencedItemPanel<IB> extends FlexTable implemen
 
 			@Override
 			public void onClick(ClickEvent event) {
-				wizard.showPage(getWizardPageIDToJumpByFormat(format));
+				// because we don't want to validate this page now, we skip the validation
+				// occurring in BeforeNext
+				final boolean fireBeforeNext = false;
+				wizard.showPage(getWizardPageIDToJumpByFormat(format), fireBeforeNext, true, true);
 			}
 		});
 		setWidget(1, 1, jumpToPageButton);

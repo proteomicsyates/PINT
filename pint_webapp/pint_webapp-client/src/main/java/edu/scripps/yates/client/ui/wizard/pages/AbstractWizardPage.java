@@ -1,6 +1,8 @@
 package edu.scripps.yates.client.ui.wizard.pages;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.core.shared.GWT;
@@ -13,6 +15,7 @@ import edu.scripps.yates.client.ui.wizard.WizardPage;
 import edu.scripps.yates.client.ui.wizard.WizardPageHelper;
 import edu.scripps.yates.client.ui.wizard.event.NavigationEvent;
 import edu.scripps.yates.client.ui.wizard.pages.panels.AbstractItemPanel;
+import edu.scripps.yates.client.ui.wizard.pages.widgets.MaximizedStatus;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
 
@@ -20,6 +23,7 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 	private final String title;
 	private final Widget widget;
 	private final Set<AbstractItemPanel> itemPanels = new HashSet<AbstractItemPanel>();
+	private final Map<String, MaximizedStatus> maximizedStatusByItemPanelID = new HashMap<String, MaximizedStatus>();
 
 	protected AbstractWizardPage(String title) {
 		this(title, null);
@@ -82,7 +86,12 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 		GWT.log("beforeShow");
 		for (final AbstractItemPanel itemPanel : itemPanels) {
 			itemPanel.updateCreatedItems(getContext());
+			// set the maximization status per itemPanel if available
+			final String itemPanelID = itemPanel.getID();
+			final MaximizedStatus maximizedStatus = maximizedStatusByItemPanelID.get(itemPanelID);
+			itemPanel.setMaximizedStatus(maximizedStatus);
 		}
+
 		super.beforeShow();
 	}
 
@@ -101,7 +110,12 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 
 	@Override
 	public void afterNext() {
-		GWT.log("afterNext");
+		// keep maximizedStatus
+		this.maximizedStatusByItemPanelID.clear();
+		for (final AbstractItemPanel abstractItemPanel : itemPanels) {
+			maximizedStatusByItemPanelID.put(abstractItemPanel.getID(), abstractItemPanel.getMaximizedStatus());
+		}
+
 		super.afterNext();
 	}
 
@@ -132,6 +146,7 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 	 */
 	public void registerItemPanel(AbstractItemPanel itemPanel) {
 		this.itemPanels.add(itemPanel);
+
 	}
 
 	public boolean isReady() throws PintException {
@@ -140,5 +155,9 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 			updatesItems.isReady();
 		}
 		return true;
+	}
+
+	public void clearItemPanels() {
+		itemPanels.clear();
 	}
 }

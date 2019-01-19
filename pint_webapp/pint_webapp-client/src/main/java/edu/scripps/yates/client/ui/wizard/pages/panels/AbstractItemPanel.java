@@ -1,6 +1,9 @@
 package edu.scripps.yates.client.ui.wizard.pages.panels;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
@@ -16,9 +19,11 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask2;
@@ -29,6 +34,7 @@ import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.Wizard;
 import edu.scripps.yates.client.ui.wizard.pages.AbstractWizardPage;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.AbstractItemWidget;
+import edu.scripps.yates.client.ui.wizard.pages.widgets.MaximizedStatus;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
@@ -55,6 +61,8 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 	private Label createdOrNotItems;
 	private final String NO_ITEM_CREATED_YET;
 	private final String itemName;
+	private final List<IW> itemWidgets = new ArrayList<IW>();
+	private HorizontalPanel filterByIDPanel;
 
 	/**
 	 * Creates an {@link AbstractItemPanel} with a wizard and an itemName which will
@@ -64,9 +72,11 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 	 * @param itemName
 	 */
 	public AbstractItemPanel(Wizard<PintContext> wizard, String itemName) {
+//		setSize("300", "400");
 		this.itemName = itemName;
 		NO_ITEM_CREATED_YET = "No " + itemName + " created yet";
 		this.wizard = wizard;
+
 		setStyleName(WizardStyles.WizardQuestionPanel);
 		init();
 
@@ -161,16 +171,72 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 				}
 			}
 		});
+		filterByIDPanel = new HorizontalPanel();
+		filterByIDPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		filterByIDPanel.setVisible(false); // not visible until having created items
+		setWidget(1, 0, filterByIDPanel);
+		getFlexCellFormatter().setColSpan(1, 0, 2);
+		setWidget(2, 0, createdItemsPanel);
+		getFlexCellFormatter().setColSpan(2, 0, 2);
+
+		// FILTER
+		final String filterTitle = "Type here to filter created items";
+		final Label label = new Label("Filter:");
+		label.setTitle(filterTitle);
+		label.getElement().getStyle().setMarginRight(10, Unit.PX);
+		label.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
+		filterByIDPanel.add(label);
+		final TextBox filterTextBox = new TextBox();
+		filterTextBox.setTitle(filterTitle);
+		filterByIDPanel.add(filterTextBox);
+		final String NO_FILTER = "no filter";
+		final Label numberOfVisibleItems = new Label(NO_FILTER);
+		numberOfVisibleItems.setTitle(numberOfVisibleItems.getText());
+		numberOfVisibleItems.setStyleName(WizardStyles.WizardItemWidgetPropertyNameLabel);
+		filterTextBox.addKeyUpHandler(new KeyUpHandler() {
+
+			@Override
+			public void onKeyUp(KeyUpEvent event) {
+				if (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
+					filterTextBox.setValue("");
+				}
+				final String filterString = filterTextBox.getValue();
+				final int visibles = filterCreatedItems(filterString);
+				if (visibles != itemWidgets.size()) {
+					numberOfVisibleItems.setText("showing " + visibles + "/" + itemWidgets.size());
+				} else {
+					numberOfVisibleItems.setText(NO_FILTER);
+				}
+				numberOfVisibleItems.setTitle(numberOfVisibleItems.getText());
+			}
+		});
+		filterByIDPanel.add(numberOfVisibleItems);
+		numberOfVisibleItems.getElement().getStyle().setMarginLeft(10, Unit.PX);
+
 		createdItemsPanel = new VerticalPanel();
 		createdItemsPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
 		createdOrNotItems = new Label(NO_ITEM_CREATED_YET);
 		createdOrNotItems.setStyleName(WizardStyles.WizardExplanationLabel);
 		createdItemsPanel.add(createdOrNotItems);
-		setWidget(1, 0, createdItemsPanel);
-		getFlexCellFormatter().setColSpan(1, 0, 2);
+		setWidget(3, 0, createdItemsPanel);
+		getFlexCellFormatter().setColSpan(3, 0, 2);
 
 		updateCreatedItems(wizard.getContext());
 
+	}
+
+	protected int filterCreatedItems(String filterString) {
+		int numVisibles = 0;
+		for (final IW itemWidget : itemWidgets) {
+			final String itemBeanID = itemWidget.getItemBeanID();
+			if ("".equals(filterString) || itemBeanID.toLowerCase().contains(filterString.toLowerCase())) {
+				itemWidget.setVisible(true);
+				numVisibles++;
+			} else {
+				itemWidget.setVisible(false);
+			}
+		}
+		return numVisibles;
 	}
 
 	public void updateCreatedItems(PintContext context) {
@@ -236,18 +302,40 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 
 	private void createItemWidget(IB itemBean) {
 		final IW itemWidget = createNewItemWidget(itemBean);
-		itemWidget.addOnRemoveTask(getDoSomethingTaskOnRemove(wizard.getContext()));
-		itemWidget.addOnDuplicateItemBeanTask(getDoSomethingTaskOnDuplicateIteamBeanTask());
+		itemWidget.addOnRemoveTask(getDoSomethingTaskOnRemoveItemBean(wizard.getContext()));
+		itemWidget.addOnRemoveTask(getRemoveItemWidgetTaskOnRemoveItemBean(itemWidget));
+		itemWidget.addOnDuplicateItemBeanTask(getDoSomethingTaskOnDuplicateIteamBean());
 		itemWidget.setIDGenerator(this);
+		itemWidgets.add(itemWidget);
 		createdItemsPanel.add(itemWidget);
 		createdOrNotItems.setText("Created " + itemName + "s:");
+		this.filterByIDPanel.setVisible(true);
 	}
 
-	protected DoSomethingTask2<IB> getDoSomethingTaskOnDuplicateIteamBeanTask() {
+	private DoSomethingTask2<IB> getRemoveItemWidgetTaskOnRemoveItemBean(IW itemWidget) {
+		final DoSomethingTask2<IB> ret = new DoSomethingTask2<IB>() {
+
+			@Override
+			public Void doSomething(IB t) {
+				itemWidgets.remove(itemWidget);
+				return null;
+			}
+		};
+		return ret;
+	}
+
+	private DoSomethingTask2<IB> getDoSomethingTaskOnDuplicateIteamBean() {
 		final DoSomethingTask2<IB> ret = new DoSomethingTask2<IB>() {
 
 			@Override
 			public Void doSomething(IB itemBean) {
+				try {
+					addItemBeanToPintImportConfiguration(wizard.getContext(), itemBean);
+				} catch (final PintException e) {
+					e.printStackTrace();
+					StatusReportersRegister.getInstance().notifyStatusReporters(e);
+					return null;
+				}
 				createItemWidget(itemBean);
 				return null;
 			}
@@ -264,7 +352,7 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 	 * 
 	 * @return
 	 */
-	protected abstract DoSomethingTask2<IB> getDoSomethingTaskOnRemove(PintContext context);
+	protected abstract DoSomethingTask2<IB> getDoSomethingTaskOnRemoveItemBean(PintContext context);
 
 	/**
 	 * Method to create the new {@link AbstractItemWidget} usually, using the item
@@ -299,6 +387,7 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 
 	final protected void setNoItemsCreatedYetLabel() {
 		createdOrNotItems.setText(NO_ITEM_CREATED_YET);
+		this.filterByIDPanel.setVisible(false);
 	}
 
 	protected Wizard<PintContext> getWizard() {
@@ -309,14 +398,62 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 
 	@Override
 	public String getNewID(String id) {
-		// check whether the last character is a number
-		try {
-			int num = Integer.valueOf(id.substring(id.length() - 1));
-			// then substitute that one with the next number
-			id = id.substring(0, id.length() - 2) + (num++);
-		} catch (final NumberFormatException e) {
-			id = id + "_2";
+		final Set<String> ids = new HashSet<String>();
+		for (final IW itemWidget : itemWidgets) {
+			ids.add(itemWidget.getItemBeanID());
 		}
-		return id;
+		String newID = id;
+		while (id.equals(newID) || ids.contains(newID)) {
+			// check whether the last character is a number
+			try {
+				int num = Integer.valueOf(newID.substring(newID.length() - 1));
+				// then substitute that one with the next number
+				newID = newID.substring(0, newID.length() - 1) + (++num);
+			} catch (final NumberFormatException e) {
+				newID = newID + "_2";
+			}
+
+		}
+		return newID;
 	}
+
+	/**
+	 * Creates a {@link MaximizedStatus} object with the status of maximization of
+	 * each {@link AbstractItemWidget}
+	 * 
+	 * @return
+	 */
+	public MaximizedStatus getMaximizedStatus() {
+		final MaximizedStatus ret = new MaximizedStatus();
+		for (final IW itemWidget : itemWidgets) {
+			final boolean maximized = itemWidget.isMaximized();
+			final String itemBeanID = itemWidget.getItemBeanID();
+			ret.addMaximizedStatus(itemBeanID, maximized);
+		}
+		return ret;
+	}
+
+	/**
+	 * Sets the {@link MaximizedStatus} to the {@link AbstractItemWidget} in this
+	 * panel
+	 * 
+	 * @param maximizedStatus
+	 */
+	public void setMaximizedStatus(MaximizedStatus maximizedStatus) {
+		if (maximizedStatus != null) {
+			for (final IW itemWidget : itemWidgets) {
+				final String itemBeanID = itemWidget.getItemBeanID();
+				final Boolean maximized = maximizedStatus.getMaximizedStatus(itemBeanID);
+				if (maximized != null) {
+					if (maximized) {
+						itemWidget.maximize();
+					} else {
+						itemWidget.minimize();
+					}
+				}
+			}
+		}
+	}
+
+	public abstract String getID();
 }
