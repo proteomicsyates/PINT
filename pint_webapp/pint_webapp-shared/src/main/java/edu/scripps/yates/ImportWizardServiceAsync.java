@@ -3,6 +3,7 @@ package edu.scripps.yates;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import edu.scripps.yates.shared.model.FileSummary;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgTypeBean;
 
@@ -260,4 +261,8 @@ public interface ImportWizardServiceAsync {
 			// Utility class should not be instantiated
 		}
 	}
+
+	void getFileSummary(int importID, String sessionID, FileTypeBean file, AsyncCallback<FileSummary> asyncCallback);
+
+	void getUploadedFileID(int importID, String uploadedFileSignature, AsyncCallback<String> asyncCallback);
 }

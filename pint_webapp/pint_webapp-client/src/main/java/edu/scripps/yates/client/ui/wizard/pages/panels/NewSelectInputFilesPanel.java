@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.moxieapps.gwt.uploader.client.File;
 import org.moxieapps.gwt.uploader.client.Uploader;
 import org.moxieapps.gwt.uploader.client.events.FileDialogCompleteEvent;
 import org.moxieapps.gwt.uploader.client.events.FileDialogCompleteHandler;
@@ -37,7 +38,6 @@ import com.google.gwt.event.dom.client.DragOverHandler;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.event.dom.client.DropHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -53,7 +53,6 @@ import edu.scripps.yates.client.gui.components.ProgressBar;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
-import edu.scripps.yates.client.statusreporter.StatusReporter;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.Wizard;
 import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
@@ -64,7 +63,7 @@ import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class NewSelectInputFilesPanel extends FlexTable implements StatusReporter {
+public class NewSelectInputFilesPanel extends FlexTable {
 
 	private Uploader uploader;
 	private final PintContext context;
@@ -169,45 +168,62 @@ public class NewSelectInputFilesPanel extends FlexTable implements StatusReporte
 					@Override
 					public boolean onUploadComplete(UploadCompleteEvent uploadCompleteEvent) {
 						// remove cancel button
-						cancelButtons.get(uploadCompleteEvent.getFile().getId()).removeFromParent();
+						final File uploadedFile = uploadCompleteEvent.getFile();
+						cancelButtons.get(uploadedFile.getId()).removeFromParent();
 						// start other upload?
 						uploader.startUpload();
 						// update object with no format
-						try {
-							PintImportCfgUtil.addFile(context.getPintImportConfiguration(),
-									uploadCompleteEvent.getFile());
-						} catch (final PintException e) {
-							StatusReportersRegister.getInstance().notifyStatusReporters(e);
-							final FileNameWithTypeBean dataFile = new FileNameWithTypeBean();
-							dataFile.setId(uploadCompleteEvent.getFile().getId());
-							dataFile.setFileName(uploadCompleteEvent.getFile().getName());
-							service.removeDataFile(context.getSessionID(),
-									context.getPintImportConfiguration().getImportID(), dataFile,
-									new AsyncCallback<Void>() {
 
-										@Override
-										public void onFailure(Throwable caught) {
-											StatusReportersRegister.getInstance().notifyStatusReporters(
-													"Error deleting file from server: " + e.getMessage());
-										}
+						service.getUploadedFileID(wizard.getContext().getPintImportConfiguration().getImportID(),
+								getUploadedFileSignature(uploadedFile), new AsyncCallback<String>() {
 
-										@Override
-										public void onSuccess(Void result) {
-											StatusReportersRegister.getInstance()
-													.notifyStatusReporters("File deleted from server");
+									@Override
+									public void onFailure(Throwable caught) {
+										StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+									}
+
+									@Override
+									public void onSuccess(String fileIDInServer) {
+										try {
+											PintImportCfgUtil.addFile(context.getPintImportConfiguration(),
+													uploadedFile, fileIDInServer);
+											// update list of uploaded files
+											loadUploadedFiles();
+											//
+											updateNextButtonState();
+										} catch (final PintException e) {
+											StatusReportersRegister.getInstance().notifyStatusReporters(e);
+											final FileNameWithTypeBean dataFile = new FileNameWithTypeBean();
+											dataFile.setId(uploadedFile.getId());
+											dataFile.setFileName(uploadedFile.getName());
+											service.removeDataFile(context.getSessionID(),
+													context.getPintImportConfiguration().getImportID(), dataFile,
+													new AsyncCallback<Void>() {
+
+														@Override
+														public void onFailure(Throwable caught) {
+															StatusReportersRegister.getInstance().notifyStatusReporters(
+																	"Error deleting file from server: "
+																			+ e.getMessage());
+														}
+
+														@Override
+														public void onSuccess(Void result) {
+															StatusReportersRegister.getInstance()
+																	.notifyStatusReporters("File deleted from server");
+														}
+													});
+
 										}
-									});
-							return false;
-						}
-						// update list of uploaded files
-						loadUploadedFiles();
+									}
+								});
+
 						// remove with delay the uploading row
 						final Timer timer = new Timer() {
 
 							@Override
 							public void run() {
-								final HorizontalPanel horizontalPanel = uploaderRows
-										.get(uploadCompleteEvent.getFile().getId());
+								final HorizontalPanel horizontalPanel = uploaderRows.get(uploadedFile.getId());
 								if (horizontalPanel != null) {
 									horizontalPanel.removeFromParent();
 								}
@@ -215,8 +231,6 @@ public class NewSelectInputFilesPanel extends FlexTable implements StatusReporte
 						};
 						timer.schedule(3000);// after 3 sc.
 
-						//
-						updateNextButtonState();
 						return true;
 					}
 				}).setFileDialogStartHandler(new FileDialogStartHandler() {
@@ -310,6 +324,10 @@ public class NewSelectInputFilesPanel extends FlexTable implements StatusReporte
 		uploadedFilesVerticalPanel = new VerticalPanel();
 		setWidget(1, 0, uploadedFilesVerticalPanel);
 		loadUploadedFiles();
+	}
+
+	protected String getUploadedFileSignature(File uploadedFile) {
+		return uploadedFile.getName() + uploadedFile.getSize();
 	}
 
 	/**
@@ -548,21 +566,6 @@ public class NewSelectInputFilesPanel extends FlexTable implements StatusReporte
 			}
 			return ((int) (100 * bar.getPercent())) + "%";
 		}
-	}
-
-	@Override
-	public void showMessage(String message) {
-		Window.confirm(message);
-	}
-
-	@Override
-	public void showErrorMessage(Throwable throwable) {
-		Window.alert(throwable.getMessage());
-	}
-
-	@Override
-	public String getStatusReporterKey() {
-		return NewSelectInputFilesPanel.class.getName();
 	}
 
 	public void setUploadURL(int importID) {

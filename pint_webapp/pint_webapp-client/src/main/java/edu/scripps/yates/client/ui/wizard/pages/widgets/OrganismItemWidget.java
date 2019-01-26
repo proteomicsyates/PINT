@@ -10,17 +10,19 @@ import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.util.ClientGUIUtil;
+import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.projectCreator.excel.OrganismTypeBean;
 
 public class OrganismItemWidget extends AbstractItemWidget<OrganismTypeBean> {
 	private edu.scripps.yates.ImportWizardServiceAsync service;
-	private ItemLongPropertyWidget<OrganismTypeBean> descriptionItemLongPropertyWidget;
+	private ItemTextAreaPropertyWidget<OrganismTypeBean> descriptionItemLongPropertyWidget;
 
 	public OrganismItemWidget(OrganismTypeBean organism, PintContext context) {
 		super(organism, context, false);
 
 		// description
-		descriptionItemLongPropertyWidget = new ItemLongPropertyWidget<OrganismTypeBean>("description:", organism) {
+		descriptionItemLongPropertyWidget = new ItemTextAreaPropertyWidget<OrganismTypeBean>("Description:",
+				"Description of the organism", organism, false) {
 
 			@Override
 			public void updateItemObjectProperty(OrganismTypeBean item, String propertyValue) {
@@ -60,7 +62,7 @@ public class OrganismItemWidget extends AbstractItemWidget<OrganismTypeBean> {
 	}
 
 	@Override
-	protected void updateIDFromItemBean(String newId) {
+	protected void updateIDFromItemBean(String newId) throws PintException {
 		PintImportCfgUtil.updateOrganism(getContext().getPintImportConfiguration(), getItemBean().getId(), newId);
 	}
 

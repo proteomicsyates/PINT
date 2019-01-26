@@ -69,9 +69,10 @@
 
 .wizardWelcome {
 	padding: 3%;
+	width: 100%;
  }
  .wizardRegularPage {
-	padding: 1.5%;
+	padding: 0.5%;
  }
 .wizardWelcomelabel1{
 	font-size: 17pt;
@@ -99,6 +100,13 @@
 .wizardQuestionPanel{
 	background: #e9f8f7;
     border-radius: 20px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.WizardQuestionPanelLessRoundCorners{
+	background: #e9f8f7;
+    border-radius: 10px;
     padding-bottom: 10px;
     padding-left: 10px;
     padding-right: 10px;
@@ -219,6 +227,12 @@
 	color: #808080;
 	font-size: 13px;
 }
+.WizardErrorLabel1{
+	color: #9d0000;
+	font-size: 13px;
+	font-weight: bold;
+}
+
 .linkText{
 	font-size: 14px; 
 	color: #BB4B44;
@@ -329,6 +343,15 @@
     text-align: left;
     display: block;
 }
+.wizardItemWidgetNameLabelNonClickableRed{
+    padding-right:10px;
+    font-family: verdana, arial, sans-serif;
+    font-size: 12px;
+    color: #800000;
+    font-weight: bold;
+    text-align: left;
+    display: block;
+}
 .wizardItemWidgetNameLabel:hover {
     color: #7c9647;
 }
@@ -338,6 +361,12 @@
 .WizardItemWidgetPropertyNameLabel{
 	font-size: 1em;
 	color: #776868;
+	text-align: left;
+	white-space: pre-line;
+}
+.WizardItemWidgetPropertyNameLabelSmaller{
+	font-size: 0.8em;
+	color: #808040;
 	text-align: left;
 	white-space: pre-line;
 }
@@ -508,7 +537,7 @@
 	font-weight:bold;
 	padding:5px 10px;
 	text-decoration:none;
-	margin-top: 10px;
+/* 	margin-top: 10px; */
 	text-shadow:0px -1px 0px #2b665e;
 /* 	width: 15em; */
 }
@@ -571,6 +600,18 @@
  	display:inline-block;
 	text-decoration:none;
 	background: #dcd0d5;
+    padding:5px 10px;
+    border: 1px dashed #888888;
+    border-radius: 5px;
+/*     width: 15em; */
+}
+.WizardDragTargetLabelOptional{
+	font-family:Arial;
+	font-size:12px;
+ 	padding:11px 23px;
+ 	display:inline-block;
+	text-decoration:none;
+	background: #abd6d6;
     padding:5px 10px;
     border: 1px dashed #888888;
     border-radius: 5px;

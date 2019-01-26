@@ -3,7 +3,6 @@ package edu.scripps.yates.client.gui.components.projectCreatorWizard;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -23,7 +22,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 
-import edu.scripps.yates.ImportWizardService;
 import edu.scripps.yates.ImportWizardServiceAsync;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ProjectCreatorRegister;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.manager.ReferencesDataObject;
@@ -48,7 +46,7 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 	protected static final String SEPARATOR = "\n";
 	private final Button checkButton;
 	private FileNameWithTypeBean excelFileWithFormatBean;
-	private final ImportWizardServiceAsync service = GWT.create(ImportWizardService.class);
+	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
 	private int importJobID;
 	private int numTestCases = 100;
 	private final FlowPanel flowPanelProteinQuantifications;
@@ -92,12 +90,12 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 
 		this.importJobID = importJobID;
 
-		FlexTable flexTable = new FlexTable();
+		final FlexTable flexTable = new FlexTable();
 		initWidget(flexTable);
 		flexTable.setBorderWidth(0);
 		flexTable.setSize("900px", "500px");
 
-		FlexTable grid = new FlexTable();
+		final FlexTable grid = new FlexTable();
 		grid.setCellPadding(5);
 		grid.setBorderWidth(0);
 		flexTable.setWidget(0, 0, grid);
@@ -112,7 +110,7 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 		msRunComboBox.setVisibleItemCount(4);
 		grid.setWidget(0, 1, msRunComboBox);
 
-		InlineLabel nlnlblCheckRemoteData = new InlineLabel("Check data:");
+		final InlineLabel nlnlblCheckRemoteData = new InlineLabel("Check data:");
 		grid.setWidget(1, 0, nlnlblCheckRemoteData);
 
 		checkButton = new Button("check");
@@ -125,17 +123,17 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 		grid.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
 		grid.getCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_TOP);
 
-		FlowPanel flowPanel = new FlowPanel();
+		final FlowPanel flowPanel = new FlowPanel();
 
 		flowPanel.setStyleName("IdentificationInfoRemoteFilePanel");
 		flexTable.setWidget(2, 0, flowPanel);
 		flowPanel.setSize("100%", "100%");
 
-		FlowPanel righFlowPanel = new FlowPanel();
-		FlowPanel flowPanel_6 = new FlowPanel();
+		final FlowPanel righFlowPanel = new FlowPanel();
+		final FlowPanel flowPanel_6 = new FlowPanel();
 		flowPanel_6.setStyleName("IdentificationInfoFromExcelEmptyPanel-color");
 		righFlowPanel.add(flowPanel_6);
-		Label lblDataTable = new Label("Data table:");
+		final Label lblDataTable = new Label("Data table:");
 		flowPanel_6.add(lblDataTable);
 
 		simplePanelTable = new SimplePanel();
@@ -143,16 +141,16 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 		simplePanelTable.setSize("", "450px");
 		righFlowPanel.add(simplePanelTable);
 
-		FlowPanel flowPanelRight = new FlowPanel();
+		final FlowPanel flowPanelRight = new FlowPanel();
 		flowPanelRight.setWidth("400px");
 
-		Grid grid_1 = new Grid(1, 3);
+		final Grid grid_1 = new Grid(1, 3);
 		grid_1.setBorderWidth(0);
 		grid_1.setCellPadding(10);
 		flowPanel.add(grid_1);
 		grid_1.setSize("100%", "240px");
 
-		FlowPanel flowPanelLeft = new FlowPanel();
+		final FlowPanel flowPanelLeft = new FlowPanel();
 		grid_1.setWidget(0, 0, flowPanelLeft);
 		flowPanelLeft.setWidth("400px");
 
@@ -179,7 +177,7 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 
 		grid_2 = new Grid(1, 2);
 		flowPanelProteinQuantifications.add(grid_2);
-		Label lblProteinQuantificationValues = new Label("Protein quantification values (amounts):");
+		final Label lblProteinQuantificationValues = new Label("Protein quantification values (amounts):");
 		grid_2.setWidget(0, 0, lblProteinQuantificationValues);
 
 		proteinQuantificationValuesIncrementableTextBox = new IncrementableTextBox(0);
@@ -201,7 +199,7 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 				// create a new MyExcelSectionFlowPanel and add it to
 				// the flowPanelproteinAnnotation
 				if (!proteinAmountPanels.isEmpty()) {
-					AmountPanel proteinAmountPanel = proteinAmountPanels.get(proteinAmountPanels.size() - 1);
+					final AmountPanel proteinAmountPanel = proteinAmountPanels.get(proteinAmountPanels.size() - 1);
 					excelQuantificationType.getProteinAmounts().remove(proteinAmountPanel.getRepresentedObject());
 					proteinAmountPanel.removeFromParent();
 					if (proteinAmountPanel.getRelatedExcelSectionFlowPanel() != null) {
@@ -211,7 +209,7 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 				}
 			}
 		});
-		FlowPanel flowPanel_1 = new FlowPanel();
+		final FlowPanel flowPanel_1 = new FlowPanel();
 		flowPanel_1.setStyleName("IdentificationInfoFromExcelEmptyPanel");
 		flowPanelLeft.add(flowPanel_1);
 
@@ -229,7 +227,7 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 		grid_3 = new Grid(1, 2);
 		flowPanelPeptideQuantifications.add(grid_3);
 
-		Label label2 = new Label("Peptide quantification values (amounts):");
+		final Label label2 = new Label("Peptide quantification values (amounts):");
 		grid_3.setWidget(0, 0, label2);
 		peptideQuantificationValuesIncrementableTextBox = new IncrementableTextBox(0);
 		grid_3.setWidget(0, 1, peptideQuantificationValuesIncrementableTextBox);
@@ -251,7 +249,7 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 				// create a new MyExcelSectionFlowPanel and add it to
 				// the flowPanelproteinAnnotation
 				if (!peptideAmountPanels.isEmpty()) {
-					AmountPanel peptideAmountPanel = peptideAmountPanels.get(peptideAmountPanels.size() - 1);
+					final AmountPanel peptideAmountPanel = peptideAmountPanels.get(peptideAmountPanels.size() - 1);
 					excelQuantificationType.getPeptideAmounts().remove(peptideAmountPanel.getRepresentedObject());
 					peptideAmountPanel.removeFromParent();
 					if (peptideAmountPanel.getRelatedExcelSectionFlowPanel() != null) {
@@ -296,7 +294,7 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 			@Override
 			public void onClick(ClickEvent event) {
 				if (!psmAmountPanels.isEmpty()) {
-					AmountPanel psmAmountPanel = psmAmountPanels.get(psmAmountPanels.size() - 1);
+					final AmountPanel psmAmountPanel = psmAmountPanels.get(psmAmountPanels.size() - 1);
 					excelQuantificationType.getPsmAmounts().remove(psmAmountPanel.getRepresentedObject());
 					psmAmountPanel.removeFromParent();
 					if (psmAmountPanel.getRelatedExcelSectionFlowPanel() != null) {
@@ -343,14 +341,14 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 
 	private void createNewPSMQuantificationValue(AmountTypeBean amountTypeBean) {
 
-		AmountPanel psmAmountPanel = new AmountPanel(excelFileBean, "PSM amount " + (psmAmountPanels.size() + 1),
+		final AmountPanel psmAmountPanel = new AmountPanel(excelFileBean, "PSM amount " + (psmAmountPanels.size() + 1),
 				amountTypeBean);
 		psmAmountPanel.addExcelColumnsChangeHandler(getStartCheckChangeHandler());
 		psmAmountPanel.addCombinationTypeChangeHandler(getStartCheckChangeHandler());
 		psmAmountPanel.addIsACombinationCheckBox(getStartCheckValueChangeHandler());
 		psmAmountPanel.addAmountTypeChangeHandler(getStartCheckChangeHandler());
 		psmAmountPanels.add(psmAmountPanel);
-		MyExcelSectionFlowPanel panel = new MyExcelSectionFlowPanel("PSM amount " + psmAmountPanels.size(),
+		final MyExcelSectionFlowPanel panel = new MyExcelSectionFlowPanel("PSM amount " + psmAmountPanels.size(),
 				flowPanelOptions, psmAmountPanel, simplePanelTable);
 		flowPanelPSMQuantifications.add(panel);
 
@@ -358,30 +356,30 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 
 	private void createNewPeptideQuantificationValue(AmountTypeBean amountTypeBean) {
 
-		AmountPanel peptideAmountPanel = new AmountPanel(excelFileBean,
+		final AmountPanel peptideAmountPanel = new AmountPanel(excelFileBean,
 				"Peptide amount " + (peptideAmountPanels.size() + 1), amountTypeBean);
 		peptideAmountPanel.addExcelColumnsChangeHandler(getStartCheckChangeHandler());
 		peptideAmountPanel.addCombinationTypeChangeHandler(getStartCheckChangeHandler());
 		peptideAmountPanel.addIsACombinationCheckBox(getStartCheckValueChangeHandler());
 		peptideAmountPanel.addAmountTypeChangeHandler(getStartCheckChangeHandler());
 		peptideAmountPanels.add(peptideAmountPanel);
-		MyExcelSectionFlowPanel panel = new MyExcelSectionFlowPanel("Peptide amount " + peptideAmountPanels.size(),
-				flowPanelOptions, peptideAmountPanel, simplePanelTable);
+		final MyExcelSectionFlowPanel panel = new MyExcelSectionFlowPanel(
+				"Peptide amount " + peptideAmountPanels.size(), flowPanelOptions, peptideAmountPanel, simplePanelTable);
 		flowPanelPeptideQuantifications.add(panel);
 
 	}
 
 	private void createNewProteinQuantificationValue(AmountTypeBean amountTypeBean) {
 
-		AmountPanel proteinAmountPanel = new AmountPanel(excelFileBean,
+		final AmountPanel proteinAmountPanel = new AmountPanel(excelFileBean,
 				"Protein amount " + (proteinAmountPanels.size() + 1), amountTypeBean);
 		proteinAmountPanel.addAmountTypeChangeHandler(getStartCheckChangeHandler());
 		proteinAmountPanel.addCombinationTypeChangeHandler(getStartCheckChangeHandler());
 		proteinAmountPanel.addExcelColumnsChangeHandler(getStartCheckChangeHandler());
 		proteinAmountPanel.addIsACombinationCheckBox(getStartCheckValueChangeHandler());
 		proteinAmountPanels.add(proteinAmountPanel);
-		MyExcelSectionFlowPanel panel = new MyExcelSectionFlowPanel("Protein amount " + proteinAmountPanels.size(),
-				flowPanelOptions, proteinAmountPanel, simplePanelTable);
+		final MyExcelSectionFlowPanel panel = new MyExcelSectionFlowPanel(
+				"Protein amount " + proteinAmountPanels.size(), flowPanelOptions, proteinAmountPanel, simplePanelTable);
 		flowPanelProteinQuantifications.add(panel);
 
 	}
@@ -403,7 +401,7 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 	 */
 	private void getExcelFileBean() {
 		FileNameWithTypeBean found = null;
-		for (FileNameWithTypeBean fileNameWithTypeBean : SharedDataUtil.excelBeansByExcelFileWithFormatBeansMap
+		for (final FileNameWithTypeBean fileNameWithTypeBean : SharedDataUtil.excelBeansByExcelFileWithFormatBeansMap
 				.keySet()) {
 			if (fileNameWithTypeBean.equals(excelFileWithFormatBean)) {
 				found = fileNameWithTypeBean;
@@ -425,8 +423,7 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 						@Override
 						public void onSuccess(FileTypeBean result) {
 							setExcelFileBean(result);
-							SharedDataUtil.excelBeansByExcelFileWithFormatBeansMap.put(excelFileWithFormatBean,
-									result);
+							SharedDataUtil.excelBeansByExcelFileWithFormatBeansMap.put(excelFileWithFormatBean, result);
 						}
 					});
 		}
@@ -434,13 +431,13 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 	}
 
 	private void updateExcelIdentificationTypeObjectFromGUIOptions() {
-		for (AmountPanel proteinAmountPanel : proteinAmountPanels) {
+		for (final AmountPanel proteinAmountPanel : proteinAmountPanels) {
 			proteinAmountPanel.updateRepresentedObject();
 		}
-		for (AmountPanel peptideAmountPanel : peptideAmountPanels) {
+		for (final AmountPanel peptideAmountPanel : peptideAmountPanels) {
 			peptideAmountPanel.updateRepresentedObject();
 		}
-		for (AmountPanel psmAmountPanel : psmAmountPanels) {
+		for (final AmountPanel psmAmountPanel : psmAmountPanels) {
 			psmAmountPanel.updateRepresentedObject();
 		}
 		if (msRunComboBox.getSelectedIndex() != -1) {
@@ -471,10 +468,10 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 	private void setExcelFileBean(FileTypeBean excelFileBean) {
 		this.excelFileBean = excelFileBean;
 
-		for (AmountPanel proteinAmountPanel : proteinAmountPanels) {
+		for (final AmountPanel proteinAmountPanel : proteinAmountPanels) {
 			proteinAmountPanel.setExcelFileBean(excelFileBean);
 		}
-		for (AmountPanel peptideAmountPanel : psmAmountPanels) {
+		for (final AmountPanel peptideAmountPanel : psmAmountPanels) {
 			peptideAmountPanel.setExcelFileBean(excelFileBean);
 		}
 	}
@@ -517,10 +514,11 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 	 */
 	public void loadPSMAmountRandomData(final int index, AmountPanel psmAmountPanel) {
 		final MyExcelColumnCellTable<Pair<String, AmountTypeBean>> table = psmAmountPanel.getTable();
-		ExcelColumnRefPanel excelColumnRefPanel = psmAmountPanel.getExcelColumnRefPanel();
+		final ExcelColumnRefPanel excelColumnRefPanel = psmAmountPanel.getExcelColumnRefPanel();
 		if (table.isEmpty() && excelColumnRefPanel.getSheetRef() != null
 				&& excelColumnRefPanel.getColumnRef() != null) {
-			ExcelDataReference excelDataReference = getExcelDataReference(excelFileWithFormatBean, excelColumnRefPanel);
+			final ExcelDataReference excelDataReference = getExcelDataReference(excelFileWithFormatBean,
+					excelColumnRefPanel);
 
 			service.getRandomValues(sessionID, importJobID, excelDataReference, numTestCases,
 					new AsyncCallback<List<String>>() {
@@ -536,8 +534,8 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 							checkButton.setEnabled(true);
 							table.clearData();
 							updateExcelIdentificationTypeObjectFromGUIOptions();
-							for (String value : result) {
-								Pair<String, AmountTypeBean> pair = new Pair<String, AmountTypeBean>(value,
+							for (final String value : result) {
+								final Pair<String, AmountTypeBean> pair = new Pair<String, AmountTypeBean>(value,
 										excelQuantificationType.getPsmAmounts().get(index));
 								table.addData(pair);
 							}
@@ -561,10 +559,11 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 	 */
 	private void loadProteinAmountRandomData(final int index, AmountPanel proteinAmountPanel) {
 		final MyExcelColumnCellTable<Pair<String, AmountTypeBean>> table = proteinAmountPanel.getTable();
-		ExcelColumnRefPanel excelColumnRefPanel = proteinAmountPanel.getExcelColumnRefPanel();
+		final ExcelColumnRefPanel excelColumnRefPanel = proteinAmountPanel.getExcelColumnRefPanel();
 		if (table.isEmpty() && excelColumnRefPanel.getSheetRef() != null
 				&& excelColumnRefPanel.getColumnRef() != null) {
-			ExcelDataReference excelDataReference = getExcelDataReference(excelFileWithFormatBean, excelColumnRefPanel);
+			final ExcelDataReference excelDataReference = getExcelDataReference(excelFileWithFormatBean,
+					excelColumnRefPanel);
 
 			service.getRandomValues(sessionID, importJobID, excelDataReference, numTestCases,
 					new AsyncCallback<List<String>>() {
@@ -580,10 +579,11 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 							checkButton.setEnabled(true);
 							table.clearData();
 							updateExcelIdentificationTypeObjectFromGUIOptions();
-							for (String value : result) {
+							for (final String value : result) {
 								final AmountTypeBean amountType = excelQuantificationType.getProteinAmounts()
 										.get(index);
-								Pair<String, AmountTypeBean> pair = new Pair<String, AmountTypeBean>(value, amountType);
+								final Pair<String, AmountTypeBean> pair = new Pair<String, AmountTypeBean>(value,
+										amountType);
 								table.addData(pair);
 							}
 						}
@@ -607,10 +607,11 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 	 */
 	private void loadPeptideAmountRandomData(final int index, AmountPanel peptideAmountPanel) {
 		final MyExcelColumnCellTable<Pair<String, AmountTypeBean>> table = peptideAmountPanel.getTable();
-		ExcelColumnRefPanel excelColumnRefPanel = peptideAmountPanel.getExcelColumnRefPanel();
+		final ExcelColumnRefPanel excelColumnRefPanel = peptideAmountPanel.getExcelColumnRefPanel();
 		if (table.isEmpty() && excelColumnRefPanel.getSheetRef() != null
 				&& excelColumnRefPanel.getColumnRef() != null) {
-			ExcelDataReference excelDataReference = getExcelDataReference(excelFileWithFormatBean, excelColumnRefPanel);
+			final ExcelDataReference excelDataReference = getExcelDataReference(excelFileWithFormatBean,
+					excelColumnRefPanel);
 
 			service.getRandomValues(sessionID, importJobID, excelDataReference, numTestCases,
 					new AsyncCallback<List<String>>() {
@@ -626,10 +627,11 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 							checkButton.setEnabled(true);
 							table.clearData();
 							updateExcelIdentificationTypeObjectFromGUIOptions();
-							for (String value : result) {
+							for (final String value : result) {
 								final AmountTypeBean amountType = excelQuantificationType.getPeptideAmounts()
 										.get(index);
-								Pair<String, AmountTypeBean> pair = new Pair<String, AmountTypeBean>(value, amountType);
+								final Pair<String, AmountTypeBean> pair = new Pair<String, AmountTypeBean>(value,
+										amountType);
 								table.addData(pair);
 							}
 						}
@@ -652,7 +654,7 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 	 */
 	private ExcelDataReference getExcelDataReference(FileNameWithTypeBean excelFileWithFormatBean2,
 			ExcelColumnRefPanel excelColumnRefPanel) {
-		ExcelDataReference excelDataReference = new ExcelDataReference();
+		final ExcelDataReference excelDataReference = new ExcelDataReference();
 		excelDataReference.setColumnId(excelColumnRefPanel.getColumnRef());
 		excelDataReference.setExcelFileNameWithTypeBean(excelFileWithFormatBean);
 		excelDataReference.setSheetId(excelColumnRefPanel.getSheetRef());
@@ -706,10 +708,10 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 	}
 
 	public void resetData() {
-		for (AmountPanel peptideAmountPanel : psmAmountPanels) {
+		for (final AmountPanel peptideAmountPanel : psmAmountPanels) {
 			peptideAmountPanel.resetData();
 		}
-		for (AmountPanel proteinAmountPanel : proteinAmountPanels) {
+		for (final AmountPanel proteinAmountPanel : proteinAmountPanels) {
 			proteinAmountPanel.resetData();
 		}
 	}
@@ -744,39 +746,39 @@ public class QuantificationInfoFromExcelFilePanel extends Composite
 					SharedConstants.MULTIPLE_ITEM_SEPARATOR);
 
 			// remove all previous psm amount panels
-			for (AmountPanel psmAmountPanel : psmAmountPanels) {
+			for (final AmountPanel psmAmountPanel : psmAmountPanels) {
 				psmAmountPanel.removeFromParent();
 			}
 			psmAmountPanels.clear();
 			psmQuantificationValuesIncrementableTextBox.setValue(0);
 			if (excelQuantificationType.getPsmAmounts() != null) {
-				for (AmountTypeBean amountTypeBean : excelQuantificationType.getPsmAmounts()) {
+				for (final AmountTypeBean amountTypeBean : excelQuantificationType.getPsmAmounts()) {
 					createNewPSMQuantificationValue(amountTypeBean);
 					psmQuantificationValuesIncrementableTextBox
 							.setValue(psmQuantificationValuesIncrementableTextBox.getIntegerNumber() + 1);
 				}
 			}
 			// remove all previous peptide amount panels
-			for (AmountPanel peptideAmountPanel : peptideAmountPanels) {
+			for (final AmountPanel peptideAmountPanel : peptideAmountPanels) {
 				peptideAmountPanel.removeFromParent();
 			}
 			peptideAmountPanels.clear();
 			peptideQuantificationValuesIncrementableTextBox.setValue(0);
 			if (excelQuantificationType.getPeptideAmounts() != null) {
-				for (AmountTypeBean amountTypeBean : excelQuantificationType.getPeptideAmounts()) {
+				for (final AmountTypeBean amountTypeBean : excelQuantificationType.getPeptideAmounts()) {
 					createNewPeptideQuantificationValue(amountTypeBean);
 					peptideQuantificationValuesIncrementableTextBox
 							.setValue(peptideQuantificationValuesIncrementableTextBox.getIntegerNumber() + 1);
 				}
 			}
 			// remove all previous protein amount panels
-			for (AmountPanel proteinAmountPanel : proteinAmountPanels) {
+			for (final AmountPanel proteinAmountPanel : proteinAmountPanels) {
 				proteinAmountPanel.removeFromParent();
 			}
 			proteinAmountPanels.clear();
 			proteinQuantificationValuesIncrementableTextBox.setValue(0);
 			if (excelQuantificationType.getProteinAmounts() != null) {
-				for (AmountTypeBean proteinAmount : excelQuantificationType.getProteinAmounts()) {
+				for (final AmountTypeBean proteinAmount : excelQuantificationType.getProteinAmounts()) {
 					createNewProteinQuantificationValue(proteinAmount);
 					proteinQuantificationValuesIncrementableTextBox
 							.setValue(proteinQuantificationValuesIncrementableTextBox.getIntegerNumber() + 1);

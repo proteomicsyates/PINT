@@ -16,7 +16,9 @@ public class WizardPageConditions extends AbstractWizardPage {
 
 	private static final String text1 = "Now, you need to define the experimental conditions in your dataset.";
 	private static final String text2 = "If the experiment is not quantitative you may want just to create one experimental condition, but at least one has to be created";
-	private static final String text3 = "If the experiment is quantitative, you must create one experimental condition per different sample that you are comparing.";
+	private static final String text3 = "If the experiment is quantitative, you must create one experimental condition per different sample that you are comparing.\n"
+			+ "Remember that is a one-to-one association, and therefore if you have several samples for the same experimental condition, "
+			+ "you will probably need to just create one sample and then create multiple MSRuns per sample with the same condition.";
 	private FlexTable panel;
 
 	public WizardPageConditions() {
@@ -30,7 +32,7 @@ public class WizardPageConditions extends AbstractWizardPage {
 		panel = new FlexTable();
 		panel.setStyleName(WizardStyles.wizardRegularPage);
 		final Label welcomeLabel1 = new Label(text1);
-		welcomeLabel1.setStyleName(WizardStyles.WizardRegularText);
+		welcomeLabel1.setStyleName(WizardStyles.WizardWelcomeLabel2);
 		panel.setWidget(0, 0, welcomeLabel1);
 		final InlineHTML labelExplanation1 = new InlineHTML(text2);
 		labelExplanation1.setStyleName(WizardStyles.WizardExplanationLabel);

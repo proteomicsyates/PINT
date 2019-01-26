@@ -76,4 +76,5 @@ public class WizardQuestionPanel extends FlexTable {
 		yesButton.addClickHandler(clickHandler);
 
 	}
+
 }

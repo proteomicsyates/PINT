@@ -466,7 +466,7 @@ public class Wizard<C extends WizardContext> extends Composite {
 	 * @param pageId the {@link PageID} to look up
 	 * @return the {@link WizardPage} specified by the {@link PageID}
 	 */
-	protected WizardPage<C> getPageByPageID(WizardPage.PageID pageId) {
+	public WizardPage<C> getPageByPageID(WizardPage.PageID pageId) {
 		final Iterator<WizardPage<C>> iter = pages.iterator();
 		while (iter.hasNext()) {
 			final WizardPage<C> page = iter.next();

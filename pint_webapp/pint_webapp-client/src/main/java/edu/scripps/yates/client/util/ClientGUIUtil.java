@@ -119,6 +119,7 @@ public class ClientGUIUtil {
 						GWT.log("Starting to add suggestions");
 						final MultiWordSuggestOracle suggestOracle = (MultiWordSuggestOracle) suggestBox
 								.getSuggestOracle();
+						suggestOracle.setDefaultSuggestionsFromText(suggestions);
 						suggestOracle.addAll(suggestions);
 						GWT.log("Suggestions added");
 					}

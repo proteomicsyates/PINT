@@ -25,8 +25,10 @@ import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask2;
 import edu.scripps.yates.client.pint.wizard.PintContext;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.pages.panels.IDGenerator;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
 
 public abstract class AbstractItemWidget<IB> extends FlexTable {
@@ -40,10 +42,11 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 	private final PintContext context;
 	private final List<DoSomethingTask2<IB>> doSomethingTaskOnDuplicateIteamBeanTasks = new ArrayList<DoSomethingTask2<IB>>();
 	private IDGenerator idGenerator;
-	private final List<ItemPropertyWidget<IB>> propertyWidgets = new ArrayList<ItemPropertyWidget<IB>>();
+	private final List<FlexTable> propertyWidgets = new ArrayList<FlexTable>();
 	private final List<FlexTable> referencedItems = new ArrayList<FlexTable>();
 	private Button minimizeButton;
 	private boolean maximized = true;
+	private boolean showSuggestionsWithNoTyping = false;
 
 	protected AbstractItemWidget(IB itemBean, PintContext context) {
 		this(itemBean, context, true);
@@ -73,6 +76,11 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 			public void onClick(ClickEvent event) {
 				editName(true);
 				nameTextBox.setFocus(true);
+				if (nameTextBox.getValue() == null || "".equals(nameTextBox.getValue())) {
+					if (showSuggestionsWithNoTyping) {
+						nameTextBox.showSuggestionList();
+					}
+				}
 			}
 		});
 
@@ -85,17 +93,25 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 
 				if ("".equals(nameTextBox.getValue())) {
 					nameTextBox.setValue(previousNameValue);
-					// reset previous name
-					previousNameValue = null;
 				}
 				if (!nameTextBox.isSuggestionListShowing()) {
+					if (!nameTextBox.getValue().equals(nameLabel.getText())) {
+						// just if something changed
+						try {
+							updateIDFromItemBean(nameTextBox.getValue());
+						} catch (final PintException e) {
+							StatusReportersRegister.getInstance().notifyStatusReporters(e);
+							// set the previous
+							nameTextBox.setValue(previousNameValue);
+						}
+					}
 					editName(false);
 				}
 			}
 		});
 		// if ESCAPE key, just come back to label
 		// if ENTER key, come back to label is no text or create sample if text
-		nameTextBox.addKeyUpHandler(new KeyUpHandler() {
+		nameTextBox.getValueBox().addKeyUpHandler(new KeyUpHandler() {
 
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
@@ -103,13 +119,22 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 					editName(false);
 				} else if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER
 						|| event.getNativeKeyCode() == KeyCodes.KEY_MAC_ENTER) {
-					editName(false);
-				} else {
-					updateIDFromItemBean(nameTextBox.getValue());
-					nameLabel.setText(nameTextBox.getValue());
-					if (previousNameValue == null) {
-						previousNameValue = nameTextBox.getValue();
+					if (!nameTextBox.getValue().equals(nameLabel.getText())) {
+						// just if something changed
+						try {
+							updateIDFromItemBean(nameTextBox.getValue());
+						} catch (final PintException e) {
+							StatusReportersRegister.getInstance().notifyStatusReporters(e);
+							// set the previous
+							nameTextBox.setValue(previousNameValue);
+							// reset previous name
+							previousNameValue = null;
+						}
 					}
+
+					editName(false);
+					event.preventDefault();
+					event.stopPropagation();
 				}
 			}
 		});
@@ -190,7 +215,7 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 	}
 
 	private void setPropertyItemsVisible(boolean visible) {
-		for (final ItemPropertyWidget<IB> propertyWidget : propertyWidgets) {
+		for (final FlexTable propertyWidget : propertyWidgets) {
 			propertyWidget.setVisible(visible);
 		}
 	}
@@ -226,15 +251,25 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 
 	private void editName(boolean edit) {
 		if (edit) {
+			previousNameValue = nameLabel.getText();
 			setWidget(0, 0, nameTextBox);
+			nameTextBox.setFocus(true);
+			if (nameTextBox.getValue() != null && !"".equals(nameTextBox.getValue())) {
+				nameTextBox.getValueBox().selectAll();
+			}
 		} else {
+			nameLabel.setText(nameTextBox.getValue());
+			// reset previous name
+			previousNameValue = null;
 			setWidget(0, 0, nameLabel);
+			nameTextBox.hideSuggestionList();
+
 		}
 	}
 
 	protected abstract String getIDFromItemBean(IB item);
 
-	protected abstract void updateIDFromItemBean(String newId);
+	protected abstract void updateIDFromItemBean(String newId) throws PintException;
 
 	protected IB getItemBean() {
 		return itemBean;
@@ -256,11 +291,11 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 		this.onRemoveTasks.add(task);
 	}
 
-	public void addPropertyWidget(ItemLongPropertyWidget<IB> itemLongPropertyWidget) {
+	public void addPropertyWidget(FlexTable propertyWidget) {
 		numProperties++;
-		setWidget(numProperties, 0, itemLongPropertyWidget);
+		setWidget(numProperties, 0, propertyWidget);
 		getFlexCellFormatter().setColSpan(numProperties, 0, 2);
-		propertyWidgets.add(itemLongPropertyWidget);
+		propertyWidgets.add(propertyWidget);
 	}
 
 	/**
@@ -269,20 +304,37 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 	 * 
 	 * @param droppingAreaText
 	 * @param format
+	 * @mandatory whether this association is mandatory or not
 	 */
-	public void addDroppingAreaForReferencedItemBean(String referencedItemBeanName, String droppingAreaText,
-			DroppableFormat format) {
+	public void addDroppingAreaForReferencedItemBean(String referencedItemBeanName, String referencedItemTitle,
+			String droppingAreaText, DroppableFormat format, boolean mandatory) {
 
 		numProperties++;
 		final FlexTable table = new FlexTable();
 		this.referencedItems.add(table);
 		final ItemDropLabel droppingLabel = new ItemDropLabel(droppingAreaText, format, this);
+		droppingLabel.setTitle(referencedItemTitle);
 		this.targetLabelsByFormat.put(format, droppingLabel);
-		droppingLabel.setTitle(droppingAreaText);
-		droppingLabel.setStyleName(WizardStyles.WizardDragTargetLabel);
-		final Label referencedItemBeanNameLabel = new Label(referencedItemBeanName + ":");
-		referencedItemBeanNameLabel.setStyleName(WizardStyles.WizardItemWidgetPropertyNameLabel);
-		table.setWidget(0, 0, referencedItemBeanNameLabel);
+		if (mandatory) {
+			droppingLabel.setStyleName(WizardStyles.WizardDragTargetLabel);
+			final Label referencedItemBeanNameLabel = new Label(referencedItemBeanName + ":");
+			referencedItemBeanNameLabel.setTitle(referencedItemTitle);
+			referencedItemBeanNameLabel.setStyleName(WizardStyles.WizardItemWidgetPropertyNameLabel);
+			table.setWidget(0, 0, referencedItemBeanNameLabel);
+		} else {
+			droppingLabel.setStyleName(WizardStyles.WizardDragTargetLabelOptional);
+			final Label referencedItemBeanNameLabel = new Label(referencedItemBeanName + ":");
+			referencedItemBeanNameLabel.setTitle(referencedItemTitle);
+			referencedItemBeanNameLabel.setStyleName(WizardStyles.WizardItemWidgetPropertyNameLabel);
+			final Label optionalLabel = new Label("(optional)");
+			optionalLabel.setStyleName(WizardStyles.WizardItemWidgetPropertyNameLabelSmaller);
+			optionalLabel.setTitle("This reference is optional. You can leave it empty if you want.");
+			optionalLabel.getElement().getStyle().setMarginLeft(5, Unit.PX);
+			final HorizontalPanel panel = new HorizontalPanel();
+			panel.add(referencedItemBeanNameLabel);
+			panel.add(optionalLabel);
+			table.setWidget(0, 0, panel);
+		}
 		table.setWidget(0, 1, droppingLabel);
 		setWidget(numProperties, 0, table);
 		getFlexCellFormatter().setColSpan(numProperties, 0, 2);
@@ -356,5 +408,13 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 
 	public String getNewID(String id) {
 		return idGenerator.getNewID(id);
+	}
+
+	public boolean isShowSuggestionsWithNoTyping() {
+		return showSuggestionsWithNoTyping;
+	}
+
+	public void setShowSuggestionsWithNoTyping(boolean showSuggestionsWithNoTyping) {
+		this.showSuggestionsWithNoTyping = showSuggestionsWithNoTyping;
 	}
 }

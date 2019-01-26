@@ -9,8 +9,10 @@ import com.google.gwt.user.client.ui.Label;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 
 public class ItemDraggableLabel extends Label {
+
 	public ItemDraggableLabel(String labelText, DroppableFormat format, String data) {
 		super(labelText);
+		setTitle(labelText);
 		setStyleName(WizardStyles.WizardDraggableLabel);
 
 		this.getElement().setDraggable(Element.DRAGGABLE_TRUE);

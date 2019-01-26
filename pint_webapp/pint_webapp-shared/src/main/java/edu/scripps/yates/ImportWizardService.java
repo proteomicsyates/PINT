@@ -23,6 +23,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.DataSourceBean;
 import edu.scripps.yates.shared.model.FileFormat;
+import edu.scripps.yates.shared.model.FileSummary;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.projectCreator.ExcelDataReference;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
@@ -322,4 +323,8 @@ public interface ImportWizardService extends RemoteService {
 	 */
 	public FileTypeBean updateFileFormat(String sessionID, int importID, FileTypeBean fileTypeBean)
 			throws PintException;
+
+	public FileSummary getFileSummary(int importID, String sessionID, FileTypeBean file) throws PintException;
+
+	public String getUploadedFileID(int importID, String uploadedFileSignature) throws PintException;
 }

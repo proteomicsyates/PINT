@@ -15,15 +15,17 @@ import edu.scripps.yates.client.ui.wizard.WizardPage;
 import edu.scripps.yates.client.ui.wizard.WizardPageHelper;
 import edu.scripps.yates.client.ui.wizard.event.NavigationEvent;
 import edu.scripps.yates.client.ui.wizard.pages.panels.AbstractItemPanel;
+import edu.scripps.yates.client.ui.wizard.pages.panels.AbstractReferencedItemPanel;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.MaximizedStatus;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
 
 public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 	private final String title;
-	private final Widget widget;
+	private Widget widget;
 	private final Set<AbstractItemPanel> itemPanels = new HashSet<AbstractItemPanel>();
 	private final Map<String, MaximizedStatus> maximizedStatusByItemPanelID = new HashMap<String, MaximizedStatus>();
+	private final Set<AbstractReferencedItemPanel> referencedItemPanels = new HashSet<AbstractReferencedItemPanel>();
 
 	protected AbstractWizardPage(String title) {
 		this(title, null);
@@ -32,7 +34,6 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 	private AbstractWizardPage(String title, PintContext context) {
 		this.title = title;
 		this.context = context;
-		widget = createPage();
 		getPageID();// to create the ID
 		registerPageTitle(title);
 	}
@@ -51,6 +52,11 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 
 	}
 
+	/**
+	 * Called in constructor method to create the widget of the page
+	 * 
+	 * @return
+	 */
 	protected abstract Widget createPage();
 
 	@Override
@@ -60,6 +66,9 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 
 	@Override
 	public Widget asWidget() {
+		if (widget == null) {
+			widget = createPage();
+		}
 		return widget;
 	}
 
@@ -91,7 +100,9 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 			final MaximizedStatus maximizedStatus = maximizedStatusByItemPanelID.get(itemPanelID);
 			itemPanel.setMaximizedStatus(maximizedStatus);
 		}
-
+		for (final AbstractReferencedItemPanel referencedItemPanel : referencedItemPanels) {
+			referencedItemPanel.setDraggableLabels();
+		}
 		super.beforeShow();
 	}
 
@@ -149,6 +160,13 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 
 	}
 
+	/**
+	 * This method is called in beforeNext() method in order to throw an exception
+	 * if the page is not ready yet
+	 * 
+	 * @return
+	 * @throws PintException
+	 */
 	public boolean isReady() throws PintException {
 		/// look into all the itemPanels
 		for (final AbstractItemPanel updatesItems : itemPanels) {
@@ -159,5 +177,10 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 
 	public void clearItemPanels() {
 		itemPanels.clear();
+	}
+
+	protected void registerReferencedPanel(AbstractReferencedItemPanel referencedItemPanel) {
+		referencedItemPanels.add(referencedItemPanel);
+
 	}
 }

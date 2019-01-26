@@ -6,18 +6,20 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import edu.scripps.yates.client.ui.wizard.pages.panels.OrganismsPanel;
+import edu.scripps.yates.client.ui.wizard.pages.panels.LabelsPanel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 
-public class WizardPageOrganisms extends AbstractWizardPage {
+public class WizardPageLabels extends AbstractWizardPage {
 
-	private static final String text1 = "Define which organisms (taxonomy) has been analyzed in your samples.";
-	private static final String text2 = "You can type the name and a list of predefined values will show up.";
-	private static final String text3 = "In case of having a mixed sample, you may need to define a 'mixed' organism in order to be able to associate an organism item to a sample.";
+	private static final String text1 = "In case some of the input files contain encoded quantification information encoded with quantitative labels"
+			+ "you may have to define them here.";
+	private static final String text2 = "A label will be associated to each of the sample items if necessary but it is not mandatory.";
+	private static final String text3 = "For example, census-out.txt files may contain quantitative ratios LIGHT over HEAVY and the system will have to know which sample is the one "
+			+ "labelled as LIGHT and which sample is labelled as HEAVY.";
 	private FlexTable panel;
 
-	public WizardPageOrganisms() {
-		super("Sample organism(s)");
+	public WizardPageLabels() {
+		super("Isobaric label");
 
 	}
 
@@ -41,9 +43,10 @@ public class WizardPageOrganisms extends AbstractWizardPage {
 
 	@Override
 	public void beforeFirstShow() {
-		final OrganismsPanel organismPanel = new OrganismsPanel(getWizard());
-		super.registerItemPanel(organismPanel);
-		panel.setWidget(3, 0, organismPanel);
+		final LabelsPanel labelsPanel = new LabelsPanel(getWizard());
+		super.registerItemPanel(labelsPanel);
+
+		panel.setWidget(3, 0, labelsPanel);
 		super.beforeFirstShow();
 	}
 

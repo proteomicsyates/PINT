@@ -91,7 +91,8 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 		BufferedWriter output = null;
 
 		try {
-			output = new BufferedWriter(new FileWriter(file, false));
+			final FileWriter fw = new FileWriter(file, false);
+			output = new BufferedWriter(fw);
 			for (final String projectTag : previouslyTried) {
 				output.write(projectTag + "\n");
 			}
@@ -107,7 +108,8 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 		BufferedWriter output = null;
 
 		try {
-			output = new BufferedWriter(new FileWriter(file, true));
+			final FileWriter fw = new FileWriter(file, true);
+			output = new BufferedWriter(fw);
 			output.write(projectTag + "\n");
 		} finally {
 			if (output != null) {

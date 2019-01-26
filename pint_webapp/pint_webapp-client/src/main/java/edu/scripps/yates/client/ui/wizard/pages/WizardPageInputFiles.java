@@ -35,7 +35,7 @@ public class WizardPageInputFiles extends AbstractWizardPage {
 		text1 += "</ul>";
 
 		final InlineHTML label1 = new InlineHTML(text1);
-		label1.setStyleName(WizardStyles.WizardRegularText);
+		label1.setStyleName(WizardStyles.WizardWelcomeLabel2);
 		panel.setWidget(0, 0, label1);
 
 		return ret;

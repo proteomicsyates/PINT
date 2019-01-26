@@ -10,17 +10,19 @@ import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.util.ClientGUIUtil;
+import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.projectCreator.excel.TissueTypeBean;
 
 public class TissueItemWidget extends AbstractItemWidget<TissueTypeBean> {
 	private edu.scripps.yates.ImportWizardServiceAsync service;
-	private ItemLongPropertyWidget<TissueTypeBean> descriptionItemLongPropertyWidget;
+	private ItemTextAreaPropertyWidget<TissueTypeBean> descriptionItemLongPropertyWidget;
 
 	public TissueItemWidget(TissueTypeBean tissue, PintContext context) {
 		super(tissue, context, false);
 
 		// description
-		descriptionItemLongPropertyWidget = new ItemLongPropertyWidget<TissueTypeBean>("description:", tissue) {
+		descriptionItemLongPropertyWidget = new ItemTextAreaPropertyWidget<TissueTypeBean>("description:",
+				"Description of the tissue or cell line.", tissue, false) {
 
 			@Override
 			public void updateItemObjectProperty(TissueTypeBean item, String propertyValue) {
@@ -61,7 +63,7 @@ public class TissueItemWidget extends AbstractItemWidget<TissueTypeBean> {
 	}
 
 	@Override
-	protected void updateIDFromItemBean(String newId) {
+	protected void updateIDFromItemBean(String newId) throws PintException {
 		PintImportCfgUtil.updateTissue(getContext().getPintImportConfiguration(), getItemBean().getId(), newId);
 	}
 

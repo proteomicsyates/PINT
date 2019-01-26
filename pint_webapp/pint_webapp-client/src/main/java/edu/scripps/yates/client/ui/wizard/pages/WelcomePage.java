@@ -1,14 +1,9 @@
 package edu.scripps.yates.client.ui.wizard.pages;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
-import edu.scripps.yates.client.pint.wizard.PintContext;
-import edu.scripps.yates.client.ui.wizard.Wizard;
-import edu.scripps.yates.client.ui.wizard.WizardPageHelper;
-import edu.scripps.yates.client.ui.wizard.event.NavigationEvent;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 
 public class WelcomePage extends AbstractWizardPage {
@@ -21,7 +16,6 @@ public class WelcomePage extends AbstractWizardPage {
 
 	public WelcomePage() {
 		super("Introduction");
-
 	}
 
 	@Override
@@ -33,59 +27,17 @@ public class WelcomePage extends AbstractWizardPage {
 		flowPanel.add(welcomeLabel1);
 
 		final Label welcomeLabel2 = new Label(welcomeText2);
-		welcomeLabel2.setStyleName(WizardStyles.WizardRegularText);
+		welcomeLabel2.setStyleName(WizardStyles.WizardWelcomeLabel2);
 		flowPanel.add(welcomeLabel2);
 
 		final Label welcomeLabel3 = new Label(welcomeText3);
-		welcomeLabel3.setStyleName(WizardStyles.WizardRegularText);
+		welcomeLabel3.setStyleName(WizardStyles.WizardWelcomeLabel2);
 		flowPanel.add(welcomeLabel3);
 
 		final Label welcomeLabel4 = new Label(welcomeText4);
 		welcomeLabel4.setStyleName(WizardStyles.WizardBottomMessageLabel);
 		flowPanel.add(welcomeLabel4);
 		return flowPanel;
-	}
-
-	@Override
-	public void onPageAdd(WizardPageHelper<PintContext> helper) {
-		GWT.log("onPageAdd" + getClass().getName());
-		super.onPageAdd(helper);
-	}
-
-	@Override
-	public PintContext getContext() {
-		GWT.log("getContext");
-		return super.getContext();
-	}
-
-	@Override
-	public Wizard<PintContext> getWizard() {
-		GWT.log("getWizard");
-		return super.getWizard();
-	}
-
-	@Override
-	public void beforeFirstShow() {
-		GWT.log("beforeFirstShow");
-		super.beforeFirstShow();
-	}
-
-	@Override
-	public void beforeShow() {
-		GWT.log("beforeShow");
-		super.beforeShow();
-	}
-
-	@Override
-	public void beforeNext(NavigationEvent event) {
-		GWT.log("beforeNext");
-		super.beforeNext(event);
-	}
-
-	@Override
-	public void afterNext() {
-		GWT.log("afterNext");
-		super.afterNext();
 	}
 
 	@Override

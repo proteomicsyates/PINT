@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.SuggestBox;
 
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
+import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.projectCreator.excel.SampleTypeBean;
 
 public class SampleItemWidget extends AbstractItemWidget<SampleTypeBean> {
@@ -11,7 +12,8 @@ public class SampleItemWidget extends AbstractItemWidget<SampleTypeBean> {
 	public SampleItemWidget(SampleTypeBean sampleObj, PintContext context) {
 		super(sampleObj, context);
 		// description
-		super.addPropertyWidget(new ItemLongPropertyWidget<SampleTypeBean>("description:", sampleObj) {
+		super.addPropertyWidget(new ItemTextAreaPropertyWidget<SampleTypeBean>("Description:",
+				"Brief description of the sample", sampleObj, false) {
 
 			@Override
 			public void updateItemObjectProperty(SampleTypeBean item, String propertyValue) {
@@ -24,8 +26,12 @@ public class SampleItemWidget extends AbstractItemWidget<SampleTypeBean> {
 			}
 		});
 		// REFERENCES TO ORGANISM AND TISSUE
-		addDroppingAreaForReferencedItemBean("Organism", "drop organism here", DroppableFormat.ORGANISM);
-		addDroppingAreaForReferencedItemBean("Tissue/Cell line", "drop tissue/cell line here", DroppableFormat.TISSUE);
+		addDroppingAreaForReferencedItemBean("Organism", "Organism from which the sample is from.",
+				"drop organism here", DroppableFormat.ORGANISM, true);
+		addDroppingAreaForReferencedItemBean("Tissue/Cell line", "Tissue or cell line from which the sample is from.",
+				"drop tissue/cell line here", DroppableFormat.TISSUE, true);
+		addDroppingAreaForReferencedItemBean("Isobaric label", "Isobaric label used in this sample (OPTIONAL).",
+				"drop isobaric label here", DroppableFormat.LABEL, false);
 		// if there is a reference to a sample, set the dropping label to the actual
 		// sample
 		if (sampleObj.getOrganismRef() != null) {
@@ -33,6 +39,9 @@ public class SampleItemWidget extends AbstractItemWidget<SampleTypeBean> {
 		}
 		if (sampleObj.getTissueRef() != null) {
 			updateReferenceLabel(sampleObj.getTissueRef(), DroppableFormat.TISSUE);
+		}
+		if (sampleObj.getLabelRef() != null) {
+			updateReferenceLabel(sampleObj.getLabelRef(), DroppableFormat.LABEL);
 		}
 	}
 
@@ -42,7 +51,7 @@ public class SampleItemWidget extends AbstractItemWidget<SampleTypeBean> {
 	}
 
 	@Override
-	protected void updateIDFromItemBean(String newID) {
+	protected void updateIDFromItemBean(String newID) throws PintException {
 		PintImportCfgUtil.updateSampleID(getContext().getPintImportConfiguration(), getItemBean().getId(), newID);
 	}
 
@@ -53,6 +62,9 @@ public class SampleItemWidget extends AbstractItemWidget<SampleTypeBean> {
 		}
 		if (format == DroppableFormat.TISSUE) {
 			getItemBean().setTissueRef(itemBeanID);
+		}
+		if (format == DroppableFormat.LABEL) {
+			getItemBean().setLabelRef(itemBeanID);
 		}
 	}
 

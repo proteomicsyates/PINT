@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 
@@ -25,6 +26,7 @@ public abstract class AbstractReferencedItemPanel<IB> extends FlexTable implemen
 	private final Wizard<PintContext> wizard;
 	private final String itemName;
 	private final DroppableFormat format;
+	private FlowPanel dragableLabelsPanel;
 
 	public AbstractReferencedItemPanel(Wizard<PintContext> wizard, String itemName, DroppableFormat format) {
 		this.wizard = wizard;
@@ -32,6 +34,8 @@ public abstract class AbstractReferencedItemPanel<IB> extends FlexTable implemen
 		this.format = format;
 		setStyleName(WizardStyles.WizardQuestionPanel);
 		this.getElement().getStyle().setPaddingTop(10, Unit.PX);
+		this.getElement().getStyle().setWidth(470, Unit.PX); // this more or less the width of the message of label2 in
+																// init() method
 		init();
 
 	}
@@ -64,7 +68,7 @@ public abstract class AbstractReferencedItemPanel<IB> extends FlexTable implemen
 		// button to go to the page to create these items
 		final String pageTitle = PageTitleController.getPageTitleByPageID(getWizardPageIDToJumpByFormat(format));
 		final Label jumpToPageButton = new Label("Go to " + pageTitle);
-		jumpToPageButton.setTitle("Click here to go to " + pageTitle);
+		jumpToPageButton.setTitle("Click here to go to " + pageTitle + " wizard page");
 		jumpToPageButton.setStyleName(WizardStyles.WizardJumpToPage);
 		jumpToPageButton.addClickHandler(new ClickHandler() {
 
@@ -79,15 +83,31 @@ public abstract class AbstractReferencedItemPanel<IB> extends FlexTable implemen
 		setWidget(1, 1, jumpToPageButton);
 		getFlexCellFormatter().setHorizontalAlignment(1, 1, HasHorizontalAlignment.ALIGN_RIGHT);
 
-		int row = 2;
+		dragableLabelsPanel = new FlowPanel();
+		setWidget(2, 0, dragableLabelsPanel);
+		getFlexCellFormatter().setColSpan(2, 0, 2);
+		// fill the dragable labels
+		setDraggableLabels();
+	}
+
+	/**
+	 * Creates and set the draggable labels according to the items in the
+	 * {@link PintImportCfgBean} of the {@link PintContext}.<br>
+	 * This should be called every time the page is shown, since some object in the
+	 * {@link PintImportCfgBean} should have changed.
+	 */
+	public void setDraggableLabels() {
+//		int startingRow = 2;
+		dragableLabelsPanel.clear();
 		final List<IB> items = getItemsBeansFromContext(wizard.getContext());
 		for (final IB item : items) {
 			final ItemDraggableLabel draggableLabel = createDraggableLabel(item);
-			setWidget(row, 0, draggableLabel);
-			getFlexCellFormatter().setColSpan(row, 0, 2);
-			row++;
+			dragableLabelsPanel.add(draggableLabel);
+			draggableLabel.getElement().getStyle().setMarginRight(10, Unit.PX);
+			draggableLabel.getElement().getStyle().setMarginBottom(5, Unit.PX);
+//			getFlexCellFormatter().setColSpan(startingRow, 0, 2);
+//			startingRow++;
 		}
-
 	}
 
 	protected abstract PageID getWizardPageIDToJumpByFormat(DroppableFormat format2);

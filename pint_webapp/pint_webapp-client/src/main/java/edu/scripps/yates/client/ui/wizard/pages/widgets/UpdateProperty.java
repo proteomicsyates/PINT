@@ -1,7 +1,7 @@
 package edu.scripps.yates.client.ui.wizard.pages.widgets;
 
-public interface UpdateProperty<T> {
-	public void updateItemObjectProperty(T item, String propertyValue);
+public interface UpdateProperty<T, P> {
+	public void updateItemObjectProperty(T item, P propertyValue);
 
-	public String getPropertyValueFromItem(T item);
+	public P getPropertyValueFromItem(T item);
 }

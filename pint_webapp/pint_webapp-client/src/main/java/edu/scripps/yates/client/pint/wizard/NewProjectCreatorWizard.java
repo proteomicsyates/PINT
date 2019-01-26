@@ -11,10 +11,13 @@ import edu.scripps.yates.client.ui.wizard.pages.WelcomePage;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageConditions;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageInputFiles;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageIsQuantitative;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageLabels;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageMSRuns;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageOrganisms;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageProject;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageSamples;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageTissues;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageTransitional;
 
 public class NewProjectCreatorWizard extends Wizard<PintContext> {
 	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
@@ -30,15 +33,19 @@ public class NewProjectCreatorWizard extends Wizard<PintContext> {
 	}
 
 	private void setupWizard() {
+		setUseLazyPageLoading(false);
 		addPage(new WelcomePage());
 		addPage(new WizardPageProject());
 		addPage(new WizardPageInputFiles());
 		addPage(new WizardPageIsQuantitative());
 		addPage(new WizardPageOrganisms());
 		addPage(new WizardPageTissues());
+		addPage(new WizardPageLabels());
 		addPage(new WizardPageSamples());
 		addPage(new WizardPageConditions());
-		setUseLazyPageLoading(true);
+		addPage(new WizardPageMSRuns());
+		addPage(new WizardPageTransitional("-"));
+
 		setButtonVisible(ButtonType.BUTTON_CANCEL, true);
 		// finish
 		getButton(ButtonType.BUTTON_FINISH).addClickHandler(new ClickHandler() {

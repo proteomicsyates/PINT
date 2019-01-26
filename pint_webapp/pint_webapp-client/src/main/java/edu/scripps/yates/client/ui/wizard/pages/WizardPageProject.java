@@ -36,7 +36,7 @@ public class WizardPageProject extends AbstractWizardPage {
 		ret.setWidget(panel);
 		panel.setStyleName(WizardStyles.wizardRegularPage);
 		final Label label0 = new Label(text0);
-		label0.setStyleName(WizardStyles.WizardRegularText);
+		label0.setStyleName(WizardStyles.WizardWelcomeLabel2);
 		panel.setWidget(0, 0, label0);
 
 		return ret;
@@ -49,7 +49,7 @@ public class WizardPageProject extends AbstractWizardPage {
 		panel.setWidget(0, 0, label0);
 
 		final Label label1 = new Label(text1);
-		label1.setStyleName(WizardStyles.WizardRegularText);
+		label1.setStyleName(WizardStyles.WizardWelcomeLabel2);
 		panel.setWidget(1, 0, label1);
 
 		final ProjectForm projectTextForm = new ProjectForm(getContext());

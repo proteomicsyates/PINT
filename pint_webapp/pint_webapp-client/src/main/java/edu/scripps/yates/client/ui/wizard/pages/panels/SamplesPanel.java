@@ -17,7 +17,8 @@ public class SamplesPanel extends AbstractItemPanel<SampleItemWidget, SampleType
 
 	public SamplesPanel(Wizard<PintContext> wizard) {
 		super(wizard, "sample");
-
+		// because we want to keep previous name to help to fill new sample name
+		setResetNameForEachNewItemCreated(false);
 	}
 
 	@Override
@@ -88,6 +89,7 @@ public class SamplesPanel extends AbstractItemPanel<SampleItemWidget, SampleType
 				throw new PintException("Sample '" + sample.getId() + "' need to have a referenced Tissue/Cell line.",
 						PINT_ERROR_TYPE.WIZARD_PAGE_INCOMPLETE);
 			}
+// then, the reference to a label is optional
 		}
 	}
 

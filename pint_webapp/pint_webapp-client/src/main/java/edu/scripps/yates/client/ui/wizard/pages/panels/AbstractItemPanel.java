@@ -63,6 +63,8 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 	private final String itemName;
 	private final List<IW> itemWidgets = new ArrayList<IW>();
 	private HorizontalPanel filterByIDPanel;
+	private boolean resetNameForEachNewItemCreated = true;
+	private boolean showSuggestionsWithNoTyping = false;
 
 	/**
 	 * Creates an {@link AbstractItemPanel} with a wizard and an itemName which will
@@ -99,9 +101,13 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 
 	private void editItemName(boolean edit) {
 		if (edit) {
+			if (resetNameForEachNewItemCreated) {
+				createNewItemTextbox.setText(null);
+			}
 			setWidget(0, 0, createNewItemTextbox);
 			createNewItemTextbox.setFocus(true);
 		} else {
+
 			setWidget(0, 0, createNewItemLabel);
 			try {
 				getWidget(0, 1);
@@ -110,6 +116,7 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 				widget.getElement().getStyle().setWidth(100, Unit.PX);
 				setWidget(0, 1, widget);
 			}
+			createNewItemTextbox.hideSuggestionList();
 		}
 	}
 
@@ -132,6 +139,11 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 			@Override
 			public void onClick(ClickEvent event) {
 				editItemName(true);
+				if (createNewItemTextbox.getValue() == null || "".equals(createNewItemTextbox.getValue())) {
+					if (showSuggestionsWithNoTyping) {
+						createNewItemTextbox.showSuggestionList();
+					}
+				}
 			}
 		});
 		// if ESCAPE key, just come back to label
@@ -143,14 +155,19 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
 					editItemName(false);
 				} else if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER
-						|| event.getNativeKeyCode() == KeyCodes.KEY_MAC_ENTER) {
+						|| event.getNativeKeyCode() == KeyCodes.KEY_MAC_ENTER
+						|| event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
 					if ("".equals(createNewItemTextbox.getValue())) {
 						editItemName(false);
 					} else {
-						createItemBeanAndWidget(createNewItemTextbox.getValue());
+						if (!createNewItemTextbox.getValue().equals(createNewItemLabel.getText())) {
+							// just if something changed
+							createItemBeanAndWidget(createNewItemTextbox.getValue());
+						}
 						editItemName(false);
 					}
 				}
+
 			}
 		});
 
@@ -165,7 +182,10 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 					editItemName(false);
 				} else {
 					if (!createNewItemTextbox.isSuggestionListShowing()) {
-						createItemBeanAndWidget(createNewItemTextbox.getValue());
+						if (!createNewItemTextbox.getValue().equals(createNewItemLabel.getText())) {
+							// just if something changed
+							createItemBeanAndWidget(createNewItemTextbox.getValue());
+						}
 						editItemName(false);
 					}
 				}
@@ -456,4 +476,20 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 	}
 
 	public abstract String getID();
+
+	public boolean isResetNameForEachNewItemCreated() {
+		return resetNameForEachNewItemCreated;
+	}
+
+	public void setResetNameForEachNewItemCreated(boolean resetNameForEachNewItemCreated) {
+		this.resetNameForEachNewItemCreated = resetNameForEachNewItemCreated;
+	}
+
+	public boolean isShowSuggestionsWithNoTyping() {
+		return showSuggestionsWithNoTyping;
+	}
+
+	public void setShowSuggestionsWithNoTyping(boolean showSuggestionsWithNoTyping) {
+		this.showSuggestionsWithNoTyping = showSuggestionsWithNoTyping;
+	}
 }

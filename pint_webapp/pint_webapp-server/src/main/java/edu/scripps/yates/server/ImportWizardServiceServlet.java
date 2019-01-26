@@ -45,6 +45,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import edu.scripps.yates.ImportWizardService;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
+import edu.scripps.yates.dtaselectparser.DTASelectParser;
 import edu.scripps.yates.excel.ExcelColumn;
 import edu.scripps.yates.excel.ExcelSheet;
 import edu.scripps.yates.excel.impl.ExcelFileImpl;
@@ -87,6 +88,7 @@ import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.DataSourceBean;
 import edu.scripps.yates.shared.model.FileFormat;
+import edu.scripps.yates.shared.model.FileSummary;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.projectCreator.ExcelDataReference;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
@@ -1359,6 +1361,41 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			}
 		}
 		throw new PintException("File not found", PINT_ERROR_TYPE.FILE_NOT_FOUND_IN_SERVER);
+	}
+
+	@Override
+	public FileSummary getFileSummary(int importID, String sessionID, FileTypeBean fileTypeBean) throws PintException {
+		try {
+			if (fileTypeBean.getFormat() == FileFormat.DTA_SELECT_FILTER_TXT) {
+				final File file = FileManager.getDataFile(importID, fileTypeBean.getName(), fileTypeBean.getId(),
+						fileTypeBean.getFormat());
+				final DTASelectParser dtaSelectParser = new DTASelectParser(file);
+				final FileSummary ret = new FileSummary();
+				ret.setFileTypeBean(fileTypeBean);
+				ret.setFileSizeString(
+						edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
+				ret.setNumProteins(dtaSelectParser.getProteinMap().size());
+				ret.setNumPeptides(dtaSelectParser.getPSMsByFullSequence().size());
+				ret.setNumPSMs(dtaSelectParser.getPSMsByPSMID().size());
+				return ret;
+			}
+			return null;
+		} catch (final Exception e) {
+			throw new PintException(e, PINT_ERROR_TYPE.FILE_READING_ERROR);
+		}
+	}
+
+	@Override
+	public String getUploadedFileID(int importID, String uploadedFileSignature) throws PintException {
+		final List<FileWithFormat> files = FileManager.getFilesByImportProcessID(importID);
+		for (final FileWithFormat fileWithFormat : files) {
+			final String signature = fileWithFormat.getFileName() + fileWithFormat.getFile().length();
+			if (signature.equals(uploadedFileSignature)) {
+				return fileWithFormat.getId();
+			}
+		}
+		throw new PintException("File with signature '" + uploadedFileSignature + "' not found",
+				PINT_ERROR_TYPE.FILE_NOT_FOUND_IN_SERVER);
 	}
 
 }

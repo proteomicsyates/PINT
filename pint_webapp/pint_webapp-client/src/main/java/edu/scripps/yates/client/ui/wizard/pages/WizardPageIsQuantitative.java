@@ -30,7 +30,7 @@ public class WizardPageIsQuantitative extends AbstractWizardPage {
 		panel.setStyleName(WizardStyles.wizardRegularPage);
 
 		final Label welcomeLabel1 = new Label(text1);
-		welcomeLabel1.setStyleName(WizardStyles.WizardRegularText);
+		welcomeLabel1.setStyleName(WizardStyles.WizardWelcomeLabel2);
 		panel.setWidget(0, 0, welcomeLabel1);
 
 		return ret;
