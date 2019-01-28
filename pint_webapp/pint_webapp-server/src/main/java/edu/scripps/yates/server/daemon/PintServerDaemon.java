@@ -52,8 +52,10 @@ public class PintServerDaemon implements ServletContextListener {
 			e.printStackTrace();
 			log.error(e);
 			log.error("Some error happened trying to initiate the database connection: " + e.getMessage());
-			log.error("Check the database user credentials in the '" + pintPropertiesFile.getAbsolutePath()
-					+ "' file on the server");
+			if (pintPropertiesFile != null) {
+				log.error("Check the database user credentials in the '" + pintPropertiesFile.getAbsolutePath()
+						+ "' file on the server");
+			}
 			if (!isTest()) {
 				System.exit(-1);
 			}

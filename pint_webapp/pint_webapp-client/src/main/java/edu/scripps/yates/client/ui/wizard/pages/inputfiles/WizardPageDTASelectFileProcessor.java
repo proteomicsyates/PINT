@@ -16,7 +16,6 @@ import edu.scripps.yates.client.ui.wizard.pages.PageTitleController;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardExtractIdentificationDataFromDTASelectPanel;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardQuestionPanel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
-import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
 public class WizardPageDTASelectFileProcessor extends AbstractWizardPage {
@@ -105,8 +104,6 @@ public class WizardPageDTASelectFileProcessor extends AbstractWizardPage {
 
 	@Override
 	public void beforeShow() {
-		// TODO add other thing if questionPanel is null that happens when thereis no
-		// question
 		panel.setWidget(row, 0, questionPanel);
 		// disable next button
 		wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, false);
@@ -128,23 +125,9 @@ public class WizardPageDTASelectFileProcessor extends AbstractWizardPage {
 	}
 
 	protected void showExtractIdentificationData(boolean createNSAFQuantValues) {
-		if (file.getFormat() == FileFormat.DTA_SELECT_FILTER_TXT) {
-			final WizardExtractIdentificationDataFromDTASelectPanel extractIDPanel = new WizardExtractIdentificationDataFromDTASelectPanel(
-					wizard.getContext(), file, createNSAFQuantValues);
-			panel.setWidget(row, 0, extractIDPanel);
-		} else {
-			// TODO
-		}
-
-	}
-
-	protected void showExtractQuantificationData() {
-		// TODO Auto-generated method stub
-
-	}
-
-	protected void showFastaDefinition() {
-		// TODO Auto-generated method stub
+		final WizardExtractIdentificationDataFromDTASelectPanel extractIDPanel = new WizardExtractIdentificationDataFromDTASelectPanel(
+				wizard.getContext(), file, createNSAFQuantValues);
+		panel.setWidget(row, 0, extractIDPanel);
 
 	}
 

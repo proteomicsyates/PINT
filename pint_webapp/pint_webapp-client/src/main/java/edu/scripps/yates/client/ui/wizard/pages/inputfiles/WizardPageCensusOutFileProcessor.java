@@ -13,6 +13,7 @@ import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
 import edu.scripps.yates.client.ui.wizard.pages.AbstractWizardPage;
 import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
 import edu.scripps.yates.client.ui.wizard.pages.PageTitleController;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageConditions;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardExtractIdentificationDataFromDTASelectPanel;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardQuestionPanel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
@@ -42,82 +43,7 @@ public class WizardPageCensusOutFileProcessor extends AbstractWizardPage {
 		this.fileNumber = fileNumber;
 		text1 = "Processing input file " + fileNumber + "/"
 				+ PintImportCfgUtil.getFiles(context.getPintImportConfiguration()).size() + " '" + file.getName() + "'";
-		if (file.getFormat().isQuantitativeData() || file.getFormat() == FileFormat.EXCEL) {
-			explanation = "With quantitative information we are referring to either abundances (intensities, spectral counts, etc...) or relative abundance ratios";
-			question = "Do you want to extract quantitative information from this input file?";
-			yesClickHandler = new ClickHandler() {
 
-				@Override
-				public void onClick(ClickEvent event) {
-					extractQuantData = true;
-					showExtractQuantificationData();
-					isReadyForNextStep = true;
-					updateNextButtonState();
-				}
-			};
-			noClickHandler = new ClickHandler() {
-
-				@Override
-				public void onClick(ClickEvent event) {
-					extractQuantData = false;
-					showExtractIdentificationData(false);
-					isReadyForNextStep = true;
-					updateNextButtonState();
-				}
-			};
-		} else if (file.getFormat() == FileFormat.FASTA) {
-			text2 = "Fasta files are used to map peptides to proteins because sometimes the input files don't contain all the proteins mapping to the identified peptides (depending on how the software generating that file works).";
-			question = "Do you want to use this file?";
-			explanation = "If so, we will need to ask you about how to in-silico cleave the proteins to get the peptides";
-			yesClickHandler = new ClickHandler() {
-
-				@Override
-				public void onClick(ClickEvent event) {
-					context.setUseFasta(true);
-					showFastaDefinition();
-					isReadyForNextStep = true;
-					updateNextButtonState();
-				}
-			};
-			noClickHandler = new ClickHandler() {
-
-				@Override
-				public void onClick(ClickEvent event) {
-					context.setUseFasta(false);
-					wizard.showNextPage();
-				}
-			};
-		} else {
-			// no quant file
-			if (file.getFormat() == FileFormat.DTA_SELECT_FILTER_TXT) {
-				question = "Do you want to extract the NSAF (Normalized Spectral Abundance Factor) from this DTASelect output file?";
-				explanation = "This type of file has not quantitative data, but still we can extract the NSAF (Normalized Spectral Abundance Factor).";
-				yesClickHandler = new ClickHandler() {
-
-					@Override
-					public void onClick(ClickEvent event) {
-						showExtractIdentificationData(true);
-						isReadyForNextStep = true;
-						updateNextButtonState();
-					}
-				};
-				noClickHandler = new ClickHandler() {
-
-					@Override
-					public void onClick(ClickEvent event) {
-						showExtractIdentificationData(false);
-						isReadyForNextStep = true;
-						updateNextButtonState();
-					}
-				};
-			} else {
-				// this will be zIdentML
-				text2 = "We don't need more information about which type of information we can extract from this file.";
-				text3 = "This is an standard format file containing PSMs, peptides and proteins.";
-				isReadyForNextStep = true;
-				updateNextButtonState();
-			}
-		}
 	}
 
 	@Override
@@ -160,14 +86,52 @@ public class WizardPageCensusOutFileProcessor extends AbstractWizardPage {
 
 	@Override
 	public void beforeShow() {
-		// TODO add other thing if questionPanel is null that happens when thereis no
-		// question
+		checkFile();
+
 		panel.setWidget(row, 0, questionPanel);
 		// disable next button
 		wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, false);
 		wizard.setButtonOverride(true);
 		//
 		super.beforeShow();
+	}
+
+	private void checkFile() {
+		int numConditions = PintImportCfgUtil.getConditions(getPintImportConfg()).size();
+		if (numConditions < 2) {
+			explanation = "Census out files contain at least quantitative information from 2 experimental conditions, having relative abundance ratios of peptides and proteins between 2 conditions.";
+			question = "Click here to go to the " + PageTitleController.getPageTitleByPageID(
+					PageIDController.getPageIDByPageClass(WizardPageConditions.class)) + " wizard page.";
+			questionPanel = new WizardQuestionPanel(question, explanation);
+
+		} else if (numConditions == 2) {
+
+		} else if (numConditions > 2) {
+
+		}
+		explanation = "With quantitative information we are referring to either abundances (intensities, spectral counts, etc...) or relative abundance ratios";
+		question = "Which experimental conditions you want to extract quantitative information from this input file?";
+		yesClickHandler = new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				extractQuantData = true;
+				showExtractQuantificationData();
+				isReadyForNextStep = true;
+				updateNextButtonState();
+			}
+		};
+		noClickHandler = new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				extractQuantData = false;
+				showExtractIdentificationData(false);
+				isReadyForNextStep = true;
+				updateNextButtonState();
+			}
+		};
+
 	}
 
 	@Override

@@ -68,6 +68,11 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPage {
 
 	}
 
+	protected void showExtractQuantificationData() {
+		// TODO Auto-generated method stub
+
+	}
+
 	@Override
 	protected Widget createPage() {
 		final SimplePanel ret = new SimplePanel();
@@ -108,8 +113,7 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPage {
 
 	@Override
 	public void beforeShow() {
-		// TODO add other thing if questionPanel is null that happens when thereis no
-		// question
+
 		panel.setWidget(row, 0, questionPanel);
 		// disable next button
 		wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, false);
@@ -130,7 +134,7 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPage {
 		super.beforeFirstShow();
 	}
 
-	protected void showExtractIdentificationData(boolean createNSAFQuantValues) {
+	private void showExtractIdentificationData(boolean createNSAFQuantValues) {
 		if (file.getFormat() == FileFormat.DTA_SELECT_FILTER_TXT) {
 			final WizardExtractIdentificationDataFromDTASelectPanel extractIDPanel = new WizardExtractIdentificationDataFromDTASelectPanel(
 					wizard.getContext(), file, createNSAFQuantValues);
@@ -138,16 +142,6 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPage {
 		} else {
 			// TODO
 		}
-
-	}
-
-	protected void showExtractQuantificationData() {
-		// TODO Auto-generated method stub
-
-	}
-
-	protected void showFastaDefinition() {
-		// TODO Auto-generated method stub
 
 	}
 

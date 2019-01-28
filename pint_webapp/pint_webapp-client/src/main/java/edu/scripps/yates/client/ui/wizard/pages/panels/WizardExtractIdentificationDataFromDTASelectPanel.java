@@ -1,9 +1,12 @@
 package edu.scripps.yates.client.ui.wizard.pages.panels;
 
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimpleCheckBox;
 
 import edu.scripps.yates.ImportWizardServiceAsync;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
@@ -15,13 +18,20 @@ import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable {
 	private final static Image imageLoader = new Image(MyClientBundle.INSTANCE.roundedLoader());
 	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
+	private boolean extractNSAF;
+	private PintContext context;
+	private FileTypeBean file;
 
 	public WizardExtractIdentificationDataFromDTASelectPanel(PintContext context, FileTypeBean file,
 			boolean createNSAFQuantValues) {
+		this.context = context;
+		this.file = file;
+		this.extractNSAF = createNSAFQuantValues;
 		final Label label = new Label("This is what we got from this file...");
 		label.setStyleName(WizardStyles.WizardWelcomeLabel2);
 		setWidget(0, 0, label);
 		setWidget(1, 0, imageLoader);
+		context.setExtractNSAF(file.getId(), extractNSAF);
 		service.getFileSummary(context.getPintImportConfiguration().getImportID(), context.getSessionID(), file,
 				new AsyncCallback<FileSummary>() {
 
@@ -100,6 +110,23 @@ public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable
 		final Label numPSMsValue = new Label(String.valueOf(result.getNumPSMs()));
 		numPSMsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 		table.setWidget(row, 1, numPSMsValue);
+		//
+		row++;
+		final Label extractQuantLabel = new Label("Extract NSAF values:");
+		extractQuantLabel.setStyleName(WizardStyles.WizardInfoMessage);
+		table.setWidget(row, 0, extractQuantLabel);
+		final SimpleCheckBox extractNSAFCheckBox = new SimpleCheckBox();
+
+		extractNSAFCheckBox.setValue(extractNSAF);
+		extractNSAFCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event) {
+				extractNSAF = event.getValue();
+				context.setExtractNSAF(file.getId(), extractNSAF);
+			}
+		});
+		table.setWidget(row, 1, extractNSAFCheckBox);
 		return table;
 	}
 

@@ -35,7 +35,6 @@ public class WizardPageFastaFileProcessor extends AbstractWizardPage {
 	private final ClickHandler yesClickHandler;
 	protected boolean extractQuantData;
 	private WizardQuestionPanel questionPanel;
-	private boolean isReadyForNextStep = false;
 
 	public WizardPageFastaFileProcessor(PintContext context, int fileNumber, FileTypeBean file) {
 		super(fileNumber + " " + file.getName());
@@ -46,14 +45,13 @@ public class WizardPageFastaFileProcessor extends AbstractWizardPage {
 
 		text2 = "Fasta files are used to map peptides to proteins because sometimes the input files don't contain all the proteins mapping to the identified peptides (depending on how the software generating that file works).";
 		question = "Do you want to use this file?";
-		explanation = "If so, we will need to ask you about how to in-silico cleave the proteins to get the peptides";
+		explanation = "If so, we will need to ask you about how to in-silico cleave the proteins to get the peptides. Otherwise, it will be ignored.";
 		yesClickHandler = new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
 				context.setUseFasta(true);
 				showFastaDefinition();
-				isReadyForNextStep = true;
 				updateNextButtonState();
 			}
 		};
@@ -62,6 +60,7 @@ public class WizardPageFastaFileProcessor extends AbstractWizardPage {
 			@Override
 			public void onClick(ClickEvent event) {
 				context.setUseFasta(false);
+				updateNextButtonState();
 				wizard.showNextPage();
 			}
 		};
@@ -178,6 +177,20 @@ public class WizardPageFastaFileProcessor extends AbstractWizardPage {
 	}
 
 	private boolean isReadyForNextStep() {
-		return isReadyForNextStep;
+		if (context.isUseFasta() == null) {
+			return false;
+		}
+		if (!context.isUseFasta()) {
+			return true;
+		} else {
+			if (file.getFastaDigestion().getCleavageAAs() == null
+					&& "".equals(file.getFastaDigestion().getCleavageAAs())) {
+				return false;
+			}
+			if (file.getFastaDigestion().getMisscleavages() < 0) {
+				return false;
+			}
+			return true;
+		}
 	}
 }

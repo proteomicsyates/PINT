@@ -19,16 +19,16 @@ public class WizardQuestionPanel extends FlexTable {
 	private WizardButton yesButton;
 	private WizardButton noButton;
 
-	public WizardQuestionPanel(String question, String explanation) {
+	public WizardQuestionPanel(String question, String explanation, boolean justOKButton) {
 
 		this.question = question;
 		this.explanation = explanation;
 		setStyleName(WizardStyles.WizardQuestionPanel);
-		init();
+		init(justOKButton);
 
 	}
 
-	private void init() {
+	private void init(boolean justOKButton) {
 		final Label questionLabel = new Label(question);
 		questionLabel.setStyleName(WizardStyles.WizardQuestionLabel);
 		setWidget(0, 0, questionLabel);
@@ -60,11 +60,15 @@ public class WizardQuestionPanel extends FlexTable {
 		explanationLabel.getElement().getStyle().setPaddingBottom(20, Unit.PX);
 		setWidget(2, 0, explanationLabel);
 
-		// Buttons sizes
-		yesButton.setSize(buttonWidth, buttonHeight);
-		noButton.setSize(buttonWidth, buttonHeight);
-		// Buttons horizontal
-		getFlexCellFormatter().setHorizontalAlignment(2, 0, HasHorizontalAlignment.ALIGN_CENTER);
+		if (!justOKButton) {
+			// Buttons sizes
+			yesButton.setSize(buttonWidth, buttonHeight);
+			noButton.setSize(buttonWidth, buttonHeight);
+			// Buttons horizontal
+			getFlexCellFormatter().setHorizontalAlignment(2, 0, HasHorizontalAlignment.ALIGN_CENTER);
+		} else {
+
+		}
 
 	}
 
