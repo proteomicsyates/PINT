@@ -21,6 +21,7 @@ import edu.scripps.yates.client.ui.wizard.pages.AbstractWizardPage;
 import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
 import edu.scripps.yates.client.ui.wizard.pages.PageTitleController;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageConditions;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageInputFiles;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageMSRuns;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageSamples;
 import edu.scripps.yates.client.ui.wizard.pages.panels.summary.ConditionSummaryTable;
@@ -54,15 +55,17 @@ public class Summary1Panel extends FlexTable {
 
 	private void init() {
 		int row = 0;
+		// line 0
 		// intput files
 		final List<FileTypeBean> files = PintImportCfgUtil.getFiles(wizard.getContext().getPintImportConfiguration());
 
-		setWidget(row, 0, getPanel(files.size(), "Input file", WizardPageMSRuns.class));
+		setWidget(row, 0, getPanel(files.size(), "Input file", WizardPageInputFiles.class));
 		getFlexCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_TOP);
-
+		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		final VerticalPanel verticalPanelInputFiles = new VerticalPanel();
 		verticalPanelInputFiles.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
 		setWidget(row, 1, verticalPanelInputFiles);
+		getFlexCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_TOP);
 		int numInputFile = 1;
 		for (final FileTypeBean file : files) {
 			final FlexTable inputFileSummaryTable = new InputFileSummaryTable(wizard.getContext(), file,
@@ -81,10 +84,11 @@ public class Summary1Panel extends FlexTable {
 
 		setWidget(row, 0, getPanel(conditions.size(), "Experimental condition", WizardPageConditions.class));
 		getFlexCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_TOP);
-
+		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		final VerticalPanel verticalPanelConditions = new VerticalPanel();
 		verticalPanelConditions.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
 		setWidget(row, 1, verticalPanelConditions);
+		getFlexCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_TOP);
 		int numCondition = 1;
 		for (final ExperimentalConditionTypeBean condition : conditions) {
 			final FlexTable conditionTable = new ConditionSummaryTable(wizard.getContext(), condition, numCondition++);
@@ -101,10 +105,11 @@ public class Summary1Panel extends FlexTable {
 
 		setWidget(row, 0, getPanel(samples.size(), "Sample", WizardPageSamples.class));
 		getFlexCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_TOP);
-
+		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		final VerticalPanel verticalPanelSamples = new VerticalPanel();
 		verticalPanelSamples.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
 		setWidget(row, 1, verticalPanelSamples);
+		getFlexCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_TOP);
 		int numSample = 1;
 		for (final SampleTypeBean sample : samples) {
 			final FlexTable sampleTable = new SampleSummaryTable(wizard.getContext(), sample, numSample++);
@@ -121,10 +126,11 @@ public class Summary1Panel extends FlexTable {
 
 		setWidget(row, 0, getPanel(msRuns.size(), "MS run", WizardPageMSRuns.class));
 		getFlexCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_TOP);
-
+		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		final VerticalPanel verticalPanelMSRuns = new VerticalPanel();
 		verticalPanelMSRuns.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
 		setWidget(row, 1, verticalPanelMSRuns);
+		getFlexCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_TOP);
 		int numMSRun = 1;
 		for (final MsRunTypeBean msRun : msRuns) {
 			final FlexTable sampleTable = new MSRunSummaryTable(wizard.getContext(), msRun, numMSRun++);

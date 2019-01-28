@@ -11,6 +11,12 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.ui.wizard.exception.DuplicatePageException;
+import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageCensusChroFileProcessor;
+import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageCensusOutFileProcessor;
+import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageDTASelectFileProcessor;
+import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageExcelFileProcessor;
+import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageFastaFileProcessor;
+import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageMzIdentMLFileProcessor;
 import edu.scripps.yates.client.ui.wizard.pages.panels.Summary1Panel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
@@ -72,7 +78,29 @@ public class WizardPageSummary1 extends AbstractWizardPage {
 		int fileNumber = 1;
 		for (final FileTypeBean fileTypeBean : files) {
 			try {
-				wizard.addPage(new WizardPageInputFileProcessor(getContext(), fileNumber++, fileTypeBean));
+				switch (fileTypeBean.getFormat()) {
+				case CENSUS_CHRO_XML:
+					wizard.addPage(new WizardPageCensusChroFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					break;
+				case CENSUS_OUT_TXT:
+					wizard.addPage(new WizardPageCensusOutFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					break;
+				case DTA_SELECT_FILTER_TXT:
+					wizard.addPage(new WizardPageDTASelectFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					break;
+				case EXCEL:
+					wizard.addPage(new WizardPageExcelFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					break;
+				case FASTA:
+					wizard.addPage(new WizardPageFastaFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					break;
+				case MZIDENTML:
+					wizard.addPage(new WizardPageMzIdentMLFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					break;
+				default:
+					break;
+				}
+
 			} catch (final DuplicatePageException e) {
 				GWT.log(e.getMessage(), e);
 			}

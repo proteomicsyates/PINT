@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.ui.wizard.pages;
+package edu.scripps.yates.client.ui.wizard.pages.inputfiles;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -9,13 +9,17 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
+import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
+import edu.scripps.yates.client.ui.wizard.pages.AbstractWizardPage;
+import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
+import edu.scripps.yates.client.ui.wizard.pages.PageTitleController;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardExtractIdentificationDataFromDTASelectPanel;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardQuestionPanel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
-public class WizardPageInputFileProcessor extends AbstractWizardPage {
+public class WizardPageCensusChroFileProcessor extends AbstractWizardPage {
 
 	private FlexTable panel;
 	private final FileTypeBean file;
@@ -30,15 +34,16 @@ public class WizardPageInputFileProcessor extends AbstractWizardPage {
 	private ClickHandler yesClickHandler;
 	protected boolean extractQuantData;
 	private WizardQuestionPanel questionPanel;
+	private boolean isReadyForNextStep = false;
 
-	public WizardPageInputFileProcessor(PintContext context, int fileNumber, FileTypeBean file) {
+	public WizardPageCensusChroFileProcessor(PintContext context, int fileNumber, FileTypeBean file) {
 		super(fileNumber + " " + file.getName());
 		this.file = file;
 		this.fileNumber = fileNumber;
-		text1 = "Processing input file: " + fileNumber + "/"
-				+ PintImportCfgUtil.getFiles(context.getPintImportConfiguration()).size();
+		text1 = "Processing input file " + fileNumber + "/"
+				+ PintImportCfgUtil.getFiles(context.getPintImportConfiguration()).size() + " '" + file.getName() + "'";
 		if (file.getFormat().isQuantitativeData() || file.getFormat() == FileFormat.EXCEL) {
-			explanation = "With quantitative information we are referring to either abundances (intensities, spectral counts, etc...) or relative aboundance ratios";
+			explanation = "With quantitative information we are referring to either abundances (intensities, spectral counts, etc...) or relative abundance ratios";
 			question = "Do you want to extract quantitative information from this input file?";
 			yesClickHandler = new ClickHandler() {
 
@@ -46,6 +51,8 @@ public class WizardPageInputFileProcessor extends AbstractWizardPage {
 				public void onClick(ClickEvent event) {
 					extractQuantData = true;
 					showExtractQuantificationData();
+					isReadyForNextStep = true;
+					updateNextButtonState();
 				}
 			};
 			noClickHandler = new ClickHandler() {
@@ -54,6 +61,8 @@ public class WizardPageInputFileProcessor extends AbstractWizardPage {
 				public void onClick(ClickEvent event) {
 					extractQuantData = false;
 					showExtractIdentificationData(false);
+					isReadyForNextStep = true;
+					updateNextButtonState();
 				}
 			};
 		} else if (file.getFormat() == FileFormat.FASTA) {
@@ -66,6 +75,8 @@ public class WizardPageInputFileProcessor extends AbstractWizardPage {
 				public void onClick(ClickEvent event) {
 					context.setUseFasta(true);
 					showFastaDefinition();
+					isReadyForNextStep = true;
+					updateNextButtonState();
 				}
 			};
 			noClickHandler = new ClickHandler() {
@@ -79,13 +90,15 @@ public class WizardPageInputFileProcessor extends AbstractWizardPage {
 		} else {
 			// no quant file
 			if (file.getFormat() == FileFormat.DTA_SELECT_FILTER_TXT) {
-				question = "Do you want to extract the NSAF (Normalized Spectral Aboundance Factor) from this DTASelect output file?";
-				explanation = "This type of file has not quantitative data, but still we can extract the NSAF (Normalized Spectral Aboundance Factor).";
+				question = "Do you want to extract the NSAF (Normalized Spectral Abundance Factor) from this DTASelect output file?";
+				explanation = "This type of file has not quantitative data, but still we can extract the NSAF (Normalized Spectral Abundance Factor).";
 				yesClickHandler = new ClickHandler() {
 
 					@Override
 					public void onClick(ClickEvent event) {
 						showExtractIdentificationData(true);
+						isReadyForNextStep = true;
+						updateNextButtonState();
 					}
 				};
 				noClickHandler = new ClickHandler() {
@@ -93,12 +106,16 @@ public class WizardPageInputFileProcessor extends AbstractWizardPage {
 					@Override
 					public void onClick(ClickEvent event) {
 						showExtractIdentificationData(false);
+						isReadyForNextStep = true;
+						updateNextButtonState();
 					}
 				};
 			} else {
 				// this will be zIdentML
 				text2 = "We don't need more information about which type of information we can extract from this file.";
 				text3 = "This is an standard format file containing PSMs, peptides and proteins.";
+				isReadyForNextStep = true;
+				updateNextButtonState();
 			}
 		}
 	}
@@ -146,6 +163,10 @@ public class WizardPageInputFileProcessor extends AbstractWizardPage {
 		// TODO add other thing if questionPanel is null that happens when thereis no
 		// question
 		panel.setWidget(row, 0, questionPanel);
+		// disable next button
+		wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, false);
+		wizard.setButtonOverride(true);
+		//
 		super.beforeShow();
 	}
 
@@ -184,13 +205,22 @@ public class WizardPageInputFileProcessor extends AbstractWizardPage {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof WizardPageInputFileProcessor) {
-			final WizardPageInputFileProcessor page2 = (WizardPageInputFileProcessor) obj;
+		if (obj instanceof WizardPageCensusChroFileProcessor) {
+			final WizardPageCensusChroFileProcessor page2 = (WizardPageCensusChroFileProcessor) obj;
 			if (page2.getPageID().equals(getPageID())) {
 				return true;
 			}
 			return false;
 		}
 		return super.equals(obj);
+	}
+
+	protected void updateNextButtonState() {
+		final boolean readyForNextStep = isReadyForNextStep();
+		this.wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, readyForNextStep);
+	}
+
+	private boolean isReadyForNextStep() {
+		return isReadyForNextStep;
 	}
 }

@@ -168,6 +168,10 @@ public class PintServerDaemon implements ServletContextListener {
 				log.warn(e.getMessage());
 			}
 		}
+		// following comments in java.lang.ClassNotFoundException:
+		// com.mchange.v2.resourcepool.BasicResourcePool$AsyncTestIdleResourceTask
+		ContextualSessionHandler.closeSession();
+		ContextualSessionHandler.closeSessionFactory();
 	}
 
 	// private void syncronizeUniprotVersionsAndProjectsInDB() {

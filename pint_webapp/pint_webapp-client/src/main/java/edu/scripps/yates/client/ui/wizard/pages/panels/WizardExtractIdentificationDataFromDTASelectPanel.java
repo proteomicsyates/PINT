@@ -51,7 +51,7 @@ public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable
 
 	protected FlexTable getFileSummaryPanel(FileSummary result) {
 		final FlexTable table = new FlexTable();
-		table.setCellPadding(5);
+		table.setCellPadding(0);
 		//
 		int row = 0;
 		final Label fileNameName = new Label("File name:");

@@ -6,8 +6,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import edu.scripps.yates.client.ui.wizard.event.NavigationEvent;
-import edu.scripps.yates.client.ui.wizard.exception.DuplicatePageException;
 import edu.scripps.yates.client.ui.wizard.pages.panels.MSRunsPanel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.shared.exceptions.PintException;
@@ -66,24 +64,24 @@ public class WizardPageMSRuns extends AbstractWizardPage {
 		return super.isReady();
 	}
 
-	@Override
-	public void beforeNext(NavigationEvent event) {
-		// jump over the transitional to the next page...trying to add it before if
-		// doesn't exist
-		final PageID summaryPageID = PageIDController.getPageIDByPageClass(WizardPageSummary1.class);
-		final PageID transitionalPageID = PageIDController.getPageIDByPageClass(WizardPageTransitional.class);
-		try {
-			final WizardPageSummary1 summaryPage = new WizardPageSummary1();
-			wizard.addPage(summaryPage);
-			// create link from MSRuns to Summary
-			final PageID msRunsPageID = getPageID();
-			wizard.getLinkManager().destroyLinksBetween(msRunsPageID, transitionalPageID, true);
-			wizard.getLinkManager().createTwoWayLink(msRunsPageID, summaryPageID);
-		} catch (final DuplicatePageException e) {
-			// we already added this page
-		}
-		event.cancel();
-		wizard.showPage(summaryPageID, false, true, true);
-	}
+//	@Override
+//	public void beforeNext(NavigationEvent event) {
+//		// jump over the transitional to the next page...trying to add it before if
+//		// doesn't exist
+//		final PageID summaryPageID = PageIDController.getPageIDByPageClass(WizardPageSummary1.class);
+//		final PageID transitionalPageID = PageIDController.getPageIDByPageClass(WizardPageTransitional.class);
+//		try {
+//			final WizardPageSummary1 summaryPage = new WizardPageSummary1();
+//			wizard.addPage(summaryPage);
+//			// create link from MSRuns to Summary
+//			final PageID msRunsPageID = getPageID();
+//			wizard.getLinkManager().destroyLinksBetween(msRunsPageID, transitionalPageID, true);
+//			wizard.getLinkManager().createTwoWayLink(msRunsPageID, summaryPageID);
+//		} catch (final DuplicatePageException e) {
+//			// we already added this page
+//		}
+//		event.cancel();
+//		wizard.showPage(summaryPageID, false, true, true);
+//	}
 
 }

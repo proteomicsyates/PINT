@@ -9,7 +9,7 @@ public class PintContext extends WizardContext {
 	private PintImportCfgBean pintImportCfg;
 	private Boolean isQuantitative;
 	private final String sessionID;
-	private boolean useFasta;
+	private Boolean useFasta;
 
 	public PintContext(String sessionID2) {
 		this.sessionID = sessionID2;
@@ -52,7 +52,7 @@ public class PintContext extends WizardContext {
 		this.useFasta = b;
 	}
 
-	public boolean isUseFasta() {
+	public Boolean isUseFasta() {
 		return useFasta;
 	}
 

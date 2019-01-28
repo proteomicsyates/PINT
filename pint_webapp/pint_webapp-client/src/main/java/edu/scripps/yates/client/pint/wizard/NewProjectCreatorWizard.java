@@ -16,8 +16,8 @@ import edu.scripps.yates.client.ui.wizard.pages.WizardPageMSRuns;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageOrganisms;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageProject;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageSamples;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageSummary1;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageTissues;
-import edu.scripps.yates.client.ui.wizard.pages.WizardPageTransitional;
 
 public class NewProjectCreatorWizard extends Wizard<PintContext> {
 	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
@@ -44,7 +44,7 @@ public class NewProjectCreatorWizard extends Wizard<PintContext> {
 		addPage(new WizardPageSamples());
 		addPage(new WizardPageConditions());
 		addPage(new WizardPageMSRuns());
-		addPage(new WizardPageTransitional("-"));
+		addPage(new WizardPageSummary1());
 
 		setButtonVisible(ButtonType.BUTTON_CANCEL, true);
 		// finish

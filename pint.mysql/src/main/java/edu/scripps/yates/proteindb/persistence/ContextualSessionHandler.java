@@ -1,6 +1,7 @@
 package edu.scripps.yates.proteindb.persistence;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +17,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.stat.Statistics;
 
 /**
@@ -357,6 +360,22 @@ public class ContextualSessionHandler {
 		ManagedSessionContext.unbind(getSessionFactory());
 		session.close();
 
+	}
+
+	public static void closeSessionFactory() {
+		final SessionFactory sessionFactory2 = getSessionFactory();
+		log.info("Session factory class: " + sessionFactory2.getClass().getCanonicalName());
+		if (sessionFactory2 instanceof SessionFactoryImpl) {
+			final SessionFactoryImpl sf = (SessionFactoryImpl) sessionFactory2;
+
+		}
+		if (sessionFactory2 instanceof SessionImplementor) {
+			try {
+				((SessionImplementor) sessionFactory2).getJdbcConnectionAccess().obtainConnection().close();
+			} catch (final SQLException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static void beginGoodTransaction() {

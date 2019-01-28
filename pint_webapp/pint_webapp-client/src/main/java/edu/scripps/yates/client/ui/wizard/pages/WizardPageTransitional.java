@@ -6,10 +6,10 @@ import com.google.gwt.user.client.ui.Widget;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 
 /**
- * This page doesn't do anything. It can be done in order to set it up after a
- * wizard page in which the method afterNext() is checking how is the status of
- * the {@link PintContext} and then, depending on it, it will remove this page
- * and add others.
+ * This page doesn't do anything. It can be added after a wizard page in which
+ * the method afterNext() is checking how is the status of the
+ * {@link PintContext} and then, depending on it, it will skip this page and add
+ * others.
  * 
  * @author salvador
  *
