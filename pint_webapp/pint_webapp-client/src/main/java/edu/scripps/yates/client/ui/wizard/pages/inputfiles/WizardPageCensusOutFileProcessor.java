@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
@@ -15,11 +16,8 @@ import edu.scripps.yates.client.ui.wizard.pages.AbstractWizardPage;
 import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
 import edu.scripps.yates.client.ui.wizard.pages.PageTitleController;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageConditions;
-import edu.scripps.yates.client.ui.wizard.pages.panels.WizardExtractIdentificationDataFromDTASelectPanel;
-import edu.scripps.yates.client.ui.wizard.pages.panels.WizardFormPanel;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardQuestionPanel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
-import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
 public class WizardPageCensusOutFileProcessor extends AbstractWizardPage {
@@ -71,6 +69,7 @@ public class WizardPageCensusOutFileProcessor extends AbstractWizardPage {
 			welcomeLabel3.setStyleName(WizardStyles.WizardExplanationLabel);
 			panel.setWidget(row, 0, welcomeLabel3);
 		}
+		row++;
 		return ret;
 	}
 
@@ -86,17 +85,18 @@ public class WizardPageCensusOutFileProcessor extends AbstractWizardPage {
 
 	@Override
 	public void beforeShow() {
-		checkFile();
+		checkConditions();
 
 		panel.setWidget(row, 0, questionPanel);
 		// disable next button
 		wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, false);
 		wizard.setButtonOverride(true);
 		//
+
 		super.beforeShow();
 	}
 
-	private void checkFile() {
+	private void checkConditions() {
 		final int numConditions = PintImportCfgUtil.getConditions(getPintImportConfg()).size();
 		if (numConditions < 2) {
 			String explanation = "Census out files contain at least quantitative information from 2 experimental conditions, "
@@ -120,84 +120,48 @@ public class WizardPageCensusOutFileProcessor extends AbstractWizardPage {
 				}
 			});
 
-		} else if (numConditions == 2) {
-			final String explanation = "Census out files contain relative abundance ratios of peptides and proteins between 2 conditions.";
-			final String question = "Which condition is the one in the numerator and which one is in the denominator of the relative abundance ratios contained in this input file?";
+		} else {
+			String explanation = null;
+			String question = null;
+			if (numConditions == 2) {
+				explanation = "Census out files contain relative abundance ratios of peptides and proteins between 2 conditions.";
+				question = "Which condition is the one in the numerator and which one is in the denominator of the relative abundance ratios contained in this input file?";
 
-		} else if (numConditions > 2) {
-			final String explanation = "Census out files contain relative abundance ratios of peptides and proteins between 2 conditions. However, we detected "
-					+ numConditions + " defined in this wizard.";
-			final String question = "Which condition is the one in the numerator and which one is in the denominator of the relative abundance ratios contained in this input file?";
+			} else if (numConditions > 2) {
+				explanation = "Census out files contain relative abundance ratios of peptides and proteins between 2 conditions. However, we detected "
+						+ numConditions + " defined in this wizard.";
+				question = "Which condition is the one in the numerator and which one is in the denominator of the relative abundance ratios contained in this input file?";
+			}
 			questionPanel = new WizardQuestionPanel(question, explanation, true);
 			((WizardQuestionPanel) questionPanel).addOKClickHandler(new ClickHandler() {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					final String question = "Numerator experimental condition:";
-					final String explanation = "Experimental condition (and Sample) that is in the numerator of the ratios of the file '"
-							+ file.getId() + "'.";
-					final WizardFormPanel panel = new WizardFormPanel(
-							new RatioSelectorForFileForm(getContext(), question, explanation), getWizard());
-					panel.setWidget(row, 0, panel);
-					panel.get
+
+					RatioSelectorForFileForm ratioSelectorPanel = new RatioSelectorForFileForm(getContext(), file);
+					ratioSelectorPanel.addOnTwoConditionsSelectedTask(new DoSomethingTask<Void>() {
+
+						@Override
+						public Void doSomething() {
+							isReadyForNextStep = true;
+							updateNextButtonState();
+							return null;
+						}
+					});
+					ratioSelectorPanel.addOnNotTwoConditionsSelectedTask(new DoSomethingTask<Void>() {
+
+						@Override
+						public Void doSomething() {
+							isReadyForNextStep = false;
+							updateNextButtonState();
+							return null;
+						}
+					});
+					panel.setWidget(row, 0, ratioSelectorPanel);
+
 				}
 			});
-
 		}
-
-		yesClickHandler = new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				extractQuantData = true;
-				showExtractQuantificationData();
-				isReadyForNextStep = true;
-				updateNextButtonState();
-			}
-		};
-		noClickHandler = new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				extractQuantData = false;
-				showExtractIdentificationData(false);
-				isReadyForNextStep = true;
-				updateNextButtonState();
-			}
-		};
-
-	}
-
-	@Override
-	public void beforeFirstShow() {
-		if (noClickHandler != null && yesClickHandler != null) {
-			row++;
-			questionPanel = new WizardQuestionPanel(question, explanation);
-			((WizardQuestionPanel) questionPanel).addNoClickHandler(noClickHandler);
-			((WizardQuestionPanel) questionPanel).addYesClickHandler(yesClickHandler);
-
-		}
-		super.beforeFirstShow();
-	}
-
-	protected void showExtractIdentificationData(boolean createNSAFQuantValues) {
-		if (file.getFormat() == FileFormat.DTA_SELECT_FILTER_TXT) {
-			final WizardExtractIdentificationDataFromDTASelectPanel extractIDPanel = new WizardExtractIdentificationDataFromDTASelectPanel(
-					wizard.getContext(), file, createNSAFQuantValues);
-			panel.setWidget(row, 0, extractIDPanel);
-		} else {
-			// TODO
-		}
-
-	}
-
-	protected void showExtractQuantificationData() {
-		// TODO Auto-generated method stub
-
-	}
-
-	protected void showFastaDefinition() {
-		// TODO Auto-generated method stub
 
 	}
 

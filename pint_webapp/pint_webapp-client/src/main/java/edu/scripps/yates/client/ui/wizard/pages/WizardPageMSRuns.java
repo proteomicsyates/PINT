@@ -12,14 +12,14 @@ import edu.scripps.yates.shared.exceptions.PintException;
 
 public class WizardPageMSRuns extends AbstractWizardPage {
 
-	private static final String text1 = "Here you have to define the MS runs of your experiment.";
-	private static final String text2 = "A MS run can serve to differentiate samples analyzed under the same experimental conditions as technical or biological replicates. "
-			+ "However, it can also be associated with multiple samples, like in a quantitative MS run that compares 2 or more samples.";
-	private static final String text3 = "Here you just create the MS runs...we will figure out later how to associate them with the data in the input files, the experimental conditions and samples.";
+	private static final String text1 = "Here you have to define the experiments and replicates you run for this project.";
+	private static final String text2 = "An experiment or replicate (biological or technical) are used in PINT to differentiate data from the same samples but maybe generated in different MS runs and so included in different input data files. "
+			+ "However, experiments or replicates can also be associated with multiple samples, like in a quantitative MS run that compares 2 or more samples and conditions.";
+	private static final String text3 = "Here you just create the experiments or replicates...we will figure out later how to associate them with the data in the input files, the experimental conditions and samples.";
 	private FlexTable panel;
 
 	public WizardPageMSRuns() {
-		super("MS runs");
+		super("Experiments/Replicates");
 	}
 
 	@Override

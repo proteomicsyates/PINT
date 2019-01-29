@@ -21,6 +21,7 @@ public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable
 	private boolean extractNSAF;
 	private PintContext context;
 	private FileTypeBean file;
+	private Label associatedConditionsValues;
 
 	public WizardExtractIdentificationDataFromDTASelectPanel(PintContext context, FileTypeBean file,
 			boolean createNSAFQuantValues) {
@@ -127,6 +128,14 @@ public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable
 			}
 		});
 		table.setWidget(row, 1, extractNSAFCheckBox);
+		//
+		row++;
+		final Label conditionsLabel = new Label("Experimental conditions in this input file:");
+		conditionsLabel.setStyleName(WizardStyles.WizardInfoMessage);
+		table.setWidget(row, 0, conditionsLabel);
+		associatedConditionsValues = new Label("not associated with any condition yet");
+		associatedConditionsValues.setStyleName(WizardStyles.WizardCriticalMessage);
+		table.setWidget(row, 1, associatedConditionsValues);
 		return table;
 	}
 
