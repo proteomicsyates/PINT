@@ -13,13 +13,13 @@ import com.google.gwt.user.client.ui.Label;
 
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 
-public class ItemDropLabel extends Label {
-	private final AbstractItemWidget itemWidget;
+public abstract class AbstractItemDropLabel<T> extends Label {
+	private final T itemWidget;
 	private final DroppableFormat format;
 	private boolean hasData = false;
 	private final String originalDroppingAreaText;
 
-	public ItemDropLabel(String droppingAreaText, DroppableFormat format, AbstractItemWidget abstractItemWidget) {
+	public AbstractItemDropLabel(String droppingAreaText, DroppableFormat format, T abstractItemWidget) {
 		super(droppingAreaText);
 		this.originalDroppingAreaText = droppingAreaText;
 		addStyleName("droppable");
@@ -72,8 +72,11 @@ public class ItemDropLabel extends Label {
 		hasData = true;
 		setText(data);
 		setStyleName(WizardStyles.WizardDraggableLabelFixed);
-		itemWidget.updateReferencedItemBeanID(data, format);
+		updateItemWithData(data, format, this.itemWidget);
+
 	}
+
+	protected abstract void updateItemWithData(String data, DroppableFormat format, T itemWidget2);
 
 	public DragOverHandler getDragOverHandler() {
 		final DragOverHandler ret = new DragOverHandler() {

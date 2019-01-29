@@ -851,4 +851,14 @@ public class PintImportCfgUtil {
 		}
 		return sb.toString();
 	}
+
+	public static ExperimentalConditionTypeBean getCondition(PintImportCfgBean pintImportConfiguration,
+			String conditionID) {
+		try {
+			return getConditions(pintImportConfiguration).stream()
+					.filter(condition -> condition.getId().equals(conditionID)).findFirst().get();
+		} catch (final NoSuchElementException e) {
+			return null;
+		}
+	}
 }

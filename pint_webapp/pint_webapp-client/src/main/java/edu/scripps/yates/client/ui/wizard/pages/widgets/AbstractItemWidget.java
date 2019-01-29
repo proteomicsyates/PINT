@@ -38,7 +38,7 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 	protected String previousNameValue;
 	private final List<DoSomethingTask2<IB>> onRemoveTasks = new ArrayList<DoSomethingTask2<IB>>();
 	private int numProperties = 0;
-	private final Map<DroppableFormat, ItemDropLabel> targetLabelsByFormat = new HashMap<DroppableFormat, ItemDropLabel>();
+	private final Map<DroppableFormat, AbstractItemDropLabel> targetLabelsByFormat = new HashMap<DroppableFormat, AbstractItemDropLabel>();
 	private final PintContext context;
 	private final List<DoSomethingTask2<IB>> doSomethingTaskOnDuplicateIteamBeanTasks = new ArrayList<DoSomethingTask2<IB>>();
 	private IDGenerator idGenerator;
@@ -312,7 +312,7 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 		numProperties++;
 		final FlexTable table = new FlexTable();
 		this.referencedItems.add(table);
-		final ItemDropLabel droppingLabel = new ItemDropLabel(droppingAreaText, format, this);
+		final ItemDropLabelForItemWidget droppingLabel = new ItemDropLabelForItemWidget(droppingAreaText, format, this);
 		droppingLabel.setTitle(referencedItemTitle);
 		this.targetLabelsByFormat.put(format, droppingLabel);
 		if (mandatory) {

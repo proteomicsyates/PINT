@@ -139,6 +139,7 @@ public class WizardPageCensusOutFileProcessor extends AbstractWizardPage {
 					final WizardFormPanel panel = new WizardFormPanel(
 							new RatioSelectorForFileForm(getContext(), question, explanation), getWizard());
 					panel.setWidget(row, 0, panel);
+					panel.get
 				}
 			});
 
