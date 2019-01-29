@@ -130,7 +130,7 @@ public class WizardPageFastaFileProcessor extends AbstractWizardPage {
 	public void beforeFirstShow() {
 		if (noClickHandler != null && yesClickHandler != null) {
 			row++;
-			questionPanel = new WizardQuestionPanel(question, explanation);
+			questionPanel = new WizardQuestionPanel(question, explanation, false);
 			questionPanel.addNoClickHandler(noClickHandler);
 			questionPanel.addYesClickHandler(yesClickHandler);
 

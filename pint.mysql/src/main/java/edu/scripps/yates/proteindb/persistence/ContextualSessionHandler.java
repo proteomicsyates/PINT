@@ -18,7 +18,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.spi.SessionImplementor;
-import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.stat.Statistics;
 
 /**
@@ -364,11 +363,7 @@ public class ContextualSessionHandler {
 
 	public static void closeSessionFactory() {
 		final SessionFactory sessionFactory2 = getSessionFactory();
-		log.info("Session factory class: " + sessionFactory2.getClass().getCanonicalName());
-		if (sessionFactory2 instanceof SessionFactoryImpl) {
-			final SessionFactoryImpl sf = (SessionFactoryImpl) sessionFactory2;
-
-		}
+		sessionFactory2.close();
 		if (sessionFactory2 instanceof SessionImplementor) {
 			try {
 				((SessionImplementor) sessionFactory2).getJdbcConnectionAccess().obtainConnection().close();

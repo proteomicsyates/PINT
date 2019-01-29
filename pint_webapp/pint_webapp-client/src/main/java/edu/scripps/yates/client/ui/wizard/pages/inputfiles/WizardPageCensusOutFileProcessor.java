@@ -10,11 +10,13 @@ import com.google.gwt.user.client.ui.Widget;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
+import edu.scripps.yates.client.ui.wizard.form.RatioSelectorForFileForm;
 import edu.scripps.yates.client.ui.wizard.pages.AbstractWizardPage;
 import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
 import edu.scripps.yates.client.ui.wizard.pages.PageTitleController;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageConditions;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardExtractIdentificationDataFromDTASelectPanel;
+import edu.scripps.yates.client.ui.wizard.pages.panels.WizardFormPanel;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardQuestionPanel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.shared.model.FileFormat;
@@ -24,23 +26,21 @@ public class WizardPageCensusOutFileProcessor extends AbstractWizardPage {
 
 	private FlexTable panel;
 	private final FileTypeBean file;
-	private final int fileNumber;
 	private final String text1;
 	private String text2;
 	private String text3;
-	private String question;
-	private String explanation;
+
 	private int row;
 	private ClickHandler noClickHandler;
 	private ClickHandler yesClickHandler;
 	protected boolean extractQuantData;
-	private WizardQuestionPanel questionPanel;
+	private FlexTable questionPanel;
 	private boolean isReadyForNextStep = false;
 
 	public WizardPageCensusOutFileProcessor(PintContext context, int fileNumber, FileTypeBean file) {
 		super(fileNumber + " " + file.getName());
 		this.file = file;
-		this.fileNumber = fileNumber;
+
 		text1 = "Processing input file " + fileNumber + "/"
 				+ PintImportCfgUtil.getFiles(context.getPintImportConfiguration()).size() + " '" + file.getName() + "'";
 
@@ -97,20 +97,53 @@ public class WizardPageCensusOutFileProcessor extends AbstractWizardPage {
 	}
 
 	private void checkFile() {
-		int numConditions = PintImportCfgUtil.getConditions(getPintImportConfg()).size();
+		final int numConditions = PintImportCfgUtil.getConditions(getPintImportConfg()).size();
 		if (numConditions < 2) {
-			explanation = "Census out files contain at least quantitative information from 2 experimental conditions, having relative abundance ratios of peptides and proteins between 2 conditions.";
-			question = "Click here to go to the " + PageTitleController.getPageTitleByPageID(
+			String explanation = "Census out files contain at least quantitative information from 2 experimental conditions, "
+					+ "having relative abundance ratios of peptides and proteins between 2 conditions.";
+			if (numConditions == 1) {
+				explanation += "\nHowever, we detected only ONE experimental condition: '"
+						+ PintImportCfgUtil.getConditions(getPintImportConfg()).get(0).getId() + "'.";
+			} else if (numConditions == 0) {
+				explanation += "\nHowever, we didn't detected any experimental condition defined yet.";
+			}
+			final String question = "Click here to go to the " + PageTitleController.getPageTitleByPageID(
 					PageIDController.getPageIDByPageClass(WizardPageConditions.class)) + " wizard page.";
-			questionPanel = new WizardQuestionPanel(question, explanation);
+			questionPanel = new WizardQuestionPanel(question, explanation, true);
+			((WizardQuestionPanel) questionPanel).addOKClickHandler(new ClickHandler() {
+
+				@Override
+				public void onClick(ClickEvent event) {
+					// go to conditions
+					getWizard().showPage(PageIDController.getPageIDByPageClass(WizardPageConditions.class), false, true,
+							true);
+				}
+			});
 
 		} else if (numConditions == 2) {
+			final String explanation = "Census out files contain relative abundance ratios of peptides and proteins between 2 conditions.";
+			final String question = "Which condition is the one in the numerator and which one is in the denominator of the relative abundance ratios contained in this input file?";
 
 		} else if (numConditions > 2) {
+			final String explanation = "Census out files contain relative abundance ratios of peptides and proteins between 2 conditions. However, we detected "
+					+ numConditions + " defined in this wizard.";
+			final String question = "Which condition is the one in the numerator and which one is in the denominator of the relative abundance ratios contained in this input file?";
+			questionPanel = new WizardQuestionPanel(question, explanation, true);
+			((WizardQuestionPanel) questionPanel).addOKClickHandler(new ClickHandler() {
+
+				@Override
+				public void onClick(ClickEvent event) {
+					final String question = "Numerator experimental condition:";
+					final String explanation = "Experimental condition (and Sample) that is in the numerator of the ratios of the file '"
+							+ file.getId() + "'.";
+					final WizardFormPanel panel = new WizardFormPanel(
+							new RatioSelectorForFileForm(getContext(), question, explanation), getWizard());
+					panel.setWidget(row, 0, panel);
+				}
+			});
 
 		}
-		explanation = "With quantitative information we are referring to either abundances (intensities, spectral counts, etc...) or relative abundance ratios";
-		question = "Which experimental conditions you want to extract quantitative information from this input file?";
+
 		yesClickHandler = new ClickHandler() {
 
 			@Override
@@ -139,8 +172,8 @@ public class WizardPageCensusOutFileProcessor extends AbstractWizardPage {
 		if (noClickHandler != null && yesClickHandler != null) {
 			row++;
 			questionPanel = new WizardQuestionPanel(question, explanation);
-			questionPanel.addNoClickHandler(noClickHandler);
-			questionPanel.addYesClickHandler(yesClickHandler);
+			((WizardQuestionPanel) questionPanel).addNoClickHandler(noClickHandler);
+			((WizardQuestionPanel) questionPanel).addYesClickHandler(yesClickHandler);
 
 		}
 		super.beforeFirstShow();

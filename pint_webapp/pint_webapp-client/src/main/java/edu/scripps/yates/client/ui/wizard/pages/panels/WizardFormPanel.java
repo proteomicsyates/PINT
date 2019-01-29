@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.ui.wizard.view.widget;
+package edu.scripps.yates.client.ui.wizard.pages.panels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,10 +28,10 @@ import com.google.gwt.user.client.ui.TextBoxBase;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.ui.wizard.Wizard;
 import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
+import edu.scripps.yates.client.ui.wizard.form.AbstractFormCollection;
+import edu.scripps.yates.client.ui.wizard.form.AbstractFormInformation;
+import edu.scripps.yates.client.ui.wizard.form.AbstractTextBasedFormInformation;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
-import edu.scripps.yates.client.util.forms.AbstractFormInformation;
-import edu.scripps.yates.client.util.forms.AbstractTextBasedFormInformation;
-import edu.scripps.yates.client.util.forms.AbstractTextFormCollection;
 import edu.scripps.yates.shared.util.Pair;
 
 public class WizardFormPanel extends FlexTable {
@@ -42,7 +42,7 @@ public class WizardFormPanel extends FlexTable {
 	private final Map<TextBoxBase, Boolean> containsTextByUserMap = new HashMap<TextBoxBase, Boolean>();
 	private final Wizard<PintContext> wizard;
 
-	public WizardFormPanel(AbstractTextFormCollection textFormInformations, Wizard<PintContext> wizard) {
+	public WizardFormPanel(AbstractFormCollection textFormInformations, Wizard<PintContext> wizard) {
 		this.wizard = wizard;
 		formInformations.addAll(textFormInformations);
 		setStyleName(WizardStyles.WizardTextFormPanel);

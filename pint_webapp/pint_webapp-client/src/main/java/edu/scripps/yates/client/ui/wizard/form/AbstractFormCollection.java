@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.util.forms;
+package edu.scripps.yates.client.ui.wizard.form;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.shared.util.Pair;
 
 @SuppressWarnings("rawtypes")
-public abstract class AbstractTextFormCollection extends ArrayList<AbstractFormInformation> {
+public abstract class AbstractFormCollection extends ArrayList<AbstractFormInformation> {
 
 	/**
 	 * 
@@ -26,7 +26,7 @@ public abstract class AbstractTextFormCollection extends ArrayList<AbstractFormI
 
 	protected PintContext context;
 
-	public AbstractTextFormCollection(PintContext context) {
+	public AbstractFormCollection(PintContext context) {
 		this.context = context;
 	}
 

@@ -7,9 +7,9 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
+import edu.scripps.yates.client.ui.wizard.form.IsQuantititativeForm;
+import edu.scripps.yates.client.ui.wizard.pages.panels.WizardFormPanel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
-import edu.scripps.yates.client.ui.wizard.view.widget.WizardFormPanel;
-import edu.scripps.yates.client.util.forms.project.IsQuantititativeForm;
 
 public class WizardPageIsQuantitative extends AbstractWizardPage {
 

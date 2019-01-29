@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.util.forms;
+package edu.scripps.yates.client.ui.wizard.form;
 
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FocusWidget;

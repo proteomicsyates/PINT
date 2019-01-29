@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.util.forms.project;
+package edu.scripps.yates.client.ui.wizard.form;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,13 +7,9 @@ import java.util.List;
 import com.google.gwt.event.shared.GwtEvent;
 
 import edu.scripps.yates.client.pint.wizard.PintContext;
-import edu.scripps.yates.client.util.forms.AbstractTextBasedFormInformation;
-import edu.scripps.yates.client.util.forms.AbstractTextFormCollection;
-import edu.scripps.yates.client.util.forms.ListBoxFormInformation;
-import edu.scripps.yates.client.util.forms.UpdateAction;
 import edu.scripps.yates.shared.util.Pair;
 
-public class IsQuantititativeForm extends AbstractTextFormCollection {
+public class IsQuantititativeForm extends AbstractFormCollection {
 
 	/**
 	 * 

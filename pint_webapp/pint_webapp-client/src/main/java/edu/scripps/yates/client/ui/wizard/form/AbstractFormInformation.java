@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.util.forms;
+package edu.scripps.yates.client.ui.wizard.form;
 
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;

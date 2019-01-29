@@ -1,4 +1,4 @@
-package edu.scripps.yates.client.util.forms;
+package edu.scripps.yates.client.ui.wizard.form;
 
 import java.util.List;
 

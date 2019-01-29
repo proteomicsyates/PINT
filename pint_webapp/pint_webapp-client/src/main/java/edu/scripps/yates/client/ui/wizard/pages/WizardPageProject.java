@@ -11,10 +11,10 @@ import edu.scripps.yates.ImportWizardServiceAsync;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
+import edu.scripps.yates.client.ui.wizard.form.ProjectForm;
+import edu.scripps.yates.client.ui.wizard.pages.panels.WizardFormPanel;
 import edu.scripps.yates.client.ui.wizard.WizardPageHelper;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
-import edu.scripps.yates.client.ui.wizard.view.widget.WizardFormPanel;
-import edu.scripps.yates.client.util.forms.project.ProjectForm;
 
 public class WizardPageProject extends AbstractWizardPage {
 
