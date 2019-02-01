@@ -66,12 +66,11 @@ public class UnirefRetriever {
 
 	/**
 	 *
-	 * @param mappingFile
-	 *            a mapping file in which the mappings are going to be writted.
-	 *            If was already used, it will be readed to check if the mapping
-	 *            is already in the file or not.
-	 * @param counterPartNCBITaxID
-	 *            NCBI tax ID number for the counterpart species.
+	 * @param mappingFile          a mapping file in which the mappings are going to
+	 *                             be writted. If was already used, it will be
+	 *                             readed to check if the mapping is already in the
+	 *                             file or not.
+	 * @param counterPartNCBITaxID NCBI tax ID number for the counterpart species.
 	 * @return
 	 */
 	public static UnirefRetriever getInstance(File mappingFile, Integer counterPartNCBITaxID) {
@@ -110,14 +109,14 @@ public class UnirefRetriever {
 		if (jaxbContext == null) {
 			try {
 				jaxbContext = JAXBContext.newInstance(UniRef.class);
-			} catch (JAXBException e) {
+			} catch (final JAXBException e) {
 				e.printStackTrace();
 
 			}
 		}
 		final Set<String> missingAccessions = getMissingAccessions(uniprotACCs, map.keySet());
 		log.info("Missing accessions not in file: " + missingAccessions.size());
-		Map<String, Set<String>> ret = retrieve(missingAccessions, counterPartNCBITaxID);
+		final Map<String, Set<String>> ret = retrieve(missingAccessions, counterPartNCBITaxID);
 		final Set<String> missingAccessions2 = getMissingAccessions(uniprotACCs, map.keySet());
 		log.info("Missing accessions: " + missingAccessions2.size());
 		// return ret;
@@ -136,11 +135,11 @@ public class UnirefRetriever {
 		// }
 		// }
 		// }
-		Map<String, Set<String>> ret2 = new THashMap<String, Set<String>>();
-		for (String uniprotAcc : uniprotACCs) {
+		final Map<String, Set<String>> ret2 = new THashMap<String, Set<String>>();
+		for (final String uniprotAcc : uniprotACCs) {
 			final Set<String> set = map.get(uniprotAcc);
 			if (set != null) {
-				for (String otherUniprotAcc : set) {
+				for (final String otherUniprotAcc : set) {
 					addToMap(ret2, uniprotAcc, otherUniprotAcc);
 				}
 
@@ -152,14 +151,14 @@ public class UnirefRetriever {
 
 	private Map<String, Set<String>> retrieve(Collection<String> uniprotACCs, Integer counterPartNCBITaxID) {
 		final String unirefUrl = unirefProps.getPropertyValue(PropertiesUtil.UNIREF_URL_PROP);
-		Map<String, Set<String>> ret = new THashMap<String, Set<String>>();
+		final Map<String, Set<String>> ret = new THashMap<String, Set<String>>();
 		final Iterator<String> uniprotIDIterator = uniprotACCs.iterator();
 		int num = 0;
 		while (num < uniprotACCs.size()) {
-			Set<String> queryIDs = new THashSet<String>();
+			final Set<String> queryIDs = new THashSet<String>();
 			for (int i = 0; i < MAX_NUM_ENTRIES_PER_QUERY; i++) {
 				if (uniprotIDIterator.hasNext()) {
-					String uniprotAcc = uniprotIDIterator.next();
+					final String uniprotAcc = uniprotIDIterator.next();
 					num++;
 					if (!FastaParser.isUniProtACC(uniprotAcc)) {
 						log.info(uniprotAcc + " is not recognized as an Uniprot Accession. Ignoring accession "
@@ -178,7 +177,7 @@ public class UnirefRetriever {
 			// "*&fil=identity:0.9&sort=score&format=xml";
 			String url = unirefUrl + "?query=";
 			int i = 0;
-			for (String queryACC : queryIDs) {
+			for (final String queryACC : queryIDs) {
 				if (i > 0) {
 					url += "+or+";
 				}
@@ -187,18 +186,18 @@ public class UnirefRetriever {
 			}
 			url += "&format=xml";
 			log.info(num + "/" + uniprotACCs.size() + " processed");
-			Map<String, Set<String>> ret2 = new THashMap<String, Set<String>>();
-			UniRef uniref = sendRequest(url);
+			final Map<String, Set<String>> ret2 = new THashMap<String, Set<String>>();
+			final UniRef uniref = sendRequest(url);
 			if (uniref != null && uniref.getEntry() != null) {
-				for (EntryType entry : uniref.getEntry()) {
+				for (final EntryType entry : uniref.getEntry()) {
 					final MemberType representativeMember = entry.getRepresentativeMember();
 					final List<PropertyType> properties = representativeMember.getDbReference().getProperty();
-					PropertyType uniprotAccType = getProperty(properties, uniprotKBAccession);
+					final PropertyType uniprotAccType = getProperty(properties, uniprotKBAccession);
 					if (uniprotAccType != null) {
 						// found the members with the taxonomy provided
 						final List<MemberType> members = entry.getMember();
 						if (members != null) {
-							for (MemberType memberType : members) {
+							for (final MemberType memberType : members) {
 								if (memberType.getDbReference() != null) {
 									final PropertyType taxonomyProperty = getProperty(
 											memberType.getDbReference().getProperty(), ncbiTaxonomyProperty);
@@ -206,7 +205,7 @@ public class UnirefRetriever {
 										continue;
 									}
 									try {
-										Integer taxId = Integer.valueOf(taxonomyProperty.getValue());
+										final Integer taxId = Integer.valueOf(taxonomyProperty.getValue());
 										if (counterPartNCBITaxID == null || taxId.equals(counterPartNCBITaxID)) {
 											final PropertyType property = getProperty(
 													memberType.getDbReference().getProperty(),
@@ -222,7 +221,7 @@ public class UnirefRetriever {
 												}
 											}
 										}
-									} catch (NumberFormatException e) {
+									} catch (final NumberFormatException e) {
 										// do nothing
 									}
 								}
@@ -234,7 +233,7 @@ public class UnirefRetriever {
 				}
 			}
 			final Set<String> missingAccessions = getMissingAccessions(queryIDs, ret2.keySet());
-			for (String missing : missingAccessions) {
+			for (final String missing : missingAccessions) {
 				ret2.put(missing, new THashSet<String>());
 			}
 			appendToFile(ret2);
@@ -247,15 +246,15 @@ public class UnirefRetriever {
 		if (map.containsKey(uniprotAcc)) {
 			map.get(uniprotAcc).add(otherUniprotAcc);
 		} else {
-			Set<String> set = new THashSet<String>();
+			final Set<String> set = new THashSet<String>();
 			set.add(otherUniprotAcc);
 			map.put(uniprotAcc, set);
 		}
 	}
 
 	private static Set<String> getMissingAccessions(Collection<String> queryIDs, Collection<String> retrievedEntries) {
-		Set<String> ret = new THashSet<String>();
-		for (String queryID : queryIDs) {
+		final Set<String> ret = new THashSet<String>();
+		for (final String queryID : queryIDs) {
 			if (!retrievedEntries.contains(queryID)) {
 				ret.add(queryID);
 			}
@@ -265,7 +264,7 @@ public class UnirefRetriever {
 
 	private static PropertyType getProperty(List<PropertyType> properties, String propertyTypeName) {
 		if (properties != null) {
-			for (PropertyType propertyType : properties) {
+			for (final PropertyType propertyType : properties) {
 				if (propertyType.getType().equals(propertyTypeName)) {
 					return propertyType;
 				}
@@ -278,9 +277,9 @@ public class UnirefRetriever {
 
 		try {
 			// log.info("Submitting String= " + urlString + "...");
-			URL url = new URL(urlString).toURI().toURL();
+			final URL url = new URL(urlString).toURI().toURL();
 			log.info("Submitting URL= " + url + "...");
-			long t1 = System.currentTimeMillis();
+			final long t1 = System.currentTimeMillis();
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			HttpURLConnection.setFollowRedirects(true);
 			conn.setDoInput(true);
@@ -289,7 +288,7 @@ public class UnirefRetriever {
 			int status = conn.getResponseCode();
 			while (true) {
 				int wait = 0;
-				String header = conn.getHeaderField("Retry-After");
+				final String header = conn.getHeaderField("Retry-After");
 				if (header != null)
 					wait = Integer.valueOf(header);
 				if (wait == 0)
@@ -303,9 +302,9 @@ public class UnirefRetriever {
 				status = conn.getResponseCode();
 			}
 			if (status == HttpURLConnection.HTTP_OK) {
-				long t2 = System.currentTimeMillis();
+				final long t2 = System.currentTimeMillis();
 				log.info("Got a OK reply in " + (t2 - t1) / 1000 + "sg");
-				InputStream is = conn.getInputStream();
+				final InputStream is = conn.getInputStream();
 				URLConnection.guessContentTypeFromStream(is);
 				final UniRef response = parseResponse(is);
 				return response;
@@ -313,16 +312,16 @@ public class UnirefRetriever {
 				log.error("Failed, got " + conn.getResponseMessage() + " for " + urlString);
 			conn.disconnect();
 
-		} catch (MalformedURLException e) {
+		} catch (final MalformedURLException e) {
 			e.printStackTrace();
 			log.warn(e.getMessage());
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			log.warn(e.getMessage());
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			e.printStackTrace();
 			log.warn(e.getMessage());
-		} catch (URISyntaxException e) {
+		} catch (final URISyntaxException e) {
 			e.printStackTrace();
 			log.warn(e.getMessage());
 		}
@@ -343,29 +342,29 @@ public class UnirefRetriever {
 			outputStream = new FileOutputStream(createTempFile);
 
 			int read = 0;
-			byte[] bytes = new byte[1024];
+			final byte[] bytes = new byte[1024];
 
 			while ((read = is.read(bytes)) != -1) {
 				outputStream.write(bytes, 0, read);
 			}
 
-			System.out.println("Done!");
+			log.info("Done!");
 			outputStream.close();
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			UniRef uniref = (UniRef) unmarshaller.unmarshal(createTempFile);
+			final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			final UniRef uniref = (UniRef) unmarshaller.unmarshal(createTempFile);
 
 			log.debug("Response parsed succesfully");
 			log.debug(uniref.getEntry().size() + " entries");
 			return uniref;
-		} catch (JAXBException e) {
+		} catch (final JAXBException e) {
 			e.printStackTrace();
-		} catch (IOException e2) {
+		} catch (final IOException e2) {
 			e2.printStackTrace();
 		} finally {
 			if (is != null) {
 				try {
 					is.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -373,7 +372,7 @@ public class UnirefRetriever {
 				try {
 					// outputStream.flush();
 					outputStream.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 
@@ -390,19 +389,19 @@ public class UnirefRetriever {
 		PrintWriter out = null;
 		try {
 			out = new PrintWriter(new BufferedWriter(new FileWriter(mappingFile, true)));
-			for (String proteinAcc : map.keySet()) {
+			for (final String proteinAcc : map.keySet()) {
 				final Set<String> otherProteinsAcc = map.get(proteinAcc);
 				out.write(proteinAcc);
 				if (otherProteinsAcc.isEmpty()) {
 					out.write("\t-");
 				} else {
-					for (String otherProteinAcc : otherProteinsAcc) {
+					for (final String otherProteinAcc : otherProteinsAcc) {
 						out.write("\t" + otherProteinAcc);
 					}
 				}
 				out.write("\n");
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// exception handling left as an exercise for the reader
 		} finally {
 			if (out != null) {
@@ -419,32 +418,32 @@ public class UnirefRetriever {
 		}
 		BufferedReader br = null;
 		try {
-			InputStream fis = new FileInputStream(mappingFile);
-			InputStreamReader isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
+			final InputStream fis = new FileInputStream(mappingFile);
+			final InputStreamReader isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
 			br = new BufferedReader(isr);
 			String line;
 			while ((line = br.readLine()) != null) {
 				if (line.contains("\t")) {
 					final String[] split = line.split("\t");
-					String oneSpeciesProtAcc = split[0];
+					final String oneSpeciesProtAcc = split[0];
 					for (int i = 1; i < split.length; i++) {
 						if (map.containsKey(oneSpeciesProtAcc)) {
 							map.get(oneSpeciesProtAcc).add(split[i]);
 						} else {
-							Set<String> set = new THashSet<String>();
+							final Set<String> set = new THashSet<String>();
 							set.add(split[i]);
 							map.put(oneSpeciesProtAcc, set);
 						}
 					}
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 
 		} finally {
 			if (br != null) {
 				try {
 					br.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 			}

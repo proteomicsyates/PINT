@@ -694,11 +694,11 @@ public class ProteinImplFromUniprotEntry extends AbstractProtein {
 
 		if (!lengthParsed) {
 			if (entry.getSequence() != null)
-				length = entry.getSequence().getLength();
+				super.setLength(entry.getSequence().getLength());
 
 			lengthParsed = true;
 		}
-		return length;
+		return super.getLength();
 	}
 
 	@Override

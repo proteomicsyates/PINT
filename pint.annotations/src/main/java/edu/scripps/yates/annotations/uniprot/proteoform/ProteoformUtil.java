@@ -40,8 +40,6 @@ public class ProteoformUtil {
 		if (start > 0) {
 			if (wholeOriginalSeq.length() >= start) {
 				ret = wholeOriginalSeq.substring(0, start - 1);
-			} else {
-				System.out.println(feature);
 			}
 		}
 		ret += newSeq;
@@ -245,8 +243,8 @@ public class ProteoformUtil {
 	}
 
 	/**
-	 * Filters the input list of proteoforms by returning all proteoforms that
-	 * are NOT the type of the proteoformType
+	 * Filters the input list of proteoforms by returning all proteoforms that are
+	 * NOT the type of the proteoformType
 	 * 
 	 * @param isoformType
 	 * @param proteoforms
@@ -261,8 +259,8 @@ public class ProteoformUtil {
 	}
 
 	/**
-	 * Filters the input list of proteoforms by returning all proteoforms that
-	 * ARE the type of the proteoformType
+	 * Filters the input list of proteoforms by returning all proteoforms that ARE
+	 * the type of the proteoformType
 	 * 
 	 * @param isoformType
 	 * @param proteoforms
