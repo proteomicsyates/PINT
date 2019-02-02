@@ -9,7 +9,9 @@ public enum FileFormat {
 	CENSUS_CHRO_XML("Census chro output (census_chro.xml)", true, true), //
 	CENSUS_OUT_TXT("Census output (census-out.txt)", true, true), //
 	DTA_SELECT_FILTER_TXT("DTASelect output (DTASelect-filter.txt)", true, false), //
-	FASTA("Fasta file", false, false), MZIDENTML("MzIdentML file", true, false);
+	FASTA("Fasta file", false, false), //
+	MZIDENTML("MzIdentML file", true, false), //
+	UNKNOWN("Unknown", false, false);
 	private final String name;
 	private final boolean dataFile;
 	private final boolean quantitativeData;

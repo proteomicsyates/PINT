@@ -16,7 +16,7 @@ import edu.scripps.yates.shared.model.projectCreator.excel.MsRunTypeBean;
 public class MSRunsPanel extends AbstractItemPanel<MSRunItemWidget, MsRunTypeBean> {
 
 	public MSRunsPanel(Wizard<PintContext> wizard) {
-		super(wizard, "MS run");
+		super(wizard, "experiment / replicate");
 
 	}
 
@@ -73,7 +73,8 @@ public class MSRunsPanel extends AbstractItemPanel<MSRunItemWidget, MsRunTypeBea
 	@Override
 	public void isReady() throws PintException {
 		if (getItemBeansFromContext(getWizard().getContext()).isEmpty()) {
-			throw new PintException("Create at least one MS run", PINT_ERROR_TYPE.WIZARD_PAGE_INCOMPLETE);
+			throw new PintException("Create at least one experiment / replicate",
+					PINT_ERROR_TYPE.WIZARD_PAGE_INCOMPLETE);
 		}
 	}
 

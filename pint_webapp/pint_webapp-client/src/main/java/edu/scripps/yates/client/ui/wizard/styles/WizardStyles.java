@@ -50,4 +50,6 @@ public class WizardStyles {
 	public static final String WizardDragTargetLabelOptional = "WizardDragTargetLabelOptional";
 	public static final String WizardQuestionPanelLessRoundCorners = "WizardQuestionPanelLessRoundCorners";
 	public static final String WizardErrorLabel1 = "WizardErrorLabel1";
+	public static final String activeSmaller = "activeSmaller";
+	public static final String inactiveSmaller = "inactiveSmaller";
 }

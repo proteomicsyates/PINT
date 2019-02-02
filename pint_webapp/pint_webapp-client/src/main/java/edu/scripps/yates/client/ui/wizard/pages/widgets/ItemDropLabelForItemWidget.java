@@ -3,8 +3,8 @@ package edu.scripps.yates.client.ui.wizard.pages.widgets;
 public class ItemDropLabelForItemWidget extends AbstractItemDropLabel<AbstractItemWidget> {
 
 	public ItemDropLabelForItemWidget(String droppingAreaText, DroppableFormat format,
-			AbstractItemWidget abstractItemWidget) {
-		super(droppingAreaText, format, abstractItemWidget);
+			AbstractItemWidget abstractItemWidget, boolean mandatory) {
+		super(droppingAreaText, format, abstractItemWidget, mandatory);
 
 	}
 

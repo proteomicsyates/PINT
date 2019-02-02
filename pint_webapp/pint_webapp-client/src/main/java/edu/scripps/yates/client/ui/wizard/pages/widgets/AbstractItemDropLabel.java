@@ -18,9 +18,22 @@ public abstract class AbstractItemDropLabel<T> extends Label {
 	private final DroppableFormat format;
 	private boolean hasData = false;
 	private final String originalDroppingAreaText;
+	private final boolean changeAppearanceOnDrop;
 
-	public AbstractItemDropLabel(String droppingAreaText, DroppableFormat format, T abstractItemWidget) {
+	public AbstractItemDropLabel(String droppingAreaText, DroppableFormat format, T abstractItemWidget,
+			boolean mandatory) {
+		this(droppingAreaText, format, abstractItemWidget, mandatory, true);
+	}
+
+	public AbstractItemDropLabel(String droppingAreaText, DroppableFormat format, T abstractItemWidget,
+			boolean mandatory, boolean changeAppearanceOnDrop) {
 		super(droppingAreaText);
+		this.changeAppearanceOnDrop = changeAppearanceOnDrop;
+		if (mandatory) {
+			setStyleName(WizardStyles.WizardDragTargetLabel);
+		} else {
+			setStyleName(WizardStyles.WizardDragTargetLabelOptional);
+		}
 		this.originalDroppingAreaText = droppingAreaText;
 		addStyleName("droppable");
 		this.itemWidget = abstractItemWidget;
@@ -70,8 +83,10 @@ public abstract class AbstractItemDropLabel<T> extends Label {
 
 	public void setDroppedData(String data) {
 		hasData = true;
-		setText(data);
-		setStyleName(WizardStyles.WizardDraggableLabelFixed);
+		if (changeAppearanceOnDrop) {
+			setText(data);
+			setStyleName(WizardStyles.WizardDraggableLabelFixed);
+		}
 		updateItemWithData(data, format, this.itemWidget);
 
 	}

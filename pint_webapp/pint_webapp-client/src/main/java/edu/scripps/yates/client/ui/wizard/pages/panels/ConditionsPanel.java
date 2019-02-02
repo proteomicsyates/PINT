@@ -1,6 +1,8 @@
 package edu.scripps.yates.client.ui.wizard.pages.panels;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.user.client.ui.SuggestBox;
 
@@ -8,6 +10,9 @@ import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask2;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.ui.wizard.Wizard;
+import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
+import edu.scripps.yates.client.ui.wizard.pages.PageTitleController;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageSamples;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.ConditionItemWidget;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
@@ -76,11 +81,23 @@ public class ConditionsPanel extends AbstractItemPanel<ConditionItemWidget, Expe
 			throw new PintException("Create at least one experimental condition",
 					PINT_ERROR_TYPE.WIZARD_PAGE_INCOMPLETE);
 		}
+		// to check that there is no a sample in multiple conditions
+		final Set<String> sampleIDs = new HashSet<String>();
+
 		for (final ExperimentalConditionTypeBean condition : conditions) {
 			if (condition.getSampleRef() == null || "".equals(condition.getSampleRef())) {
 				throw new PintException(
 						"Experimental condition '" + condition.getId() + "' need to be associated to a Sample.",
 						PINT_ERROR_TYPE.WIZARD_PAGE_INCOMPLETE);
+			} else {
+				if (sampleIDs.contains(condition.getSampleRef())) {
+					throw new PintException("Sample '" + condition.getSampleRef()
+							+ "' cannot be associated in more than one experimental condition.\nYou may want to use a different sample associated with each experimental condition. Go To '"
+							+ PageTitleController.getPageTitleByPageID(
+									PageIDController.getPageIDByPageClass(WizardPageSamples.class))
+							+ "' by clicking on the yellow button.", PINT_ERROR_TYPE.WIZARD_PAGE_INCOMPLETE);
+				}
+				sampleIDs.add(condition.getSampleRef());
 			}
 		}
 	}

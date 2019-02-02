@@ -44,7 +44,8 @@ public enum FormatType {
 	CENSUS_CHRO_XML("census_chro_xml"), @XmlEnumValue("dta_select_filter_txt")
 	DTA_SELECT_FILTER_TXT("dta_select_filter_txt"), @XmlEnumValue("mzidentml")
 	MZIDENTML("mzidentml"), @XmlEnumValue("fasta")
-	FASTA("fasta");
+	FASTA("fasta"), @XmlEnumValue("unknown")
+	UNKNOWN("unknown"),;
 	private final String value;
 
 	FormatType(String v) {

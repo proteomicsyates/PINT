@@ -312,17 +312,16 @@ public abstract class AbstractItemWidget<IB> extends FlexTable {
 		numProperties++;
 		final FlexTable table = new FlexTable();
 		this.referencedItems.add(table);
-		final ItemDropLabelForItemWidget droppingLabel = new ItemDropLabelForItemWidget(droppingAreaText, format, this);
+		final ItemDropLabelForItemWidget droppingLabel = new ItemDropLabelForItemWidget(droppingAreaText, format, this,
+				mandatory);
 		droppingLabel.setTitle(referencedItemTitle);
 		this.targetLabelsByFormat.put(format, droppingLabel);
 		if (mandatory) {
-			droppingLabel.setStyleName(WizardStyles.WizardDragTargetLabel);
 			final Label referencedItemBeanNameLabel = new Label(referencedItemBeanName + ":");
 			referencedItemBeanNameLabel.setTitle(referencedItemTitle);
 			referencedItemBeanNameLabel.setStyleName(WizardStyles.WizardItemWidgetPropertyNameLabel);
 			table.setWidget(0, 0, referencedItemBeanNameLabel);
 		} else {
-			droppingLabel.setStyleName(WizardStyles.WizardDragTargetLabelOptional);
 			final Label referencedItemBeanNameLabel = new Label(referencedItemBeanName + ":");
 			referencedItemBeanNameLabel.setTitle(referencedItemTitle);
 			referencedItemBeanNameLabel.setStyleName(WizardStyles.WizardItemWidgetPropertyNameLabel);

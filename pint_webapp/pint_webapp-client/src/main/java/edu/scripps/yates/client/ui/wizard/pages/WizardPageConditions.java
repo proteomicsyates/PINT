@@ -15,10 +15,10 @@ import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 public class WizardPageConditions extends AbstractWizardPage {
 
 	private static final String text1 = "Now, you need to define the experimental conditions in your dataset.";
-	private static final String text2 = "If the experiment is not quantitative you may want just to create one experimental condition, but at least one has to be created";
+	private static final String text2 = "If the experiment is not quantitative you may want just to create one experimental condition, but at least one has to be created.";
 	private static final String text3 = "If the experiment is quantitative, you must create one experimental condition per different sample that you are comparing.\n"
 			+ "Remember that is a one-to-one association, and therefore if you have several samples for the same experimental condition, "
-			+ "you will probably need to just create one sample and then create multiple MSRuns per sample with the same condition.";
+			+ "you will probably need to just create one sample and then create multiple Experiments/Replicates per sample with the same condition.\nNote that the same sample cannot be associated with multiple experimental conditions.";
 	private FlexTable panel;
 
 	public WizardPageConditions() {
@@ -49,7 +49,7 @@ public class WizardPageConditions extends AbstractWizardPage {
 	}
 
 	@Override
-	public void beforeFirstShow() {
+	public void beforeShow() {
 		final ConditionsPanel experimentalConditionsPanel = new ConditionsPanel(getWizard());
 		panel.setWidget(3, 0, experimentalConditionsPanel);
 		panel.getFlexCellFormatter().setVerticalAlignment(3, 0, HasVerticalAlignment.ALIGN_TOP);

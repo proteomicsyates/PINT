@@ -7,11 +7,11 @@ import edu.scripps.yates.client.ui.wizard.Wizard.Display;
 import edu.scripps.yates.client.ui.wizard.view.HasIndexedWidgets;
 
 /**
- * A WizardDeckPanel is simply a regular GWT DeckPanel
- * that implements {@link HasIndexedWidgets} for use in
- * the {@link Wizard}'s {@link Display}. Since DeckPanel
- * already implements all the methods in {@link HasIndexedWidgets},
- * there is no body to this class.
+ * A WizardDeckPanel is simply a regular GWT DeckPanel that implements
+ * {@link HasIndexedWidgets} for use in the {@link Wizard}'s {@link Display}.
+ * Since DeckPanel already implements all the methods in
+ * {@link HasIndexedWidgets}, there is no body to this class.
+ * 
  * @author Brandon Tilley
  *
  */

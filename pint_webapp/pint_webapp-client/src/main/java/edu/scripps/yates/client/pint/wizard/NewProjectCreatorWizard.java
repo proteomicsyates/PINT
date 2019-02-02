@@ -10,7 +10,6 @@ import edu.scripps.yates.client.ui.wizard.Wizard;
 import edu.scripps.yates.client.ui.wizard.pages.WelcomePage;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageConditions;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageInputFiles;
-import edu.scripps.yates.client.ui.wizard.pages.WizardPageIsQuantitative;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageLabels;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageMSRuns;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageOrganisms;
@@ -37,7 +36,7 @@ public class NewProjectCreatorWizard extends Wizard<PintContext> {
 		addPage(new WelcomePage());
 		addPage(new WizardPageProject());
 		addPage(new WizardPageInputFiles());
-		addPage(new WizardPageIsQuantitative());
+//		addPage(new WizardPageIsQuantitative());
 		addPage(new WizardPageOrganisms());
 		addPage(new WizardPageTissues());
 		addPage(new WizardPageLabels());

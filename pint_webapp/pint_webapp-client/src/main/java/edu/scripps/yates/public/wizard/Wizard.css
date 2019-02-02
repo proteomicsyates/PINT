@@ -42,10 +42,24 @@
 .muse-gwt-Wizard .wizardPages .inactive {
 	color: #888888;
 	font-size:14px;
+	white-space: nowrap;
 }
 
 .muse-gwt-Wizard .wizardPages .active {
 	font-size:14px;
+	white-space: nowrap;
+}
+
+.muse-gwt-Wizard .wizardPages .inactiveSmaller {
+	color: #cf866c;
+	font-size:12px;
+	white-space: nowrap;
+}
+
+.muse-gwt-Wizard .wizardPages .activeSmaller {
+	color: #008040;
+	font-size:12px;
+	white-space: nowrap;
 }
 
 .muse-gwt-Wizard .wizardContent {
@@ -114,14 +128,14 @@
 .wizardQuestionLabel{
 	font-size: 2.0em;
 	font-family: Circular,arial,sans-serif;
-	text-align: center;
+/* 	text-align: center; */
 	padding-top: 20px;
 	padding-bottom: 20px;
 }
 .wizardExplanationLabel{
 	font-size: 1.5em;
 	color: #776868;
-	text-align: left;
+/* 	text-align: left; */
 /* 	padding-top:30px; */
 /* 	padding-bottom: 20px; */
 	white-space: pre-line;
@@ -303,7 +317,7 @@
     font-size: 12px;
     color: #2d4b6d;
     font-weight: bold;
-    text-align: center;
+/*     text-align: center; */
     display: block;
     border: 2px solid #888888;
     border-radius: 7px;
@@ -329,7 +343,7 @@
     font-size: 12px;
     color: #2d4b6d;
     font-weight: bold;
-    text-align: left;
+/*     text-align: left; */
     display: block;
     cursor: hand;
 	cursor:pointer;
@@ -340,7 +354,7 @@
     font-size: 12px;
     color: #2d4b6d;
     font-weight: bold;
-    text-align: left;
+/*     text-align: left; */
     display: block;
 }
 .wizardItemWidgetNameLabelNonClickableRed{
@@ -349,7 +363,7 @@
     font-size: 12px;
     color: #800000;
     font-weight: bold;
-    text-align: left;
+/*     text-align: left; */
     display: block;
 }
 .wizardItemWidgetNameLabel:hover {
@@ -361,19 +375,19 @@
 .WizardItemWidgetPropertyNameLabel{
 	font-size: 1em;
 	color: #776868;
-	text-align: left;
+/* 	text-align: left; */
 	white-space: pre-line;
 }
 .WizardItemWidgetPropertyNameLabelSmaller{
 	font-size: 0.8em;
 	color: #808040;
-	text-align: left;
+/* 	text-align: left; */
 	white-space: pre-line;
 }
 .WizardItemWidgetPropertyValueLabel{
 	font-size: 1em;
 	color: #2d4b6d;
-	text-align: left;
+/* 	text-align: left; */
 	white-space: pre-line;
 	width: 20em;
     cursor: hand;
@@ -641,7 +655,7 @@
 	padding:5px 10px;
 	text-decoration:none;
 	text-shadow:0px 1px 0px #ffee66;
-	text-align: left;
+/* 	text-align: left; */
 }
 .WizardJumpToPage:hover {
 	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ffab23), color-stop(1, #ffec64));

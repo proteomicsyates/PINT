@@ -31,7 +31,7 @@ public class NewFileUploadServlet extends HttpServlet {
 	private final long FILE_SIZE_LIMIT = -1;// 20 * 1024 * 1024 * 1024; // 20 GB
 	private final Logger logger = Logger.getLogger("UploadServlet");
 	private static int fileIDs = 1;
-	public static final FileFormat defaultFileFormat = FileFormat.MZIDENTML;
+	public static final FileFormat defaultFileFormat = FileFormat.UNKNOWN;
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

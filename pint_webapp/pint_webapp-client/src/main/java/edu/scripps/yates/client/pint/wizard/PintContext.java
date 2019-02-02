@@ -1,8 +1,5 @@
 package edu.scripps.yates.client.pint.wizard;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gwt.core.client.GWT;
 
 import edu.scripps.yates.client.ui.wizard.WizardContext;
@@ -13,7 +10,6 @@ public class PintContext extends WizardContext {
 	private Boolean isQuantitative;
 	private final String sessionID;
 	private Boolean useFasta;
-	private final Map<String, Boolean> extractNSAFFromFileByFileID = new HashMap<String, Boolean>();
 
 	public PintContext(String sessionID2) {
 		this.sessionID = sessionID2;
@@ -60,11 +56,4 @@ public class PintContext extends WizardContext {
 		return useFasta;
 	}
 
-	public void setExtractNSAF(String fileId, boolean extractNSAF) {
-		extractNSAFFromFileByFileID.put(fileId, extractNSAF);
-	}
-
-	public Boolean isExtractNSAF(String fileID) {
-		return extractNSAFFromFileByFileID.get(fileID);
-	}
 }

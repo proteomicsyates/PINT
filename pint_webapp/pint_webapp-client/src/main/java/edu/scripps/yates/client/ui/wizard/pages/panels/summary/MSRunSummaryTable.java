@@ -19,7 +19,7 @@ public class MSRunSummaryTable extends AbstractSummaryTable {
 		setWidget(row, 0, msRunNumber);
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_LEFT);
 		// ms run name
-		final Label msRunLabel = new Label("MS run name:");
+		final Label msRunLabel = new Label("Experiment / replicate name:");
 		msRunLabel.setStyleName(WizardStyles.WizardInfoMessage);
 
 		setWidget(row, 1, msRunLabel);
@@ -34,7 +34,7 @@ public class MSRunSummaryTable extends AbstractSummaryTable {
 		row++;
 		if (msRun.getDate() != null) {
 			final Label dateLabel = new Label("Creation date:");
-			dateLabel.setTitle("Date in which the MS run '" + msRun.getId() + "' was created");
+			dateLabel.setTitle("Date in which the experiment / replicate '" + msRun.getId() + "' was created");
 			dateLabel.setStyleName(WizardStyles.WizardInfoMessage);
 			setWidget(row, 0, dateLabel);
 			getFlexCellFormatter().setColSpan(row, 0, 2);
@@ -50,7 +50,7 @@ public class MSRunSummaryTable extends AbstractSummaryTable {
 		row++;
 		if (msRun.getPath() != null) {
 			final Label pathLabel = new Label("Path:");
-			pathLabel.setTitle("Path in which the MS run '" + msRun.getId() + "' was created");
+			pathLabel.setTitle("Path in which the experiment / replicate '" + msRun.getId() + "' was created");
 			pathLabel.setStyleName(WizardStyles.WizardInfoMessage);
 			setWidget(row, 0, pathLabel);
 			getFlexCellFormatter().setColSpan(row, 0, 2);

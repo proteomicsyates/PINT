@@ -1,11 +1,14 @@
 package edu.scripps.yates.client.ui.wizard.pages.widgets;
 
+import java.util.List;
+
 import com.google.gwt.user.client.ui.SuggestBox;
 
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExperimentalConditionTypeBean;
+import edu.scripps.yates.shared.model.projectCreator.excel.SampleTypeBean;
 
 public class ConditionItemWidget extends AbstractItemWidget<ExperimentalConditionTypeBean> {
 
@@ -67,7 +70,27 @@ public class ConditionItemWidget extends AbstractItemWidget<ExperimentalConditio
 		ret.setDescription(condition.getDescription());
 		ret.setIdentificationInfo(condition.getIdentificationInfo());
 		ret.setQuantificationInfo(condition.getQuantificationInfo());
-		ret.setSampleRef(condition.getSampleRef());
+		// use a different sample if not associated with a condition yet
+		String sampleRef = condition.getSampleRef();
+		final List<SampleTypeBean> samples = PintImportCfgUtil.getSamples(getContext().getPintImportConfiguration());
+		for (final SampleTypeBean sample : samples) {
+			if (!sample.getId().equals(sampleRef)) {
+				// check that this new sample is not associated with any condition
+				final List<ExperimentalConditionTypeBean> conditions = PintImportCfgUtil
+						.getConditions(getContext().getPintImportConfiguration());
+				boolean associatedWithACondition = false;
+				for (final ExperimentalConditionTypeBean condition2 : conditions) {
+					if (condition2.getSampleRef() != null && condition2.getSampleRef().equals(sample.getId())) {
+						associatedWithACondition = true;
+					}
+				}
+				if (!associatedWithACondition) {
+					sampleRef = sample.getId();
+					break;
+				}
+			}
+		}
+		ret.setSampleRef(sampleRef);
 		return ret;
 	}
 

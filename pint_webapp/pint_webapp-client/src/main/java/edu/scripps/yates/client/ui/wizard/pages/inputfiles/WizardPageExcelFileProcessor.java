@@ -13,58 +13,28 @@ import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
 import edu.scripps.yates.client.ui.wizard.pages.AbstractWizardPage;
 import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
 import edu.scripps.yates.client.ui.wizard.pages.PageTitleController;
-import edu.scripps.yates.client.ui.wizard.pages.panels.WizardExtractIdentificationDataFromDTASelectPanel;
+import edu.scripps.yates.client.ui.wizard.pages.panels.InputFileSummaryPanel;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardQuestionPanel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
-import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
 public class WizardPageExcelFileProcessor extends AbstractWizardPage {
 
 	private FlexTable panel;
 	private final FileTypeBean file;
-	private final int fileNumber;
 	private final String text1;
 	private String text2;
 	private String text3;
-	private final String question;
-	private final String explanation;
 	private int row;
-	private final ClickHandler noClickHandler;
-	private final ClickHandler yesClickHandler;
 	protected boolean extractQuantData;
-	private WizardQuestionPanel questionPanel;
 	private boolean isReadyForNextStep = false;
+	private int rowForNextWidget;
 
 	public WizardPageExcelFileProcessor(PintContext context, int fileNumber, FileTypeBean file) {
-		super(fileNumber + " " + file.getName());
+		super(fileNumber + "-" + file.getName());
 		this.file = file;
-		this.fileNumber = fileNumber;
 		text1 = "Processing input file " + fileNumber + "/"
 				+ PintImportCfgUtil.getFiles(context.getPintImportConfiguration()).size() + " '" + file.getName() + "'";
-
-		explanation = "With quantitative information we are referring to either abundances (intensities, spectral counts, etc...) or relative abundance ratios";
-		question = "Do you want to extract quantitative information from this input file?";
-		yesClickHandler = new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				extractQuantData = true;
-				showExtractQuantificationData();
-				isReadyForNextStep = true;
-				updateNextButtonState();
-			}
-		};
-		noClickHandler = new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				extractQuantData = false;
-				showExtractIdentificationData(false);
-				isReadyForNextStep = true;
-				updateNextButtonState();
-			}
-		};
 
 	}
 
@@ -98,6 +68,7 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPage {
 			welcomeLabel3.setStyleName(WizardStyles.WizardExplanationLabel);
 			panel.setWidget(row, 0, welcomeLabel3);
 		}
+		rowForNextWidget = row + 1;
 		return ret;
 	}
 
@@ -113,35 +84,48 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPage {
 
 	@Override
 	public void beforeShow() {
+		// sumary of excel file
+		final InputFileSummaryPanel extractIDPanel = new InputFileSummaryPanel(wizard.getContext(), file);
+		panel.setWidget(rowForNextWidget, 0, extractIDPanel);
 
-		panel.setWidget(row, 0, questionPanel);
+		// question about whether to extract quant
+		final String explanation = "With quantitative information we are referring to either abundances (intensities, spectral counts, etc...) or relative abundance ratios";
+		final String question = "Do you want to extract quantitative information from this input file?";
+		final ClickHandler yesClickHandler = new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				extractQuantData = true;
+				showExtractQuantificationData();
+				isReadyForNextStep = true;
+				updateNextButtonState();
+			}
+		};
+		final ClickHandler noClickHandler = new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				extractQuantData = false;
+				showExtractIdentificationData(false);
+				isReadyForNextStep = true;
+				updateNextButtonState();
+			}
+		};
+		final WizardQuestionPanel questionPanel = new WizardQuestionPanel(question, explanation);
+		questionPanel.addNoClickHandler(noClickHandler);
+		questionPanel.addYesClickHandler(yesClickHandler);
+		panel.setWidget(rowForNextWidget + 1, 0, questionPanel);
 		// disable next button
 		wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, false);
 		wizard.setButtonOverride(true);
 		//
+		updateNextButtonState();
 		super.beforeShow();
 	}
 
-	@Override
-	public void beforeFirstShow() {
-		if (noClickHandler != null && yesClickHandler != null) {
-			row++;
-			questionPanel = new WizardQuestionPanel(question, explanation);
-			questionPanel.addNoClickHandler(noClickHandler);
-			questionPanel.addYesClickHandler(yesClickHandler);
-
-		}
-		super.beforeFirstShow();
-	}
-
 	private void showExtractIdentificationData(boolean createNSAFQuantValues) {
-		if (file.getFormat() == FileFormat.DTA_SELECT_FILTER_TXT) {
-			final WizardExtractIdentificationDataFromDTASelectPanel extractIDPanel = new WizardExtractIdentificationDataFromDTASelectPanel(
-					wizard.getContext(), file, createNSAFQuantValues);
-			panel.setWidget(row, 0, extractIDPanel);
-		} else {
-			// TODO
-		}
+
+		// TODO
 
 	}
 

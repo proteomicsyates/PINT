@@ -41,9 +41,14 @@ import org.proteored.miapeapi.cv.msi.PeptideModificationName;
 import org.proteored.miapeapi.cv.msi.Score;
 import org.xml.sax.SAXException;
 
+import com.compomics.dbtoolkit.io.DBLoaderLoader;
+import com.compomics.dbtoolkit.io.interfaces.DBLoader;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import edu.scripps.yates.ImportWizardService;
+import edu.scripps.yates.census.analysis.QuantCondition;
+import edu.scripps.yates.census.read.CensusChroParser;
+import edu.scripps.yates.census.read.CensusOutParser;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.dtaselectparser.DTASelectParser;
 import edu.scripps.yates.excel.ExcelColumn;
@@ -65,6 +70,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteFilesRatioType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SampleType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ServerType;
 import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
+import edu.scripps.yates.mzidentmlparser.MzIdentMLIdentificationsParser;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLSaver;
 import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
@@ -1319,8 +1325,10 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 					final File newFile = FileManager.getDataFile(importID, fileWithFormat.getFileName(),
 							fileWithFormat.getId(), newFormat);
 					if (newFile.exists()) {
-						throw new PintException("There is already a file named '" + fileWithFormat.getFileName()
-								+ "' with format " + newFormat.getName(), PINT_ERROR_TYPE.INTERNAL_ERROR);
+						final String message = "There is already a file named '" + fileWithFormat.getFileName()
+								+ "' with format " + newFormat.getName();
+						log.error(message);
+						throw new PintException(message, PINT_ERROR_TYPE.INTERNAL_ERROR);
 					} else {
 						try {
 							FileUtils.moveFile(fileWithFormat.getFile(), newFile);
@@ -1366,21 +1374,70 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public FileSummary getFileSummary(int importID, String sessionID, FileTypeBean fileTypeBean) throws PintException {
 		try {
+			final File file = FileManager.getDataFile(importID, fileTypeBean.getName(), fileTypeBean.getId(),
+					fileTypeBean.getFormat());
 			if (fileTypeBean.getFormat() == FileFormat.DTA_SELECT_FILTER_TXT) {
-				final File file = FileManager.getDataFile(importID, fileTypeBean.getName(), fileTypeBean.getId(),
-						fileTypeBean.getFormat());
-				final DTASelectParser dtaSelectParser = new DTASelectParser(file);
+				final DTASelectParser parser = new DTASelectParser(file);
 				final FileSummary ret = new FileSummary();
 				ret.setFileTypeBean(fileTypeBean);
 				ret.setFileSizeString(
 						edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
-				ret.setNumProteins(dtaSelectParser.getProteinMap().size());
-				ret.setNumPeptides(dtaSelectParser.getPSMsByFullSequence().size());
-				ret.setNumPSMs(dtaSelectParser.getPSMsByPSMID().size());
+				ret.setNumProteins(parser.getProteinMap().size());
+				ret.setNumPeptides(parser.getPSMsByFullSequence().size());
+				ret.setNumPSMs(parser.getPSMsByPSMID().size());
+				return ret;
+			} else if (fileTypeBean.getFormat() == FileFormat.CENSUS_OUT_TXT) {
+				final QuantCondition cond1 = new QuantCondition("cond1");
+				final QuantCondition cond2 = new QuantCondition("cond2");
+				final CensusOutParser parser = new CensusOutParser(file, QuantificationLabel.LIGHT, cond1,
+						QuantificationLabel.HEAVY, cond2);
+				final FileSummary ret = new FileSummary();
+				ret.setFileTypeBean(fileTypeBean);
+				ret.setFileSizeString(
+						edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
+				ret.setNumProteins(parser.getProteinMap().size());
+				ret.setNumPeptides(parser.getPeptideMap().size());
+				ret.setNumPSMs(parser.getPSMMap().size());
+				return ret;
+			} else if (fileTypeBean.getFormat() == FileFormat.CENSUS_CHRO_XML) {
+				final QuantCondition cond1 = new QuantCondition("cond1");
+				final QuantCondition cond2 = new QuantCondition("cond2");
+				final CensusChroParser parser = new CensusChroParser(file, QuantificationLabel.LIGHT, cond1,
+						QuantificationLabel.HEAVY, cond2);
+				final FileSummary ret = new FileSummary();
+				ret.setFileTypeBean(fileTypeBean);
+				ret.setFileSizeString(
+						edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
+				ret.setNumProteins(parser.getProteinMap().size());
+				ret.setNumPeptides(parser.getPeptideMap().size());
+				ret.setNumPSMs(parser.getPSMMap().size());
+				return ret;
+			} else if (fileTypeBean.getFormat() == FileFormat.FASTA) {
+				final DBLoader loader = DBLoaderLoader.loadDB(file);
+				final long numProteins = loader.countNumberOfEntries();
+				final FileSummary ret = new FileSummary();
+				ret.setFileTypeBean(fileTypeBean);
+				ret.setFileSizeString(
+						edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
+				ret.setNumProteins(new Long(numProteins).intValue());
+//				ret.setNumPeptides(parser.getPeptideMap().size());
+//				ret.setNumPSMs(parser.getPSMMap().size());
+				return ret;
+			} else if (fileTypeBean.getFormat() == FileFormat.MZIDENTML) {
+				final MzIdentMLIdentificationsParser parser = new MzIdentMLIdentificationsParser(file);
+				final FileSummary ret = new FileSummary();
+				ret.setFileTypeBean(fileTypeBean);
+				ret.setFileSizeString(
+						edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
+				ret.setNumProteins(parser.getProteinMap().size());
+				ret.setNumPeptides(parser.getPSMsByFullSequence().size());
+				ret.setNumPSMs(parser.getPSMsByPSMID().size());
 				return ret;
 			}
-			return null;
+			throw new IllegalArgumentException("Format not supported yet!");
 		} catch (final Exception e) {
+			e.printStackTrace();
+
 			throw new PintException(e, PINT_ERROR_TYPE.FILE_READING_ERROR);
 		}
 	}

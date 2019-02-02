@@ -1,38 +1,37 @@
 package edu.scripps.yates.client.ui.wizard.pages.panels;
 
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.SimpleCheckBox;
 
 import edu.scripps.yates.ImportWizardServiceAsync;
+import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.shared.model.FileSummary;
+import edu.scripps.yates.shared.model.projectCreator.excel.ExperimentalConditionTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
-public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable {
+public class InputFileSummaryPanel extends FlexTable {
 	private final static Image imageLoader = new Image(MyClientBundle.INSTANCE.roundedLoader());
 	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
-	private boolean extractNSAF;
-	private PintContext context;
-	private FileTypeBean file;
-	private Label associatedConditionsValues;
 
-	public WizardExtractIdentificationDataFromDTASelectPanel(PintContext context, FileTypeBean file,
-			boolean createNSAFQuantValues) {
-		this.context = context;
-		this.file = file;
-		this.extractNSAF = createNSAFQuantValues;
+	private Label associatedConditionsValues;
+	private final List<ExperimentalConditionTypeBean> conditions = new ArrayList<ExperimentalConditionTypeBean>();
+	private DoSomethingTask<Void> onFileSummaryReceivedTask;
+
+	public InputFileSummaryPanel(PintContext context, FileTypeBean file) {
+
 		final Label label = new Label("This is what we got from this file...");
 		label.setStyleName(WizardStyles.WizardWelcomeLabel2);
 		setWidget(0, 0, label);
 		setWidget(1, 0, imageLoader);
-		context.setExtractNSAF(file.getId(), extractNSAF);
+
 		service.getFileSummary(context.getPintImportConfiguration().getImportID(), context.getSessionID(), file,
 				new AsyncCallback<FileSummary>() {
 
@@ -44,11 +43,14 @@ public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable
 					@Override
 					public void onSuccess(FileSummary result) {
 						setWidget(1, 0, getFileSummaryPanel(result));
+						if (onFileSummaryReceivedTask != null) {
+							onFileSummaryReceivedTask.doSomething();
+						}
 					}
 				});
 	}
 
-	protected FlexTable getErrorPanel(Throwable caught) {
+	private FlexTable getErrorPanel(Throwable caught) {
 		final FlexTable table = new FlexTable();
 		table.setCellPadding(20);
 		final Label errorLabel1 = new Label("Error reading input file!");
@@ -60,7 +62,7 @@ public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable
 		return table;
 	}
 
-	protected FlexTable getFileSummaryPanel(FileSummary result) {
+	private FlexTable getFileSummaryPanel(FileSummary result) {
 		final FlexTable table = new FlexTable();
 		table.setCellPadding(0);
 		//
@@ -92,7 +94,7 @@ public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable
 		final Label numProteinsName = new Label("Number of proteins:");
 		numProteinsName.setStyleName(WizardStyles.WizardInfoMessage);
 		table.setWidget(row, 0, numProteinsName);
-		final Label numProteinsValue = new Label(String.valueOf(result.getNumProteins()));
+		final Label numProteinsValue = new Label(String.valueOf(parsePositiveNonZeroNumber(result.getNumProteins())));
 		numProteinsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 		table.setWidget(row, 1, numProteinsValue);
 		//
@@ -100,7 +102,7 @@ public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable
 		final Label numPeptidesName = new Label("Number of peptides:");
 		numPeptidesName.setStyleName(WizardStyles.WizardInfoMessage);
 		table.setWidget(row, 0, numPeptidesName);
-		final Label numPeptidesValue = new Label(String.valueOf(result.getNumPeptides()));
+		final Label numPeptidesValue = new Label(String.valueOf(parsePositiveNonZeroNumber(result.getNumPeptides())));
 		numPeptidesValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 		table.setWidget(row, 1, numPeptidesValue);
 		//
@@ -108,29 +110,14 @@ public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable
 		final Label numPSMsName = new Label("Number of PSMs:");
 		numPSMsName.setStyleName(WizardStyles.WizardInfoMessage);
 		table.setWidget(row, 0, numPSMsName);
-		final Label numPSMsValue = new Label(String.valueOf(result.getNumPSMs()));
+		final Label numPSMsValue = new Label(String.valueOf(parsePositiveNonZeroNumber(result.getNumPSMs())));
 		numPSMsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 		table.setWidget(row, 1, numPSMsValue);
+
 		//
 		row++;
-		final Label extractQuantLabel = new Label("Extract NSAF values:");
-		extractQuantLabel.setStyleName(WizardStyles.WizardInfoMessage);
-		table.setWidget(row, 0, extractQuantLabel);
-		final SimpleCheckBox extractNSAFCheckBox = new SimpleCheckBox();
-
-		extractNSAFCheckBox.setValue(extractNSAF);
-		extractNSAFCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
-			@Override
-			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				extractNSAF = event.getValue();
-				context.setExtractNSAF(file.getId(), extractNSAF);
-			}
-		});
-		table.setWidget(row, 1, extractNSAFCheckBox);
-		//
-		row++;
-		final Label conditionsLabel = new Label("Experimental conditions in this input file:");
+		final Label conditionsLabel = new Label("Experimental conditions:");
+		conditionsLabel.setTitle("Experimental conditions from which the data in this input file is coming from");
 		conditionsLabel.setStyleName(WizardStyles.WizardInfoMessage);
 		table.setWidget(row, 0, conditionsLabel);
 		associatedConditionsValues = new Label("not associated with any condition yet");
@@ -139,4 +126,42 @@ public class WizardExtractIdentificationDataFromDTASelectPanel extends FlexTable
 		return table;
 	}
 
+	private String parsePositiveNonZeroNumber(int number) {
+		if (number > 0) {
+			return String.valueOf(number);
+		} else {
+			return "-";
+		}
+	}
+
+	public void addAssociatedCondition(ExperimentalConditionTypeBean condition) {
+		this.conditions.add(condition);
+		updateAssociatedConditionsLabel();
+	}
+
+	public void removeAssociatedCondition(ExperimentalConditionTypeBean condition) {
+		this.conditions.remove(condition);
+		updateAssociatedConditionsLabel();
+	}
+
+	private void updateAssociatedConditionsLabel() {
+		if (conditions.isEmpty()) {
+			associatedConditionsValues.setText("not associated with any condition yet");
+			associatedConditionsValues.setStyleName(WizardStyles.WizardCriticalMessage);
+		} else {
+			final StringBuilder sb = new StringBuilder();
+			for (final ExperimentalConditionTypeBean condition : conditions) {
+				if (!"".equals(sb.toString())) {
+					sb.append(",");
+				}
+				sb.append(condition.getId());
+			}
+			associatedConditionsValues.setText(sb.toString());
+			associatedConditionsValues.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
+		}
+	}
+
+	public void setOnFileSummaryReceivedTask(DoSomethingTask<Void> onFileSummaryReceivedTask) {
+		this.onFileSummaryReceivedTask = onFileSummaryReceivedTask;
+	}
 }

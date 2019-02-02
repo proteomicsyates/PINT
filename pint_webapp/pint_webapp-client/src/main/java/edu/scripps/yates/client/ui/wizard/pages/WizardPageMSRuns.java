@@ -19,7 +19,7 @@ public class WizardPageMSRuns extends AbstractWizardPage {
 	private FlexTable panel;
 
 	public WizardPageMSRuns() {
-		super("Experiments/Replicates");
+		super("Experiments / Replicates");
 	}
 
 	@Override

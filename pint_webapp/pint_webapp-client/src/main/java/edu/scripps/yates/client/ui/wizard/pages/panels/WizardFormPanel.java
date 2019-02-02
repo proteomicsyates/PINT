@@ -75,20 +75,22 @@ public class WizardFormPanel extends FlexTable {
 
 			// question
 			questionLabel.setStyleName(WizardStyles.WizardFormTextLabel);
-			questionLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 			if (mandatory) {
 				setWidget(row, 1, questionLabel);
+				getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_RIGHT);
+				getFlexCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_TOP);
 			} else {
 				setWidget(row, 0, questionLabel);
+				getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+				getFlexCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_TOP);
 				getFlexCellFormatter().setColSpan(row, 0, 2);
 			}
-			getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-			getFlexCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_TOP);
+
 			// explanation
 			final Label explanationLabel = new Label(explanation);
 			explanationLabel.setStyleName(WizardStyles.WizardExplanationLabel);
 			setWidget(row + 1, 2, explanationLabel);
-			getFlexCellFormatter().setHorizontalAlignment(row + 1, 2, HasHorizontalAlignment.ALIGN_RIGHT);
+			getFlexCellFormatter().setHorizontalAlignment(row + 1, 2, HasHorizontalAlignment.ALIGN_LEFT);
 			getFlexCellFormatter().setVerticalAlignment(row + 1, 2, HasVerticalAlignment.ALIGN_TOP);
 			// text form
 			final FocusWidget formWidget = formInformation.getFormElement();

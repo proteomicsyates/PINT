@@ -31,7 +31,7 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 		this(title, null);
 	}
 
-	private AbstractWizardPage(String title, PintContext context) {
+	public AbstractWizardPage(String title, PintContext context) {
 		this.title = title;
 		this.context = context;
 		getPageID();// to create the ID

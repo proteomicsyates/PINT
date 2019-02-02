@@ -11,7 +11,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.ui.wizard.exception.DuplicatePageException;
-import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageCensusChroFileProcessor;
 import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageCensusOutFileProcessor;
 import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageDTASelectFileProcessor;
 import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageExcelFileProcessor;
@@ -80,22 +79,28 @@ public class WizardPageSummary1 extends AbstractWizardPage {
 			try {
 				switch (fileTypeBean.getFormat()) {
 				case CENSUS_CHRO_XML:
-					wizard.addPage(new WizardPageCensusChroFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					wizard.addPage(new WizardPageCensusOutFileProcessor(getContext(), fileNumber++, fileTypeBean),
+							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				case CENSUS_OUT_TXT:
-					wizard.addPage(new WizardPageCensusOutFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					wizard.addPage(new WizardPageCensusOutFileProcessor(getContext(), fileNumber++, fileTypeBean),
+							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				case DTA_SELECT_FILTER_TXT:
-					wizard.addPage(new WizardPageDTASelectFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					wizard.addPage(new WizardPageDTASelectFileProcessor(getContext(), fileNumber++, fileTypeBean),
+							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				case EXCEL:
-					wizard.addPage(new WizardPageExcelFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					wizard.addPage(new WizardPageExcelFileProcessor(getContext(), fileNumber++, fileTypeBean),
+							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				case FASTA:
-					wizard.addPage(new WizardPageFastaFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					wizard.addPage(new WizardPageFastaFileProcessor(getContext(), fileNumber++, fileTypeBean),
+							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				case MZIDENTML:
-					wizard.addPage(new WizardPageMzIdentMLFileProcessor(getContext(), fileNumber++, fileTypeBean));
+					wizard.addPage(new WizardPageMzIdentMLFileProcessor(getContext(), fileNumber++, fileTypeBean),
+							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				default:
 					break;

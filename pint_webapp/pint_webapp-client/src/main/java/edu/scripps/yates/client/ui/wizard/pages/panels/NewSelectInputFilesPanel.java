@@ -88,7 +88,6 @@ public class NewSelectInputFilesPanel extends FlexTable {
 		progressBarPanel.setStyleName(WizardStyles.PROGRESSBAR_TABLE);
 
 		uploader = new Uploader();
-		final int importID = context.getPintImportConfiguration().getImportID();
 		uploader.setButtonText("<span class=\"linkText\">Click here to upload one or more files</span>")//
 				.setButtonTextStyle(
 						".linkText{font-size: 14px; color: #BB4B44;} .linkText:hover{ font-size: 14px;  color: #000000;}")//
@@ -375,6 +374,7 @@ public class NewSelectInputFilesPanel extends FlexTable {
 		ret.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 		// delete button
 		final Image deleteButton = new Image(MyClientBundle.INSTANCE.redCross());
+		deleteButton.setTitle("Delete file");
 		deleteButton.setStyleName(WizardStyles.CLICKABLE);
 		deleteButton.getElement().getStyle().setPaddingRight(10, Unit.PX);
 		ret.add(deleteButton);
@@ -444,7 +444,9 @@ public class NewSelectInputFilesPanel extends FlexTable {
 							public void onSuccess(Void result) {
 								wizard.getView().stopProcessing();
 								// delete from conf object
-								context.getPintImportConfiguration().getFileSet().getFile().remove(fileTypeBean);
+								PintImportCfgUtil.removeFile(context.getPintImportConfiguration(),
+										fileTypeBean.getId());
+
 								loadingImage.setVisible(false);
 								labelIfNoFormat.setText("File deleted on server");
 								labelIfNoFormat.setStyleName(WizardStyles.WizardCriticalMessage);

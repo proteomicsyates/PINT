@@ -514,6 +514,77 @@ public class Wizard<C extends WizardContext> extends Composite {
 	}
 
 	// === WizardPages ====================
+	public void addPage(final WizardPage<C> page, String activeStyleName, String inactiveStyleName)
+			throws DuplicatePageException {
+		// make sure the page hasn't been added already
+		if (pages.contains(page)) {
+			throw new DuplicatePageException();
+		}
+
+		// add the title for so addPageTitle()
+		// doesn't fail due to a duplicate title.
+		addPageTitle(page.getTitle(), activeStyleName, inactiveStyleName);
+		// logical addition
+		pages.add(page);
+		// add the content
+		if (useLazyPageLoading) { // TODO: Adding content in Wizard#addPage should depend on view for DOM
+									// attachment
+			final LazyPanel p = new LazyPanel() {
+				@Override
+				protected Widget createWidget() {
+					return page.asWidget();
+				}
+			};
+			display.getContent().add(p);
+		} else {
+			display.getContent().add(page.asWidget());
+		}
+		// callback to inject the helper
+		page.onPageAdd(helper);
+
+		// show the page if it's the only one
+		if (pages.size() == 1) {
+			showPage(0);
+		}
+
+		adjustButtonStates();
+	}
+
+	// === WizardPages ====================
+	public void removePage(final WizardPage<C> page) throws DuplicatePageException {
+		// make sure the page hasn't been added already
+		if (!pages.contains(page)) {
+			return;
+		}
+
+		// add the title for so addPageTitle()
+		// doesn't fail due to a duplicate title.
+		removePageTitle(page.getTitle());
+		// logical addition
+		pages.remove(page);
+		// add the content
+		if (useLazyPageLoading) { // TODO: Adding content in Wizard#addPage should depend on view for DOM
+									// attachment
+			final LazyPanel p = new LazyPanel() {
+				@Override
+				protected Widget createWidget() {
+					return page.asWidget();
+				}
+			};
+			display.getContent().remove(p);
+		} else {
+			display.getContent().remove(page.asWidget());
+		}
+		// callback to inject the helper
+		page.onPageAdd(helper);
+
+		// show the page if it's the only one
+		if (pages.size() == 1) {
+			showPage(0);
+		}
+
+		adjustButtonStates();
+	}
 
 	/**
 	 * Adds a {@link WizardPage} to the Wizard.
@@ -571,7 +642,7 @@ public class Wizard<C extends WizardContext> extends Composite {
 	 * 
 	 * @param title the title to add to the list
 	 */
-	public void addPageTitle(String title) {
+	private void addPageTitle(String title) {
 		// Add the title to the list... maybe.
 		boolean addTitle = true;
 		if (title == null || title.isEmpty())
@@ -586,6 +657,49 @@ public class Wizard<C extends WizardContext> extends Composite {
 		}
 		if (addTitle)
 			display.getPageList().addPage(title);
+	}
+
+	private void removePageTitle(String title) {
+		// Add the title to the list... maybe.
+		boolean removeTitle = true;
+		if (title == null || title.isEmpty())
+			removeTitle = false;
+		final Iterator<WizardPage<C>> iter = pages.iterator();
+		while (iter.hasNext() && removeTitle) {
+			final WizardPage<C> pageToCheck = iter.next();
+			final String titleToCheck = pageToCheck.getTitle();
+			if (titleToCheck.equals(title)) {
+				removeTitle = false;
+			}
+		}
+		if (removeTitle)
+			display.getPageList().removePage(title);
+	}
+
+	/**
+	 * Adds a page title to the list of page titles. <code>null</code> or an empty
+	 * string results in no title being added (since this function is used by
+	 * {@link #addPage(WizardPage)}). Also, each title can only appear in the list
+	 * once (so that multiple pages may be added, even if only one page will
+	 * actually be shown due to logic in the {@link WizardPage}s).
+	 * 
+	 * @param title the title to add to the list
+	 */
+	private void addPageTitle(String title, String activeStyleName, String inactiveStyleName) {
+		// Add the title to the list... maybe.
+		boolean addTitle = true;
+		if (title == null || title.isEmpty())
+			addTitle = false;
+		final Iterator<WizardPage<C>> iter = pages.iterator();
+		while (iter.hasNext() && addTitle) {
+			final WizardPage<C> pageToCheck = iter.next();
+			final String titleToCheck = pageToCheck.getTitle();
+			if (titleToCheck.equals(title)) {
+				addTitle = false;
+			}
+		}
+		if (addTitle)
+			display.getPageList().addPage(title, activeStyleName, inactiveStyleName);
 	}
 
 	/**

@@ -17,7 +17,7 @@ public class MSRunItemWidget extends AbstractItemWidget<MsRunTypeBean> {
 		// date
 		final ItemDateBoxPropertyWidget<MsRunTypeBean> dateItemLongPropertyWidget = new ItemDateBoxPropertyWidget<MsRunTypeBean>(
 				"Date:",
-				"Approximate date in which the MS run was performed.\n" + "This is just to keep this on a record.",
+				"Approximate date in which the experiment was performed.\n" + "This is just to keep this on a record.",
 				msRun, false) {
 
 			@Override
@@ -33,7 +33,7 @@ public class MSRunItemWidget extends AbstractItemWidget<MsRunTypeBean> {
 		addPropertyWidget(dateItemLongPropertyWidget);
 		// path
 		final ItemTextBoxPropertyWidget<MsRunTypeBean> pathPropertyWidget = new ItemTextBoxPropertyWidget<MsRunTypeBean>(
-				"Path/location:", "The path of the MS run's raw files. Just to keep the record.", msRun, false) {
+				"Path/location:", "The path of the experiment's raw files. Just to keep the record.", msRun, false) {
 
 			@Override
 			public void updateItemObjectProperty(MsRunTypeBean item, String propertyValue) {
