@@ -49,19 +49,20 @@ public class WizardPageConditions extends AbstractWizardPage {
 	}
 
 	@Override
-	public void beforeShow() {
+	public void beforeFirstShow() {
 		final ConditionsPanel experimentalConditionsPanel = new ConditionsPanel(getWizard());
 		panel.setWidget(3, 0, experimentalConditionsPanel);
 		panel.getFlexCellFormatter().setVerticalAlignment(3, 0, HasVerticalAlignment.ALIGN_TOP);
 		experimentalConditionsPanel.getElement().getStyle().setMarginTop(20, Unit.PX);
-		super.registerItemPanel(experimentalConditionsPanel);
+		registerItemPanel(experimentalConditionsPanel);
 
 		final ReferencedSamplesPanel referencedSamplesPanel = new ReferencedSamplesPanel(getWizard());
 		panel.setWidget(3, 1, referencedSamplesPanel);
 		panel.getFlexCellFormatter().setVerticalAlignment(3, 1, HasVerticalAlignment.ALIGN_TOP);
 		referencedSamplesPanel.getElement().getStyle().setMarginTop(20, Unit.PX);
+		panel.getFlexCellFormatter().setWidth(3, 1, "100%");
 
-		super.beforeShow();
+		super.beforeFirstShow();
 	}
 
 	@Override

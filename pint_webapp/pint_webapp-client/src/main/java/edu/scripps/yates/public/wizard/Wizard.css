@@ -51,13 +51,13 @@
 }
 
 .muse-gwt-Wizard .wizardPages .inactiveSmaller {
-	color: #cf866c;
+	color: #8b472e;
 	font-size:12px;
 	white-space: nowrap;
 }
 
 .muse-gwt-Wizard .wizardPages .activeSmaller {
-	color: #008040;
+	color: #000000;
 	font-size:12px;
 	white-space: nowrap;
 }
@@ -711,4 +711,8 @@
 .WizardButtonMini:active {
 	position:relative;
 	top:1px;
+}
+.ExcelColumnRefPanelNew {
+/* 	border-bottom: solid; */
+	width:100%;
 }

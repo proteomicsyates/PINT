@@ -31,6 +31,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.proteored.miapeapi.cv.ControlVocabularyManager;
 import org.proteored.miapeapi.cv.ControlVocabularyTerm;
@@ -86,6 +87,7 @@ import edu.scripps.yates.server.projectCreator.adapter.excel2modelbean.DataSourc
 import edu.scripps.yates.server.projectCreator.adapter.excel2modelbean.ProjectBeanAdapter;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.util.FileManager;
+import edu.scripps.yates.server.util.FileSummaries;
 import edu.scripps.yates.server.util.FileWithFormat;
 import edu.scripps.yates.server.util.RemoteFileWithType;
 import edu.scripps.yates.server.util.ServerConstants;
@@ -292,7 +294,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	}
 
 	@Override
-	public List<String> getOrganismList(String sessionID) {
+	public synchronized List<String> getOrganismList(String sessionID) {
 		log.info("Getting organism list");
 		if (organisms.isEmpty()) {
 			final List<UniprotOrganism> uniprotOrganims = UniprotSpeciesCodeMap.getInstance().getOrganisms();
@@ -312,7 +314,12 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public List<String> getTissueList(String sessionID) {
 		log.info("Getting tissue list");
-		synchronized (sessionID) {
+		final Method method = new Object() {
+		}.getClass().getEnclosingMethod();
+		try {
+
+			LockerByTag.lock(sessionID, method);
+
 			if (tissues.isEmpty()) {
 				final List<ControlVocabularyTerm> possibleValues = TissuesTypes.getInstance(cvManager)
 						.getPossibleValues();
@@ -325,6 +332,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 				// sort by name
 				Collections.sort(tissues);
 			}
+		} finally {
+			LockerByTag.unlock(sessionID, method);
 		}
 		log.info("Returning tissue list with " + tissues.size() + " elements");
 		return tissues;
@@ -1130,6 +1139,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			// log.info("Data files removed");
 			ContextualSessionHandler.finishGoodTransaction();
 
+			onSubmitProjectSuccessfull(jobID);
 			final String encryptedProjectTag = CryptoUtil.encrypt(pintImportCfgBean.getProject().getTag());
 			return encryptedProjectTag;
 		} catch (final Exception e) {
@@ -1138,6 +1148,12 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 				throw e;
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		}
+	}
+
+	private void onSubmitProjectSuccessfull(int importID) {
+		// release fileSummaries
+		FileManager.removeFileSummaries(importID);
+
 	}
 
 	@Override
@@ -1306,7 +1322,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	public String validatePintImportCfg(PintImportCfgTypeBean pintImportCfgBean) throws PintException {
 		final PintImportCfg pintImportCfg = new PintImportCfgAdapter(pintImportCfgBean).adapt();
 		final File file = ImportCfgFileParserUtil.saveFileCfg(pintImportCfg);
-		return file.getAbsolutePath();
+
+		return FilenameUtils.getName(file.getAbsolutePath());
 	}
 
 	@Override
@@ -1374,65 +1391,84 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public FileSummary getFileSummary(int importID, String sessionID, FileTypeBean fileTypeBean) throws PintException {
 		try {
-			final File file = FileManager.getDataFile(importID, fileTypeBean.getName(), fileTypeBean.getId(),
-					fileTypeBean.getFormat());
-			if (fileTypeBean.getFormat() == FileFormat.DTA_SELECT_FILTER_TXT) {
-				final DTASelectParser parser = new DTASelectParser(file);
-				final FileSummary ret = new FileSummary();
-				ret.setFileTypeBean(fileTypeBean);
-				ret.setFileSizeString(
-						edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
-				ret.setNumProteins(parser.getProteinMap().size());
-				ret.setNumPeptides(parser.getPSMsByFullSequence().size());
-				ret.setNumPSMs(parser.getPSMsByPSMID().size());
-				return ret;
-			} else if (fileTypeBean.getFormat() == FileFormat.CENSUS_OUT_TXT) {
-				final QuantCondition cond1 = new QuantCondition("cond1");
-				final QuantCondition cond2 = new QuantCondition("cond2");
-				final CensusOutParser parser = new CensusOutParser(file, QuantificationLabel.LIGHT, cond1,
-						QuantificationLabel.HEAVY, cond2);
-				final FileSummary ret = new FileSummary();
-				ret.setFileTypeBean(fileTypeBean);
-				ret.setFileSizeString(
-						edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
-				ret.setNumProteins(parser.getProteinMap().size());
-				ret.setNumPeptides(parser.getPeptideMap().size());
-				ret.setNumPSMs(parser.getPSMMap().size());
-				return ret;
-			} else if (fileTypeBean.getFormat() == FileFormat.CENSUS_CHRO_XML) {
-				final QuantCondition cond1 = new QuantCondition("cond1");
-				final QuantCondition cond2 = new QuantCondition("cond2");
-				final CensusChroParser parser = new CensusChroParser(file, QuantificationLabel.LIGHT, cond1,
-						QuantificationLabel.HEAVY, cond2);
-				final FileSummary ret = new FileSummary();
-				ret.setFileTypeBean(fileTypeBean);
-				ret.setFileSizeString(
-						edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
-				ret.setNumProteins(parser.getProteinMap().size());
-				ret.setNumPeptides(parser.getPeptideMap().size());
-				ret.setNumPSMs(parser.getPSMMap().size());
-				return ret;
-			} else if (fileTypeBean.getFormat() == FileFormat.FASTA) {
-				final DBLoader loader = DBLoaderLoader.loadDB(file);
-				final long numProteins = loader.countNumberOfEntries();
-				final FileSummary ret = new FileSummary();
-				ret.setFileTypeBean(fileTypeBean);
-				ret.setFileSizeString(
-						edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
-				ret.setNumProteins(new Long(numProteins).intValue());
-//				ret.setNumPeptides(parser.getPeptideMap().size());
-//				ret.setNumPSMs(parser.getPSMMap().size());
-				return ret;
-			} else if (fileTypeBean.getFormat() == FileFormat.MZIDENTML) {
-				final MzIdentMLIdentificationsParser parser = new MzIdentMLIdentificationsParser(file);
-				final FileSummary ret = new FileSummary();
-				ret.setFileTypeBean(fileTypeBean);
-				ret.setFileSizeString(
-						edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
-				ret.setNumProteins(parser.getProteinMap().size());
-				ret.setNumPeptides(parser.getPSMsByFullSequence().size());
-				ret.setNumPSMs(parser.getPSMsByPSMID().size());
-				return ret;
+			final FileSummaries fileSummaries = FileManager.getFileSummariesByImportID(importID);
+			FileSummary fileSummary = fileSummaries.getFileSummaryByFileID(fileTypeBean.getId());
+			if (fileSummary != null) {
+				return fileSummary;
+			}
+			fileSummary = new FileSummary();
+			try {
+				final File file = FileManager.getDataFile(importID, fileTypeBean.getName(), fileTypeBean.getId(),
+						fileTypeBean.getFormat());
+				if (fileTypeBean.getFormat() == FileFormat.DTA_SELECT_FILTER_TXT) {
+					final DTASelectParser parser = new DTASelectParser(file);
+
+					fileSummary.setFileTypeBean(fileTypeBean);
+					fileSummary.setFileSizeString(
+							edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
+					fileSummary.setNumProteins(parser.getProteinMap().size());
+					fileSummary.setNumPeptides(parser.getPSMsByFullSequence().size());
+					fileSummary.setNumPSMs(parser.getPSMsByPSMID().size());
+					return fileSummary;
+				} else if (fileTypeBean.getFormat() == FileFormat.CENSUS_OUT_TXT) {
+					final QuantCondition cond1 = new QuantCondition("cond1");
+					final QuantCondition cond2 = new QuantCondition("cond2");
+					final CensusOutParser parser = new CensusOutParser(file, QuantificationLabel.LIGHT, cond1,
+							QuantificationLabel.HEAVY, cond2);
+					fileSummary.setFileTypeBean(fileTypeBean);
+					fileSummary.setFileSizeString(
+							edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
+					fileSummary.setNumProteins(parser.getProteinMap().size());
+					fileSummary.setNumPeptides(parser.getPeptideMap().size());
+					fileSummary.setNumPSMs(parser.getPSMMap().size());
+					return fileSummary;
+				} else if (fileTypeBean.getFormat() == FileFormat.CENSUS_CHRO_XML) {
+					final QuantCondition cond1 = new QuantCondition("cond1");
+					final QuantCondition cond2 = new QuantCondition("cond2");
+					final CensusChroParser parser = new CensusChroParser(file, QuantificationLabel.LIGHT, cond1,
+							QuantificationLabel.HEAVY, cond2);
+					fileSummary.setFileTypeBean(fileTypeBean);
+					fileSummary.setFileSizeString(
+							edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
+					fileSummary.setNumProteins(parser.getProteinMap().size());
+					fileSummary.setNumPeptides(parser.getPeptideMap().size());
+					fileSummary.setNumPSMs(parser.getPSMMap().size());
+					return fileSummary;
+				} else if (fileTypeBean.getFormat() == FileFormat.FASTA) {
+					final DBLoader loader = DBLoaderLoader.loadDB(file);
+					final long numProteins = loader.countNumberOfEntries();
+					fileSummary.setFileTypeBean(fileTypeBean);
+					fileSummary.setFileSizeString(
+							edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
+					fileSummary.setNumProteins(new Long(numProteins).intValue());
+//				fileSummary.setNumPeptides(parser.getPeptideMap().size());
+//				fileSummary.setNumPSMs(parser.getPSMMap().size());
+					return fileSummary;
+				} else if (fileTypeBean.getFormat() == FileFormat.MZIDENTML) {
+					final MzIdentMLIdentificationsParser parser = new MzIdentMLIdentificationsParser(file);
+					fileSummary.setFileTypeBean(fileTypeBean);
+					fileSummary.setFileSizeString(
+							edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
+					fileSummary.setNumProteins(parser.getProteinMap().size());
+					fileSummary.setNumPeptides(parser.getPSMsByFullSequence().size());
+					fileSummary.setNumPSMs(parser.getPSMsByPSMID().size());
+					return fileSummary;
+				} else if (fileTypeBean.getFormat() == FileFormat.EXCEL) {
+					final ExcelFileImpl excelReader = getExcelReader(file);
+					fileSummary.setFileTypeBean(fileTypeBean);
+					fileSummary.setFileSizeString(
+							edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
+					fileSummary.setNumSheets(excelReader.getSheets().size());
+
+					final Map<String, Integer> sheetMap = new HasMap<String, Integer>();
+					fileSummary.setSheetMap(sheetMap);
+					return fileSummary;
+				}
+			} finally {
+				// add it
+				if (fileSummary != null) {
+					fileSummaries.addFileSummary(fileSummary);
+				}
 			}
 			throw new IllegalArgumentException("Format not supported yet!");
 		} catch (final Exception e) {
@@ -1444,15 +1480,74 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 
 	@Override
 	public String getUploadedFileID(int importID, String uploadedFileSignature) throws PintException {
-		final List<FileWithFormat> files = FileManager.getFilesByImportProcessID(importID);
-		for (final FileWithFormat fileWithFormat : files) {
-			final String signature = fileWithFormat.getFileName() + fileWithFormat.getFile().length();
-			if (signature.equals(uploadedFileSignature)) {
-				return fileWithFormat.getId();
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		try {
+			LockerByTag.lock(String.valueOf(importID), enclosingMethod);
+			final List<FileWithFormat> files = FileManager.getFilesByImportProcessID(importID);
+			FileWithFormat fileRet = null;
+			for (final FileWithFormat fileWithFormat : files) {
+				final String signature = fileWithFormat.getFileName() + fileWithFormat.getFile().length();
+				if (signature.equals(uploadedFileSignature)) {
+					fileRet = fileWithFormat;
+					break;
+				}
 			}
+			if (fileRet == null) {
+				throw new PintException("File with signature '" + uploadedFileSignature + "' not found",
+						PINT_ERROR_TYPE.FILE_NOT_FOUND_IN_SERVER);
+			}
+			// before returning it, check whether other file from the importProcessID (maybe
+			// with other format) has the same ID
+			while (true) {
+				boolean repeated = false;
+				for (final FileWithFormat fileWithFormat : files) {
+					if (fileRet != fileWithFormat) {
+						if (fileRet.getId().equals(fileWithFormat.getId())) {
+							// the id is repeated, so we changed it
+							int fileNum = Integer.valueOf(fileRet.getId().split("_")[1]);
+							fileNum++;
+							fileRet.setId("file_" + fileNum);
+							repeated = true;
+							break;
+						}
+					}
+				}
+				if (!repeated) {
+					// move to new folder
+					final File dest = FileManager.getDataFile(importID, fileRet.getFileName(), fileRet.getId(),
+							FileFormat.getFileFormatFromString(fileRet.getFormat().toString()));
+					FileUtils.moveFile(fileRet.getFile(), dest);
+					fileRet.setFile(dest);
+					return fileRet.getId();
+				}
+			}
+
+		} catch (final IOException e) {
+			e.printStackTrace();
+			throw new PintException("Error moving file ", PINT_ERROR_TYPE.MOVING_FILE_ERROR);
+		} finally {
+			LockerByTag.unlock(String.valueOf(importID), enclosingMethod);
 		}
-		throw new PintException("File with signature '" + uploadedFileSignature + "' not found",
-				PINT_ERROR_TYPE.FILE_NOT_FOUND_IN_SERVER);
+	}
+
+	@Override
+	public PintImportCfgBean getPintImportCfgTypeBeanByProcessKey(int importProcessKey) throws PintException {
+		try {
+			final File projectCfgFileByImportProcessKey = FileManager
+					.getProjectCfgFileByImportProcessKey(importProcessKey);
+			if (projectCfgFileByImportProcessKey != null) {
+				final PintImportCfg pintImportCfg = ImportCfgFileParserUtil
+						.getPintImportFromFile(projectCfgFileByImportProcessKey);
+				final PintImportCfgBean ret = new PintImportCfgBeanAdapter(pintImportCfg).adapt();
+				return ret;
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+		throw new PintException("Internal error", PINT_ERROR_TYPE.INTERNAL_ERROR);
 	}
 
 }

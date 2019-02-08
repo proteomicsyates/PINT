@@ -5,9 +5,6 @@ import java.util.List;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.ui.wizard.Wizard;
-import edu.scripps.yates.client.ui.wizard.WizardPage.PageID;
-import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
-import edu.scripps.yates.client.ui.wizard.pages.WizardPageLabels;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.DroppableFormat;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.ItemDraggableLabel;
 import edu.scripps.yates.shared.model.projectCreator.excel.LabelTypeBean;
@@ -33,14 +30,6 @@ public class ReferencedLabelsPanel extends AbstractReferencedItemPanel<LabelType
 			labelObj.setTitle("Label: " + label.getId());
 		}
 		return labelObj;
-	}
-
-	@Override
-	protected PageID getWizardPageIDToJumpByFormat(DroppableFormat format) {
-		if (format == DroppableFormat.LABEL) {
-			return PageIDController.getPageIDByPageClass(WizardPageLabels.class);
-		}
-		return null;
 	}
 
 }

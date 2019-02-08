@@ -14,12 +14,21 @@ import com.google.gwt.user.client.ui.Label;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.statusreporter.StatusReporter;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.Wizard;
 import edu.scripps.yates.client.ui.wizard.WizardPage.PageID;
+import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
 import edu.scripps.yates.client.ui.wizard.pages.PageTitleController;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageLabels;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageMSRuns;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageOrganisms;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageSamples;
+import edu.scripps.yates.client.ui.wizard.pages.WizardPageTissues;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.DroppableFormat;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.ItemDraggableLabel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.shared.exceptions.PintException;
+import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
 
 public abstract class AbstractReferencedItemPanel<IB> extends FlexTable implements StatusReporter {
@@ -110,7 +119,27 @@ public abstract class AbstractReferencedItemPanel<IB> extends FlexTable implemen
 		}
 	}
 
-	protected abstract PageID getWizardPageIDToJumpByFormat(DroppableFormat format2);
+	private PageID getWizardPageIDToJumpByFormat(DroppableFormat format2) {
+		switch (format2) {
+		case LABEL:
+			return PageIDController.getPageIDByPageClass(WizardPageLabels.class);
+		case MSRUN:
+			return PageIDController.getPageIDByPageClass(WizardPageMSRuns.class);
+		case ORGANISM:
+			return PageIDController.getPageIDByPageClass(WizardPageOrganisms.class);
+		case SAMPLE:
+			return PageIDController.getPageIDByPageClass(WizardPageSamples.class);
+		case TISSUE:
+			return PageIDController.getPageIDByPageClass(WizardPageTissues.class);
+		default:
+			StatusReportersRegister.getInstance()
+					.notifyStatusReporters(new PintException(
+							format2 + " not supported to be dropped...at least it is not implemented where to jump",
+							PINT_ERROR_TYPE.INTERNAL_ERROR));
+			return null;
+		}
+
+	};
 
 	/**
 	 * Method to create an {@link ItemDraggableLabel}, in which the data parameter

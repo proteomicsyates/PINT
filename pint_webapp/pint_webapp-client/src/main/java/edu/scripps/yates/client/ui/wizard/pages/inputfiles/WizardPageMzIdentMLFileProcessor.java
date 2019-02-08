@@ -26,4 +26,8 @@ public class WizardPageMzIdentMLFileProcessor extends WizardPageDTASelectFilePro
 		return super.equals(obj);
 	}
 
+	@Override
+	public String getExplanation() {
+		return "mzIdentML files may contain proteins and peptides belonging to multiple Experimental Conditions.";
+	}
 }

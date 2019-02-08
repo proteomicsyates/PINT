@@ -20,7 +20,7 @@ public class WizardPageSamples extends AbstractWizardPage {
 	private static final String text2 = "A sample will have some attributes associated to it such as: <i>Organism</i>, <i>Tissue / Cell line)</i>, or <i>Label (in case of quantification)</i>";
 	private static final String text3 = "For example, in a single 4Plex iTRAQ experiment in which the 2 first channels (114 and 115) are from experimental condition A"
 			+ " and the 2 second channels (116 and 117) are from experimental condition B, you will have two options:"
-			+ "<ol><li>to define 4 samples one per channel and associate each of them to a different label attribute</li>"
+			+ "<ol type=\"A\"><li>to define 4 samples one per channel and associate each of them to a different label attribute</li>"
 			+ "<li>to define 2 samples, one per condition and either do not associate them with labels or "
 			+ "associated them with 2 labels (can be two labels as '114-115' and '116-117')</li></ol> ";
 	private FlexTable panel;
@@ -68,6 +68,7 @@ public class WizardPageSamples extends AbstractWizardPage {
 		final FlexTable rightColumnTable = new FlexTable();
 		panel.setWidget(3, 1, rightColumnTable);
 		panel.getFlexCellFormatter().setVerticalAlignment(3, 1, HasVerticalAlignment.ALIGN_TOP);
+		panel.getFlexCellFormatter().setWidth(3, 1, "100%");
 
 		final ReferencedOrganismsPanel referencedOrganismPanel = new ReferencedOrganismsPanel(getWizard());
 		registerReferencedPanel(referencedOrganismPanel);
@@ -90,7 +91,7 @@ public class WizardPageSamples extends AbstractWizardPage {
 		referencedLabelsPanel.getElement().getStyle().setMarginTop(10, Unit.PX);
 		referencedLabelsPanel.getElement().getStyle().setHeight(1, Unit.PX);
 
-		super.beforeShow();
+		super.beforeFirstShow();
 	}
 
 	@Override

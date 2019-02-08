@@ -38,9 +38,12 @@ public class FileManager {
 	private static String projectFilesPath;
 	private static TIntObjectHashMap<List<FileWithFormat>> filesByImportProcessID = new TIntObjectHashMap<List<FileWithFormat>>();
 	private static TIntObjectHashMap<File> projectCfgFileByImportProcessID = new TIntObjectHashMap<File>();
+	private static TIntObjectHashMap<File> projectCfgFileByImportProcessKey = new TIntObjectHashMap<File>();
+
 	private static boolean ready = false;
 	private static boolean loading;
 	private static final String PROJECT_STATS_FILE_NAME = "stats.properties";
+	private static final TIntObjectHashMap<FileSummaries> fileSummariesByImportID = new TIntObjectHashMap<FileSummaries>();
 
 	private static File getXmlFolder() {
 
@@ -232,7 +235,8 @@ public class FileManager {
 	public static String getProjectFilesPath(ServletContext servletContext) {
 		if (projectFilesPath == null || projectFilesPath.equals(System.getProperty("java.io.tmpdir"))) {
 			if (ServerUtil.isTestServer()) {
-				projectFilesPath = "Z:\\share\\Salva\\data\\PInt";
+				projectFilesPath = "D:\\PINT";
+//				projectFilesPath = "Z:\\share\\Salva\\data\\PInt";
 			} else {
 				projectFilesPath = servletContext.getInitParameter(SharedConstants.PINT_HOME_PATH);
 
@@ -314,39 +318,41 @@ public class FileManager {
 	}
 
 	public static List<FileWithFormat> getFilesByImportProcessID(int importProcessIdentifier, FileFormat format) {
-		if (!filesByImportProcessID.containsKey(importProcessIdentifier) && format != null) {
-			final File projectDataFileFolder = getProjectDataFileFolder(importProcessIdentifier, true);
-			if (projectDataFileFolder.exists() && projectDataFileFolder.listFiles() != null) {
-				for (final File dataFileFolder : projectDataFileFolder.listFiles()) {
-					if (dataFileFolder.listFiles().length == 1) {
-						final File dataFileFormatFolder = dataFileFolder.listFiles()[0];
-						final FormatType formatFromFolder = FormatType
-								.fromValue(FilenameUtils.getBaseName(dataFileFormatFolder.getAbsolutePath()));
-						if (dataFileFormatFolder.listFiles().length == 1) {
-							final File dataFile = dataFileFormatFolder.listFiles()[0];
-							if (dataFile.exists()) {
-								// TODO substitute the null by something
-								FileWithFormat obj = null;
-								if (format != null) {
-									obj = new FileWithFormat(FilenameUtils.getName(dataFile.getAbsolutePath()),
-											dataFile, FormatType.fromValue(format.name().toLowerCase()), null);
-								} else {
-									obj = new FileWithFormat(FilenameUtils.getName(dataFile.getAbsolutePath()),
-											dataFile, formatFromFolder, null);
-								}
-								if (filesByImportProcessID.containsKey(importProcessIdentifier)) {
-									filesByImportProcessID.get(importProcessIdentifier).add(obj);
-								} else {
-									final List<FileWithFormat> list = new ArrayList<FileWithFormat>();
-									list.add(obj);
-									filesByImportProcessID.put(importProcessIdentifier, list);
-								}
+
+		final File projectDataFileFolder = getProjectDataFileFolder(importProcessIdentifier, true);
+		if (projectDataFileFolder.exists() && projectDataFileFolder.listFiles() != null) {
+			for (final File dataFileFolder : projectDataFileFolder.listFiles()) {
+//				if (dataFileFolder.listFiles().length == 1) {
+				for (final File dataFileFormatFolder : dataFileFolder.listFiles()) {
+
+					final FormatType formatFromFolder = FormatType
+							.fromValue(FilenameUtils.getBaseName(dataFileFormatFolder.getAbsolutePath()));
+					if (dataFileFormatFolder.listFiles().length > 0) {
+						final File dataFile = dataFileFormatFolder.listFiles()[0];
+						if (dataFile.exists()) {
+							// TODO substitute the null by something
+							FileWithFormat obj = null;
+							if (format != null) {
+								obj = new FileWithFormat(FilenameUtils.getName(dataFileFolder.getAbsolutePath()),
+										dataFile, FormatType.fromValue(format.name().toLowerCase()), null);
+							} else {
+								obj = new FileWithFormat(FilenameUtils.getName(dataFileFolder.getAbsolutePath()),
+										dataFile, formatFromFolder, null);
+							}
+							if (filesByImportProcessID.containsKey(importProcessIdentifier)) {
+								filesByImportProcessID.get(importProcessIdentifier).add(obj);
+							} else {
+								final List<FileWithFormat> list = new ArrayList<FileWithFormat>();
+								list.add(obj);
+								filesByImportProcessID.put(importProcessIdentifier, list);
 							}
 						}
 					}
 				}
+//				}
 			}
 		}
+
 		return filesByImportProcessID.get(importProcessIdentifier);
 	}
 
@@ -375,6 +381,15 @@ public class FileManager {
 		log.info("Project cfg file '" + cfgFile.getAbsolutePath() + "' stored with import ID = "
 				+ importProcessIdentifier);
 		projectCfgFileByImportProcessID.put(importProcessIdentifier, cfgFile);
+	}
+
+	public static void indexProjectCfgFileByImportCfgKey(int importProcessKey, File cfgFile) {
+
+		projectCfgFileByImportProcessKey.put(importProcessKey, cfgFile);
+	}
+
+	public static File getProjectCfgFileByImportProcessKey(int importProcessKey) {
+		return projectCfgFileByImportProcessKey.get(importProcessKey);
 	}
 
 	private static void loadIfNeeded() {
@@ -501,4 +516,15 @@ public class FileManager {
 		return false;
 	}
 
+	public static FileSummaries getFileSummariesByImportID(int importID) {
+		if (!fileSummariesByImportID.containsKey(importID)) {
+			final FileSummaries fileSummaries = new FileSummaries();
+			fileSummariesByImportID.put(importID, fileSummaries);
+		}
+		return fileSummariesByImportID.get(importID);
+	}
+
+	public static void removeFileSummaries(int importID) {
+		fileSummariesByImportID.remove(importID);
+	}
 }

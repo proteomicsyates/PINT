@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.scripps.yates.client.history.TargetHistory;
+import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 
 public class PopUpPanelYesNo extends VerticalPanel {
 
@@ -21,7 +22,8 @@ public class PopUpPanelYesNo extends VerticalPanel {
 	private Label titleLabel;
 	private Button button1;
 	private Button button2;
-	private HTML message;
+	private final HTML message;
+	private HTML explanation;
 
 	public PopUpPanelYesNo(boolean autoHide, boolean modal, boolean glassEnabled, String title, String messageText) {
 		this(autoHide, modal, glassEnabled, title, messageText, "Yes", "No");
@@ -38,6 +40,21 @@ public class PopUpPanelYesNo extends VerticalPanel {
 	 */
 	public PopUpPanelYesNo(boolean autoHide, boolean modal, boolean glassEnabled, String title, String messageText,
 			String button1Text, String button2Text) {
+		this(autoHide, modal, glassEnabled, title, messageText, null, button1Text, button2Text);
+	}
+
+	/**
+	 * A {@link PopupPanel} with a button. When closed, the browser will be
+	 * redirected to the {@link TargetHistory} token provided if so.
+	 *
+	 * @param autoHide
+	 * @param modal
+	 * @param messageText
+	 * @param explanationText
+	 * @param target
+	 */
+	public PopUpPanelYesNo(boolean autoHide, boolean modal, boolean glassEnabled, String title, String messageText,
+			String explanationText, String button1Text, String button2Text) {
 		super();
 		setHorizontalAlignment(ALIGN_CENTER);
 		if (title != null) {
@@ -50,11 +67,18 @@ public class PopUpPanelYesNo extends VerticalPanel {
 		popup.setAutoHideOnHistoryEventsEnabled(true);
 		popup.setAnimationEnabled(true);
 		popup.getElement().getStyle().setProperty("borderRadius", 10, Unit.PX);
+		if (explanationText != null && !"".equals(explanationText)) {
+			explanation = new HTML(new SafeHtmlBuilder().appendEscapedLines(explanationText).toSafeHtml());
+			explanation.setStyleName(WizardStyles.WizardInfoMessage);
+			this.add(explanation);
+			explanation.getElement().getStyle().setPaddingBottom(10, Unit.PX);
+		}
+
 		message = new HTML(new SafeHtmlBuilder().appendEscapedLines(messageText).toSafeHtml());
 		message.setStyleName("checkLoginPopUp-message");
 		this.add(message);
 
-		Grid holder = new Grid(1, 2);
+		final Grid holder = new Grid(1, 2);
 		holder.setStyleName("checkLoginPopUp-grid");
 		if (button1Text != null) {
 			button1 = new Button(button1Text);
@@ -92,7 +116,7 @@ public class PopUpPanelYesNo extends VerticalPanel {
 	}
 
 	protected void hideAfterTime(int milliseconds) {
-		Timer timer = new Timer() {
+		final Timer timer = new Timer() {
 
 			@Override
 			public void run() {
@@ -103,7 +127,7 @@ public class PopUpPanelYesNo extends VerticalPanel {
 		timer.schedule(milliseconds);
 	}
 
-	private void reset() {
+	public void reset() {
 		statusLabel.setText("");
 	}
 

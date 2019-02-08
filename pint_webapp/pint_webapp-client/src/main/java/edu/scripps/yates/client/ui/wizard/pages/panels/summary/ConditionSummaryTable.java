@@ -43,7 +43,7 @@ public class ConditionSummaryTable extends AbstractSummaryTable {
 		sampleNameLabel.setTitle(PintImportCfgUtil.getTitleSample(sample));
 		sampleNameLabel.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 		setWidget(1, 1, sampleNameLabel);
-		getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_LEFT);
+		getFlexCellFormatter().setHorizontalAlignment(1, 1, HasHorizontalAlignment.ALIGN_LEFT);
 	}
 
 }

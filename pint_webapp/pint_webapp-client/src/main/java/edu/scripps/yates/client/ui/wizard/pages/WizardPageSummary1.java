@@ -110,7 +110,11 @@ public class WizardPageSummary1 extends AbstractWizardPage {
 				GWT.log(e.getMessage(), e);
 			}
 		}
-
+		try {
+			wizard.addPage(new WizardPageInputFilesToMSRuns());
+		} catch (final DuplicatePageException e) {
+			GWT.log(e.getMessage(), e);
+		}
 		super.beforeShow();
 	}
 

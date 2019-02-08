@@ -8,6 +8,7 @@ import java.util.Set;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.client.ui.Widget;
 
+import edu.scripps.yates.client.pint.wizard.NewProjectCreatorWizard;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.Wizard;
@@ -82,6 +83,14 @@ public abstract class AbstractWizardPage extends WizardPage<PintContext> {
 	public Wizard<PintContext> getWizard() {
 		GWT.log("getWizard");
 		return super.getWizard();
+	}
+
+	public NewProjectCreatorWizard getProjectCreatorWizard() {
+		final Wizard<PintContext> wizard2 = super.getWizard();
+		if (wizard2 instanceof NewProjectCreatorWizard) {
+			return (NewProjectCreatorWizard) wizard2;
+		}
+		return null;
 	}
 
 	@Override

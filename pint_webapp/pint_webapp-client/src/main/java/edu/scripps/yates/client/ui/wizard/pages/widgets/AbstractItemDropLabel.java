@@ -86,6 +86,9 @@ public abstract class AbstractItemDropLabel<T> extends Label {
 		if (changeAppearanceOnDrop) {
 			setText(data);
 			setStyleName(WizardStyles.WizardDraggableLabelFixed);
+		} else {
+			setText(originalDroppingAreaText);
+			setStyleName(WizardStyles.WizardDragTargetLabel);
 		}
 		updateItemWithData(data, format, this.itemWidget);
 

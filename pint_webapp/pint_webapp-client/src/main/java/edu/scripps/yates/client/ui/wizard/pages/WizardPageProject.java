@@ -1,6 +1,5 @@
 package edu.scripps.yates.client.ui.wizard.pages;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
@@ -8,12 +7,11 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.ImportWizardServiceAsync;
-import edu.scripps.yates.client.pint.wizard.PintContext;
+import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
 import edu.scripps.yates.client.ui.wizard.form.ProjectForm;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardFormPanel;
-import edu.scripps.yates.client.ui.wizard.WizardPageHelper;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 
 public class WizardPageProject extends AbstractWizardPage {
@@ -54,41 +52,51 @@ public class WizardPageProject extends AbstractWizardPage {
 
 		final ProjectForm projectTextForm = new ProjectForm(getContext());
 		textFormPanel = new WizardFormPanel(projectTextForm, getWizard());
+		projectTextForm.setOnProjectTagTyped(new DoSomethingTask<Void>() {
 
+			@Override
+			public Void doSomething() {
+				final boolean show = !"".equals(getContext().getPintImportConfiguration().getProject().getTag());
+				getProjectCreatorWizard().showSaveProgressButton(show);
+				getProjectCreatorWizard().getButton(ButtonType.BUTTON_CANCEL).setEnabled(true);
+				return null;
+			}
+		});
 		panel.setWidget(2, 0, textFormPanel);
 
 		return panel;
 	}
 
 	@Override
-	public void onPageAdd(WizardPageHelper<PintContext> helper) {
-		GWT.log("onPageAdd " + getClass().getName());
-		super.onPageAdd(helper);
-
-		// set ID
-		service.generateNewImportProcessID(new AsyncCallback<Integer>() {
-
-			@Override
-			public void onSuccess(Integer importID) {
-				getPintImportConfg().setImportID(importID);
-				createInteractivePage();
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-
-			}
-		});
-	}
-
-	@Override
 	public void beforeFirstShow() {
-		// disable next until user response
-		super.getWizard().setButtonEnabled(ButtonType.BUTTON_NEXT, false);
-		// we have to override this, otherwise it doesnt work
-		getWizard().setButtonOverride(true);
-		super.beforeShow();
+		if (getPintImportConfg().getImportID() > 0) {
+			createInteractivePage();
+			getProjectCreatorWizard().showSaveProgressButton(true);
+			getProjectCreatorWizard().getButton(ButtonType.BUTTON_CANCEL).setEnabled(true);
+		} else {
+			// set ID
+			service.generateNewImportProcessID(new AsyncCallback<Integer>() {
+
+				@Override
+				public void onSuccess(Integer importID) {
+					getPintImportConfg().setImportID(importID);
+
+					createInteractivePage();
+				}
+
+				@Override
+				public void onFailure(Throwable caught) {
+					StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+
+				}
+			});
+			// disable next until user response
+			super.getWizard().setButtonEnabled(ButtonType.BUTTON_NEXT, false);
+			// we have to override this, otherwise it doesn't work
+			getWizard().setButtonOverride(true);
+		}
+
+		super.beforeFirstShow();
 	}
 
 	@Override

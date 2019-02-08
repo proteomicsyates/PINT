@@ -13,6 +13,7 @@ import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.client.util.ClientNumberFormat;
 import edu.scripps.yates.shared.model.FileSummary;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExperimentalConditionTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
@@ -24,24 +25,30 @@ public class InputFileSummaryPanel extends FlexTable {
 	private Label associatedConditionsValues;
 	private final List<ExperimentalConditionTypeBean> conditions = new ArrayList<ExperimentalConditionTypeBean>();
 	private DoSomethingTask<Void> onFileSummaryReceivedTask;
+	private final ClientNumberFormat formatter = new ClientNumberFormat("###,###");
 
 	public InputFileSummaryPanel(PintContext context, FileTypeBean file) {
 
 		final Label label = new Label("This is what we got from this file...");
-		label.setStyleName(WizardStyles.WizardWelcomeLabel2);
+		label.setStyleName(WizardStyles.WizardExplanationLabel);
 		setWidget(0, 0, label);
-		setWidget(1, 0, imageLoader);
-
+		final Label label2 = new Label("Processing file information...");
+		setWidget(1, 0, label2);
+		label2.setStyleName(WizardStyles.WizardInfoMessage);
+		setWidget(1, 1, imageLoader);
 		service.getFileSummary(context.getPintImportConfiguration().getImportID(), context.getSessionID(), file,
 				new AsyncCallback<FileSummary>() {
 
 					@Override
 					public void onFailure(Throwable caught) {
+						removeCell(1, 1); // remove loading image
 						setWidget(1, 0, getErrorPanel(caught));
+
 					}
 
 					@Override
 					public void onSuccess(FileSummary result) {
+						removeCell(1, 1); // remove loading image
 						setWidget(1, 0, getFileSummaryPanel(result));
 						if (onFileSummaryReceivedTask != null) {
 							onFileSummaryReceivedTask.doSomething();
@@ -120,23 +127,34 @@ public class InputFileSummaryPanel extends FlexTable {
 		conditionsLabel.setTitle("Experimental conditions from which the data in this input file is coming from");
 		conditionsLabel.setStyleName(WizardStyles.WizardInfoMessage);
 		table.setWidget(row, 0, conditionsLabel);
-		associatedConditionsValues = new Label("not associated with any condition yet");
-		associatedConditionsValues.setStyleName(WizardStyles.WizardCriticalMessage);
+		if (associatedConditionsValues == null) {
+			associatedConditionsValues = new Label("not associated with any condition yet");
+			associatedConditionsValues.setStyleName(WizardStyles.WizardCriticalMessage);
+		} else {
+			updateAssociatedConditionsLabel();
+		}
 		table.setWidget(row, 1, associatedConditionsValues);
+
 		return table;
 	}
 
 	private String parsePositiveNonZeroNumber(int number) {
 		if (number > 0) {
-			return String.valueOf(number);
+			return String.valueOf(formatter.format(number));
 		} else {
 			return "-";
 		}
 	}
 
 	public void addAssociatedCondition(ExperimentalConditionTypeBean condition) {
-		this.conditions.add(condition);
-		updateAssociatedConditionsLabel();
+		if (!conditions.contains(condition)) {
+			this.conditions.add(condition);
+			updateAssociatedConditionsLabel();
+		}
+	}
+
+	public List<ExperimentalConditionTypeBean> getAssociatedconditions() {
+		return conditions;
 	}
 
 	public void removeAssociatedCondition(ExperimentalConditionTypeBean condition) {
@@ -145,6 +163,9 @@ public class InputFileSummaryPanel extends FlexTable {
 	}
 
 	private void updateAssociatedConditionsLabel() {
+		if (associatedConditionsValues == null) {
+			associatedConditionsValues = new Label();
+		}
 		if (conditions.isEmpty()) {
 			associatedConditionsValues.setText("not associated with any condition yet");
 			associatedConditionsValues.setStyleName(WizardStyles.WizardCriticalMessage);
@@ -163,5 +184,13 @@ public class InputFileSummaryPanel extends FlexTable {
 
 	public void setOnFileSummaryReceivedTask(DoSomethingTask<Void> onFileSummaryReceivedTask) {
 		this.onFileSummaryReceivedTask = onFileSummaryReceivedTask;
+	}
+
+	public void showAssociatedConditionsRow(boolean show) {
+		if (associatedConditionsValues != null) {
+			if (!show) {
+				associatedConditionsValues.setText("N/A");
+			}
+		}
 	}
 }

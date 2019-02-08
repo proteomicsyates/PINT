@@ -15,6 +15,7 @@ import edu.scripps.yates.client.ui.wizard.pages.PageTitleController;
 import edu.scripps.yates.client.ui.wizard.pages.panels.InputFileSummaryPanel;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.AbstractConditionSelectorForFileWidget;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.shared.model.FileSummary;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
 public abstract class AbstractWizardPageFileProcessor extends AbstractWizardPage {
@@ -129,6 +130,7 @@ public abstract class AbstractWizardPageFileProcessor extends AbstractWizardPage
 
 	@Override
 	public void beforeShow() {
+		clearWidgets(true);
 		rowForNextPanel = rowForNextPanelFixed;
 		inputFileSummaryPanel = new InputFileSummaryPanel(wizard.getContext(), getFile());
 		addNextWidget(inputFileSummaryPanel);
@@ -170,6 +172,18 @@ public abstract class AbstractWizardPageFileProcessor extends AbstractWizardPage
 		inputFileSummaryPanel.setOnFileSummaryReceivedTask(task);
 	}
 
+	protected void clearWidgets(boolean clearAlsoFirstPanel) {
+
+		int i = 1;
+		if (clearAlsoFirstPanel) {
+			i = 0;
+		}
+		while (rowForNextPanelFixed + i < panel.getRowCount()) {
+			panel.clearCell(rowForNextPanelFixed + i, 0);
+			i++;
+		}
+	}
+
 	protected void addNextWidget(Widget widget) {
 		panel.setWidget(rowForNextPanel++, 0, widget);
 	}
@@ -177,7 +191,8 @@ public abstract class AbstractWizardPageFileProcessor extends AbstractWizardPage
 	/**
 	 * Create a new {@link AbstractConditionSelectorForFileWidget} and then call to
 	 * setOnConditionAddedTask and setOnConditionRemovedTask to add the
-	 * corresponding tasks
+	 * corresponding tasks.<br>
+	 * This method is usually called after receiving the {@link FileSummary}.
 	 * 
 	 * @param file2
 	 * @return

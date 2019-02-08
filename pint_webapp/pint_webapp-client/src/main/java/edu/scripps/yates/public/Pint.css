@@ -1014,9 +1014,9 @@
 }
 
 .gwt-PopupPanel {
-   border: 3px solid #000000;
-   padding: 3px;
-   background: white;
+   border: 2px solid #000000;
+   padding: 0px;
+   background: lavender;
 }
 
 .gwt-PopupPanel .popupContent {
@@ -1268,8 +1268,8 @@ margin-left: 0px;
 	float:left;
 	width:25%;
 	height: 220px;
-	margin: 10px;
-	padding: 18px;
+	margin: 10px 0px 10px 10px;
+	padding: 2px 18px 18px 18px;
 	background-color: lavender;
 }
 

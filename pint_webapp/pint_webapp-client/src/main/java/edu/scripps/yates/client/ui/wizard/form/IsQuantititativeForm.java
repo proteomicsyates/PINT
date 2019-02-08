@@ -45,12 +45,12 @@ public class IsQuantititativeForm extends AbstractFormCollection {
 						quantitative = false;
 					}
 				}
-				context.setQuantitative(quantitative);
+//				context.setQuantitative(quantitative);
 			}
 		});
 		// update but not firing event
-		final String value = getValueFromBoolean(context.isQuantitative());
-		listBoxInfo.getListBox().setItemSelected(items.indexOf(value), false);
+//		final String value = getValueFromBoolean(context.isQuantitative());
+//		listBoxInfo.getListBox().setItemSelected(items.indexOf(value), false);
 
 	}
 

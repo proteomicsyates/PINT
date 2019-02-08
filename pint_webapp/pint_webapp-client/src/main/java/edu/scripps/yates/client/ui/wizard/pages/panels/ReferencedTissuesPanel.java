@@ -5,9 +5,6 @@ import java.util.List;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.ui.wizard.Wizard;
-import edu.scripps.yates.client.ui.wizard.WizardPage.PageID;
-import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
-import edu.scripps.yates.client.ui.wizard.pages.WizardPageTissues;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.DroppableFormat;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.ItemDraggableLabel;
 import edu.scripps.yates.shared.model.projectCreator.excel.TissueTypeBean;
@@ -31,14 +28,6 @@ public class ReferencedTissuesPanel extends AbstractReferencedItemPanel<TissueTy
 			label.setTitle(tissue.getDescription());
 		}
 		return label;
-	}
-
-	@Override
-	protected PageID getWizardPageIDToJumpByFormat(DroppableFormat format) {
-		if (format == DroppableFormat.TISSUE) {
-			return PageIDController.getPageIDByPageClass(WizardPageTissues.class);
-		}
-		return null;
 	}
 
 }

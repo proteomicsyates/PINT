@@ -8,13 +8,12 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FormatType;
 import edu.scripps.yates.shared.model.projectCreator.excel.FastaDigestionBean;
 
 public class FileWithFormat {
-	private final File file;
-	private final FormatType format;
-	private final String id;
-	private final FastaDigestionBean fastaDigestionBean;
+	private File file;
+	private FormatType format;
+	private String id;
+	private FastaDigestionBean fastaDigestionBean;
 
-	public FileWithFormat(String id, File file, FormatType format,
-			FastaDigestionBean fastaDigestionBean) {
+	public FileWithFormat(String id, File file, FormatType format, FastaDigestionBean fastaDigestionBean) {
 		this.id = id;
 		this.file = file;
 		this.format = format;
@@ -27,7 +26,7 @@ public class FileWithFormat {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof FileWithFormat) {
-			FileWithFormat fileWithFormat = (FileWithFormat) obj;
+			final FileWithFormat fileWithFormat = (FileWithFormat) obj;
 			if (fileWithFormat.getId().equals(getId()))
 				return true;
 
@@ -63,6 +62,22 @@ public class FileWithFormat {
 	 */
 	public FastaDigestionBean getFastaDigestionBean() {
 		return fastaDigestionBean;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+	public void setFormat(FormatType format) {
+		this.format = format;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setFastaDigestionBean(FastaDigestionBean fastaDigestionBean) {
+		this.fastaDigestionBean = fastaDigestionBean;
 	}
 
 }

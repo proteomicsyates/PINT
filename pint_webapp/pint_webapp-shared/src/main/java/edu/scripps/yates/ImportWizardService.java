@@ -327,4 +327,6 @@ public interface ImportWizardService extends RemoteService {
 	public FileSummary getFileSummary(int importID, String sessionID, FileTypeBean file) throws PintException;
 
 	public String getUploadedFileID(int importID, String uploadedFileSignature) throws PintException;
+
+	public PintImportCfgBean getPintImportCfgTypeBeanByProcessKey(int hashCode) throws PintException;
 }

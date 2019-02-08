@@ -250,7 +250,10 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 		log.info("Creating amounts from " + remoteFilesInfo.size() + " remote files");
 		for (final RemoteInfoType remoteInfoType : remoteFilesInfo) {
 
-			final String msRunRef = remoteInfoType.getMsRunRef();
+			final List<MsRunType> msRunCfgs = ImportCfgUtil.getMSRuns(remoteInfoType.getMsRunRef(), msRunsCfg,
+					ExcelUtils.MULTIPLE_ITEM_SEPARATOR);
+			final List<String> msRunIDs = msRunCfgs.stream().map(msRunType -> msRunType.getId())
+					.collect(Collectors.toList());
 			DBIndexImpl dbIndex = null;
 			final QuantParser quantParser = remoteFileReader.getQuantParser(remoteInfoType.getFileRef());
 			final IdentificationsParser identificationsParser = remoteFileReader
@@ -269,20 +272,24 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 				final Map<String, QuantifiedPSMInterface> quantPSMsMap = quantParser.getPSMMap();
 
 				if (quantPSMsMap != null) {
-					final Set<PSM> runPSMs = StaticProteomicsModelStorage.getPSM(msRunRef, condition.getName(), null);
-					for (final PSM runPSM : runPSMs) {
-						final String psmIdentifier = runPSM.getIdentifier();
+					for (final String msRunRef : msRunIDs) {
 
-						final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap.get(psmIdentifier);
-						if (quantifiedPSM == null) {
-							// log.warn(runPSM.getPSMIdentifier()
-							// + " doesn't have quantitative information.
-							// Skipping it...");
-							continue;
-						}
-						final Set<Amount> amounts = quantifiedPSM.getAmounts();
-						for (final Amount amount : amounts) {
-							runPSM.addAmount(amount);
+						final Set<PSM> runPSMs = StaticProteomicsModelStorage.getPSM(msRunRef, condition.getName(),
+								null);
+						for (final PSM runPSM : runPSMs) {
+							final String psmIdentifier = runPSM.getIdentifier();
+
+							final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap.get(psmIdentifier);
+							if (quantifiedPSM == null) {
+								// log.warn(runPSM.getPSMIdentifier()
+								// + " doesn't have quantitative information.
+								// Skipping it...");
+								continue;
+							}
+							final Set<Amount> amounts = quantifiedPSM.getAmounts();
+							for (final Amount amount : amounts) {
+								runPSM.addAmount(amount);
+							}
 						}
 					}
 				}
@@ -307,37 +314,41 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 									.getProteinAccessionFromProtein(identifiedProtein).getAccession(),
 									identifiedProtein);
 						}
-						final String acc = null;
-						final Set<Protein> runProteins = StaticProteomicsModelStorage.getProtein(msRunRef,
-								condition.getName(), acc);
-						for (final Protein runProtein : runProteins) {
+						for (final String msRunRef : msRunIDs) {
+							final String acc = null;
+							final Set<Protein> runProteins = StaticProteomicsModelStorage.getProtein(msRunRef,
+									condition.getName(), acc);
+							for (final Protein runProtein : runProteins) {
 
-							final Protein dtaSelectProtein = dtaSelectProteinsMap2.get(runProtein.getAccession());
-							if (dtaSelectProtein == null) {
-								log.warn(runProtein.getAccession()
-										+ " doesn't have quantitative information. Skipping it...");
-								continue;
-							}
-							// SPECTRAL COUNT AMOUNT
-							if (dtaSelectProtein.getSpectrumCount() != null) {
-								final AmountEx spcAmount = new AmountEx(dtaSelectProtein.getSpectrumCount(),
-										edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.SPC, condition);
-								runProtein.addAmount(spcAmount);
-							}
-							// NSAF AMOUNT
-							if (dtaSelectProtein.getNsaf() != null) {
-								final AmountEx nsafAmount = new AmountEx(dtaSelectProtein.getNsaf(),
-										edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.NSAF, condition);
-								runProtein.addAmount(nsafAmount);
-							}
-							// EMPAI AMOUNT
-							if (dtaSelectProtein.getEmpai() != null) {
-								final AmountEx empaiAmount = new AmountEx(dtaSelectProtein.getEmpai(),
-										edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.EMPAI, condition);
-								runProtein.addAmount(empaiAmount);
+								final Protein dtaSelectProtein = dtaSelectProteinsMap2.get(runProtein.getAccession());
+								if (dtaSelectProtein == null) {
+									log.warn(runProtein.getAccession()
+											+ " doesn't have quantitative information. Skipping it...");
+									continue;
+								}
+								// SPECTRAL COUNT AMOUNT
+								if (dtaSelectProtein.getSpectrumCount() != null) {
+									final AmountEx spcAmount = new AmountEx(dtaSelectProtein.getSpectrumCount(),
+											edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.SPC,
+											condition);
+									runProtein.addAmount(spcAmount);
+								}
+								// NSAF AMOUNT
+								if (dtaSelectProtein.getNsaf() != null) {
+									final AmountEx nsafAmount = new AmountEx(dtaSelectProtein.getNsaf(),
+											edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.NSAF,
+											condition);
+									runProtein.addAmount(nsafAmount);
+								}
+								// EMPAI AMOUNT
+								if (dtaSelectProtein.getEmpai() != null) {
+									final AmountEx empaiAmount = new AmountEx(dtaSelectProtein.getEmpai(),
+											edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.EMPAI,
+											condition);
+									runProtein.addAmount(empaiAmount);
+								}
 							}
 						}
-
 					}
 				} catch (final IOException e) {
 					e.printStackTrace();
@@ -466,11 +477,12 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	 *
 	 * @param originalProteins
 	 * @param proteinsbyrunidfromexcel
-	 * @param addProteinsNotInOriginalProteinSet
-	 *            means that if some protein is in otherProteins map that is not
-	 *            present on originalProtein map, if true, it will be
-	 *            incorporated to the resulting set. Otherwise, it will be
-	 *            ignored.
+	 * @param addProteinsNotInOriginalProteinSet means that if some protein is in
+	 *                                           otherProteins map that is not
+	 *                                           present on originalProtein map, if
+	 *                                           true, it will be incorporated to
+	 *                                           the resulting set. Otherwise, it
+	 *                                           will be ignored.
 	 * @param msRunID
 	 * @param projectTag
 	 * @return

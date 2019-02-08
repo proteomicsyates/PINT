@@ -1,131 +1,27 @@
 package edu.scripps.yates.client.ui.wizard.pages.inputfiles;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.List;
 
+import com.google.gwt.dom.client.Style.Unit;
+
+import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
-import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
-import edu.scripps.yates.client.ui.wizard.pages.AbstractWizardPage;
-import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
-import edu.scripps.yates.client.ui.wizard.pages.PageTitleController;
+import edu.scripps.yates.client.ui.wizard.pages.panels.ExcelProcessorPanel;
 import edu.scripps.yates.client.ui.wizard.pages.panels.InputFileSummaryPanel;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardQuestionPanel;
+import edu.scripps.yates.client.ui.wizard.pages.panels.WizardQuestionPanel.WizardQuestionPanelButtons;
+import edu.scripps.yates.client.ui.wizard.pages.widgets.ConditionSelectorForFileWithNORatiosWidget;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.shared.model.projectCreator.excel.ExperimentalConditionTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
-public class WizardPageExcelFileProcessor extends AbstractWizardPage {
+public class WizardPageExcelFileProcessor extends AbstractWizardPageFileProcessor {
 
-	private FlexTable panel;
-	private final FileTypeBean file;
-	private final String text1;
-	private String text2;
-	private String text3;
-	private int row;
-	protected boolean extractQuantData;
-	private boolean isReadyForNextStep = false;
-	private int rowForNextWidget;
+	private WizardQuestionPanel questionPanel;
 
 	public WizardPageExcelFileProcessor(PintContext context, int fileNumber, FileTypeBean file) {
-		super(fileNumber + "-" + file.getName());
-		this.file = file;
-		text1 = "Processing input file " + fileNumber + "/"
-				+ PintImportCfgUtil.getFiles(context.getPintImportConfiguration()).size() + " '" + file.getName() + "'";
-
-	}
-
-	protected void showExtractQuantificationData() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected Widget createPage() {
-		final SimplePanel ret = new SimplePanel();
-		panel = new FlexTable();
-		ret.add(panel);
-		panel.setStyleName(WizardStyles.wizardRegularPage);
-		//
-		row = 0;
-		final Label welcomeLabel1 = new Label(text1);
-		welcomeLabel1.setStyleName(WizardStyles.WizardWelcomeLabel2);
-		panel.setWidget(row, 0, welcomeLabel1);
-		//
-		if (text2 != null) {
-			row++;
-			final Label welcomeLabel2 = new Label(text2);
-			welcomeLabel2.setStyleName(WizardStyles.WizardExplanationLabel);
-			panel.setWidget(row, 0, welcomeLabel2);
-		}
-		//
-		if (text3 != null) {
-			row++;
-			final Label welcomeLabel3 = new Label(text3);
-			welcomeLabel3.setStyleName(WizardStyles.WizardExplanationLabel);
-			panel.setWidget(row, 0, welcomeLabel3);
-		}
-		rowForNextWidget = row + 1;
-		return ret;
-	}
-
-	@Override
-	public PageID getPageID() {
-		return PageIDController.getPageIDForInputFileProcessor(getTitle());
-	}
-
-	@Override
-	protected void registerPageTitle(String title) {
-		PageTitleController.addPageTitle(this.getPageID(), title);
-	}
-
-	@Override
-	public void beforeShow() {
-		// sumary of excel file
-		final InputFileSummaryPanel extractIDPanel = new InputFileSummaryPanel(wizard.getContext(), file);
-		panel.setWidget(rowForNextWidget, 0, extractIDPanel);
-
-		// question about whether to extract quant
-		final String explanation = "With quantitative information we are referring to either abundances (intensities, spectral counts, etc...) or relative abundance ratios";
-		final String question = "Do you want to extract quantitative information from this input file?";
-		final ClickHandler yesClickHandler = new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				extractQuantData = true;
-				showExtractQuantificationData();
-				isReadyForNextStep = true;
-				updateNextButtonState();
-			}
-		};
-		final ClickHandler noClickHandler = new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				extractQuantData = false;
-				showExtractIdentificationData(false);
-				isReadyForNextStep = true;
-				updateNextButtonState();
-			}
-		};
-		final WizardQuestionPanel questionPanel = new WizardQuestionPanel(question, explanation);
-		questionPanel.addNoClickHandler(noClickHandler);
-		questionPanel.addYesClickHandler(yesClickHandler);
-		panel.setWidget(rowForNextWidget + 1, 0, questionPanel);
-		// disable next button
-		wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, false);
-		wizard.setButtonOverride(true);
-		//
-		updateNextButtonState();
-		super.beforeShow();
-	}
-
-	private void showExtractIdentificationData(boolean createNSAFQuantValues) {
-
-		// TODO
+		super(context, fileNumber, file);
 
 	}
 
@@ -141,12 +37,62 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPage {
 		return super.equals(obj);
 	}
 
-	protected void updateNextButtonState() {
-		final boolean readyForNextStep = isReadyForNextStep();
-		this.wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, readyForNextStep);
+	@Override
+	protected void setOnFileSummaryReceivedTask(InputFileSummaryPanel inputFileSummaryPanel) {
+		inputFileSummaryPanel.setOnFileSummaryReceivedTask(new DoSomethingTask<Void>() {
+
+			@Override
+			public Void doSomething() {
+				final List<ExperimentalConditionTypeBean> conditionsAssociatedWithFile = PintImportCfgUtil
+						.getConditionsAssociatedWithFile(context.getPintImportConfiguration(), getFile().getId());
+				if (conditionsAssociatedWithFile != null) {
+					for (final ExperimentalConditionTypeBean condition : conditionsAssociatedWithFile) {
+						inputFileSummaryPanel.addAssociatedCondition(condition);
+					}
+				}
+				return null;
+			}
+		});
+
 	}
 
-	private boolean isReadyForNextStep() {
-		return isReadyForNextStep;
+	@Override
+	public boolean isReadyForNextStep() {
+		final List<ExperimentalConditionTypeBean> conditionsAssociatedWithFile = PintImportCfgUtil
+				.getConditionsAssociatedWithFile(getPintImportConfg(), getFile().getId());
+		final boolean empty = conditionsAssociatedWithFile.isEmpty();
+		return !empty;
+	}
+
+	@Override
+	protected ConditionSelectorForFileWithNORatiosWidget createConditionSelectorPanel(FileTypeBean file) {
+		return null;
+	}
+
+	@Override
+	public void beforeShow() {
+		super.beforeShow();// this sets the widget index to add nextWidgets
+
+		// create the question
+		questionPanel = new WizardQuestionPanel(getExplanation(), WizardStyles.WizardExplanationLabel, getQuestion(),
+				WizardStyles.WizardQuestionLabel, WizardQuestionPanelButtons.NONE);
+
+		questionPanel.getElement().getStyle().setPadding(20, Unit.PX);
+		questionPanel.getElement().getStyle().setPaddingBottom(0, Unit.PX);
+		questionPanel.getElement().getStyle().setWidth(690, Unit.PX);
+		// show questionPanel
+		addNextWidget(questionPanel);
+		addNextWidget(new ExcelProcessorPanel(getContext(), getFile()));
+
+		super.updateNextButtonState();
+	}
+
+	public String getQuestion() {
+		return "Excel files can contain Proteins, peptides, PSMs, scores, ratios, etc.";
+
+	}
+
+	public String getExplanation() {
+		return "But you need to define from which columns can we retrieve them.";
 	}
 }

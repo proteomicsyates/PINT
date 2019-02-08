@@ -68,8 +68,8 @@ public class Summary1Panel extends FlexTable {
 		getFlexCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_TOP);
 		int numInputFile = 1;
 		for (final FileTypeBean file : files) {
-			final FlexTable inputFileSummaryTable = new InputFileSummaryTable(wizard.getContext(), file,
-					numInputFile++);
+			final FlexTable inputFileSummaryTable = new InputFileSummaryTable(wizard.getContext(), file, numInputFile++,
+					false);
 			verticalPanelInputFiles.add(inputFileSummaryTable);
 		}
 
@@ -124,7 +124,7 @@ public class Summary1Panel extends FlexTable {
 		final List<MsRunTypeBean> msRuns = PintImportCfgUtil
 				.getMSRuns(wizard.getContext().getPintImportConfiguration());
 
-		setWidget(row, 0, getPanel(msRuns.size(), "MS run", WizardPageMSRuns.class));
+		setWidget(row, 0, getPanel(msRuns.size(), "Experiment/Replicate", WizardPageMSRuns.class));
 		getFlexCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_TOP);
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		final VerticalPanel verticalPanelMSRuns = new VerticalPanel();

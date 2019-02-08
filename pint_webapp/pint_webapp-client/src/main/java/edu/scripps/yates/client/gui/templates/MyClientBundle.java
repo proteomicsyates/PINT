@@ -132,4 +132,7 @@ public interface MyClientBundle extends ClientBundle {
 
 	@Source("ComplexPortalLogo.png")
 	public ImageResource complexPortalLogo();
+
+	@Source("left-64.png")
+	public ImageResource doubleLeftArrow();
 }

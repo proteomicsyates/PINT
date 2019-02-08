@@ -14,10 +14,13 @@ public abstract class AbstractConditionSelectorForFileWidget extends FlexTable {
 	private DoSomethingTask2<ExperimentalConditionTypeBean> onConditionAddedTask;
 	private DoSomethingTask2<ExperimentalConditionTypeBean> onConditionRemovedTask;
 
-	public AbstractConditionSelectorForFileWidget(PintContext context, FileTypeBean file) {
+	public AbstractConditionSelectorForFileWidget(PintContext context, FileTypeBean file,
+			DoSomethingTask2<ExperimentalConditionTypeBean> onConditionAddedTask2,
+			DoSomethingTask2<ExperimentalConditionTypeBean> onConditionRemovedTask2) {
 		this.context = context;
 		this.file = file;
-
+		this.onConditionAddedTask = onConditionAddedTask2;
+		this.onConditionRemovedTask = onConditionRemovedTask2;
 	}
 
 	protected DoSomethingTask2<ExperimentalConditionTypeBean> getOnConditionAddedTask() {

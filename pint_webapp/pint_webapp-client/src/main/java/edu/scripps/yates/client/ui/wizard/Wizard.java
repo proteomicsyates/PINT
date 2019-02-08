@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasHTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.LazyPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -117,6 +118,8 @@ public class Wizard<C extends WizardContext> extends Composite {
 		 */
 		@Override
 		Widget asWidget();
+
+		HorizontalPanel getTitlePanel();
 	}
 
 	/**
@@ -181,6 +184,10 @@ public class Wizard<C extends WizardContext> extends Composite {
 
 		setCaption(caption);
 		initUi();
+	}
+
+	public HorizontalPanel getTitlePanel() {
+		return display.getTitlePanel();
 	}
 
 	/**

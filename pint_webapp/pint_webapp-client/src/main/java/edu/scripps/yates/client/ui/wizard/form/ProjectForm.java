@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gwt.event.shared.GwtEvent;
 
+import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ProjectTypeBean;
@@ -17,6 +18,7 @@ public class ProjectForm extends AbstractFormCollection {
 	private static final long serialVersionUID = 1718824761348138173L;
 	private final TextBoxFormInformation projectTag;
 	private final TextBoxFormInformation projectName;
+	private DoSomethingTask<Void> onProjectTagTyped;
 
 	public ProjectForm(final PintContext context) {
 		super(context);
@@ -30,9 +32,13 @@ public class ProjectForm extends AbstractFormCollection {
 				"The short tag of the dataset. Maximum lenght of 7 characters", true, 10.0);
 		add(projectTag);
 		projectTag.linkToObject(new UpdateAction() {
+
 			@Override
 			public void onChange(GwtEvent event) {
 				pintImportCfgBean.getProject().setTag(projectTag.getTextBox().getText());
+				if (onProjectTagTyped != null) {
+					onProjectTagTyped.doSomething();
+				}
 			}
 		});
 		// set the textbox with the value that may come from the PintImportCfgBean
@@ -71,5 +77,9 @@ public class ProjectForm extends AbstractFormCollection {
 				projectName);
 		ret.add(pair);
 		return ret;
+	}
+
+	public void setOnProjectTagTyped(DoSomethingTask<Void> onProjectTagTyped) {
+		this.onProjectTagTyped = onProjectTagTyped;
 	}
 }

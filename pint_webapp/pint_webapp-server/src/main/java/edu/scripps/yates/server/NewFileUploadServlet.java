@@ -14,7 +14,11 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
+import com.google.gwt.thirdparty.guava.common.io.Files;
+
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FormatType;
+import edu.scripps.yates.excel.proteindb.importcfg.jaxb.PintImportCfg;
+import edu.scripps.yates.server.projectCreator.ImportCfgFileParserUtil;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.FileWithFormat;
 import edu.scripps.yates.shared.model.FileFormat;
@@ -37,10 +41,23 @@ public class NewFileUploadServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		try {
-			int jobID = 0;
+
 			if (req.getParameterMap().containsKey(SharedConstants.JOB_ID_PARAM)) {
-				jobID = Integer.valueOf(req.getParameter(SharedConstants.JOB_ID_PARAM));
+				handleUploadForInputFile(req, resp);
+			} else if (req.getParameterMap().containsKey(SharedConstants.FILE_FORMAT)) {
+				handleUploadForOtherPurposes(req, resp);
 			}
+		} catch (final Exception e) {
+			logger.error("Throwing servlet exception for unhandled exception", e);
+			throw new ServletException(e);
+		}
+	}
+
+	private void handleUploadForOtherPurposes(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		final String fileFormat = req.getParameter(SharedConstants.FILE_FORMAT);
+
+		if (fileFormat.equals(SharedConstants.IMPORT_CFG_FILE_TYPE)) {
+			final int importCfgKey = Integer.valueOf(req.getParameter(SharedConstants.IMPORT_CFG_FILE_KEY));
 			final DiskFileItemFactory fileItemFactory = new DiskFileItemFactory();
 			final ServletFileUpload fileUpload = new ServletFileUpload(fileItemFactory);
 			fileUpload.setSizeMax(FILE_SIZE_LIMIT);
@@ -58,33 +75,72 @@ public class NewFileUploadServlet extends HttpServlet {
 					logger.info("Size: " + FileUtils.getDescriptiveSizeFromBytes(item.getSize()));
 				}
 
-				if (!item.isFormField()) {
-					if (FILE_SIZE_LIMIT != -1 && item.getSize() > FILE_SIZE_LIMIT) {
-						resp.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "File size exceeds limit");
+				final File tmp = File.createTempFile("pint_import_temp", ".xml");
 
-						return;
-					}
+				logger.info("Saving import cfg file to temporal file: " + tmp.getAbsolutePath());
+				item.write(tmp);
+				final PintImportCfg pintImportFromFile = ImportCfgFileParserUtil.getPintImportFromFile(tmp);
+				final File projectCfgFile = FileManager
+						.getProjectCfgFileByImportProcessID(pintImportFromFile.getImportID());
+				if (projectCfgFile != null) {
+					Files.move(tmp, projectCfgFile);
+					logger.info("Import cfg file moved to file: " + projectCfgFile.getAbsolutePath());
+				}
+				if (!item.isInMemory()) {
+					item.delete();
+				}
+				FileManager.indexProjectCfgFileByImportCfgKey(importCfgKey, projectCfgFile);
 
-					// Typically here you would process the file in some way:
-					// InputStream in = item.getInputStream();
-					// ...
-					final String fileID = "file_" + fileIDs++;
-					final FileFormat format = defaultFileFormat;
-					final File file = FileManager.getDataFile(jobID, item.getName(), fileID, format);
-					final FastaDigestionBean fastaDigestionBean = null;
-					final FileWithFormat fileWithFormat = new FileWithFormat(fileID, file,
-							FormatType.fromValue(format.name().toLowerCase()), fastaDigestionBean);
-					FileManager.indexFileByImportProcessID(jobID, fileWithFormat);
-					logger.info("Saving data file to: " + file.getAbsolutePath());
-					item.write(file);
-					if (!item.isInMemory()) {
-						item.delete();
-					}
+			}
+		} else {
+			throw new IllegalArgumentException(fileFormat + "' not supported");
+
+		}
+	}
+
+	private void handleUploadForInputFile(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		final int jobID = Integer.valueOf(req.getParameter(SharedConstants.JOB_ID_PARAM));
+
+		final DiskFileItemFactory fileItemFactory = new DiskFileItemFactory();
+		final ServletFileUpload fileUpload = new ServletFileUpload(fileItemFactory);
+		fileUpload.setSizeMax(FILE_SIZE_LIMIT);
+
+		final List<FileItem> items = fileUpload.parseRequest(req);
+
+		for (final FileItem item : items) {
+			if (item.isFormField()) {
+				logger.info("Received form field:");
+				logger.info("Name: " + item.getFieldName());
+				logger.info("Value: " + item.getString());
+			} else {
+				logger.info("Received file:");
+				logger.info("Name: " + item.getName());
+				logger.info("Size: " + FileUtils.getDescriptiveSizeFromBytes(item.getSize()));
+			}
+
+			if (!item.isFormField()) {
+				if (FILE_SIZE_LIMIT != -1 && item.getSize() > FILE_SIZE_LIMIT) {
+					resp.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "File size exceeds limit");
+
+					return;
+				}
+
+				// Typically here you would process the file in some way:
+				// InputStream in = item.getInputStream();
+				// ...
+				final String fileID = "file_" + fileIDs++;
+				final FileFormat format = defaultFileFormat;
+				final File file = FileManager.getDataFile(jobID, item.getName(), fileID, format);
+				final FastaDigestionBean fastaDigestionBean = null;
+				final FileWithFormat fileWithFormat = new FileWithFormat(fileID, file,
+						FormatType.fromValue(format.name().toLowerCase()), fastaDigestionBean);
+				FileManager.indexFileByImportProcessID(jobID, fileWithFormat);
+				logger.info("Saving data file to: " + file.getAbsolutePath());
+				item.write(file);
+				if (!item.isInMemory()) {
+					item.delete();
 				}
 			}
-		} catch (final Exception e) {
-			logger.error("Throwing servlet exception for unhandled exception", e);
-			throw new ServletException(e);
 		}
 	}
 

@@ -147,10 +147,9 @@ public class ImportCfgFileReader {
 	/**
 	 *
 	 * @param is
-	 * @param fastaIndexFolder
-	 *            the folder in which the fasta files will be indexed in
-	 *            necessary. If null, the fasta index will be created in a TEMP
-	 *            folder of the system
+	 * @param fastaIndexFolder the folder in which the fasta files will be indexed
+	 *                         in necessary. If null, the fasta index will be
+	 *                         created in a TEMP folder of the system
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
@@ -169,10 +168,9 @@ public class ImportCfgFileReader {
 	/**
 	 *
 	 * @param xmlFile
-	 * @param fastaIndexFolder
-	 *            the folder in which the fasta files will be indexed in
-	 *            necessary. If null, the fasta index will be created in a TEMP
-	 *            folder of the system
+	 * @param fastaIndexFolder the folder in which the fasta files will be indexed
+	 *                         in necessary. If null, the fasta index will be
+	 *                         created in a TEMP folder of the system
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
@@ -191,10 +189,9 @@ public class ImportCfgFileReader {
 	/**
 	 *
 	 * @param cfg
-	 * @param fastaIndexFolder
-	 *            the folder in which the fasta files will be indexed in
-	 *            necessary. If null, the fasta index will be created in a TEMP
-	 *            folder of the system
+	 * @param fastaIndexFolder the folder in which the fasta files will be indexed
+	 *                         in necessary. If null, the fasta index will be
+	 *                         created in a TEMP folder of the system
 	 * @return
 	 * @throws IOException
 	 * @throws URISyntaxException
@@ -562,8 +559,8 @@ public class ImportCfgFileReader {
 	}
 
 	/**
-	 * Get a list of Maps of conditions to labels. There is a map for each file
-	 * in the file set list
+	 * Get a list of Maps of conditions to labels. There is a map for each file in
+	 * the file set list
 	 *
 	 * @param cfg
 	 * @return
@@ -777,19 +774,37 @@ public class ImportCfgFileReader {
 		}
 	}
 
+	public static List<String> getMSRunIDs(String msRunRefString, String separator) {
+
+		final List<String> msRunIDs = new ArrayList<String>();
+		if (msRunRefString.contains(separator)) {
+			final String[] split = msRunRefString.split(separator);
+			for (final String string : split) {
+				msRunIDs.add(string);
+			}
+		} else {
+			msRunIDs.add(msRunRefString);
+		}
+
+		return msRunIDs;
+
+	}
+
 	/**
 	 * To get the Peptide level ratios, we assume that the file only contains
-	 * peptides, but not PSMs, so actually the ratios comming from the reader in
-	 * the PSMs have to be assigned to Peptides here
+	 * peptides, but not PSMs, so actually the ratios comming from the reader in the
+	 * PSMs have to be assigned to Peptides here
 	 *
 	 * @param remoteFileRatiosCfg
+	 * @param msRunsCfg
 	 * @throws IOException
 	 */
 	private void createPeptideRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) throws IOException {
 		if (remoteFileRatiosCfg != null) {
 			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
-				final String msRunRef = remoteFilesRatioType.getMsRunRef();
+				final List<String> msRunIDs = getMSRunIDs(remoteFilesRatioType.getMsRunRef(),
+						ExcelUtils.MULTIPLE_ITEM_SEPARATOR);
 
 				final QuantParser censusQuantParser = remoteFileReader
 						.getQuantParser(remoteFilesRatioType.getFileRef());
@@ -800,260 +815,270 @@ public class ImportCfgFileReader {
 					final Map<String, QuantifiedPSMInterface> quantPSMsMap = censusQuantParser.getPSMMap();
 
 					if (quantPSMsMap != null) {
-						final Set<PSM> runPSMs = StaticProteomicsModelStorage.getPSM(msRunRef, null, null);
-						// aqui se usaa el msrun pero no en excel. Usarlo en
-						// excel, aunque sea opcionalmente?
-						if (runPSMs != null) {
-							for (final PSM runPSM : runPSMs) {
-								final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap.get(runPSM.getIdentifier());
-								if (quantifiedPSM == null) {
-									// log.warn(runPSM.getPSMIdentifier()
-									// + " doesn't have quantitative
-									// information. Skipping it...");
-									continue;
-								}
+						for (final String msRunID : msRunIDs) {
 
-								// /////////////////////////////////////////////
-								// ratios (from ratios of
-								// peaks = pairs)
-								final Set<QuantRatio> ratios = quantifiedPSM.getQuantRatios();
-								if (ratios != null) {
-									final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
-									for (final QuantRatio quantRatio : ratios) {
-										final QuantificationLabel label1 = quantRatio.getLabel1();
-										final QuantificationLabel label2 = quantRatio.getLabel2();
-
-										final String sample1 = getSamplesByLabel(label1,
-												remoteFilesRatioType.getNumerator().getConditionRef(),
-												remoteFilesRatioType.getDenominator().getConditionRef());
-										final String sample2 = getSamplesByLabel(label2,
-												remoteFilesRatioType.getNumerator().getConditionRef(),
-												remoteFilesRatioType.getDenominator().getConditionRef());
-										if (sample1 == null || sample2 == null) {
-											continue;
-										}
-										final Pair<String, String> samplePair = new Pair<String, String>(sample1,
-												sample2);
-										if (mapQuantRatios.containsKey(samplePair)) {
-											// take LOG 2 ratio
-											mapQuantRatios.get(samplePair).add(quantRatio);
-										} else {
-											final List<QuantRatio> list = new ArrayList<QuantRatio>();
-											list.add(quantRatio);
-											mapQuantRatios.put(samplePair, list);
-										}
+							final Set<PSM> runPSMs = StaticProteomicsModelStorage.getPSM(msRunID, null, null);
+							// aqui se usaa el msrun pero no en excel. Usarlo en
+							// excel, aunque sea opcionalmente?
+							if (runPSMs != null) {
+								for (final PSM runPSM : runPSMs) {
+									final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap
+											.get(runPSM.getIdentifier());
+									if (quantifiedPSM == null) {
+										// log.warn(runPSM.getPSMIdentifier()
+										// + " doesn't have quantitative
+										// information. Skipping it...");
+										continue;
 									}
-									for (final Pair<String, String> pair : mapQuantRatios.keySet()) {
-										final String sample1 = pair.getFirstelement();
-										final Condition condition1 = getConditionBySampleAndRatio(sample1,
-												remoteFilesRatioType);
-										final String sample2 = pair.getSecondElement();
-										final Condition condition2 = getConditionBySampleAndRatio(sample2,
-												remoteFilesRatioType);
 
-										final List<QuantRatio> ratioList = mapQuantRatios.get(pair);
-										// treat MAX or MIN value ratios
-										// separetely
-										final List<QuantRatio> safeRatios = new ArrayList<QuantRatio>();
-										final List<QuantRatio> maxOrMinValueRatioValues = new ArrayList<QuantRatio>();
-										for (final QuantRatio ratioValue : ratioList) {
-											// discard a ratio that is not
-											// between the two conditions
-											if (!ratioValue.getCondition1().getName().equals(condition1.getName())
-													&& !ratioValue.getCondition2().getName()
-															.equals(condition2.getName())) {
-												if (!ratioValue.getCondition1().getName().equals(condition2.getName())
+									// /////////////////////////////////////////////
+									// ratios (from ratios of
+									// peaks = pairs)
+									final Set<QuantRatio> ratios = quantifiedPSM.getQuantRatios();
+									if (ratios != null) {
+										final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
+										for (final QuantRatio quantRatio : ratios) {
+											final QuantificationLabel label1 = quantRatio.getLabel1();
+											final QuantificationLabel label2 = quantRatio.getLabel2();
+
+											final String sample1 = getSamplesByLabel(label1,
+													remoteFilesRatioType.getNumerator().getConditionRef(),
+													remoteFilesRatioType.getDenominator().getConditionRef());
+											final String sample2 = getSamplesByLabel(label2,
+													remoteFilesRatioType.getNumerator().getConditionRef(),
+													remoteFilesRatioType.getDenominator().getConditionRef());
+											if (sample1 == null || sample2 == null) {
+												continue;
+											}
+											final Pair<String, String> samplePair = new Pair<String, String>(sample1,
+													sample2);
+											if (mapQuantRatios.containsKey(samplePair)) {
+												// take LOG 2 ratio
+												mapQuantRatios.get(samplePair).add(quantRatio);
+											} else {
+												final List<QuantRatio> list = new ArrayList<QuantRatio>();
+												list.add(quantRatio);
+												mapQuantRatios.put(samplePair, list);
+											}
+										}
+										for (final Pair<String, String> pair : mapQuantRatios.keySet()) {
+											final String sample1 = pair.getFirstelement();
+											final Condition condition1 = getConditionBySampleAndRatio(sample1,
+													remoteFilesRatioType);
+											final String sample2 = pair.getSecondElement();
+											final Condition condition2 = getConditionBySampleAndRatio(sample2,
+													remoteFilesRatioType);
+
+											final List<QuantRatio> ratioList = mapQuantRatios.get(pair);
+											// treat MAX or MIN value ratios
+											// separetely
+											final List<QuantRatio> safeRatios = new ArrayList<QuantRatio>();
+											final List<QuantRatio> maxOrMinValueRatioValues = new ArrayList<QuantRatio>();
+											for (final QuantRatio ratioValue : ratioList) {
+												// discard a ratio that is not
+												// between the two conditions
+												if (!ratioValue.getCondition1().getName().equals(condition1.getName())
 														&& !ratioValue.getCondition2().getName()
-																.equals(condition1.getName())) {
-													continue;
+																.equals(condition2.getName())) {
+													if (!ratioValue.getCondition1().getName()
+															.equals(condition2.getName())
+															&& !ratioValue.getCondition2().getName()
+																	.equals(condition1.getName())) {
+														continue;
+													}
+												}
+
+												final Double log2Ratio = ratioValue.getLog2Ratio(condition1.getName(),
+														condition2.getName());
+												if (Maths.isMaxOrMinValue(log2Ratio)) {
+													maxOrMinValueRatioValues.add(ratioValue);
+												} else {
+													safeRatios.add(ratioValue);
 												}
 											}
 
-											final Double log2Ratio = ratioValue.getLog2Ratio(condition1.getName(),
-													condition2.getName());
-											if (Maths.isMaxOrMinValue(log2Ratio)) {
-												maxOrMinValueRatioValues.add(ratioValue);
-											} else {
-												safeRatios.add(ratioValue);
-											}
-										}
+											if (!safeRatios.isEmpty()) {
+												// get the ratios by its names, in
+												// order to average them if there is
+												// more than one of the same name
+												final Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
+														safeRatios);
+												for (final Set<QuantRatio> safeRatiosSameName : ratiosByNames
+														.values()) {
 
-										if (!safeRatios.isEmpty()) {
-											// get the ratios by its names, in
-											// order to average them if there is
-											// more than one of the same name
-											final Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
-													safeRatios);
-											for (final Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
+													if (safeRatiosSameName.size() > 1) {
+														// make the average of the
+														// values
+														final TDoubleArrayList safeRatioValues = new TDoubleArrayList();
+														for (final QuantRatio safeRatio : safeRatiosSameName) {
+															final double log2Ratio = safeRatio.getLog2Ratio(
+																	condition1.getName(), condition2.getName());
+															safeRatioValues.add(log2Ratio);
 
-												if (safeRatiosSameName.size() > 1) {
-													// make the average of the
-													// values
-													final TDoubleArrayList safeRatioValues = new TDoubleArrayList();
-													for (final QuantRatio safeRatio : safeRatiosSameName) {
-														final double log2Ratio = safeRatio.getLog2Ratio(
-																condition1.getName(), condition2.getName());
-														safeRatioValues.add(log2Ratio);
+														}
+														final RatioEx ratio = new RatioEx(Maths.mean(safeRatioValues),
+																condition1, condition2, CombinationType.AVERAGE,
+																safeRatiosSameName.iterator().next().getDescription(),
+																AggregationLevel.PSM);
 
-													}
-													final RatioEx ratio = new RatioEx(Maths.mean(safeRatioValues),
-															condition1, condition2, CombinationType.AVERAGE,
-															safeRatiosSameName.iterator().next().getDescription(),
-															AggregationLevel.PSM);
-
-													final ScoreEx score = new ScoreEx(
-															String.valueOf(Maths.stddev(safeRatioValues)),
-															"Standard deviation of ratios",
-															"Standard deviation of ratios at spectrum level",
-															"Standard deviation of the ratios computed in this spectrum");
-													if (!Double.isNaN(Double.valueOf(score.getValue()))) {
-														ratio.setAssociatedConfidenceScore(score);
-													}
-													// add ratio to peptide
-													runPSM.getPeptide().addRatio(ratio);
-												} else {
-													final QuantRatio safeRatio = safeRatiosSameName.iterator().next();
-													final Double log2RatioValue = safeRatio
-															.getLog2Ratio(condition1.getName(), condition2.getName());
-													if (log2RatioValue != null) {
-														// as cv term
-														// MS:1001132:
-														final String ratioDescription = safeRatio.getDescription();
-														// if (safeRatio
-														// instanceof IsoRatio)
-														// {
-														// ratioDescription =
-														// ISOBARIC_RATIO;
-														// }
-														final RatioEx ratio = new RatioEx(log2RatioValue, condition1,
-																condition2, ratioDescription, AggregationLevel.PSM);
-														final Score ratioScore = safeRatio
-																.getAssociatedConfidenceScore();
-														if (ratioScore != null && !Double
-																.isNaN(Double.valueOf(ratioScore.getValue()))) {
-															final ScoreEx score = new ScoreEx(ratioScore.getValue(),
-																	ratioScore.getScoreName(),
-																	ratioScore.getScoreType(),
-																	ratioScore.getScoreDescription());
+														final ScoreEx score = new ScoreEx(
+																String.valueOf(Maths.stddev(safeRatioValues)),
+																"Standard deviation of ratios",
+																"Standard deviation of ratios at spectrum level",
+																"Standard deviation of the ratios computed in this spectrum");
+														if (!Double.isNaN(Double.valueOf(score.getValue()))) {
 															ratio.setAssociatedConfidenceScore(score);
 														}
 														// add ratio to peptide
 														runPSM.getPeptide().addRatio(ratio);
+													} else {
+														final QuantRatio safeRatio = safeRatiosSameName.iterator()
+																.next();
+														final Double log2RatioValue = safeRatio.getLog2Ratio(
+																condition1.getName(), condition2.getName());
+														if (log2RatioValue != null) {
+															// as cv term
+															// MS:1001132:
+															final String ratioDescription = safeRatio.getDescription();
+															// if (safeRatio
+															// instanceof IsoRatio)
+															// {
+															// ratioDescription =
+															// ISOBARIC_RATIO;
+															// }
+															final RatioEx ratio = new RatioEx(log2RatioValue,
+																	condition1, condition2, ratioDescription,
+																	AggregationLevel.PSM);
+															final Score ratioScore = safeRatio
+																	.getAssociatedConfidenceScore();
+															if (ratioScore != null && !Double
+																	.isNaN(Double.valueOf(ratioScore.getValue()))) {
+																final ScoreEx score = new ScoreEx(ratioScore.getValue(),
+																		ratioScore.getScoreName(),
+																		ratioScore.getScoreType(),
+																		ratioScore.getScoreDescription());
+																ratio.setAssociatedConfidenceScore(score);
+															}
+															// add ratio to peptide
+															runPSM.getPeptide().addRatio(ratio);
 
+														}
 													}
 												}
 											}
-										}
-										// store the infinite ratios as
-										// singleton intensity ratios
-										if (!maxOrMinValueRatioValues.isEmpty()) {
-											for (final QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
-												final Double nonLogRatio = infiniteRatio
-														.getNonLogRatio(condition1.getName(), condition2.getName());
-												if (nonLogRatio != null) {
-													final RatioEx ratio = new RatioEx(nonLogRatio, condition1,
-															condition2, SINGLETON_INTENSITY_RATIO,
-															AggregationLevel.PSM);
-													// add ratio to peptide
-													runPSM.getPeptide().addRatio(ratio);
+											// store the infinite ratios as
+											// singleton intensity ratios
+											if (!maxOrMinValueRatioValues.isEmpty()) {
+												for (final QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
+													final Double nonLogRatio = infiniteRatio
+															.getNonLogRatio(condition1.getName(), condition2.getName());
+													if (nonLogRatio != null) {
+														final RatioEx ratio = new RatioEx(nonLogRatio, condition1,
+																condition2, SINGLETON_INTENSITY_RATIO,
+																AggregationLevel.PSM);
+														// add ratio to peptide
+														runPSM.getPeptide().addRatio(ratio);
+													}
 												}
 											}
-										}
 
+										}
 									}
-								}
-								// end of ratios
-								// ///////////////////////////////////////////
+									// end of ratios
+									// ///////////////////////////////////////////
 
-								// ///////////////////////////////////////////
-								// singleton ratio sum intensities based and
-								// singleton ratio sum counts based:
-								// sum of singleton intensities of condition 1 /
-								// sum ofsingleton intensities of condition 2
-								// and
-								// number of singleton peaks of condition 1 /
-								// number of singleton peaks of condition 2
-								//
-								if (quantifiedPSM instanceof IsobaricQuantifiedPSM) {
-									final IsobaricQuantifiedPSM isoPSM = (IsobaricQuantifiedPSM) quantifiedPSM;
+									// ///////////////////////////////////////////
+									// singleton ratio sum intensities based and
+									// singleton ratio sum counts based:
+									// sum of singleton intensities of condition 1 /
+									// sum ofsingleton intensities of condition 2
+									// and
+									// number of singleton peaks of condition 1 /
+									// number of singleton peaks of condition 2
+									//
+									if (quantifiedPSM instanceof IsobaricQuantifiedPSM) {
+										final IsobaricQuantifiedPSM isoPSM = (IsobaricQuantifiedPSM) quantifiedPSM;
 
-									final Map<QuantificationLabel, Set<Ion>> singletonIonsByLabelMap = isoPSM
-											.getSingletonIonsByLabel();
-									final List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
-									quantLabelList.addAll(singletonIonsByLabelMap.keySet());
+										final Map<QuantificationLabel, Set<Ion>> singletonIonsByLabelMap = isoPSM
+												.getSingletonIonsByLabel();
+										final List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
+										quantLabelList.addAll(singletonIonsByLabelMap.keySet());
 
-									for (int i = 0; i < quantLabelList.size(); i++) {
-										final QuantificationLabel quantificationLabel1 = quantLabelList.get(i);
-										final String sample1 = getSamplesByLabel(quantificationLabel1,
-												remoteFilesRatioType.getNumerator().getConditionRef(),
-												remoteFilesRatioType.getDenominator().getConditionRef());
-										if (sample1 == null) {
-											continue;
-										}
-										final Condition condition1 = getConditionBySampleAndRatio(sample1,
-												remoteFilesRatioType);
-										final Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
-										for (int j = i + 1; j < quantLabelList.size(); j++) {
-											final QuantificationLabel quantificationLabel2 = quantLabelList.get(j);
-											final String sample2 = getSamplesByLabel(quantificationLabel2,
+										for (int i = 0; i < quantLabelList.size(); i++) {
+											final QuantificationLabel quantificationLabel1 = quantLabelList.get(i);
+											final String sample1 = getSamplesByLabel(quantificationLabel1,
 													remoteFilesRatioType.getNumerator().getConditionRef(),
 													remoteFilesRatioType.getDenominator().getConditionRef());
-											if (sample2 == null) {
+											if (sample1 == null) {
 												continue;
 											}
-											final Condition condition2 = getConditionBySampleAndRatio(sample2,
+											final Condition condition1 = getConditionBySampleAndRatio(sample1,
 													remoteFilesRatioType);
-											final Set<Ion> ions2 = singletonIonsByLabelMap.get(quantificationLabel2);
-											if (!ions2.isEmpty()) {
-												// singleton ratio count based
-												final double singletonRatioCountValue = Double.valueOf(ions1.size())
-														/ Double.valueOf(ions2.size());
-												// make the log2
-												double log2Ratio = Math.log(singletonRatioCountValue) / Math.log(2);
-												final RatioEx singletonRatioCount = new RatioEx(log2Ratio, condition1,
-														condition2, SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PSM);
-												// add ratio to peptide
-												runPSM.getPeptide().addRatio(singletonRatioCount);
-
-												// singleton ratio intensity
-												// based
-												final double singletonRatioIntensityValue = Double
-														.valueOf(getIntensitySum(ions1))
-														/ Double.valueOf(getIntensitySum(ions2));
-												// make the log2
-												log2Ratio = Math.log(singletonRatioIntensityValue) / Math.log(2);
-												final RatioEx singletonRatioIntensity = new RatioEx(log2Ratio,
-														condition1, condition2, SINGLETON_SUM_INTENSITIES_RATIO,
-														AggregationLevel.PSM);
-												// add ratio to peptide
-												runPSM.getPeptide().addRatio(singletonRatioIntensity);
-											} else {
-												// ions2 is empty, so
-												// denominator is
-												// 0
-												if (!ions1.isEmpty()) {
-													// n/0 -> positive infinity,
-													// log(inf) = inf
-													final RatioEx singletonRatioCount = new RatioEx(
-															Double.POSITIVE_INFINITY, condition1, condition2,
-															SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PSM);
+											final Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
+											for (int j = i + 1; j < quantLabelList.size(); j++) {
+												final QuantificationLabel quantificationLabel2 = quantLabelList.get(j);
+												final String sample2 = getSamplesByLabel(quantificationLabel2,
+														remoteFilesRatioType.getNumerator().getConditionRef(),
+														remoteFilesRatioType.getDenominator().getConditionRef());
+												if (sample2 == null) {
+													continue;
+												}
+												final Condition condition2 = getConditionBySampleAndRatio(sample2,
+														remoteFilesRatioType);
+												final Set<Ion> ions2 = singletonIonsByLabelMap
+														.get(quantificationLabel2);
+												if (!ions2.isEmpty()) {
+													// singleton ratio count based
+													final double singletonRatioCountValue = Double.valueOf(ions1.size())
+															/ Double.valueOf(ions2.size());
+													// make the log2
+													double log2Ratio = Math.log(singletonRatioCountValue) / Math.log(2);
+													final RatioEx singletonRatioCount = new RatioEx(log2Ratio,
+															condition1, condition2, SINGLETON_SUM_COUNT_RATIO,
+															AggregationLevel.PSM);
 													// add ratio to peptide
 													runPSM.getPeptide().addRatio(singletonRatioCount);
-													final RatioEx singletonRatioIntensity = new RatioEx(
-															Double.POSITIVE_INFINITY, condition1, condition2,
-															SINGLETON_SUM_INTENSITIES_RATIO, AggregationLevel.PSM);
+
+													// singleton ratio intensity
+													// based
+													final double singletonRatioIntensityValue = Double
+															.valueOf(getIntensitySum(ions1))
+															/ Double.valueOf(getIntensitySum(ions2));
+													// make the log2
+													log2Ratio = Math.log(singletonRatioIntensityValue) / Math.log(2);
+													final RatioEx singletonRatioIntensity = new RatioEx(log2Ratio,
+															condition1, condition2, SINGLETON_SUM_INTENSITIES_RATIO,
+															AggregationLevel.PSM);
 													// add ratio to peptide
 													runPSM.getPeptide().addRatio(singletonRatioIntensity);
-												}
+												} else {
+													// ions2 is empty, so
+													// denominator is
+													// 0
+													if (!ions1.isEmpty()) {
+														// n/0 -> positive infinity,
+														// log(inf) = inf
+														final RatioEx singletonRatioCount = new RatioEx(
+																Double.POSITIVE_INFINITY, condition1, condition2,
+																SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PSM);
+														// add ratio to peptide
+														runPSM.getPeptide().addRatio(singletonRatioCount);
+														final RatioEx singletonRatioIntensity = new RatioEx(
+																Double.POSITIVE_INFINITY, condition1, condition2,
+																SINGLETON_SUM_INTENSITIES_RATIO, AggregationLevel.PSM);
+														// add ratio to peptide
+														runPSM.getPeptide().addRatio(singletonRatioIntensity);
+													}
 
+												}
 											}
 										}
 									}
+
+									// end of singleton ratio intensity based
+									// ////////////////////////////////////////////
+
 								}
-
-								// end of singleton ratio intensity based
-								// ////////////////////////////////////////////
-
 							}
 						}
 					}
@@ -1067,8 +1092,8 @@ public class ImportCfgFileReader {
 		if (remoteFileRatiosCfg != null) {
 			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
-				final String msRunRef = remoteFilesRatioType.getMsRunRef();
-
+				final List<String> msRunIDs = getMSRunIDs(remoteFilesRatioType.getMsRunRef(),
+						ExcelUtils.MULTIPLE_ITEM_SEPARATOR);
 				final QuantParser censusQuantParser = remoteFileReader
 						.getQuantParser(remoteFilesRatioType.getFileRef());
 				if (censusQuantParser != null) {
@@ -1078,254 +1103,264 @@ public class ImportCfgFileReader {
 					final Map<String, QuantifiedPSMInterface> quantPSMsMap = censusQuantParser.getPSMMap();
 
 					if (quantPSMsMap != null) {
-						final Set<PSM> runPSMs = StaticProteomicsModelStorage.getPSM(msRunRef, null, null);
-						// aqui se usaa el msrun pero no en excel. Usarlo en
-						// excel, aunque sea opcionalmente?
-						if (runPSMs != null) {
-							for (final PSM runPSM : runPSMs) {
-								final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap.get(runPSM.getIdentifier());
-								if (quantifiedPSM == null) {
-									// log.warn(runPSM.getPSMIdentifier()
-									// + " doesn't have quantitative
-									// information. Skipping it...");
-									continue;
-								}
+						for (final String msRunID : msRunIDs) {
 
-								// /////////////////////////////////////////////
-								// ratios (from ratios of
-								// peaks = pairs)
-								final Set<QuantRatio> ratios = quantifiedPSM.getQuantRatios();
-								if (ratios != null) {
-									final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
-									for (final QuantRatio quantRatio : ratios) {
-										final QuantificationLabel label1 = quantRatio.getLabel1();
-										final QuantificationLabel label2 = quantRatio.getLabel2();
-
-										final String sample1 = getSamplesByLabel(label1,
-												remoteFilesRatioType.getNumerator().getConditionRef(),
-												remoteFilesRatioType.getDenominator().getConditionRef());
-										final String sample2 = getSamplesByLabel(label2,
-												remoteFilesRatioType.getNumerator().getConditionRef(),
-												remoteFilesRatioType.getDenominator().getConditionRef());
-										if (sample1 == null || sample2 == null) {
-											continue;
-										}
-										final Pair<String, String> samplePair = new Pair<String, String>(sample1,
-												sample2);
-										if (mapQuantRatios.containsKey(samplePair)) {
-											// take LOG 2 ratio
-											mapQuantRatios.get(samplePair).add(quantRatio);
-										} else {
-											final List<QuantRatio> list = new ArrayList<QuantRatio>();
-											list.add(quantRatio);
-											mapQuantRatios.put(samplePair, list);
-										}
+							final Set<PSM> runPSMs = StaticProteomicsModelStorage.getPSM(msRunID, null, null);
+							// aqui se usaa el msrun pero no en excel. Usarlo en
+							// excel, aunque sea opcionalmente?
+							if (runPSMs != null) {
+								for (final PSM runPSM : runPSMs) {
+									final QuantifiedPSMInterface quantifiedPSM = quantPSMsMap
+											.get(runPSM.getIdentifier());
+									if (quantifiedPSM == null) {
+										// log.warn(runPSM.getPSMIdentifier()
+										// + " doesn't have quantitative
+										// information. Skipping it...");
+										continue;
 									}
-									for (final Pair<String, String> pair : mapQuantRatios.keySet()) {
-										final String sample1 = pair.getFirstelement();
-										final Condition condition1 = getConditionBySampleAndRatio(sample1,
-												remoteFilesRatioType);
-										final String sample2 = pair.getSecondElement();
-										final Condition condition2 = getConditionBySampleAndRatio(sample2,
-												remoteFilesRatioType);
 
-										final List<QuantRatio> ratioList = mapQuantRatios.get(pair);
-										// treat MAX or MIN value ratios
-										// separetely
-										final List<QuantRatio> safeRatios = new ArrayList<QuantRatio>();
-										final List<QuantRatio> maxOrMinValueRatioValues = new ArrayList<QuantRatio>();
-										for (final QuantRatio ratioValue : ratioList) {
-											// discard a ratio that is not
-											// between the two conditions
-											if (!ratioValue.getCondition1().getName().equals(condition1.getName())
-													&& !ratioValue.getCondition2().getName()
-															.equals(condition2.getName())) {
-												if (!ratioValue.getCondition1().getName().equals(condition2.getName())
+									// /////////////////////////////////////////////
+									// ratios (from ratios of
+									// peaks = pairs)
+									final Set<QuantRatio> ratios = quantifiedPSM.getQuantRatios();
+									if (ratios != null) {
+										final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
+										for (final QuantRatio quantRatio : ratios) {
+											final QuantificationLabel label1 = quantRatio.getLabel1();
+											final QuantificationLabel label2 = quantRatio.getLabel2();
+
+											final String sample1 = getSamplesByLabel(label1,
+													remoteFilesRatioType.getNumerator().getConditionRef(),
+													remoteFilesRatioType.getDenominator().getConditionRef());
+											final String sample2 = getSamplesByLabel(label2,
+													remoteFilesRatioType.getNumerator().getConditionRef(),
+													remoteFilesRatioType.getDenominator().getConditionRef());
+											if (sample1 == null || sample2 == null) {
+												continue;
+											}
+											final Pair<String, String> samplePair = new Pair<String, String>(sample1,
+													sample2);
+											if (mapQuantRatios.containsKey(samplePair)) {
+												// take LOG 2 ratio
+												mapQuantRatios.get(samplePair).add(quantRatio);
+											} else {
+												final List<QuantRatio> list = new ArrayList<QuantRatio>();
+												list.add(quantRatio);
+												mapQuantRatios.put(samplePair, list);
+											}
+										}
+										for (final Pair<String, String> pair : mapQuantRatios.keySet()) {
+											final String sample1 = pair.getFirstelement();
+											final Condition condition1 = getConditionBySampleAndRatio(sample1,
+													remoteFilesRatioType);
+											final String sample2 = pair.getSecondElement();
+											final Condition condition2 = getConditionBySampleAndRatio(sample2,
+													remoteFilesRatioType);
+
+											final List<QuantRatio> ratioList = mapQuantRatios.get(pair);
+											// treat MAX or MIN value ratios
+											// separetely
+											final List<QuantRatio> safeRatios = new ArrayList<QuantRatio>();
+											final List<QuantRatio> maxOrMinValueRatioValues = new ArrayList<QuantRatio>();
+											for (final QuantRatio ratioValue : ratioList) {
+												// discard a ratio that is not
+												// between the two conditions
+												if (!ratioValue.getCondition1().getName().equals(condition1.getName())
 														&& !ratioValue.getCondition2().getName()
-																.equals(condition1.getName())) {
-													continue;
+																.equals(condition2.getName())) {
+													if (!ratioValue.getCondition1().getName()
+															.equals(condition2.getName())
+															&& !ratioValue.getCondition2().getName()
+																	.equals(condition1.getName())) {
+														continue;
+													}
+												}
+
+												final Double log2Ratio = ratioValue.getLog2Ratio(condition1.getName(),
+														condition2.getName());
+												if (Maths.isMaxOrMinValue(log2Ratio)) {
+													maxOrMinValueRatioValues.add(ratioValue);
+												} else {
+													safeRatios.add(ratioValue);
 												}
 											}
 
-											final Double log2Ratio = ratioValue.getLog2Ratio(condition1.getName(),
-													condition2.getName());
-											if (Maths.isMaxOrMinValue(log2Ratio)) {
-												maxOrMinValueRatioValues.add(ratioValue);
-											} else {
-												safeRatios.add(ratioValue);
-											}
-										}
+											if (!safeRatios.isEmpty()) {
+												// get the ratios by its names, in
+												// order to average them if there is
+												// more than one of the same name
+												final Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
+														safeRatios);
+												for (final Set<QuantRatio> safeRatiosSameName : ratiosByNames
+														.values()) {
 
-										if (!safeRatios.isEmpty()) {
-											// get the ratios by its names, in
-											// order to average them if there is
-											// more than one of the same name
-											final Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
-													safeRatios);
-											for (final Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
+													if (safeRatiosSameName.size() > 1) {
+														// make the average of the
+														// values
+														final TDoubleArrayList safeRatioValues = new TDoubleArrayList();
+														for (final QuantRatio safeRatio : safeRatiosSameName) {
+															final double log2Ratio = safeRatio.getLog2Ratio(
+																	condition1.getName(), condition2.getName());
 
-												if (safeRatiosSameName.size() > 1) {
-													// make the average of the
-													// values
-													final TDoubleArrayList safeRatioValues = new TDoubleArrayList();
-													for (final QuantRatio safeRatio : safeRatiosSameName) {
-														final double log2Ratio = safeRatio.getLog2Ratio(
-																condition1.getName(), condition2.getName());
+															safeRatioValues.add(log2Ratio);
 
-														safeRatioValues.add(log2Ratio);
+														}
+														final RatioEx ratio = new RatioEx(Maths.mean(safeRatioValues),
+																condition1, condition2, CombinationType.AVERAGE,
+																safeRatiosSameName.iterator().next().getDescription(),
+																AggregationLevel.PSM);
 
-													}
-													final RatioEx ratio = new RatioEx(Maths.mean(safeRatioValues),
-															condition1, condition2, CombinationType.AVERAGE,
-															safeRatiosSameName.iterator().next().getDescription(),
-															AggregationLevel.PSM);
-
-													final ScoreEx score = new ScoreEx(
-															String.valueOf(Maths.stddev(safeRatioValues)),
-															"Standard deviation of ratios",
-															"Standard deviation of ratios at spectrum level",
-															"Standard deviation of the ratios computed in this spectrum");
-													if (!Double.isNaN(Double.valueOf(score.getValue()))) {
-														ratio.setAssociatedConfidenceScore(score);
-													}
-													runPSM.addRatio(ratio);
-												} else {
-													final QuantRatio safeRatio = safeRatiosSameName.iterator().next();
-													final Double log2RatioValue = safeRatio
-															.getLog2Ratio(condition1.getName(), condition2.getName());
-													if (log2RatioValue != null) {
-														// as cv term
-														// MS:1001132:
-														final String ratioDescription = safeRatio.getDescription();
-														// if (safeRatio
-														// instanceof IsoRatio)
-														// {
-														// ratioDescription =
-														// ISOBARIC_RATIO;
-														// }
-														final RatioEx ratio = new RatioEx(log2RatioValue, condition1,
-																condition2, ratioDescription, AggregationLevel.PSM);
-														final Score ratioScore = safeRatio
-																.getAssociatedConfidenceScore();
-														if (ratioScore != null && !Double
-																.isNaN(Double.valueOf(ratioScore.getValue()))) {
-															final ScoreEx score = new ScoreEx(ratioScore.getValue(),
-																	ratioScore.getScoreName(),
-																	ratioScore.getScoreType(),
-																	ratioScore.getScoreDescription());
+														final ScoreEx score = new ScoreEx(
+																String.valueOf(Maths.stddev(safeRatioValues)),
+																"Standard deviation of ratios",
+																"Standard deviation of ratios at spectrum level",
+																"Standard deviation of the ratios computed in this spectrum");
+														if (!Double.isNaN(Double.valueOf(score.getValue()))) {
 															ratio.setAssociatedConfidenceScore(score);
 														}
 														runPSM.addRatio(ratio);
+													} else {
+														final QuantRatio safeRatio = safeRatiosSameName.iterator()
+																.next();
+														final Double log2RatioValue = safeRatio.getLog2Ratio(
+																condition1.getName(), condition2.getName());
+														if (log2RatioValue != null) {
+															// as cv term
+															// MS:1001132:
+															final String ratioDescription = safeRatio.getDescription();
+															// if (safeRatio
+															// instanceof IsoRatio)
+															// {
+															// ratioDescription =
+															// ISOBARIC_RATIO;
+															// }
+															final RatioEx ratio = new RatioEx(log2RatioValue,
+																	condition1, condition2, ratioDescription,
+																	AggregationLevel.PSM);
+															final Score ratioScore = safeRatio
+																	.getAssociatedConfidenceScore();
+															if (ratioScore != null && !Double
+																	.isNaN(Double.valueOf(ratioScore.getValue()))) {
+																final ScoreEx score = new ScoreEx(ratioScore.getValue(),
+																		ratioScore.getScoreName(),
+																		ratioScore.getScoreType(),
+																		ratioScore.getScoreDescription());
+																ratio.setAssociatedConfidenceScore(score);
+															}
+															runPSM.addRatio(ratio);
 
+														}
 													}
 												}
 											}
-										}
-										// store the infinite ratios as
-										// singleton intensity ratios
-										if (!maxOrMinValueRatioValues.isEmpty()) {
-											for (final QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
-												final Double nonLogRatio = infiniteRatio
-														.getNonLogRatio(condition1.getName(), condition2.getName());
-												if (nonLogRatio != null) {
-													final RatioEx ratio = new RatioEx(nonLogRatio, condition1,
-															condition2, SINGLETON_INTENSITY_RATIO,
-															AggregationLevel.PSM);
-													runPSM.addRatio(ratio);
+											// store the infinite ratios as
+											// singleton intensity ratios
+											if (!maxOrMinValueRatioValues.isEmpty()) {
+												for (final QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
+													final Double nonLogRatio = infiniteRatio
+															.getNonLogRatio(condition1.getName(), condition2.getName());
+													if (nonLogRatio != null) {
+														final RatioEx ratio = new RatioEx(nonLogRatio, condition1,
+																condition2, SINGLETON_INTENSITY_RATIO,
+																AggregationLevel.PSM);
+														runPSM.addRatio(ratio);
+													}
 												}
 											}
-										}
 
+										}
 									}
-								}
-								// end of ratios
-								// ///////////////////////////////////////////
+									// end of ratios
+									// ///////////////////////////////////////////
 
-								// ///////////////////////////////////////////
-								// singleton ratio sum intensities based and
-								// singleton ratio sum counts based:
-								// sum of singleton intensities of condition 1 /
-								// sum ofsingleton intensities of condition 2
-								// and
-								// number of singleton peaks of condition 1 /
-								// number of singleton peaks of condition 2
-								//
-								if (quantifiedPSM instanceof IsobaricQuantifiedPSM) {
-									final IsobaricQuantifiedPSM isoPSM = (IsobaricQuantifiedPSM) quantifiedPSM;
+									// ///////////////////////////////////////////
+									// singleton ratio sum intensities based and
+									// singleton ratio sum counts based:
+									// sum of singleton intensities of condition 1 /
+									// sum ofsingleton intensities of condition 2
+									// and
+									// number of singleton peaks of condition 1 /
+									// number of singleton peaks of condition 2
+									//
+									if (quantifiedPSM instanceof IsobaricQuantifiedPSM) {
+										final IsobaricQuantifiedPSM isoPSM = (IsobaricQuantifiedPSM) quantifiedPSM;
 
-									final Map<QuantificationLabel, Set<Ion>> singletonIonsByLabelMap = isoPSM
-											.getSingletonIonsByLabel();
-									final List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
-									quantLabelList.addAll(singletonIonsByLabelMap.keySet());
+										final Map<QuantificationLabel, Set<Ion>> singletonIonsByLabelMap = isoPSM
+												.getSingletonIonsByLabel();
+										final List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
+										quantLabelList.addAll(singletonIonsByLabelMap.keySet());
 
-									for (int i = 0; i < quantLabelList.size(); i++) {
-										final QuantificationLabel quantificationLabel1 = quantLabelList.get(i);
-										final String sample1 = getSamplesByLabel(quantificationLabel1,
-												remoteFilesRatioType.getNumerator().getConditionRef(),
-												remoteFilesRatioType.getDenominator().getConditionRef());
-										if (sample1 == null) {
-											continue;
-										}
-										final Condition condition1 = getConditionBySampleAndRatio(sample1,
-												remoteFilesRatioType);
-										final Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
-										for (int j = i + 1; j < quantLabelList.size(); j++) {
-											final QuantificationLabel quantificationLabel2 = quantLabelList.get(j);
-											final String sample2 = getSamplesByLabel(quantificationLabel2,
+										for (int i = 0; i < quantLabelList.size(); i++) {
+											final QuantificationLabel quantificationLabel1 = quantLabelList.get(i);
+											final String sample1 = getSamplesByLabel(quantificationLabel1,
 													remoteFilesRatioType.getNumerator().getConditionRef(),
 													remoteFilesRatioType.getDenominator().getConditionRef());
-											if (sample2 == null) {
+											if (sample1 == null) {
 												continue;
 											}
-											final Condition condition2 = getConditionBySampleAndRatio(sample2,
+											final Condition condition1 = getConditionBySampleAndRatio(sample1,
 													remoteFilesRatioType);
-											final Set<Ion> ions2 = singletonIonsByLabelMap.get(quantificationLabel2);
-											if (!ions2.isEmpty()) {
-												// singleton ratio count based
-												final double singletonRatioCountValue = Double.valueOf(ions1.size())
-														/ Double.valueOf(ions2.size());
-												// make the log2
-												double log2Ratio = Math.log(singletonRatioCountValue) / Math.log(2);
-												final RatioEx singletonRatioCount = new RatioEx(log2Ratio, condition1,
-														condition2, SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PSM);
-												runPSM.addRatio(singletonRatioCount);
-
-												// singleton ratio intensity
-												// based
-												final double singletonRatioIntensityValue = Double
-														.valueOf(getIntensitySum(ions1))
-														/ Double.valueOf(getIntensitySum(ions2));
-												// make the log2
-												log2Ratio = Math.log(singletonRatioIntensityValue) / Math.log(2);
-												final RatioEx singletonRatioIntensity = new RatioEx(log2Ratio,
-														condition1, condition2, SINGLETON_SUM_INTENSITIES_RATIO,
-														AggregationLevel.PSM);
-												runPSM.addRatio(singletonRatioIntensity);
-											} else {
-												// ions2 is empty, so
-												// denominator is
-												// 0
-												if (!ions1.isEmpty()) {
-													// n/0 -> positive infinity,
-													// log(inf) = inf
-													final RatioEx singletonRatioCount = new RatioEx(
-															Double.POSITIVE_INFINITY, condition1, condition2,
-															SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PSM);
-													runPSM.addRatio(singletonRatioCount);
-													final RatioEx singletonRatioIntensity = new RatioEx(
-															Double.POSITIVE_INFINITY, condition1, condition2,
-															SINGLETON_SUM_INTENSITIES_RATIO, AggregationLevel.PSM);
-													runPSM.addRatio(singletonRatioIntensity);
+											final Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
+											for (int j = i + 1; j < quantLabelList.size(); j++) {
+												final QuantificationLabel quantificationLabel2 = quantLabelList.get(j);
+												final String sample2 = getSamplesByLabel(quantificationLabel2,
+														remoteFilesRatioType.getNumerator().getConditionRef(),
+														remoteFilesRatioType.getDenominator().getConditionRef());
+												if (sample2 == null) {
+													continue;
 												}
+												final Condition condition2 = getConditionBySampleAndRatio(sample2,
+														remoteFilesRatioType);
+												final Set<Ion> ions2 = singletonIonsByLabelMap
+														.get(quantificationLabel2);
+												if (!ions2.isEmpty()) {
+													// singleton ratio count based
+													final double singletonRatioCountValue = Double.valueOf(ions1.size())
+															/ Double.valueOf(ions2.size());
+													// make the log2
+													double log2Ratio = Math.log(singletonRatioCountValue) / Math.log(2);
+													final RatioEx singletonRatioCount = new RatioEx(log2Ratio,
+															condition1, condition2, SINGLETON_SUM_COUNT_RATIO,
+															AggregationLevel.PSM);
+													runPSM.addRatio(singletonRatioCount);
 
+													// singleton ratio intensity
+													// based
+													final double singletonRatioIntensityValue = Double
+															.valueOf(getIntensitySum(ions1))
+															/ Double.valueOf(getIntensitySum(ions2));
+													// make the log2
+													log2Ratio = Math.log(singletonRatioIntensityValue) / Math.log(2);
+													final RatioEx singletonRatioIntensity = new RatioEx(log2Ratio,
+															condition1, condition2, SINGLETON_SUM_INTENSITIES_RATIO,
+															AggregationLevel.PSM);
+													runPSM.addRatio(singletonRatioIntensity);
+												} else {
+													// ions2 is empty, so
+													// denominator is
+													// 0
+													if (!ions1.isEmpty()) {
+														// n/0 -> positive infinity,
+														// log(inf) = inf
+														final RatioEx singletonRatioCount = new RatioEx(
+																Double.POSITIVE_INFINITY, condition1, condition2,
+																SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PSM);
+														runPSM.addRatio(singletonRatioCount);
+														final RatioEx singletonRatioIntensity = new RatioEx(
+																Double.POSITIVE_INFINITY, condition1, condition2,
+																SINGLETON_SUM_INTENSITIES_RATIO, AggregationLevel.PSM);
+														runPSM.addRatio(singletonRatioIntensity);
+													}
+
+												}
 											}
 										}
 									}
+
+									// end of singleton ratio intensity based
+									// ////////////////////////////////////////////
+
 								}
-
-								// end of singleton ratio intensity based
-								// ////////////////////////////////////////////
-
 							}
 						}
 					}
@@ -1352,8 +1387,8 @@ public class ImportCfgFileReader {
 		if (remoteFileRatiosCfg != null) {
 			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
-				final String msRunRef = remoteFilesRatioType.getMsRunRef();
-
+				final List<String> msRunIDs = getMSRunIDs(remoteFilesRatioType.getMsRunRef(),
+						ExcelUtils.MULTIPLE_ITEM_SEPARATOR);
 				final QuantParser censusQuantParser = remoteFileReader
 						.getQuantParser(remoteFilesRatioType.getFileRef());
 				if (censusQuantParser != null) {
@@ -1363,259 +1398,267 @@ public class ImportCfgFileReader {
 					final Map<String, QuantifiedProteinInterface> quantProteinMap = censusQuantParser.getProteinMap();
 
 					if (quantProteinMap != null) {
-						final String conditionID = null;
-						final String acc = null;
-						final Set<Protein> runProteins = StaticProteomicsModelStorage.getProtein(msRunRef, conditionID,
-								acc);
-						// aqui se usaa el msrun pero no en excel. Usarlo en
-						// excel, aunque sea opcionalmente?
-						if (runProteins != null) {
-							// proteins already in run that are quantified:
-							for (final Protein runProtein : runProteins) {
-								QuantifiedProteinInterface quantifiedProtein = quantProteinMap
-										.get(runProtein.getAccession());
-								if (quantifiedProtein == null) {
-									final Set<Accession> secondaryAccessions = runProtein.getSecondaryAccessions();
-									for (final Accession accession : secondaryAccessions) {
-										if (quantProteinMap.containsKey(accession.getAccession())) {
-											quantifiedProtein = quantProteinMap.get(accession.getAccession());
-										}
-									}
+						for (final String msRunID : msRunIDs) {
+
+							final String conditionID = null;
+							final String acc = null;
+							final Set<Protein> runProteins = StaticProteomicsModelStorage.getProtein(msRunID,
+									conditionID, acc);
+							// aqui se usaa el msrun pero no en excel. Usarlo en
+							// excel, aunque sea opcionalmente?
+							if (runProteins != null) {
+								// proteins already in run that are quantified:
+								for (final Protein runProtein : runProteins) {
+									QuantifiedProteinInterface quantifiedProtein = quantProteinMap
+											.get(runProtein.getAccession());
 									if (quantifiedProtein == null) {
-										log.warn(runProtein.getAccession()
-												+ " doesn't have quantitative information. Skipping it...");
-										continue;
-									}
-								}
-
-								// /////////////////////////////////////////////
-								// ratios
-								final Set<QuantRatio> ratios = quantifiedProtein.getQuantRatios();
-								if (ratios != null) {
-									final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
-									for (final QuantRatio quantRatio : ratios) {
-										final QuantificationLabel label1 = quantRatio.getLabel1();
-										final QuantificationLabel label2 = quantRatio.getLabel2();
-
-										final String sample1 = getSamplesByLabel(label1,
-												remoteFilesRatioType.getNumerator().getConditionRef(),
-												remoteFilesRatioType.getDenominator().getConditionRef());
-										if (sample1 == null) {
-											continue;
-										}
-										final String sample2 = getSamplesByLabel(label2,
-												remoteFilesRatioType.getNumerator().getConditionRef(),
-												remoteFilesRatioType.getDenominator().getConditionRef());
-										if (sample2 == null) {
-											continue;
-										}
-										// log.info("Sample1=" + sample1 +
-										// "\tSample2=" + sample2);
-										final Pair<String, String> samplePair = new Pair<String, String>(sample1,
-												sample2);
-										if (mapQuantRatios.containsKey(samplePair)) {
-											// take LOG 2 ratio
-											mapQuantRatios.get(samplePair).add(quantRatio);
-										} else {
-											final List<QuantRatio> list = new ArrayList<QuantRatio>();
-											list.add(quantRatio);
-											mapQuantRatios.put(samplePair, list);
-										}
-									}
-									for (final Pair<String, String> pair : mapQuantRatios.keySet()) {
-										final String sample1 = pair.getFirstelement();
-										final Condition condition1 = getConditionBySampleAndRatio(sample1,
-												remoteFilesRatioType);
-										final String sample2 = pair.getSecondElement();
-										final Condition condition2 = getConditionBySampleAndRatio(sample2,
-												remoteFilesRatioType);
-
-										final List<QuantRatio> ratioList = mapQuantRatios.get(pair);
-										// treat MAX or MIN value ratios
-										// separetely
-										final List<QuantRatio> safeRatios = new ArrayList<QuantRatio>();
-										final List<QuantRatio> maxOrMinValueRatioValues = new ArrayList<QuantRatio>();
-										for (final QuantRatio ratioValue : ratioList) {
-											final Double log2Ratio = ratioValue.getLog2Ratio(condition1.getName(),
-													condition2.getName());
-											if (Maths.isMaxOrMinValue(log2Ratio)) {
-												maxOrMinValueRatioValues.add(ratioValue);
-											} else {
-												safeRatios.add(ratioValue);
+										final Set<Accession> secondaryAccessions = runProtein.getSecondaryAccessions();
+										for (final Accession accession : secondaryAccessions) {
+											if (quantProteinMap.containsKey(accession.getAccession())) {
+												quantifiedProtein = quantProteinMap.get(accession.getAccession());
 											}
 										}
-
-										if (!safeRatios.isEmpty()) {
-											// get the ratios by its names, in
-											// order to average them if there is
-											// more than one of the same name
-											final Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
-													safeRatios);
-											for (final Set<QuantRatio> safeRatiosSameName : ratiosByNames.values()) {
-
-												if (safeRatiosSameName.size() > 1) {
-													// make the average of the
-													// values
-													final TDoubleArrayList safeRatioValues = new TDoubleArrayList();
-													for (final QuantRatio safeRatio : safeRatiosSameName) {
-														final double log2Ratio = safeRatio.getLog2Ratio(
-																condition1.getName(), condition2.getName());
-														safeRatioValues.add(log2Ratio);
-
-													}
-													final RatioEx ratio = new RatioEx(Maths.mean(safeRatioValues),
-															condition1, condition2, CombinationType.AVERAGE,
-															safeRatiosSameName.iterator().next().getDescription(),
-															AggregationLevel.PROTEIN);
-													final ScoreEx score = new ScoreEx(
-															String.valueOf(Maths.stddev(safeRatioValues)),
-															"Standard deviation of ratios",
-															"Standard deviation of ratios at protein level",
-															"Standard deviation of the ratios computed in this protein");
-													if (!Double.isNaN(Double.valueOf(score.getValue()))) {
-														ratio.setAssociatedConfidenceScore(score);
-													}
-													runProtein.addRatio(ratio);
-												} else {
-													final QuantRatio safeRatio = safeRatiosSameName.iterator().next();
-
-													final Double log2Ratio = safeRatio
-															.getLog2Ratio(condition1.getName(), condition2.getName());
-													if (log2Ratio != null) {
-														// as cv term
-														// MS:1001132:
-														final String ratioDescription = safeRatio.getDescription();
-														// if (safeRatio
-														// instanceof IsoRatio)
-														// {
-														// ratioDescription =
-														// ISOBARIC_RATIO;
-														// }
-														final RatioEx ratio = new RatioEx(log2Ratio, condition1,
-																condition2, ratioDescription, AggregationLevel.PROTEIN);
-														final Score ratioScore = safeRatio
-																.getAssociatedConfidenceScore();
-														if (ratioScore != null && !"NA".equals(ratioScore.getValue())
-																&& !Double
-																		.isNaN(Double.valueOf(ratioScore.getValue()))) {
-															final ScoreEx score = new ScoreEx(ratioScore.getValue(),
-																	ratioScore.getScoreName(),
-																	ratioScore.getScoreType(),
-																	ratioScore.getScoreDescription());
-															ratio.setAssociatedConfidenceScore(score);
-														}
-														runProtein.addRatio(ratio);
-
-													}
-												}
-											}
-										}
-										// store the infinite ratios as
-										// singleton intensity ratios
-										if (!maxOrMinValueRatioValues.isEmpty()) {
-											for (final QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
-												final Double nonLogRatio = infiniteRatio
-														.getNonLogRatio(condition1.getName(), condition2.getName());
-												if (nonLogRatio != null) {
-													final RatioEx ratio = new RatioEx(nonLogRatio, condition1,
-															condition2, SINGLETON_INTENSITY_RATIO,
-															AggregationLevel.PROTEIN);
-													runProtein.addRatio(ratio);
-												}
-											}
-										}
-
-									}
-								}
-								// end of ratios
-								// ///////////////////////////////////////////
-
-								// ///////////////////////////////////////////
-								// singleton ratio sum intensities based and
-								// singleton ratio sum counts based:
-								// sum of singleton intensities of condition 1 /
-								// sum ofsingleton intensities of condition 2
-								// and
-								// number of singleton peaks of condition 1 /
-								// number of singleton peaks of condition 2
-								//
-								if (quantifiedProtein instanceof IsobaricQuantifiedProtein) {
-									final IsobaricQuantifiedProtein isoProtein = (IsobaricQuantifiedProtein) quantifiedProtein;
-
-									final Map<QuantificationLabel, Set<Ion>> singletonIonsByLabelMap = isoProtein
-											.getSingletonIonsByLabel();
-									final List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
-									quantLabelList.addAll(singletonIonsByLabelMap.keySet());
-
-									for (int i = 0; i < quantLabelList.size(); i++) {
-										final QuantificationLabel quantificationLabel1 = quantLabelList.get(i);
-										final String sample1 = getSamplesByLabel(quantificationLabel1,
-												remoteFilesRatioType.getNumerator().getConditionRef(),
-												remoteFilesRatioType.getDenominator().getConditionRef());
-										if (sample1 == null) {
+										if (quantifiedProtein == null) {
+											log.warn(runProtein.getAccession()
+													+ " doesn't have quantitative information. Skipping it...");
 											continue;
 										}
-										final Condition condition1 = getConditionBySampleAndRatio(sample1,
-												remoteFilesRatioType);
-										final Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
-										for (int j = i + 1; j < quantLabelList.size(); j++) {
-											final QuantificationLabel quantificationLabel2 = quantLabelList.get(j);
-											final String sample2 = getSamplesByLabel(quantificationLabel2,
+									}
+
+									// /////////////////////////////////////////////
+									// ratios
+									final Set<QuantRatio> ratios = quantifiedProtein.getQuantRatios();
+									if (ratios != null) {
+										final Map<Pair<String, String>, List<QuantRatio>> mapQuantRatios = new THashMap<Pair<String, String>, List<QuantRatio>>();
+										for (final QuantRatio quantRatio : ratios) {
+											final QuantificationLabel label1 = quantRatio.getLabel1();
+											final QuantificationLabel label2 = quantRatio.getLabel2();
+
+											final String sample1 = getSamplesByLabel(label1,
+													remoteFilesRatioType.getNumerator().getConditionRef(),
+													remoteFilesRatioType.getDenominator().getConditionRef());
+											if (sample1 == null) {
+												continue;
+											}
+											final String sample2 = getSamplesByLabel(label2,
 													remoteFilesRatioType.getNumerator().getConditionRef(),
 													remoteFilesRatioType.getDenominator().getConditionRef());
 											if (sample2 == null) {
 												continue;
 											}
+											// log.info("Sample1=" + sample1 +
+											// "\tSample2=" + sample2);
+											final Pair<String, String> samplePair = new Pair<String, String>(sample1,
+													sample2);
+											if (mapQuantRatios.containsKey(samplePair)) {
+												// take LOG 2 ratio
+												mapQuantRatios.get(samplePair).add(quantRatio);
+											} else {
+												final List<QuantRatio> list = new ArrayList<QuantRatio>();
+												list.add(quantRatio);
+												mapQuantRatios.put(samplePair, list);
+											}
+										}
+										for (final Pair<String, String> pair : mapQuantRatios.keySet()) {
+											final String sample1 = pair.getFirstelement();
+											final Condition condition1 = getConditionBySampleAndRatio(sample1,
+													remoteFilesRatioType);
+											final String sample2 = pair.getSecondElement();
 											final Condition condition2 = getConditionBySampleAndRatio(sample2,
 													remoteFilesRatioType);
-											final Set<Ion> ions2 = singletonIonsByLabelMap.get(quantificationLabel2);
-											if (!ions2.isEmpty()) {
-												// singleton ratio count based
-												final double singletonRatioCountValue = Double.valueOf(ions1.size())
-														/ Double.valueOf(ions2.size());
-												// make the log2
-												double log2Ratio = Math.log(singletonRatioCountValue) / Math.log(2);
-												final RatioEx singletonRatioCount = new RatioEx(log2Ratio, condition1,
-														condition2, SINGLETON_SUM_COUNT_RATIO,
-														AggregationLevel.PROTEIN);
-												runProtein.addRatio(singletonRatioCount);
 
-												// singleton ratio intensity
-												// based
-												final double singletonRatioIntensityValue = Double
-														.valueOf(getIntensitySum(ions1))
-														/ Double.valueOf(getIntensitySum(ions2));
-												// make the log2
-												log2Ratio = Math.log(singletonRatioIntensityValue) / Math.log(2);
-												final RatioEx singletonRatioIntensity = new RatioEx(log2Ratio,
-														condition1, condition2, SINGLETON_SUM_INTENSITIES_RATIO,
-														AggregationLevel.PROTEIN);
-												runProtein.addRatio(singletonRatioIntensity);
-											} else {
-												// ions2 is empty, so
-												// denominator is
-												// 0
-												if (!ions1.isEmpty()) {
-													// n/0 -> positive infinity,
-													// log(inf) = inf
-													final RatioEx singletonRatioCount = new RatioEx(
-															Double.POSITIVE_INFINITY, condition1, condition2,
-															SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PROTEIN);
-													runProtein.addRatio(singletonRatioCount);
-													final RatioEx singletonRatioIntensity = new RatioEx(
-															Double.POSITIVE_INFINITY, condition1, condition2,
-															SINGLETON_SUM_INTENSITIES_RATIO, AggregationLevel.PROTEIN);
-													runProtein.addRatio(singletonRatioIntensity);
+											final List<QuantRatio> ratioList = mapQuantRatios.get(pair);
+											// treat MAX or MIN value ratios
+											// separetely
+											final List<QuantRatio> safeRatios = new ArrayList<QuantRatio>();
+											final List<QuantRatio> maxOrMinValueRatioValues = new ArrayList<QuantRatio>();
+											for (final QuantRatio ratioValue : ratioList) {
+												final Double log2Ratio = ratioValue.getLog2Ratio(condition1.getName(),
+														condition2.getName());
+												if (Maths.isMaxOrMinValue(log2Ratio)) {
+													maxOrMinValueRatioValues.add(ratioValue);
+												} else {
+													safeRatios.add(ratioValue);
 												}
+											}
 
+											if (!safeRatios.isEmpty()) {
+												// get the ratios by its names, in
+												// order to average them if there is
+												// more than one of the same name
+												final Map<String, Set<QuantRatio>> ratiosByNames = getRatiosByDescription(
+														safeRatios);
+												for (final Set<QuantRatio> safeRatiosSameName : ratiosByNames
+														.values()) {
+
+													if (safeRatiosSameName.size() > 1) {
+														// make the average of the
+														// values
+														final TDoubleArrayList safeRatioValues = new TDoubleArrayList();
+														for (final QuantRatio safeRatio : safeRatiosSameName) {
+															final double log2Ratio = safeRatio.getLog2Ratio(
+																	condition1.getName(), condition2.getName());
+															safeRatioValues.add(log2Ratio);
+
+														}
+														final RatioEx ratio = new RatioEx(Maths.mean(safeRatioValues),
+																condition1, condition2, CombinationType.AVERAGE,
+																safeRatiosSameName.iterator().next().getDescription(),
+																AggregationLevel.PROTEIN);
+														final ScoreEx score = new ScoreEx(
+																String.valueOf(Maths.stddev(safeRatioValues)),
+																"Standard deviation of ratios",
+																"Standard deviation of ratios at protein level",
+																"Standard deviation of the ratios computed in this protein");
+														if (!Double.isNaN(Double.valueOf(score.getValue()))) {
+															ratio.setAssociatedConfidenceScore(score);
+														}
+														runProtein.addRatio(ratio);
+													} else {
+														final QuantRatio safeRatio = safeRatiosSameName.iterator()
+																.next();
+
+														final Double log2Ratio = safeRatio.getLog2Ratio(
+																condition1.getName(), condition2.getName());
+														if (log2Ratio != null) {
+															// as cv term
+															// MS:1001132:
+															final String ratioDescription = safeRatio.getDescription();
+															// if (safeRatio
+															// instanceof IsoRatio)
+															// {
+															// ratioDescription =
+															// ISOBARIC_RATIO;
+															// }
+															final RatioEx ratio = new RatioEx(log2Ratio, condition1,
+																	condition2, ratioDescription,
+																	AggregationLevel.PROTEIN);
+															final Score ratioScore = safeRatio
+																	.getAssociatedConfidenceScore();
+															if (ratioScore != null
+																	&& !"NA".equals(ratioScore.getValue())
+																	&& !Double.isNaN(
+																			Double.valueOf(ratioScore.getValue()))) {
+																final ScoreEx score = new ScoreEx(ratioScore.getValue(),
+																		ratioScore.getScoreName(),
+																		ratioScore.getScoreType(),
+																		ratioScore.getScoreDescription());
+																ratio.setAssociatedConfidenceScore(score);
+															}
+															runProtein.addRatio(ratio);
+
+														}
+													}
+												}
+											}
+											// store the infinite ratios as
+											// singleton intensity ratios
+											if (!maxOrMinValueRatioValues.isEmpty()) {
+												for (final QuantRatio infiniteRatio : maxOrMinValueRatioValues) {
+													final Double nonLogRatio = infiniteRatio
+															.getNonLogRatio(condition1.getName(), condition2.getName());
+													if (nonLogRatio != null) {
+														final RatioEx ratio = new RatioEx(nonLogRatio, condition1,
+																condition2, SINGLETON_INTENSITY_RATIO,
+																AggregationLevel.PROTEIN);
+														runProtein.addRatio(ratio);
+													}
+												}
+											}
+
+										}
+									}
+									// end of ratios
+									// ///////////////////////////////////////////
+
+									// ///////////////////////////////////////////
+									// singleton ratio sum intensities based and
+									// singleton ratio sum counts based:
+									// sum of singleton intensities of condition 1 /
+									// sum ofsingleton intensities of condition 2
+									// and
+									// number of singleton peaks of condition 1 /
+									// number of singleton peaks of condition 2
+									//
+									if (quantifiedProtein instanceof IsobaricQuantifiedProtein) {
+										final IsobaricQuantifiedProtein isoProtein = (IsobaricQuantifiedProtein) quantifiedProtein;
+
+										final Map<QuantificationLabel, Set<Ion>> singletonIonsByLabelMap = isoProtein
+												.getSingletonIonsByLabel();
+										final List<QuantificationLabel> quantLabelList = new ArrayList<QuantificationLabel>();
+										quantLabelList.addAll(singletonIonsByLabelMap.keySet());
+
+										for (int i = 0; i < quantLabelList.size(); i++) {
+											final QuantificationLabel quantificationLabel1 = quantLabelList.get(i);
+											final String sample1 = getSamplesByLabel(quantificationLabel1,
+													remoteFilesRatioType.getNumerator().getConditionRef(),
+													remoteFilesRatioType.getDenominator().getConditionRef());
+											if (sample1 == null) {
+												continue;
+											}
+											final Condition condition1 = getConditionBySampleAndRatio(sample1,
+													remoteFilesRatioType);
+											final Set<Ion> ions1 = singletonIonsByLabelMap.get(quantificationLabel1);
+											for (int j = i + 1; j < quantLabelList.size(); j++) {
+												final QuantificationLabel quantificationLabel2 = quantLabelList.get(j);
+												final String sample2 = getSamplesByLabel(quantificationLabel2,
+														remoteFilesRatioType.getNumerator().getConditionRef(),
+														remoteFilesRatioType.getDenominator().getConditionRef());
+												if (sample2 == null) {
+													continue;
+												}
+												final Condition condition2 = getConditionBySampleAndRatio(sample2,
+														remoteFilesRatioType);
+												final Set<Ion> ions2 = singletonIonsByLabelMap
+														.get(quantificationLabel2);
+												if (!ions2.isEmpty()) {
+													// singleton ratio count based
+													final double singletonRatioCountValue = Double.valueOf(ions1.size())
+															/ Double.valueOf(ions2.size());
+													// make the log2
+													double log2Ratio = Math.log(singletonRatioCountValue) / Math.log(2);
+													final RatioEx singletonRatioCount = new RatioEx(log2Ratio,
+															condition1, condition2, SINGLETON_SUM_COUNT_RATIO,
+															AggregationLevel.PROTEIN);
+													runProtein.addRatio(singletonRatioCount);
+
+													// singleton ratio intensity
+													// based
+													final double singletonRatioIntensityValue = Double
+															.valueOf(getIntensitySum(ions1))
+															/ Double.valueOf(getIntensitySum(ions2));
+													// make the log2
+													log2Ratio = Math.log(singletonRatioIntensityValue) / Math.log(2);
+													final RatioEx singletonRatioIntensity = new RatioEx(log2Ratio,
+															condition1, condition2, SINGLETON_SUM_INTENSITIES_RATIO,
+															AggregationLevel.PROTEIN);
+													runProtein.addRatio(singletonRatioIntensity);
+												} else {
+													// ions2 is empty, so
+													// denominator is
+													// 0
+													if (!ions1.isEmpty()) {
+														// n/0 -> positive infinity,
+														// log(inf) = inf
+														final RatioEx singletonRatioCount = new RatioEx(
+																Double.POSITIVE_INFINITY, condition1, condition2,
+																SINGLETON_SUM_COUNT_RATIO, AggregationLevel.PROTEIN);
+														runProtein.addRatio(singletonRatioCount);
+														final RatioEx singletonRatioIntensity = new RatioEx(
+																Double.POSITIVE_INFINITY, condition1, condition2,
+																SINGLETON_SUM_INTENSITIES_RATIO,
+																AggregationLevel.PROTEIN);
+														runProtein.addRatio(singletonRatioIntensity);
+													}
+
+												}
 											}
 										}
 									}
+
+									// end of singleton ratio intensity based
+									// ////////////////////////////////////////////
 								}
-
-								// end of singleton ratio intensity based
-								// ////////////////////////////////////////////
-
 							}
 						}
 					}
@@ -2282,8 +2325,8 @@ public class ImportCfgFileReader {
 	}
 
 	/**
-	 * Gets the {@link Sample} that is referring the condition with id equals to
-	 * the parameter
+	 * Gets the {@link Sample} that is referring the condition with id equals to the
+	 * parameter
 	 *
 	 * @param conditionId
 	 * @return
@@ -2302,8 +2345,8 @@ public class ImportCfgFileReader {
 	}
 
 	/**
-	 * Gets the {@link SampleType} from the {@link ExperimentalDesignType} with
-	 * Id equals to the parameter
+	 * Gets the {@link SampleType} from the {@link ExperimentalDesignType} with Id
+	 * equals to the parameter
 	 *
 	 * @param sampleRef
 	 * @return

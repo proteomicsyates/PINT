@@ -1,6 +1,7 @@
 package edu.scripps.yates.shared.model;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
@@ -14,6 +15,8 @@ public class FileSummary implements Serializable {
 	private int numPSMs;
 	private FileTypeBean fileTypeBean;
 	private String fileSizeString;
+	private int numSheets;
+	private Map<String, Integer> sheetMap;
 
 	public FileSummary() {
 
@@ -64,5 +67,22 @@ public class FileSummary implements Serializable {
 
 	public String getFileSizeString() {
 		return fileSizeString;
+	}
+
+	public void setNumSheets(int size) {
+		numSheets = size;
+	}
+
+	protected int getNumSheets() {
+		return numSheets;
+	}
+
+	public void setSheetMap(Map<String, Integer> sheetMap) {
+		this.sheetMap = sheetMap;
+
+	}
+
+	protected Map<String, Integer> getSheetMap() {
+		return sheetMap;
 	}
 }

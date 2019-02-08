@@ -25,18 +25,21 @@ import org.moxieapps.gwt.uploader.client.events.UploadProgressEvent;
 import org.moxieapps.gwt.uploader.client.events.UploadProgressHandler;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.dom.client.Style.WhiteSpace;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.DragLeaveEvent;
 import com.google.gwt.event.dom.client.DragLeaveHandler;
 import com.google.gwt.event.dom.client.DragOverEvent;
 import com.google.gwt.event.dom.client.DragOverHandler;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.event.dom.client.DropHandler;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -65,15 +68,15 @@ import edu.scripps.yates.shared.util.SharedConstants;
 
 public class NewSelectInputFilesPanel extends FlexTable {
 
-	private Uploader uploader;
-	private final PintContext context;
+	protected Uploader uploader;
+	protected final PintContext context;
 	private final Map<String, ProgressBar> progressBars = new LinkedHashMap<String, ProgressBar>();
-	private final Map<String, Image> cancelButtons = new LinkedHashMap<String, Image>();
-	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
+	protected final Map<String, Image> cancelButtons = new LinkedHashMap<String, Image>();
+	protected final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
 	private VerticalPanel uploadedFilesVerticalPanel;
 	private final Set<FileTypeBean> uploadedFiles = new HashSet<FileTypeBean>();
-	private final Map<String, HorizontalPanel> uploaderRows = new HashMap<String, HorizontalPanel>();
-	private final Wizard<PintContext> wizard;
+	protected final Map<String, HorizontalPanel> uploaderRows = new HashMap<String, HorizontalPanel>();
+	protected final Wizard<PintContext> wizard;
 
 	public NewSelectInputFilesPanel(Wizard<PintContext> wizard) {
 		this.context = wizard.getContext();
@@ -83,11 +86,25 @@ public class NewSelectInputFilesPanel extends FlexTable {
 
 	}
 
+	/**
+	 * Sets a different text than "Click here to upload one or more files"
+	 * 
+	 * @param text
+	 */
+	public void setMessageText(String text) {
+		uploader.setButtonText("<span class=\"linkText\">" + text + "</span>");
+	}
+
+	public void setButtonWidth(int width) {
+		uploader.setButtonWidth(width);
+	}
+
 	private void init() {
 		final VerticalPanel progressBarPanel = new VerticalPanel();
 		progressBarPanel.setStyleName(WizardStyles.PROGRESSBAR_TABLE);
 
 		uploader = new Uploader();
+		final UploadCompleteHandler uploadCompleteHandler = getUploadCompleteHandler();
 		uploader.setButtonText("<span class=\"linkText\">Click here to upload one or more files</span>")//
 				.setButtonTextStyle(
 						".linkText{font-size: 14px; color: #BB4B44;} .linkText:hover{ font-size: 14px;  color: #000000;}")//
@@ -163,76 +180,8 @@ public class NewSelectInputFilesPanel extends FlexTable {
 					}
 				})
 				// upload success
-				.setUploadCompleteHandler(new UploadCompleteHandler() {
-					@Override
-					public boolean onUploadComplete(UploadCompleteEvent uploadCompleteEvent) {
-						// remove cancel button
-						final File uploadedFile = uploadCompleteEvent.getFile();
-						cancelButtons.get(uploadedFile.getId()).removeFromParent();
-						// start other upload?
-						uploader.startUpload();
-						// update object with no format
-
-						service.getUploadedFileID(wizard.getContext().getPintImportConfiguration().getImportID(),
-								getUploadedFileSignature(uploadedFile), new AsyncCallback<String>() {
-
-									@Override
-									public void onFailure(Throwable caught) {
-										StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-									}
-
-									@Override
-									public void onSuccess(String fileIDInServer) {
-										try {
-											PintImportCfgUtil.addFile(context.getPintImportConfiguration(),
-													uploadedFile, fileIDInServer);
-											// update list of uploaded files
-											loadUploadedFiles();
-											//
-											updateNextButtonState();
-										} catch (final PintException e) {
-											StatusReportersRegister.getInstance().notifyStatusReporters(e);
-											final FileNameWithTypeBean dataFile = new FileNameWithTypeBean();
-											dataFile.setId(uploadedFile.getId());
-											dataFile.setFileName(uploadedFile.getName());
-											service.removeDataFile(context.getSessionID(),
-													context.getPintImportConfiguration().getImportID(), dataFile,
-													new AsyncCallback<Void>() {
-
-														@Override
-														public void onFailure(Throwable caught) {
-															StatusReportersRegister.getInstance().notifyStatusReporters(
-																	"Error deleting file from server: "
-																			+ e.getMessage());
-														}
-
-														@Override
-														public void onSuccess(Void result) {
-															StatusReportersRegister.getInstance()
-																	.notifyStatusReporters("File deleted from server");
-														}
-													});
-
-										}
-									}
-								});
-
-						// remove with delay the uploading row
-						final Timer timer = new Timer() {
-
-							@Override
-							public void run() {
-								final HorizontalPanel horizontalPanel = uploaderRows.get(uploadedFile.getId());
-								if (horizontalPanel != null) {
-									horizontalPanel.removeFromParent();
-								}
-							}
-						};
-						timer.schedule(3000);// after 3 sc.
-
-						return true;
-					}
-				}).setFileDialogStartHandler(new FileDialogStartHandler() {
+				.setUploadCompleteHandler(uploadCompleteHandler)
+				.setFileDialogStartHandler(new FileDialogStartHandler() {
 					@Override
 					public boolean onFileDialogStartEvent(FileDialogStartEvent fileDialogStartEvent) {
 						if (uploader.getStats().getUploadsInProgress() <= 0) {
@@ -309,6 +258,7 @@ public class NewSelectInputFilesPanel extends FlexTable {
 			});
 			verticalPanel.add(dropFilesLabel);
 		}
+		setUploadURL();
 
 		final HorizontalPanel horizontalPanel = new HorizontalPanel();
 		horizontalPanel.add(verticalPanel);
@@ -322,11 +272,99 @@ public class NewSelectInputFilesPanel extends FlexTable {
 		// then the table with the uploaded files
 		uploadedFilesVerticalPanel = new VerticalPanel();
 		setWidget(1, 0, uploadedFilesVerticalPanel);
-		loadUploadedFiles();
+		// update list of already uploaded files
+		loadUploadedFiles(false);
+		//
+		updateNextButtonState();
+	}
+
+	protected void setUploadURL() {
+
+		// set url for servlet in the server
+		uploader.setUploadURL("/newFileUpload?" + SharedConstants.JOB_ID_PARAM + "="
+				+ wizard.getContext().getPintImportConfiguration().getImportID());
+	}
+
+	public UploadCompleteHandler getUploadCompleteHandler() {
+		final UploadCompleteHandler uploadCompleteHandler = new UploadCompleteHandler() {
+			@Override
+			public boolean onUploadComplete(UploadCompleteEvent uploadCompleteEvent) {
+				// remove cancel button
+				final File uploadedFile = uploadCompleteEvent.getFile();
+				cancelButtons.get(uploadedFile.getId()).removeFromParent();
+				// start other upload?
+				uploader.startUpload();
+				// update object with no format
+
+				service.getUploadedFileID(wizard.getContext().getPintImportConfiguration().getImportID(),
+						getUploadedFileSignature(uploadedFile), new AsyncCallback<String>() {
+
+							@Override
+							public void onFailure(Throwable caught) {
+								StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+							}
+
+							@Override
+							public void onSuccess(String fileIDInServer) {
+
+								try {
+									PintImportCfgUtil.addFile(context.getPintImportConfiguration(), uploadedFile,
+											fileIDInServer);
+									// update list of uploaded files
+									loadUploadedFiles(true);
+									//
+									updateNextButtonState();
+								} catch (final PintException e) {
+									StatusReportersRegister.getInstance().notifyStatusReporters(e);
+									final FileNameWithTypeBean dataFile = new FileNameWithTypeBean();
+									dataFile.setId(uploadedFile.getId());
+									dataFile.setFileName(uploadedFile.getName());
+									service.removeDataFile(context.getSessionID(),
+											context.getPintImportConfiguration().getImportID(), dataFile,
+											new AsyncCallback<Void>() {
+
+												@Override
+												public void onFailure(Throwable caught) {
+													StatusReportersRegister.getInstance().notifyStatusReporters(
+															"Error deleting file from server: " + e.getMessage());
+												}
+
+												@Override
+												public void onSuccess(Void result) {
+													StatusReportersRegister.getInstance()
+															.notifyStatusReporters("File deleted from server");
+												}
+											});
+
+								}
+							}
+						});
+
+				// remove with delay the uploading row
+				final Timer timer = new Timer() {
+
+					@Override
+					public void run() {
+						final HorizontalPanel horizontalPanel = uploaderRows.get(uploadedFile.getId());
+						if (horizontalPanel != null) {
+							horizontalPanel.removeFromParent();
+						}
+					}
+				};
+				timer.schedule(3000);// after 3 sc.
+
+				return true;
+			}
+		};
+		return uploadCompleteHandler;
 	}
 
 	protected String getUploadedFileSignature(File uploadedFile) {
 		return uploadedFile.getName() + uploadedFile.getSize();
+	}
+
+	public void setPostParams(JSONObject postParams) {
+		uploader.setPostParams(postParams);
 	}
 
 	/**
@@ -354,21 +392,23 @@ public class NewSelectInputFilesPanel extends FlexTable {
 		return true;
 	}
 
-	private void loadUploadedFiles() {
+	private void loadUploadedFiles(boolean fireFormatChangeEvent) {
 
 		if (context.getPintImportConfiguration().getFileSet() != null) {
 			final List<FileTypeBean> fileSet = context.getPintImportConfiguration().getFileSet().getFile();
 			for (final FileTypeBean fileTypeBean : fileSet) {
 				if (!uploadedFiles.contains(fileTypeBean)) {
 					uploadedFiles.add(fileTypeBean);
-					final HorizontalPanel horizontalPanel = createHorizontalPanelForUploadedFile(fileTypeBean);
+					final HorizontalPanel horizontalPanel = createHorizontalPanelForUploadedFile(fileTypeBean,
+							fireFormatChangeEvent);
 					uploadedFilesVerticalPanel.add(horizontalPanel);
 				}
 			}
 		}
 	}
 
-	private HorizontalPanel createHorizontalPanelForUploadedFile(FileTypeBean fileTypeBean) {
+	private HorizontalPanel createHorizontalPanelForUploadedFile(FileTypeBean fileTypeBean,
+			boolean fireFormatChangeEvent) {
 		final HorizontalPanel ret = new HorizontalPanel();
 		ret.setStyleName(WizardStyles.PROGRESSBAR_ROW);
 		ret.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
@@ -405,10 +445,6 @@ public class NewSelectInputFilesPanel extends FlexTable {
 		formats.setTitle("Set the type of file so that PINT knows how to process it");
 		formats.setMultipleSelect(false);
 		addFormats(formats);
-		// select format if exist
-		if (fileTypeBean.getFormat() != null) {
-			selectFormat(formats, fileTypeBean.getFormat());
-		}
 		ret.add(formats);
 		ret.setCellHorizontalAlignment(formats, HasHorizontalAlignment.ALIGN_RIGHT);
 		final Image loadingImage = new Image(MyClientBundle.INSTANCE.smallLoader());
@@ -416,54 +452,6 @@ public class NewSelectInputFilesPanel extends FlexTable {
 		loadingImage.getElement().getStyle().setPaddingLeft(10, Unit.PX);
 		loadingImage.setTitle("Processing file in server");
 		ret.add(loadingImage);
-
-		// delete button handler
-		deleteButton.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				wizard.getView().startProcessing();
-				loadingImage.setVisible(true);
-				final FileNameWithTypeBean fileNameWithTypeBean = PintImportCfgUtil
-						.getFileNameWithTypeBeanl(fileTypeBean);
-
-				labelIfNoFormat.setText("Deleting file on server");
-				labelIfNoFormat.setStyleName(WizardStyles.WizardCriticalMessage);
-				labelIfNoFormat.setVisible(true);
-				service.removeDataFile(context.getSessionID(), context.getPintImportConfiguration().getImportID(),
-						fileNameWithTypeBean, new AsyncCallback<Void>() {
-
-							@Override
-							public void onFailure(Throwable caught) {
-								wizard.getView().stopProcessing();
-								loadingImage.setVisible(false);
-								StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-							}
-
-							@Override
-							public void onSuccess(Void result) {
-								wizard.getView().stopProcessing();
-								// delete from conf object
-								PintImportCfgUtil.removeFile(context.getPintImportConfiguration(),
-										fileTypeBean.getId());
-
-								loadingImage.setVisible(false);
-								labelIfNoFormat.setText("File deleted on server");
-								labelIfNoFormat.setStyleName(WizardStyles.WizardCriticalMessage);
-								labelIfNoFormat.setVisible(true);
-								final Timer timer = new Timer() {
-
-									@Override
-									public void run() {
-										ret.removeFromParent();
-									}
-								};
-								timer.schedule(1000);
-								updateNextButtonState();
-							}
-						});
-			}
-		});
 		// format change handler
 		formats.addChangeHandler(new ChangeHandler() {
 
@@ -532,7 +520,86 @@ public class NewSelectInputFilesPanel extends FlexTable {
 			}
 		});
 
+		// select format if exist
+		if (fileTypeBean.getFormat() != null) {
+			selectFormat(formats, fileTypeBean.getFormat(), fireFormatChangeEvent);
+		} else {
+			// try to guess the format by name
+			final FileFormat format = guessFormat(fileTypeBean);
+			if (format != null) {
+				fileTypeBean.setFormat(format);
+				labelIfNoFormat.setVisible(false);
+				selectFormat(formats, fileTypeBean.getFormat(), true);
+			}
+		}
+
+		// delete button handler
+		deleteButton.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				wizard.getView().startProcessing();
+				loadingImage.setVisible(true);
+				final FileNameWithTypeBean fileNameWithTypeBean = PintImportCfgUtil
+						.getFileNameWithTypeBeanl(fileTypeBean);
+
+				labelIfNoFormat.setText("Deleting file on server");
+				labelIfNoFormat.setStyleName(WizardStyles.WizardCriticalMessage);
+				labelIfNoFormat.setVisible(true);
+				service.removeDataFile(context.getSessionID(), context.getPintImportConfiguration().getImportID(),
+						fileNameWithTypeBean, new AsyncCallback<Void>() {
+
+							@Override
+							public void onFailure(Throwable caught) {
+								wizard.getView().stopProcessing();
+								loadingImage.setVisible(false);
+								StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+							}
+
+							@Override
+							public void onSuccess(Void result) {
+								wizard.getView().stopProcessing();
+								// delete from conf object
+								PintImportCfgUtil.removeFile(context.getPintImportConfiguration(),
+										fileTypeBean.getId());
+
+								loadingImage.setVisible(false);
+								labelIfNoFormat.setText("File deleted on server");
+								labelIfNoFormat.setStyleName(WizardStyles.WizardCriticalMessage);
+								labelIfNoFormat.setVisible(true);
+								final Timer timer = new Timer() {
+
+									@Override
+									public void run() {
+										ret.removeFromParent();
+									}
+								};
+								timer.schedule(1000);
+								updateNextButtonState();
+							}
+						});
+			}
+		});
+
 		return ret;
+	}
+
+	private FileFormat guessFormat(FileTypeBean fileTypeBean) {
+		final String fileName = fileTypeBean.getName();
+		if (fileName.toLowerCase().contains("census_chro")) {
+			return FileFormat.CENSUS_CHRO_XML;
+		} else if (fileName.toLowerCase().contains("census_out")) {
+			return FileFormat.CENSUS_OUT_TXT;
+		} else if (fileName.toLowerCase().endsWith("mzid")) {
+			return FileFormat.MZIDENTML;
+		} else if (fileName.toLowerCase().contains("dtaselect")) {
+			return FileFormat.DTA_SELECT_FILTER_TXT;
+		} else if (fileName.toLowerCase().endsWith("xls") || fileName.toLowerCase().endsWith("xlsx")) {
+			return FileFormat.EXCEL;
+		} else if (fileName.toLowerCase().contains("fasta")) {
+			return FileFormat.FASTA;
+		}
+		return null;
 	}
 
 	protected void updateNextButtonState() {
@@ -540,10 +607,13 @@ public class NewSelectInputFilesPanel extends FlexTable {
 		this.wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, readyForNextStep);
 	}
 
-	private boolean selectFormat(ListBox formats, FileFormat format) {
+	private boolean selectFormat(ListBox formats, FileFormat format, boolean fireChangeEvent) {
 		for (int index = 0; index < formats.getItemCount(); index++) {
 			if (formats.getValue(index).equals(format.name())) {
 				formats.setSelectedIndex(index);
+				if (fireChangeEvent) {
+					DomEvent.fireNativeEvent(Document.get().createChangeEvent(), formats);
+				}
 				return true;
 			}
 		}
@@ -570,8 +640,4 @@ public class NewSelectInputFilesPanel extends FlexTable {
 		}
 	}
 
-	public void setUploadURL(int importID) {
-		// set url for servlet in the server
-		uploader.setUploadURL("/newFileUpload?" + SharedConstants.JOB_ID_PARAM + "=" + importID);
-	}
 }

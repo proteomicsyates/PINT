@@ -7,7 +7,6 @@ import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
 
 public class PintContext extends WizardContext {
 	private PintImportCfgBean pintImportCfg;
-	private Boolean isQuantitative;
 	private final String sessionID;
 	private Boolean useFasta;
 
@@ -36,14 +35,6 @@ public class PintContext extends WizardContext {
 		return pintImportCfg;
 	}
 
-	public Boolean isQuantitative() {
-		return isQuantitative;
-	}
-
-	public void setQuantitative(Boolean isQuantitative) {
-		this.isQuantitative = isQuantitative;
-	}
-
 	public String getSessionID() {
 		return sessionID;
 	}
@@ -54,6 +45,10 @@ public class PintContext extends WizardContext {
 
 	public Boolean isUseFasta() {
 		return useFasta;
+	}
+
+	public void setPintImportConfiguration(PintImportCfgBean pintImportCfg) {
+		this.pintImportCfg = pintImportCfg;
 	}
 
 }

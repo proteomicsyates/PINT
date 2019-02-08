@@ -2,6 +2,7 @@ package edu.scripps.yates.client.gui;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
@@ -10,9 +11,10 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
@@ -86,24 +88,26 @@ public class MainPanel extends InitializableComposite {
 		contentVerticalPanel.add(sectionsHorizontalPanel);
 		sectionsHorizontalPanel.setSize("100%", "100%");
 
-		final VerticalPanel submitVerticalPanel = new VerticalPanel();
+		final FlexTable submitVerticalPanel = new FlexTable();
 
-		final VerticalPanel dataStatsVerticalPanel = new VerticalPanel();
+		final FlexTable dataStatsVerticalPanel = new FlexTable();
 		sectionsHorizontalPanel.add(dataStatsVerticalPanel);
 		dataStatsVerticalPanel.setWidth("");
 		dataStatsVerticalPanel.setStyleName("mainPageDataStatistics");
 		dataStatsVerticalPanel.setBorderWidth(0);
+		dataStatsVerticalPanel.setCellSpacing(10);
 
 		final InlineHTML nlnhtmlNewInlinehtml = new InlineHTML("PINT database statistics:");
 		nlnhtmlNewInlinehtml.setStyleName("title2");
-		nlnhtmlNewInlinehtml.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		dataStatsVerticalPanel.add(nlnhtmlNewInlinehtml);
+		dataStatsVerticalPanel.setWidget(0, 0, nlnhtmlNewInlinehtml);
+		dataStatsVerticalPanel.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
+		dataStatsVerticalPanel.getFlexCellFormatter().setHeight(0, 0, "4em");
 		final InlineHTML text = new InlineHTML("Currently, this instance of PINT contains:");
 		text.setStyleName("mainPageBoxExplanation");
-		dataStatsVerticalPanel.add(text);
+		dataStatsVerticalPanel.setWidget(1, 0, text);
 		listItemPanel = new HtmlList(ListType.UNORDERED);
 		listItemPanel.setStyleName("mainPageDataStatistics-numbers");
-		dataStatsVerticalPanel.add(listItemPanel);
+		dataStatsVerticalPanel.setWidget(2, 0, listItemPanel);
 		listItemPanel.addItem("Loading number of projects...", null);
 		listItemPanel.addItem("Loading number of exp. conditions...", null);
 		listItemPanel.addItem("Loading number of MS runs...", null);
@@ -112,56 +116,63 @@ public class MainPanel extends InitializableComposite {
 		listItemPanel.addItem("Loading number of peptides...", null);
 		listItemPanel.addItem("Loading number of PSMs...", null);
 		listItemPanel.unsinkEvents(Event.ONMOUSEOVER | Event.ONMOUSEOUT | Event.ONCLICK);
-
+		listItemPanel.getElement().getStyle().setMargin(0, Unit.PX);
 		focusSubmitPanel = new FocusPanel(submitVerticalPanel);
 		sectionsHorizontalPanel.add(focusSubmitPanel);
 		submitVerticalPanel.setBorderWidth(0);
 		submitVerticalPanel.setStyleName("mainPageBoxes");
-		submitVerticalPanel.setSpacing(10);
+		submitVerticalPanel.setCellSpacing(10);
 
 		final InlineHTML nlnhtmlNewInlinehtml_3 = new InlineHTML("Submit:");
 		nlnhtmlNewInlinehtml_3.setStyleName("title2");
-		submitVerticalPanel.add(nlnhtmlNewInlinehtml_3);
+		submitVerticalPanel.setWidget(0, 0, nlnhtmlNewInlinehtml_3);
+		submitVerticalPanel.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
+		submitVerticalPanel.getFlexCellFormatter().setHeight(0, 0, "4em");
 
 		final InlineHTML nlnhtmlSubmitExplanation = new InlineHTML(
 				"Click here to create a new project and upload data into it. The tool will guide you in order to capture your data in an appropiate way.");
 		nlnhtmlSubmitExplanation.setStyleName("mainPageBoxExplanation");
-		submitVerticalPanel.add(nlnhtmlSubmitExplanation);
-
-		final VerticalPanel accessDataVerticalPanel = new VerticalPanel();
+		submitVerticalPanel.setWidget(1, 0, nlnhtmlSubmitExplanation);
+		submitVerticalPanel.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_TOP);
+		//
+		final FlexTable accessDataVerticalPanel = new FlexTable();
 		focusAccessDataPanel = new FocusPanel(accessDataVerticalPanel);
 		sectionsHorizontalPanel.add(focusAccessDataPanel);
-		accessDataVerticalPanel.setSpacing(10);
+		accessDataVerticalPanel.setCellSpacing(10);
 		accessDataVerticalPanel.setBorderWidth(0);
 		accessDataVerticalPanel.setStyleName("mainPageBoxes");
 
 		final InlineHTML nlnhtmlAccessData = new InlineHTML("Browse data:");
 		nlnhtmlAccessData.setStyleName("title2");
-		accessDataVerticalPanel.add(nlnhtmlAccessData);
-
+		accessDataVerticalPanel.setWidget(0, 0, nlnhtmlAccessData);
+		accessDataVerticalPanel.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
+		accessDataVerticalPanel.getFlexCellFormatter().setHeight(0, 0, "4em");
+		//
 		final InlineHTML nlnhtmlAccessDataExplanation = new InlineHTML(
 				"Click here to see the list of the stored projects in PINT. You will be able to select the ones in which you are interested.");
 		nlnhtmlAccessDataExplanation.setStyleName("mainPageBoxExplanation");
-		accessDataVerticalPanel.add(nlnhtmlAccessDataExplanation);
-
+		accessDataVerticalPanel.setWidget(1, 0, nlnhtmlAccessDataExplanation);
+		accessDataVerticalPanel.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_TOP);
 		////
 
-		final VerticalPanel configurationVerticalPanel = new VerticalPanel();
+		final FlexTable configurationVerticalPanel = new FlexTable();
 		focusConfigurationPanel = new FocusPanel(configurationVerticalPanel);
 		sectionsHorizontalPanel.add(focusConfigurationPanel);
-		configurationVerticalPanel.setSpacing(10);
+		configurationVerticalPanel.setCellSpacing(10);
 		configurationVerticalPanel.setBorderWidth(0);
 		configurationVerticalPanel.setStyleName("mainPageBoxes");
 
 		final InlineHTML nlnhtmlConfiguration = new InlineHTML("Configuration:");
 		nlnhtmlConfiguration.setStyleName("title2");
-		configurationVerticalPanel.add(nlnhtmlConfiguration);
+		configurationVerticalPanel.setWidget(0, 0, nlnhtmlConfiguration);
+		configurationVerticalPanel.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
+		configurationVerticalPanel.getFlexCellFormatter().setHeight(0, 0, "4em");
 
 		final InlineHTML nlnhtmlConfigurationExplanation = new InlineHTML(
 				"Click here to go to the basic configuration of PINT (master password-protected).\nYou can edit the master password, the database connection parameters, the location of the internal files in the server and the projects you want to pre-load in cache for a faster accession.");
 		nlnhtmlConfigurationExplanation.setStyleName("mainPageBoxExplanation");
-		configurationVerticalPanel.add(nlnhtmlConfigurationExplanation);
-
+		configurationVerticalPanel.setWidget(1, 0, nlnhtmlConfigurationExplanation);
+		configurationVerticalPanel.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_TOP);
 		////
 
 		setStyleName("MainPanel");

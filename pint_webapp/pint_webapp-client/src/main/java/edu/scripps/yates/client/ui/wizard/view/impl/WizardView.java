@@ -156,4 +156,8 @@ public class WizardView extends Composite implements Display {
 		return handlers;
 	}
 
+	@Override
+	public HorizontalPanel getTitlePanel() {
+		return titlePanel;
+	}
 }

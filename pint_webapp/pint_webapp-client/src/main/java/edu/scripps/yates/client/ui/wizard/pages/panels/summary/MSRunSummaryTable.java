@@ -19,7 +19,7 @@ public class MSRunSummaryTable extends AbstractSummaryTable {
 		setWidget(row, 0, msRunNumber);
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_LEFT);
 		// ms run name
-		final Label msRunLabel = new Label("Experiment / replicate name:");
+		final Label msRunLabel = new Label("Experiment/Replicate name:");
 		msRunLabel.setStyleName(WizardStyles.WizardInfoMessage);
 
 		setWidget(row, 1, msRunLabel);
@@ -44,7 +44,7 @@ public class MSRunSummaryTable extends AbstractSummaryTable {
 
 			dateNameLabel.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 			setWidget(row, 1, dateNameLabel);
-			getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_LEFT);
+			getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		}
 		// path
 		row++;
@@ -59,7 +59,7 @@ public class MSRunSummaryTable extends AbstractSummaryTable {
 			final Label pathNameLabel = new Label(msRun.getPath());
 			pathNameLabel.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 			setWidget(row, 1, pathNameLabel);
-			getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_LEFT);
+			getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		}
 	}
 

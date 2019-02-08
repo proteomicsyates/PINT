@@ -5,9 +5,6 @@ import java.util.List;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.ui.wizard.Wizard;
-import edu.scripps.yates.client.ui.wizard.WizardPage.PageID;
-import edu.scripps.yates.client.ui.wizard.pages.PageIDController;
-import edu.scripps.yates.client.ui.wizard.pages.WizardPageSamples;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.DroppableFormat;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.ItemDraggableLabel;
 import edu.scripps.yates.shared.model.projectCreator.excel.SampleTypeBean;
@@ -32,14 +29,6 @@ public class ReferencedSamplesPanel extends AbstractReferencedItemPanel<SampleTy
 			label.setTitle(sampleTypeBean.getDescription());
 		}
 		return label;
-	}
-
-	@Override
-	protected PageID getWizardPageIDToJumpByFormat(DroppableFormat format2) {
-		if (format2 == DroppableFormat.SAMPLE) {
-			return PageIDController.getPageIDByPageClass(WizardPageSamples.class);
-		}
-		return null;
 	}
 
 }

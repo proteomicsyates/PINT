@@ -25,9 +25,38 @@ public class WizardQuestionPanel extends FlexTable {
 	private final String questionStyleName;
 	private final String explanationStyleName;
 	private HorizontalPanel buttonsPanel;
+	private Label questionLabel;
+	private Label explanationLabel;
 
 	public enum WizardQuestionPanelButtons {
-		YES_NO, OK, NONE
+		YES_NO("Yes", "No"), OK("Ok"), NONE(null);
+		private String button1Text;
+		private String button2Text;
+
+		private WizardQuestionPanelButtons(String button1Text) {
+			this(button1Text, null);
+		}
+
+		private WizardQuestionPanelButtons(String button1Text, String button2Text) {
+			this.setButton1Text(button1Text);
+			this.setButton2Text(button2Text);
+		}
+
+		public String getButton1Text() {
+			return button1Text;
+		}
+
+		public void setButton1Text(String button1Text) {
+			this.button1Text = button1Text;
+		}
+
+		public String getButton2Text() {
+			return button2Text;
+		}
+
+		public void setButton2Text(String button2Text) {
+			this.button2Text = button2Text;
+		}
 	};
 
 	/**
@@ -67,12 +96,12 @@ public class WizardQuestionPanel extends FlexTable {
 
 	private void init(WizardQuestionPanelButtons buttons) {
 		row = 0;
-		final Label questionLabel = new Label(question);
+		questionLabel = new Label(question);
 		questionLabel.setStyleName(questionStyleName);
 		setWidget(row, 0, questionLabel);
 		//
 		row++;
-		final Label explanationLabel = new Label(explanation);
+		explanationLabel = new Label(explanation);
 		explanationLabel.setStyleName(explanationStyleName);
 		explanationLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		explanationLabel.getElement().getStyle().setPaddingTop(30, Unit.PX);
@@ -90,12 +119,12 @@ public class WizardQuestionPanel extends FlexTable {
 				leftSpacer.setWidth("100%");
 				buttonsPanel.add(leftSpacer);
 				buttonsPanel.setCellWidth(leftSpacer, "45%");
-				yesButton = new WizardButton("Yes");
+				yesButton = new WizardButton(buttons.button1Text);
 				buttonsPanel.add(yesButton);
 				final HTML spacer = new HTML("&nbsp;");
 				buttonsPanel.add(spacer);
 				buttonsPanel.setCellWidth(spacer, "10%");
-				noButton = new WizardButton("No");
+				noButton = new WizardButton(buttons.button2Text);
 				buttonsPanel.add(noButton);
 				final HTML rightSpacer = new HTML("&nbsp;");
 				rightSpacer.setWidth("100%");
@@ -105,7 +134,7 @@ public class WizardQuestionPanel extends FlexTable {
 				yesButton.setSize(buttonWidth, buttonHeight);
 				noButton.setSize(buttonWidth, buttonHeight);
 			} else if (buttons == WizardQuestionPanelButtons.OK) {
-				okButton = new WizardButton("Ok");
+				okButton = new WizardButton(buttons.button1Text);
 				buttonsPanel.add(okButton);
 				// Buttons sizes
 				okButton.setSize(buttonWidth, buttonHeight);
@@ -161,5 +190,13 @@ public class WizardQuestionPanel extends FlexTable {
 
 	public WizardButton getOKButton() {
 		return this.okButton;
+	}
+
+	public Label getQuestionLabel() {
+		return this.questionLabel;
+	}
+
+	public Label getExplanationLabel() {
+		return this.explanationLabel;
 	}
 }

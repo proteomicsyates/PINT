@@ -91,11 +91,21 @@ public class ConditionsPanel extends AbstractItemPanel<ConditionItemWidget, Expe
 						PINT_ERROR_TYPE.WIZARD_PAGE_INCOMPLETE);
 			} else {
 				if (sampleIDs.contains(condition.getSampleRef())) {
-					throw new PintException("Sample '" + condition.getSampleRef()
-							+ "' cannot be associated in more than one experimental condition.\nYou may want to use a different sample associated with each experimental condition. Go To '"
-							+ PageTitleController.getPageTitleByPageID(
-									PageIDController.getPageIDByPageClass(WizardPageSamples.class))
-							+ "' by clicking on the yellow button.", PINT_ERROR_TYPE.WIZARD_PAGE_INCOMPLETE);
+					String message = "Sample '" + condition.getSampleRef()
+							+ "' cannot be associated in more than one experimental condition.\n";
+
+					if (PintImportCfgUtil.getSamples(getWizard().getContext().getPintImportConfiguration())
+							.size() < PintImportCfgUtil
+									.getConditions(getWizard().getContext().getPintImportConfiguration()).size()) {
+						message += "\nClick on 'Go To "
+								+ PageTitleController.getPageTitleByPageID(
+										PageIDController.getPageIDByPageClass(WizardPageSamples.class))
+								+ "' yellow button to create an additional sample.";
+					} else {
+						message += "\nYou may want to use a different sample associated with each experimental condition.";
+					}
+					throw new PintException(message, PINT_ERROR_TYPE.WIZARD_PAGE_INCOMPLETE);
+
 				}
 				sampleIDs.add(condition.getSampleRef());
 			}
