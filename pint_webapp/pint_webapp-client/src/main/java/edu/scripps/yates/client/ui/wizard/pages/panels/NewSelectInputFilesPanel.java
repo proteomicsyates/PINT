@@ -202,26 +202,7 @@ public class NewSelectInputFilesPanel extends FlexTable {
 						}
 						return true;
 					}
-				}).setFileQueueErrorHandler(new FileQueueErrorHandler() {
-					@Override
-					public boolean onFileQueueError(FileQueueErrorEvent fileQueueErrorEvent) {
-						StatusReportersRegister.getInstance()
-								.notifyStatusReporters("Upload of file " + fileQueueErrorEvent.getFile().getName()
-										+ " failed due to [" + fileQueueErrorEvent.getErrorCode().toString() + "]: "
-										+ fileQueueErrorEvent.getMessage());
-						return true;
-					}
-				}).setUploadErrorHandler(new UploadErrorHandler() {
-					@Override
-					public boolean onUploadError(UploadErrorEvent uploadErrorEvent) {
-						cancelButtons.get(uploadErrorEvent.getFile().getId()).removeFromParent();
-						StatusReportersRegister.getInstance()
-								.notifyStatusReporters("Upload of file " + uploadErrorEvent.getFile().getName()
-										+ " failed due to [" + uploadErrorEvent.getErrorCode().toString() + "]: "
-										+ uploadErrorEvent.getMessage());
-						return true;
-					}
-				});
+				}).setFileQueueErrorHandler(getFileQueueErrorHandler()).setUploadErrorHandler(getUploadErrorHandler());
 		final VerticalPanel verticalPanel = new VerticalPanel();
 		verticalPanel.add(uploader);
 		if (Uploader.isAjaxUploadWithProgressEventsSupported()) {
@@ -276,6 +257,33 @@ public class NewSelectInputFilesPanel extends FlexTable {
 		loadUploadedFiles(false);
 		//
 		updateNextButtonState();
+	}
+
+	protected UploadErrorHandler getUploadErrorHandler() {
+		return new UploadErrorHandler() {
+			@Override
+			public boolean onUploadError(UploadErrorEvent uploadErrorEvent) {
+				cancelButtons.get(uploadErrorEvent.getFile().getId()).removeFromParent();
+				StatusReportersRegister.getInstance()
+						.notifyStatusReporters("Upload of file " + uploadErrorEvent.getFile().getName()
+								+ " failed due to [" + uploadErrorEvent.getErrorCode().toString() + "]: "
+								+ uploadErrorEvent.getMessage());
+				return true;
+			}
+		};
+	}
+
+	protected FileQueueErrorHandler getFileQueueErrorHandler() {
+		return new FileQueueErrorHandler() {
+			@Override
+			public boolean onFileQueueError(FileQueueErrorEvent fileQueueErrorEvent) {
+				StatusReportersRegister.getInstance()
+						.notifyStatusReporters("Upload of file " + fileQueueErrorEvent.getFile().getName()
+								+ " failed due to [" + fileQueueErrorEvent.getErrorCode().toString() + "]: "
+								+ fileQueueErrorEvent.getMessage());
+				return true;
+			}
+		};
 	}
 
 	protected void setUploadURL() {
@@ -413,10 +421,10 @@ public class NewSelectInputFilesPanel extends FlexTable {
 		ret.setStyleName(WizardStyles.PROGRESSBAR_ROW);
 		ret.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 		// delete button
-		final Image deleteButton = new Image(MyClientBundle.INSTANCE.redCross());
+		final Label deleteButton = new Label("delete");
 		deleteButton.setTitle("Delete file");
-		deleteButton.setStyleName(WizardStyles.CLICKABLE);
-		deleteButton.getElement().getStyle().setPaddingRight(10, Unit.PX);
+		deleteButton.setStyleName(WizardStyles.WizardButtonSmall);
+		deleteButton.getElement().getStyle().setMarginRight(10, Unit.PX);
 		ret.add(deleteButton);
 
 		// file name
@@ -469,6 +477,7 @@ public class NewSelectInputFilesPanel extends FlexTable {
 					formats.setEnabled(false);
 					loadingImage.setVisible(true);
 					wizard.getView().startProcessing();
+					final int previousSelectedIndex = formats.getSelectedIndex();
 					service.updateFileFormat(context.getSessionID(), context.getPintImportConfiguration().getImportID(),
 							fileTypeBean, new AsyncCallback<FileTypeBean>() {
 
@@ -490,8 +499,8 @@ public class NewSelectInputFilesPanel extends FlexTable {
 									}
 									labelIfNoFormat.setStyleName(WizardStyles.WizardCriticalMessage);
 									labelIfNoFormat.setVisible(true);
-									// select the index=0, so empty format
-									formats.setSelectedIndex(0);
+									// select the previous index
+									formats.setSelectedIndex(previousSelectedIndex);
 									updateNextButtonState();
 								}
 

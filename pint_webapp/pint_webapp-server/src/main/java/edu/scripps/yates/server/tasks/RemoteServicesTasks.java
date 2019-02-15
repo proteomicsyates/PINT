@@ -101,7 +101,6 @@ import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
-import edu.scripps.yates.utilities.cores.SystemCoreManager;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
@@ -109,11 +108,6 @@ import edu.scripps.yates.utilities.grouping.PAnalyzer;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.ipi.UniprotEntry;
-import edu.scripps.yates.utilities.pi.ParIterator;
-import edu.scripps.yates.utilities.pi.ParIterator.Schedule;
-import edu.scripps.yates.utilities.pi.ParIteratorFactory;
-import edu.scripps.yates.utilities.pi.reductions.Reducible;
-import edu.scripps.yates.utilities.pi.reductions.Reduction;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
@@ -1351,54 +1345,6 @@ public class RemoteServicesTasks {
 		log.info(counter.printIfNecessary());
 		log.info(ret.size() + "  proteins converted to beans");
 		return ret;
-	}
-
-	public static Set<ProteinBean> createProteinBeansFromQueriableProteinsInParallel(String sessionID,
-			Map<String, QueriableProteinSet> proteins, Set<String> hiddenPTMs, String projectTagString,
-			boolean psmCentric) {
-		final int threadCount = SystemCoreManager.getAvailableNumSystemCores();
-		final ParIterator<QueriableProteinSet> iterator = ParIteratorFactory.createParIterator(proteins.values(),
-				threadCount, Schedule.GUIDED);
-
-		final Reducible<Set<ProteinBean>> reducibleProteinSet = new Reducible<Set<ProteinBean>>();
-		final List<ProteinBeanCreator> runners = new ArrayList<ProteinBeanCreator>();
-		for (int numCore = 0; numCore < threadCount; numCore++) {
-			// take current DB session
-			final ProteinBeanCreator runner = new ProteinBeanCreator(iterator, reducibleProteinSet, hiddenPTMs,
-					psmCentric);
-			runners.add(runner);
-			runner.start();
-		}
-		if (iterator.getAllExceptions().length > 0) {
-			throw new IllegalArgumentException(iterator.getAllExceptions()[0].getException());
-		}
-		// Main thread waits for worker threads to complete
-		for (int k = 0; k < threadCount; k++) {
-			try {
-				runners.get(k).join();
-			} catch (final InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-
-		final Reduction<Set<ProteinBean>> proteinReduction = new Reduction<Set<ProteinBean>>() {
-			@Override
-			public Set<ProteinBean> reduce(Set<ProteinBean> first, Set<ProteinBean> second) {
-				final Set<ProteinBean> ret = new THashSet<ProteinBean>();
-				ret.addAll(first);
-				ret.addAll(second);
-				if (sessionID != null) {
-					for (final ProteinBean proteinBeanAdapted : ret) {
-						DataSetsManager.getDataSet(sessionID, projectTagString, true, psmCentric)
-								.addProtein(proteinBeanAdapted);
-					}
-				}
-				return ret;
-			}
-
-		};
-		final Set<ProteinBean> proteinList = reducibleProteinSet.reduce(proteinReduction);
-		return proteinList;
 	}
 
 	private static void lookForInterruption() {

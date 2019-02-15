@@ -1,3 +1,12 @@
+ALTER TABLE `interactome_db`.`ptm` 
+DROP FOREIGN KEY `fk_PTM_PSM1`;
+ALTER TABLE `interactome_db`.`ptm` 
+CHANGE COLUMN `PSM_id` `PSM_id` INT(11) NULL ;
+ALTER TABLE `interactome_db`.`ptm` 
+ADD CONSTRAINT `fk_PTM_PSM1`
+  FOREIGN KEY (`PSM_id`)
+  REFERENCES `interactome_db`.`psm` (`id`);
+
 -- -----------------------------------------------------
 -- Table `interactome_db`.`Protein_has_MS_Run`
 -- -----------------------------------------------------

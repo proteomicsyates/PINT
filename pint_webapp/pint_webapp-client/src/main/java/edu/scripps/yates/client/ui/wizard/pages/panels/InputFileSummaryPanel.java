@@ -14,7 +14,9 @@ import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.client.util.ClientNumberFormat;
+import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.FileSummary;
+import edu.scripps.yates.shared.model.SheetSummary;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExperimentalConditionTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
@@ -26,9 +28,10 @@ public class InputFileSummaryPanel extends FlexTable {
 	private final List<ExperimentalConditionTypeBean> conditions = new ArrayList<ExperimentalConditionTypeBean>();
 	private DoSomethingTask<Void> onFileSummaryReceivedTask;
 	private final ClientNumberFormat formatter = new ClientNumberFormat("###,###");
+	private final String sheetName;
 
-	public InputFileSummaryPanel(PintContext context, FileTypeBean file) {
-
+	public InputFileSummaryPanel(PintContext context, FileTypeBean file, String sheetName) {
+		this.sheetName = sheetName;
 		final Label label = new Label("This is what we got from this file...");
 		label.setStyleName(WizardStyles.WizardExplanationLabel);
 		setWidget(0, 0, label);
@@ -97,30 +100,33 @@ public class InputFileSummaryPanel extends FlexTable {
 		fileSizeValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 		table.setWidget(row, 1, fileSizeValue);
 		//
-		row++;
-		final Label numProteinsName = new Label("Number of proteins:");
-		numProteinsName.setStyleName(WizardStyles.WizardInfoMessage);
-		table.setWidget(row, 0, numProteinsName);
-		final Label numProteinsValue = new Label(String.valueOf(parsePositiveNonZeroNumber(result.getNumProteins())));
-		numProteinsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
-		table.setWidget(row, 1, numProteinsValue);
-		//
-		row++;
-		final Label numPeptidesName = new Label("Number of peptides:");
-		numPeptidesName.setStyleName(WizardStyles.WizardInfoMessage);
-		table.setWidget(row, 0, numPeptidesName);
-		final Label numPeptidesValue = new Label(String.valueOf(parsePositiveNonZeroNumber(result.getNumPeptides())));
-		numPeptidesValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
-		table.setWidget(row, 1, numPeptidesValue);
-		//
-		row++;
-		final Label numPSMsName = new Label("Number of PSMs:");
-		numPSMsName.setStyleName(WizardStyles.WizardInfoMessage);
-		table.setWidget(row, 0, numPSMsName);
-		final Label numPSMsValue = new Label(String.valueOf(parsePositiveNonZeroNumber(result.getNumPSMs())));
-		numPSMsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
-		table.setWidget(row, 1, numPSMsValue);
-
+		if (result.getFileTypeBean().getFormat() != FileFormat.EXCEL) {
+			row++;
+			final Label numProteinsName = new Label("Number of proteins:");
+			numProteinsName.setStyleName(WizardStyles.WizardInfoMessage);
+			table.setWidget(row, 0, numProteinsName);
+			final Label numProteinsValue = new Label(
+					String.valueOf(parsePositiveNonZeroNumber(result.getNumProteins())));
+			numProteinsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
+			table.setWidget(row, 1, numProteinsValue);
+			//
+			row++;
+			final Label numPeptidesName = new Label("Number of peptides:");
+			numPeptidesName.setStyleName(WizardStyles.WizardInfoMessage);
+			table.setWidget(row, 0, numPeptidesName);
+			final Label numPeptidesValue = new Label(
+					String.valueOf(parsePositiveNonZeroNumber(result.getNumPeptides())));
+			numPeptidesValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
+			table.setWidget(row, 1, numPeptidesValue);
+			//
+			row++;
+			final Label numPSMsName = new Label("Number of PSMs:");
+			numPSMsName.setStyleName(WizardStyles.WizardInfoMessage);
+			table.setWidget(row, 0, numPSMsName);
+			final Label numPSMsValue = new Label(String.valueOf(parsePositiveNonZeroNumber(result.getNumPSMs())));
+			numPSMsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
+			table.setWidget(row, 1, numPSMsValue);
+		}
 		//
 		row++;
 		final Label conditionsLabel = new Label("Experimental conditions:");
@@ -134,6 +140,41 @@ public class InputFileSummaryPanel extends FlexTable {
 			updateAssociatedConditionsLabel();
 		}
 		table.setWidget(row, 1, associatedConditionsValues);
+
+		if (result.getFileTypeBean().getFormat() == FileFormat.EXCEL) {
+			//
+			row++;
+			final Label numSheets = new Label("Number of Sheets:");
+			numSheets.setStyleName(WizardStyles.WizardInfoMessage);
+			table.setWidget(row, 0, numSheets);
+			final Label numSheetsValue = new Label(String.valueOf(parsePositiveNonZeroNumber(result.getNumSheets())));
+			numSheetsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
+			table.setWidget(row, 1, numSheetsValue);
+			//
+			for (final String sheetKeyName : result.getSheetMap().keySet()) {
+				if (sheetName != null && !sheetName.equals(sheetKeyName)) {
+					continue;
+				}
+				//
+				row++;
+				final Label sheetName = new Label("Sheet:");
+				sheetName.setStyleName(WizardStyles.WizardInfoMessage);
+				table.setWidget(row, 0, sheetName);
+				final Label sheetNameValue = new Label("'" + sheetKeyName + "'");
+				sheetNameValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
+				table.setWidget(row, 1, sheetNameValue);
+				//
+				row++;
+				final Label sheetColumns = new Label("Columns:");
+				sheetColumns.setStyleName(WizardStyles.WizardInfoMessage);
+				table.setWidget(row, 0, sheetColumns);
+				final SheetSummary sheetSummary = result.getSheetMap().get(sheetKeyName);
+				final Label sheetColumnsValue = new Label(sheetSummary.toString());
+				sheetColumnsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
+				table.setWidget(row, 1, sheetColumnsValue);
+			}
+
+		}
 
 		return table;
 	}

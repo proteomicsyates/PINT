@@ -203,6 +203,7 @@ public class ImportCfgFileReader {
 			throws IOException, URISyntaxException {
 		log.info("Clearing static Quant information");
 		StaticQuantMaps.clearInfo();
+		StaticProteomicsModelStorage.clearData();
 
 		projectCfg = cfg.getProject();
 		final ProjectEx project = new ProjectEx(projectCfg.getName(), projectCfg.getDescription());

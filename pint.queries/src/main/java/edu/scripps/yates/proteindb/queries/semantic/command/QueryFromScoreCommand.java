@@ -3,9 +3,7 @@ package edu.scripps.yates.proteindb.queries.semantic.command;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.proteored.miapeapi.cv.ControlVocabularyTerm;
 
-import edu.scripps.yates.cv.CVManager;
 import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideScore;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinScore;
@@ -63,10 +61,11 @@ public class QueryFromScoreCommand extends AbstractQuery {
 
 			scoreTypeString = split[1].trim();
 			if (!"".equals(scoreTypeString)) {
-				final ControlVocabularyTerm cvScore = CVManager.getCvByName(scoreTypeString);
-				if (cvScore == null)
-					throw new MalformedQueryException(
-							"'" + scoreTypeString + "' is not recognized as a valid score type.");
+				// do not check this. it can be any text
+//				final ControlVocabularyTerm cvScore = CVManager.getCvByName(scoreTypeString);
+//				if (cvScore == null)
+//					throw new MalformedQueryException(
+//							"'" + scoreTypeString + "' is not recognized as a valid score type.");
 			}
 
 			scoreNameString = split[2].trim();
@@ -114,8 +113,10 @@ public class QueryFromScoreCommand extends AbstractQuery {
 		case PEPTIDE:
 			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptide());
 			return queryOverPeptide;
+
 		default:
-			throw new IllegalArgumentException("Error in aggregation level");
+			throw new IllegalArgumentException(
+					"Aggregation level not supported for this query. Try PEPTIDE or PROTEIN");
 		}
 
 	}

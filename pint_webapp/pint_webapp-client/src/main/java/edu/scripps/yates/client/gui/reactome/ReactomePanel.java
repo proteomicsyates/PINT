@@ -333,6 +333,7 @@ public class ReactomePanel extends ResizeLayoutPanel
 					@Override
 					public void onAnalysisError(Throwable exception) {
 						reactomeSubmitButton.setEnabled(true);
+						StatusReportersRegister.getInstance().notifyStatusReporters(exception);
 					}
 				});
 

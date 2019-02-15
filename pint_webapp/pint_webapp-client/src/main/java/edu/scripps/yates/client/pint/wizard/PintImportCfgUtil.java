@@ -14,6 +14,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ExcelColumnRefPanel;
+import edu.scripps.yates.client.ui.wizard.pages.widgets.NewExcelReferenceWidget;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.FileFormat;
@@ -48,6 +49,7 @@ import edu.scripps.yates.shared.model.projectCreator.excel.RemoteInfoTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SampleSetTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SampleTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ScoreTypeBean;
+import edu.scripps.yates.shared.model.projectCreator.excel.SequenceTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SheetTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SheetsTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.TissueSetTypeBean;
@@ -92,7 +94,7 @@ public class PintImportCfgUtil {
 		return sb.toString();
 	}
 
-	public static void addSample(PintImportCfgBean pintImportConfiguration, SampleTypeBean sampleObj)
+	public static boolean addSample(PintImportCfgBean pintImportConfiguration, SampleTypeBean sampleObj)
 			throws PintException {
 		if (pintImportConfiguration.getProject().getExperimentalDesign() == null) {
 			final ExperimentalDesignTypeBean experimentalDesignBean = new ExperimentalDesignTypeBean();
@@ -111,7 +113,12 @@ public class PintImportCfgUtil {
 
 			}
 		}
-		pintImportConfiguration.getProject().getExperimentalDesign().getSampleSet().getSample().add(sampleObj);
+		if (!pintImportConfiguration.getProject().getExperimentalDesign().getSampleSet().getSample()
+				.contains(sampleObj)) {
+			return pintImportConfiguration.getProject().getExperimentalDesign().getSampleSet().getSample()
+					.add(sampleObj);
+		}
+		return false;
 	}
 
 	public static FileNameWithTypeBean getFileNameWithTypeBeanl(FileTypeBean fileTypeBean) {
@@ -139,7 +146,10 @@ public class PintImportCfgUtil {
 
 			}
 		}
-		pintImportConfiguration.getProject().getExperimentalConditions().getExperimentalCondition().add(itemBean);
+		if (!pintImportConfiguration.getProject().getExperimentalConditions().getExperimentalCondition()
+				.contains(itemBean)) {
+			pintImportConfiguration.getProject().getExperimentalConditions().getExperimentalCondition().add(itemBean);
+		}
 
 	}
 
@@ -231,7 +241,7 @@ public class PintImportCfgUtil {
 		return ret;
 	}
 
-	public static void addOrganism(PintImportCfgBean pintImportConfiguration, OrganismTypeBean organism2)
+	public static boolean addOrganism(PintImportCfgBean pintImportConfiguration, OrganismTypeBean organism2)
 			throws PintException {
 		if (pintImportConfiguration.getProject().getExperimentalDesign() == null) {
 			final ExperimentalDesignTypeBean experimentalDesignBean = new ExperimentalDesignTypeBean();
@@ -250,7 +260,12 @@ public class PintImportCfgUtil {
 
 			}
 		}
-		pintImportConfiguration.getProject().getExperimentalDesign().getOrganismSet().getOrganism().add(organism2);
+		if (!pintImportConfiguration.getProject().getExperimentalDesign().getOrganismSet().getOrganism()
+				.contains(organism2)) {
+			return pintImportConfiguration.getProject().getExperimentalDesign().getOrganismSet().getOrganism()
+					.add(organism2);
+		}
+		return false;
 	}
 
 	public static List<OrganismTypeBean> getOrganisms(PintImportCfgBean pintImportConfiguration) {
@@ -306,7 +321,7 @@ public class PintImportCfgUtil {
 		return ret;
 	}
 
-	public static void addTissue(PintImportCfgBean pintImportConfiguration, TissueTypeBean tissue2)
+	public static boolean addTissue(PintImportCfgBean pintImportConfiguration, TissueTypeBean tissue2)
 			throws PintException {
 		if (pintImportConfiguration.getProject().getExperimentalDesign() == null) {
 			final ExperimentalDesignTypeBean experimentalDesignBean = new ExperimentalDesignTypeBean();
@@ -325,7 +340,11 @@ public class PintImportCfgUtil {
 
 			}
 		}
-		pintImportConfiguration.getProject().getExperimentalDesign().getTissueSet().getTissue().add(tissue2);
+		if (!pintImportConfiguration.getProject().getExperimentalDesign().getTissueSet().getTissue()
+				.contains(tissue2)) {
+			return pintImportConfiguration.getProject().getExperimentalDesign().getTissueSet().getTissue().add(tissue2);
+		}
+		return false;
 	}
 
 	public static void updateSampleID(PintImportCfgBean pintImportCfgBean, String oldID, String newID)
@@ -435,7 +454,8 @@ public class PintImportCfgUtil {
 		}
 	}
 
-	public static void addLabel(PintImportCfgBean pintImportConfiguration, LabelTypeBean label) throws PintException {
+	public static boolean addLabel(PintImportCfgBean pintImportConfiguration, LabelTypeBean label)
+			throws PintException {
 		if (pintImportConfiguration.getProject().getExperimentalDesign() == null) {
 			final ExperimentalDesignTypeBean experimentalDesignBean = new ExperimentalDesignTypeBean();
 			pintImportConfiguration.getProject().setExperimentalDesign(experimentalDesignBean);
@@ -453,7 +473,10 @@ public class PintImportCfgUtil {
 
 			}
 		}
-		pintImportConfiguration.getProject().getExperimentalDesign().getLabelSet().getLabel().add(label);
+		if (!pintImportConfiguration.getProject().getExperimentalDesign().getLabelSet().getLabel().contains(label)) {
+			return pintImportConfiguration.getProject().getExperimentalDesign().getLabelSet().getLabel().add(label);
+		}
+		return false;
 	}
 
 	public static List<LabelTypeBean> getLabels(PintImportCfgBean pintImportConfiguration) {
@@ -609,7 +632,8 @@ public class PintImportCfgUtil {
 		}
 	}
 
-	public static void addMSRun(PintImportCfgBean pintImportConfiguration, MsRunTypeBean msRun2) throws PintException {
+	public static boolean addMSRun(PintImportCfgBean pintImportConfiguration, MsRunTypeBean msRun2)
+			throws PintException {
 		if (pintImportConfiguration.getProject().getMsRuns() == null) {
 			final MsRunsTypeBean msRunsType = new MsRunsTypeBean();
 			pintImportConfiguration.getProject().setMsRuns(msRunsType);
@@ -624,7 +648,10 @@ public class PintImportCfgUtil {
 
 			}
 		}
-		pintImportConfiguration.getProject().getMsRuns().getMsRun().add(msRun2);
+		if (!pintImportConfiguration.getProject().getMsRuns().getMsRun().contains(msRun2)) {
+			return pintImportConfiguration.getProject().getMsRuns().getMsRun().add(msRun2);
+		}
+		return false;
 	}
 
 	public static void updateMSRun(PintImportCfgBean pintImportConfiguration, String oldID, String newID)
@@ -889,10 +916,13 @@ public class PintImportCfgUtil {
 		if (pintImportConfiguration.getProject().getRatios().getPsmAmountRatios() == null) {
 			pintImportConfiguration.getProject().getRatios().setPsmAmountRatios(new PsmRatiosTypeBean());
 		}
-		pintImportConfiguration.getProject().getRatios().getPsmAmountRatios().getRemoteFilesRatio().add(ratios);
+		if (!pintImportConfiguration.getProject().getRatios().getPsmAmountRatios().getRemoteFilesRatio()
+				.contains(ratios)) {
+			pintImportConfiguration.getProject().getRatios().getPsmAmountRatios().getRemoteFilesRatio().add(ratios);
+		}
 	}
 
-	public static void addPSMRatioFromExcel(PintImportCfgBean pintImportConfiguration,
+	public static boolean addPSMRatioFromExcel(PintImportCfgBean pintImportConfiguration,
 			ExcelAmountRatioTypeBean ratios) {
 		if (pintImportConfiguration.getProject().getRatios() == null) {
 			pintImportConfiguration.getProject().setRatios(new RatiosTypeBean());
@@ -900,20 +930,94 @@ public class PintImportCfgUtil {
 		if (pintImportConfiguration.getProject().getRatios().getPsmAmountRatios() == null) {
 			pintImportConfiguration.getProject().getRatios().setPsmAmountRatios(new PsmRatiosTypeBean());
 		}
-		pintImportConfiguration.getProject().getRatios().getPsmAmountRatios().getExcelRatio().add(ratios);
+		if (!pintImportConfiguration.getProject().getRatios().getPsmAmountRatios().getExcelRatio().contains(ratios)) {
+			return pintImportConfiguration.getProject().getRatios().getPsmAmountRatios().getExcelRatio().add(ratios);
+		}
+		return false;
 	}
 
-	public static void addPeptideRatio(PintImportCfgBean pintImportConfiguration, RemoteFilesRatioTypeBean ratios) {
+	public static boolean removePSMRatioAssociatedWithFileFromExcel(PintImportCfgBean pintImportConfiguration,
+			String fileID) {
+		boolean removed = false;
+		if (pintImportConfiguration.getProject().getRatios() != null) {
+
+			if (pintImportConfiguration.getProject().getRatios().getPsmAmountRatios() != null) {
+
+				final Iterator<ExcelAmountRatioTypeBean> iterator = pintImportConfiguration.getProject().getRatios()
+						.getPsmAmountRatios().getExcelRatio().iterator();
+
+				while (iterator.hasNext()) {
+					final ExcelAmountRatioTypeBean ratio = iterator.next();
+					if (fileID.equals(getExcelFileIdFromExcelColumnID(ratio.getColumnRef()))) {
+						iterator.remove();
+						removed = true;
+					}
+				}
+			}
+		}
+		return removed;
+	}
+
+	public static boolean removePeptideRatioAssociatedWithFileFromExcel(PintImportCfgBean pintImportConfiguration,
+			String fileID) {
+		boolean removed = false;
+		if (pintImportConfiguration.getProject().getRatios() != null) {
+
+			if (pintImportConfiguration.getProject().getRatios().getPeptideAmountRatios() != null) {
+
+				final Iterator<ExcelAmountRatioTypeBean> iterator = pintImportConfiguration.getProject().getRatios()
+						.getPeptideAmountRatios().getExcelRatio().iterator();
+
+				while (iterator.hasNext()) {
+					final ExcelAmountRatioTypeBean ratio = iterator.next();
+					if (fileID.equals(getExcelFileIdFromExcelColumnID(ratio.getColumnRef()))) {
+						iterator.remove();
+						removed = true;
+					}
+				}
+			}
+		}
+		return removed;
+	}
+
+	public static boolean removeProteinRatioAssociatedWithFileFromExcel(PintImportCfgBean pintImportConfiguration,
+			String fileID) {
+		boolean removed = false;
+		if (pintImportConfiguration.getProject().getRatios() != null) {
+
+			if (pintImportConfiguration.getProject().getRatios().getProteinAmountRatios() != null) {
+
+				final Iterator<ExcelAmountRatioTypeBean> iterator = pintImportConfiguration.getProject().getRatios()
+						.getProteinAmountRatios().getExcelRatio().iterator();
+
+				while (iterator.hasNext()) {
+					final ExcelAmountRatioTypeBean ratio = iterator.next();
+					if (fileID.equals(getExcelFileIdFromExcelColumnID(ratio.getColumnRef()))) {
+						iterator.remove();
+						removed = true;
+					}
+				}
+			}
+		}
+		return removed;
+	}
+
+	public static boolean addPeptideRatio(PintImportCfgBean pintImportConfiguration, RemoteFilesRatioTypeBean ratios) {
 		if (pintImportConfiguration.getProject().getRatios() == null) {
 			pintImportConfiguration.getProject().setRatios(new RatiosTypeBean());
 		}
 		if (pintImportConfiguration.getProject().getRatios().getPeptideAmountRatios() == null) {
 			pintImportConfiguration.getProject().getRatios().setPeptideAmountRatios(new PeptideRatiosTypeBean());
 		}
-		pintImportConfiguration.getProject().getRatios().getPeptideAmountRatios().getRemoteFilesRatio().add(ratios);
+		if (!pintImportConfiguration.getProject().getRatios().getPeptideAmountRatios().getRemoteFilesRatio()
+				.contains(ratios)) {
+			return pintImportConfiguration.getProject().getRatios().getPeptideAmountRatios().getRemoteFilesRatio()
+					.add(ratios);
+		}
+		return false;
 	}
 
-	public static void addPeptideRatioFromExcel(PintImportCfgBean pintImportConfiguration,
+	public static boolean addPeptideRatioFromExcel(PintImportCfgBean pintImportConfiguration,
 			ExcelAmountRatioTypeBean ratios) {
 		if (pintImportConfiguration.getProject().getRatios() == null) {
 			pintImportConfiguration.getProject().setRatios(new RatiosTypeBean());
@@ -921,20 +1025,30 @@ public class PintImportCfgUtil {
 		if (pintImportConfiguration.getProject().getRatios().getPeptideAmountRatios() == null) {
 			pintImportConfiguration.getProject().getRatios().setPeptideAmountRatios(new PeptideRatiosTypeBean());
 		}
-		pintImportConfiguration.getProject().getRatios().getPeptideAmountRatios().getExcelRatio().add(ratios);
+		if (!pintImportConfiguration.getProject().getRatios().getPeptideAmountRatios().getExcelRatio()
+				.contains(ratios)) {
+			return pintImportConfiguration.getProject().getRatios().getPeptideAmountRatios().getExcelRatio()
+					.add(ratios);
+		}
+		return false;
 	}
 
-	public static void addProteinRatio(PintImportCfgBean pintImportConfiguration, RemoteFilesRatioTypeBean ratios) {
+	public static boolean addProteinRatio(PintImportCfgBean pintImportConfiguration, RemoteFilesRatioTypeBean ratios) {
 		if (pintImportConfiguration.getProject().getRatios() == null) {
 			pintImportConfiguration.getProject().setRatios(new RatiosTypeBean());
 		}
 		if (pintImportConfiguration.getProject().getRatios().getProteinAmountRatios() == null) {
 			pintImportConfiguration.getProject().getRatios().setProteinAmountRatios(new ProteinRatiosTypeBean());
 		}
-		pintImportConfiguration.getProject().getRatios().getProteinAmountRatios().getRemoteFilesRatio().add(ratios);
+		if (!pintImportConfiguration.getProject().getRatios().getProteinAmountRatios().getRemoteFilesRatio()
+				.contains(ratios)) {
+			return pintImportConfiguration.getProject().getRatios().getProteinAmountRatios().getRemoteFilesRatio()
+					.add(ratios);
+		}
+		return false;
 	}
 
-	public static void addProteinRatioFromExcel(PintImportCfgBean pintImportConfiguration,
+	public static boolean addProteinRatioFromExcel(PintImportCfgBean pintImportConfiguration,
 			ExcelAmountRatioTypeBean ratios) {
 		if (pintImportConfiguration.getProject().getRatios() == null) {
 			pintImportConfiguration.getProject().setRatios(new RatiosTypeBean());
@@ -942,7 +1056,12 @@ public class PintImportCfgUtil {
 		if (pintImportConfiguration.getProject().getRatios().getProteinAmountRatios() == null) {
 			pintImportConfiguration.getProject().getRatios().setProteinAmountRatios(new ProteinRatiosTypeBean());
 		}
-		pintImportConfiguration.getProject().getRatios().getProteinAmountRatios().getExcelRatio().add(ratios);
+		if (!pintImportConfiguration.getProject().getRatios().getProteinAmountRatios().getExcelRatio()
+				.contains(ratios)) {
+			return pintImportConfiguration.getProject().getRatios().getProteinAmountRatios().getExcelRatio()
+					.add(ratios);
+		}
+		return false;
 	}
 
 	public static void removeRatiosByFileID(PintImportCfgBean pintImportConfiguration, String fileID) {
@@ -952,7 +1071,7 @@ public class PintImportCfgUtil {
 						.getPeptideAmountRatios().getExcelRatio().iterator();
 				while (iterator.hasNext()) {
 					final ExcelAmountRatioTypeBean excelRatio = iterator.next();
-					if (getExcelFileIdFromExcelColumnID(excelRatio.getColumnRef()).equals(fileID)) {
+					if (fileID.equals(getExcelFileIdFromExcelColumnID(excelRatio.getColumnRef()))) {
 						iterator.remove();
 						GWT.log("Protein Ratio for file '" + fileID + "' removed");
 					}
@@ -972,7 +1091,7 @@ public class PintImportCfgUtil {
 						.getProteinAmountRatios().getExcelRatio().iterator();
 				while (iterator.hasNext()) {
 					final ExcelAmountRatioTypeBean excelRatio = iterator.next();
-					if (getExcelFileIdFromExcelColumnID(excelRatio.getColumnRef()).equals(fileID)) {
+					if (fileID.equals(getExcelFileIdFromExcelColumnID(excelRatio.getColumnRef()))) {
 						iterator.remove();
 						GWT.log("Peptide Ratio for file '" + fileID + "' removed");
 					}
@@ -992,7 +1111,7 @@ public class PintImportCfgUtil {
 						.getPsmAmountRatios().getExcelRatio().iterator();
 				while (iterator.hasNext()) {
 					final ExcelAmountRatioTypeBean excelRatio = iterator.next();
-					if (getExcelFileIdFromExcelColumnID(excelRatio.getColumnRef()).equals(fileID)) {
+					if (fileID.equals(getExcelFileIdFromExcelColumnID(excelRatio.getColumnRef()))) {
 						iterator.remove();
 						GWT.log("PSM Ratio for file '" + fileID + "' removed");
 					}
@@ -1011,7 +1130,7 @@ public class PintImportCfgUtil {
 	}
 
 	private static String getExcelFileIdFromExcelColumnID(String columnID) {
-		if (columnID.contains(SharedConstants.EXCEL_ID_SEPARATOR)) {
+		if (columnID != null && columnID.contains(SharedConstants.EXCEL_ID_SEPARATOR)) {
 			final String[] split = columnID.split(SharedConstants.EXCEL_ID_SEPARATOR);
 			if (split.length > 0) {
 				return split[0];
@@ -1180,7 +1299,7 @@ public class PintImportCfgUtil {
 			final QuantificationExcelTypeBean excelQuant = iterator.next();
 			boolean remove = false;
 			for (final AmountTypeBean amount : excelQuant.getPeptideAmounts()) {
-				if (getExcelFileIdFromExcelColumnID(amount.getColumnRef()).equals(fileID)) {
+				if (fileID.equals(getExcelFileIdFromExcelColumnID(amount.getColumnRef()))) {
 					remove = true;
 					break;
 				}
@@ -1190,7 +1309,7 @@ public class PintImportCfgUtil {
 				continue;
 			}
 			for (final AmountTypeBean amount : excelQuant.getProteinAmounts()) {
-				if (getExcelFileIdFromExcelColumnID(amount.getColumnRef()).equals(fileID)) {
+				if (fileID.equals(getExcelFileIdFromExcelColumnID(amount.getColumnRef()))) {
 					remove = true;
 					break;
 				}
@@ -1200,7 +1319,7 @@ public class PintImportCfgUtil {
 				continue;
 			}
 			for (final AmountTypeBean amount : excelQuant.getPsmAmounts()) {
-				if (getExcelFileIdFromExcelColumnID(amount.getColumnRef()).equals(fileID)) {
+				if (fileID.equals(getExcelFileIdFromExcelColumnID(amount.getColumnRef()))) {
 					remove = true;
 					break;
 				}
@@ -1219,7 +1338,7 @@ public class PintImportCfgUtil {
 		while (iterator.hasNext()) {
 			final IdentificationExcelTypeBean excelIdent = iterator.next();
 			for (final ScoreTypeBean score : excelIdent.getPeptideScore()) {
-				if (getExcelFileIdFromExcelColumnID(score.getColumnRef()).equals(fileID)) {
+				if (fileID.equals(getExcelFileIdFromExcelColumnID(score.getColumnRef()))) {
 					remove = true;
 					break;
 				}
@@ -1229,7 +1348,7 @@ public class PintImportCfgUtil {
 				continue;
 			}
 			if (excelIdent.getProteinAccession() != null) {
-				if (getExcelFileIdFromExcelColumnID(excelIdent.getProteinAccession().getColumnRef()).equals(fileID)) {
+				if (fileID.equals(getExcelFileIdFromExcelColumnID(excelIdent.getProteinAccession().getColumnRef()))) {
 					iterator.remove();
 					continue;
 				}
@@ -1237,7 +1356,7 @@ public class PintImportCfgUtil {
 			if (excelIdent.getProteinAnnotations() != null) {
 				for (final ProteinAnnotationTypeBean annotation : excelIdent.getProteinAnnotations()
 						.getProteinAnnotation()) {
-					if (getExcelFileIdFromExcelColumnID(annotation.getColumnRef()).equals(fileID)) {
+					if (fileID.equals(getExcelFileIdFromExcelColumnID(annotation.getColumnRef()))) {
 						remove = true;
 						break;
 					}
@@ -1248,13 +1367,13 @@ public class PintImportCfgUtil {
 				}
 			}
 			if (excelIdent.getProteinDescription() != null) {
-				if (getExcelFileIdFromExcelColumnID(excelIdent.getProteinDescription().getColumnRef()).equals(fileID)) {
+				if (fileID.equals(getExcelFileIdFromExcelColumnID(excelIdent.getProteinDescription().getColumnRef()))) {
 					iterator.remove();
 					continue;
 				}
 			}
 			for (final ScoreTypeBean score : excelIdent.getProteinScore()) {
-				if (getExcelFileIdFromExcelColumnID(score.getColumnRef()).equals(fileID)) {
+				if (fileID.equals(getExcelFileIdFromExcelColumnID(score.getColumnRef()))) {
 					remove = true;
 					break;
 				}
@@ -1266,7 +1385,7 @@ public class PintImportCfgUtil {
 			if (excelIdent.getProteinThresholds() != null) {
 				for (final ProteinThresholdTypeBean threshold : excelIdent.getProteinThresholds()
 						.getProteinThreshold()) {
-					if (getExcelFileIdFromExcelColumnID(threshold.getColumnRef()).equals(fileID)) {
+					if (fileID.equals(getExcelFileIdFromExcelColumnID(threshold.getColumnRef()))) {
 						remove = true;
 						break;
 					}
@@ -1277,7 +1396,7 @@ public class PintImportCfgUtil {
 				}
 			}
 			for (final ScoreTypeBean score : excelIdent.getPsmScore()) {
-				if (getExcelFileIdFromExcelColumnID(score.getColumnRef()).equals(fileID)) {
+				if (fileID.equals(getExcelFileIdFromExcelColumnID(score.getColumnRef()))) {
 					remove = true;
 					break;
 				}
@@ -1287,7 +1406,7 @@ public class PintImportCfgUtil {
 				continue;
 			}
 			for (final ScoreTypeBean score : excelIdent.getPtmScore()) {
-				if (getExcelFileIdFromExcelColumnID(score.getColumnRef()).equals(fileID)) {
+				if (fileID.equals(getExcelFileIdFromExcelColumnID(score.getColumnRef()))) {
 					remove = true;
 					break;
 				}
@@ -1297,7 +1416,7 @@ public class PintImportCfgUtil {
 				continue;
 			}
 			if (excelIdent.getSequence() != null) {
-				if (getExcelFileIdFromExcelColumnID(excelIdent.getSequence().getColumnRef()).equals(fileID)) {
+				if (fileID.equals(getExcelFileIdFromExcelColumnID(excelIdent.getSequence().getColumnRef()))) {
 					iterator.remove();
 					continue;
 				}
@@ -1324,7 +1443,10 @@ public class PintImportCfgUtil {
 				return false;
 			}
 		}
-		return condition.getIdentificationInfo().getRemoteFilesIdentInfo().add(identificationTypeBean);
+		if (!condition.getIdentificationInfo().getRemoteFilesIdentInfo().contains(identificationTypeBean)) {
+			return condition.getIdentificationInfo().getRemoteFilesIdentInfo().add(identificationTypeBean);
+		}
+		return false;
 	}
 
 	private static String mergeMSRunRefs(String msRunRefs1, String msRunRefs2) {
@@ -1382,7 +1504,10 @@ public class PintImportCfgUtil {
 		if (condition.getIdentificationInfo() == null) {
 			condition.setIdentificationInfo(new IdentificationInfoTypeBean());
 		}
-		return condition.getIdentificationInfo().getExcelIdentInfo().add(identificationExcelTypeBean);
+		if (!condition.getIdentificationInfo().getExcelIdentInfo().contains(identificationExcelTypeBean)) {
+			return condition.getIdentificationInfo().getExcelIdentInfo().add(identificationExcelTypeBean);
+		}
+		return false;
 	}
 
 	public static boolean addQuantificationToCondition(PintImportCfgBean pintImportConfiguration, String conditionID,
@@ -1404,7 +1529,10 @@ public class PintImportCfgUtil {
 				return false;
 			}
 		}
-		return condition.getQuantificationInfo().getRemoteFilesQuantInfo().add(quantInfoTypeBean);
+		if (!condition.getQuantificationInfo().getRemoteFilesQuantInfo().contains(quantInfoTypeBean)) {
+			return condition.getQuantificationInfo().getRemoteFilesQuantInfo().add(quantInfoTypeBean);
+		}
+		return false;
 	}
 
 	public static boolean addExcelQuantificationToCondition(PintImportCfgBean pintImportConfiguration,
@@ -1414,7 +1542,10 @@ public class PintImportCfgUtil {
 		if (condition.getQuantificationInfo() == null) {
 			condition.setQuantificationInfo(new QuantificationInfoTypeBean());
 		}
-		return condition.getQuantificationInfo().getExcelQuantInfo().add(quantificationExcelTypeBean);
+		if (!condition.getQuantificationInfo().getExcelQuantInfo().contains(quantificationExcelTypeBean)) {
+			return condition.getQuantificationInfo().getExcelQuantInfo().add(quantificationExcelTypeBean);
+		}
+		return false;
 	}
 
 	public static void removeFileFromCondition(String fileID, ExperimentalConditionTypeBean condition) {
@@ -1463,7 +1594,7 @@ public class PintImportCfgUtil {
 				}
 
 				for (final ExcelAmountRatioTypeBean ratioExcel : ratiosExcel) {
-					if (getExcelFileIdFromExcelColumnID(ratioExcel.getColumnRef()).equals(fileID)) {
+					if (fileID.equals(getExcelFileIdFromExcelColumnID(ratioExcel.getColumnRef()))) {
 						if (ratioExcel.getNumerator() != null && ratioExcel.getDenominator() != null) {
 							final ExperimentalConditionTypeBean condition1 = PintImportCfgUtil
 									.getCondition(pintImportConfiguration, ratioExcel.getNumerator());
@@ -1507,16 +1638,29 @@ public class PintImportCfgUtil {
 			if (condition.getIdentificationInfo() != null) {
 				for (final IdentificationExcelTypeBean excelID : condition.getIdentificationInfo()
 						.getExcelIdentInfo()) {
-					if (getExcelFileIdFromExcelColumnID(excelID.getProteinAccession().getColumnRef()).equals(fileID)) {
-						if (!ret.contains(condition)) {
-							ret.add(condition);
-							break;
+					if (excelID.getProteinAccession() != null) {
+						if (fileID.equals(
+								getExcelFileIdFromExcelColumnID(excelID.getProteinAccession().getColumnRef()))) {
+							if (!ret.contains(condition)) {
+								ret.add(condition);
+								break;
+							}
 						}
 					}
-					if (getExcelFileIdFromExcelColumnID(excelID.getSequence().getColumnRef()).equals(fileID)) {
-						if (!ret.contains(condition)) {
-							ret.add(condition);
-							break;
+					if (excelID.getSequence() != null) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(excelID.getSequence().getColumnRef()))) {
+							if (!ret.contains(condition)) {
+								ret.add(condition);
+								break;
+							}
+						}
+					}
+					if (excelID.getPsmId() != null) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(excelID.getPsmId().getColumnRef()))) {
+							if (!ret.contains(condition)) {
+								ret.add(condition);
+								break;
+							}
 						}
 					}
 				}
@@ -1537,7 +1681,7 @@ public class PintImportCfgUtil {
 					amounts.addAll(excelQuant.getProteinAmounts());
 					amounts.addAll(excelQuant.getPsmAmounts());
 					for (final AmountTypeBean amount : amounts) {
-						if (getExcelFileIdFromExcelColumnID(amount.getColumnRef()).equals(fileID)) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(amount.getColumnRef()))) {
 							if (!ret.contains(condition)) {
 								ret.add(condition);
 								break;
@@ -1554,6 +1698,83 @@ public class PintImportCfgUtil {
 						}
 					}
 				}
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a list of {@link ExperimentalConditionTypeBean} that have either
+	 * identifications or quantifications referencing that fileID
+	 * 
+	 * @param pintImportConfiguration
+	 * @param fileID
+	 * @return
+	 */
+	public static List<ExperimentalConditionTypeBean> getConditionsAssociatedWithExcelFile(
+			PintImportCfgBean pintImportConfiguration, String fileID, String sheetName) {
+		final List<ExperimentalConditionTypeBean> ret = new ArrayList<ExperimentalConditionTypeBean>();
+		final List<ExperimentalConditionTypeBean> conditions = getConditions(pintImportConfiguration);
+		for (final ExperimentalConditionTypeBean condition : conditions) {
+			if (condition.getIdentificationInfo() != null) {
+				for (final IdentificationExcelTypeBean excelID : condition.getIdentificationInfo()
+						.getExcelIdentInfo()) {
+					if (excelID.getProteinAccession() != null) {
+						if (fileID.equals(
+								getExcelFileIdFromExcelColumnID(excelID.getProteinAccession().getColumnRef()))) {
+							if (sheetName.equals(NewExcelReferenceWidget
+									.getSheetName(excelID.getProteinAccession().getColumnRef()))) {
+								if (!ret.contains(condition)) {
+									ret.add(condition);
+									break;
+								}
+							}
+						}
+					}
+					if (excelID.getSequence() != null) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(excelID.getSequence().getColumnRef()))) {
+							if (sheetName.equals(
+									NewExcelReferenceWidget.getSheetName(excelID.getSequence().getColumnRef()))) {
+								if (!ret.contains(condition)) {
+									ret.add(condition);
+									break;
+								}
+							}
+						}
+					}
+					if (excelID.getPsmId() != null) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(excelID.getPsmId().getColumnRef()))) {
+							if (sheetName
+									.equals(NewExcelReferenceWidget.getSheetName(excelID.getPsmId().getColumnRef()))) {
+								if (!ret.contains(condition)) {
+									ret.add(condition);
+									break;
+								}
+							}
+						}
+					}
+				}
+
+			}
+			if (condition.getQuantificationInfo() != null) {
+				for (final QuantificationExcelTypeBean excelQuant : condition.getQuantificationInfo()
+						.getExcelQuantInfo()) {
+					final List<AmountTypeBean> amounts = new ArrayList<AmountTypeBean>();
+					amounts.addAll(excelQuant.getPeptideAmounts());
+					amounts.addAll(excelQuant.getProteinAmounts());
+					amounts.addAll(excelQuant.getPsmAmounts());
+					for (final AmountTypeBean amount : amounts) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(amount.getColumnRef()))) {
+							if (sheetName.equals(NewExcelReferenceWidget.getSheetName(amount.getColumnRef()))) {
+								if (!ret.contains(condition)) {
+									ret.add(condition);
+									break;
+								}
+							}
+						}
+					}
+				}
+
 			}
 		}
 		return ret;
@@ -1596,7 +1817,9 @@ public class PintImportCfgUtil {
 			}
 			sb.append(string);
 		}
-
+		if ("".equals(sb.toString())) {
+			return null;
+		}
 		return sb.toString();
 	}
 
@@ -1627,66 +1850,49 @@ public class PintImportCfgUtil {
 	}
 
 	public static List<ExcelAmountRatioTypeBean> getExcelAmountRatioTypeBeansAssociatedWithFile(
-			PintImportCfgBean pintImportConfiguration, String fileID) {
+			PintImportCfgBean pintImportConfiguration, String fileID, String sheetName, boolean psmRatios,
+			boolean peptideRatios, boolean proteinRatios) {
 		final List<ExcelAmountRatioTypeBean> ret = new ArrayList<ExcelAmountRatioTypeBean>();
 
 		final RatiosTypeBean ratios = pintImportConfiguration.getProject().getRatios();
 		if (ratios != null) {
 			final List<ExcelAmountRatioTypeBean> excelRatios = new ArrayList<ExcelAmountRatioTypeBean>();
 
-			if (ratios.getPeptideAmountRatios() != null) {
+			if (peptideRatios && ratios.getPeptideAmountRatios() != null) {
 				excelRatios.addAll(ratios.getPeptideAmountRatios().getExcelRatio());
 			}
-			if (ratios.getProteinAmountRatios() != null) {
+			if (proteinRatios && ratios.getProteinAmountRatios() != null) {
 				excelRatios.addAll(ratios.getProteinAmountRatios().getExcelRatio());
 			}
-			if (ratios.getPsmAmountRatios() != null) {
+			if (psmRatios && ratios.getPsmAmountRatios() != null) {
 				excelRatios.addAll(ratios.getPsmAmountRatios().getExcelRatio());
 			}
 			for (final ExcelAmountRatioTypeBean excelRatio : excelRatios) {
-				if (excelRatio.getProteinAccession() != null
-						&& getExcelFileIdFromExcelColumnID(excelRatio.getProteinAccession().getColumnRef())
-								.equals(fileID)) {
-					ret.add(excelRatio);
-					continue;
-				}
-				if (excelRatio.getPeptideSequence() != null
-						&& getExcelFileIdFromExcelColumnID(excelRatio.getPeptideSequence().getColumnRef())
-								.equals(fileID)) {
-					ret.add(excelRatio);
-					continue;
-				}
-			}
-
-		}
-
-		return ret;
-	}
-
-	public static List<IdentificationExcelTypeBean> getIdentificationExcelTypeBeansAssociatedWithFile(
-			PintImportCfgBean pintImportConfiguration, String fileID) {
-		final List<IdentificationExcelTypeBean> ret = new ArrayList<IdentificationExcelTypeBean>();
-
-		final List<ExperimentalConditionTypeBean> conditions = getConditions(pintImportConfiguration);
-		for (final ExperimentalConditionTypeBean condition : conditions) {
-			if (condition.getIdentificationInfo() != null) {
-				for (final IdentificationExcelTypeBean excelID : condition.getIdentificationInfo()
-						.getExcelIdentInfo()) {
-					if (excelID.getProteinAccession() != null) {
-						if (getExcelFileIdFromExcelColumnID(excelID.getProteinAccession().getColumnRef())
-								.equals(fileID)) {
-							ret.add(excelID);
-							continue;
-						}
+				if (excelRatio.getProteinAccession() != null && fileID
+						.equals(getExcelFileIdFromExcelColumnID(excelRatio.getProteinAccession().getColumnRef()))) {
+					if (sheetName.equals(
+							NewExcelReferenceWidget.getSheetName(excelRatio.getProteinAccession().getColumnRef()))) {
+						ret.add(excelRatio);
+						continue;
 					}
-					if (excelID.getPeptideScore() != null) {
-						if (getExcelFileIdFromExcelColumnID(excelID.getSequence().getColumnRef()).equals(fileID)) {
-							ret.add(excelID);
-							continue;
-						}
+				}
+				if (excelRatio.getPeptideSequence() != null && fileID
+						.equals(getExcelFileIdFromExcelColumnID(excelRatio.getPeptideSequence().getColumnRef()))) {
+					if (sheetName.equals(
+							NewExcelReferenceWidget.getSheetName(excelRatio.getPeptideSequence().getColumnRef()))) {
+						ret.add(excelRatio);
+						continue;
+					}
+				}
+				if (excelRatio.getPsmId() != null
+						&& fileID.equals(getExcelFileIdFromExcelColumnID(excelRatio.getPsmId().getColumnRef()))) {
+					if (sheetName.equals(NewExcelReferenceWidget.getSheetName(excelRatio.getPsmId().getColumnRef()))) {
+						ret.add(excelRatio);
+						continue;
 					}
 				}
 			}
+
 		}
 
 		return ret;
@@ -1716,7 +1922,7 @@ public class PintImportCfgUtil {
 	}
 
 	public static List<QuantificationExcelTypeBean> getQuantificationExcelTypeBeansAssociatedWithFile(
-			PintImportCfgBean pintImportConfiguration, String fileID) {
+			PintImportCfgBean pintImportConfiguration, String fileID, String sheetName) {
 		final List<QuantificationExcelTypeBean> ret = new ArrayList<QuantificationExcelTypeBean>();
 
 		final List<ExperimentalConditionTypeBean> conditions = getConditions(pintImportConfiguration);
@@ -1730,9 +1936,11 @@ public class PintImportCfgUtil {
 					amounts.addAll(excelQuant.getProteinAmounts());
 					amounts.addAll(excelQuant.getPsmAmounts());
 					for (final AmountTypeBean amount : amounts) {
-						if (getExcelFileIdFromExcelColumnID(amount.getColumnRef()).equals(fileID)) {
-							ret.add(excelQuant);
-							break;
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(amount.getColumnRef()))) {
+							if (sheetName.equals(NewExcelReferenceWidget.getSheetName(amount.getColumnRef()))) {
+								ret.add(excelQuant);
+								break;
+							}
 						}
 					}
 				}
@@ -1752,9 +1960,8 @@ public class PintImportCfgUtil {
 				for (final IdentificationExcelTypeBean excelID : condition.getIdentificationInfo()
 						.getExcelIdentInfo()) {
 					if (excelID.getMsRunRef() != null && !"".equals(excelID.getMsRunRef())) {
-						if (excelID.getProteinAccession() != null
-								&& getExcelFileIdFromExcelColumnID(excelID.getProteinAccession().getColumnRef())
-										.equals(fileID)) {
+						if (excelID.getProteinAccession() != null && fileID.equals(
+								getExcelFileIdFromExcelColumnID(excelID.getProteinAccession().getColumnRef()))) {
 							for (final String msRunID : getMSRunRefs(excelID.getMsRunRef())) {
 								if (!msRunIDs.contains(msRunID)) {
 									msRunIDs.add(msRunID);
@@ -1762,9 +1969,8 @@ public class PintImportCfgUtil {
 								}
 							}
 						}
-						if (excelID.getSequence() != null
-								&& getExcelFileIdFromExcelColumnID(excelID.getSequence().getColumnRef())
-										.equals(fileID)) {
+						if (excelID.getSequence() != null && fileID
+								.equals(getExcelFileIdFromExcelColumnID(excelID.getSequence().getColumnRef()))) {
 							for (final String msRunID : getMSRunRefs(excelID.getMsRunRef())) {
 								if (!msRunIDs.contains(msRunID)) {
 									msRunIDs.add(msRunID);
@@ -1801,7 +2007,7 @@ public class PintImportCfgUtil {
 						amounts.addAll(excelQuant.getProteinAmounts());
 						amounts.addAll(excelQuant.getPsmAmounts());
 						for (final AmountTypeBean amount : amounts) {
-							if (getExcelFileIdFromExcelColumnID(amount.getColumnRef()).equals(fileID)) {
+							if (fileID.equals(getExcelFileIdFromExcelColumnID(amount.getColumnRef()))) {
 								for (final String msRunID : msRunRefs) {
 									if (!msRunIDs.contains(msRunID)) {
 										msRunIDs.add(msRunID);
@@ -1831,4 +2037,241 @@ public class PintImportCfgUtil {
 		return ret;
 
 	}
+
+	public static List<ScoreTypeBean> getExcelIDScoreTypeBeansAssociatedWithFile(
+			PintImportCfgBean pintImportConfiguration, String fileID) {
+		final List<ScoreTypeBean> ret = new ArrayList<ScoreTypeBean>();
+		final List<ExperimentalConditionTypeBean> conditions = getConditions(pintImportConfiguration);
+		for (final ExperimentalConditionTypeBean experimentalConditionTypeBean : conditions) {
+			if (experimentalConditionTypeBean.getIdentificationInfo() != null) {
+				final List<IdentificationExcelTypeBean> excelIdentInfos = experimentalConditionTypeBean
+						.getIdentificationInfo().getExcelIdentInfo();
+				for (final IdentificationExcelTypeBean excelID : excelIdentInfos) {
+					for (final ScoreTypeBean score : excelID.getPeptideScore()) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(score.getColumnRef()))) {
+							ret.add(score);
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static List<SequenceTypeBean> getExcelIDPeptideSequenceTypeBeansAssociatedWithFile(
+			PintImportCfgBean pintImportConfiguration, String fileID) {
+		final List<SequenceTypeBean> ret = new ArrayList<SequenceTypeBean>();
+		final List<ExperimentalConditionTypeBean> conditions = getConditions(pintImportConfiguration);
+		for (final ExperimentalConditionTypeBean experimentalConditionTypeBean : conditions) {
+			if (experimentalConditionTypeBean.getIdentificationInfo() != null) {
+				final List<IdentificationExcelTypeBean> excelIdentInfos = experimentalConditionTypeBean
+						.getIdentificationInfo().getExcelIdentInfo();
+				for (final IdentificationExcelTypeBean excelID : excelIdentInfos) {
+					if (excelID.getSequence() != null) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(excelID.getSequence().getColumnRef()))) {
+							ret.add(excelID.getSequence());
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static RatiosTypeBean getRatios(PintImportCfgBean pintImportConfiguration) {
+		RatiosTypeBean ratios = pintImportConfiguration.getProject().getRatios();
+		if (ratios == null) {
+			ratios = new RatiosTypeBean();
+		}
+		return ratios;
+	}
+
+	public static Set<IdentificationExcelTypeBean> getExcelIDAssociatedWithThisFile(
+			PintImportCfgBean pintImportConfiguration, String fileID, String sheetName) {
+		final Set<IdentificationExcelTypeBean> ret = new HashSet<IdentificationExcelTypeBean>();
+		final List<ExperimentalConditionTypeBean> conditions = getConditions(pintImportConfiguration);
+		for (final ExperimentalConditionTypeBean experimentalConditionTypeBean : conditions) {
+			if (experimentalConditionTypeBean.getIdentificationInfo() != null) {
+				final List<IdentificationExcelTypeBean> excelIdentInfos = experimentalConditionTypeBean
+						.getIdentificationInfo().getExcelIdentInfo();
+				for (final IdentificationExcelTypeBean excelID : excelIdentInfos) {
+					if (excelID.getSequence() != null) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(excelID.getSequence().getColumnRef()))) {
+							if (sheetName.equals(
+									NewExcelReferenceWidget.getSheetName(excelID.getSequence().getColumnRef()))) {
+								ret.add(excelID);
+							}
+						}
+					}
+					if (excelID.getProteinAccession() != null) {
+						if (fileID.equals(
+								getExcelFileIdFromExcelColumnID(excelID.getProteinAccession().getColumnRef()))) {
+							if (sheetName.equals(NewExcelReferenceWidget
+									.getSheetName(excelID.getProteinAccession().getColumnRef()))) {
+								ret.add(excelID);
+							}
+						}
+					}
+					if (excelID.getPsmId() != null) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(excelID.getPsmId().getColumnRef()))) {
+							if (sheetName
+									.equals(NewExcelReferenceWidget.getSheetName(excelID.getPsmId().getColumnRef()))) {
+								ret.add(excelID);
+							}
+						}
+					}
+					if (excelID.getProteinDescription() != null) {
+						if (fileID.equals(
+								getExcelFileIdFromExcelColumnID(excelID.getProteinDescription().getColumnRef()))) {
+							if (sheetName.equals(NewExcelReferenceWidget
+									.getSheetName(excelID.getProteinDescription().getColumnRef()))) {
+								ret.add(excelID);
+							}
+						}
+					}
+					for (final ScoreTypeBean score : excelID.getPeptideScore()) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(score.getColumnRef()))) {
+							if (sheetName.equals(NewExcelReferenceWidget.getSheetName(score.getColumnRef()))) {
+								ret.add(excelID);
+							}
+						}
+					}
+					for (final ScoreTypeBean score : excelID.getProteinScore()) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(score.getColumnRef()))) {
+							if (sheetName.equals(NewExcelReferenceWidget.getSheetName(score.getColumnRef()))) {
+								ret.add(excelID);
+							}
+						}
+					}
+					for (final ScoreTypeBean score : excelID.getPsmScore()) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(score.getColumnRef()))) {
+							if (sheetName.equals(NewExcelReferenceWidget.getSheetName(score.getColumnRef()))) {
+								ret.add(excelID);
+							}
+						}
+					}
+					for (final ScoreTypeBean score : excelID.getPtmScore()) {
+						if (fileID.equals(getExcelFileIdFromExcelColumnID(score.getColumnRef()))) {
+							if (sheetName.equals(NewExcelReferenceWidget.getSheetName(score.getColumnRef()))) {
+								ret.add(excelID);
+							}
+						}
+					}
+					if (excelID.getProteinAnnotations() != null) {
+						for (final ProteinAnnotationTypeBean annotation : excelID.getProteinAnnotations()
+								.getProteinAnnotation()) {
+							if (fileID.equals(getExcelFileIdFromExcelColumnID(annotation.getColumnRef()))) {
+								if (sheetName.equals(NewExcelReferenceWidget.getSheetName(annotation.getColumnRef()))) {
+									ret.add(excelID);
+								}
+							}
+						}
+					}
+					if (excelID.getProteinThresholds() != null) {
+						for (final ProteinThresholdTypeBean threshold : excelID.getProteinThresholds()
+								.getProteinThreshold()) {
+							if (fileID.equals(getExcelFileIdFromExcelColumnID(threshold.getColumnRef()))) {
+								if (sheetName.equals(NewExcelReferenceWidget.getSheetName(threshold.getColumnRef()))) {
+									ret.add(excelID);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static Set<QuantificationExcelTypeBean> getExcelQuantAssociatedWithThisFile(
+			PintImportCfgBean pintImportConfiguration, String fileID, String sheetName) {
+		final Set<QuantificationExcelTypeBean> ret = new HashSet<QuantificationExcelTypeBean>();
+		final List<ExperimentalConditionTypeBean> conditions = getConditions(pintImportConfiguration);
+		for (final ExperimentalConditionTypeBean experimentalConditionTypeBean : conditions) {
+			if (experimentalConditionTypeBean.getQuantificationInfo() != null) {
+				final List<QuantificationExcelTypeBean> excelQuantInfos = experimentalConditionTypeBean
+						.getQuantificationInfo().getExcelQuantInfo();
+				for (final QuantificationExcelTypeBean excelQuant : excelQuantInfos) {
+					for (final AmountTypeBean peptideQuantExcel : excelQuant.getPeptideAmounts()) {
+						if (peptideQuantExcel.getColumnRef() != null) {
+							if (fileID.equals(getExcelFileIdFromExcelColumnID(peptideQuantExcel.getColumnRef()))) {
+								if (sheetName.equals(
+										NewExcelReferenceWidget.getSheetName(peptideQuantExcel.getColumnRef()))) {
+									ret.add(excelQuant);
+								}
+							}
+						}
+					}
+					for (final AmountTypeBean proteinQuantExcel : excelQuant.getProteinAmounts()) {
+						if (proteinQuantExcel.getColumnRef() != null) {
+							if (fileID.equals(getExcelFileIdFromExcelColumnID(proteinQuantExcel.getColumnRef()))) {
+								if (sheetName.equals(
+										NewExcelReferenceWidget.getSheetName(proteinQuantExcel.getColumnRef()))) {
+									ret.add(excelQuant);
+								}
+							}
+						}
+					}
+					for (final AmountTypeBean psmQuantExcel : excelQuant.getPsmAmounts()) {
+						if (psmQuantExcel.getColumnRef() != null) {
+							if (fileID.equals(getExcelFileIdFromExcelColumnID(psmQuantExcel.getColumnRef()))) {
+								if (sheetName
+										.equals(NewExcelReferenceWidget.getSheetName(psmQuantExcel.getColumnRef()))) {
+									ret.add(excelQuant);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static void removeNonUsedItems(PintImportCfgBean pintImportConfiguration) {
+		final List<ExperimentalConditionTypeBean> conditions = getConditions(pintImportConfiguration);
+		for (final ExperimentalConditionTypeBean condition : conditions) {
+			if (condition.getIdentificationInfo() != null) {
+				final Iterator<IdentificationExcelTypeBean> iterator = condition.getIdentificationInfo()
+						.getExcelIdentInfo().iterator();
+				while (iterator.hasNext()) {
+					final IdentificationExcelTypeBean excelID = iterator.next();
+					if (excelID.getProteinAccession() == null && excelID.getPsmId() == null
+							&& excelID.getSequence() == null && excelID.getPeptideScore().isEmpty()
+							&& excelID.getProteinScore().isEmpty() && excelID.getPsmScore().isEmpty()
+							&& excelID.getPtmScore().isEmpty()) {
+						iterator.remove();
+						continue;
+					}
+					if (excelID.getSequence() != null && excelID.getSequence().getColumnRef() == null) {
+						excelID.setSequence(null);
+					}
+					if (excelID.getProteinAccession() != null && excelID.getProteinAccession().getColumnRef() == null) {
+						excelID.setProteinAccession(null);
+					}
+					if (excelID.getPsmId() != null && excelID.getPsmId().getColumnRef() == null) {
+						excelID.setPsmId(null);
+					}
+					if (excelID.getProteinAccession() == null && excelID.getSequence() == null
+							&& excelID.getPsmId() == null) {
+						iterator.remove();
+						continue;
+					}
+				}
+			}
+			if (condition.getQuantificationInfo() != null) {
+				final Iterator<QuantificationExcelTypeBean> iterator = condition.getQuantificationInfo()
+						.getExcelQuantInfo().iterator();
+				while (iterator.hasNext()) {
+					final QuantificationExcelTypeBean excelQuant = iterator.next();
+					if (excelQuant.getPeptideAmounts().isEmpty() && excelQuant.getProteinAmounts().isEmpty()
+							&& excelQuant.getPsmAmounts().isEmpty()) {
+						iterator.remove();
+					}
+				}
+			}
+		}
+
+	}
+
 }

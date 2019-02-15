@@ -85,8 +85,8 @@ public class PersistenceUtils {
 	}
 
 	/**
-	 * gets the union of two collections of proteins by using the primary
-	 * accession as key
+	 * gets the union of two collections of proteins by using the primary accession
+	 * as key
 	 *
 	 * @param proteins1
 	 * @param proteins2
@@ -116,8 +116,7 @@ public class PersistenceUtils {
 	}
 
 	/**
-	 * Gets the union of two lists of PSMs by using the getPsmId() method as the
-	 * key
+	 * Gets the union of two lists of PSMs by using the getPsmId() method as the key
 	 *
 	 * @param psmCollection1
 	 * @param psmCollection2
@@ -219,8 +218,8 @@ public class PersistenceUtils {
 	}
 
 	/**
-	 * Remove all the peptides that are not in the collection of peptides from
-	 * the proteins passed in the argument.
+	 * Remove all the peptides that are not in the collection of peptides from the
+	 * proteins passed in the argument.
 	 *
 	 * @param proteins
 	 * @param psms
@@ -255,9 +254,9 @@ public class PersistenceUtils {
 	}
 
 	/**
-	 * Remove all the psms that are not in the collection of psms from the
-	 * proteins passed in the argument. Also remove the peptides of the proteins
-	 * that have not anymore psms associated.
+	 * Remove all the psms that are not in the collection of psms from the proteins
+	 * passed in the argument. Also remove the peptides of the proteins that have
+	 * not anymore psms associated.
 	 *
 	 * @param proteins
 	 * @param psms
@@ -470,10 +469,11 @@ public class PersistenceUtils {
 		if (psm == null)
 			return;
 		final String psmID = psm.getPsmId();
-		if (psm.getProteins().isEmpty()) {
-			log.info("Not adding this PSM because has no Proteins associated");
-			return;
-		}
+		// commented out because the call to .isempty() is expensive (4% of time)
+//		if (psm.getProteins().isEmpty()) {
+//			log.info("Not adding this PSM because has no Proteins associated");
+//			return;
+//		}
 		if (map.containsKey(psmID)) {
 			map.get(psmID).add(psm);
 		} else {
@@ -607,8 +607,8 @@ public class PersistenceUtils {
 	}
 
 	/**
-	 * Parse a ratio value and if the value is equal to Double.MAX_VALUE, it
-	 * will be returned as Double.POSITIVE_INFINITY. If the value is equal to
+	 * Parse a ratio value and if the value is equal to Double.MAX_VALUE, it will be
+	 * returned as Double.POSITIVE_INFINITY. If the value is equal to
 	 * -Double.MAX_VALUE, it will be returned as Double.NEGATIVE_INFINITY
 	 *
 	 * @param value
@@ -623,10 +623,9 @@ public class PersistenceUtils {
 	}
 
 	/**
-	 * Parse a ratio value and if the value is equal to
-	 * Double.POSITIVE_INFINITY, it will be returned as Double.MAX_VALUE. If the
-	 * value is equal to Double.NEGATIVE_INFINITY, it will be returned as
-	 * -Double.MAX_VALUE
+	 * Parse a ratio value and if the value is equal to Double.POSITIVE_INFINITY, it
+	 * will be returned as Double.MAX_VALUE. If the value is equal to
+	 * Double.NEGATIVE_INFINITY, it will be returned as -Double.MAX_VALUE
 	 *
 	 * @param value
 	 * @return

@@ -318,33 +318,35 @@ public class FileManager {
 	}
 
 	public static List<FileWithFormat> getFilesByImportProcessID(int importProcessIdentifier, FileFormat format) {
-
+		filesByImportProcessID.remove(importProcessIdentifier);
 		final File projectDataFileFolder = getProjectDataFileFolder(importProcessIdentifier, true);
 		if (projectDataFileFolder.exists() && projectDataFileFolder.listFiles() != null) {
 			for (final File dataFileFolder : projectDataFileFolder.listFiles()) {
+				final String fileID = FilenameUtils.getBaseName(dataFileFolder.getAbsolutePath());
 //				if (dataFileFolder.listFiles().length == 1) {
 				for (final File dataFileFormatFolder : dataFileFolder.listFiles()) {
 
 					final FormatType formatFromFolder = FormatType
 							.fromValue(FilenameUtils.getBaseName(dataFileFormatFolder.getAbsolutePath()));
 					if (dataFileFormatFolder.listFiles().length > 0) {
-						final File dataFile = dataFileFormatFolder.listFiles()[0];
-						if (dataFile.exists()) {
-							// TODO substitute the null by something
-							FileWithFormat obj = null;
-							if (format != null) {
-								obj = new FileWithFormat(FilenameUtils.getName(dataFileFolder.getAbsolutePath()),
-										dataFile, FormatType.fromValue(format.name().toLowerCase()), null);
-							} else {
-								obj = new FileWithFormat(FilenameUtils.getName(dataFileFolder.getAbsolutePath()),
-										dataFile, formatFromFolder, null);
-							}
-							if (filesByImportProcessID.containsKey(importProcessIdentifier)) {
-								filesByImportProcessID.get(importProcessIdentifier).add(obj);
-							} else {
-								final List<FileWithFormat> list = new ArrayList<FileWithFormat>();
-								list.add(obj);
-								filesByImportProcessID.put(importProcessIdentifier, list);
+						for (final File dataFile : dataFileFormatFolder.listFiles()) {
+
+							if (dataFile.exists()) {
+								// TODO substitute the null by something
+								FileWithFormat obj = null;
+								if (format != null) {
+									obj = new FileWithFormat(fileID, dataFile,
+											FormatType.fromValue(format.name().toLowerCase()), null);
+								} else {
+									obj = new FileWithFormat(fileID, dataFile, formatFromFolder, null);
+								}
+								if (filesByImportProcessID.containsKey(importProcessIdentifier)) {
+									filesByImportProcessID.get(importProcessIdentifier).add(obj);
+								} else {
+									final List<FileWithFormat> list = new ArrayList<FileWithFormat>();
+									list.add(obj);
+									filesByImportProcessID.put(importProcessIdentifier, list);
+								}
 							}
 						}
 					}
@@ -526,5 +528,9 @@ public class FileManager {
 
 	public static void removeFileSummaries(int importID) {
 		fileSummariesByImportID.remove(importID);
+	}
+
+	public static File getProjectCfgFileFolder() {
+		return getXmlFolder();
 	}
 }

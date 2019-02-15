@@ -19,7 +19,7 @@ public class IdentificationExcelTypeBeanAdapter implements Adapter<Identificatio
 
 	@Override
 	public IdentificationExcelTypeBean adapt() {
-		IdentificationExcelTypeBean ret = new IdentificationExcelTypeBean();
+		final IdentificationExcelTypeBean ret = new IdentificationExcelTypeBean();
 		if (excelFileInfo.getProteinAccession() != null) {
 			ret.setProteinAccession(new ProteinAccessionTypeBeanAdapter(excelFileInfo.getProteinAccession()).adapt());
 		}
@@ -29,27 +29,30 @@ public class IdentificationExcelTypeBeanAdapter implements Adapter<Identificatio
 		}
 		if (excelFileInfo.getProteinAnnotations() != null) {
 			ret.setProteinAnnotations(new ProteinAnnotationsTypeBean());
-			for (ProteinAnnotationType proteinAnnotationType : excelFileInfo.getProteinAnnotations()
+			for (final ProteinAnnotationType proteinAnnotationType : excelFileInfo.getProteinAnnotations()
 					.getProteinAnnotation()) {
 				ret.getProteinAnnotations().getProteinAnnotation()
 						.add(new ProteinAnnotationTypeBeanAdapter(proteinAnnotationType).adapt());
 			}
 		}
 		if (excelFileInfo.getProteinScore() != null) {
-			for (ScoreType scoreType : excelFileInfo.getProteinScore()) {
+			for (final ScoreType scoreType : excelFileInfo.getProteinScore()) {
 				ret.getProteinScore().add(new ScoreTypeBeanAdapter(scoreType).adapt());
 			}
 		}
 		if (excelFileInfo.getSequence() != null) {
 			ret.setSequence(new SequenceTypeBeanAdapter(excelFileInfo.getSequence()).adapt());
 		}
+		if (excelFileInfo.getPsmId() != null) {
+			ret.setPsmId(new PsmTypeBeanAdapter(excelFileInfo.getPsmId()).adapt());
+		}
 		if (excelFileInfo.getPsmScore() != null) {
-			for (ScoreType psmScoreType : excelFileInfo.getPsmScore()) {
+			for (final ScoreType psmScoreType : excelFileInfo.getPsmScore()) {
 				ret.getPsmScore().add(new ScoreTypeBeanAdapter(psmScoreType).adapt());
 			}
 		}
 		if (excelFileInfo.getPtmScore() != null) {
-			for (PtmScoreType ptmScoreType : excelFileInfo.getPtmScore()) {
+			for (final PtmScoreType ptmScoreType : excelFileInfo.getPtmScore()) {
 				ret.getPtmScore().add(new PtmScoreTypeBeanAdapter(ptmScoreType).adapt());
 			}
 		}
@@ -57,7 +60,7 @@ public class IdentificationExcelTypeBeanAdapter implements Adapter<Identificatio
 			ret.setSequence(new SequenceTypeBeanAdapter(excelFileInfo.getSequence()).adapt());
 		}
 		if (excelFileInfo.getPeptideScore() != null) {
-			for (ScoreType peptideScoreType : excelFileInfo.getPeptideScore()) {
+			for (final ScoreType peptideScoreType : excelFileInfo.getPeptideScore()) {
 				ret.getPeptideScore().add(new ScoreTypeBeanAdapter(peptideScoreType).adapt());
 			}
 		}
@@ -72,7 +75,8 @@ public class IdentificationExcelTypeBeanAdapter implements Adapter<Identificatio
 				&& excelFileInfo.getProteinThresholds().getProteinThreshold() != null
 				&& !excelFileInfo.getProteinThresholds().getProteinThreshold().isEmpty()) {
 			ret.setProteinThresholds(new ProteinThresholdsTypeBean());
-			for (ProteinThresholdType proteinThreshold : excelFileInfo.getProteinThresholds().getProteinThreshold()) {
+			for (final ProteinThresholdType proteinThreshold : excelFileInfo.getProteinThresholds()
+					.getProteinThreshold()) {
 				ret.getProteinThresholds().getProteinThreshold()
 						.add(new ProteinThresholdTypeBeanAdapter(proteinThreshold).adapt());
 			}

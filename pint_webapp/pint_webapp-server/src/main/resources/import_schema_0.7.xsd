@@ -384,7 +384,7 @@
 				</xsd:complexType>
 				<xsd:complexType name="experimental_conditionType">
 								<xsd:sequence>
-												<xsd:element maxOccurs="1" minOccurs="1" name="description" type="xsd:string"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="description" type="xsd:string"/>
 												<xsd:element maxOccurs="1" minOccurs="0" name="identification_info" type="identification_InfoType"/>
 												<xsd:element maxOccurs="1" minOccurs="0" name="quantification_info" type="quantification_InfoType"/>
 								</xsd:sequence>
@@ -450,7 +450,7 @@
 				</xsd:complexType>
 				<xsd:complexType name="sampleType">
 								<xsd:sequence>
-												<xsd:element maxOccurs="1" minOccurs="1" name="description" type="xsd:string"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="description" type="xsd:string"/>
 								</xsd:sequence>
 								<xsd:attribute name="id" type="xsd:string" use="required"/>
 								<xsd:attribute name="organismRef" type="xsd:string" use="required"/>
@@ -542,7 +542,7 @@
 				</xsd:complexType>
 				<xsd:complexType name="msRunType">
 								<xsd:attribute name="id" type="xsd:string" use="required"/>
-								<xsd:attribute name="path" type="xsd:string" use="required"/>
+								<xsd:attribute name="path" type="xsd:string" use="optional"/>
 								<xsd:attribute name="date" type="xsd:date" use="optional"/>
 								<xsd:attribute name="fastaFileRef" type="xsd:string" use="optional"/>
 								<xsd:attribute name="enzymeResidues" type="xsd:string" use="optional"/>
@@ -557,7 +557,7 @@
 								<xsd:sequence>
 												<xsd:element maxOccurs="1" minOccurs="1" name="description" type="xsd:string"/>
 												<xsd:element maxOccurs="1" minOccurs="1" name="experimental_conditions" type="experimental_conditionsType"/>
-												<xsd:element maxOccurs="1" minOccurs="1" name="ratios" type="ratiosType"/>
+												<xsd:element maxOccurs="1" minOccurs="0" name="ratios" type="ratiosType"/>
 												<xsd:element maxOccurs="1" minOccurs="1" name="msRuns" type="msRunsType"/>
 												<xsd:element maxOccurs="1" minOccurs="1" name="experimental_design" type="experimentalDesignType"/>
 								</xsd:sequence>

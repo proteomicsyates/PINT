@@ -30,7 +30,7 @@ public abstract class PintServerDaemonTask extends Thread {
 
 		// use the index
 		final boolean useIndex = true;
-		File uniprotReleasesFolder = FileManager.getUniprotReleasesFolder();
+		final File uniprotReleasesFolder = FileManager.getUniprotReleasesFolder();
 		urs = UniprotProteinRetrievalSettings.getInstance(uniprotReleasesFolder, useIndex);
 	}
 
@@ -43,7 +43,7 @@ public abstract class PintServerDaemonTask extends Thread {
 	public abstract void run();
 
 	public void startRun() {
-		ContextualSessionHandler.openSession();
+		ContextualSessionHandler.getCurrentSession();
 		run();
 		numRuns++;
 	}

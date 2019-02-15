@@ -10,8 +10,11 @@ import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.ui.wizard.Wizard.Display;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
@@ -29,6 +32,8 @@ public class WizardPageList extends Composite implements HasWizardTitles {
 		@Source("arrow_right.png")
 		ImageResource indicator();
 	}
+
+	public static final int MAX_LENGTH_TITLE = 35;
 
 	private final WizardPageListImages images = GWT.create(WizardPageListImages.class);
 
@@ -54,15 +59,25 @@ public class WizardPageList extends Composite implements HasWizardTitles {
 		final int index = pageNames.indexOf(name);
 		activeStyle.put(index, styleNameActive);
 		inactiveStyle.put(index, styleNameInactive);
-		table.setHTML(index, 1, name);
+
+		String reducedName = name;
+		if (reducedName.length() > MAX_LENGTH_TITLE) {
+			reducedName = reducedName.substring(0, MAX_LENGTH_TITLE) + "...";
+		}
+		final Label label = new Label(reducedName);
+		label.setStyleName(WizardStyles.WizardInfoMessage);
+		label.setTitle(name);
+		table.setWidget(index, 1, label);
+
 		table.getCellFormatter().setVerticalAlignment(index, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+		table.getCellFormatter().setHorizontalAlignment(index, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		table.getCellFormatter().setVerticalAlignment(index, 1, HasVerticalAlignment.ALIGN_BOTTOM);
 		table.getCellFormatter().addStyleName(index, 1, styleNameInactive);
 	}
 
 	@Override
 	public void addPage(String name) {
-		addPage(name, "inactive", "active");
+		addPage(name, WizardStyles.WizardInfoMessageSelected, WizardStyles.WizardInfoMessageNonSelected);
 
 	}
 
@@ -77,12 +92,17 @@ public class WizardPageList extends Composite implements HasWizardTitles {
 		for (int i = 0; i < pageNames.size(); i++) {
 			final String activeStyleName = activeStyle.get(i);
 			final String inactiveStyleName = inactiveStyle.get(i);
-			if (i <= index) {
-				table.getCellFormatter().removeStyleName(i, 1, inactiveStyleName);
-				table.getCellFormatter().addStyleName(i, 1, activeStyleName);
+			final Widget widget = table.getWidget(i, 1);
+			if (i < index) {
+				widget.addStyleName(WizardStyles.wizardInfoMessageSelectedPast);
+				widget.removeStyleName(activeStyleName);
+				widget.removeStyleName(inactiveStyleName);
+			} else if (i == index) {
+				widget.addStyleName(activeStyleName);
+				widget.removeStyleName(inactiveStyleName);
 			} else {
-				table.getCellFormatter().addStyleName(i, 1, inactiveStyleName);
-				table.getCellFormatter().removeStyleName(i, 1, activeStyleName);
+				widget.addStyleName(inactiveStyleName);
+				widget.removeStyleName(activeStyleName);
 			}
 
 			if (i == index) {

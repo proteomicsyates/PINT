@@ -22,4 +22,6 @@ public interface ExcelSheet {
 
 	public int getSheetIndex();
 
+	public int getTotalRows();
+
 }

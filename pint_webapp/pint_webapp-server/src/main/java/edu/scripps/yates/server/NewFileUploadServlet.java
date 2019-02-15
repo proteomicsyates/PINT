@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import com.google.gwt.thirdparty.guava.common.io.Files;
@@ -48,8 +49,9 @@ public class NewFileUploadServlet extends HttpServlet {
 				handleUploadForOtherPurposes(req, resp);
 			}
 		} catch (final Exception e) {
-			logger.error("Throwing servlet exception for unhandled exception", e);
-			throw new ServletException(e);
+			resp.sendError(0, e.getMessage());
+			return;
+//			throw new ServletException(e);
 		}
 	}
 
@@ -82,6 +84,12 @@ public class NewFileUploadServlet extends HttpServlet {
 				final PintImportCfg pintImportFromFile = ImportCfgFileParserUtil.getPintImportFromFile(tmp);
 				final File projectCfgFile = FileManager
 						.getProjectCfgFileByImportProcessID(pintImportFromFile.getImportID());
+				if (projectCfgFile == null) {
+					final File projectCfgFileFolder = FileManager.getProjectCfgFileFolder();
+					final File dest = new File(projectCfgFileFolder.getAbsolutePath() + File.separator
+							+ FilenameUtils.getName(tmp.getAbsolutePath()));
+					Files.move(tmp, dest);
+				}
 				if (projectCfgFile != null) {
 					Files.move(tmp, projectCfgFile);
 					logger.info("Import cfg file moved to file: " + projectCfgFile.getAbsolutePath());

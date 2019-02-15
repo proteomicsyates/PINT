@@ -31,15 +31,15 @@ public class ExcelColumnRefPanel extends Composite {
 	public ExcelColumnRefPanel(FileTypeBean excelFileBean) {
 		if (excelFileBean != null)
 			excelFileBeans.add(excelFileBean);
-		FlowPanel mainPanel = new FlowPanel();
+		final FlowPanel mainPanel = new FlowPanel();
 		initWidget(mainPanel);
 
-		FlexTable grid = new FlexTable();
+		final FlexTable grid = new FlexTable();
 		grid.setStyleName("ExcelColumnRefPanel");
 		grid.setCellPadding(5);
 		mainPanel.add(grid);
 
-		Label lblFile = new Label("File:");
+		final Label lblFile = new Label("File:");
 		grid.setWidget(0, 0, lblFile);
 
 		comboBoxFiles = new ListBox();
@@ -51,13 +51,13 @@ public class ExcelColumnRefPanel extends Composite {
 		grid.getCellFormatter().setHorizontalAlignment(2, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		grid.getCellFormatter().setHorizontalAlignment(2, 1, HasHorizontalAlignment.ALIGN_LEFT);
 
-		Label lblSheet = new Label("Sheet:");
+		final Label lblSheet = new Label("Sheet:");
 		grid.setWidget(1, 0, lblSheet);
 
 		comboBoxSheets = new ListBox();
 		grid.setWidget(1, 1, comboBoxSheets);
 
-		Label lblColumn = new Label("Column:");
+		final Label lblColumn = new Label("Column:");
 		grid.setWidget(2, 0, lblColumn);
 
 		comboBoxColumns = new ListBox();
@@ -70,6 +70,7 @@ public class ExcelColumnRefPanel extends Composite {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see com.google.gwt.user.client.ui.Widget#removeFromParent()
 	 */
 	@Override
@@ -86,7 +87,7 @@ public class ExcelColumnRefPanel extends Composite {
 
 				final Set<String> selectedValuesFromListBox = ClientGUIUtil.getSelectedValuesFromListBox(comboBoxFiles);
 				if (!selectedValuesFromListBox.isEmpty()) {
-					String selectedFileId = selectedValuesFromListBox.iterator().next();
+					final String selectedFileId = selectedValuesFromListBox.iterator().next();
 					loadSheets(selectedFileId);
 				}
 
@@ -99,7 +100,7 @@ public class ExcelColumnRefPanel extends Composite {
 				final Set<String> selectedValuesFromListBox = ClientGUIUtil
 						.getSelectedValuesFromListBox(comboBoxSheets);
 				if (!selectedValuesFromListBox.isEmpty()) {
-					String selectedSheetID = selectedValuesFromListBox.iterator().next();
+					final String selectedSheetID = selectedValuesFromListBox.iterator().next();
 					final String[] split = selectedSheetID.split(SharedConstants.EXCEL_ID_SEPARATOR);
 					loadColumns(split[0], selectedSheetID);
 				}
@@ -122,17 +123,17 @@ public class ExcelColumnRefPanel extends Composite {
 	private void loadColumns(String selectedFileId, String selectedSheetId) {
 		comboBoxColumns.clear();
 
-		for (FileTypeBean excelFileBean : excelFileBeans) {
+		for (final FileTypeBean excelFileBean : excelFileBeans) {
 			if (excelFileBean.getId().equals(selectedFileId)) {
 				final SheetsTypeBean sheets = excelFileBean.getSheets();
 				if (sheets != null) {
-					for (SheetTypeBean excelSheetBean : sheets.getSheet()) {
+					for (final SheetTypeBean excelSheetBean : sheets.getSheet()) {
 						if (excelSheetBean.getId().equals(selectedSheetId)) {
 							final List<ColumnTypeBean> columns = excelSheetBean.getColumn();
 							if (columns != null) {
 								if (columns.size() > 1)
 									comboBoxColumns.addItem("", "");
-								for (ColumnTypeBean excelColumnBean : columns) {
+								for (final ColumnTypeBean excelColumnBean : columns) {
 									comboBoxColumns.addItem(
 											getColumnKey(excelColumnBean.getId()) + "-" + excelColumnBean.getHeader(),
 											excelColumnBean.getId());
@@ -156,7 +157,9 @@ public class ExcelColumnRefPanel extends Composite {
 		if (columnID != null) {
 			if (columnID.contains(SharedConstants.EXCEL_ID_SEPARATOR)) {
 				final String[] split = columnID.split(SharedConstants.EXCEL_ID_SEPARATOR);
-				return split[split.length - 1];
+				if (split.length > 2) {
+					return split[2];
+				}
 			}
 		}
 		return null;
@@ -200,7 +203,10 @@ public class ExcelColumnRefPanel extends Composite {
 		if (sheetID != null) {
 			if (sheetID.contains(SharedConstants.EXCEL_ID_SEPARATOR)) {
 				final String[] split = sheetID.split(SharedConstants.EXCEL_ID_SEPARATOR);
-				return split[split.length - 1];
+				if (split.length > 1) {
+					final String string = split[1];
+					return string;
+				}
 			}
 		}
 		return null;
@@ -210,7 +216,7 @@ public class ExcelColumnRefPanel extends Composite {
 		comboBoxSheets.clear();
 
 		FileTypeBean selectedExcelFileBean = null;
-		for (FileTypeBean excelFileBean : excelFileBeans) {
+		for (final FileTypeBean excelFileBean : excelFileBeans) {
 			if (excelFileBean.getId().equals(selectedFileId)) {
 				selectedExcelFileBean = excelFileBean;
 			}
@@ -220,7 +226,7 @@ public class ExcelColumnRefPanel extends Composite {
 			if (sheets != null) {
 				if (sheets.getSheet().size() > 1)
 					comboBoxSheets.addItem("", "");
-				for (SheetTypeBean excelSheetBean : sheets.getSheet()) {
+				for (final SheetTypeBean excelSheetBean : sheets.getSheet()) {
 					comboBoxSheets.addItem(getSheetName(excelSheetBean.getId()), excelSheetBean.getId());
 				}
 				// load columns if only one sheet is present
@@ -250,7 +256,7 @@ public class ExcelColumnRefPanel extends Composite {
 			comboBoxFiles.addItem("", "");
 		comboBoxSheets.addItem("", "");
 		comboBoxColumns.addItem("", "");
-		for (FileTypeBean excelFileBean : excelFileBeans) {
+		for (final FileTypeBean excelFileBean : excelFileBeans) {
 			comboBoxFiles.addItem(excelFileBean.getId(), excelFileBean.getId());
 		}
 		// load sheets if only one file is present
@@ -261,8 +267,8 @@ public class ExcelColumnRefPanel extends Composite {
 	}
 
 	/**
-	 * Removes all the {@link ExcelFileBean} and add the provided, and load its
-	 * data in the panel
+	 * Removes all the {@link ExcelFileBean} and add the provided, and load its data
+	 * in the panel
 	 *
 	 * @param excelFileBean
 	 */
@@ -321,8 +327,7 @@ public class ExcelColumnRefPanel extends Composite {
 	/**
 	 * Selects the appropiate values in the combos for a given columnID
 	 *
-	 * @param columnID
-	 *            which is formed like fileName##sheetName##columnName
+	 * @param columnID which is formed like fileName##sheetName##columnName
 	 */
 	public void selectExcelColumn(String columnID) {
 		if (columnID == null)

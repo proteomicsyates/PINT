@@ -28,15 +28,16 @@ import edu.scripps.yates.shared.model.projectCreator.excel.RemoteInfoTypeBean;
 public class WizardPageInputFilesToMSRuns extends AbstractWizardPage {
 
 	private static final String text1 = "Ok, we are in the last step of this wizard.";
-	private static final String text2 = "Last thing you have to do is to say from which Experiments or Replicates are the data of each of the input files.";
-	private static final String text3 = "Why? Because we want to remove any redundancy of proteins or peptides coming from the same experiment but imported with several input files.";
+	private static final String text2 = "Last thing you have to do is to define from which Experiments or Replicates is the data of each of the input files.";
+	private static final String text3 = "Why? Because we need to remove any redundancy of proteins or peptides coming from the same experiment but imported with several input files.";
 	private static final String text4 = "For example, you may have:"
-			+ " an input file (typically an Excel file) containing quantitative ratios calculated after combining several experiments, and you also have a file with the data from each experiment. In this case, you need to assign all the experiments to the Excel file.";
+			+ " an input file (typically an Excel file) containing protein quantitative ratios calculated by yourself, and you want to combine it with the proteins imported from an mzIdentML file. "
+			+ "In this case, you need to assign the same experiment to the Excel file and to the mzIdentML file.";
 	private FlexTable panel;
 	private InputDataFilesPanel inputDataFilesPanel;
 
 	public WizardPageInputFilesToMSRuns() {
-		super("Experiment/Replicate to file");
+		super("Experiment / Replicates map");
 
 	}
 

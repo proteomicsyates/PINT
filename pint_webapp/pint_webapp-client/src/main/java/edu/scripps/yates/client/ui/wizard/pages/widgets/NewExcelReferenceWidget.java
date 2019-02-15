@@ -3,11 +3,13 @@ package edu.scripps.yates.client.ui.wizard.pages.widgets;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.dom.client.Style.WhiteSpace;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -21,13 +23,15 @@ import edu.scripps.yates.shared.model.projectCreator.excel.SheetTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SheetsTypeBean;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class NewExcelReferencePanel extends Composite {
+public class NewExcelReferenceWidget extends Composite {
 	private final ListBox comboBoxSheets;
 	private final ListBox comboBoxColumns;
 	private final FileTypeBean file;
+	private final String excelSheet;
 
-	public NewExcelReferencePanel(FileTypeBean file) {
+	public NewExcelReferenceWidget(FileTypeBean file, String excelSheet) {
 		this.file = file;
+		this.excelSheet = excelSheet;
 		final FlowPanel mainPanel = new FlowPanel();
 		initWidget(mainPanel);
 
@@ -36,26 +40,31 @@ public class NewExcelReferencePanel extends Composite {
 		table.setCellPadding(5);
 		mainPanel.add(table);
 
-		int row = 0;
+		final int row = 0;
 
-		table.getCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		table.getCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-		table.getCellFormatter().setHorizontalAlignment(1, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		table.getCellFormatter().setHorizontalAlignment(2, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-		table.getCellFormatter().setHorizontalAlignment(2, 1, HasHorizontalAlignment.ALIGN_LEFT);
-
-		final Label lblSheet = new Label("Sheet:");
+		final Label lblSheet = new Label("Excel sheet:");
+		lblSheet.setStyleName(WizardStyles.WizardInfoMessage);
+		lblSheet.getElement().getStyle().setWhiteSpace(WhiteSpace.NOWRAP);
 		table.setWidget(row, 0, lblSheet);
+		table.getCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		comboBoxSheets = new ListBox();
 		table.setWidget(row, 1, comboBoxSheets);
-		row++;
-		final Label lblColumn = new Label("Column:");
-		table.setWidget(row, 0, lblColumn);
+		table.getCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
+
+		final Label lblColumn = new Label("Column in sheet:");
+		lblColumn.setStyleName(WizardStyles.WizardInfoMessage);
+		lblColumn.getElement().getStyle().setWhiteSpace(WhiteSpace.NOWRAP);
+		table.setWidget(row, 2, lblColumn);
+		table.getCellFormatter().setHorizontalAlignment(row, 2, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		comboBoxColumns = new ListBox();
-		table.setWidget(row, 1, comboBoxColumns);
-		table.getCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+		table.setWidget(row, 3, comboBoxColumns);
+		table.getCellFormatter().setHorizontalAlignment(row, 3, HasHorizontalAlignment.ALIGN_LEFT);
+
+		final HTML rightSpacer = new HTML("&nbsp;");
+		rightSpacer.setWidth("100%");
+		table.setWidget(row, 4, rightSpacer);
 
 		addHandlers();
 		loadData();
@@ -128,7 +137,9 @@ public class NewExcelReferencePanel extends Composite {
 		if (columnID != null) {
 			if (columnID.contains(SharedConstants.EXCEL_ID_SEPARATOR)) {
 				final String[] split = columnID.split(SharedConstants.EXCEL_ID_SEPARATOR);
-				return split[split.length - 1];
+				if (split.length == 3) {
+					return split[2];
+				}
 			}
 		}
 		return null;
@@ -172,7 +183,8 @@ public class NewExcelReferencePanel extends Composite {
 		if (sheetID != null) {
 			if (sheetID.contains(SharedConstants.EXCEL_ID_SEPARATOR)) {
 				final String[] split = sheetID.split(SharedConstants.EXCEL_ID_SEPARATOR);
-				return split[split.length - 1];
+				final String string = split[1];
+				return string;
 			}
 		}
 		return null;
@@ -183,14 +195,31 @@ public class NewExcelReferencePanel extends Composite {
 
 		final SheetsTypeBean sheets = file.getSheets();
 		if (sheets != null) {
-			if (sheets.getSheet().size() > 1)
+			if (sheets.getSheet().size() > 1 && this.excelSheet == null) {
 				comboBoxSheets.addItem("", "");
+			}
 			for (final SheetTypeBean excelSheetBean : sheets.getSheet()) {
-				comboBoxSheets.addItem(getSheetName(excelSheetBean.getId()), excelSheetBean.getId());
+				final String sheetName = getSheetName(excelSheetBean.getId());
+				// if this widget is dealing only with one excelSheet (excelSheet !=null)
+				// do not add the other sheets
+				if (excelSheet != null && !excelSheet.equals(sheetName)) {
+					continue;
+				}
+				comboBoxSheets.addItem(sheetName, excelSheetBean.getId());
 			}
 			// load columns if only one sheet is present
 			if (sheets.getSheet().size() == 1) {
 				loadColumns(sheets.getSheet().get(0).getId());
+			} else {
+				// load columns if this widget only loads one sheet
+				if (excelSheet != null) {
+					for (final SheetTypeBean sheet : sheets.getSheet()) {
+						if (excelSheet.equals(getSheetName(sheet.getId()))) {
+							loadColumns(sheet.getId());
+							break;
+						}
+					}
+				}
 			}
 		}
 
@@ -201,7 +230,12 @@ public class NewExcelReferencePanel extends Composite {
 		comboBoxColumns.clear();
 		comboBoxSheets.clear();
 
-		comboBoxSheets.addItem("", "");
+		final SheetsTypeBean sheets = file.getSheets();
+		if (sheets != null) {
+			if (sheets.getSheet().size() > 1 && this.excelSheet == null) {
+				comboBoxSheets.addItem("", "");
+			}
+		}
 		comboBoxColumns.addItem("", "");
 
 		// load sheets

@@ -28,11 +28,29 @@ public abstract class AbstractWizardPageFileProcessor extends AbstractWizardPage
 	private InputFileSummaryPanel inputFileSummaryPanel;
 	private final int fileNumber;
 	private int rowForNextPanelFixed;
+	private final String sheetName;
+
+	public AbstractWizardPageFileProcessor(PintContext context, int fileNumber, String title, FileTypeBean file,
+			String sheetName) {
+		super(title, context);
+		this.file = file;
+		this.fileNumber = fileNumber;
+		this.sheetName = sheetName;
+	}
 
 	public AbstractWizardPageFileProcessor(PintContext context, int fileNumber, FileTypeBean file) {
+		this(context, fileNumber, file, null);
+	}
+
+	public AbstractWizardPageFileProcessor(PintContext context, int fileNumber, FileTypeBean file, String sheetName) {
 		super(fileNumber + "-" + file.getName(), context);
 		this.file = file;
 		this.fileNumber = fileNumber;
+		this.sheetName = sheetName;
+	}
+
+	protected int getFileNumber() {
+		return fileNumber;
 	}
 
 	@Override
@@ -95,7 +113,7 @@ public abstract class AbstractWizardPageFileProcessor extends AbstractWizardPage
 		return WizardStyles.WizardExplanationLabel;
 	}
 
-	private String getText1() {
+	protected String getText1() {
 		return "Processing input file " + fileNumber + "/"
 				+ PintImportCfgUtil.getFiles(context.getPintImportConfiguration()).size() + " '" + file.getName() + "'";
 	}
@@ -132,7 +150,7 @@ public abstract class AbstractWizardPageFileProcessor extends AbstractWizardPage
 	public void beforeShow() {
 		clearWidgets(true);
 		rowForNextPanel = rowForNextPanelFixed;
-		inputFileSummaryPanel = new InputFileSummaryPanel(wizard.getContext(), getFile());
+		inputFileSummaryPanel = new InputFileSummaryPanel(wizard.getContext(), getFile(), sheetName);
 		addNextWidget(inputFileSummaryPanel);
 		setOnFileSummaryReceivedTask(inputFileSummaryPanel);
 

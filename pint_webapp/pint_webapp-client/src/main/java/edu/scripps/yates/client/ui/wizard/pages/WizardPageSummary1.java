@@ -2,13 +2,13 @@ package edu.scripps.yates.client.ui.wizard.pages;
 
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import edu.scripps.yates.client.gui.components.projectCreatorWizard.ExcelColumnRefPanel;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.ui.wizard.exception.DuplicatePageException;
 import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageCensusOutFileProcessor;
@@ -19,6 +19,8 @@ import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageMzIdentMLFi
 import edu.scripps.yates.client.ui.wizard.pages.panels.Summary1Panel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
+import edu.scripps.yates.shared.model.projectCreator.excel.SheetTypeBean;
+import edu.scripps.yates.shared.model.projectCreator.excel.SheetsTypeBean;
 
 public class WizardPageSummary1 extends AbstractWizardPage {
 
@@ -91,8 +93,15 @@ public class WizardPageSummary1 extends AbstractWizardPage {
 							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				case EXCEL:
-					wizard.addPage(new WizardPageExcelFileProcessor(getContext(), fileNumber++, fileTypeBean),
-							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
+					fileNumber++;
+					final SheetsTypeBean sheets = fileTypeBean.getSheets();
+					for (final SheetTypeBean sheet : sheets.getSheet()) {
+						wizard.addPage(
+								new WizardPageExcelFileProcessor(getContext(), fileNumber, fileTypeBean,
+										ExcelColumnRefPanel.getSheetName(sheet.getId())),
+								WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
+					}
+
 					break;
 				case FASTA:
 					wizard.addPage(new WizardPageFastaFileProcessor(getContext(), fileNumber++, fileTypeBean),
@@ -107,13 +116,18 @@ public class WizardPageSummary1 extends AbstractWizardPage {
 				}
 
 			} catch (final DuplicatePageException e) {
-				GWT.log(e.getMessage(), e);
+//				GWT.log(e.getMessage(), e);
 			}
 		}
 		try {
 			wizard.addPage(new WizardPageInputFilesToMSRuns());
 		} catch (final DuplicatePageException e) {
-			GWT.log(e.getMessage(), e);
+//			GWT.log(e.getMessage(), e);
+		}
+		try {
+			wizard.addPage(new WizardPageFinal());
+		} catch (final DuplicatePageException e) {
+//			GWT.log(e.getMessage(), e);
 		}
 		super.beforeShow();
 	}

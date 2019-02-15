@@ -2,6 +2,7 @@ package edu.scripps.yates.client.ui.wizard.pages.panels.summary;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.dom.client.Style.WhiteSpace;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -33,11 +34,18 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 	private final PintContext context;
 	private final List<MsRunTypeBean> associatedMSRuns = new ArrayList<MsRunTypeBean>();
 	private DoSomethingTask2<MsRunTypeBean> onContextUpdated;
+	private final String sheetName;
 
 	public InputFileSummaryTable(PintContext context, FileTypeBean fileType, int number, boolean addDropMSRunLabel) {
+		this(context, fileType, null, number, addDropMSRunLabel);
+	}
+
+	public InputFileSummaryTable(PintContext context, FileTypeBean fileType, String sheetName, int number,
+			boolean addDropMSRunLabel) {
 		super(number);
 		this.file = fileType;
 		this.context = context;
+		this.sheetName = sheetName;
 		int row = 0;
 		// file number
 		final Label fileNumber = new Label(number + ".");
@@ -76,14 +84,14 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 		// num sheets
 		row++;
 		if (fileType.getFormat() == FileFormat.EXCEL) {
-			final Label excelNumSheetsLabel = new Label("Number of sheets:");
-			excelNumSheetsLabel.setTitle("Number of sheets contained in Excel file '" + fileType.getName() + "'");
+			final Label excelNumSheetsLabel = new Label("Sheet:");
+			excelNumSheetsLabel.setTitle("Excel sheet '" + sheetName + "'");
 			excelNumSheetsLabel.setStyleName(WizardStyles.WizardInfoMessage);
 			setWidget(row, 0, excelNumSheetsLabel);
 			getFlexCellFormatter().setColSpan(row, 0, 2);
 			getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 
-			final Label excelNumSheetsNameLabel = new Label(String.valueOf(fileType.getSheets().getSheet().size()));
+			final Label excelNumSheetsNameLabel = new Label(sheetName);
 			excelNumSheetsNameLabel.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 			setWidget(row, 1, excelNumSheetsNameLabel);
 			getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
@@ -126,7 +134,7 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 		if (associatedMSRuns.contains(msRun)) {
 			return;
 		}
-		addAssociatedMSRunToContext(msRun.getId());
+		addAssociatedMSRunToContext(msRun);
 		associatedMSRuns.add(msRun);
 		final int indexOf = associatedMSRuns.indexOf(msRun);
 		final Label label = new Label(msRun.getId());
@@ -134,7 +142,7 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 		label.setTitle(PintImportCfgUtil.getTitleMSRun(msRun));
 		final int row = nextRowWidget + indexOf + 1;
 		setWidget(row, 0, label);
-		getFlexCellFormatter().setColSpan(row, 0, 3);
+		getFlexCellFormatter().setColSpan(row, 0, 2);
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		// remove button
 		// delete button
@@ -142,8 +150,8 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 		deleteButton.setTitle("Click here to remove the association between file '" + file.getName()
 				+ "' and the Experiment/Replicate '" + msRun.getId() + "'");
 		deleteButton.setStyleName(WizardStyles.CLICKABLE);
-		setWidget(row, 4, deleteButton);
-		getFlexCellFormatter().setHorizontalAlignment(row, 4, HasHorizontalAlignment.ALIGN_LEFT);
+		setWidget(row, 2, deleteButton);
+		getFlexCellFormatter().setHorizontalAlignment(row, 2, HasHorizontalAlignment.ALIGN_LEFT);
 		deleteButton.addClickHandler(new ClickHandler() {
 
 			@Override
@@ -165,31 +173,36 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 		}
 	}
 
-	private void addAssociatedMSRunToContext(String msRunID) {
+	private void addAssociatedMSRunToContext(MsRunTypeBean msRun) {
 		final List<RemoteFilesRatioTypeBean> ratios = PintImportCfgUtil
 				.getRemoteFilesRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId());
 		for (final RemoteFilesRatioTypeBean ratio : ratios) {
-			ratio.setMsRunRef(PintImportCfgUtil.addMSRunRef(ratio.getMsRunRef(), msRunID));
+			ratio.setMsRunRef(PintImportCfgUtil.addMSRunRef(ratio.getMsRunRef(), msRun.getId()));
 		}
 		final List<ExcelAmountRatioTypeBean> excelRatios = PintImportCfgUtil
-				.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId());
+				.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
+						sheetName, true, true, true);
 		for (final ExcelAmountRatioTypeBean ratio : excelRatios) {
-			ratio.setMsRunRef(PintImportCfgUtil.addMSRunRef(ratio.getMsRunRef(), msRunID));
+			ratio.setMsRunRef(PintImportCfgUtil.addMSRunRef(ratio.getMsRunRef(), msRun.getId()));
 		}
-		final List<IdentificationExcelTypeBean> excelIDs = PintImportCfgUtil
-				.getIdentificationExcelTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId());
+		final Set<IdentificationExcelTypeBean> excelIDs = PintImportCfgUtil
+				.getExcelIDAssociatedWithThisFile(context.getPintImportConfiguration(), file.getId(), sheetName);
 		for (final IdentificationExcelTypeBean id : excelIDs) {
-			id.setMsRunRef(PintImportCfgUtil.addMSRunRef(id.getMsRunRef(), msRunID));
+			id.setMsRunRef(PintImportCfgUtil.addMSRunRef(id.getMsRunRef(), msRun.getId()));
 		}
 		final List<RemoteInfoTypeBean> ids = PintImportCfgUtil
 				.getRemoteInfoTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId());
 		for (final RemoteInfoTypeBean id : ids) {
-			id.setMsRunRef(PintImportCfgUtil.addMSRunRef(id.getMsRunRef(), msRunID));
+			id.setMsRunRef(PintImportCfgUtil.addMSRunRef(id.getMsRunRef(), msRun.getId()));
 		}
 		final List<QuantificationExcelTypeBean> excelQuants = PintImportCfgUtil
-				.getQuantificationExcelTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId());
+				.getQuantificationExcelTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
+						sheetName);
 		for (final QuantificationExcelTypeBean quant : excelQuants) {
-			quant.setMsRunRef(PintImportCfgUtil.addMSRunRef(quant.getMsRunRef(), msRunID));
+			quant.setMsRunRef(PintImportCfgUtil.addMSRunRef(quant.getMsRunRef(), msRun.getId()));
+		}
+		if (getOnContextUpdatedTask() != null) {
+			getOnContextUpdatedTask().doSomething(msRun);
 		}
 	}
 
@@ -201,12 +214,13 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 			ratio.setMsRunRef(PintImportCfgUtil.removeMSRunRef(ratio.getMsRunRef(), msRunID));
 		}
 		final List<ExcelAmountRatioTypeBean> excelRatios = PintImportCfgUtil
-				.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId());
+				.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
+						sheetName, true, true, true);
 		for (final ExcelAmountRatioTypeBean ratio : excelRatios) {
 			ratio.setMsRunRef(PintImportCfgUtil.removeMSRunRef(ratio.getMsRunRef(), msRunID));
 		}
-		final List<IdentificationExcelTypeBean> excelIDs = PintImportCfgUtil
-				.getIdentificationExcelTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId());
+		final Set<IdentificationExcelTypeBean> excelIDs = PintImportCfgUtil
+				.getExcelIDAssociatedWithThisFile(context.getPintImportConfiguration(), file.getId(), sheetName);
 		for (final IdentificationExcelTypeBean id : excelIDs) {
 			id.setMsRunRef(PintImportCfgUtil.removeMSRunRef(id.getMsRunRef(), msRunID));
 		}
@@ -216,7 +230,8 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 			id.setMsRunRef(PintImportCfgUtil.removeMSRunRef(id.getMsRunRef(), msRunID));
 		}
 		final List<QuantificationExcelTypeBean> excelQuants = PintImportCfgUtil
-				.getQuantificationExcelTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId());
+				.getQuantificationExcelTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
+						sheetName);
 		for (final QuantificationExcelTypeBean quant : excelQuants) {
 			quant.setMsRunRef(PintImportCfgUtil.removeMSRunRef(quant.getMsRunRef(), msRunID));
 		}

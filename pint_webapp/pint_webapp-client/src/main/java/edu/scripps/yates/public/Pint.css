@@ -1015,7 +1015,7 @@
 
 .gwt-PopupPanel {
    border: 2px solid #000000;
-   padding: 0px;
+/*    padding: 0px; */
    background: lavender;
 }
 

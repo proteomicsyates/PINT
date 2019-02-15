@@ -49,9 +49,18 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 			final ExcelColumn psmSequenceColumn = excelFileReader
 					.getExcelColumnFromReference(psmSequenceCfg.getColumnRef());
 
+			ExcelColumn psmIDSequenceColumn = null;
+			if (excelCfg.getPsmId() != null) {
+				psmIDSequenceColumn = excelFileReader.getExcelColumnFromReference(excelCfg.getPsmId().getColumnRef());
+			}
+
 			final String rawPsmSequence = psmSequenceColumn.getValues().get(rowIndex).toString();
 
-			final String psmId = (rowIndex + 1) + "-" + msRun.getRunId();
+			String psmId = (rowIndex + 1) + "-" + msRun.getRunId();
+			// if psmID column is provided, use it
+			if (psmIDSequenceColumn != null) {
+				psmId = psmIDSequenceColumn.getValues().get(rowIndex).toString();
+			}
 
 			final String cleanPsmSequence = FastaParser.cleanSequence(rawPsmSequence);
 

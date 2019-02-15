@@ -58,7 +58,7 @@ public class ProjectForm extends AbstractFormCollection {
 
 		final TextAreaFormInformation description = new TextAreaFormInformation("Dataset description",
 				"A paragraph with the description of the project. It may be similar to the abstract of its publication",
-				false, 30.0);
+				true, 30.0);
 		add(description);
 		description.linkToObject(new UpdateAction() {
 			@Override

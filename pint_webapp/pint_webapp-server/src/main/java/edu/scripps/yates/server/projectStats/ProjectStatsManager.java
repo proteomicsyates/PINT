@@ -199,7 +199,7 @@ public class ProjectStatsManager {
 
 			updateFile(stats.getNumSamplesString(projectTag));
 		}
-		return stats.getNumSamples();
+		return checkNull(stats.getNumSamples());
 	}
 
 	private void updateFile(String line) {
@@ -278,7 +278,7 @@ public class ProjectStatsManager {
 			updateFile(projectStatsFromMSRun.getNumConditionsString(projectTag));
 		}
 
-		return projectStatsFromMSRun.getNumConditions();
+		return checkNull(projectStatsFromMSRun.getNumConditions());
 	}
 
 	public int getNumMSRuns(String projectTag, SampleBean sample) {
@@ -290,7 +290,7 @@ public class ProjectStatsManager {
 
 			updateFile(projectStatsFromSample.getNumMSRunsString(projectTag));
 		}
-		return projectStatsFromSample.getNumMSRuns();
+		return checkNull(projectStatsFromSample.getNumMSRuns());
 	}
 
 	public int getNumGenes(String projectTag, SampleBean sample) {
@@ -304,7 +304,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromSample.getNumGenesString(projectTag));
 			}
 		}
-		return projectStatsFromSample.getNumGenes();
+		return checkNull(projectStatsFromSample.getNumGenes());
 
 	}
 
@@ -318,7 +318,15 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromSample.getNumPSMsString(projectTag));
 			}
 		}
-		return projectStatsFromSample.getNumPSMs();
+
+		return checkNull(projectStatsFromSample.getNumPSMs());
+	}
+
+	private int checkNull(Integer num) {
+		if (num == null) {
+			return 0;
+		}
+		return num;
 	}
 
 	public int getNumDifferentPeptides(String projectTag, SampleBean sample) {
@@ -331,7 +339,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromSample.getNumPeptidesString(projectTag));
 			}
 		}
-		return projectStatsFromSample.getNumPeptides();
+		return checkNull(projectStatsFromSample.getNumPeptides());
 	}
 
 	public int getNumDifferentProteins(String projectTag, SampleBean sample) {
@@ -344,7 +352,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromSample.getNumProteinsString(projectTag));
 			}
 		}
-		return projectStatsFromSample.getNumProteins();
+		return checkNull(projectStatsFromSample.getNumProteins());
 
 	}
 
@@ -358,7 +366,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromCondition.getNumMSRunsString(projectTag));
 			}
 		}
-		return projectStatsFromCondition.getNumMSRuns();
+		return checkNull(projectStatsFromCondition.getNumMSRuns());
 	}
 
 	public int getNumGenes(String projectTag, ExperimentalConditionBean condition) {
@@ -372,7 +380,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromCondition.getNumGenesString(projectTag));
 			}
 		}
-		return projectStatsFromCondition.getNumGenes();
+		return checkNull(projectStatsFromCondition.getNumGenes());
 
 	}
 
@@ -386,7 +394,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromCondition.getNumPSMsString(projectTag));
 			}
 		}
-		return projectStatsFromCondition.getNumPSMs();
+		return checkNull(projectStatsFromCondition.getNumPSMs());
 	}
 
 	public int getNumDifferentPeptides(String projectTag, ExperimentalConditionBean condition) {
@@ -399,7 +407,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromCondition.getNumPeptidesString(projectTag));
 			}
 		}
-		return projectStatsFromCondition.getNumPeptides();
+		return checkNull(projectStatsFromCondition.getNumPeptides());
 	}
 
 	public int getNumDifferentProteins(String projectTag, ExperimentalConditionBean condition) {
@@ -412,7 +420,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromCondition.getNumProteinsString(projectTag));
 			}
 		}
-		return projectStatsFromCondition.getNumProteins();
+		return checkNull(projectStatsFromCondition.getNumProteins());
 	}
 
 	public int getNumGenes(String projectTag, MSRunBean msRun) {
@@ -426,7 +434,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromMSRun.getNumGenesString(projectTag));
 			}
 		}
-		return projectStatsFromMSRun.getNumGenes();
+		return checkNull(projectStatsFromMSRun.getNumGenes());
 	}
 
 	private Set<String> getGenesFromUniprot(List<String> accs) {
@@ -470,7 +478,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromMSRun.getNumPSMsString(projectTag));
 			}
 		}
-		return projectStatsFromMSRun.getNumPSMs();
+		return checkNull(projectStatsFromMSRun.getNumPSMs());
 	}
 
 	public int getNumDifferentPeptides(String projectTag, MSRunBean msRun) {
@@ -483,7 +491,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromMSRun.getNumPeptidesString(projectTag));
 			}
 		}
-		return projectStatsFromMSRun.getNumPeptides();
+		return checkNull(projectStatsFromMSRun.getNumPeptides());
 	}
 
 	public int getNumDifferentProteins(String projectTag, MSRunBean msRun) {
@@ -496,7 +504,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromMSRun.getNumProteinsString(projectTag));
 			}
 		}
-		return projectStatsFromMSRun.getNumProteins();
+		return checkNull(projectStatsFromMSRun.getNumProteins());
 
 	}
 
@@ -512,7 +520,7 @@ public class ProjectStatsManager {
 			}
 
 		}
-		return projectStatsFromProject.getNumGenes();
+		return checkNull(projectStatsFromProject.getNumGenes());
 	}
 
 	public int getNumPSMs(String projectTag) {
@@ -524,7 +532,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromProject.getNumPSMsString(projectTag));
 			}
 		}
-		return projectStatsFromProject.getNumPSMs();
+		return checkNull(projectStatsFromProject.getNumPSMs());
 	}
 
 	public int getNumDifferentPeptides(String projectTag) {
@@ -536,7 +544,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromProject.getNumPeptidesString(projectTag));
 			}
 		}
-		return projectStatsFromProject.getNumPeptides();
+		return checkNull(projectStatsFromProject.getNumPeptides());
 
 	}
 
@@ -549,7 +557,7 @@ public class ProjectStatsManager {
 				updateFile(projectStatsFromProject.getNumProteinsString(projectTag));
 			}
 		}
-		return projectStatsFromProject.getNumProteins();
+		return checkNull(projectStatsFromProject.getNumProteins());
 	}
 
 	public int getNumDifferentProteins() {
@@ -559,7 +567,7 @@ public class ProjectStatsManager {
 
 			updateFile(generalProjectsStats.getNumProteinsString(""));
 		}
-		return generalProjectsStats.getNumProteins();
+		return checkNull(generalProjectsStats.getNumProteins());
 	}
 
 	public static void clearGeneralProjectStats() {
@@ -577,7 +585,7 @@ public class ProjectStatsManager {
 				updateFile(generalProjectsStats.getNumGenesString(""));
 			}
 		}
-		return generalProjectsStats.getNumGenes();
+		return checkNull(generalProjectsStats.getNumGenes());
 	}
 
 	public int getNumDifferentPeptides() {
@@ -587,7 +595,7 @@ public class ProjectStatsManager {
 
 			updateFile(generalProjectsStats.getNumPeptidesString(""));
 		}
-		return generalProjectsStats.getNumPeptides();
+		return checkNull(generalProjectsStats.getNumPeptides());
 
 	}
 
@@ -598,7 +606,7 @@ public class ProjectStatsManager {
 
 			updateFile(generalProjectsStats.getNumConditionsString(""));
 		}
-		return generalProjectsStats.getNumConditions();
+		return checkNull(generalProjectsStats.getNumConditions());
 
 	}
 
@@ -610,7 +618,7 @@ public class ProjectStatsManager {
 			updateFile(generalProjectsStats.getNumPSMsString(""));
 		}
 
-		return generalProjectsStats.getNumPSMs();
+		return checkNull(generalProjectsStats.getNumPSMs());
 	}
 
 	public int getNumProjects() {
@@ -625,7 +633,7 @@ public class ProjectStatsManager {
 
 			updateFile(projectStatsFromProject.getNumMSRunsString(""));
 		}
-		return projectStatsFromProject.getNumMSRuns();
+		return checkNull(projectStatsFromProject.getNumMSRuns());
 
 	}
 
@@ -637,7 +645,7 @@ public class ProjectStatsManager {
 
 			updateFile(projectStatsFromProject.getNumConditionsString(""));
 		}
-		return projectStatsFromProject.getNumConditions();
+		return checkNull(projectStatsFromProject.getNumConditions());
 	}
 
 }

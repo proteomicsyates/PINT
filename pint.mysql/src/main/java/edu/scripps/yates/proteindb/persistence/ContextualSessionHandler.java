@@ -345,7 +345,11 @@ public class ContextualSessionHandler {
 			currentSession = getSessionFactory().getCurrentSession();
 
 		} catch (final HibernateException e) {
+
+			// if there is no session currently bound to execution context, open one and
+			// bound it
 			currentSession = openSession();
+
 		}
 
 		return currentSession;
@@ -481,7 +485,7 @@ public class ContextualSessionHandler {
 	 * 
 	 * @return
 	 */
-	public static Session openSession() {
+	private static Session openSession() {
 		final Session currentSession = getSessionFactory().openSession();
 		ManagedSessionContext.bind(currentSession);
 		return currentSession;
@@ -497,7 +501,7 @@ public class ContextualSessionHandler {
 	 * @param dbURL
 	 * @return
 	 */
-	public static Session openSession(String username, String password, String dbURL) {
+	private static Session openSession(String username, String password, String dbURL) {
 		final Session currentSession = getSessionFactory(username, password, dbURL).openSession();
 		ManagedSessionContext.bind(currentSession);
 		return currentSession;

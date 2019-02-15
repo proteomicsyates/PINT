@@ -3,13 +3,14 @@ package edu.scripps.yates.client.statusreporter;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 
 import edu.scripps.yates.client.gui.PopUpPanelYesNo;
 
 public class StatusReporterImpl implements StatusReporter {
-	private String statusTitle;
-	private String errorTitle;
+	private final String statusTitle;
+	private final String errorTitle;
 
 	public StatusReporterImpl() {
 		this("Status:", "Error occurred:");
@@ -23,7 +24,7 @@ public class StatusReporterImpl implements StatusReporter {
 	@Override
 	public void showMessage(String message) {
 		// show pop up dialog
-		PopUpPanelYesNo popUpDialog = new PopUpPanelYesNo(true, true, true, statusTitle, message, "OK", null);
+		final PopUpPanelYesNo popUpDialog = new PopUpPanelYesNo(true, true, true, statusTitle, message, "OK", null);
 		popUpDialog.addButton1ClickHandler(new ClickHandler() {
 
 			@Override
@@ -60,8 +61,9 @@ public class StatusReporterImpl implements StatusReporter {
 		if (message.contains(exceptionString)) {
 			message = message.substring(message.lastIndexOf(exceptionString) + exceptionString.length()).trim();
 		}
+		message = new SafeHtmlBuilder().appendHtmlConstant(message).toSafeHtml().toString();
 		// show pop up dialog
-		PopUpPanelYesNo popUpDialog = new PopUpPanelYesNo(true, true, true, errorTitle, message, "OK", null);
+		final PopUpPanelYesNo popUpDialog = new PopUpPanelYesNo(true, true, true, errorTitle, message, "OK", null);
 		popUpDialog.addButton1ClickHandler(new ClickHandler() {
 
 			@Override

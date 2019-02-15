@@ -38,7 +38,7 @@ public class ConditionSelectorForFileWithNORatiosWidget extends AbstractConditio
 
 	public ConditionSelectorForFileWithNORatiosWidget(PintContext context, FileTypeBean file,
 			DoSomethingTask2<ExperimentalConditionTypeBean> onConditionAddedTask,
-			DoSomethingTask2<ExperimentalConditionTypeBean> onConditionRemovedTask) {
+			DoSomethingTask2<ExperimentalConditionTypeBean> onConditionRemovedTask, String sheetName) {
 		super(context, file, onConditionAddedTask, onConditionRemovedTask);
 		this.setWidth("100%");
 		leftTable = new FlexTable();
@@ -167,9 +167,14 @@ public class ConditionSelectorForFileWithNORatiosWidget extends AbstractConditio
 
 			i++;
 		}
-
-		final List<ExperimentalConditionTypeBean> conditionsAssociatedWithFile = PintImportCfgUtil
-				.getConditionsAssociatedWithFile(context.getPintImportConfiguration(), file.getId());
+		List<ExperimentalConditionTypeBean> conditionsAssociatedWithFile = null;
+		if (sheetName != null) {
+			conditionsAssociatedWithFile = PintImportCfgUtil.getConditionsAssociatedWithExcelFile(
+					context.getPintImportConfiguration(), file.getId(), sheetName);
+		} else {
+			conditionsAssociatedWithFile = PintImportCfgUtil
+					.getConditionsAssociatedWithFile(context.getPintImportConfiguration(), file.getId());
+		}
 		if (conditionsAssociatedWithFile != null) {
 			for (final ExperimentalConditionTypeBean condition : conditionsAssociatedWithFile) {
 				addAssociatedCondition(condition.getId());
@@ -186,8 +191,8 @@ public class ConditionSelectorForFileWithNORatiosWidget extends AbstractConditio
 		}
 
 		conditionsInRows.add(condition);
-		if (getOnConditionAddedTask() != null) {
-			getOnConditionAddedTask().doSomething(condition);
+		for (final DoSomethingTask2<ExperimentalConditionTypeBean> task : getOnConditionAddedTasks()) {
+			task.doSomething(condition);
 		}
 
 		final Label labelCondition = new Label(condition.getId());
@@ -223,14 +228,19 @@ public class ConditionSelectorForFileWithNORatiosWidget extends AbstractConditio
 				leftTable.removeRow(index + firstRowForNewCondition);
 
 				PintImportCfgUtil.removeFileFromCondition(file.getId(), condition);
-				if (getOnConditionRemovedTask() != null) {
-					getOnConditionRemovedTask().doSomething(condition);
+				for (final DoSomethingTask2<ExperimentalConditionTypeBean> task : getOnConditionRemovedTasks()) {
+					task.doSomething(condition);
 				}
 				rowForNewCondition--;
 				conditionsInRows.remove(condition);
 			}
 		});
 		rowForNewCondition++;
+	}
+
+	@Override
+	public List<ExperimentalConditionTypeBean> getConditions() {
+		return this.conditionsInRows;
 	}
 
 }

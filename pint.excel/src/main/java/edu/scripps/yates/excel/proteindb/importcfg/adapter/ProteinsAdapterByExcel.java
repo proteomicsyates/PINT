@@ -442,11 +442,11 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	}
 
 	/**
-	 * Add uniprot information to the protein. The Uniprot information will be
-	 * the accessions, the descriptions, the length, the PI. Note that the
-	 * primary accession of the protein can be modified since can be mapped from
-	 * IPI to Uniprot, and in that case the IPI accession will become a
-	 * secondary accession and the Uniprot one will become the primary.
+	 * Add uniprot information to the protein. The Uniprot information will be the
+	 * accessions, the descriptions, the length, the PI. Note that the primary
+	 * accession of the protein can be modified since can be mapped from IPI to
+	 * Uniprot, and in that case the IPI accession will become a secondary accession
+	 * and the Uniprot one will become the primary.
 	 *
 	 * @param protein
 	 */

@@ -21,7 +21,7 @@ public class ImportCfgFileParserUtil {
 	static {
 		try {
 			jaxbContext = JAXBContext.newInstance("edu.scripps.yates.excel.proteindb.importcfg.jaxb");
-		} catch (JAXBException e) {
+		} catch (final JAXBException e) {
 			e.printStackTrace();
 		}
 	}
@@ -35,12 +35,16 @@ public class ImportCfgFileParserUtil {
 	 */
 	public static PintImportCfg getPintImportFromFile(File fileCfg) throws PintException {
 		try {
-			Unmarshaller marshaller = jaxbContext.createUnmarshaller();
+			final Unmarshaller marshaller = jaxbContext.createUnmarshaller();
 			final PintImportCfg unmarshal = (PintImportCfg) marshaller.unmarshal(fileCfg);
 			return unmarshal;
-		} catch (JAXBException e) {
+		} catch (final JAXBException e) {
 			e.printStackTrace();
-			throw new PintException(e.getMessage(), PINT_ERROR_TYPE.FILE_NOT_FOUND_IN_SERVER);
+			String message = "Format incorrect for dataset import configuration file.";
+			if (e.getMessage() != null) {
+				message += " " + e.getMessage();
+			}
+			throw new PintException(message, PINT_ERROR_TYPE.PARSING_ERROR);
 		}
 	}
 
@@ -49,9 +53,8 @@ public class ImportCfgFileParserUtil {
 	 *
 	 * @param jobID
 	 * @return
-	 * @throws PintException
-	 *             if there is not {@link PintImportCfg} associated to that
-	 *             jodID
+	 * @throws PintException if there is not {@link PintImportCfg} associated to
+	 *                       that jodID
 	 */
 	public static PintImportCfg getPintImportCfgFromJobID(int jobID) throws PintException {
 		log.info("getting import process id '" + jobID + "'");
@@ -79,12 +82,12 @@ public class ImportCfgFileParserUtil {
 	 */
 	public static File saveFileCfg(PintImportCfg pintImportCfg) {
 		try {
-			Marshaller marshaller = jaxbContext.createMarshaller();
+			final Marshaller marshaller = jaxbContext.createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
-			File xmlFile = FileManager.getProjectXmlFile(pintImportCfg.getProject().getTag() + ".xml");
+			final File xmlFile = FileManager.getProjectXmlFile(pintImportCfg.getProject().getTag() + ".xml");
 			marshaller.marshal(pintImportCfg, xmlFile);
 			return xmlFile;
-		} catch (JAXBException e) {
+		} catch (final JAXBException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}

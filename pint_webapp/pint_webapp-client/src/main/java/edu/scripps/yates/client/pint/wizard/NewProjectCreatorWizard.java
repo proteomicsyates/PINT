@@ -24,6 +24,7 @@ import edu.scripps.yates.client.ui.wizard.pages.WizardPageSummary1;
 import edu.scripps.yates.client.ui.wizard.pages.WizardPageTissues;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
+import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
 import edu.scripps.yates.shared.util.SharedConstants;
 
 public class NewProjectCreatorWizard extends Wizard<PintContext> {
@@ -58,7 +59,9 @@ public class NewProjectCreatorWizard extends Wizard<PintContext> {
 			@Override
 			public void onClick(ClickEvent event) {
 				// send conf to server
-				service.validatePintImportCfg(getContext().getPintImportConfiguration(), new AsyncCallback<String>() {
+				final PintImportCfgBean pintImportConfiguration = getContext().getPintImportConfiguration();
+				PintImportCfgUtil.removeNonUsedItems(pintImportConfiguration);
+				service.validatePintImportCfg(pintImportConfiguration, new AsyncCallback<String>() {
 
 					@Override
 					public void onSuccess(String result) {

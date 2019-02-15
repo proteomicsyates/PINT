@@ -24,6 +24,7 @@ public class IdentificationExcelTypeBean implements Serializable {
 	protected ProteinAnnotationsTypeBean proteinAnnotations;
 	protected ProteinThresholdsTypeBean proteinThresholds;
 	protected List<ScoreTypeBean> proteinScore;
+	protected PsmTypeBean psmId;
 	protected List<ScoreTypeBean> psmScore;
 	protected SequenceTypeBean sequence;
 	protected List<ScoreTypeBean> peptideScore;
@@ -44,8 +45,7 @@ public class IdentificationExcelTypeBean implements Serializable {
 	/**
 	 * Sets the value of the proteinAccession property.
 	 *
-	 * @param value
-	 *            allowed object is {@link ProteinAccessionTypeBean }
+	 * @param value allowed object is {@link ProteinAccessionTypeBean }
 	 *
 	 */
 	public void setProteinAccession(ProteinAccessionTypeBean value) {
@@ -65,8 +65,7 @@ public class IdentificationExcelTypeBean implements Serializable {
 	/**
 	 * Sets the value of the proteinDescription property.
 	 *
-	 * @param value
-	 *            allowed object is {@link ProteinDescriptionTypeBean }
+	 * @param value allowed object is {@link ProteinDescriptionTypeBean }
 	 *
 	 */
 	public void setProteinDescription(ProteinDescriptionTypeBean value) {
@@ -86,8 +85,7 @@ public class IdentificationExcelTypeBean implements Serializable {
 	/**
 	 * Sets the value of the proteinAnnotations property.
 	 *
-	 * @param value
-	 *            allowed object is {@link ProteinAnnotationsTypeBean }
+	 * @param value allowed object is {@link ProteinAnnotationsTypeBean }
 	 *
 	 */
 	public void setProteinAnnotations(ProteinAnnotationsTypeBean value) {
@@ -98,10 +96,10 @@ public class IdentificationExcelTypeBean implements Serializable {
 	 * Gets the value of the proteinScore property.
 	 *
 	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the proteinScore property.
+	 * This accessor method returns a reference to the live list, not a snapshot.
+	 * Therefore any modification you make to the returned list will be present
+	 * inside the JAXB object. This is why there is not a <CODE>set</CODE> method
+	 * for the proteinScore property.
 	 *
 	 * <p>
 	 * For example, to add a new item, do as follows:
@@ -112,8 +110,8 @@ public class IdentificationExcelTypeBean implements Serializable {
 	 *
 	 *
 	 * <p>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link ScoreTypeBean }
+	 * Objects of the following type(s) are allowed in the list {@link ScoreTypeBean
+	 * }
 	 *
 	 *
 	 */
@@ -128,10 +126,10 @@ public class IdentificationExcelTypeBean implements Serializable {
 	 * Gets the value of the peptideScore property.
 	 *
 	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the peptideScore property.
+	 * This accessor method returns a reference to the live list, not a snapshot.
+	 * Therefore any modification you make to the returned list will be present
+	 * inside the JAXB object. This is why there is not a <CODE>set</CODE> method
+	 * for the peptideScore property.
 	 *
 	 * <p>
 	 * For example, to add a new item, do as follows:
@@ -142,8 +140,8 @@ public class IdentificationExcelTypeBean implements Serializable {
 	 *
 	 *
 	 * <p>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link ScoreTypeBean }
+	 * Objects of the following type(s) are allowed in the list {@link ScoreTypeBean
+	 * }
 	 *
 	 *
 	 */
@@ -158,10 +156,10 @@ public class IdentificationExcelTypeBean implements Serializable {
 	 * Gets the value of the ptmScore property.
 	 *
 	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the ptmScore property.
+	 * This accessor method returns a reference to the live list, not a snapshot.
+	 * Therefore any modification you make to the returned list will be present
+	 * inside the JAXB object. This is why there is not a <CODE>set</CODE> method
+	 * for the ptmScore property.
 	 *
 	 * <p>
 	 * For example, to add a new item, do as follows:
@@ -197,8 +195,7 @@ public class IdentificationExcelTypeBean implements Serializable {
 	/**
 	 * Sets the value of the msRunRef property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
+	 * @param value allowed object is {@link String }
 	 *
 	 */
 	public void setMsRunRef(String value) {
@@ -213,8 +210,7 @@ public class IdentificationExcelTypeBean implements Serializable {
 	}
 
 	/**
-	 * @param discardDecoys
-	 *            the discardDecoys to set
+	 * @param discardDecoys the discardDecoys to set
 	 */
 	public void setDiscardDecoys(String discardDecoys) {
 		this.discardDecoys = discardDecoys;
@@ -228,8 +224,7 @@ public class IdentificationExcelTypeBean implements Serializable {
 	}
 
 	/**
-	 * @param sequence
-	 *            the peptideSequence to set
+	 * @param sequence the peptideSequence to set
 	 */
 	public void setSequence(SequenceTypeBean sequence) {
 		this.sequence = sequence;
@@ -246,8 +241,7 @@ public class IdentificationExcelTypeBean implements Serializable {
 	}
 
 	/**
-	 * @param peptideScore
-	 *            the peptideScore to set
+	 * @param peptideScore the peptideScore to set
 	 */
 	public void setPeptideScore(List<ScoreTypeBean> peptideScore) {
 		this.peptideScore = peptideScore;
@@ -261,11 +255,17 @@ public class IdentificationExcelTypeBean implements Serializable {
 	}
 
 	/**
-	 * @param proteinThresholds
-	 *            the proteinThresholds to set
+	 * @param proteinThresholds the proteinThresholds to set
 	 */
 	public void setProteinThresholds(ProteinThresholdsTypeBean proteinThresholds) {
 		this.proteinThresholds = proteinThresholds;
 	}
 
+	public PsmTypeBean getPsmId() {
+		return psmId;
+	}
+
+	public void setPsmId(PsmTypeBean psmId) {
+		this.psmId = psmId;
+	}
 }

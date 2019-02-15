@@ -17,7 +17,11 @@ public class WizardStyles {
 	public static final String UPLOADER_PANEL = "wizardUploaderPanel";
 	public static final String WizardLabel3 = "wizardLabel3";
 	public static final String WizardCriticalMessage = "wizardCriticalMessage";
-	public static final String WizardInfoMessage = "wizardInfoMessage";;
+	public static final String WizardInfoMessage = "wizardInfoMessage";
+	public static final String WizardInfoMessageSelected = "wizardInfoMessageSelected";
+	public static final String WizardInfoMessageNonSelected = "wizardInfoMessageNonSelected";
+	public static final String wizardInfoMessageSelectedPast = "wizardInfoMessageSelectedPast";
+
 	public static final String CANCEL_BUTTON = "cancelButton";
 	public static final String CLICKABLE = "clickable";
 	public static final String WizardTextBox = "wizardTextBox";
@@ -49,6 +53,9 @@ public class WizardStyles {
 	public static final String WizardButtonMini = "WizardButtonMini";
 	public static final String WizardDragTargetLabelOptional = "WizardDragTargetLabelOptional";
 	public static final String WizardQuestionPanelLessRoundCorners = "WizardQuestionPanelLessRoundCorners";
+	public static final String WizardQuestionPanelLessRoundCornersGreen = "WizardQuestionPanelLessRoundCornersGreen";
+	public static final String WizardQuestionPanelLessRoundCornersRed = "WizardQuestionPanelLessRoundCornersRed";
+
 	public static final String WizardErrorLabel1 = "WizardErrorLabel1";
 	public static final String activeSmaller = "activeSmaller";
 	public static final String inactiveSmaller = "inactiveSmaller";

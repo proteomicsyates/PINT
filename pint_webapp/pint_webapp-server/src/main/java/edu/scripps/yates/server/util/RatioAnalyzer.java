@@ -2,7 +2,6 @@ package edu.scripps.yates.server.util;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import org.apache.log4j.Logger;
 
@@ -19,7 +18,7 @@ public class RatioAnalyzer {
 
 	private RatioDistribution getRatioDistribution(String key, RatioBean ratio) {
 		log.info("Creating a new ratioDistribution for " + key);
-		RatioDistribution ratioDistribution = new RatioDistribution();
+		final RatioDistribution ratioDistribution = new RatioDistribution();
 		ratioDistributionsByRatio.put(key, ratioDistribution);
 		ratioDistribution.setRatioKey(key);
 		double max = ratio.getValue();
@@ -91,10 +90,14 @@ public class RatioAnalyzer {
 	}
 
 	public void addRatio(RatioBean ratio) {
-		String key = SharedDataUtil.getRatioKey(ratio);
+		final String key = SharedDataUtil.getRatioKey(ratio);
 		if (!ratioDistributionsByRatio.containsKey(key)) {
-			CompletableFuture.supplyAsync(() -> getRatioDistribution(key, ratio))
-					.thenAccept(this::storeRatioDistribution).thenRun(() -> updateRatioDistribution(ratio));
+//			CompletableFuture.supplyAsync(() -> getRatioDistribution(key, ratio))
+//					.thenAccept(this::storeRatioDistribution).thenRun(() -> updateRatioDistribution(ratio));
+			// this may cause connection leaks
+			getRatioDistribution(key, ratio);
+			updateRatioDistribution(ratio);
+
 		} else {
 			updateRatioDistribution(ratio);
 		}
@@ -103,7 +106,7 @@ public class RatioAnalyzer {
 
 	private synchronized void updateRatioDistribution(RatioBean ratio) {
 
-		String key = SharedDataUtil.getRatioKey(ratio);
+		final String key = SharedDataUtil.getRatioKey(ratio);
 		if (!Double.isInfinite(ratio.getValue())) {
 			final RatioDistribution ratioDistribution = ratioDistributionsByRatio.get(key);
 			if (Double.compare(ratioDistribution.getMaxRatio(), ratio.getValue()) < 0) {
@@ -128,7 +131,7 @@ public class RatioAnalyzer {
 	}
 
 	public void addRatios(Collection<RatioBean> ratios) {
-		for (RatioBean ratioBean : ratios) {
+		for (final RatioBean ratioBean : ratios) {
 			addRatio(ratioBean);
 		}
 	}

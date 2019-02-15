@@ -25,6 +25,8 @@ public class ExcelSheetImpl implements ExcelSheet {
 
 	private final int sheetIndex;
 
+	private Integer totalRows;
+
 	public ExcelSheetImpl(Sheet sheet, int sheetIndex) {
 		name = sheet.getSheetName();
 		this.sheetIndex = sheetIndex;
@@ -184,6 +186,20 @@ public class ExcelSheetImpl implements ExcelSheet {
 	@Override
 	public int getSheetIndex() {
 		return sheetIndex;
+	}
+
+	@Override
+	public int getTotalRows() {
+		if (totalRows == null) {
+			int max = -Integer.MAX_VALUE;
+			for (final ExcelColumn excel : getColumns()) {
+				if (excel.getSize() > max) {
+					max = excel.getSize();
+				}
+			}
+			totalRows = max;
+		}
+		return totalRows;
 	}
 
 }

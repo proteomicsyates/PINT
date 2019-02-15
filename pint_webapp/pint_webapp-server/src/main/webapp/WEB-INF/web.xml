@@ -66,15 +66,15 @@
 
 	<!-- filter mappings -->
 	<!-- filter to print stackTrace of unhandled exceptions -->
+<!-- 	<filter-mapping> -->
+<!-- 		<filter-name>exceptionFilter</filter-name> -->
+<!-- 		<url-pattern>*</url-pattern> -->
+<!-- 	</filter-mapping> -->
+	<!-- use hibernateFilter in all requests -->
 	<filter-mapping>
-		<filter-name>exceptionFilter</filter-name>
+		<filter-name>hibernateFilter</filter-name>
 		<url-pattern>*</url-pattern>
 	</filter-mapping>
-	<!-- use hibernateFilter in all requests -->
-	<!-- <filter-mapping> -->
-	<!-- <filter-name>hibernateFilter</filter-name> -->
-	<!-- <url-pattern>*</url-pattern> -->
-	<!-- </filter-mapping> -->
 	<!-- use hibernateFilter in all requests -->
 	<!-- <filter-mapping> -->
 	<!-- <filter-name>hibernateFilterManaged</filter-name> -->

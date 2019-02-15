@@ -4,22 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask2;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
-import edu.scripps.yates.client.style.Color;
 import edu.scripps.yates.client.ui.wizard.Wizard;
 import edu.scripps.yates.client.ui.wizard.pages.panels.summary.InputFileSummaryTable;
+import edu.scripps.yates.client.ui.wizard.pages.widgets.NewExcelReferenceWidget;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.MsRunTypeBean;
+import edu.scripps.yates.shared.model.projectCreator.excel.SheetTypeBean;
 
 public class InputDataFilesPanel extends FlexTable {
 	private final Wizard<PintContext> wizard;
@@ -29,16 +28,6 @@ public class InputDataFilesPanel extends FlexTable {
 		this.wizard = wizard;
 
 		init();
-	}
-
-	private HorizontalPanel getHorizontalLine() {
-		final HorizontalPanel horizontalLine1 = new HorizontalPanel();
-		horizontalLine1.getElement().getStyle().setBackgroundColor(Color.LIGHT_GRAY.getHexValue());
-		horizontalLine1.setWidth("100%");
-		horizontalLine1.getElement().getStyle().setHeight(2, Unit.PX);
-		horizontalLine1.getElement().getStyle().setMarginTop(5, Unit.PX);
-		horizontalLine1.getElement().getStyle().setMarginBottom(5, Unit.PX);
-		return horizontalLine1;
 	}
 
 	private void init() {
@@ -58,10 +47,20 @@ public class InputDataFilesPanel extends FlexTable {
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		int numInputFile = 1;
 		for (final FileTypeBean file : files) {
-			final InputFileSummaryTable inputFileSummaryTable = new InputFileSummaryTable(wizard.getContext(), file,
-					numInputFile++, true);
-			inputFileSummaryTables.add(inputFileSummaryTable);
-			verticalPanelInputFiles.add(inputFileSummaryTable);
+			if (file.getFormat() == FileFormat.EXCEL) {
+				final List<SheetTypeBean> sheets = file.getSheets().getSheet();
+				for (final SheetTypeBean sheet : sheets) {
+					final InputFileSummaryTable inputFileSummaryTable = new InputFileSummaryTable(wizard.getContext(),
+							file, NewExcelReferenceWidget.getSheetName(sheet.getId()), numInputFile++, true);
+					inputFileSummaryTables.add(inputFileSummaryTable);
+					verticalPanelInputFiles.add(inputFileSummaryTable);
+				}
+			} else {
+				final InputFileSummaryTable inputFileSummaryTable = new InputFileSummaryTable(wizard.getContext(), file,
+						numInputFile++, true);
+				inputFileSummaryTables.add(inputFileSummaryTable);
+				verticalPanelInputFiles.add(inputFileSummaryTable);
+			}
 		}
 
 	}

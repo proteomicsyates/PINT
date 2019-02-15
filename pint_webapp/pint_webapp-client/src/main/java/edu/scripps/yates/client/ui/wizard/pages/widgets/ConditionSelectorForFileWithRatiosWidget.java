@@ -1,5 +1,6 @@
 package edu.scripps.yates.client.ui.wizard.pages.widgets;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.dom.client.Style.Unit;
@@ -216,8 +217,8 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 	protected void setCondition2(String conditionID, boolean updateContext) {
 		// remove the condition2 that was previously
 		if (condition2 != null) {
-			if (getOnConditionRemovedTask() != null) {
-				getOnConditionRemovedTask().doSomething(condition2);
+			for (final DoSomethingTask2<ExperimentalConditionTypeBean> task : getOnConditionRemovedTasks()) {
+				task.doSomething(condition2);
 			}
 		}
 		// get new condition and set in labels
@@ -228,8 +229,8 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 		dropLabelDenominator.setStyleName(WizardStyles.WizardDraggableLabelFixed);
 		dropLabelDenominator.setText(conditionID);
 
-		if (getOnConditionAddedTask() != null) {
-			getOnConditionAddedTask().doSomething(condition2);
+		for (final DoSomethingTask2<ExperimentalConditionTypeBean> task : getOnConditionAddedTasks()) {
+			task.doSomething(condition2);
 		}
 		// set sample in column 3
 		if (condition2.getSampleRef() != null) {
@@ -255,8 +256,8 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 	protected void setCondition1(String conditionID, boolean updateContext) {
 		// remove the condition1 that was previously
 		if (condition1 != null) {
-			if (getOnConditionRemovedTask() != null) {
-				getOnConditionRemovedTask().doSomething(condition1);
+			for (final DoSomethingTask2<ExperimentalConditionTypeBean> task : getOnConditionRemovedTasks()) {
+				task.doSomething(condition1);
 			}
 		}
 		// get new condition and set in labels
@@ -266,8 +267,8 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 		}
 		dropLabelNumerator.setStyleName(WizardStyles.WizardDraggableLabelFixed);
 		dropLabelNumerator.setText(conditionID);
-		if (getOnConditionAddedTask() != null) {
-			getOnConditionAddedTask().doSomething(condition1);
+		for (final DoSomethingTask2<ExperimentalConditionTypeBean> task : getOnConditionAddedTasks()) {
+			task.doSomething(condition1);
 		}
 		// set label in column 3
 		if (condition1.getSampleRef() != null) {
@@ -300,9 +301,11 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 		PintImportCfgUtil.removeRatiosByFileID(context.getPintImportConfiguration(), file.getId());
 		if (condition1 != null && condition2 != null) {
 			// do the tasks registered to be run when both conditions are selected
-			if (getOnConditionAddedTask() != null) {
-				getOnConditionAddedTask().doSomething(condition1);
-				getOnConditionAddedTask().doSomething(condition2);
+			if (getOnConditionAddedTasks() != null) {
+				for (final DoSomethingTask2<ExperimentalConditionTypeBean> task : getOnConditionAddedTasks()) {
+					task.doSomething(condition1);
+					task.doSomething(condition2);
+				}
 			}
 
 			// add identifications with this file to both conditions
@@ -333,9 +336,11 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 
 		} else {
 			// do the tasks registered to be run when NOT both conditions are selected
-			if (getOnConditionRemovedTask() != null) {
-				getOnConditionRemovedTask().doSomething(condition1);
-				getOnConditionRemovedTask().doSomething(condition2);
+			if (getOnConditionRemovedTasks() != null) {
+				for (final DoSomethingTask2<ExperimentalConditionTypeBean> task : getOnConditionRemovedTasks()) {
+					task.doSomething(condition1);
+					task.doSomething(condition2);
+				}
 			}
 		}
 	}
@@ -414,6 +419,18 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 
 	public ExperimentalConditionTypeBean getCondition2() {
 		return condition2;
+	}
+
+	@Override
+	public List<ExperimentalConditionTypeBean> getConditions() {
+		final List<ExperimentalConditionTypeBean> ret = new ArrayList<ExperimentalConditionTypeBean>();
+		if (condition1 != null) {
+			ret.add(condition1);
+		}
+		if (condition2 != null) {
+			ret.add(condition2);
+		}
+		return ret;
 	}
 
 }

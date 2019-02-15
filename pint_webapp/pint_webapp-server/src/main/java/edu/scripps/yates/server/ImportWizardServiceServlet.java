@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -98,6 +99,7 @@ import edu.scripps.yates.shared.model.DataSourceBean;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.FileSummary;
 import edu.scripps.yates.shared.model.ProjectBean;
+import edu.scripps.yates.shared.model.SheetSummary;
 import edu.scripps.yates.shared.model.projectCreator.ExcelDataReference;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.RemoteFileWithTypeBean;
@@ -1329,63 +1331,73 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public FileTypeBean updateFileFormat(String sessionID, int importID, FileTypeBean fileTypeBean)
 			throws PintException {
-		final List<FileWithFormat> files = FileManager.getFilesByImportProcessID(importID);
-		if (files == null) {
-			throw new PintException("Error updating file format", PINT_ERROR_TYPE.INTERNAL_ERROR);
-		}
-		for (final FileWithFormat fileWithFormat : files) {
-			final String fileName = fileTypeBean.getName();
-			if (fileWithFormat.getFileName().equals(fileName)) {
-				final FileFormat newFormat = fileTypeBean.getFormat();
-				if (!fileWithFormat.getFormat().name().equals(newFormat.getName())) {
-					// change its folder
-					final File newFile = FileManager.getDataFile(importID, fileWithFormat.getFileName(),
-							fileWithFormat.getId(), newFormat);
-					if (newFile.exists()) {
-						final String message = "There is already a file named '" + fileWithFormat.getFileName()
-								+ "' with format " + newFormat.getName();
-						log.error(message);
-						throw new PintException(message, PINT_ERROR_TYPE.INTERNAL_ERROR);
-					} else {
-						try {
-							FileUtils.moveFile(fileWithFormat.getFile(), newFile);
-							// remove oldDataFile parent folder if empty recursively
-							edu.scripps.yates.utilities.files.FileUtils
-									.removeFolderIfEmtpy(fileWithFormat.getFile().getParentFile(), true);
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		try {
+			LockerByTag.lock("importID" + String.valueOf(importID), enclosingMethod);
+			log.info("Entering on " + enclosingMethod.getName());
+			final List<FileWithFormat> files = FileManager.getFilesByImportProcessID(importID);
+			if (files == null) {
+				throw new PintException("Error updating file format", PINT_ERROR_TYPE.INTERNAL_ERROR);
+			}
+			for (final FileWithFormat fileWithFormat : files) {
+				final String fileName = fileTypeBean.getName();
+				if (fileWithFormat.getFileName().equals(fileName)) {
+					final FileFormat newFormat = fileTypeBean.getFormat();
+					if (!fileWithFormat.getFormat().name().equals(newFormat.getName())) {
+						// change its folder
+						final File newFile = FileManager.getDataFile(importID, fileWithFormat.getFileName(),
+								fileWithFormat.getId(), newFormat);
+						if (newFile.exists()) {
+							final String message = "There is already a file named '" + fileWithFormat.getFileName()
+									+ "' with format " + newFormat.getName();
+							log.error(message);
+							throw new PintException(message, PINT_ERROR_TYPE.INTERNAL_ERROR);
+						} else {
+							try {
+								FileUtils.moveFile(fileWithFormat.getFile(), newFile);
+								// remove oldDataFile parent folder if empty recursively
+								edu.scripps.yates.utilities.files.FileUtils
+										.removeFolderIfEmtpy(fileWithFormat.getFile().getParentFile(), true);
 
-							// remove old index
-							// been indexed before
-							final FormatType oldFormat = fileWithFormat.getFormat();
-							final FileWithFormat oldFileWithFormat = new FileWithFormat(fileWithFormat.getId(),
-									fileWithFormat.getFile(), oldFormat, fileWithFormat.getFastaDigestionBean());
-							FileManager.removeFromIndexFileByImportProcessID(importID, oldFileWithFormat);
-							// index the new file with new format
-							final FileWithFormat newFileWithFormat = new FileWithFormat(fileWithFormat.getId(), newFile,
-									FormatType.fromValue(newFormat.name().toLowerCase()),
-									fileWithFormat.getFastaDigestionBean());
-							FileManager.indexFileByImportProcessID(importID, newFileWithFormat);
+								// remove old index
+								// been indexed before
+								final FormatType oldFormat = fileWithFormat.getFormat();
+								final FileWithFormat oldFileWithFormat = new FileWithFormat(fileWithFormat.getId(),
+										fileWithFormat.getFile(), oldFormat, fileWithFormat.getFastaDigestionBean());
+								FileManager.removeFromIndexFileByImportProcessID(importID, oldFileWithFormat);
+								// index the new file with new format
+								final FileWithFormat newFileWithFormat = new FileWithFormat(fileWithFormat.getId(),
+										newFile, FormatType.fromValue(newFormat.name().toLowerCase()),
+										fileWithFormat.getFastaDigestionBean());
+								FileManager.indexFileByImportProcessID(importID, newFileWithFormat);
 
-							// if the newFormat is Excel, populate the object with the sheets information
-							if (newFormat == FileFormat.EXCEL) {
-								final FileNameWithTypeBean fileNameWithTypeBean = new FileNameWithTypeBean();
-								fileNameWithTypeBean.setFileFormat(newFormat);
-								fileNameWithTypeBean.setFileName(fileName);
-								fileNameWithTypeBean.setId(fileWithFormat.getId());
-								final FileTypeBean ret = getExcelFileBean(sessionID, importID, fileNameWithTypeBean);
-								return ret;
-							} else {
-								fileTypeBean.setSheets(null);
-								return fileTypeBean;
+								// if the newFormat is Excel, populate the object with the sheets information
+								if (newFormat == FileFormat.EXCEL) {
+									final FileNameWithTypeBean fileNameWithTypeBean = new FileNameWithTypeBean();
+									fileNameWithTypeBean.setFileFormat(newFormat);
+									fileNameWithTypeBean.setFileName(fileName);
+									fileNameWithTypeBean.setId(fileWithFormat.getId());
+									final FileTypeBean ret = getExcelFileBean(sessionID, importID,
+											fileNameWithTypeBean);
+									return ret;
+								} else {
+									fileTypeBean.setSheets(null);
+									return fileTypeBean;
+								}
+							} catch (final IOException e) {
+								e.printStackTrace();
+								throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 							}
-						} catch (final IOException e) {
-							e.printStackTrace();
-							throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 						}
 					}
 				}
 			}
+			throw new PintException("File not found", PINT_ERROR_TYPE.FILE_NOT_FOUND_IN_SERVER);
+		} finally {
+
+			LockerByTag.unlock("importID" + String.valueOf(importID), enclosingMethod);
 		}
-		throw new PintException("File not found", PINT_ERROR_TYPE.FILE_NOT_FOUND_IN_SERVER);
 	}
 
 	@Override
@@ -1460,7 +1472,18 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 							edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
 					fileSummary.setNumSheets(excelReader.getSheets().size());
 
-					final Map<String, Integer> sheetMap = new HasMap<String, Integer>();
+					final Map<String, SheetSummary> sheetMap = new HashMap<String, SheetSummary>();
+					final Map<String, ExcelSheet> sheetMap2 = excelReader.getSheetMap();
+					for (final String sheetName : sheetMap2.keySet()) {
+						final SheetSummary sheetSummary = new SheetSummary();
+						sheetSummary.setName(sheetName);
+						final ExcelSheet excelSheet = sheetMap2.get(sheetName);
+						sheetSummary.setNumNonNumericColumns(excelSheet.getNonNumericalColumns().size());
+						sheetSummary.setNumNumericColumns(excelSheet.getNumericalColumns().size());
+						sheetSummary.setNumTotalColumns(excelSheet.getColumnMap().size());
+						sheetSummary.setNumRows(excelSheet.getTotalRows());
+						sheetMap.put(sheetName, sheetSummary);
+					}
 					fileSummary.setSheetMap(sheetMap);
 					return fileSummary;
 				}
@@ -1483,7 +1506,9 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		try {
-			LockerByTag.lock(String.valueOf(importID), enclosingMethod);
+			LockerByTag.lock("importID" + String.valueOf(importID), enclosingMethod);
+			log.info("Entering on " + enclosingMethod.getName() + " with uploadedFileSignature: "
+					+ uploadedFileSignature);
 			final List<FileWithFormat> files = FileManager.getFilesByImportProcessID(importID);
 			FileWithFormat fileRet = null;
 			for (final FileWithFormat fileWithFormat : files) {
@@ -1502,7 +1527,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			while (true) {
 				boolean repeated = false;
 				for (final FileWithFormat fileWithFormat : files) {
-					if (fileRet != fileWithFormat) {
+					if (fileRet != fileWithFormat && !fileRet.getFileName().equals(fileWithFormat.getFileName())) {
 						if (fileRet.getId().equals(fileWithFormat.getId())) {
 							// the id is repeated, so we changed it
 							int fileNum = Integer.valueOf(fileRet.getId().split("_")[1]);
@@ -1517,8 +1542,12 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 					// move to new folder
 					final File dest = FileManager.getDataFile(importID, fileRet.getFileName(), fileRet.getId(),
 							FileFormat.getFileFormatFromString(fileRet.getFormat().toString()));
-					FileUtils.moveFile(fileRet.getFile(), dest);
-					fileRet.setFile(dest);
+					if (!dest.getAbsolutePath().equals(fileRet.getFile().getAbsolutePath())) {
+						FileUtils.moveFile(fileRet.getFile(), dest);
+						fileRet.setFile(dest);
+					}
+					log.info("leaving on " + enclosingMethod.getName() + " with uploadedFileSignature: "
+							+ uploadedFileSignature + " with ID: " + fileRet.getId());
 					return fileRet.getId();
 				}
 			}
@@ -1527,7 +1556,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			e.printStackTrace();
 			throw new PintException("Error moving file ", PINT_ERROR_TYPE.MOVING_FILE_ERROR);
 		} finally {
-			LockerByTag.unlock(String.valueOf(importID), enclosingMethod);
+
+			LockerByTag.unlock("importID" + String.valueOf(importID), enclosingMethod);
 		}
 	}
 
@@ -1544,10 +1574,13 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();
-
+			if (e instanceof PintException) {
+				throw e;
+			}
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		}
-		throw new PintException("Internal error", PINT_ERROR_TYPE.INTERNAL_ERROR);
+		throw new PintException("Import session not found in the server. Please contact the administrator.",
+				PINT_ERROR_TYPE.INTERNAL_ERROR);
 	}
 
 }

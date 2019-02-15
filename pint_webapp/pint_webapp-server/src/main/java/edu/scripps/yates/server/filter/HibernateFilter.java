@@ -38,7 +38,6 @@ public class HibernateFilter implements Filter {
 			// log.info("Session id: " + session.hashCode());
 			try {
 				ContextualSessionHandler.printStatistics();
-				ContextualSessionHandler.openSession();
 				ContextualSessionHandler.beginGoodTransaction();
 			} catch (final Exception e) {
 				e.printStackTrace();

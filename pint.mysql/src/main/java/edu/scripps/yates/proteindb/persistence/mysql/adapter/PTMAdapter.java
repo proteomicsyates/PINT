@@ -41,14 +41,20 @@ public class PTMAdapter implements Adapter<Ptm>, Serializable {
 			ret = map.get(ptm.hashCode());
 			if (psm != null) {
 				ret.setPsm(psm);
-			} else if (peptide != null) {
+			}
+			if (peptide != null) {
 				ret.setPeptide(peptide);
 			}
 		} else {
 			if (psm != null) {
 				ret = new Ptm(psm, ptm.getMassShift(), ptm.getName());
+				ret.setPeptide(psm.getPeptide());
 			} else if (peptide != null) {
 				ret = new Ptm(peptide, ptm.getMassShift(), ptm.getName());
+				if (!peptide.getPsms().isEmpty()) {
+					final Psm psmFromPeptide = (Psm) peptide.getPsms().iterator().next();
+					ret.setPsm(psmFromPeptide);
+				}
 			}
 			map.put(ptm.hashCode(), ret);
 		}

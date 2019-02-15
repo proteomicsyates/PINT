@@ -16,7 +16,7 @@ public class FileSummary implements Serializable {
 	private FileTypeBean fileTypeBean;
 	private String fileSizeString;
 	private int numSheets;
-	private Map<String, Integer> sheetMap;
+	private Map<String, SheetSummary> sheetMap;
 
 	public FileSummary() {
 
@@ -73,16 +73,16 @@ public class FileSummary implements Serializable {
 		numSheets = size;
 	}
 
-	protected int getNumSheets() {
+	public int getNumSheets() {
 		return numSheets;
 	}
 
-	public void setSheetMap(Map<String, Integer> sheetMap) {
+	public void setSheetMap(Map<String, SheetSummary> sheetMap) {
 		this.sheetMap = sheetMap;
 
 	}
 
-	protected Map<String, Integer> getSheetMap() {
+	public Map<String, SheetSummary> getSheetMap() {
 		return sheetMap;
 	}
 }

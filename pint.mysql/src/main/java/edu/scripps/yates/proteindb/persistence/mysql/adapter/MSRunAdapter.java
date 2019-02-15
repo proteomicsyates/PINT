@@ -20,7 +20,7 @@ public class MSRunAdapter implements Adapter<edu.scripps.yates.proteindb.persist
 	private final static Map<String, MsRun> map = new THashMap<String, MsRun>();
 
 	public MSRunAdapter(edu.scripps.yates.utilities.proteomicsmodel.MSRun msRun2, Project project) {
-		if (msRun2 == null)
+		if (msRun2 == null || msRun2.getRunId() == null)
 			throw new IllegalArgumentException("MSRun is null!");
 		msRun = msRun2;
 		this.project = project;
@@ -32,10 +32,13 @@ public class MSRunAdapter implements Adapter<edu.scripps.yates.proteindb.persist
 		if (map.containsKey(msRun.getRunId())) {
 			return map.get(msRun.getRunId());
 		}
-		MsRun ret = new MsRun();
+		final MsRun ret = new MsRun();
 		map.put(msRun.getRunId(), ret);
 		ret.setDate(msRun.getDate());
 		ret.setPath(msRun.getPath());
+		if (ret.getPath() == null) {
+			ret.setPath("N/A");
+		}
 		ret.setRunId(msRun.getRunId());
 		ret.setProject(project);
 		return ret;

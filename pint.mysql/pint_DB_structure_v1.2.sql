@@ -520,7 +520,7 @@ DROP TABLE IF EXISTS `interactome_db`.`PTM` ;
 
 CREATE TABLE IF NOT EXISTS `interactome_db`.`PTM` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `PSM_id` INT NOT NULL,
+  `PSM_id` INT,
   `mass_shift` DOUBLE NOT NULL,
   `name` VARCHAR(200) NOT NULL,
   `cv_id` VARCHAR(10) NULL,

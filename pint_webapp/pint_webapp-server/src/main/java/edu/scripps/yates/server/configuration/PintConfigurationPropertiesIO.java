@@ -227,7 +227,6 @@ public class PintConfigurationPropertiesIO {
 		ContextualSessionHandler.getSessionFactory(properties.getDb_username(), properties.getDb_password(),
 				properties.getDb_url());
 
-		ContextualSessionHandler.openSession();
 		ContextualSessionHandler.beginGoodTransaction();
 		ContextualSessionHandler.finishGoodTransaction();
 		ContextualSessionHandler.closeSession();
@@ -268,7 +267,6 @@ public class PintConfigurationPropertiesIO {
 
 	private static void checkProjectExistence(String projectTag, File setupPropertiesFile) {
 		testDatabaseConnection(setupPropertiesFile);
-		ContextualSessionHandler.openSession();
 		ContextualSessionHandler.beginGoodTransaction();
 		final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans();
 		final StringBuilder sb = new StringBuilder();

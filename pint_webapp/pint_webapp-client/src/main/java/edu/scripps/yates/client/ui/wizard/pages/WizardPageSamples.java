@@ -55,7 +55,7 @@ public class WizardPageSamples extends AbstractWizardPage {
 	}
 
 	@Override
-	public void beforeFirstShow() {
+	public void beforeShow() {
 		// first column
 		samplePanel = new SamplesPanel(getWizard());
 		panel.setWidget(3, 0, samplePanel);
@@ -91,7 +91,7 @@ public class WizardPageSamples extends AbstractWizardPage {
 		referencedLabelsPanel.getElement().getStyle().setMarginTop(10, Unit.PX);
 		referencedLabelsPanel.getElement().getStyle().setHeight(1, Unit.PX);
 
-		super.beforeFirstShow();
+		super.beforeShow();
 	}
 
 	@Override

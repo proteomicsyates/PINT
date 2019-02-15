@@ -94,7 +94,7 @@ public class WizardPageDTASelectFileProcessor extends AbstractWizardPageFileProc
 			}
 		};
 		final ConditionSelectorForFileWithNORatiosWidget conditionSelector = new ConditionSelectorForFileWithNORatiosWidget(
-				getContext(), file, onConditionAddedTask, onConditionRemovedTask);
+				getContext(), file, onConditionAddedTask, onConditionRemovedTask, null);
 		return conditionSelector;
 	}
 

@@ -72,6 +72,7 @@ public class MySQLSaver {
 		}
 		for (final MsRun msrun : msRuns) {
 			saveMSRun(msrun);
+			protein.setMsRun(msrun); // to not make it fail
 		}
 
 		// // organism
@@ -217,6 +218,7 @@ public class MySQLSaver {
 		final Set<MsRun> msRuns = peptide.getMsRuns();
 		for (final MsRun msRun : msRuns) {
 			saveMSRun(msRun);
+			peptide.setMsRun(msRun); // to not make it fail
 		}
 		if (peptide.getSequence() == null)
 			System.out.println("Sequence is null");
