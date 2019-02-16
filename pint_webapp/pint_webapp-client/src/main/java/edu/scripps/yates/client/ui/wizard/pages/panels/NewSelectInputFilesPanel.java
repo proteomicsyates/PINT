@@ -289,7 +289,7 @@ public class NewSelectInputFilesPanel extends FlexTable {
 	protected void setUploadURL() {
 
 		// set url for servlet in the server
-		uploader.setUploadURL("/newFileUpload?" + SharedConstants.JOB_ID_PARAM + "="
+		uploader.setUploadURL(GWT.getModuleBaseURL() + "newFileUpload?" + SharedConstants.JOB_ID_PARAM + "="
 				+ wizard.getContext().getPintImportConfiguration().getImportID());
 	}
 
