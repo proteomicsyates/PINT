@@ -247,7 +247,7 @@
 
 	<servlet-mapping>
 		<servlet-name>NewFileUploadServlet</servlet-name>
-		<url-pattern>/newFileUpload</url-pattern>
+		<url-pattern>/pint/newFileUpload</url-pattern>
 	</servlet-mapping>
 <!-- 	<servlet-mapping> -->
 <!-- 		<servlet-name>remoteLoggingServiceImpl</servlet-name> -->
