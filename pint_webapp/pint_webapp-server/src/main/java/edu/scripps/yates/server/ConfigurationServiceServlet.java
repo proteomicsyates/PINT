@@ -24,8 +24,7 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.google.gwt.user.server.rpc.RemoteServiceServlet#init(javax.servlet.
+	 * @see com.google.gwt.user.server.rpc.RemoteServiceServlet#init(javax.servlet.
 	 * ServletConfig)
 	 */
 	@Override
@@ -65,7 +64,13 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 
 	@Override
 	public PintConfigurationProperties getPintConfigurationProperties() {
-		return PintConfigurationPropertiesIO.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
+		try {
+			return PintConfigurationPropertiesIO.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
+		} catch (final Exception e) {
+			e.printStackTrace();
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+
 	}
 
 	private String getOmimConfigurationProperty() {

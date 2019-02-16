@@ -16,7 +16,7 @@ public interface ConfigurationService extends RemoteService {
 
 	void setAdminPassword(String adminPassword) throws PintException;
 
-	PintConfigurationProperties getPintConfigurationProperties();
+	PintConfigurationProperties getPintConfigurationProperties() throws PintException;
 
 	String getDBPassword();
 
