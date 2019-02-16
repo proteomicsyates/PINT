@@ -103,7 +103,7 @@ public class SelectImportConfFilePanel extends NewSelectInputFilesPanel {
 		// set url for servlet in the server
 
 		uploader.setUploadURL(
-				"/newFileUpload?" + SharedConstants.FILE_FORMAT + "=" + SharedConstants.IMPORT_CFG_FILE_TYPE + "&"
+				"/pint/newFileUpload?" + SharedConstants.FILE_FORMAT + "=" + SharedConstants.IMPORT_CFG_FILE_TYPE + "&"
 						+ SharedConstants.IMPORT_CFG_FILE_KEY + "=" + String.valueOf(getImportProcessKey()));
 	}
 
