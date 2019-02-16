@@ -72,7 +72,10 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 		if (protein.getMw() != null) {
 			ret.setMw(protein.getMw().doubleValue());
 		} else {
-			ret.setMw(getProteinMWFromUniprot(protein).doubleValue());
+			final Float proteinMWFromUniprot = getProteinMWFromUniprot(protein);
+			if (proteinMWFromUniprot != null) {
+				ret.setMw(proteinMWFromUniprot.doubleValue());
+			}
 		}
 		if (protein.getPi() != null) {
 			ret.setPi(protein.getPi().doubleValue());
