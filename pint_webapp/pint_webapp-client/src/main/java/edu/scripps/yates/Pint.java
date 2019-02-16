@@ -17,6 +17,7 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.cache.ClientCacheGeneralObjects;
 import edu.scripps.yates.client.cache.GeneralObject;
@@ -25,7 +26,6 @@ import edu.scripps.yates.client.gui.BrowsePanel;
 import edu.scripps.yates.client.gui.HelpPanel;
 import edu.scripps.yates.client.gui.MainPanel;
 import edu.scripps.yates.client.gui.PopUpPanelRedirector;
-import edu.scripps.yates.client.gui.ProjectCreatorWizard;
 import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.components.MyWindowScrollPanel;
@@ -33,6 +33,7 @@ import edu.scripps.yates.client.gui.components.pseaquant.PSEAQuantFormPanel;
 import edu.scripps.yates.client.gui.configuration.ConfigurationPanel;
 import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.interfaces.InitializableComposite;
+import edu.scripps.yates.client.pint.wizard.NewProjectCreatorWizard;
 import edu.scripps.yates.client.statusreporter.StatusReporterImpl;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.tasks.PendingTasksManager;
@@ -372,24 +373,26 @@ public class Pint implements EntryPoint {
 									}
 
 									private void loadTissueList() {
-										Pint.this.service.getTissueList(getSessionID(), new AsyncCallback<List<String>>() {
+										Pint.this.service.getTissueList(getSessionID(),
+												new AsyncCallback<List<String>>() {
 
-											@Override
-											public void onFailure(Throwable caught) {
-												StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-												GWT.log("Error loading Tissue list: " + caught.getMessage());
-												loadingDialog.hide();
-											}
+													@Override
+													public void onFailure(Throwable caught) {
+														StatusReportersRegister.getInstance()
+																.notifyStatusReporters(caught);
+														GWT.log("Error loading Tissue list: " + caught.getMessage());
+														loadingDialog.hide();
+													}
 
-											@Override
-											public void onSuccess(List<String> result) {
-												ClientCacheGeneralObjects.getInstance().addtoCache(result,
-														GeneralObject.TISSUE_LIST);
-												loadGUI();
-												startupConfiguration(false);
-											}
+													@Override
+													public void onSuccess(List<String> result) {
+														ClientCacheGeneralObjects.getInstance().addtoCache(result,
+																GeneralObject.TISSUE_LIST);
+														loadGUI();
+														startupConfiguration(false);
+													}
 
-										});
+												});
 									}
 								});
 
@@ -421,7 +424,7 @@ public class Pint implements EntryPoint {
 
 			private HelpPanel helpPanel;
 			private AboutPanel aboutPanel;
-			private ProjectCreatorWizard createProjectWizardPanel;
+			private NewProjectCreatorWizard createProjectWizardPanel;
 
 			@Override
 			public void onValueChange(ValueChangeEvent<String> event) {
@@ -521,7 +524,7 @@ public class Pint implements EntryPoint {
 							if (createProjectWizardPanel == null) {
 								// not create again to not let the user loose
 								// everything
-								createProjectWizardPanel = new ProjectCreatorWizard(getSessionID());
+								createProjectWizardPanel = new NewProjectCreatorWizard(getSessionID());
 							}
 							loadPanel(createProjectWizardPanel);
 						}
@@ -594,7 +597,7 @@ public class Pint implements EntryPoint {
 
 	}
 
-	protected void loadPanel(InitializableComposite widget) {
+	protected void loadPanel(Widget widget) {
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
 			@Override
@@ -603,6 +606,8 @@ public class Pint implements EntryPoint {
 
 				if (widget instanceof QueryPanel) {
 					RootLayoutPanel.get().add(widget);
+				} else if (widget instanceof NewProjectCreatorWizard) {
+					RootLayoutPanel.get().add(widget);
 				} else {
 					// in any other case, add with a scrollpanel
 					RootLayoutPanel.get().add(scroll);
@@ -610,8 +615,8 @@ public class Pint implements EntryPoint {
 					scroll.add(widget);
 
 				}
-				if (widget != null) {
-					widget.initialize();
+				if (widget != null && widget instanceof InitializableComposite) {
+					((InitializableComposite) widget).initialize();
 				}
 			}
 		});
