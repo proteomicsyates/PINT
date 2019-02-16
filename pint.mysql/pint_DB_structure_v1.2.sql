@@ -524,7 +524,7 @@ CREATE TABLE IF NOT EXISTS `interactome_db`.`PTM` (
   `mass_shift` DOUBLE NOT NULL,
   `name` VARCHAR(200) NOT NULL,
   `cv_id` VARCHAR(10) NULL,
-  `Peptide_id` INT NOT NULL,
+  `Peptide_id` INT,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_PTM_PSM1`
     FOREIGN KEY (`PSM_id`)

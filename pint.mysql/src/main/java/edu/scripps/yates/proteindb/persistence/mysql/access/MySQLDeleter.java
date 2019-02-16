@@ -222,6 +222,12 @@ public class MySQLDeleter {
 		}
 		// deleteMSRun(peptide.getMsRun());
 
+		final Set<Ptm> ptms = peptide.getPtms();
+		if (ptms != null) {
+			for (final Ptm ptm : ptms) {
+				deletePTM(ptm);
+			}
+		}
 		// scores
 		final Set<PeptideScore> scores = peptide.getPeptideScores();
 		if (scores != null) {

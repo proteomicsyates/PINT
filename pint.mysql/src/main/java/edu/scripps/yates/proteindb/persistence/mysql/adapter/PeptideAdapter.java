@@ -78,15 +78,6 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 				ret.getPeptideScores().add(new PeptideScoreAdapter(score, ret).adapt());
 			}
 		}
-		// ptms
-		final List<PTM> ptms = peptide.getPTMs();
-		if (ptms != null && !ptms.isEmpty()) {
-			for (final PTM ptm : ptms) {
-				final Ptm hibPtm = new PTMAdapter(ptm, ret).adapt();
-				ret.getPtms().add(hibPtm);
-				hibPtm.setPeptide(ret);
-			}
-		}
 
 		// psms
 		final List<PSM> psMs = peptide.getPSMs();
@@ -101,7 +92,15 @@ public class PeptideAdapter implements Adapter<Peptide>, Serializable {
 			// peptide has to have psms
 			throw new IllegalArgumentException("peptide has to have psms");
 		}
-
+		// ptms (AFTER PSMS)
+		final List<PTM> ptms = peptide.getPTMs();
+		if (ptms != null && !ptms.isEmpty()) {
+			for (final PTM ptm : ptms) {
+				final Ptm hibPtm = new PTMAdapter(ptm, ret).adapt();
+				ret.getPtms().add(hibPtm);
+				hibPtm.setPeptide(ret);
+			}
+		}
 		// proteins
 		final Set<edu.scripps.yates.utilities.proteomicsmodel.Protein> proteins = peptide.getProteins();
 		if (proteins != null && !proteins.isEmpty()) {

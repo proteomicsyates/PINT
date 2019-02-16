@@ -136,8 +136,8 @@ public class WizardPageFinal extends AbstractWizardPage {
 				+ encryptedDatasetCode;
 		StatusReportersRegister.getInstance()
 				.notifyStatusReporters("Dataset '" + getContext().getPintImportConfiguration().getProject().getTag()
-						+ "' has been successfully imported to PINT\n"
-						+ "by default, the project will be private, only accesible by this encoded URL: " + privateURL
+						+ "' has been successfully imported to PINT.\n"
+						+ "By default, the project will be private, only accesible by this encoded URL:\n" + privateURL
 						+ "\n");
 		final FlexTable table = new FlexTable();
 		table.setCellPadding(10);
@@ -168,6 +168,7 @@ public class WizardPageFinal extends AbstractWizardPage {
 		link.setTarget("_blank");
 		link.setTitle("Click here to go to the explore the data in the dataset");
 		link.setStyleName("linkPINT");
+		link.setHref(privateURL);
 		table.setWidget(row, 1, link);
 		table.getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		//

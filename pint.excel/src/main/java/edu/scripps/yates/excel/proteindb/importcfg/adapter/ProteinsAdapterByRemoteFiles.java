@@ -120,13 +120,16 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 					identificationsParser.setDbIndex(fastaDBIndex);
 				}
 				// throw an exception if t 0 parameter is not stated
-				final String parameterValue = identificationsParser.getCommandLineParameter().getParameterValue("t");
-				if (!ImportCfgFileReader.ignoreDTASelectParameterT
-						&& (parameterValue == null || parameterValue.equals("0"))) {
-					throw new IllegalArgumentException(
-							"For a comprenhensive aggregation of the data, PINT enforces to use \"t 0\" parameter, which means:"
-									+ " \"-t 0    Show all spectra for each sequence\""
-									+ "\nIn order to ignore it, set ImportCfgFileReader.ignoreDTASelectParameterT = true;");
+				if (identificationsParser.getCommandLineParameter() != null) {
+					final String parameterValue = identificationsParser.getCommandLineParameter()
+							.getParameterValue("t");
+					if (!ImportCfgFileReader.ignoreDTASelectParameterT
+							&& (parameterValue == null || parameterValue.equals("0"))) {
+						throw new IllegalArgumentException(
+								"For a comprenhensive aggregation of the data, PINT enforces to use \"t 0\" parameter, which means:"
+										+ " \"-t 0    Show all spectra for each sequence\""
+										+ "\nIn order to ignore it, set ImportCfgFileReader.ignoreDTASelectParameterT = true;");
+					}
 				}
 			}
 		}

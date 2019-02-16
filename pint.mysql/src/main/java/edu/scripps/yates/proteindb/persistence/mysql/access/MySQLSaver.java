@@ -227,6 +227,13 @@ public class MySQLSaver {
 		if (peptide.getId() == null) {
 			log.info("Peptide with no ID after saving it");
 		}
+		// ptms
+		final Set<Ptm> ptms = peptide.getPtms();
+		if (ptms != null) {
+			for (final Ptm ptm : ptms) {
+				savePTM(ptm);
+			}
+		}
 		// scores
 		final Set<PeptideScore> scores = peptide.getPeptideScores();
 		if (scores != null) {

@@ -273,6 +273,7 @@
 												<xsd:enumeration value="census_chro_xml"/>
 												<xsd:enumeration value="dta_select_filter_txt"/>
 												<xsd:enumeration value="fasta"/>
+												<xsd:enumeration value="mzidentml"/>
 
 								</xsd:restriction>
 				</xsd:simpleType>
