@@ -44,6 +44,7 @@ public class FileManager {
 	private static boolean loading;
 	private static final String PROJECT_STATS_FILE_NAME = "stats.properties";
 	private static final TIntObjectHashMap<FileSummaries> fileSummariesByImportID = new TIntObjectHashMap<FileSummaries>();
+	private static final String TEMPLATES = "templates";
 
 	private static File getXmlFolder() {
 
@@ -532,5 +533,17 @@ public class FileManager {
 
 	public static File getProjectCfgFileFolder() {
 		return getXmlFolder();
+	}
+
+	public static List<File> getProjectCfgFileTamplates(ServletContext context) {
+		final List<File> ret = new ArrayList<File>();
+		final File folder = new File(getProjectFilesPath(context) + File.separator + TEMPLATES);
+		if (folder.exists()) {
+			final File[] listFiles = folder.listFiles();
+			for (final File file : listFiles) {
+				ret.add(file);
+			}
+		}
+		return ret;
 	}
 }

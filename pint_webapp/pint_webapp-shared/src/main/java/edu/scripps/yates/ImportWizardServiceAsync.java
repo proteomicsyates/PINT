@@ -268,4 +268,6 @@ public interface ImportWizardServiceAsync {
 	void getUploadedFileID(int importID, String uploadedFileSignature, AsyncCallback<String> asyncCallback);
 
 	void getPintImportCfgTypeBeanByProcessKey(int hashCode, AsyncCallback<PintImportCfgBean> asyncCallback);
+
+	void getTemplateFiles(AsyncCallback<java.util.List<String>> asyncCallback);
 }

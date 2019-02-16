@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -1571,6 +1572,26 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 						.getPintImportFromFile(projectCfgFileByImportProcessKey);
 				final PintImportCfgBean ret = new PintImportCfgBeanAdapter(pintImportCfg).adapt();
 				return ret;
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException) {
+				throw e;
+			}
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		}
+		throw new PintException("Import session not found in the server. Please contact the administrator.",
+				PINT_ERROR_TYPE.INTERNAL_ERROR);
+	}
+
+	@Override
+	public List<String> getTemplateFiles() throws PintException {
+		try {
+			final List<File> files = FileManager.getProjectCfgFileTamplates(getServletContext());
+			if (!files.isEmpty()) {
+				final List<String> listOfNames = files.stream().map(f -> FilenameUtils.getName(f.getAbsolutePath()))
+						.sorted().collect(Collectors.toList());
+				return listOfNames;
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();
