@@ -51,8 +51,8 @@ public class FileDownloadServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse p_response)
 			throws ServletException, IOException {
-		String filename = request.getParameter(SharedConstants.FILE_TO_DOWNLOAD);
-		String fileType = request.getParameter(SharedConstants.FILE_TYPE);
+		final String filename = request.getParameter(SharedConstants.FILE_TO_DOWNLOAD);
+		final String fileType = request.getParameter(SharedConstants.FILE_TYPE);
 
 		p_response.setContentType(MediaType.TEXT_PLAIN_VALUE);
 		// get file depending on the FILE TYPE
@@ -62,6 +62,10 @@ public class FileDownloadServlet extends HttpServlet {
 			p_response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 		} else if (fileType != null && fileType.equals(SharedConstants.IMPORT_CFG_FILE_TYPE)) {
 			file = FileManager.getProjectXmlFile(filename);
+			p_response.setContentType(MediaType.TEXT_XML_VALUE);
+			p_response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+		} else if (fileType != null && fileType.equals(SharedConstants.TEMPLATE)) {
+			file = FileManager.getProjectCfgFileTemplate(filename);
 			p_response.setContentType(MediaType.TEXT_XML_VALUE);
 			p_response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 		} else if (fileType != null && fileType.equals(SharedConstants.PSEA_QUANT_DATA_FILE_TYPE)) {
@@ -74,16 +78,16 @@ public class FileDownloadServlet extends HttpServlet {
 		if (file == null)
 			return;
 
-		long length = file.length();
-		FileInputStream fis = new FileInputStream(file);
+		final long length = file.length();
+		final FileInputStream fis = new FileInputStream(file);
 
 		if (length > 0 && length <= Integer.MAX_VALUE)
 			p_response.setContentLength((int) length);
-		ServletOutputStream out = p_response.getOutputStream();
+		final ServletOutputStream out = p_response.getOutputStream();
 		p_response.setBufferSize(32768);
-		int bufSize = p_response.getBufferSize();
-		byte[] buffer = new byte[bufSize];
-		BufferedInputStream bis = new BufferedInputStream(fis, bufSize);
+		final int bufSize = p_response.getBufferSize();
+		final byte[] buffer = new byte[bufSize];
+		final BufferedInputStream bis = new BufferedInputStream(fis, bufSize);
 		int bytes;
 		while ((bytes = bis.read(buffer, 0, bufSize)) >= 0)
 			out.write(buffer, 0, bytes);

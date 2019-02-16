@@ -1587,7 +1587,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public List<String> getTemplateFiles() throws PintException {
 		try {
-			final List<File> files = FileManager.getProjectCfgFileTamplates(getServletContext());
+			final List<File> files = FileManager.getProjectCfgFileTemplates(getServletContext());
 			if (!files.isEmpty()) {
 				final List<String> listOfNames = files.stream().map(f -> FilenameUtils.getName(f.getAbsolutePath()))
 						.sorted().collect(Collectors.toList());

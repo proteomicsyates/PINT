@@ -27,7 +27,8 @@ public class WizardPageFinal extends AbstractWizardPage {
 	private static final String text1 = "Ok, we have everything we need for now.";
 	private static final String text2 = "Now, if you click on 'FINISH' it will submit the import dataset process to PINT.";
 	private static final String text3 = "If there is some incosistency in the data, the errors will be shown";
-	private static final String text4 = "This process may take some minutes. At the end of it, a private URL will be displayed. Keep that URL since it will be the only way to access the dataset unless the PINT administrator (with master password) make the dataset public.";
+	private static final String text4 = "This process may take some minutes depending on the type and size of the input files.\n"
+			+ "At the end of it, if ever a private URL will be displayed. Keep that URL since it will be the only way to access the dataset unless the PINT administrator (with master password) make the dataset public.";
 	private FlexTable panel;
 	private int rowForNewWidget;
 	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
@@ -99,7 +100,7 @@ public class WizardPageFinal extends AbstractWizardPage {
 
 	private void submitDatasetToPINT() {
 		showLoadingDialog(
-				"Please wait while input files are processed and dataset is imported.\nThis may take some minutes., ");
+				"Please wait while input files are processed and dataset is imported.\nThis may take some minutes...");
 		service.submitProject(getImportID(), getPintImportConfg(), new AsyncCallback<String>() {
 
 			@Override

@@ -61,5 +61,6 @@ public class SharedConstants {
 	public static final boolean TABLE_WITH_MULTIPLE_SELECTION = false;
 	public static final boolean ADAPT_PSM_SCORES = false;
 	public static final String IMPORT_CFG_FILE_KEY = "IMPORT_CFG_FILE_KEY";
+	public static final String TEMPLATE = "TEMPLATE_FILE";
 
 }

@@ -115,7 +115,7 @@ public class WelcomePage extends AbstractWizardPage {
 			@Override
 			public void onClick(ClickEvent event) {
 
-				final String href = ClientSafeHtmlUtils.getDownloadURL(file, SharedConstants.IMPORT_CFG_FILE_TYPE);
+				final String href = ClientSafeHtmlUtils.getDownloadURL(file, SharedConstants.TEMPLATE);
 				com.google.gwt.user.client.Window.open(href, "_blank", "");
 
 			}

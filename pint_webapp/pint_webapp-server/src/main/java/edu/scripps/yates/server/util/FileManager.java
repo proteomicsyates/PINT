@@ -535,7 +535,7 @@ public class FileManager {
 		return getXmlFolder();
 	}
 
-	public static List<File> getProjectCfgFileTamplates(ServletContext context) {
+	public static List<File> getProjectCfgFileTemplates(ServletContext context) {
 		final List<File> ret = new ArrayList<File>();
 		final File folder = new File(getProjectFilesPath(context) + File.separator + TEMPLATES);
 		if (folder.exists()) {
@@ -545,5 +545,13 @@ public class FileManager {
 			}
 		}
 		return ret;
+	}
+
+	public static File getProjectCfgFileTemplate(String filename) {
+		final File file = new File(getProjectFilesPath() + File.separator + TEMPLATES + File.separator + filename);
+		if (file.exists()) {
+			return file;
+		}
+		return null;
 	}
 }
