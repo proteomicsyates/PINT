@@ -63,7 +63,7 @@ public class ConfigurationServiceServlet extends RemoteServiceServlet implements
 	}
 
 	@Override
-	public PintConfigurationProperties getPintConfigurationProperties() {
+	public PintConfigurationProperties getPintConfigurationProperties() throws PintException {
 		try {
 			return PintConfigurationPropertiesIO.readProperties(FileManager.getPINTPropertiesFile(getServletContext()));
 		} catch (final Exception e) {
