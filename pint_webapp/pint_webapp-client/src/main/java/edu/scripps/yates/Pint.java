@@ -146,11 +146,13 @@ public class Pint implements EntryPoint {
 
 					@Override
 					public void onSuccess(PintConfigurationProperties properties) {
-						psmCentric = properties.getPsmCentric();
-						if (forceToShowPanel || properties.isSomeConfigurationMissing()) {
-							showConfigurationPanel(properties);
-						} else {
+						if (properties != null) {
+							psmCentric = properties.getPsmCentric();
+							if (forceToShowPanel || properties.isSomeConfigurationMissing()) {
+								showConfigurationPanel(properties);
+							} else {
 
+							}
 						}
 					}
 

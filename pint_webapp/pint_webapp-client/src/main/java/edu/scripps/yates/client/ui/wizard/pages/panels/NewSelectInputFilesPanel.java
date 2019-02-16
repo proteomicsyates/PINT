@@ -634,6 +634,9 @@ public class NewSelectInputFilesPanel extends FlexTable {
 		formatCombo2.addItem("");
 
 		for (final FileFormat format : FileFormat.values()) {
+			if (format == FileFormat.UNKNOWN) {
+				continue;
+			}
 			formatCombo2.addItem(format.getName(), format.name());
 		}
 
