@@ -5,8 +5,6 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import org.hibernate.Session;
-
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.ProteinRetrievalServicesServlet;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
@@ -49,10 +47,9 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 				projectsToLoad.add(projectsToPreload);
 			}
 		}
-		Session session = ContextualSessionHandler.getCurrentSession();
-		session.beginTransaction();
+		ContextualSessionHandler.beginGoodTransaction();
 		final Set<ProjectBean> projectBeans = RemoteServicesTasks.getProjectBeans();
-
+		ContextualSessionHandler.finishGoodTransaction();
 		final Boolean preloadPublic = ServerUtil.getPINTProperties(servletContext).isPreLoadPublicProjects();
 		if (preloadPublic != null && preloadPublic) {
 			log.info("preloadPublic property=" + preloadPublic);
@@ -91,8 +88,8 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 				}
 				if (projectsToLoad.contains(projectBean.getTag())) {
 					try {
-						session = ContextualSessionHandler.getCurrentSession();
-						session.beginTransaction();
+						ContextualSessionHandler.beginGoodTransaction();
+
 						final long t1 = System.currentTimeMillis();
 						log.info("Pre loading project: " + projectBean.getTag());
 						final Set<String> projectTagSet = new THashSet<String>();
@@ -102,13 +99,15 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 						log.info(projectBean.getTag() + " pre loaded in " + myFormatter.format(t2) + " seconds");
 					} catch (final Exception e) {
 						e.printStackTrace();
-						session.getTransaction().rollback();
+						ContextualSessionHandler.rollbackTransaction();
 					} finally {
-						session.close();
+						ContextualSessionHandler.finishGoodTransaction();
+
 					}
 				}
 			}
 		}
+		ContextualSessionHandler.closeSession();
 	}
 
 	@Override
