@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -140,7 +142,6 @@ import edu.scripps.yates.utilities.alignment.nwalign.NWResult;
 import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.email.EmailSender;
-import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.UniprotLineHeader;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
@@ -2204,15 +2205,22 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 			log.info("Retrieving protein projections for project '" + projectTag + "'");
 			final List<String> accs = PreparedCriteria.getCriteriaForProteinPrimaryAccs(projectTag, null, null, null);
+
 			final Map<String, Entry> annotatedProteinsWithUniprot = RemoteServicesTasks
 					.annotateProteinsWithUniprot(accs, null, projectTag);
-			final Criteria cr = PreparedCriteria.getCriteriaForProteinProjection(projectTag, null, null, null);
+			final Criteria cr = PreparedCriteria.getCriteriaForProteinProjection1(projectTag, null, null, null);
 			// transform the results in ProteinProjections
 			cr.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class));
 			final List<ProteinProjection> list = cr.list();
+			final Criteria cr2 = PreparedCriteria.getCriteriaForProteinProjection2(projectTag, null, null, null);
+			// transform the results in ProteinProjections
+			cr2.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class));
+			final List<ProteinProjection> list2 = cr2.list();
 
+			final List<ProteinProjection> newList = Stream.concat(list.stream(), list2.stream()).distinct()
+					.collect(Collectors.toList());
 			log.info(list.size() + " protein projections");
-			for (final ProteinProjection proteinProjection : list) {
+			for (final ProteinProjection proteinProjection : newList) {
 				final Entry entry = annotatedProteinsWithUniprot.get(proteinProjection.getAcc());
 				proteinProjection.setDescription(UniprotEntryUtil.getProteinDescription(entry));
 				final List<Pair<String, String>> geneNames = UniprotEntryUtil.getGeneName(entry, true, true);
@@ -2325,9 +2333,10 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			final List<ProteinProjection> list = getProteinProjectionsFromProject(projectTag);
 			log.info(list.size() + " protein projections by protein name");
 			// override the protein names by using the FastaParser
-			for (final ProteinProjection proteinProjection : list) {
-				proteinProjection.setDescription(FastaParser.getDescription(proteinProjection.getDescription()));
-			}
+			// disabled because is too expensive
+//			for (final ProteinProjection proteinProjection : list) {
+//				proteinProjection.setDescription(FastaParser.getDescription(proteinProjection.getDescription()));
+//			}
 			// add to the map by gene name
 			final Map<String, Set<ProteinProjection>> ret = new HashMap<String, Set<ProteinProjection>>();
 			for (final ProteinProjection proteinProjection : list) {

@@ -18,6 +18,7 @@ public class MsRun implements java.io.Serializable {
 	private Project project;
 	private Set peptides = new HashSet(0);
 	private Set proteins = new HashSet(0);
+	private Set proteins2 = new HashSet(0);
 	private Set psms = new HashSet(0);
 
 	public MsRun() {
@@ -103,11 +104,18 @@ public class MsRun implements java.io.Serializable {
 	}
 
 	/**
-	 * @param project
-	 *            the project to set
+	 * @param project the project to set
 	 */
 	public void setProject(Project project) {
 		this.project = project;
+	}
+
+	protected Set getProteins2() {
+		return proteins2;
+	}
+
+	protected void setProteins2(Set proteins2) {
+		this.proteins2 = proteins2;
 	}
 
 }

@@ -194,7 +194,7 @@ public class ProjectStatsManager {
 	public Integer getNumSamples(String projectTag, MSRunBean msRun) throws HibernateException, IOException {
 		final ProjectStats stats = getProjectStatsFromMSRun(projectTag, msRun);
 		if (stats.getNumSamples() == null) {
-			final List list = PreparedCriteria.getCriteriaForSamplesInProjectInMSRun(projectTag, msRun.getId()).list();
+			final List<String> list = PreparedCriteria.getCriteriaForSamplesInProjectInMSRun(projectTag, msRun.getId());
 			stats.setNumSamples(list.size());
 
 			updateFile(stats.getNumSamplesString(projectTag));
@@ -271,8 +271,8 @@ public class ProjectStatsManager {
 	public int getNumConditions(String projectTag, MSRunBean msRun) {
 		final ProjectStats projectStatsFromMSRun = getProjectStatsFromMSRun(projectTag, msRun);
 		if (projectStatsFromMSRun.getNumConditions() == null) {
-			final List list = PreparedCriteria.getCriteriaForConditionsInProjectInMSRun(projectTag, msRun.getId())
-					.list();
+			final List<String> list = PreparedCriteria.getCriteriaForConditionsInProjectInMSRun(projectTag,
+					msRun.getId());
 			projectStatsFromMSRun.setNumConditions(list.size());
 
 			updateFile(projectStatsFromMSRun.getNumConditionsString(projectTag));
@@ -285,7 +285,7 @@ public class ProjectStatsManager {
 		final ProjectStats projectStatsFromSample = getProjectStatsFromSample(projectTag, sample);
 		if (projectStatsFromSample.getNumMSRuns() == null) {
 			final Integer numMSRuns = PreparedCriteria.getCriteriaForMSRunsInProjectInSample(projectTag, sample.getId())
-					.list().size();
+					.size();
 			projectStatsFromSample.setNumMSRuns(numMSRuns);
 
 			updateFile(projectStatsFromSample.getNumMSRunsString(projectTag));

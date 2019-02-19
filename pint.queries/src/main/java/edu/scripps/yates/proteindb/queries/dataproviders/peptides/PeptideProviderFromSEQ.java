@@ -61,8 +61,8 @@ public class PeptideProviderFromSEQ extends PeptideDataProvider {
 			result = new THashSet<Peptide>();
 			int numPeptides = 0;
 			if (projectTags == null || projectTags.isEmpty()) {
-				final List<Peptide> peptides = PreparedCriteria
-						.getCriteriaForPeptideSequence(mySqlRegularExpression, null).list();
+				final List<Peptide> peptides = PreparedCriteria.getCriteriaForPeptideSequence(mySqlRegularExpression,
+						null);
 				if (testMode && numPeptides + peptides.size() > QueriesUtil.TEST_MODE_NUM_PEPTIDES) {
 					result.addAll(peptides.subList(0,
 							Math.min(peptides.size(), QueriesUtil.TEST_MODE_NUM_PEPTIDES - numPeptides)));
@@ -73,7 +73,7 @@ public class PeptideProviderFromSEQ extends PeptideDataProvider {
 			} else {
 				for (final String projectTag : projectTags) {
 					final List<Peptide> peptides = PreparedCriteria
-							.getCriteriaForPeptideSequence(mySqlRegularExpression, projectTag).list();
+							.getCriteriaForPeptideSequence(mySqlRegularExpression, projectTag);
 					if (testMode && numPeptides + peptides.size() > QueriesUtil.TEST_MODE_NUM_PEPTIDES) {
 						result.addAll(peptides.subList(0,
 								Math.min(peptides.size(), QueriesUtil.TEST_MODE_NUM_PEPTIDES - numPeptides)));

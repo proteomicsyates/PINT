@@ -791,7 +791,7 @@ public class MySQLDeleter {
 			// }
 			// peptides.clear();
 			// System.gc();
-			final List<Condition> conditions = PreparedCriteria.getConditionsByMSRunCriteria(msRun).list();
+			final List<Condition> conditions = PreparedCriteria.getConditionsByMSRunCriteria(msRun);
 			final Set<Condition> set = new THashSet<Condition>();
 			set.addAll(conditions);
 			log.info("MSRun " + msRun.getRunId() + " mapped to " + conditions.size() + " conditions");

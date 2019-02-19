@@ -63,7 +63,7 @@ public class PsmProviderFromSEQ extends PsmDataProvider {
 			result = new THashMap<String, Set<Psm>>();
 			int numPSMs = 0;
 			if (projectTags == null || projectTags.isEmpty()) {
-				final List<Psm> psms = PreparedCriteria.getCriteriaForPsmSequence(mySqlRegularExpression, null).list();
+				final List<Psm> psms = PreparedCriteria.getCriteriaForPsmSequence(mySqlRegularExpression, null);
 				if (testMode && numPSMs + psms.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
 					PersistenceUtils.addToPSMMapByPsmId(result,
 							psms.subList(0, Math.min(psms.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));
@@ -73,8 +73,8 @@ public class PsmProviderFromSEQ extends PsmDataProvider {
 				numPSMs += psms.size();
 			} else {
 				for (final String projectTag : projectTags) {
-					final List<Psm> psms = PreparedCriteria
-							.getCriteriaForPsmSequence(mySqlRegularExpression, projectTag).list();
+					final List<Psm> psms = PreparedCriteria.getCriteriaForPsmSequence(mySqlRegularExpression,
+							projectTag);
 					if (testMode && numPSMs + psms.size() > QueriesUtil.TEST_MODE_NUM_PSMS) {
 						PersistenceUtils.addToPSMMapByPsmId(result,
 								psms.subList(0, Math.min(psms.size(), QueriesUtil.TEST_MODE_NUM_PSMS - numPSMs)));

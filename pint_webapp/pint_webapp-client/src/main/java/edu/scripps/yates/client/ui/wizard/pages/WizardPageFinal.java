@@ -145,7 +145,8 @@ public class WizardPageFinal extends AbstractWizardPage {
 		int row = 0;
 		table.setStyleName(WizardStyles.WizardQuestionPanelLessRoundCornersGreen);
 		final Label label1 = new Label("Dataset imported to PINT!");
-		label1.setStyleName(WizardStyles.WizardBottomMessageLabel);
+		label1.setStyleName(WizardStyles.WizardWelcomeLabel2);
+		label1.getElement().getStyle().setPaddingTop(10, Unit.PX);
 		table.setWidget(row, 0, label1);
 		table.getFlexCellFormatter().setColSpan(row, 0, 2);
 		//
