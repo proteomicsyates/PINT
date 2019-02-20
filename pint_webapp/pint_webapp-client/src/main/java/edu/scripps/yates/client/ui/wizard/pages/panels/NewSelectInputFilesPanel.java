@@ -52,6 +52,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.scripps.yates.ImportWizardServiceAsync;
+import edu.scripps.yates.Pint;
 import edu.scripps.yates.client.gui.components.ProgressBar;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.pint.wizard.PintContext;
@@ -77,6 +78,7 @@ public class NewSelectInputFilesPanel extends FlexTable {
 	private final Set<FileTypeBean> uploadedFiles = new HashSet<FileTypeBean>();
 	protected final Map<String, HorizontalPanel> uploaderRows = new HashMap<String, HorizontalPanel>();
 	protected final Wizard<PintContext> wizard;
+	private final Set<String> failedUploads = new HashSet<String>();
 
 	public NewSelectInputFilesPanel(Wizard<PintContext> wizard) {
 		this.context = wizard.getContext();
@@ -261,14 +263,17 @@ public class NewSelectInputFilesPanel extends FlexTable {
 
 	protected UploadErrorHandler getUploadErrorHandler() {
 		return new UploadErrorHandler() {
+
 			@Override
 			public boolean onUploadError(UploadErrorEvent uploadErrorEvent) {
-				cancelButtons.get(uploadErrorEvent.getFile().getId()).removeFromParent();
+				final String fileID = uploadErrorEvent.getFile().getId();
+				cancelButtons.get(fileID).removeFromParent();
+				failedUploads.add(fileID);
 				StatusReportersRegister.getInstance()
 						.notifyStatusReporters("Upload of file " + uploadErrorEvent.getFile().getName()
 								+ " failed due to [" + uploadErrorEvent.getErrorCode().toString() + "]: "
 								+ uploadErrorEvent.getMessage());
-				return true;
+				return false;
 			}
 		};
 	}
@@ -281,16 +286,20 @@ public class NewSelectInputFilesPanel extends FlexTable {
 						.notifyStatusReporters("Upload of file " + fileQueueErrorEvent.getFile().getName()
 								+ " failed due to [" + fileQueueErrorEvent.getErrorCode().toString() + "]: "
 								+ fileQueueErrorEvent.getMessage());
-				return true;
+				return false;
 			}
 		};
 	}
 
 	protected void setUploadURL() {
-
-		// set url for servlet in the server
-		uploader.setUploadURL("/pint/newFileUpload?" + SharedConstants.JOB_ID_PARAM + "="
-				+ wizard.getContext().getPintImportConfiguration().getImportID());
+		if (Pint.isTestServer()) {
+			uploader.setUploadURL("/newFileUpload?" + SharedConstants.JOB_ID_PARAM + "="
+					+ wizard.getContext().getPintImportConfiguration().getImportID());
+		} else {
+			// set url for servlet in the server
+			uploader.setUploadURL("/pint/newFileUpload?" + SharedConstants.JOB_ID_PARAM + "="
+					+ wizard.getContext().getPintImportConfiguration().getImportID());
+		}
 	}
 
 	public UploadCompleteHandler getUploadCompleteHandler() {
@@ -299,10 +308,15 @@ public class NewSelectInputFilesPanel extends FlexTable {
 			public boolean onUploadComplete(UploadCompleteEvent uploadCompleteEvent) {
 				// remove cancel button
 				final File uploadedFile = uploadCompleteEvent.getFile();
-				cancelButtons.get(uploadedFile.getId()).removeFromParent();
+				final String id = uploadedFile.getId();
+				cancelButtons.get(id).removeFromParent();
 				// start other upload?
 				uploader.startUpload();
 				// update object with no format
+
+				if (failedUploads.contains(id)) {
+					return false;
+				}
 
 				service.getUploadedFileID(wizard.getContext().getPintImportConfiguration().getImportID(),
 						getUploadedFileSignature(uploadedFile), new AsyncCallback<String>() {
@@ -325,7 +339,7 @@ public class NewSelectInputFilesPanel extends FlexTable {
 								} catch (final PintException e) {
 									StatusReportersRegister.getInstance().notifyStatusReporters(e);
 									final FileNameWithTypeBean dataFile = new FileNameWithTypeBean();
-									dataFile.setId(uploadedFile.getId());
+									dataFile.setId(id);
 									dataFile.setFileName(uploadedFile.getName());
 									service.removeDataFile(context.getSessionID(),
 											context.getPintImportConfiguration().getImportID(), dataFile,
@@ -353,7 +367,7 @@ public class NewSelectInputFilesPanel extends FlexTable {
 
 					@Override
 					public void run() {
-						final HorizontalPanel horizontalPanel = uploaderRows.get(uploadedFile.getId());
+						final HorizontalPanel horizontalPanel = uploaderRows.get(id);
 						if (horizontalPanel != null) {
 							horizontalPanel.removeFromParent();
 						}

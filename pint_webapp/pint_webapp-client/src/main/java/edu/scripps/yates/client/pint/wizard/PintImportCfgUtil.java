@@ -2078,14 +2078,6 @@ public class PintImportCfgUtil {
 		return ret;
 	}
 
-	public static RatiosTypeBean getRatios(PintImportCfgBean pintImportConfiguration) {
-		RatiosTypeBean ratios = pintImportConfiguration.getProject().getRatios();
-		if (ratios == null) {
-			ratios = new RatiosTypeBean();
-		}
-		return ratios;
-	}
-
 	public static Set<IdentificationExcelTypeBean> getExcelIDAssociatedWithThisFile(
 			PintImportCfgBean pintImportConfiguration, String fileID, String sheetName) {
 		final Set<IdentificationExcelTypeBean> ret = new HashSet<IdentificationExcelTypeBean>();

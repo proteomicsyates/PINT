@@ -54,6 +54,8 @@ public class Pint implements EntryPoint {
 			+ "attempting to contact the server. Please check your network " + "connection and try again.";
 
 	private static boolean psmCentric = false; // by default
+
+	private static Boolean isTestServer;
 	private QueryPanel queryPanel;
 	private MainPanel mainPanel;
 	private BrowsePanel browsePanel;
@@ -323,6 +325,8 @@ public class Pint implements EntryPoint {
 
 			@Override
 			public void onSuccess() {
+				isTestServer();
+
 				final ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 				final String clientToken = ClientToken.getToken();
 
@@ -631,6 +635,27 @@ public class Pint implements EntryPoint {
 
 	public void setSessionID(String sessionID) {
 		this.sessionID = sessionID;
+	}
+
+	public static boolean isTestServer() {
+		if (isTestServer == null) {
+			ProteinRetrievalServiceAsync.Util.getInstance().isTestServer(new AsyncCallback<Boolean>() {
+
+				@Override
+				public void onFailure(Throwable caught) {
+					StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+				}
+
+				@Override
+				public void onSuccess(Boolean result) {
+					isTestServer = result;
+				}
+			});
+		}
+		if (isTestServer == null) {
+			return true;
+		}
+		return isTestServer;
 	}
 
 }

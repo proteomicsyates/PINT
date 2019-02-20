@@ -1512,11 +1512,13 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 					+ uploadedFileSignature);
 			final List<FileWithFormat> files = FileManager.getFilesByImportProcessID(importID);
 			FileWithFormat fileRet = null;
-			for (final FileWithFormat fileWithFormat : files) {
-				final String signature = fileWithFormat.getFileName() + fileWithFormat.getFile().length();
-				if (signature.equals(uploadedFileSignature)) {
-					fileRet = fileWithFormat;
-					break;
+			if (files != null) {
+				for (final FileWithFormat fileWithFormat : files) {
+					final String signature = fileWithFormat.getFileName() + fileWithFormat.getFile().length();
+					if (signature.equals(uploadedFileSignature)) {
+						fileRet = fileWithFormat;
+						break;
+					}
 				}
 			}
 			if (fileRet == null) {
@@ -1553,7 +1555,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 				}
 			}
 
-		} catch (final IOException e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			throw new PintException("Error moving file ", PINT_ERROR_TYPE.MOVING_FILE_ERROR);
 		} finally {

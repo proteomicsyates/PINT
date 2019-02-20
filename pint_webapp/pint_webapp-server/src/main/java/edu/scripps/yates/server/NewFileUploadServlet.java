@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import com.google.gwt.thirdparty.guava.common.io.Files;
@@ -82,13 +81,12 @@ public class NewFileUploadServlet extends HttpServlet {
 				logger.info("Saving import cfg file to temporal file: " + tmp.getAbsolutePath());
 				item.write(tmp);
 				final PintImportCfg pintImportFromFile = ImportCfgFileParserUtil.getPintImportFromFile(tmp);
-				final File projectCfgFile = FileManager
-						.getProjectCfgFileByImportProcessID(pintImportFromFile.getImportID());
+				File projectCfgFile = FileManager.getProjectCfgFileByImportProcessID(pintImportFromFile.getImportID());
 				if (projectCfgFile == null) {
-					final File projectCfgFileFolder = FileManager.getProjectCfgFileFolder();
-					final File dest = new File(projectCfgFileFolder.getAbsolutePath() + File.separator
-							+ FilenameUtils.getName(tmp.getAbsolutePath()));
-					Files.move(tmp, dest);
+					final File dest = new File(FileManager.getProjectCfgFileFolder().getAbsolutePath() + File.separator
+							+ pintImportFromFile.getProject().getTag() + ".xml");
+					projectCfgFile = dest;
+
 				}
 				if (projectCfgFile != null) {
 					Files.move(tmp, projectCfgFile);
@@ -97,6 +95,7 @@ public class NewFileUploadServlet extends HttpServlet {
 				if (!item.isInMemory()) {
 					item.delete();
 				}
+				FileManager.indexProjectCfgFileByImportProcessID(pintImportFromFile.getImportID(), projectCfgFile);
 				FileManager.indexProjectCfgFileByImportCfgKey(importCfgKey, projectCfgFile);
 
 			}

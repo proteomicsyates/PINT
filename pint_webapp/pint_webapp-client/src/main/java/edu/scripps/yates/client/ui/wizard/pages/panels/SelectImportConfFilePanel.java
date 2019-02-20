@@ -15,6 +15,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
+import edu.scripps.yates.Pint;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.Wizard;
@@ -101,10 +102,15 @@ public class SelectImportConfFilePanel extends NewSelectInputFilesPanel {
 	@Override
 	public void setUploadURL() {
 		// set url for servlet in the server
-
-		uploader.setUploadURL(
-				"/pint/newFileUpload?" + SharedConstants.FILE_FORMAT + "=" + SharedConstants.IMPORT_CFG_FILE_TYPE + "&"
-						+ SharedConstants.IMPORT_CFG_FILE_KEY + "=" + String.valueOf(getImportProcessKey()));
+		if (Pint.isTestServer()) {
+			uploader.setUploadURL(
+					"/newFileUpload?" + SharedConstants.FILE_FORMAT + "=" + SharedConstants.IMPORT_CFG_FILE_TYPE + "&"
+							+ SharedConstants.IMPORT_CFG_FILE_KEY + "=" + String.valueOf(getImportProcessKey()));
+		} else {
+			uploader.setUploadURL(
+					"/pint/newFileUpload?" + SharedConstants.FILE_FORMAT + "=" + SharedConstants.IMPORT_CFG_FILE_TYPE
+							+ "&" + SharedConstants.IMPORT_CFG_FILE_KEY + "=" + String.valueOf(getImportProcessKey()));
+		}
 	}
 
 	@Override

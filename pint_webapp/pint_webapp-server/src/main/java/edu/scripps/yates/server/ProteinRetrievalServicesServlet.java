@@ -2729,4 +2729,29 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		} finally {
 		}
 	}
+
+	@Override
+	public boolean isTestServer() throws PintException {
+		try {
+			final Method method = new Object() {
+			}.getClass().getEnclosingMethod();
+			logMethodCall(method);
+			log.info("is the server a test server?");
+			final boolean test = isTest();
+			log.info("the server is a test server: " + test);
+			return test;
+		} catch (final Exception e) {
+			throw new PintException(e, PINT_ERROR_TYPE.DB_ACCESS_ERROR);
+		} finally {
+		}
+	}
+
+	private boolean isTest() {
+		final Map<String, String> env = System.getenv();
+		if (env.get("SERVER_TEST") != null && env.get("SERVER_TEST").equals("true")) {
+			return true;
+		}
+		return false;
+	}
+
 }

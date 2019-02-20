@@ -229,4 +229,6 @@ public interface ProteinRetrievalService extends RemoteService {
 	int getNumMSRuns(String projectTag, SampleBean sample) throws PintException;
 
 	void cancelQuery(String sessionID) throws PintException;
+
+	boolean isTestServer() throws PintException;
 }

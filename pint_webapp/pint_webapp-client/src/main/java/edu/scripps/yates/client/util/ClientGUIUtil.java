@@ -8,6 +8,8 @@ import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.ListBox;
@@ -43,6 +45,19 @@ public class ClientGUIUtil {
 			}
 		}
 		return selectedItems;
+	}
+
+	public static boolean setSelectedValueInListBox(ListBox listBox, String value, boolean fireChangeEvent) {
+		for (int i = 0; i < listBox.getItemCount(); i++) {
+			if (listBox.getValue(i).equals(value)) {
+				listBox.setSelectedIndex(i);
+				if (fireChangeEvent) {
+					DomEvent.fireNativeEvent(Document.get().createChangeEvent(), listBox);
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static Set<String> getNonSelectedItemsFromListBox(ListBox listBox) {

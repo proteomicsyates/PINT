@@ -82,7 +82,7 @@ public class ScorePanel extends ExcelObjectPanel<ScoreTypeBean> {
 				object.setColumnRef(columnRef);
 				// set score name as the column name
 				if (scoreNameText.getValue() != null || "".equals(scoreNameText.getValue())) {
-					scoreNameText.setValue(peptideSequenceSelector.getColumnName());
+					scoreNameText.setValue(peptideSequenceSelector.getColumnNameWithNoLetter(), true);
 				}
 			}
 		});
@@ -93,9 +93,6 @@ public class ScorePanel extends ExcelObjectPanel<ScoreTypeBean> {
 		setWidget(row, 0, label1);
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 
-		if (object.getScoreName() != null) {
-			scoreNameText.setValue(object.getScoreName());
-		}
 		setWidget(row, 1, scoreNameText);
 		getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		scoreNameText.addChangeHandler(new ChangeHandler() {
@@ -105,6 +102,9 @@ public class ScorePanel extends ExcelObjectPanel<ScoreTypeBean> {
 				object.setScoreName(scoreNameText.getValue());
 			}
 		});
+		if (object.getScoreName() != null) {
+			scoreNameText.setValue(object.getScoreName());
+		}
 		//
 		row++;
 		final Label label2 = new Label("Score type:");

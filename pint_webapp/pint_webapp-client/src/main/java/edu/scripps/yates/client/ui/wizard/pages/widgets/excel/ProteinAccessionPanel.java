@@ -101,6 +101,13 @@ public class ProteinAccessionPanel extends ExcelObjectPanel<ProteinAccessionType
 		separatorForMultipleAccessions = new TextBox();
 		setWidget(row, 1, separatorForMultipleAccessions);
 		getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
+		separatorForMultipleAccessions.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				object.setGroupSeparator(separatorForMultipleAccessions.getValue());
+			}
+		});
 		//
 		updateGUIFromContext();
 	}
@@ -119,8 +126,10 @@ public class ProteinAccessionPanel extends ExcelObjectPanel<ProteinAccessionType
 		this.proteinAccessionSelector.selectExcelColumn(object.getColumnRef());
 		if (object.isGroups()) {
 			containsMultipleAccessions.setValue(true, true);
+			separatorForMultipleAccessions.setValue(object.getGroupSeparator());
 		} else {
 			containsMultipleAccessions.setValue(false, true);
+			separatorForMultipleAccessions.setValue(null);
 		}
 	}
 

@@ -28,13 +28,9 @@ import edu.scripps.yates.shared.model.projectCreator.excel.ExcelAmountRatioTypeB
 import edu.scripps.yates.shared.model.projectCreator.excel.ExperimentalConditionTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.IdentificationExcelTypeBean;
-import edu.scripps.yates.shared.model.projectCreator.excel.PeptideRatiosTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ProteinAccessionTypeBean;
-import edu.scripps.yates.shared.model.projectCreator.excel.ProteinRatiosTypeBean;
-import edu.scripps.yates.shared.model.projectCreator.excel.PsmRatiosTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.PsmTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.QuantificationExcelTypeBean;
-import edu.scripps.yates.shared.model.projectCreator.excel.RatiosTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ScoreTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SequenceTypeBean;
 
@@ -324,11 +320,11 @@ public class ExcelProcessorPanel extends FlexTable {
 							excelSheet, true, false, false);
 			checkBoxPSMs.setValue(
 					excelID.getPsmId() != null || !excelID.getPsmScore().isEmpty() || !psmRatios.isEmpty(), true);
-			showPSMsPanel(excelID.getPsmId() != null);
+			showPSMsPanel(checkBoxPSMs.getValue());
 			checkBoxPSMScores.setValue(!excelID.getPsmScore().isEmpty(), true);
-			enablePSMsScores(!excelID.getPsmScore().isEmpty());
+			enablePSMsScores(checkBoxPSMs.getValue());
 			checkBoxPSMRatios.setValue(!psmRatios.isEmpty(), true);
-			enablePSMsRatios(!psmRatios.isEmpty());
+			enablePSMsRatios(checkBoxPSMs.getValue());
 
 			// PEPTIDES
 			final List<ExcelAmountRatioTypeBean> peptideRatios = PintImportCfgUtil
@@ -336,11 +332,11 @@ public class ExcelProcessorPanel extends FlexTable {
 							excelSheet, false, true, false);
 			checkBoxPeptides.setValue(excelID.getSequence() != null || !excelID.getPeptideScore().isEmpty()
 					|| !peptideRatios.isEmpty() || checkBoxPSMs.getValue(), true);
-			showPeptidesPanel(excelID.getSequence() != null);
+			showPeptidesPanel(checkBoxPeptides.getValue());
 			checkBoxPeptideScores.setValue(!excelID.getPeptideScore().isEmpty(), true);
-			enablePeptidesScores(!excelID.getPeptideScore().isEmpty());
+			enablePeptidesScores(checkBoxPeptides.getValue());
 			checkBoxPeptideRatios.setValue(!peptideRatios.isEmpty(), true);
-			enablePeptidesRatios(!peptideRatios.isEmpty());
+			enablePeptidesRatios(checkBoxPeptides.getValue());
 
 			// PROTEINS
 			final List<ExcelAmountRatioTypeBean> proteinRatios = PintImportCfgUtil
@@ -350,11 +346,11 @@ public class ExcelProcessorPanel extends FlexTable {
 					excelID.getProteinAccession() != null || !excelID.getProteinScore().isEmpty()
 							|| !proteinRatios.isEmpty() || checkBoxPeptides.getValue() || checkBoxPSMs.getValue(),
 					true);
-			showProteinsPanel(excelID.getProteinAccession() != null);
+			showProteinsPanel(checkBoxProteins.getValue());
 			checkBoxProteinScores.setValue(!excelID.getProteinScore().isEmpty(), true);
-			enableProteinsScores(!excelID.getProteinScore().isEmpty());
+			enableProteinsScores(checkBoxProteins.getValue());
 			checkBoxProteinRatios.setValue(!proteinRatios.isEmpty(), true);
-			enableProteinRatios(!proteinRatios.isEmpty());
+			enableProteinRatios(checkBoxProteins.getValue());
 
 			// TODO protein scores and psm scores
 		} else {
@@ -483,11 +479,7 @@ public class ExcelProcessorPanel extends FlexTable {
 		ExcelAmountRatioTypeBean peptideRatio = null;
 		if (excelAmounts.isEmpty()) {
 			peptideRatio = new ExcelAmountRatioTypeBean();
-			final RatiosTypeBean ratios = PintImportCfgUtil.getRatios(context.getPintImportConfiguration());
-			if (ratios.getPeptideAmountRatios() == null) {
-				ratios.setPeptideAmountRatios(new PeptideRatiosTypeBean());
-			}
-			ratios.getPeptideAmountRatios().getExcelRatio().add(peptideRatio);
+			PintImportCfgUtil.addPeptideRatioFromExcel(context.getPintImportConfiguration(), peptideRatio);
 		} else {
 			GWT.log(excelAmounts.size() + " excel ratios");
 			peptideRatio = excelAmounts.get(0);
@@ -504,11 +496,7 @@ public class ExcelProcessorPanel extends FlexTable {
 		ExcelAmountRatioTypeBean psmRatio = null;
 		if (excelAmounts.isEmpty()) {
 			psmRatio = new ExcelAmountRatioTypeBean();
-			final RatiosTypeBean ratios = PintImportCfgUtil.getRatios(context.getPintImportConfiguration());
-			if (ratios.getPsmAmountRatios() == null) {
-				ratios.setPsmAmountRatios(new PsmRatiosTypeBean());
-			}
-			ratios.getPsmAmountRatios().getExcelRatio().add(psmRatio);
+			PintImportCfgUtil.addPSMRatioFromExcel(context.getPintImportConfiguration(), psmRatio);
 		} else {
 			GWT.log(excelAmounts.size() + " excel ratios");
 			psmRatio = excelAmounts.get(0);
@@ -522,20 +510,16 @@ public class ExcelProcessorPanel extends FlexTable {
 		final List<ExcelAmountRatioTypeBean> excelAmounts = PintImportCfgUtil
 				.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
 						excelSheet, false, false, true);
-		ExcelAmountRatioTypeBean psmRatio = null;
+		ExcelAmountRatioTypeBean proteinRatio = null;
 		if (excelAmounts.isEmpty()) {
-			psmRatio = new ExcelAmountRatioTypeBean();
-			final RatiosTypeBean ratios = PintImportCfgUtil.getRatios(context.getPintImportConfiguration());
-			if (ratios.getProteinAmountRatios() == null) {
-				ratios.setProteinAmountRatios(new ProteinRatiosTypeBean());
-			}
-			ratios.getProteinAmountRatios().getExcelRatio().add(psmRatio);
+			proteinRatio = new ExcelAmountRatioTypeBean();
+			PintImportCfgUtil.addProteinRatioFromExcel(context.getPintImportConfiguration(), proteinRatio);
 		} else {
 			GWT.log(excelAmounts.size() + " excel ratios");
-			psmRatio = excelAmounts.get(0);
+			proteinRatio = excelAmounts.get(0);
 
 		}
-		final RatioPanel panel = new RatioPanel("Protein", context, file, excelSheet, psmRatio);
+		final RatioPanel panel = new RatioPanel("Protein", context, file, excelSheet, proteinRatio);
 		return panel;
 	}
 

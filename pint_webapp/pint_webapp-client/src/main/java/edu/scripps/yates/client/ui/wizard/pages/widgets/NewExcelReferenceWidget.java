@@ -266,6 +266,16 @@ public class NewExcelReferenceWidget extends Composite {
 		return null;
 	}
 
+	public String getColumnNameWithNoLetter() {
+		final String columnName = getColumnName();
+		if (columnName != null) {
+			if (columnName.contains("-")) {
+				return columnName.substring(columnName.indexOf("-") + 1);
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Gets the selected sheetRef
 	 *

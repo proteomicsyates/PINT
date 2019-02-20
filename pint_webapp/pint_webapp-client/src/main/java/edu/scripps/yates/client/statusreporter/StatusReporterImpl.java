@@ -61,7 +61,7 @@ public class StatusReporterImpl implements StatusReporter {
 		if (message.contains(exceptionString)) {
 			message = message.substring(message.lastIndexOf(exceptionString) + exceptionString.length()).trim();
 		}
-		message = new SafeHtmlBuilder().appendHtmlConstant(message).toSafeHtml().toString();
+		message = new SafeHtmlBuilder().appendHtmlConstant(message).toSafeHtml().asString();
 		// show pop up dialog
 		final PopUpPanelYesNo popUpDialog = new PopUpPanelYesNo(true, true, true, errorTitle, message, "OK", null);
 		popUpDialog.addButton1ClickHandler(new ClickHandler() {
