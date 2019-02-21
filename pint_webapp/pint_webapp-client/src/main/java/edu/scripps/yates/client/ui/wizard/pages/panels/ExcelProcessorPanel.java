@@ -265,7 +265,7 @@ public class ExcelProcessorPanel extends FlexTable {
 		updateGUIFromContext();
 	}
 
-	public void updateGUIFromContext() {
+	private void updateGUIFromContext() {
 
 		final Set<IdentificationExcelTypeBean> excelIDAssociatedWithThisFile = PintImportCfgUtil
 				.getExcelIDAssociatedWithThisFile(context.getPintImportConfiguration(), file.getId(), excelSheet);
@@ -312,12 +312,18 @@ public class ExcelProcessorPanel extends FlexTable {
 				condition.getQuantificationInfo().getExcelQuantInfo().add(excelQuant);
 			}
 		}
+		final List<ExcelAmountRatioTypeBean> psmRatios = PintImportCfgUtil
+				.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
+						excelSheet, true, false, false);
+		final List<ExcelAmountRatioTypeBean> peptideRatios = PintImportCfgUtil
+				.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
+						excelSheet, false, true, false);
+		final List<ExcelAmountRatioTypeBean> proteinRatios = PintImportCfgUtil
+				.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
+						excelSheet, false, false, true);
 
 		if (excelID != null) {
 			// PSMs
-			final List<ExcelAmountRatioTypeBean> psmRatios = PintImportCfgUtil
-					.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
-							excelSheet, true, false, false);
 			checkBoxPSMs.setValue(
 					excelID.getPsmId() != null || !excelID.getPsmScore().isEmpty() || !psmRatios.isEmpty(), true);
 			showPSMsPanel(checkBoxPSMs.getValue());
@@ -327,9 +333,6 @@ public class ExcelProcessorPanel extends FlexTable {
 			enablePSMsRatios(checkBoxPSMs.getValue());
 
 			// PEPTIDES
-			final List<ExcelAmountRatioTypeBean> peptideRatios = PintImportCfgUtil
-					.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
-							excelSheet, false, true, false);
 			checkBoxPeptides.setValue(excelID.getSequence() != null || !excelID.getPeptideScore().isEmpty()
 					|| !peptideRatios.isEmpty() || checkBoxPSMs.getValue(), true);
 			showPeptidesPanel(checkBoxPeptides.getValue());
@@ -339,9 +342,6 @@ public class ExcelProcessorPanel extends FlexTable {
 			enablePeptidesRatios(checkBoxPeptides.getValue());
 
 			// PROTEINS
-			final List<ExcelAmountRatioTypeBean> proteinRatios = PintImportCfgUtil
-					.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
-							excelSheet, false, false, true);
 			checkBoxProteins.setValue(
 					excelID.getProteinAccession() != null || !excelID.getProteinScore().isEmpty()
 							|| !proteinRatios.isEmpty() || checkBoxPeptides.getValue() || checkBoxPSMs.getValue(),
@@ -367,26 +367,18 @@ public class ExcelProcessorPanel extends FlexTable {
 		if (excelQuant != null) {
 			// TODO
 		}
-		final List<ExcelAmountRatioTypeBean> psmRatios = PintImportCfgUtil
-				.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
-						excelSheet, true, false, false);
-		enablePSMsRatios(!psmRatios.isEmpty());
+		// ratios
+		enablePSMsRatios(checkBoxPSMs.getValue() || !psmRatios.isEmpty());
 		checkBoxPSMRatios.setValue(!psmRatios.isEmpty());
-		showPSMRatiosPanel(!psmRatios.isEmpty());
+		showPSMRatiosPanel(checkBoxPSMRatios.getValue());
 		//
-		final List<ExcelAmountRatioTypeBean> peptideRatios = PintImportCfgUtil
-				.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
-						excelSheet, false, true, false);
-		enablePeptidesRatios(!peptideRatios.isEmpty());
+		enablePeptidesRatios(checkBoxPeptides.getValue() || !peptideRatios.isEmpty());
 		checkBoxPeptideRatios.setValue(!peptideRatios.isEmpty());
-		showPeptideRatiosPanel(!peptideRatios.isEmpty());
+		showPeptideRatiosPanel(checkBoxPeptideRatios.getValue());
 		//
-		final List<ExcelAmountRatioTypeBean> proteinRatios = PintImportCfgUtil
-				.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
-						excelSheet, false, false, true);
-		enableProteinRatios(!proteinRatios.isEmpty());
+		enableProteinRatios(checkBoxProteins.getValue() || !proteinRatios.isEmpty());
 		checkBoxProteinRatios.setValue(!proteinRatios.isEmpty());
-		showProteinRatiosPanel(!proteinRatios.isEmpty());
+		showProteinRatiosPanel(checkBoxProteinRatios.getValue());
 
 	}
 
