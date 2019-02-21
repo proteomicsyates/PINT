@@ -1,6 +1,8 @@
 package edu.scripps.yates.client.ui.wizard.pages;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -29,6 +31,8 @@ public class WizardPageSummary1 extends AbstractWizardPage {
 	private static final String welcomeText2 = "Here you can review the information defined up to now and you can jump to each section in order to edit some information.";
 	private static final String welcomeText3 = "In any case, you can always come back later to edit all this information.";
 	private FlexTable table;
+
+	private final Map<String, WizardPageExcelFileProcessor> excelProcessorsBySheetID = new HashMap<String, WizardPageExcelFileProcessor>();
 
 	public WizardPageSummary1() {
 		super("Summary of elements");
@@ -96,10 +100,16 @@ public class WizardPageSummary1 extends AbstractWizardPage {
 					fileNumber++;
 					final SheetsTypeBean sheets = fileTypeBean.getSheets();
 					for (final SheetTypeBean sheet : sheets.getSheet()) {
-						wizard.addPage(
-								new WizardPageExcelFileProcessor(getContext(), fileNumber, fileTypeBean,
-										ExcelColumnRefPanel.getSheetName(sheet.getId())),
-								WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
+						WizardPageExcelFileProcessor excelProcessor = null;
+						if (excelProcessorsBySheetID.containsKey(sheet.getId())) {
+							excelProcessor = excelProcessorsBySheetID.get(sheet.getId());
+							excelProcessor.updateGUIFromContext();
+						} else {
+							excelProcessor = new WizardPageExcelFileProcessor(getContext(), fileNumber, fileTypeBean,
+									ExcelColumnRefPanel.getSheetName(sheet.getId()));
+							excelProcessorsBySheetID.put(sheet.getId(), excelProcessor);
+						}
+						wizard.addPage(excelProcessor, WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					}
 
 					break;

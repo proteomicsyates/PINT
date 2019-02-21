@@ -1868,6 +1868,12 @@ public class PintImportCfgUtil {
 				excelRatios.addAll(ratios.getPsmAmountRatios().getExcelRatio());
 			}
 			for (final ExcelAmountRatioTypeBean excelRatio : excelRatios) {
+				if (fileID.equals(getExcelFileIdFromExcelColumnID(excelRatio.getColumnRef()))) {
+					if (sheetName.equals(NewExcelReferenceWidget.getSheetName(excelRatio.getColumnRef()))) {
+						ret.add(excelRatio);
+						continue;
+					}
+				}
 				if (excelRatio.getProteinAccession() != null && fileID
 						.equals(getExcelFileIdFromExcelColumnID(excelRatio.getProteinAccession().getColumnRef()))) {
 					if (sheetName.equals(

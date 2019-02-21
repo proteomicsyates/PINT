@@ -23,7 +23,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask2;
@@ -36,6 +35,7 @@ import edu.scripps.yates.client.ui.wizard.pages.AbstractWizardPage;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.AbstractItemWidget;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.MaximizedStatus;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.client.util.ExtendedTextBox;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SampleTypeBean;
@@ -206,7 +206,7 @@ public abstract class AbstractItemPanel<IW extends AbstractItemWidget<IB>, IB> e
 		label.getElement().getStyle().setMarginRight(10, Unit.PX);
 		label.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 		filterByIDPanel.add(label);
-		final TextBox filterTextBox = new TextBox();
+		final ExtendedTextBox filterTextBox = new ExtendedTextBox();
 		filterTextBox.setTitle(filterTitle);
 		filterByIDPanel.add(filterTextBox);
 		final String NO_FILTER = "no filter";

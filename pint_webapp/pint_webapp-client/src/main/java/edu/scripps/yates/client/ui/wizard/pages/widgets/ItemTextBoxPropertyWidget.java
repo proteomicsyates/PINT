@@ -1,9 +1,9 @@
 package edu.scripps.yates.client.ui.wizard.pages.widgets;
 
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.ValueBoxBase;
 
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.client.util.ExtendedTextBox;
 
 public abstract class ItemTextBoxPropertyWidget<T> extends ItemValueBoxBasePropertyWidget<T, String> {
 
@@ -19,7 +19,7 @@ public abstract class ItemTextBoxPropertyWidget<T> extends ItemValueBoxBasePrope
 
 	@Override
 	protected ValueBoxBase<String> createValueBoxBase() {
-		final TextBox textBox = new TextBox();
+		final ExtendedTextBox textBox = new ExtendedTextBox();
 		textBox.setStyleName(WizardStyles.WizardItemWidgetPropertyValueTextArea);
 		return textBox;
 	}

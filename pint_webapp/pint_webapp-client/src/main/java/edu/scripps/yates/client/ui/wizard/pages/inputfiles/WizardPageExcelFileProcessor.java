@@ -31,6 +31,7 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPageFileProcesso
 
 	private WizardQuestionPanel questionPanel;
 	private final String sheetName;
+	private ExcelProcessorPanel excelProcessor;
 
 	public WizardPageExcelFileProcessor(PintContext context, int fileNumber, FileTypeBean file, String excelSheet) {
 		super(context, fileNumber, fileNumber + "-" + file.getName() + "-" + excelSheet, file, excelSheet);
@@ -78,7 +79,7 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPageFileProcesso
 				}
 
 				// show excel processorpanel
-				final ExcelProcessorPanel excelProcessor = new ExcelProcessorPanel(getContext(), getFile(), sheetName);
+				excelProcessor = new ExcelProcessorPanel(getContext(), getFile(), sheetName);
 				// add the conditions already setup in the conditionSelector
 				final List<ExperimentalConditionTypeBean> conditions = conditionSelector.getConditions();
 				for (final ExperimentalConditionTypeBean condition : conditions) {
@@ -254,5 +255,11 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPageFileProcesso
 	public String getQuestion() {
 		return "Select the items you want to extract and use panels in the right to select the Excel columns to use.\n"
 				+ "But also, you whave to define under which Experimental Conditions the data in this file was analyzed.";
+	}
+
+	public void updateGUIFromContext() {
+		if (excelProcessor != null) {
+			excelProcessor.updateGUIFromContext();
+		}
 	}
 }

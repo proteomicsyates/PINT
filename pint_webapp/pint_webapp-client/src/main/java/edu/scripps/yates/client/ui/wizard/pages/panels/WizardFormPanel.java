@@ -32,6 +32,9 @@ import edu.scripps.yates.client.ui.wizard.form.AbstractFormCollection;
 import edu.scripps.yates.client.ui.wizard.form.AbstractFormInformation;
 import edu.scripps.yates.client.ui.wizard.form.AbstractTextBasedFormInformation;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.client.util.HasTextChangeHandlers;
+import edu.scripps.yates.client.util.TextChangeEvent;
+import edu.scripps.yates.client.util.TextChangeEventHandler;
 import edu.scripps.yates.shared.util.Pair;
 
 public class WizardFormPanel extends FlexTable {
@@ -117,6 +120,15 @@ public class WizardFormPanel extends FlexTable {
 					((HasChangeHandlers) formWidget).addChangeHandler(new ChangeHandler() {
 						@Override
 						public void onChange(ChangeEvent event) {
+							final boolean ready = isReady();
+							wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, ready);
+						}
+					});
+				}
+				if (formWidget instanceof HasTextChangeHandlers) {
+					((HasTextChangeHandlers) formWidget).addTextChangeEventHandler(new TextChangeEventHandler() {
+						@Override
+						public void onTextChange(TextChangeEvent event) {
 							final boolean ready = isReady();
 							wizard.setButtonEnabled(ButtonType.BUTTON_NEXT, ready);
 						}

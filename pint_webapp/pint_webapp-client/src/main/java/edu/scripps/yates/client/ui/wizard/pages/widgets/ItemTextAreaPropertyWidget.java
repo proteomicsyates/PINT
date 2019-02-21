@@ -2,10 +2,10 @@ package edu.scripps.yates.client.ui.wizard.pages.widgets;
 
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.ValueBoxBase;
 
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.client.util.ExtendedTextArea;
 
 public abstract class ItemTextAreaPropertyWidget<T> extends ItemValueBoxBasePropertyWidget<T, String> {
 
@@ -21,7 +21,7 @@ public abstract class ItemTextAreaPropertyWidget<T> extends ItemValueBoxBaseProp
 
 	@Override
 	protected ValueBoxBase<String> createValueBoxBase() {
-		final TextArea textArea = new TextArea();
+		final ExtendedTextArea textArea = new ExtendedTextArea();
 		textArea.getElement().getStyle().setHeight(2, Unit.EM);
 		textArea.setStyleName(WizardStyles.WizardItemWidgetPropertyValueTextArea);
 		return textArea;

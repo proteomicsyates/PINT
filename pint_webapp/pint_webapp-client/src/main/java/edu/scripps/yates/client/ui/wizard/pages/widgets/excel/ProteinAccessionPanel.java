@@ -7,11 +7,13 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
 
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.NewExcelReferenceWidget;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.client.util.ExtendedTextBox;
+import edu.scripps.yates.client.util.TextChangeEvent;
+import edu.scripps.yates.client.util.TextChangeEventHandler;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ProteinAccessionTypeBean;
 
@@ -19,7 +21,7 @@ public class ProteinAccessionPanel extends ExcelObjectPanel<ProteinAccessionType
 	private NewExcelReferenceWidget proteinAccessionSelector;
 	private CheckBox containsMultipleAccessions;
 	private int rowForSeparator;
-	private TextBox separatorForMultipleAccessions;
+	private ExtendedTextBox separatorForMultipleAccessions;
 
 	public ProteinAccessionPanel(PintContext context, FileTypeBean file, String excelSheet,
 			ProteinAccessionTypeBean proteinAccession) {
@@ -98,13 +100,13 @@ public class ProteinAccessionPanel extends ExcelObjectPanel<ProteinAccessionType
 		rowForSeparator = row;
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 
-		separatorForMultipleAccessions = new TextBox();
+		separatorForMultipleAccessions = new ExtendedTextBox();
 		setWidget(row, 1, separatorForMultipleAccessions);
 		getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		separatorForMultipleAccessions.addChangeHandler(new ChangeHandler() {
+		separatorForMultipleAccessions.addTextChangeEventHandler(new TextChangeEventHandler() {
 
 			@Override
-			public void onChange(ChangeEvent event) {
+			public void onTextChange(TextChangeEvent event) {
 				object.setGroupSeparator(separatorForMultipleAccessions.getValue());
 			}
 		});

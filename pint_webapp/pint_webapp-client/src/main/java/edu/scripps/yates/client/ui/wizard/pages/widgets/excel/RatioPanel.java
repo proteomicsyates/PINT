@@ -10,13 +10,15 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimpleCheckBox;
-import com.google.gwt.user.client.ui.TextBox;
 
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.NewExcelReferenceWidget;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.client.util.ClientGUIUtil;
+import edu.scripps.yates.client.util.ExtendedTextBox;
+import edu.scripps.yates.client.util.TextChangeEvent;
+import edu.scripps.yates.client.util.TextChangeEventHandler;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExcelAmountRatioTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExperimentalConditionTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
@@ -26,9 +28,9 @@ public class RatioPanel extends ExcelObjectPanel<ExcelAmountRatioTypeBean> {
 	private NewExcelReferenceWidget columnSelectorForRatioValue;
 	private ListBox condition1ListBox;
 	private ListBox condition2ListBox;
-	private TextBox ratioName;
+	private ExtendedTextBox ratioName;
 
-	private SimpleCheckBox useScore;
+	private SimpleCheckBox useScoreCheckBox;
 	private int rowForScore;
 	private ScorePanel scorePanel;
 
@@ -70,9 +72,8 @@ public class RatioPanel extends ExcelObjectPanel<ExcelAmountRatioTypeBean> {
 				// set the column ref of the ratio score
 				final String columnRef = columnSelectorForRatioValue.getColumnRef();
 				object.setColumnRef(columnRef);
-				if (ratioName.getValue() == null || "".equals(ratioName.getValue())) {
-					ratioName.setValue(columnSelectorForRatioValue.getColumnNameWithNoLetter());
-				}
+				ratioName.setValue(columnSelectorForRatioValue.getColumnNameWithNoLetter(), true);
+				object.setName(ratioName.getValue());
 			}
 		});
 		//
@@ -82,14 +83,14 @@ public class RatioPanel extends ExcelObjectPanel<ExcelAmountRatioTypeBean> {
 		setWidget(row, 0, label8);
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 
-		ratioName = new TextBox();
+		ratioName = new ExtendedTextBox();
 		setWidget(row, 1, ratioName);
 		getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		ratioName.addChangeHandler(new ChangeHandler() {
+		ratioName.addTextChangeEventHandler(new TextChangeEventHandler() {
 
 			@Override
-			public void onChange(ChangeEvent event) {
-				getObject().setName(ratioName.getValue());
+			public void onTextChange(TextChangeEvent event) {
+				object.setName(ratioName.getValue());
 			}
 		});
 		//
@@ -132,9 +133,9 @@ public class RatioPanel extends ExcelObjectPanel<ExcelAmountRatioTypeBean> {
 		label4.setStyleName(WizardStyles.WizardInfoMessage);
 		setWidget(row, 0, label4);
 
-		useScore = new SimpleCheckBox();
-		setWidget(row, 1, useScore);
-		useScore.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+		useScoreCheckBox = new SimpleCheckBox();
+		setWidget(row, 1, useScoreCheckBox);
+		useScoreCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
@@ -145,13 +146,8 @@ public class RatioPanel extends ExcelObjectPanel<ExcelAmountRatioTypeBean> {
 		row++;
 		rowForScore = row;
 
-		// if there is 2 conditions created, select one in each listbox
-		final List<ExperimentalConditionTypeBean> conditions = PintImportCfgUtil
-				.getConditions(getContext().getPintImportConfiguration());
-		if (conditions != null && conditions.size() == 2) {
-			ClientGUIUtil.setSelectedValueInListBox(condition1ListBox, conditions.get(0).getId(), true);
-			ClientGUIUtil.setSelectedValueInListBox(condition2ListBox, conditions.get(1).getId(), true);
-		}
+		//
+		updateGUIFromContext();
 	}
 
 	protected void showRatioScore(Boolean value) {
@@ -200,10 +196,21 @@ public class RatioPanel extends ExcelObjectPanel<ExcelAmountRatioTypeBean> {
 	@Override
 	protected void updateGUIFromContext() {
 		columnSelectorForRatioValue.selectExcelColumn(object.getColumnRef());
-		selectInListBox(condition1ListBox, object.getNumerator());
-		selectInListBox(condition2ListBox, object.getDenominator());
+		// if there is 2 conditions created, select one in each listbox
+		if (object.getNumerator() != null && object.getDenominator() != null) {
+			selectInListBox(condition1ListBox, object.getNumerator());
+			selectInListBox(condition2ListBox, object.getDenominator());
+		} else {
+			final List<ExperimentalConditionTypeBean> conditions = PintImportCfgUtil
+					.getConditions(getContext().getPintImportConfiguration());
+			if (conditions != null && conditions.size() == 2) {
+				ClientGUIUtil.setSelectedValueInListBox(condition1ListBox, conditions.get(0).getId(), true);
+				ClientGUIUtil.setSelectedValueInListBox(condition2ListBox, conditions.get(1).getId(), true);
+			}
+		}
+
 		this.ratioName.setValue(object.getName());
-		this.useScore.setValue(object.getRatioScore() != null, true);
+		this.useScoreCheckBox.setValue(object.getRatioScore() != null, true);
 		showRatioScore(object.getRatioScore() != null);
 	}
 

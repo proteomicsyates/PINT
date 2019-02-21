@@ -10,17 +10,19 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimpleCheckBox;
-import com.google.gwt.user.client.ui.TextBox;
 
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ProjectCreatorWizardUtil;
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.client.util.ExtendedTextBox;
+import edu.scripps.yates.client.util.TextChangeEvent;
+import edu.scripps.yates.client.util.TextChangeEventHandler;
 import edu.scripps.yates.shared.model.projectCreator.excel.FastaDigestionBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
 public class FastaDigestionPanelNew extends FlexTable {
-	private final TextBox enzymeResiduesTextBox;
-	private final TextBox enzymeNoCutTextBox;
+	private final ExtendedTextBox enzymeResiduesTextBox;
+	private final ExtendedTextBox enzymeNoCutTextBox;
 	private final ListBox enzymeOffsetListBox;
 	private final ListBox numMaxMissedCleavagesListBox;
 	private final SimpleCheckBox crosslinkerPeptidesCheckBox;
@@ -46,14 +48,14 @@ public class FastaDigestionPanelNew extends FlexTable {
 		lblEnzymeResidues.setStyleName(WizardStyles.WizardInfoMessage);
 		setWidget(row, 0, lblEnzymeResidues);
 
-		enzymeResiduesTextBox = new TextBox();
+		enzymeResiduesTextBox = new ExtendedTextBox();
 		enzymeResiduesTextBox.setText("KR");
 		enzymeResiduesTextBox
 				.setTitle("The aminoacids in which the enzyme will cut.\nFor example, for trypsin, it would be 'KR'.");
-		enzymeResiduesTextBox.addChangeHandler(new ChangeHandler() {
+		enzymeResiduesTextBox.addTextChangeEventHandler(new TextChangeEventHandler() {
 
 			@Override
-			public void onChange(ChangeEvent event) {
+			public void onTextChange(TextChangeEvent event) {
 				file.getFastaDigestion().setCleavageAAs(enzymeResiduesTextBox.getValue());
 				if (onDataUpdatedTask != null) {
 					onDataUpdatedTask.doSomething();
@@ -69,14 +71,14 @@ public class FastaDigestionPanelNew extends FlexTable {
 		lblEnzymeNoCut.setStyleName(WizardStyles.WizardInfoMessage);
 		setWidget(row, 0, lblEnzymeNoCut);
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-		enzymeNoCutTextBox = new TextBox();
+		enzymeNoCutTextBox = new ExtendedTextBox();
 		enzymeNoCutTextBox.setText("P");
 		enzymeNoCutTextBox.setTitle(
 				"Aminoacid that if present just before the cleaveage site, will make the cleavage to not happen.");
-		enzymeNoCutTextBox.addChangeHandler(new ChangeHandler() {
+		enzymeNoCutTextBox.addTextChangeEventHandler(new TextChangeEventHandler() {
 
 			@Override
-			public void onChange(ChangeEvent event) {
+			public void onTextChange(TextChangeEvent event) {
 				file.getFastaDigestion().setEnzymeNoCutResidues(enzymeNoCutTextBox.getText());
 				if (onDataUpdatedTask != null) {
 					onDataUpdatedTask.doSomething();

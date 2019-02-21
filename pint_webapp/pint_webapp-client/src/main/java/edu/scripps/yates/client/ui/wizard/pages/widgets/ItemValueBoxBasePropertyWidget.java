@@ -95,6 +95,7 @@ public abstract class ItemValueBoxBasePropertyWidget<T, V> extends FlexTable imp
 				editProperty(false);
 			}
 		});
+
 		// if ESCAPE key, just come back to label
 		// if ENTER key, come back to label is no text or create sample if text
 		propertyValueValueBox.addKeyUpHandler(new KeyUpHandler() {
@@ -125,11 +126,6 @@ public abstract class ItemValueBoxBasePropertyWidget<T, V> extends FlexTable imp
 	}
 
 	protected abstract ValueBoxBase<V> createValueBoxBase();
-//	protected ValueBoxBase<V> createTextBoxBase() {
-//		final TextBox textBox = new TextBox();
-//		textBox.setStyleName(WizardStyles.WizardItemWidgetPropertyValueTextBox);
-//		return textBox;
-//	}
 
 	public ValueBoxBase<V> getValueBoxBase() {
 		return propertyValueValueBox;

@@ -6,12 +6,14 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
 
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask2;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.ui.wizard.pages.widgets.NewExcelReferenceWidget;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.client.util.ExtendedTextBox;
+import edu.scripps.yates.client.util.TextChangeEvent;
+import edu.scripps.yates.client.util.TextChangeEventHandler;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ScoreTypeBean;
 
@@ -19,9 +21,9 @@ public class ScorePanel extends ExcelObjectPanel<ScoreTypeBean> {
 	private DoSomethingTask2<ScoreTypeBean> onDeletePeptideScoreTask;
 	private Label label0;
 	private NewExcelReferenceWidget peptideSequenceSelector;
-	private TextBox scoreDescriptionText;
-	private TextBox scoreTypeText;
-	private TextBox scoreNameText;
+	private ExtendedTextBox scoreDescriptionText;
+	private ExtendedTextBox scoreTypeText;
+	private ExtendedTextBox scoreNameText;
 	private final boolean showDeleteButton;
 
 	public ScorePanel(String itemName, PintContext context, FileTypeBean file, String excelSheet, ScoreTypeBean score,
@@ -72,7 +74,7 @@ public class ScorePanel extends ExcelObjectPanel<ScoreTypeBean> {
 				object.setColumnRef(null);
 			}
 		});
-		scoreNameText = new TextBox();
+		scoreNameText = new ExtendedTextBox();
 		peptideSequenceSelector.addExcelColumnsChangeHandler(new ChangeHandler() {
 
 			@Override
@@ -81,9 +83,8 @@ public class ScorePanel extends ExcelObjectPanel<ScoreTypeBean> {
 				final String columnRef = peptideSequenceSelector.getColumnRef();
 				object.setColumnRef(columnRef);
 				// set score name as the column name
-				if (scoreNameText.getValue() != null || "".equals(scoreNameText.getValue())) {
-					scoreNameText.setValue(peptideSequenceSelector.getColumnNameWithNoLetter(), true);
-				}
+				scoreNameText.setValue(peptideSequenceSelector.getColumnNameWithNoLetter(), true);
+				object.setScoreName(scoreNameText.getValue());
 			}
 		});
 		//
@@ -95,11 +96,12 @@ public class ScorePanel extends ExcelObjectPanel<ScoreTypeBean> {
 
 		setWidget(row, 1, scoreNameText);
 		getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		scoreNameText.addChangeHandler(new ChangeHandler() {
+		scoreNameText.addTextChangeEventHandler(new TextChangeEventHandler() {
 
 			@Override
-			public void onChange(ChangeEvent event) {
+			public void onTextChange(TextChangeEvent event) {
 				object.setScoreName(scoreNameText.getValue());
+
 			}
 		});
 		if (object.getScoreName() != null) {
@@ -112,17 +114,18 @@ public class ScorePanel extends ExcelObjectPanel<ScoreTypeBean> {
 		setWidget(row, 0, label2);
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 
-		scoreTypeText = new TextBox();
+		scoreTypeText = new ExtendedTextBox();
 		if (object.getScoreType() != null) {
 			scoreTypeText.setValue(object.getScoreType());
 		}
 		setWidget(row, 1, scoreTypeText);
 		getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		scoreTypeText.addChangeHandler(new ChangeHandler() {
+		scoreTypeText.addTextChangeEventHandler(new TextChangeEventHandler() {
 
 			@Override
-			public void onChange(ChangeEvent event) {
+			public void onTextChange(TextChangeEvent event) {
 				object.setScoreType(scoreTypeText.getValue());
+
 			}
 		});
 		//
@@ -132,17 +135,18 @@ public class ScorePanel extends ExcelObjectPanel<ScoreTypeBean> {
 		setWidget(row, 0, label3);
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 
-		scoreDescriptionText = new TextBox();
+		scoreDescriptionText = new ExtendedTextBox();
 		if (object.getDescription() != null) {
 			scoreDescriptionText.setValue(object.getDescription());
 		}
 		setWidget(row, 1, scoreDescriptionText);
 		getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		scoreDescriptionText.addChangeHandler(new ChangeHandler() {
+		scoreDescriptionText.addTextChangeEventHandler(new TextChangeEventHandler() {
 
 			@Override
-			public void onChange(ChangeEvent event) {
+			public void onTextChange(TextChangeEvent event) {
 				object.setDescription(scoreDescriptionText.getValue());
+
 			}
 		});
 	}
