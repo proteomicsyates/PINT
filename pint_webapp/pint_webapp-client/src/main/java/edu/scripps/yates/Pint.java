@@ -7,14 +7,12 @@ import java.util.logging.Logger;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.UmbrellaException;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -133,40 +131,40 @@ public class Pint implements EntryPoint {
 	public void startupConfiguration(final boolean forceToShowPanel) {
 
 		// code splitting
-		GWT.runAsync(new RunAsyncCallback() {
+//		GWT.runAsync(new RunAsyncCallback() {
+//
+//			@Override
+//			public void onFailure(Throwable caught) {
+//				Window.alert("Code download failed");
+//			}
+//
+//			@Override
+//			public void onSuccess() {
+		final ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
+
+		service.getPintConfigurationProperties(new AsyncCallback<PintConfigurationProperties>() {
+
+			@Override
+			public void onSuccess(PintConfigurationProperties properties) {
+				if (properties != null) {
+					psmCentric = properties.getPsmCentric();
+					if (forceToShowPanel || properties.isSomeConfigurationMissing()) {
+						showConfigurationPanel(properties);
+					} else {
+
+					}
+				}
+			}
 
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert("Code download failed");
-			}
+				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+				GWT.log("Error setting up PINT: " + caught.getMessage());
 
-			@Override
-			public void onSuccess() {
-				final ConfigurationServiceAsync service = ConfigurationServiceAsync.Util.getInstance();
-
-				service.getPintConfigurationProperties(new AsyncCallback<PintConfigurationProperties>() {
-
-					@Override
-					public void onSuccess(PintConfigurationProperties properties) {
-						if (properties != null) {
-							psmCentric = properties.getPsmCentric();
-							if (forceToShowPanel || properties.isSomeConfigurationMissing()) {
-								showConfigurationPanel(properties);
-							} else {
-
-							}
-						}
-					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-						GWT.log("Error setting up PINT: " + caught.getMessage());
-
-					}
-				});
 			}
 		});
+//			}
+//		});
 
 	}
 
@@ -192,49 +190,49 @@ public class Pint implements EntryPoint {
 	private void loadGUI() {
 
 		// code splitting
-		GWT.runAsync(new RunAsyncCallback() {
+//		GWT.runAsync(new RunAsyncCallback() {
+//
+//			@Override
+//			public void onFailure(Throwable reason) {
+//				StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+//			}
+//
+//			@Override
+//			public void onSuccess() {
 
-			@Override
-			public void onFailure(Throwable reason) {
-				StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+		// setup historychangehandler
+		setUpHistory();
+
+		final RootLayoutPanel rootPanel = RootLayoutPanel.get();
+		rootPanel.setSize("100%", "100%");
+		rootPanel.animate(100);
+		scroll = new MyWindowScrollPanel();
+		rootPanel.add(scroll);
+
+		// MAIN PANEL
+		mainPanel = new MainPanel(Pint.this);
+		scroll.add(mainPanel);
+
+		// / PROJECT CREATOR #projectCreator
+		// createProjectPanel = new ProjectCreator();
+
+		final String projectParameter = com.google.gwt.user.client.Window.Location.getParameter("project");
+		final String testParameter = com.google.gwt.user.client.Window.Location.getParameter("test");
+
+		if (testParameter != null) {
+			try {
+				testMode = Boolean.parseBoolean(testParameter);
+			} catch (final Exception e) {
+
 			}
-
-			@Override
-			public void onSuccess() {
-
-				// setup historychangehandler
-				setUpHistory();
-
-				final RootLayoutPanel rootPanel = RootLayoutPanel.get();
-				rootPanel.setSize("100%", "100%");
-				rootPanel.animate(100);
-				scroll = new MyWindowScrollPanel();
-				rootPanel.add(scroll);
-
-				// MAIN PANEL
-				mainPanel = new MainPanel(Pint.this);
-				scroll.add(mainPanel);
-
-				// / PROJECT CREATOR #projectCreator
-				// createProjectPanel = new ProjectCreator();
-
-				final String projectParameter = com.google.gwt.user.client.Window.Location.getParameter("project");
-				final String testParameter = com.google.gwt.user.client.Window.Location.getParameter("test");
-
-				if (testParameter != null) {
-					try {
-						testMode = Boolean.parseBoolean(testParameter);
-					} catch (final Exception e) {
-
-					}
-				}
-				parseEncryptedProjectValues(projectParameter);
-				if (!"".equals(History.getToken())) {
-					History.fireCurrentHistoryState();
-				}
-				loadingDialog.hide();
-			}
-		});
+		}
+		parseEncryptedProjectValues(projectParameter);
+		if (!"".equals(History.getToken())) {
+			History.fireCurrentHistoryState();
+		}
+		loadingDialog.hide();
+//			}
+//		});
 
 	}
 
@@ -321,106 +319,103 @@ public class Pint implements EntryPoint {
 
 	private void login() {
 
-		GWT.runAsync(new RunAsyncCallback() {
+//		GWT.runAsync(new RunAsyncCallback() {
+//
+//			@Override
+//			public void onSuccess() {
+		isTestServer();
+
+		final ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
+		final String clientToken = ClientToken.getToken();
+
+		final String userName = "guest";
+		final String password = "guest";
+		service.login(clientToken, userName, password, new AsyncCallback<String>() {
 
 			@Override
-			public void onSuccess() {
-				isTestServer();
+			public void onSuccess(String sessionID) {
+				GWT.log("New session id:" + sessionID);
+				Pint.this.setSessionID(sessionID);
 
-				final ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
-				final String clientToken = ClientToken.getToken();
+				loadScoreTypes();
 
-				final String userName = "guest";
-				final String password = "guest";
-				service.login(clientToken, userName, password, new AsyncCallback<String>() {
+			}
+
+			private void loadScoreTypes() {
+				Pint.this.service.getScoreTypes(getSessionID(), new AsyncCallback<List<String>>() {
 
 					@Override
-					public void onSuccess(String sessionID) {
-						GWT.log("New session id:" + sessionID);
-						Pint.this.setSessionID(sessionID);
+					public void onFailure(Throwable caught) {
+						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+						GWT.log("Error loading score types: " + caught.getMessage());
+						loadingDialog.hide();
+					}
 
-						loadScoreTypes();
+					@Override
+					public void onSuccess(List<String> result) {
+						ClientCacheGeneralObjects.getInstance().addtoCache(result, GeneralObject.SCORE_TYPES);
+						loadPTMNames();
 
 					}
 
-					private void loadScoreTypes() {
-						Pint.this.service.getScoreTypes(getSessionID(), new AsyncCallback<List<String>>() {
+					private void loadPTMNames() {
+						Pint.this.service.getPTMNames(getSessionID(), new AsyncCallback<List<String>>() {
 
 							@Override
 							public void onFailure(Throwable caught) {
 								StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-								GWT.log("Error loading score types: " + caught.getMessage());
+								GWT.log("Error loading PTM names: " + caught.getMessage());
 								loadingDialog.hide();
 							}
 
 							@Override
 							public void onSuccess(List<String> result) {
-								ClientCacheGeneralObjects.getInstance().addtoCache(result, GeneralObject.SCORE_TYPES);
-								loadPTMNames();
+								ClientCacheGeneralObjects.getInstance().addtoCache(result, GeneralObject.PTM_NAMES);
+								loadTissueList();
 
 							}
 
-							private void loadPTMNames() {
-								Pint.this.service.getPTMNames(getSessionID(), new AsyncCallback<List<String>>() {
+							private void loadTissueList() {
+								Pint.this.service.getTissueList(getSessionID(), new AsyncCallback<List<String>>() {
 
 									@Override
 									public void onFailure(Throwable caught) {
 										StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-										GWT.log("Error loading PTM names: " + caught.getMessage());
+										GWT.log("Error loading Tissue list: " + caught.getMessage());
 										loadingDialog.hide();
 									}
 
 									@Override
 									public void onSuccess(List<String> result) {
 										ClientCacheGeneralObjects.getInstance().addtoCache(result,
-												GeneralObject.PTM_NAMES);
-										loadTissueList();
-
+												GeneralObject.TISSUE_LIST);
+										loadGUI();
+										startupConfiguration(false);
 									}
 
-									private void loadTissueList() {
-										Pint.this.service.getTissueList(getSessionID(),
-												new AsyncCallback<List<String>>() {
-
-													@Override
-													public void onFailure(Throwable caught) {
-														StatusReportersRegister.getInstance()
-																.notifyStatusReporters(caught);
-														GWT.log("Error loading Tissue list: " + caught.getMessage());
-														loadingDialog.hide();
-													}
-
-													@Override
-													public void onSuccess(List<String> result) {
-														ClientCacheGeneralObjects.getInstance().addtoCache(result,
-																GeneralObject.TISSUE_LIST);
-														loadGUI();
-														startupConfiguration(false);
-													}
-
-												});
-									}
 								});
-
 							}
 						});
 
 					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						StatusReportersRegister.getInstance().notifyStatusReporters(caught);
-						GWT.log("Error in login: " + caught.getMessage());
-						loadingDialog.hide();
-					}
 				});
+
 			}
 
 			@Override
-			public void onFailure(Throwable reason) {
-				StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+			public void onFailure(Throwable caught) {
+				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
+				GWT.log("Error in login: " + caught.getMessage());
+				loadingDialog.hide();
 			}
 		});
+//			}
+//
+//			@Override
+//			public void onFailure(Throwable reason) {
+//				StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+//			}
+//		});
 
 	}
 
