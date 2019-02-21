@@ -440,34 +440,34 @@ public class Pint implements EntryPoint {
 				GWT.log("HISTORY VALUE: " + historyToken);
 				// Parse the history token
 				if (historyToken.contains(TargetHistory.QUERY.getTargetHistory())) {
-					GWT.runAsync(new RunAsyncCallback() {
+//					GWT.runAsync(new RunAsyncCallback() {
+//
+//						@Override
+//						public void onFailure(Throwable reason) {
+//							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+//						}
+//
+//						@Override
+//						public void onSuccess() {
+					// queryPanel is suppose to be already created
+					if (queryPanel == null || queryPanel.getLoadedProjects().isEmpty()) {
+						final PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true,
+								"No projects selected",
+								"You need to select one project before to query the data.\nClick here to go to Browse menu.",
+								TargetHistory.BROWSE);
+						popup.show();
+					} else {
+						loadPanel(queryPanel);
 
-						@Override
-						public void onFailure(Throwable reason) {
-							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
-						}
-
-						@Override
-						public void onSuccess() {
-							// queryPanel is suppose to be already created
-							if (queryPanel == null || queryPanel.getLoadedProjects().isEmpty()) {
-								final PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true,
-										"No projects selected",
-										"You need to select one project before to query the data.\nClick here to go to Browse menu.",
-										TargetHistory.BROWSE);
-								popup.show();
-							} else {
-								loadPanel(queryPanel);
-
-							}
-							return;
-						}
-
-					});
+					}
+					return;
+//						}
+//
+//					});
 					// we have to return here, otherwise we are going to clear
 					// the loadedProjects and the previous if clause is going to
 					// be true
-					return;
+//					return;
 				}
 				// removePending task
 				PendingTasksManager.removeAllTasks(TaskType.PROTEINS_BY_PROJECT);
@@ -475,126 +475,116 @@ public class Pint implements EntryPoint {
 				QueryPanel.loadedProjects.clear();
 
 				if (historyToken.contains(TargetHistory.BROWSE.getTargetHistory())) {
-					GWT.runAsync(new RunAsyncCallback() {
-
-						@Override
-						public void onFailure(Throwable reason) {
-							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
-						}
-
-						@Override
-						public void onSuccess() {
-							if (browsePanel == null)
-								browsePanel = new BrowsePanel();
-							loadPanel(browsePanel);
-						}
-					});
+//					GWT.runAsync(new RunAsyncCallback() {
+//
+//						@Override
+//						public void onFailure(Throwable reason) {
+//							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+//						}
+//
+//						@Override
+//						public void onSuccess() {
+					if (browsePanel == null)
+						browsePanel = new BrowsePanel();
+					loadPanel(browsePanel);
+//						}
+//					});
 				}
-				if (historyToken.contains(TargetHistory.HOME.getTargetHistory()))
-
-				{
-					GWT.runAsync(new RunAsyncCallback() {
-
-						@Override
-						public void onFailure(Throwable reason) {
-							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
-						}
-
-						@Override
-						public void onSuccess() {
-							if (mainPanel == null)
-								mainPanel = new MainPanel(Pint.this);
-							loadPanel(mainPanel);
-							mainPanel.loadStatistics();
-						}
-					});
+				if (historyToken.contains(TargetHistory.HOME.getTargetHistory())) {
+//					GWT.runAsync(new RunAsyncCallback() {
+//
+//						@Override
+//						public void onFailure(Throwable reason) {
+//							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+//						}
+//
+//						@Override
+//						public void onSuccess() {
+					if (mainPanel == null)
+						mainPanel = new MainPanel(Pint.this);
+					loadPanel(mainPanel);
+					mainPanel.loadStatistics();
+//						}
+//					});
 				}
-				if (historyToken.contains(TargetHistory.RELOAD.getTargetHistory()))
-
-				{
+				if (historyToken.contains(TargetHistory.RELOAD.getTargetHistory())) {
 					parseProjectValues(historyToken);
 
 				}
-				if (historyToken.equals(TargetHistory.SUBMIT.getTargetHistory()))
-
-				{
-					GWT.runAsync(new RunAsyncCallback() {
-
-						@Override
-						public void onFailure(Throwable reason) {
-							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
-						}
-
-						@Override
-						public void onSuccess() {
-							if (createProjectWizardPanel == null) {
-								// not create again to not let the user loose
-								// everything
-								createProjectWizardPanel = new NewProjectCreatorWizard(getSessionID());
-							}
-							loadPanel(createProjectWizardPanel);
-						}
-					});
+				if (historyToken.equals(TargetHistory.SUBMIT.getTargetHistory())) {
+//					GWT.runAsync(new RunAsyncCallback() {
+//
+//						@Override
+//						public void onFailure(Throwable reason) {
+//							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+//						}
+//
+//						@Override
+//						public void onSuccess() {
+					if (createProjectWizardPanel == null) {
+						// not create again to not let the user loose
+						// everything
+						createProjectWizardPanel = new NewProjectCreatorWizard(getSessionID());
+					}
+					loadPanel(createProjectWizardPanel);
+//						}
+//					});
 
 					// if (createProjectPanel == null)
 					// createProjectPanel = new ProjectCreator();
 					// loadPanel(createProjectPanel);
 				}
-				if (historyToken.equals(TargetHistory.HELP.getTargetHistory()))
-
-				{
-					GWT.runAsync(new RunAsyncCallback() {
-
-						@Override
-						public void onFailure(Throwable reason) {
-							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
-						}
-
-						@Override
-						public void onSuccess() {
-							if (helpPanel == null) {
-								helpPanel = new HelpPanel();
-							}
-							loadPanel(helpPanel);
-						}
-					});
+				if (historyToken.equals(TargetHistory.HELP.getTargetHistory())) {
+//					GWT.runAsync(new RunAsyncCallback() {
+//
+//						@Override
+//						public void onFailure(Throwable reason) {
+//							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+//						}
+//
+//						@Override
+//						public void onSuccess() {
+					if (helpPanel == null) {
+						helpPanel = new HelpPanel();
+					}
+					loadPanel(helpPanel);
+//						}
+//					});
 				}
-				if (historyToken.equals(TargetHistory.ABOUT.getTargetHistory()))
-
-				{
-					GWT.runAsync(new RunAsyncCallback() {
-
-						@Override
-						public void onFailure(Throwable reason) {
-							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
-						}
-
-						@Override
-						public void onSuccess() {
-							if (aboutPanel == null) {
-								aboutPanel = new AboutPanel();
-							}
-							loadPanel(aboutPanel);
-						}
-					});
+				if (historyToken.equals(TargetHistory.ABOUT.getTargetHistory())) {
+//					GWT.runAsync(new RunAsyncCallback() {
+//
+//						@Override
+//						public void onFailure(Throwable reason) {
+//							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+//						}
+//
+//						@Override
+//						public void onSuccess() {
+					if (aboutPanel == null) {
+						aboutPanel = new AboutPanel();
+					}
+					loadPanel(aboutPanel);
+//						}
+//					});
 				}
 				if (historyToken.startsWith(TargetHistory.LOAD_PROJECT.getTargetHistory())) {
 					parseProjectValues(historyToken);
 				}
 				if (historyToken.contains(TargetHistory.PSEAQUANT.getTargetHistory())) {
-					GWT.runAsync(new RunAsyncCallback() {
-
-						@Override
-						public void onFailure(Throwable reason) {
-							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
-						}
-
-						@Override
-						public void onSuccess() {
-							final PSEAQuantFormPanel pseaQuant = new PSEAQuantFormPanel(getProjectValues(historyToken));
-							loadPanel(pseaQuant);
-						}
-					});
+//					GWT.runAsync(new RunAsyncCallback() {
+//
+//						@Override
+//						public void onFailure(Throwable reason) {
+//							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
+//						}
+//
+//						@Override
+//						public void onSuccess() {
+					final PSEAQuantFormPanel pseaQuant = new PSEAQuantFormPanel(getProjectValues(historyToken));
+					loadPanel(pseaQuant);
+//						}
+//					});
 				}
 
 			}
