@@ -128,7 +128,7 @@ public class MainPanel extends InitializableComposite {
 		submitVerticalPanel.getFlexCellFormatter().setHeight(0, 0, "4em");
 
 		final InlineHTML nlnhtmlSubmitExplanation = new InlineHTML(
-				"Click here to create a new project and upload data into it. The tool will guide you in order to capture your data in an appropiate way.");
+				"Click here to create a new dataset. The tool will guide you in order to capture your data in an appropiate way.");
 		nlnhtmlSubmitExplanation.setStyleName("mainPageBoxExplanation");
 		submitVerticalPanel.setWidget(1, 0, nlnhtmlSubmitExplanation);
 		submitVerticalPanel.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_TOP);
