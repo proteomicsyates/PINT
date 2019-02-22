@@ -402,7 +402,9 @@ public class ExcelProcessorPanel extends FlexTable {
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(psmRatiosValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-
+			// remove ratios
+			PintImportCfgUtil.removePSMRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
+					file.getId(), sheetName);
 		}
 	}
 
@@ -460,7 +462,9 @@ public class ExcelProcessorPanel extends FlexTable {
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(peptideRatiosValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-
+			// remove ratios
+			PintImportCfgUtil.removePeptideRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
+					file.getId(), sheetName);
 		}
 	}
 
@@ -615,7 +619,9 @@ public class ExcelProcessorPanel extends FlexTable {
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(proteinRatiosValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-
+			// remove ratios
+			PintImportCfgUtil.removeProteinRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
+					file.getId(), sheetName);
 		}
 
 	}

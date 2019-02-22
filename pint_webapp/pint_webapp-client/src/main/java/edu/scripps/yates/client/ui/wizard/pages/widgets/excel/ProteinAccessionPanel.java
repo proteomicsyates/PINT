@@ -127,11 +127,11 @@ public class ProteinAccessionPanel extends ExcelObjectPanel<ProteinAccessionType
 	protected void updateGUIFromContext() {
 		this.proteinAccessionSelector.selectExcelColumn(object.getColumnRef());
 		if (object.isGroups()) {
-			containsMultipleAccessions.setValue(true, true);
 			separatorForMultipleAccessions.setValue(object.getGroupSeparator());
+			containsMultipleAccessions.setValue(true, true);
 		} else {
-			containsMultipleAccessions.setValue(false, true);
 			separatorForMultipleAccessions.setValue(null);
+			containsMultipleAccessions.setValue(false, true);
 		}
 	}
 
