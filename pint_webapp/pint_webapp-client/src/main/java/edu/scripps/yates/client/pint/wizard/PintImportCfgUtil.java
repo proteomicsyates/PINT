@@ -817,7 +817,7 @@ public class PintImportCfgUtil {
 
 	public static String getTitleMSRun(MsRunTypeBean msRun) {
 		final StringBuilder sb = new StringBuilder();
-		sb.append("MS run: " + msRun.getId());
+		sb.append("Experiment/Replicate: " + msRun.getId());
 		if (msRun.getDate() != null) {
 			sb.append("\nCreation date: " + dateFormatter.format(msRun.getDate()));
 		}
@@ -2372,6 +2372,31 @@ public class PintImportCfgUtil {
 						iterator.remove();
 					}
 				}
+			}
+		}
+		final RatiosTypeBean ratios = pintImportConfiguration.getProject().getRatios();
+		if (ratios != null) {
+			if (ratios.getPeptideAmountRatios() != null) {
+				if (ratios.getPeptideAmountRatios().getExcelRatio().isEmpty()
+						&& ratios.getPeptideAmountRatios().getRemoteFilesRatio().isEmpty()) {
+					ratios.setPeptideAmountRatios(null);
+				}
+			}
+			if (ratios.getProteinAmountRatios() != null) {
+				if (ratios.getProteinAmountRatios().getExcelRatio().isEmpty()
+						&& ratios.getProteinAmountRatios().getRemoteFilesRatio().isEmpty()) {
+					ratios.setProteinAmountRatios(null);
+				}
+			}
+			if (ratios.getPsmAmountRatios() != null) {
+				if (ratios.getPsmAmountRatios().getExcelRatio().isEmpty()
+						&& ratios.getPsmAmountRatios().getRemoteFilesRatio().isEmpty()) {
+					ratios.setPsmAmountRatios(null);
+				}
+			}
+			if (ratios.getPeptideAmountRatios() == null && ratios.getProteinAmountRatios() == null
+					&& ratios.getPsmAmountRatios() == null) {
+				pintImportConfiguration.getProject().setRatios(null);
 			}
 		}
 

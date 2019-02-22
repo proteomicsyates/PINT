@@ -17,10 +17,12 @@ import com.google.gwt.user.client.ui.Widget;
 import edu.scripps.yates.ImportWizardServiceAsync;
 import edu.scripps.yates.client.gui.PopUpPanelYesNo;
 import edu.scripps.yates.client.gui.components.MyDialogBox;
+import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
 import edu.scripps.yates.client.ui.wizard.event.NavigationEvent;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
 
 public class WizardPageFinal extends AbstractWizardPage {
 
@@ -101,7 +103,9 @@ public class WizardPageFinal extends AbstractWizardPage {
 	private void submitDatasetToPINT() {
 		showLoadingDialog(
 				"Please wait while input files are processed and dataset is imported.\nThis may take some minutes...");
-		service.submitProject(getImportID(), getPintImportConfg(), new AsyncCallback<String>() {
+		final PintImportCfgBean pintImportConfg = getPintImportConfg();
+		PintImportCfgUtil.removeNonUsedItems(pintImportConfg);
+		service.submitProject(getImportID(), pintImportConfg, new AsyncCallback<String>() {
 
 			@Override
 			public void onSuccess(String encryptedDatasetCode) {

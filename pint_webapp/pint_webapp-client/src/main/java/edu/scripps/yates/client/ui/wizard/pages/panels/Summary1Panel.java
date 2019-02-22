@@ -141,6 +141,7 @@ public class Summary1Panel extends FlexTable {
 	private FlexTable getPanel(int number, String name, Class<? extends AbstractWizardPage> clazz) {
 		final FlexTable table = new FlexTable();
 		table.setStyleName(WizardStyles.WizardQuestionPanelLessRoundCorners);
+		table.getElement().getStyle().setWidth(100, Unit.PCT);
 
 		final Label label1 = new Label(String.valueOf(number));
 		label1.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);

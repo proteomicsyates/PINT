@@ -118,10 +118,10 @@ public class ExcelProcessorPanel extends FlexTable {
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
 
-				showProteinsPanel(event.getValue());
+				showProteinsPanel(event.getValue(), true);
 
-				enableProteinsScores(event.getValue());
-				enableProteinRatios(event.getValue());
+				enableProteinsScores(event.getValue(), true);
+				enableProteinRatios(event.getValue(), true);
 			}
 		});
 		// protein scores
@@ -135,7 +135,7 @@ public class ExcelProcessorPanel extends FlexTable {
 
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				showProteinScoresPanel(event.getValue());
+				showProteinScoresPanel(event.getValue(), true);
 
 			}
 		});
@@ -152,7 +152,7 @@ public class ExcelProcessorPanel extends FlexTable {
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
 
-				showProteinRatiosPanel(event.getValue());
+				showProteinRatiosPanel(event.getValue(), true);
 
 			}
 		});
@@ -166,15 +166,15 @@ public class ExcelProcessorPanel extends FlexTable {
 
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				showPeptidesPanel(event.getValue());
+				showPeptidesPanel(event.getValue(), true);
 				// you need a protein too in the same row
 				if (event.getValue()) {
 					checkBoxProteins.setValue(true, true);
-					enableProteinRatios(true);
-					enableProteinsScores(true);
+					enableProteinRatios(true, false);
+					enableProteinsScores(true, false);
 				}
-				enablePeptidesScores(event.getValue());
-				enablePeptidesRatios(event.getValue());
+				enablePeptidesScores(event.getValue(), true);
+				enablePeptidesRatios(event.getValue(), true);
 			}
 		});
 		// peptide scores
@@ -189,7 +189,7 @@ public class ExcelProcessorPanel extends FlexTable {
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
 
-				showPeptideScoresPanel(event.getValue());
+				showPeptideScoresPanel(event.getValue(), true);
 
 			}
 		});
@@ -206,7 +206,7 @@ public class ExcelProcessorPanel extends FlexTable {
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
 
-				showPeptideRatiosPanel(event.getValue());
+				showPeptideRatiosPanel(event.getValue(), true);
 
 			}
 		});
@@ -221,21 +221,21 @@ public class ExcelProcessorPanel extends FlexTable {
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
 
-				showPSMsPanel(event.getValue());
+				showPSMsPanel(event.getValue(), true);
 				// you need a protein too in the same row
 				if (event.getValue()) {
 					checkBoxProteins.setValue(true, true);
-					showProteinsPanel(true);
-					enableProteinRatios(true);
-					enableProteinsScores(true);
+					showProteinsPanel(true, false);
+					enableProteinRatios(true, false);
+					enableProteinsScores(true, false);
 
 					checkBoxPeptides.setValue(true, true);
-					showPeptidesPanel(true);
-					enablePeptidesRatios(true);
-					enablePeptidesScores(true);
+					showPeptidesPanel(true, false);
+					enablePeptidesRatios(true, false);
+					enablePeptidesScores(true, false);
 				}
-				enablePSMsScores(event.getValue());
-				enablePSMsRatios(event.getValue());
+				enablePSMsScores(event.getValue(), true);
+				enablePSMsRatios(event.getValue(), true);
 			}
 		});
 		// pSM scores
@@ -250,7 +250,7 @@ public class ExcelProcessorPanel extends FlexTable {
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
 
-				showPSMScoresPanel(event.getValue());
+				showPSMScoresPanel(event.getValue(), true);
 
 			}
 		});
@@ -266,7 +266,7 @@ public class ExcelProcessorPanel extends FlexTable {
 
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				showPSMRatiosPanel(event.getValue());
+				showPSMRatiosPanel(event.getValue(), true);
 
 			}
 		});
@@ -334,81 +334,87 @@ public class ExcelProcessorPanel extends FlexTable {
 		if (excelID != null) {
 			// PSMs
 			checkBoxPSMs.setValue(
-					excelID.getPsmId() != null || !excelID.getPsmScore().isEmpty() || !psmRatios.isEmpty(), true);
-			showPSMsPanel(checkBoxPSMs.getValue());
-			checkBoxPSMScores.setValue(!excelID.getPsmScore().isEmpty(), true);
-			enablePSMsScores(checkBoxPSMs.getValue());
-			checkBoxPSMRatios.setValue(!psmRatios.isEmpty(), true);
-			enablePSMsRatios(checkBoxPSMs.getValue());
+					excelID.getPsmId() != null || !excelID.getPsmScore().isEmpty() || !psmRatios.isEmpty(), false);
+			showPSMsPanel(checkBoxPSMs.getValue(), false);
+			checkBoxPSMScores.setValue(!excelID.getPsmScore().isEmpty(), false);
+			enablePSMsScores(checkBoxPSMs.getValue(), false);
+			checkBoxPSMRatios.setValue(!psmRatios.isEmpty(), false);
+			enablePSMsRatios(checkBoxPSMs.getValue(), false);
 
 			// PEPTIDES
 			checkBoxPeptides.setValue(excelID.getSequence() != null || !excelID.getPeptideScore().isEmpty()
-					|| !peptideRatios.isEmpty() || checkBoxPSMs.getValue(), true);
-			showPeptidesPanel(checkBoxPeptides.getValue());
-			checkBoxPeptideScores.setValue(!excelID.getPeptideScore().isEmpty(), true);
-			enablePeptidesScores(checkBoxPeptides.getValue());
-			checkBoxPeptideRatios.setValue(!peptideRatios.isEmpty(), true);
-			enablePeptidesRatios(checkBoxPeptides.getValue());
+					|| !peptideRatios.isEmpty() || checkBoxPSMs.getValue(), false);
+			showPeptidesPanel(checkBoxPeptides.getValue(), false);
+			checkBoxPeptideScores.setValue(!excelID.getPeptideScore().isEmpty(), false);
+			enablePeptidesScores(checkBoxPeptides.getValue(), false);
+			checkBoxPeptideRatios.setValue(!peptideRatios.isEmpty(), false);
+			enablePeptidesRatios(checkBoxPeptides.getValue(), false);
 
 			// PROTEINS
 			checkBoxProteins.setValue(
 					excelID.getProteinAccession() != null || !excelID.getProteinScore().isEmpty()
 							|| !proteinRatios.isEmpty() || checkBoxPeptides.getValue() || checkBoxPSMs.getValue(),
-					true);
-			showProteinsPanel(checkBoxProteins.getValue());
-			checkBoxProteinScores.setValue(!excelID.getProteinScore().isEmpty(), true);
-			enableProteinsScores(checkBoxProteins.getValue());
-			checkBoxProteinRatios.setValue(!proteinRatios.isEmpty(), true);
-			enableProteinRatios(checkBoxProteins.getValue());
+					false);
+			showProteinsPanel(checkBoxProteins.getValue(), false);
+			checkBoxProteinScores.setValue(!excelID.getProteinScore().isEmpty(), false);
+			enableProteinsScores(checkBoxProteins.getValue(), false);
+			checkBoxProteinRatios.setValue(!proteinRatios.isEmpty(), false);
+			enableProteinRatios(checkBoxProteins.getValue(), false);
 
 			// TODO protein scores and psm scores
 		} else {
-			checkBoxPeptides.setValue(false, true);
-			enablePeptidesRatios(false);
-			enablePeptidesScores(false);
-			checkBoxProteins.setValue(false, true);
-			enableProteinRatios(false);
-			enableProteinsScores(false);
-			checkBoxPSMs.setValue(false, true);
-			enablePSMsRatios(false);
-			enablePSMsScores(false);
+			checkBoxPeptides.setValue(false, false);
+			enablePeptidesRatios(false, false);
+			enablePeptidesScores(false, false);
+			checkBoxProteins.setValue(false, false);
+			enableProteinRatios(false, false);
+			enableProteinsScores(false, false);
+			checkBoxPSMs.setValue(false, false);
+			enablePSMsRatios(false, false);
+			enablePSMsScores(false, false);
 		}
 		if (excelQuant != null) {
 			// TODO
 		}
 		// ratios
-		enablePSMsRatios(checkBoxPSMs.getValue() || !psmRatios.isEmpty());
+		enablePSMsRatios(checkBoxPSMs.getValue() || !psmRatios.isEmpty(), false);
 		checkBoxPSMRatios.setValue(!psmRatios.isEmpty());
-		showPSMRatiosPanel(checkBoxPSMRatios.getValue());
+		showPSMRatiosPanel(checkBoxPSMRatios.getValue(), false);
 		//
-		enablePeptidesRatios(checkBoxPeptides.getValue() || !peptideRatios.isEmpty());
+		enablePeptidesRatios(checkBoxPeptides.getValue() || !peptideRatios.isEmpty(), false);
 		checkBoxPeptideRatios.setValue(!peptideRatios.isEmpty());
-		showPeptideRatiosPanel(checkBoxPeptideRatios.getValue());
+		showPeptideRatiosPanel(checkBoxPeptideRatios.getValue(), false);
 		//
-		enableProteinRatios(checkBoxProteins.getValue() || !proteinRatios.isEmpty());
+		enableProteinRatios(checkBoxProteins.getValue() || !proteinRatios.isEmpty(), false);
 		checkBoxProteinRatios.setValue(!proteinRatios.isEmpty());
-		showProteinRatiosPanel(checkBoxProteinRatios.getValue());
+		showProteinRatiosPanel(checkBoxProteinRatios.getValue(), false);
 
 	}
 
-	protected void showPSMRatiosPanel(boolean visible) {
+	protected void showPSMRatiosPanel(boolean visible, boolean removeIfNotShown) {
 
 		rightPanel.getFlexCellFormatter().setVisible(psmRatiosValuesRow, 0, visible);
 		if (visible) {
 			if (psmRatiosPanel == null) {
 				psmRatiosPanel = createPSMRatiosPanel();
+			} else {
+				final boolean added = PintImportCfgUtil.addPSMRatioFromExcel(context.getPintImportConfiguration(),
+						psmRatiosPanel.getObject());
+				GWT.log("ratio added: " + added);
 			}
 			rightPanel.setWidget(psmRatiosValuesRow, 0, psmRatiosPanel);
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(psmRatiosValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-			// remove ratios
-			PintImportCfgUtil.removePSMRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
-					file.getId(), sheetName);
+			if (removeIfNotShown) {
+				// remove ratios
+				PintImportCfgUtil.removePSMRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
+						file.getId(), sheetName);
+			}
 		}
 	}
 
-	protected void showPSMScoresPanel(boolean visible) {
+	protected void showPSMScoresPanel(boolean visible, boolean removeIfNotShown) {
 
 		rightPanel.getFlexCellFormatter().setVisible(psmScoreValuesRow, 0, visible);
 		if (visible) {
@@ -419,13 +425,13 @@ public class ExcelProcessorPanel extends FlexTable {
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(psmScoreValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-
-			getIDExcel().getPsmScore().clear();
-
+			if (removeIfNotShown) {
+				getIDExcel().getPsmScore().clear();
+			}
 		}
 	}
 
-	protected void showPSMsPanel(boolean visible) {
+	protected void showPSMsPanel(boolean visible, boolean removeIfNotShown) {
 
 		rightPanel.getFlexCellFormatter().setVisible(psmIDValuesRow, 0, visible);
 		if (visible) {
@@ -436,9 +442,9 @@ public class ExcelProcessorPanel extends FlexTable {
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(psmIDValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-
-			getIDExcel().setPsmId(null);
-
+			if (removeIfNotShown) {
+				getIDExcel().setPsmId(null);
+			}
 		}
 	}
 
@@ -451,7 +457,7 @@ public class ExcelProcessorPanel extends FlexTable {
 		return panel;
 	}
 
-	protected void showPeptideRatiosPanel(boolean visible) {
+	protected void showPeptideRatiosPanel(boolean visible, boolean removeIfNotShown) {
 
 		rightPanel.getFlexCellFormatter().setVisible(peptideRatiosValuesRow, 0, visible);
 		if (visible) {
@@ -462,9 +468,11 @@ public class ExcelProcessorPanel extends FlexTable {
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(peptideRatiosValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-			// remove ratios
-			PintImportCfgUtil.removePeptideRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
-					file.getId(), sheetName);
+			if (removeIfNotShown) {
+				// remove ratios
+				PintImportCfgUtil.removePeptideRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
+						file.getId(), sheetName);
+			}
 		}
 	}
 
@@ -524,7 +532,7 @@ public class ExcelProcessorPanel extends FlexTable {
 		return panel;
 	}
 
-	protected void showPeptideScoresPanel(Boolean visible) {
+	protected void showPeptideScoresPanel(Boolean visible, boolean removeIfNotShown) {
 
 		rightPanel.getFlexCellFormatter().setVisible(peptideScoreValuesRow, 0, visible);
 		if (visible) {
@@ -535,9 +543,9 @@ public class ExcelProcessorPanel extends FlexTable {
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(peptideScoreValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-
-			getIDExcel().getPeptideScore().clear();
-
+			if (removeIfNotShown) {
+				getIDExcel().getPeptideScore().clear();
+			}
 		}
 
 	}
@@ -580,7 +588,7 @@ public class ExcelProcessorPanel extends FlexTable {
 		return panel;
 	}
 
-	protected void showPeptidesPanel(boolean visible) {
+	protected void showPeptidesPanel(boolean visible, boolean removeIfNotShown) {
 		if (peptideSequencePanel == null) {
 			peptideSequencePanel = createPeptideSequencePanel();
 		}
@@ -590,9 +598,9 @@ public class ExcelProcessorPanel extends FlexTable {
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(peptideSequenceValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-
-			getIDExcel().setSequence(null);
-
+			if (removeIfNotShown) {
+				getIDExcel().setSequence(null);
+			}
 		}
 
 	}
@@ -608,7 +616,7 @@ public class ExcelProcessorPanel extends FlexTable {
 		return panel;
 	}
 
-	protected void showProteinRatiosPanel(boolean visible) {
+	protected void showProteinRatiosPanel(boolean visible, boolean removeIfNotShown) {
 
 		rightPanel.getFlexCellFormatter().setVisible(proteinRatiosValuesRow, 0, visible);
 		if (visible) {
@@ -619,14 +627,16 @@ public class ExcelProcessorPanel extends FlexTable {
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(proteinRatiosValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-			// remove ratios
-			PintImportCfgUtil.removeProteinRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
-					file.getId(), sheetName);
+			if (removeIfNotShown) {
+				// remove ratios
+				PintImportCfgUtil.removeProteinRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
+						file.getId(), sheetName);
+			}
 		}
 
 	}
 
-	protected void showProteinScoresPanel(boolean visible) {
+	protected void showProteinScoresPanel(boolean visible, boolean removeIfNotShown) {
 
 		rightPanel.getFlexCellFormatter().setVisible(proteinScoreValuesRow, 0, visible);
 		if (visible) {
@@ -637,13 +647,13 @@ public class ExcelProcessorPanel extends FlexTable {
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(proteinScoreValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-
-			getIDExcel().getProteinScore().clear();
-
+			if (removeIfNotShown) {
+				getIDExcel().getProteinScore().clear();
+			}
 		}
 	}
 
-	protected void showProteinsPanel(boolean visible) {
+	protected void showProteinsPanel(boolean visible, boolean removeIfNotShown) {
 		if (proteinAccessionPanel == null) {
 			proteinAccessionPanel = createProteinAccessionPanel();
 		}
@@ -653,12 +663,12 @@ public class ExcelProcessorPanel extends FlexTable {
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(proteinAccValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
 		} else {
-
-			getIDExcel().setProteinAccession(null);
-			getIDExcel().setProteinAnnotations(null);
-			getIDExcel().setProteinDescription(null);
-			getIDExcel().setProteinThresholds(null);
-
+			if (removeIfNotShown) {
+				getIDExcel().setProteinAccession(null);
+				getIDExcel().setProteinAnnotations(null);
+				getIDExcel().setProteinDescription(null);
+				getIDExcel().setProteinThresholds(null);
+			}
 		}
 	}
 
@@ -672,34 +682,34 @@ public class ExcelProcessorPanel extends FlexTable {
 		return panel;
 	}
 
-	protected void enablePeptidesRatios(boolean enabled) {
+	protected void enablePeptidesRatios(boolean enabled, boolean removeIfNotShown) {
 		leftPanel.getFlexCellFormatter().setVisible(rowForPeptideRatios, 0, enabled);
-		showPeptideRatiosPanel(checkBoxPeptideRatios.getValue() && enabled);
+		showPeptideRatiosPanel(checkBoxPeptideRatios.getValue() && enabled, removeIfNotShown);
 	}
 
-	protected void enablePeptidesScores(boolean enabled) {
+	protected void enablePeptidesScores(boolean enabled, boolean removeIfNotShown) {
 		leftPanel.getFlexCellFormatter().setVisible(rowForPeptideScores, 0, enabled);
-		showPeptideScoresPanel(checkBoxPeptideScores.getValue() && enabled);
+		showPeptideScoresPanel(checkBoxPeptideScores.getValue() && enabled, removeIfNotShown);
 	}
 
-	protected void enableProteinRatios(boolean enabled) {
+	protected void enableProteinRatios(boolean enabled, boolean removeIfNotShown) {
 		leftPanel.getFlexCellFormatter().setVisible(rowForProteinRatios, 0, enabled);
-		showProteinRatiosPanel(checkBoxProteinRatios.getValue() && enabled);
+		showProteinRatiosPanel(checkBoxProteinRatios.getValue() && enabled, removeIfNotShown);
 	}
 
-	protected void enableProteinsScores(boolean enabled) {
+	protected void enableProteinsScores(boolean enabled, boolean removeIfNotShown) {
 		leftPanel.getFlexCellFormatter().setVisible(rowForProteinScores, 0, enabled);
-		showProteinScoresPanel(checkBoxProteinScores.getValue() && enabled);
+		showProteinScoresPanel(checkBoxProteinScores.getValue() && enabled, removeIfNotShown);
 	}
 
-	protected void enablePSMsRatios(boolean enabled) {
+	protected void enablePSMsRatios(boolean enabled, boolean removeIfNotShown) {
 		leftPanel.getFlexCellFormatter().setVisible(rowForPSMRatios, 0, enabled);
-		showPSMRatiosPanel(checkBoxPSMRatios.getValue() && enabled);
+		showPSMRatiosPanel(checkBoxPSMRatios.getValue() && enabled, removeIfNotShown);
 	}
 
-	protected void enablePSMsScores(boolean enabled) {
+	protected void enablePSMsScores(boolean enabled, boolean removeIfNotShown) {
 		leftPanel.getFlexCellFormatter().setVisible(rowForPSMScores, 0, enabled);
-		showPSMScoresPanel(checkBoxPSMScores.getValue() && enabled);
+		showPSMScoresPanel(checkBoxPSMScores.getValue() && enabled, removeIfNotShown);
 	}
 
 	public void addCondition(ExperimentalConditionTypeBean condition) {

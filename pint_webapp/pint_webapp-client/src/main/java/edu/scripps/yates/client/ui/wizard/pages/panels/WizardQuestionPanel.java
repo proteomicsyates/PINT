@@ -206,9 +206,11 @@ public class WizardQuestionPanel extends FlexTable {
 
 	public void setHorizontalAlignmentForQuestion(HorizontalAlignmentConstant horizontalAlignment) {
 		getFlexCellFormatter().setHorizontalAlignment(questionRow, 0, horizontalAlignment);
+		questionLabel.setHorizontalAlignment(horizontalAlignment);
 	}
 
 	public void setHorizontalAlignmentForExplanation(HorizontalAlignmentConstant horizontalAlignment) {
 		getFlexCellFormatter().setHorizontalAlignment(explanationRow, 0, horizontalAlignment);
+		explanationLabel.setHorizontalAlignment(horizontalAlignment);
 	}
 }

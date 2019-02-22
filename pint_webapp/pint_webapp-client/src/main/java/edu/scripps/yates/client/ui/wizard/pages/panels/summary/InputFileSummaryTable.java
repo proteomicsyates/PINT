@@ -65,6 +65,7 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 		fileNameLabel.setTitle(title);
 		setWidget(row, 2, fileNameLabel);
 		getFlexCellFormatter().setHorizontalAlignment(row, 2, HasHorizontalAlignment.ALIGN_LEFT);
+		getFlexCellFormatter().setColSpan(row, 2, 2);
 		// date
 		row++;
 
@@ -80,6 +81,7 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 		formatNameLabel.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 		setWidget(row, 1, formatNameLabel);
 		getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
+		getFlexCellFormatter().setColSpan(row, 1, 2);
 
 		// num sheets
 		row++;
@@ -95,6 +97,7 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 			excelNumSheetsNameLabel.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 			setWidget(row, 1, excelNumSheetsNameLabel);
 			getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
+			getFlexCellFormatter().setColSpan(row, 1, 2);
 		}
 		nextRowWidget = ++row;
 		if (addDropMSRunLabel) {
@@ -126,7 +129,7 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 		};
 		setWidget(nextRowWidget, 0, dropLabel);
 		getFlexCellFormatter().setHorizontalAlignment(nextRowWidget, 0, HasHorizontalAlignment.ALIGN_CENTER);
-		getFlexCellFormatter().setColSpan(nextRowWidget, 0, 3);
+		getFlexCellFormatter().setColSpan(nextRowWidget, 0, 4);
 
 	}
 
@@ -142,7 +145,7 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 		label.setTitle(PintImportCfgUtil.getTitleMSRun(msRun));
 		final int row = nextRowWidget + indexOf + 1;
 		setWidget(row, 0, label);
-		getFlexCellFormatter().setColSpan(row, 0, 2);
+		getFlexCellFormatter().setColSpan(row, 0, 3);
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		// remove button
 		// delete button
@@ -150,7 +153,7 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 		deleteButton.setTitle("Click here to remove the association between file '" + file.getName()
 				+ "' and the Experiment/Replicate '" + msRun.getId() + "'");
 		deleteButton.setStyleName(WizardStyles.CLICKABLE);
-		setWidget(row, 2, deleteButton);
+		setWidget(row, 1, deleteButton);
 		getFlexCellFormatter().setHorizontalAlignment(row, 2, HasHorizontalAlignment.ALIGN_LEFT);
 		deleteButton.addClickHandler(new ClickHandler() {
 

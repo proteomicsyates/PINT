@@ -505,15 +505,15 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 					}
 
 					// lentgh
-					if (annotatedProtein.getLength() > 0)
+					if (annotatedProtein.getLength() != null && annotatedProtein.getLength() > 0)
 						protein.setLength(annotatedProtein.getLength());
 
 					// mol w
-					if (annotatedProtein.getMw() > 0)
+					if (annotatedProtein.getMw() != null && annotatedProtein.getMw() > 0)
 						protein.setMw(annotatedProtein.getMw());
 
 					// pi
-					if (annotatedProtein.getPi() > 0)
+					if (annotatedProtein.getPi() != null && annotatedProtein.getPi() > 0)
 						protein.setPi(annotatedProtein.getPi());
 				}
 			}

@@ -74,6 +74,8 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 			// }
 			if (StaticProteomicsModelStorage.containsPSM(msRun.getRunId(), null, rowIndex, psmId)) {
 				psm = StaticProteomicsModelStorage.getPSM(msRun.getRunId(), null, rowIndex, psmId).iterator().next();
+			} else if (StaticProteomicsModelStorage.containsPSM(msRun.getRunId(), null, -1, psmId)) {
+				psm = StaticProteomicsModelStorage.getPSM(msRun.getRunId(), null, -1, psmId).iterator().next();
 			} else {
 				psm = new PSMEx(psmId, cleanPsmSequence, rawPsmSequence);
 				psm.setMSRun(msRun);
