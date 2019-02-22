@@ -583,8 +583,8 @@ public class NewSelectInputFilesPanel extends FlexTable {
 							public void onSuccess(Void result) {
 								wizard.getView().stopProcessing();
 								// delete from conf object
-								PintImportCfgUtil.removeFile(context.getPintImportConfiguration(),
-										fileTypeBean.getId());
+								PintImportCfgUtil.removeFile(context.getPintImportConfiguration(), fileTypeBean.getId(),
+										null);
 
 								loadingImage.setVisible(false);
 								labelIfNoFormat.setText("File deleted on server");

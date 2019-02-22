@@ -101,7 +101,7 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 			addDropMSRunLabel();
 			// add the associations that are already made
 			final List<MsRunTypeBean> msRuns = PintImportCfgUtil
-					.getMSRunsAssociatedWithFile(context.getPintImportConfiguration(), file.getId());
+					.getMSRunsAssociatedWithFile(context.getPintImportConfiguration(), file.getId(), sheetName);
 			for (final MsRunTypeBean msRunTypeBean : msRuns) {
 				addAssociatedMSRun(msRunTypeBean);
 			}

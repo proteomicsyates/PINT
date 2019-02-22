@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask2;
@@ -217,7 +218,7 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPageFileProcesso
 			public Void doSomething(ExperimentalConditionTypeBean condition) {
 
 				getInputFileSummaryPanel().removeAssociatedCondition(condition);
-				PintImportCfgUtil.removeFileFromCondition(file.getId(), condition);
+				PintImportCfgUtil.removeFileFromCondition(file.getId(), sheetName, condition);
 				updateNextButtonState();
 				return null;
 			}
@@ -233,27 +234,29 @@ public class WizardPageExcelFileProcessor extends AbstractWizardPageFileProcesso
 		super.beforeShow();// this sets the widget index to add nextWidgets
 
 		// create the question
-		questionPanel = new WizardQuestionPanel(getExplanation(), WizardStyles.WizardExplanationLabel, getQuestion(),
+		questionPanel = new WizardQuestionPanel(getQuestion(), WizardStyles.WizardExplanationLabel, getExplanation(),
 				WizardStyles.WizardQuestionLabel, WizardQuestionPanelButtons.NONE);
 
 		questionPanel.getElement().getStyle().setPadding(20, Unit.PX);
 		questionPanel.getElement().getStyle().setPaddingBottom(0, Unit.PX);
-		questionPanel.getElement().getStyle().setWidth(690, Unit.PX);
+		questionPanel.setHorizontalAlignmentForExplanation(HasHorizontalAlignment.ALIGN_LEFT);
+		questionPanel.setHorizontalAlignmentForQuestion(HasHorizontalAlignment.ALIGN_LEFT);
+//		questionPanel.getElement().getStyle().setWidth(690, Unit.PX);
 		// show questionPanel
 		addNextWidget(questionPanel);
 
 		super.updateNextButtonState();
 	}
 
-	public String getExplanation() {
-		return "Processing Excel files is a little bit more complicated than other well-known formatted files. However, don't be scared. "
-				+ "Excel files can contain Proteins, peptides, PSMs, scores, ratios, etc., so you will have to tell PINT which items do you want to extract from the file and using which columns.";
+	public String getQuestion() {
+		return "Processing Excel files requires a little bit more information than other well-known formatted files. However, don't be scared.\n"
+				+ "Excel files can contain Proteins, peptides, PSMs, scores, ratios, etc., so you will have to tell PINT which columns you want to extract the information from.";
 
 	}
 
-	public String getQuestion() {
-		return "Select the items you want to extract and use panels in the right to select the Excel columns to use.\n"
-				+ "But also, you whave to define under which Experimental Conditions the data in this file was analyzed.";
+	public String getExplanation() {
+		return "First of all, you have to define under which Experimental Conditions the data in this file was analyzed.\n"
+				+ "Then, you select the items (protein, proteins scores, peptides, etc...) you want to extract and fill the corresponding right panels that will appear.";
 	}
 
 }

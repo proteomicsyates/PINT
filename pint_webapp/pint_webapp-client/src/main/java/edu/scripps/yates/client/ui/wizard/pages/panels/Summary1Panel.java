@@ -153,7 +153,7 @@ public class Summary1Panel extends FlexTable {
 		}
 		nameString += ":";
 		final Label label2 = new Label(nameString);
-		label2.setStyleName(WizardStyles.WizardInfoMessage);
+		label2.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 		label2.getElement().getStyle().setPaddingLeft(3, Unit.PX);
 		flowp.add(label2);
 		flowp.add(label1);

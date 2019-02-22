@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -15,7 +16,6 @@ import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
-import edu.scripps.yates.shared.model.projectCreator.excel.ExcelAmountRatioTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExperimentalConditionTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
@@ -130,7 +130,7 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 		leftTable.getFlexCellFormatter().setHorizontalAlignment(4, 1, HasHorizontalAlignment.ALIGN_CENTER);
 		// LEFT ARROW
 		final Image leftArrow = new Image(MyClientBundle.INSTANCE.doubleLeftArrow());
-		leftArrow.setTitle("Drag the conditions to the left table in order to make the association");
+		leftArrow.setTitle("Drag the conditions to the left in order to make the association");
 		setWidget(0, 1, leftArrow);
 		getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_CENTER);
 		getFlexCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -140,7 +140,7 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 		rightTable.setStyleName(WizardStyles.WizardQuestionPanelLessRoundCorners);
 		setWidget(0, 2, rightTable);
 		rightTable.getElement().getStyle().setPadding(20, Unit.PX);
-		getFlexCellFormatter().setVerticalAlignment(0, 2, HasVerticalAlignment.ALIGN_TOP);
+		getFlexCellFormatter().setVerticalAlignment(0, 2, HasVerticalAlignment.ALIGN_MIDDLE);
 		getFlexCellFormatter().setHorizontalAlignment(0, 2, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		//
@@ -176,26 +176,30 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 			final ItemDraggableLabel conditionDraggableLabel = new ItemDraggableLabel(condition.getId(),
 					DroppableFormat.SAMPLE, condition.getId());
 			rightTable.setWidget(i, 0, conditionDraggableLabel);
-			rightTable.getFlexCellFormatter().setHorizontalAlignment(i, 0, HasHorizontalAlignment.ALIGN_CENTER);
+			rightTable.getFlexCellFormatter().setHorizontalAlignment(i, 0, HasHorizontalAlignment.ALIGN_LEFT);
 			//
 			final Label label7 = new Label("-");
+			HorizontalAlignmentConstant horizontalAlignment1 = HasHorizontalAlignment.ALIGN_CENTER;
+			HorizontalAlignmentConstant horizontalAlignment2 = HasHorizontalAlignment.ALIGN_CENTER;
 			final Label labelLabel3 = new Label("-");
 			label7.setStyleName(WizardStyles.WizardInfoMessage);
 			labelLabel3.setStyleName(WizardStyles.WizardInfoMessage);
 			if (condition.getSampleRef() != null) {
 				label7.setText(condition.getSampleRef());
 				label7.setStyleName(WizardStyles.WizardDraggableLabelFixed);
+				horizontalAlignment1 = HasHorizontalAlignment.ALIGN_LEFT;
 				final SampleTypeBean sample = PintImportCfgUtil.getSample(context.getPintImportConfiguration(),
 						condition.getSampleRef());
 				if (sample.getLabelRef() != null) {
 					labelLabel3.setText(sample.getLabelRef());
 					labelLabel3.setStyleName(WizardStyles.WizardDraggableLabelFixed);
+					horizontalAlignment2 = HasHorizontalAlignment.ALIGN_LEFT;
 				}
 			}
 			rightTable.setWidget(i, 1, label7);
-			rightTable.getFlexCellFormatter().setHorizontalAlignment(i, 1, HasHorizontalAlignment.ALIGN_CENTER);
+			rightTable.getFlexCellFormatter().setHorizontalAlignment(i, 1, horizontalAlignment1);
 			rightTable.setWidget(i, 2, labelLabel3);
-			rightTable.getFlexCellFormatter().setHorizontalAlignment(i, 2, HasHorizontalAlignment.ALIGN_CENTER);
+			rightTable.getFlexCellFormatter().setHorizontalAlignment(i, 2, horizontalAlignment2);
 
 //			if (i == 3) {
 //				// just the first one
@@ -207,7 +211,7 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 
 		// look into context to see if ratio is defined
 		final Pair<ExperimentalConditionTypeBean, ExperimentalConditionTypeBean> conditionsMakingRatio = PintImportCfgUtil
-				.getConditionsWithRatiosByFileID(context.getPintImportConfiguration(), file.getId());
+				.getConditionsWithRatiosByFileID(context.getPintImportConfiguration(), file.getId(), null);
 		if (conditionsMakingRatio != null) {
 			setCondition1(conditionsMakingRatio.getFirstElement().getId(), false);
 			setCondition2(conditionsMakingRatio.getSecondElement().getId(), false);
@@ -298,7 +302,7 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 	 */
 	protected void checkIfBothConditionsAreSelected() {
 		// first remove any ratio referring to this file id
-		PintImportCfgUtil.removeRatiosByFileID(context.getPintImportConfiguration(), file.getId());
+		PintImportCfgUtil.removeRatiosByFileID(context.getPintImportConfiguration(), file.getId(), null);
 		if (condition1 != null && condition2 != null) {
 			// do the tasks registered to be run when both conditions are selected
 			if (getOnConditionAddedTasks() != null) {
@@ -309,7 +313,7 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 			}
 
 			// add identifications with this file to both conditions
-			PintImportCfgUtil.removeIdentificationsByFileID(context.getPintImportConfiguration(), file.getId());
+			PintImportCfgUtil.removeIdentificationsByFileID(context.getPintImportConfiguration(), file.getId(), null);
 			addIdentifications();
 
 			// depending on the file format, we will be able to create different levels of
@@ -317,14 +321,15 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 			switch (file.getFormat()) {
 			case CENSUS_CHRO_XML:
 			case CENSUS_OUT_TXT:
-				PintImportCfgUtil.removeRatiosByFileID(context.getPintImportConfiguration(), file.getId());
+				PintImportCfgUtil.removeRatiosByFileID(context.getPintImportConfiguration(), file.getId(), null);
 				addProteinRatio();
 				addPSMRatio();
-				PintImportCfgUtil.removeQuantificationsByFileID(context.getPintImportConfiguration(), file.getId());
+				PintImportCfgUtil.removeQuantificationsByFileID(context.getPintImportConfiguration(), file.getId(),
+						null);
 				addAmounts();
 				break;
 			case EXCEL:
-				PintImportCfgUtil.removeRatiosByFileID(context.getPintImportConfiguration(), file.getId());
+				PintImportCfgUtil.removeRatiosByFileID(context.getPintImportConfiguration(), file.getId(), null);
 
 			case MZIDENTML:
 			case DTA_SELECT_FILTER_TXT:
@@ -378,33 +383,14 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 		return ratios;
 	}
 
-	private void addExcelPSMRatio() {
-		PintImportCfgUtil.removeRatiosByFileID(context.getPintImportConfiguration(), file.getId());
-		PintImportCfgUtil.addPSMRatioFromExcel(context.getPintImportConfiguration(), createExcelFileRatioTypeBean());
-	}
-
-	private void addExcelPeptideRatio() {
-		PintImportCfgUtil.removeRatiosByFileID(context.getPintImportConfiguration(), file.getId());
-		PintImportCfgUtil.addPeptideRatioFromExcel(context.getPintImportConfiguration(),
-				createExcelFileRatioTypeBean());
-	}
-
-	private void addExcelProteinRatio() {
-		PintImportCfgUtil.removeRatiosByFileID(context.getPintImportConfiguration(), file.getId());
-		PintImportCfgUtil.addProteinRatioFromExcel(context.getPintImportConfiguration(),
-				createExcelFileRatioTypeBean());
-	}
-
-	private ExcelAmountRatioTypeBean createExcelFileRatioTypeBean() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	private void addPSMRatio() {
 
 		PintImportCfgUtil.addPSMRatio(context.getPintImportConfiguration(), createRemoteFileRatioTypeBean());
 	}
 
+	/**
+	 * not used in census out files
+	 */
 	private void addPeptideRatio() {
 		PintImportCfgUtil.addPeptideRatio(context.getPintImportConfiguration(), createRemoteFileRatioTypeBean());
 	}

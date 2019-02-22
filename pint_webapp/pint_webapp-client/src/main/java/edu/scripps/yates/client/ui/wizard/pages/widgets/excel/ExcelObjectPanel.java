@@ -31,6 +31,7 @@ public abstract class ExcelObjectPanel<T> extends FlexTable {
 		this.object = object;
 		setStyleName(WizardStyles.WizardQuestionPanelLessRoundCornersGreen);
 		getElement().getStyle().setPaddingTop(10, Unit.PX);
+		getElement().getStyle().setWidth(100, Unit.PCT);
 		init();
 		updateGUIFromContext();
 	}

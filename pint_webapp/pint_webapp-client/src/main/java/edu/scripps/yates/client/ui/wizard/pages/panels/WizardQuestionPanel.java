@@ -27,6 +27,8 @@ public class WizardQuestionPanel extends FlexTable {
 	private HorizontalPanel buttonsPanel;
 	private Label questionLabel;
 	private Label explanationLabel;
+	private int explanationRow;
+	private int questionRow;
 
 	public enum WizardQuestionPanelButtons {
 		YES_NO("Yes", "No"), OK("Ok"), NONE(null);
@@ -99,6 +101,7 @@ public class WizardQuestionPanel extends FlexTable {
 		questionLabel = new Label(question);
 		questionLabel.setStyleName(questionStyleName);
 		setWidget(row, 0, questionLabel);
+		questionRow = row;
 		//
 		row++;
 		explanationLabel = new Label(explanation);
@@ -107,6 +110,7 @@ public class WizardQuestionPanel extends FlexTable {
 		explanationLabel.getElement().getStyle().setPaddingTop(30, Unit.PX);
 		explanationLabel.getElement().getStyle().setPaddingBottom(20, Unit.PX);
 		setWidget(row, 0, explanationLabel);
+		explanationRow = row;
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER);
 		//
 		if (buttons != WizardQuestionPanelButtons.NONE) {
@@ -198,5 +202,13 @@ public class WizardQuestionPanel extends FlexTable {
 
 	public Label getExplanationLabel() {
 		return this.explanationLabel;
+	}
+
+	public void setHorizontalAlignmentForQuestion(HorizontalAlignmentConstant horizontalAlignment) {
+		getFlexCellFormatter().setHorizontalAlignment(questionRow, 0, horizontalAlignment);
+	}
+
+	public void setHorizontalAlignmentForExplanation(HorizontalAlignmentConstant horizontalAlignment) {
+		getFlexCellFormatter().setHorizontalAlignment(explanationRow, 0, horizontalAlignment);
 	}
 }

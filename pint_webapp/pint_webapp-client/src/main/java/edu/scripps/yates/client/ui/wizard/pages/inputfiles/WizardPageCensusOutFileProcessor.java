@@ -38,7 +38,7 @@ public class WizardPageCensusOutFileProcessor extends AbstractWizardPageFileProc
 			@Override
 			public Void doSomething() {
 				final Pair<ExperimentalConditionTypeBean, ExperimentalConditionTypeBean> conditionsAssociatedWithFile = PintImportCfgUtil
-						.getConditionsWithRatiosByFileID(getPintImportConfg(), getFile().getId());
+						.getConditionsWithRatiosByFileID(getPintImportConfg(), getFile().getId(), null);
 				if (conditionsAssociatedWithFile != null) {
 					inputFileSummaryPanel.addAssociatedCondition(conditionsAssociatedWithFile.getFirstElement());
 					inputFileSummaryPanel.addAssociatedCondition(conditionsAssociatedWithFile.getSecondElement());
@@ -53,7 +53,7 @@ public class WizardPageCensusOutFileProcessor extends AbstractWizardPageFileProc
 	public boolean isReadyForNextStep() {
 
 		final Pair<ExperimentalConditionTypeBean, ExperimentalConditionTypeBean> conditionsWithRatiosByFileID = PintImportCfgUtil
-				.getConditionsWithRatiosByFileID(getPintImportConfg(), getFile().getId());
+				.getConditionsWithRatiosByFileID(getPintImportConfg(), getFile().getId(), null);
 		if (conditionsWithRatiosByFileID != null) {
 			return true;
 		}

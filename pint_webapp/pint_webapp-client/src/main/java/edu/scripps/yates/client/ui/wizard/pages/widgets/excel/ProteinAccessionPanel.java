@@ -111,7 +111,7 @@ public class ProteinAccessionPanel extends ExcelObjectPanel<ProteinAccessionType
 			}
 		});
 		//
-		updateGUIFromContext();
+
 	}
 
 	@Override

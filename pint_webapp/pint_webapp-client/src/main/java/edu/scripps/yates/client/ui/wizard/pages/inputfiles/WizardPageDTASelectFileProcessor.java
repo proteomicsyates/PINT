@@ -45,7 +45,7 @@ public class WizardPageDTASelectFileProcessor extends AbstractWizardPageFileProc
 			@Override
 			public Void doSomething() {
 				final List<ExperimentalConditionTypeBean> conditionsAssociatedWithFile = PintImportCfgUtil
-						.getConditionsAssociatedWithFile(context.getPintImportConfiguration(), getFile().getId());
+						.getConditionsAssociatedWithFile(context.getPintImportConfiguration(), getFile().getId(), null);
 				if (conditionsAssociatedWithFile != null) {
 					for (final ExperimentalConditionTypeBean condition : conditionsAssociatedWithFile) {
 						inputFileSummaryPanel.addAssociatedCondition(condition);
@@ -60,7 +60,7 @@ public class WizardPageDTASelectFileProcessor extends AbstractWizardPageFileProc
 	@Override
 	public boolean isReadyForNextStep() {
 		final List<ExperimentalConditionTypeBean> conditionsAssociatedWithFile = PintImportCfgUtil
-				.getConditionsAssociatedWithFile(getPintImportConfg(), getFile().getId());
+				.getConditionsAssociatedWithFile(getPintImportConfg(), getFile().getId(), null);
 		final boolean empty = conditionsAssociatedWithFile.isEmpty();
 		return !empty;
 	}
@@ -88,7 +88,7 @@ public class WizardPageDTASelectFileProcessor extends AbstractWizardPageFileProc
 			public Void doSomething(ExperimentalConditionTypeBean condition) {
 
 				getInputFileSummaryPanel().removeAssociatedCondition(condition);
-				PintImportCfgUtil.removeFileFromCondition(file.getId(), condition);
+				PintImportCfgUtil.removeFileFromCondition(file.getId(), null, condition);
 				updateNextButtonState();
 				return null;
 			}
