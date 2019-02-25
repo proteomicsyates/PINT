@@ -549,10 +549,6 @@ public class DataSet {
 	}
 
 	public void addPeptide(PeptideBean peptideBean) {
-		if (peptideBean.getFullSequence().equals("SGGGGGGGLGSGGSIR")) {
-			log.info(peptideBean);
-		}
-
 		if (peptidesByPeptideBeanUniqueIdentifier.containsKey(peptideBean.getPeptideBeanUniqueIdentifier()))
 			return;
 		//
