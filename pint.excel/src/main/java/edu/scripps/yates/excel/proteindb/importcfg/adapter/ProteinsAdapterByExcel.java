@@ -219,9 +219,17 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 
 			if (!proteinSet.isEmpty()) {
 				if (excelCfg.getSequence() != null) {
-					// get the psms
-					final PSM psm = new PSMAdapterByExcel(rowIndex, excelCfg, excelFileReader, psmsMSRun, expCondition)
-							.adapt();
+					//
+					PSM psm = null;
+					final Peptide peptide = new PeptideAdapterByExcel(rowIndex, excelCfg, excelFileReader, msRuns,
+							expCondition).adapt();
+					// if there is no psmid, hope that the peptide already have a psm, otherwise,
+					// we do not create a PSM until the end of the process
+					if (excelCfg.getPsmId() != null) {
+						// get the psms
+						psm = new PSMAdapterByExcel(rowIndex, excelCfg, excelFileReader, psmsMSRun, expCondition)
+								.adapt();
+					}
 					if (psm != null) {
 						// add the psm to the proteins
 						// add the proteins to the psm
@@ -231,8 +239,7 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 					}
 
 					// get the peptides
-					final Peptide peptide = new PeptideAdapterByExcel(rowIndex, excelCfg, excelFileReader, msRuns,
-							expCondition).adapt();
+
 					if (peptide != null) {
 						// peptide - psm
 						if (psm != null) {

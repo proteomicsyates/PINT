@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.core.shared.GWT;
+
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AccessionBean;
 import edu.scripps.yates.shared.model.AccessionType;
@@ -575,11 +577,14 @@ public class SharedDataUtil {
 				final List<PeptideBean> peptideBeans = proteinBean.getPeptides();
 				if (peptideBeans != null) {
 					for (final PeptideBean peptideBean : peptideBeans) {
+						final String fullSequence = peptideBean.getFullSequence();
 						if (!peptideIDs.contains(peptideBean.getId())) {
 							peptideIDs.add(peptideBean.getId());
 							ret.add(peptideBean);
+						} else {
+							GWT.log(fullSequence);
 						}
-						proteinBean.addDifferentSequence(peptideBean.getFullSequence());
+						proteinBean.addDifferentSequence(fullSequence);
 					}
 				}
 			}
@@ -1158,8 +1163,8 @@ public class SharedDataUtil {
 
 	public static String getMSRunsIDString(Set<MSRunBean> msRuns) {
 		final StringBuilder sb = new StringBuilder();
-		List<String> msRunIDs = new ArrayList<String>();
-		for (MSRunBean msRunBean : msRuns) {
+		final List<String> msRunIDs = new ArrayList<String>();
+		for (final MSRunBean msRunBean : msRuns) {
 			msRunIDs.add(msRunBean.getId());
 		}
 		Collections.sort(msRunIDs);

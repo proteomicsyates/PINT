@@ -64,6 +64,14 @@ public class WizardPageFinal extends AbstractWizardPage {
 	}
 
 	@Override
+	public void beforeShow() {
+		getWizard().setButtonEnabled(ButtonType.BUTTON_FINISH, true);
+		getWizard().setButtonEnabled(ButtonType.BUTTON_NEXT, false);
+		getWizard().setButtonOverride(true);
+		super.beforeShow();
+	}
+
+	@Override
 	public void beforeFirstShow() {
 
 		getWizard().setButtonEnabled(ButtonType.BUTTON_FINISH, true);

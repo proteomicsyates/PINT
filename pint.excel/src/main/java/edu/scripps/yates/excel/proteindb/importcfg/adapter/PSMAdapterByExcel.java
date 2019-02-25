@@ -88,7 +88,7 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 
 			// modifications
 
-			final List<PTM> ptms = new PTMListAdapter(psmId, rowIndex, rawPsmSequence, excelCfg, excelFileReader)
+			final List<PTM> ptms = new PTMListAdapter(psmId, rowIndex, psm.getFullSequence(), excelCfg, excelFileReader)
 					.adapt();
 			for (final PTM ptm : ptms) {
 				psm.addPTM(ptm);

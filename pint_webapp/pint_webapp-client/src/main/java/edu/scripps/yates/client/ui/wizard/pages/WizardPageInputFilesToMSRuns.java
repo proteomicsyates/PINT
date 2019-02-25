@@ -20,6 +20,7 @@ import edu.scripps.yates.shared.model.projectCreator.excel.ExcelAmountRatioTypeB
 import edu.scripps.yates.shared.model.projectCreator.excel.ExperimentalConditionTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.IdentificationExcelTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.MsRunTypeBean;
+import edu.scripps.yates.shared.model.projectCreator.excel.PintImportCfgBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.QuantificationExcelTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.RatiosTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.RemoteFilesRatioTypeBean;
@@ -97,18 +98,21 @@ public class WizardPageInputFilesToMSRuns extends AbstractWizardPage {
 		referencedMSRunPanel.getElement().getStyle().setMarginTop(10, Unit.PX);
 		referencedMSRunPanel.getElement().getStyle().setHeight(1, Unit.PX);
 
+		checkNextButtonState();
 		super.beforeShow();
 	}
 
 	protected void checkNextButtonState() {
-		getWizard().getButton(ButtonType.BUTTON_FINISH).setEnabled(isReadyForNextStep());
+		getWizard().getButton(ButtonType.BUTTON_NEXT).setEnabled(isReadyForNextStep());
 		getWizard().setButtonOverride(true);
 
 	}
 
 	private boolean isReadyForNextStep() {
 		// check that final all id, quant and ratios have an msrunref not empty
-		final List<ExperimentalConditionTypeBean> conditions = PintImportCfgUtil.getConditions(getPintImportConfg());
+		final PintImportCfgBean pintImportConfg = getPintImportConfg();
+		PintImportCfgUtil.removeNonUsedItems(pintImportConfg);
+		final List<ExperimentalConditionTypeBean> conditions = PintImportCfgUtil.getConditions(pintImportConfg);
 		for (final ExperimentalConditionTypeBean condition : conditions) {
 			if (condition.getIdentificationInfo() != null) {
 				for (final IdentificationExcelTypeBean excelID : condition.getIdentificationInfo()
@@ -138,7 +142,7 @@ public class WizardPageInputFilesToMSRuns extends AbstractWizardPage {
 				}
 			}
 		}
-		final RatiosTypeBean ratios = getPintImportConfg().getProject().getRatios();
+		final RatiosTypeBean ratios = pintImportConfg.getProject().getRatios();
 		if (ratios != null) {
 			if (ratios.getPeptideAmountRatios() != null) {
 				for (final ExcelAmountRatioTypeBean excelRatio : ratios.getPeptideAmountRatios().getExcelRatio()) {

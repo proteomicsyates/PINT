@@ -84,6 +84,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AggregationLevel;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.AmountEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.PSMEx;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.ProjectEx;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.RatioEx;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.ScoreEx;
@@ -256,7 +257,34 @@ public class ImportCfgFileReader {
 				addToMapWithPrimaryAndSecondaryAccs(protein, proteinMap);
 			}
 		}
+		// because data coming from an Excel file may be only in peptide-level, we have
+		// to make sure that all the peptides have a psm, otherwise, we create one per
+		// MSRun
+		int psmIDNumber = 1;
+		final Map<String, PSM> map = new THashMap<String, PSM>();
+		for (final String conditionName : conditionsByConditionID.keySet()) {
+			final Condition condition = conditionsByConditionID.get(conditionName);
+			final Set<Peptide> peptides = condition.getPeptides();
+			for (final Peptide peptide : peptides) {
+				if (peptide.getPSMs().isEmpty()) {
+					final Set<MSRun> msRuns2 = peptide.getMSRuns();
+					for (final MSRun msRun2 : msRuns2) {
+						final String key = conditionName + msRun2.getRunId() + peptide.getFullSequence();
+						PSM psm = null;
+						if (map.containsKey(key)) {
+							psm = map.get(key);
+						} else {
+							psm = new PSMEx("PSM" + psmIDNumber++, peptide.getSequence(), peptide.getFullSequence());
+							map.put(key, psm);
+						}
+						psm.setMSRun(msRun2);
+						psm.addCondition(condition);
+						peptide.addPSM(psm, true);
+					}
 
+				}
+			}
+		}
 		// get the ratios, iterate over them getting the corresponding
 		// proteins for each rowIndex and then creating an object for all
 		// the proteins in that row if they correspond with the conditions

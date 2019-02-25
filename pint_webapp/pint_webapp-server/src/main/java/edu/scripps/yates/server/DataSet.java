@@ -187,8 +187,8 @@ public class DataSet {
 	}
 
 	/**
-	 * If there is one protein with the same accession in the dataset, the
-	 * protein will be merged. PSMs are automatically added to the dataset
+	 * If there is one protein with the same accession in the dataset, the protein
+	 * will be merged. PSMs are automatically added to the dataset
 	 *
 	 * @param proteinBean
 	 */
@@ -355,8 +355,7 @@ public class DataSet {
 	}
 
 	/**
-	 * @param ready
-	 *            the ready to set
+	 * @param ready the ready to set
 	 */
 	public void setReady(boolean ready) {
 		log.info("Dataset '" + name + "' ready: " + ready);
@@ -550,14 +549,18 @@ public class DataSet {
 	}
 
 	public void addPeptide(PeptideBean peptideBean) {
+		if (peptideBean.getFullSequence().equals("SGGGGGGGLGSGGSIR")) {
+			log.info(peptideBean);
+		}
+
 		if (peptidesByPeptideBeanUniqueIdentifier.containsKey(peptideBean.getPeptideBeanUniqueIdentifier()))
 			return;
 		//
-		if (peptidesBySequence.containsKey(peptideBean.getSequence())) {
-			mergePeptideBeans(peptidesBySequence.get(peptideBean.getSequence()), peptideBean);
+		if (peptidesBySequence.containsKey(peptideBean.getFullSequence())) {
+			mergePeptideBeans(peptidesBySequence.get(peptideBean.getFullSequence()), peptideBean);
 			return;
 		}
-		peptidesBySequence.put(peptideBean.getSequence(), peptideBean);
+		peptidesBySequence.put(peptideBean.getFullSequence(), peptideBean);
 		peptides.add(peptideBean);
 		peptidesByPeptideBeanUniqueIdentifier.put(peptideBean.getPeptideBeanUniqueIdentifier(), peptideBean);
 		// add ratios to ratioAnalyzer
@@ -623,8 +626,8 @@ public class DataSet {
 	}
 
 	/**
-	 * Check whether in the dataset there is more than one {@link ProteinBean}
-	 * with the same primary accession, and in that case, merge the two
+	 * Check whether in the dataset there is more than one {@link ProteinBean} with
+	 * the same primary accession, and in that case, merge the two
 	 * {@link ProteinBean}
 	 */
 	public void fixPrimaryAccessionDuplicates() {
@@ -670,8 +673,7 @@ public class DataSet {
 	}
 
 	/**
-	 * @param name
-	 *            the name to set
+	 * @param name the name to set
 	 */
 	public void setName(String name) {
 		this.name = name;

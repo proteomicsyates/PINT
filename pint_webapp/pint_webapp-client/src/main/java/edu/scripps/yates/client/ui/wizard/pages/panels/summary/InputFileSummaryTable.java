@@ -154,7 +154,7 @@ public class InputFileSummaryTable extends AbstractSummaryTable {
 				+ "' and the Experiment/Replicate '" + msRun.getId() + "'");
 		deleteButton.setStyleName(WizardStyles.CLICKABLE);
 		setWidget(row, 1, deleteButton);
-		getFlexCellFormatter().setHorizontalAlignment(row, 2, HasHorizontalAlignment.ALIGN_LEFT);
+		getFlexCellFormatter().setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		deleteButton.addClickHandler(new ClickHandler() {
 
 			@Override

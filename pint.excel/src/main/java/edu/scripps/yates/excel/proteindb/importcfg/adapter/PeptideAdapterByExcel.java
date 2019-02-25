@@ -51,7 +51,7 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 
 			final String rawPeptideSequence = peptideSequenceColumn.getValues().get(rowIndex).toString();
 
-			final String cleanPeptideSequence = FastaParser.cleanSequence(rawPeptideSequence);
+			final String sequenceInBetween = FastaParser.getSequenceInBetween(rawPeptideSequence);
 			//
 			// Map<String, PeptideEx> peptideMap = null;
 			// if (peptideMapByMSRunID.containsKey(msRun.getId())) {
@@ -62,10 +62,10 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 			// }
 
 			Peptide peptide = null;
-			if (StaticProteomicsModelStorage.containsPeptide(msRuns, null, cleanPeptideSequence)) {
-				peptide = StaticProteomicsModelStorage.getSinglePeptide(msRuns, null, cleanPeptideSequence);
+			if (StaticProteomicsModelStorage.containsPeptide(msRuns, null, sequenceInBetween)) {
+				peptide = StaticProteomicsModelStorage.getSinglePeptide(msRuns, null, sequenceInBetween);
 			} else {
-				peptide = new PeptideEx(cleanPeptideSequence);
+				peptide = new PeptideEx(rawPeptideSequence);
 				// peptideMap.put(cleanPeptideSequence, peptide);
 			}
 			for (final MSRun msRun2 : msRuns) {

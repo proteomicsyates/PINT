@@ -47,22 +47,23 @@ public class InputDataFilesPanel extends FlexTable {
 		getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		int numInputFile = 1;
 		for (final FileTypeBean file : files) {
+			final boolean addDropMSRunLabel = true;
 			if (file.getFormat() == FileFormat.EXCEL) {
 				final List<SheetTypeBean> sheets = file.getSheets().getSheet();
 				for (final SheetTypeBean sheet : sheets) {
 					final InputFileSummaryTable inputFileSummaryTable = new InputFileSummaryTable(wizard.getContext(),
-							file, NewExcelReferenceWidget.getSheetName(sheet.getId()), numInputFile++, true);
+							file, NewExcelReferenceWidget.getSheetName(sheet.getId()), numInputFile++,
+							addDropMSRunLabel);
 					inputFileSummaryTables.add(inputFileSummaryTable);
 					verticalPanelInputFiles.add(inputFileSummaryTable);
 				}
 			} else {
 				final InputFileSummaryTable inputFileSummaryTable = new InputFileSummaryTable(wizard.getContext(), file,
-						numInputFile++, true);
+						numInputFile++, addDropMSRunLabel);
 				inputFileSummaryTables.add(inputFileSummaryTable);
 				verticalPanelInputFiles.add(inputFileSummaryTable);
 			}
 		}
-
 	}
 
 	public void addOnUpdateContextTask(DoSomethingTask2<MsRunTypeBean> onContextUpdated) {

@@ -2046,7 +2046,8 @@ public class PintImportCfgUtil {
 					if (excelID.getMsRunRef() != null && !"".equals(excelID.getMsRunRef())) {
 						if (excelID.getProteinAccession() != null && fileID.equals(
 								getExcelFileIdFromExcelColumnID(excelID.getProteinAccession().getColumnRef()))) {
-							if (sheetName == null || sheetName.equals(excelID.getProteinAccession().getColumnRef())) {
+							if (sheetName == null
+									|| sheetName.equals(getSheetName(excelID.getProteinAccession().getColumnRef()))) {
 								for (final String msRunID : getMSRunRefs(excelID.getMsRunRef())) {
 									if (!msRunIDs.contains(msRunID)) {
 										msRunIDs.add(msRunID);
@@ -2057,7 +2058,8 @@ public class PintImportCfgUtil {
 						}
 						if (excelID.getSequence() != null && fileID
 								.equals(getExcelFileIdFromExcelColumnID(excelID.getSequence().getColumnRef()))) {
-							if (sheetName == null || sheetName.equals(excelID.getSequence().getColumnRef())) {
+							if (sheetName == null
+									|| sheetName.equals(getSheetName(excelID.getSequence().getColumnRef()))) {
 								for (final String msRunID : getMSRunRefs(excelID.getMsRunRef())) {
 									if (!msRunIDs.contains(msRunID)) {
 										msRunIDs.add(msRunID);
@@ -2068,7 +2070,8 @@ public class PintImportCfgUtil {
 						}
 						if (excelID.getPsmId() != null
 								&& fileID.equals(getExcelFileIdFromExcelColumnID(excelID.getPsmId().getColumnRef()))) {
-							if (sheetName == null || sheetName.equals(excelID.getPsmId().getColumnRef())) {
+							if (sheetName == null
+									|| sheetName.equals(getSheetName(excelID.getPsmId().getColumnRef()))) {
 								for (final String msRunID : getMSRunRefs(excelID.getMsRunRef())) {
 									if (!msRunIDs.contains(msRunID)) {
 										msRunIDs.add(msRunID);

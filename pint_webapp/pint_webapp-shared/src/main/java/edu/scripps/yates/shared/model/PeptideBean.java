@@ -717,7 +717,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 
 	@Override
 	public String getId() {
-		return getSequence();
+		return getFullSequence();
 	}
 
 	/**
