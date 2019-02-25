@@ -93,11 +93,11 @@ public class WizardPageSummary1 extends AbstractWizardPage {
 							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				case EXCEL:
-					fileNumber++;
+
 					final SheetsTypeBean sheets = fileTypeBean.getSheets();
 					for (final SheetTypeBean sheet : sheets.getSheet()) {
 						final WizardPageExcelFileProcessor excelProcessor = new WizardPageExcelFileProcessor(
-								getContext(), fileNumber, fileTypeBean,
+								getContext(), fileNumber++, fileTypeBean,
 								ExcelColumnRefPanel.getSheetName(sheet.getId()));
 						wizard.addPage(excelProcessor, WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					}

@@ -28,11 +28,14 @@ import edu.scripps.yates.client.ui.wizard.pages.panels.summary.ConditionSummaryT
 import edu.scripps.yates.client.ui.wizard.pages.panels.summary.InputFileSummaryTable;
 import edu.scripps.yates.client.ui.wizard.pages.panels.summary.MSRunSummaryTable;
 import edu.scripps.yates.client.ui.wizard.pages.panels.summary.SampleSummaryTable;
+import edu.scripps.yates.client.ui.wizard.pages.widgets.NewExcelReferenceWidget;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.projectCreator.excel.ExperimentalConditionTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.MsRunTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.SampleTypeBean;
+import edu.scripps.yates.shared.model.projectCreator.excel.SheetTypeBean;
 
 public class Summary1Panel extends FlexTable {
 	private final Wizard<PintContext> wizard;
@@ -68,9 +71,17 @@ public class Summary1Panel extends FlexTable {
 		getFlexCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_TOP);
 		int numInputFile = 1;
 		for (final FileTypeBean file : files) {
-			final FlexTable inputFileSummaryTable = new InputFileSummaryTable(wizard.getContext(), file, numInputFile++,
-					false);
-			verticalPanelInputFiles.add(inputFileSummaryTable);
+			if (file.getFormat() == FileFormat.EXCEL) {
+				for (final SheetTypeBean sheet : file.getSheets().getSheet()) {
+					final FlexTable inputFileSummaryTable = new InputFileSummaryTable(wizard.getContext(), file,
+							NewExcelReferenceWidget.getSheetName(sheet.getId()), numInputFile++, false);
+					verticalPanelInputFiles.add(inputFileSummaryTable);
+				}
+			} else {
+				final FlexTable inputFileSummaryTable = new InputFileSummaryTable(wizard.getContext(), file,
+						numInputFile++, false);
+				verticalPanelInputFiles.add(inputFileSummaryTable);
+			}
 		}
 
 		// line 1
