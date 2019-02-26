@@ -73,11 +73,11 @@ public class MainPanel extends InitializableComposite {
 
 		final InlineHTML nlnhtmlNewInlinehtml_2 = new InlineHTML(
 				"<br>\r\n<b>PINT</b>, the <b>Proteomics INTegrator</b>, is an online experiment repository for final results coming from different qualitative and/or quantitative proteomics assays.\r\n<br>"
-						+ "<br>\r\nPINT is a new comprehensive system to store, visualize, and analyze data for proteomics results obtained under different experimental conditions.<br>"
-						+ "<ul><li>PINT provides an extremely <b>flexible and powerful query interface</b> that allows data filtering based on numerous proteomics features such as confidence values, abundance levels or ratios, dataset overlaps, etc...</li>"
+						+ "<br>\r\nPINT is a comprehensive system to store, visualize, and analyze data for proteomics results obtained under different experimental conditions.<br>"
+						+ "<ul><li>PINT provides an extremely <b>flexible query interface</b> that allows data filtering based on numerous proteomics features such as confidence values, abundance levels or ratios, dataset overlaps, etc...</li>"
 						+ "<li>Furthermore, proteomics results can be <b>combined with queries over the vast majority of the UniprotKB annotations</b>, which are transparently incorporated into the system. For example, these queries can allow rapid identification of proteins with a confidence score above a given threshold that are known to be associated to diseases or they may highlight proteins with a least one phosphorylated site that are shared between a set of experimental conditions.</li>"
-						+ "<li>In addition, PINT allows the developers to incorporate data visualization and analysis tools, serving its role as a <b>centralized hub of proteomics data analysis tools</b>. One example is the recent integration of enrichment analysis with <a href=\"http://pseaquant.scripps.edu/\" class=\"geneLink\" target=\"_blank\" title=\"Go to PSEA-Quant webpage\">PSEA-Quant</a> online tool.</li></ul>"
-						+ "PINT will thus facilitate interpretation of proteomics results and expedite biological conclusions and, by the same means, deal with the \u2018big data\u2019 paradigm in proteomics.");
+						+ "<li>In addition, PINT allows the developers to incorporate data visualization and analysis tools, serving its role as a <b>centralized hub of proteomics data analysis tools</b>. One example is the integration of two enrichment analysis tools with <a href=\"http://pseaquant.scripps.edu/\" class=\"geneLink\" target=\"_blank\" title=\"Go to PSEA-Quant webpage\">PSEA-Quant</a> and <a href=\"https://reactome.org/PathwayBrowser/#TOOL=AT\" class=\"geneLink\" target=\"_blank\" title=\"Go to Reactome webpage\">Reactome analysis</a> tools.</li></ul>"
+						+ "PINT facilitates interpretation of proteomics results and expedites biological conclusions and, by the same means, deal with the \u2018big data\u2019 paradigm in proteomics.");
 		nlnhtmlNewInlinehtml_2.setStyleName("mainPagePintTitleExplanation");
 		pintPresentationVerticalPanel.add(nlnhtmlNewInlinehtml_2);
 
@@ -128,7 +128,7 @@ public class MainPanel extends InitializableComposite {
 		submitVerticalPanel.getFlexCellFormatter().setHeight(0, 0, "4em");
 
 		final InlineHTML nlnhtmlSubmitExplanation = new InlineHTML(
-				"Click here to create a new dataset. The tool will guide you in order to capture your data in an appropiate way.");
+				"Click here to create a new dataset. The tool will guide you throught different steps in order to capture the appropiate data from your files.");
 		nlnhtmlSubmitExplanation.setStyleName("mainPageBoxExplanation");
 		submitVerticalPanel.setWidget(1, 0, nlnhtmlSubmitExplanation);
 		submitVerticalPanel.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_TOP);
