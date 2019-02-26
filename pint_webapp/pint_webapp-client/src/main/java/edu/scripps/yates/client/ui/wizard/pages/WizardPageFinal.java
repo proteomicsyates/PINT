@@ -120,6 +120,11 @@ public class WizardPageFinal extends AbstractWizardPage {
 
 				showDatasetSubmissionSuccessfull(encryptedDatasetCode);
 				hiddeLoadingDialog();
+				getWizard().setButtonEnabled(ButtonType.BUTTON_FINISH, false);
+				getWizard().setButtonEnabled(ButtonType.BUTTON_NEXT, false);
+				getWizard().setButtonEnabled(ButtonType.BUTTON_CANCEL, false);
+				getWizard().setButtonEnabled(ButtonType.BUTTON_PREVIOUS, false);
+				getWizard().setButtonOverride(true);
 			}
 
 			@Override

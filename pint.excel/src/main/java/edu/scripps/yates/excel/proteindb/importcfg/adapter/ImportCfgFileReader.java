@@ -224,7 +224,7 @@ public class ImportCfgFileReader {
 				labelsByConditionsByFile);
 		final Map<String, QuantificationLabel> denominatorLabelsByFile = getDenominatorLabelsByFile(cfg,
 				labelsByConditionsByFile);
-		final Map<String, List<RatioDescriptor>> ratioDescriptorsByFile = getRatioDescriptorsByFile(cfg,
+		final Map<String, Set<RatioDescriptor>> ratioDescriptorsByFile = getRatioDescriptorsByFile(cfg,
 				labelsByConditionsByFile);
 		remoteFileReader = new RemoteFileReader(cfg.getFileSet(), cfg.getServers(), fastaIndexFolder,
 				labelsByConditionsByFile, ratioDescriptorsByFile);
@@ -373,9 +373,9 @@ public class ImportCfgFileReader {
 		}
 	}
 
-	private Map<String, List<RatioDescriptor>> getRatioDescriptorsByFile(PintImportCfgType cfg,
+	private Map<String, Set<RatioDescriptor>> getRatioDescriptorsByFile(PintImportCfgType cfg,
 			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile) {
-		final Map<String, List<RatioDescriptor>> ret = new THashMap<String, List<RatioDescriptor>>();
+		final Map<String, Set<RatioDescriptor>> ret = new THashMap<String, Set<RatioDescriptor>>();
 
 		if (cfg != null && cfg.getProject() != null && cfg.getProject().getRatios() != null) {
 			if (cfg.getProject().getRatios().getPsmAmountRatios() != null
@@ -389,9 +389,9 @@ public class ImportCfgFileReader {
 					if (ret.containsKey(fileRef)) {
 						ret.get(fileRef).add(ratioDescriptor);
 					} else {
-						final List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
-						list.add(ratioDescriptor);
-						ret.put(fileRef, list);
+						final Set<RatioDescriptor> set = new THashSet<RatioDescriptor>();
+						set.add(ratioDescriptor);
+						ret.put(fileRef, set);
 					}
 				}
 			}
@@ -406,9 +406,9 @@ public class ImportCfgFileReader {
 					if (ret.containsKey(fileRef)) {
 						ret.get(fileRef).add(ratioDescriptor);
 					} else {
-						final List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
-						list.add(ratioDescriptor);
-						ret.put(fileRef, list);
+						final Set<RatioDescriptor> set = new THashSet<RatioDescriptor>();
+						set.add(ratioDescriptor);
+						ret.put(fileRef, set);
 					}
 				}
 			}
@@ -422,9 +422,9 @@ public class ImportCfgFileReader {
 					if (ret.containsKey(fileRef)) {
 						ret.get(fileRef).add(ratioDescriptor);
 					} else {
-						final List<RatioDescriptor> list = new ArrayList<RatioDescriptor>();
-						list.add(ratioDescriptor);
-						ret.put(fileRef, list);
+						final Set<RatioDescriptor> set = new THashSet<RatioDescriptor>();
+						set.add(ratioDescriptor);
+						ret.put(fileRef, set);
 					}
 				}
 			}

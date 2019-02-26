@@ -1,15 +1,18 @@
 package edu.scripps.yates.client.pint.wizard;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 
 import edu.scripps.yates.ImportWizardServiceAsync;
 import edu.scripps.yates.client.gui.PopUpPanelYesNo;
+import edu.scripps.yates.client.history.TargetHistory;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.Wizard;
 import edu.scripps.yates.client.ui.wizard.pages.WelcomePage;
@@ -83,6 +86,14 @@ public class NewProjectCreatorWizard extends Wizard<PintContext> {
 
 			}
 		});
+// go home button
+		final Hyperlink goHomebutton = new Hyperlink("Exit", TargetHistory.HOME.getTargetHistory());
+		goHomebutton.getElement().getStyle().setColor("white");
+		goHomebutton.getElement().getStyle().setMarginLeft(20, Unit.PX);
+		goHomebutton.setStyleName(WizardStyles.WizardButtonSmall);
+
+		getTitlePanel().add(goHomebutton);
+		getTitlePanel().setCellVerticalAlignment(goHomebutton, HasVerticalAlignment.ALIGN_MIDDLE);
 
 		setUseLazyPageLoading(false);
 		addPage(new WelcomePage());

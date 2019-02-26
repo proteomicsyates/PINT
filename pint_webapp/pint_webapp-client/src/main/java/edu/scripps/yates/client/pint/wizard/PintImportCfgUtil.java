@@ -2364,6 +2364,15 @@ public class PintImportCfgUtil {
 						continue;
 					}
 				}
+				final Iterator<RemoteInfoTypeBean> iterator2 = condition.getIdentificationInfo()
+						.getRemoteFilesIdentInfo().iterator();
+				while (iterator2.hasNext()) {
+					final RemoteInfoTypeBean next = iterator2.next();
+					if (next.getFileRefs().isEmpty()) {
+						iterator2.remove();
+					}
+				}
+
 			}
 			if (condition.getQuantificationInfo() != null) {
 				final Iterator<QuantificationExcelTypeBean> iterator = condition.getQuantificationInfo()
@@ -2375,11 +2384,31 @@ public class PintImportCfgUtil {
 						iterator.remove();
 					}
 				}
+				final Iterator<RemoteInfoTypeBean> iterator2 = condition.getQuantificationInfo()
+						.getRemoteFilesQuantInfo().iterator();
+				while (iterator2.hasNext()) {
+					final RemoteInfoTypeBean next = iterator2.next();
+					if (next.getFileRefs().isEmpty()) {
+						iterator2.remove();
+					}
+				}
 			}
 		}
 		final RatiosTypeBean ratios = pintImportConfiguration.getProject().getRatios();
 		if (ratios != null) {
 			if (ratios.getPeptideAmountRatios() != null) {
+				if (ratios.getPeptideAmountRatios().getExcelRatio().isEmpty()
+						&& ratios.getPeptideAmountRatios().getRemoteFilesRatio().isEmpty()) {
+					ratios.setPeptideAmountRatios(null);
+				}
+				final Iterator<RemoteFilesRatioTypeBean> iterator = ratios.getPeptideAmountRatios()
+						.getRemoteFilesRatio().iterator();
+				while (iterator.hasNext()) {
+					final RemoteFilesRatioTypeBean next = iterator.next();
+					if (next.getFileRef() == null || "".equals(next.getFileRef())) {
+						iterator.remove();
+					}
+				}
 				if (ratios.getPeptideAmountRatios().getExcelRatio().isEmpty()
 						&& ratios.getPeptideAmountRatios().getRemoteFilesRatio().isEmpty()) {
 					ratios.setPeptideAmountRatios(null);
@@ -2390,8 +2419,32 @@ public class PintImportCfgUtil {
 						&& ratios.getProteinAmountRatios().getRemoteFilesRatio().isEmpty()) {
 					ratios.setProteinAmountRatios(null);
 				}
+				final Iterator<RemoteFilesRatioTypeBean> iterator = ratios.getProteinAmountRatios()
+						.getRemoteFilesRatio().iterator();
+				while (iterator.hasNext()) {
+					final RemoteFilesRatioTypeBean next = iterator.next();
+					if (next.getFileRef() == null || "".equals(next.getFileRef())) {
+						iterator.remove();
+					}
+				}
+				if (ratios.getProteinAmountRatios().getExcelRatio().isEmpty()
+						&& ratios.getProteinAmountRatios().getRemoteFilesRatio().isEmpty()) {
+					ratios.setProteinAmountRatios(null);
+				}
 			}
 			if (ratios.getPsmAmountRatios() != null) {
+				if (ratios.getPsmAmountRatios().getExcelRatio().isEmpty()
+						&& ratios.getPsmAmountRatios().getRemoteFilesRatio().isEmpty()) {
+					ratios.setPsmAmountRatios(null);
+				}
+				final Iterator<RemoteFilesRatioTypeBean> iterator = ratios.getPsmAmountRatios().getRemoteFilesRatio()
+						.iterator();
+				while (iterator.hasNext()) {
+					final RemoteFilesRatioTypeBean next = iterator.next();
+					if (next.getFileRef() == null || "".equals(next.getFileRef())) {
+						iterator.remove();
+					}
+				}
 				if (ratios.getPsmAmountRatios().getExcelRatio().isEmpty()
 						&& ratios.getPsmAmountRatios().getRemoteFilesRatio().isEmpty()) {
 					ratios.setPsmAmountRatios(null);

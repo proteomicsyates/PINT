@@ -55,21 +55,20 @@ public class RemoteFileReader {
 
 	private final List<IonExclusion> censusIonExlusions = new ArrayList<IonExclusion>();
 	private final Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFileID;
-	private final Map<String, List<RatioDescriptor>> ratioDescriptorsByFile;
+	private final Map<String, Set<RatioDescriptor>> ratioDescriptorsByFile;
 
 	/**
 	 *
 	 * @param fileSet
 	 * @param servers
-	 * @param fastaIndexFolder
-	 *            the folder in which the fasta files will be indexed in
-	 *            necessary. If null, the fasta index will be created in a TEMP
-	 *            folder of the system
+	 * @param fastaIndexFolder the folder in which the fasta files will be indexed
+	 *                         in necessary. If null, the fasta index will be
+	 *                         created in a TEMP folder of the system
 	 * @throws IOException
 	 */
 	public RemoteFileReader(FileSetType fileSet, ServersType servers, File fastaIndexFolder,
 			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFileID,
-			Map<String, List<RatioDescriptor>> ratioDescriptorsByFile) throws IOException {
+			Map<String, Set<RatioDescriptor>> ratioDescriptorsByFile) throws IOException {
 
 		// TODO change this by a configurable thing in fileSetType
 		censusIonExlusions.add(new IonExclusion(IonSerieType.B, 1));
@@ -193,9 +192,9 @@ public class RemoteFileReader {
 					final CensusChroParser parser = new CensusChroParser();
 					for (final File file : fileIDByFiles.keySet()) {
 						final String fileID = fileIDByFiles.get(file);
-						final List<RatioDescriptor> ratioDescriptors = ratioDescriptorsByFile.get(fileID);
+						final Set<RatioDescriptor> ratioDescriptors = ratioDescriptorsByFile.get(fileID);
 						if (ratioDescriptors.size() == 1) {
-							final RatioDescriptor ratioDescriptor = ratioDescriptors.get(0);
+							final RatioDescriptor ratioDescriptor = ratioDescriptors.iterator().next();
 							parser.addFile(file, labelsByConditionsByFileID.get(fileID), ratioDescriptor.getLabel1(),
 									ratioDescriptor.getLabel2());
 						} else {
@@ -264,7 +263,7 @@ public class RemoteFileReader {
 					final CensusOutParser parser = new CensusOutParser();
 					for (final File file : fileIDByFiles.keySet()) {
 						final String fileID = fileIDByFiles.get(file);
-						final List<RatioDescriptor> ratioDescriptors = ratioDescriptorsByFile.get(fileID);
+						final Set<RatioDescriptor> ratioDescriptors = ratioDescriptorsByFile.get(fileID);
 						if (ratioDescriptors == null) {
 							// if there is no ratio descriptor for this file is
 							// because maybe it is an excel file and the ratio
@@ -272,7 +271,7 @@ public class RemoteFileReader {
 							continue;
 						}
 						if (ratioDescriptors.size() == 1) {
-							final RatioDescriptor ratioDescriptor = ratioDescriptors.get(0);
+							final RatioDescriptor ratioDescriptor = ratioDescriptors.iterator().next();
 							parser.addFile(file, labelsByConditionsByFileID.get(fileID), ratioDescriptor.getLabel1(),
 									ratioDescriptor.getLabel2());
 						} else {

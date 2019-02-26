@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -219,8 +220,10 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 				}
 				protein.addCondition(condition);
 				if (StaticProteomicsModelStorage.containsProtein(msruns, condition.getName(), protein.getAccession())) {
-					protein = StaticProteomicsModelStorage
+					final Protein proteinFromStaticStorage = StaticProteomicsModelStorage
 							.getProtein(condition.getName(), protein.getAccession(), msruns).iterator().next();
+					proteinFromStaticStorage.mergeWithProtein(protein);
+					protein = proteinFromStaticStorage;
 				}
 				StaticProteomicsModelStorage.addProtein(protein, msruns, condition.getName());
 				retMap.put(protein.getAccession(), protein);
@@ -244,6 +247,19 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 					+ "' is not reachable.\nTry it again or review the connection settings to server");
 		}
 		return retMap;
+	}
+
+	private void mergeProteins(Protein protein, Protein protein2, Set<MSRun> msruns, Condition condition) {
+
+		final Set<Protein> originalProteins = new THashSet<Protein>();
+		originalProteins.add(protein);
+
+		final Map<String, Protein> otherProteins = new THashMap<String, Protein>();
+		otherProteins.put(protein2.getPrimaryAccession().getAccession(), protein2);
+
+		final List<String> msRunIDs = msruns.stream().map(run -> run.getRunId()).collect(Collectors.toList());
+		ConditionAdapter.mergeProteins(originalProteins, otherProteins, true, condition.getProject().getTag(), msRunIDs,
+				condition.getName());
 	}
 
 	private Organism getOrganismFromConfFile() {

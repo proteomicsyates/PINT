@@ -410,6 +410,7 @@ public class ExcelProcessorPanel extends FlexTable {
 				// remove ratios
 				PintImportCfgUtil.removePSMRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
 						file.getId(), sheetName);
+				psmRatiosPanel = null;
 			}
 		}
 	}
@@ -427,6 +428,7 @@ public class ExcelProcessorPanel extends FlexTable {
 		} else {
 			if (removeIfNotShown) {
 				getIDExcel().getPsmScore().clear();
+				psmScoresPanel = null;
 			}
 		}
 	}
@@ -444,6 +446,7 @@ public class ExcelProcessorPanel extends FlexTable {
 		} else {
 			if (removeIfNotShown) {
 				getIDExcel().setPsmId(null);
+				psmIDPanel = null;
 			}
 		}
 	}
@@ -452,6 +455,13 @@ public class ExcelProcessorPanel extends FlexTable {
 		if (getIDExcel().getPsmId() == null) {
 			final PsmTypeBean psmID = new PsmTypeBean();
 			getIDExcel().setPsmId(psmID);
+			// add it to the ratios at PSM level
+			final List<ExcelAmountRatioTypeBean> excelAmounts = PintImportCfgUtil
+					.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
+							sheetName, true, false, false);
+			for (final ExcelAmountRatioTypeBean ratio : excelAmounts) {
+				ratio.setPsmId(psmID);
+			}
 		}
 		final PSMIdPanel panel = new PSMIdPanel(context, file, sheetName, getIDExcel().getPsmId());
 		return panel;
@@ -472,6 +482,7 @@ public class ExcelProcessorPanel extends FlexTable {
 				// remove ratios
 				PintImportCfgUtil.removePeptideRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
 						file.getId(), sheetName);
+				peptideRatiosPanel = null;
 			}
 		}
 	}
@@ -484,6 +495,10 @@ public class ExcelProcessorPanel extends FlexTable {
 		if (excelAmounts.isEmpty()) {
 			peptideRatio = new ExcelAmountRatioTypeBean();
 			PintImportCfgUtil.addPeptideRatioFromExcel(context.getPintImportConfiguration(), peptideRatio);
+			// add the peptide sequences if available
+			if (excelID.getSequence() != null) {
+				peptideRatio.setPeptideSequence(excelID.getSequence());
+			}
 		} else {
 			GWT.log(excelAmounts.size() + " excel ratios");
 			peptideRatio = excelAmounts.get(0);
@@ -503,6 +518,10 @@ public class ExcelProcessorPanel extends FlexTable {
 		if (excelAmounts.isEmpty()) {
 			psmRatio = new ExcelAmountRatioTypeBean();
 			PintImportCfgUtil.addPSMRatioFromExcel(context.getPintImportConfiguration(), psmRatio);
+			// add the psm id if available
+			if (excelID.getPsmId() != null) {
+				psmRatio.setPsmId(excelID.getPsmId());
+			}
 		} else {
 			GWT.log(excelAmounts.size() + " excel ratios");
 			psmRatio = excelAmounts.get(0);
@@ -521,6 +540,10 @@ public class ExcelProcessorPanel extends FlexTable {
 		if (excelAmounts.isEmpty()) {
 			proteinRatio = new ExcelAmountRatioTypeBean();
 			PintImportCfgUtil.addProteinRatioFromExcel(context.getPintImportConfiguration(), proteinRatio);
+			// add the protein accession if available
+			if (excelID.getProteinAccession() != null) {
+				proteinRatio.setProteinAccession(excelID.getProteinAccession());
+			}
 		} else {
 			GWT.log(excelAmounts.size() + " excel ratios");
 			proteinRatio = excelAmounts.get(0);
@@ -545,6 +568,7 @@ public class ExcelProcessorPanel extends FlexTable {
 		} else {
 			if (removeIfNotShown) {
 				getIDExcel().getPeptideScore().clear();
+				peptideScoresPanel = null;
 			}
 		}
 
@@ -600,6 +624,7 @@ public class ExcelProcessorPanel extends FlexTable {
 		} else {
 			if (removeIfNotShown) {
 				getIDExcel().setSequence(null);
+				peptideSequencePanel = null;
 			}
 		}
 
@@ -610,9 +635,17 @@ public class ExcelProcessorPanel extends FlexTable {
 		if (getIDExcel().getSequence() == null) {
 			final SequenceTypeBean peptideSequence = new SequenceTypeBean();
 			getIDExcel().setSequence(peptideSequence);
+			// add it to the ratios at peptide level
+			final List<ExcelAmountRatioTypeBean> excelAmounts = PintImportCfgUtil
+					.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
+							sheetName, false, true, false);
+			for (final ExcelAmountRatioTypeBean ratio : excelAmounts) {
+				ratio.setPeptideSequence(peptideSequence);
+			}
 		}
 		final PeptideSequencePanel panel = new PeptideSequencePanel(context, file, sheetName,
 				getIDExcel().getSequence());
+
 		return panel;
 	}
 
@@ -631,6 +664,7 @@ public class ExcelProcessorPanel extends FlexTable {
 				// remove ratios
 				PintImportCfgUtil.removeProteinRatioAssociatedWithFileFromExcel(context.getPintImportConfiguration(),
 						file.getId(), sheetName);
+				proteinRatiosPanel = null;
 			}
 		}
 
@@ -649,16 +683,18 @@ public class ExcelProcessorPanel extends FlexTable {
 		} else {
 			if (removeIfNotShown) {
 				getIDExcel().getProteinScore().clear();
+				proteinScoresPanel = null;
 			}
 		}
 	}
 
 	protected void showProteinsPanel(boolean visible, boolean removeIfNotShown) {
-		if (proteinAccessionPanel == null) {
-			proteinAccessionPanel = createProteinAccessionPanel();
-		}
+
 		rightPanel.getFlexCellFormatter().setVisible(proteinAccValuesRow, 0, visible);
 		if (visible) {
+			if (proteinAccessionPanel == null) {
+				proteinAccessionPanel = createProteinAccessionPanel();
+			}
 			rightPanel.setWidget(proteinAccValuesRow, 0, proteinAccessionPanel);
 			rightPanel.getFlexCellFormatter().setHorizontalAlignment(proteinAccValuesRow, 0,
 					HasHorizontalAlignment.ALIGN_LEFT);
@@ -668,6 +704,7 @@ public class ExcelProcessorPanel extends FlexTable {
 				getIDExcel().setProteinAnnotations(null);
 				getIDExcel().setProteinDescription(null);
 				getIDExcel().setProteinThresholds(null);
+				proteinAccessionPanel = null;
 			}
 		}
 	}
@@ -675,7 +712,15 @@ public class ExcelProcessorPanel extends FlexTable {
 	private ProteinAccessionPanel createProteinAccessionPanel() {
 		if (getIDExcel().getProteinAccession() == null) {
 			final ProteinAccessionTypeBean proteinAccession = new ProteinAccessionTypeBean();
+			proteinAccession.setRegexp(".*");
 			getIDExcel().setProteinAccession(proteinAccession);
+			// add it to the ratios at protein level
+			final List<ExcelAmountRatioTypeBean> excelAmounts = PintImportCfgUtil
+					.getExcelAmountRatioTypeBeansAssociatedWithFile(context.getPintImportConfiguration(), file.getId(),
+							sheetName, false, false, true);
+			for (final ExcelAmountRatioTypeBean ratio : excelAmounts) {
+				ratio.setProteinAccession(proteinAccession);
+			}
 		}
 		final ProteinAccessionPanel panel = new ProteinAccessionPanel(context, file, sheetName,
 				getIDExcel().getProteinAccession());

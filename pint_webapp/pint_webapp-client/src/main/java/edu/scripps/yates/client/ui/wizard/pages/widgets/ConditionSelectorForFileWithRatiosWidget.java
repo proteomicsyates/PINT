@@ -380,6 +380,7 @@ public class ConditionSelectorForFileWithRatiosWidget extends AbstractConditionS
 		ratios.setNumerator(condition1.getId());
 		ratios.setDenominator(condition2.getId());
 		ratios.setFileRef(file.getId());
+		ratios.setId("Ratio " + condition1.getId() + " / " + condition2.getId());
 		return ratios;
 	}
 

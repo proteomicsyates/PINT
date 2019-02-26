@@ -183,7 +183,8 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					}
 
 					mergeProteins(StaticProteomicsModelStorage.getProtein(msRunIDs, expConditionCfg.getId(), acc),
-							remoteProteins, addProteinsNotInOriginalProteinSet, project.getTag(), msRunIDs);
+							remoteProteins, addProteinsNotInOriginalProteinSet, project.getTag(), msRunIDs,
+							expConditionCfg.getId());
 					for (final Protein protein : StaticProteomicsModelStorage.getProtein(msRunIDs,
 							expConditionCfg.getId(), acc)) {
 						if (protein.getOrganism() == null) {
@@ -487,8 +488,8 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	 * @param projectTag
 	 * @return
 	 */
-	private void mergeProteins(Collection<Protein> originalProteins, Map<String, Protein> otherProteins,
-			boolean addProteinsNotInOriginalProteinSet, String projectTag, List<String> msRunIDs) {
+	protected static void mergeProteins(Collection<Protein> originalProteins, Map<String, Protein> otherProteins,
+			boolean addProteinsNotInOriginalProteinSet, String projectTag, List<String> msRunIDs, String conditionID) {
 		log.info("merging " + originalProteins.size() + " with " + otherProteins.size() + " proteins");
 		// index original proteins by accessions
 		final Map<String, Set<Protein>> originalProteinsMap = new THashMap<String, Set<Protein>>();
@@ -514,7 +515,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					numValid++;
 				} else if (addProteinsNotInOriginalProteinSet) {
 					final Protein otherProtein = otherProteins.get(otherProteinAccPrimitive);
-					StaticProteomicsModelStorage.addProtein(otherProtein, msRunIDs, expConditionCfg.getId());
+					StaticProteomicsModelStorage.addProtein(otherProtein, msRunIDs, conditionID);
 					numValid++;
 				} else {
 					// log.debug(otherProteinAcc + " skipped");
