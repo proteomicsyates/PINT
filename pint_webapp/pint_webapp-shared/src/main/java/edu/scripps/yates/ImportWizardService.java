@@ -15,6 +15,7 @@
 package edu.scripps.yates;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -330,5 +331,5 @@ public interface ImportWizardService extends RemoteService {
 
 	public PintImportCfgBean getPintImportCfgTypeBeanByProcessKey(int hashCode) throws PintException;
 
-	public List<String> getTemplateFiles() throws PintException;
+	public Map<String, String> getTemplateFiles() throws PintException;
 }

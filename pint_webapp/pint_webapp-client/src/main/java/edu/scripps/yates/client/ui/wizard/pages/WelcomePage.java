@@ -1,13 +1,18 @@
 package edu.scripps.yates.client.ui.wizard.pages;
 
-import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.dom.client.Style.WhiteSpace;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -84,7 +89,7 @@ public class WelcomePage extends AbstractWizardPage {
 		label2.setStyleName(WizardStyles.WizardExplanationLabel);
 		table.setWidget(row, 0, label2);
 		final int rowForButtons = row;
-		service.getTemplateFiles(new AsyncCallback<List<String>>() {
+		service.getTemplateFiles(new AsyncCallback<Map<String, String>>() {
 
 			@Override
 			public void onFailure(Throwable caught) {
@@ -92,14 +97,30 @@ public class WelcomePage extends AbstractWizardPage {
 			}
 
 			@Override
-			public void onSuccess(List<String> files) {
+			public void onSuccess(Map<String, String> files) {
 				int row2 = rowForButtons;
-				for (final String file : files) {
+				for (final String fileName : files.keySet()) {
+					final String datasetDescription = files.get(fileName);
 					row2++;
+					final FlexTable table2 = new FlexTable();
+					table2.setWidth("100%");
+					table2.getElement().getStyle().setMarginTop(5, Unit.PX);
+					table.setWidget(row2, 0, table2);
+					table.getElement().getStyle().setMarginTop(10, Unit.PX);
+					final Label button = createDownloadButton(fileName);
+					button.getElement().getStyle().setWhiteSpace(WhiteSpace.NOWRAP);
+					button.getElement().getStyle().setMarginRight(20, Unit.PX);
+					table2.setWidget(0, 0, button);
+					table2.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
+					table2.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
+					final InlineHTML datasetDescriptionLabel = new InlineHTML(
+							new SafeHtmlBuilder().appendEscapedLines(datasetDescription).toSafeHtml());
+					datasetDescriptionLabel.setStyleName(WizardStyles.WizardInfoMessage);
+					table2.setWidget(0, 1, datasetDescriptionLabel);
+					table2.getFlexCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_TOP);
+					table2.getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
+					table2.getFlexCellFormatter().setWidth(0, 1, "100%");
 
-					final Label button = createDownloadButton(file);
-					table.setWidget(row2, 0, button);
-					button.getElement().getStyle().setMarginTop(10, Unit.PX);
 				}
 
 			}

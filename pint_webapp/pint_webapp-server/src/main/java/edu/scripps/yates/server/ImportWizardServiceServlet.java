@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -1587,14 +1586,25 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	}
 
 	@Override
-	public List<String> getTemplateFiles() throws PintException {
+	public Map<String, String> getTemplateFiles() throws PintException {
 		try {
 			final List<File> files = FileManager.getProjectCfgFileTemplates(getServletContext());
 			if (!files.isEmpty()) {
-				final List<String> listOfNames = files.stream().map(f -> FilenameUtils.getName(f.getAbsolutePath()))
-						.filter(name -> FilenameUtils.getExtension(name).equals("xml")).sorted()
-						.collect(Collectors.toList());
-				return listOfNames;
+				final Map<String, String> ret = new HashMap<String, String>();
+				for (final File file : files) {
+					if (FilenameUtils.getExtension(file.getAbsolutePath()).equals("xml")) {
+						final String name = FilenameUtils.getName(file.getAbsolutePath());
+						final ImportCfgFileReader reader = new ImportCfgFileReader();
+						try {
+							final PintImportCfg readCfgFile = reader.readCfgFile(file);
+							ret.put(name, readCfgFile.getProject().getDescription());
+						} catch (final Exception e) {
+
+						}
+					}
+				}
+
+				return ret;
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();

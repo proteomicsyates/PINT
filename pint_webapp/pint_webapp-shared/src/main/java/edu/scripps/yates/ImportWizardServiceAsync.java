@@ -269,5 +269,5 @@ public interface ImportWizardServiceAsync {
 
 	void getPintImportCfgTypeBeanByProcessKey(int hashCode, AsyncCallback<PintImportCfgBean> asyncCallback);
 
-	void getTemplateFiles(AsyncCallback<java.util.List<String>> asyncCallback);
+	void getTemplateFiles(AsyncCallback<java.util.Map<String, String>> asyncCallback);
 }

@@ -123,7 +123,7 @@ public class ImportCfgFileReader {
 		}
 	}
 
-	private PintImportCfg readCfgFile(File xmlFile) throws IOException, JAXBException {
+	public PintImportCfg readCfgFile(File xmlFile) throws IOException, JAXBException {
 
 		if (xmlFile.exists() && jaxbContext != null) {
 			final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -134,7 +134,7 @@ public class ImportCfgFileReader {
 		throw new FileNotFoundException("File " + xmlFile.getAbsolutePath() + " not found");
 	}
 
-	private PintImportCfg readCfgFile(InputStream is) throws IOException, JAXBException {
+	public PintImportCfg readCfgFile(InputStream is) throws IOException, JAXBException {
 
 		if (is != null && jaxbContext != null) {
 			final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
