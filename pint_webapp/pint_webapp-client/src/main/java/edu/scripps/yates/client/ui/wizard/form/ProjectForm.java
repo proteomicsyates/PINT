@@ -29,7 +29,7 @@ public class ProjectForm extends AbstractFormCollection {
 			pintImportCfgBean.setProject(project);
 		}
 		projectTag = new TextBoxFormInformation("Dataset tag",
-				"The short tag of the dataset. Maximum lenght of 7 characters", true, 10.0);
+				"The short tag of the dataset. Maximum lenght of 7 characters", true, 7.0);
 		add(projectTag);
 		projectTag.linkToObject(new UpdateAction() {
 
@@ -50,7 +50,7 @@ public class ProjectForm extends AbstractFormCollection {
 		projectName.linkToObject(new UpdateAction() {
 			@Override
 			public void onChange(GwtEvent event) {
-				pintImportCfgBean.getProject().setName(projectName.getTextBox().getText());
+				pintImportCfgBean.getProject().setName(projectName.getTextBox().getValue().trim());
 			}
 		});
 		// set the textbox with the value that may come from the PintImportCfgBean
@@ -63,7 +63,7 @@ public class ProjectForm extends AbstractFormCollection {
 		description.linkToObject(new UpdateAction() {
 			@Override
 			public void onChange(GwtEvent event) {
-				pintImportCfgBean.getProject().setDescription(description.getTextBox().getText());
+				pintImportCfgBean.getProject().setDescription(description.getTextBox().getValue().trim());
 			}
 		});
 		// set the textbox with the value that may come from the PintImportCfgBean

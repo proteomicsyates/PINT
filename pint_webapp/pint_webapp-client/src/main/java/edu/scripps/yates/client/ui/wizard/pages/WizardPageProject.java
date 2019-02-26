@@ -7,19 +7,26 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.ImportWizardServiceAsync;
+import edu.scripps.yates.ProteinRetrievalServiceAsync;
+import edu.scripps.yates.client.gui.components.MyDialogBox;
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.ui.wizard.Wizard.ButtonType;
+import edu.scripps.yates.client.ui.wizard.event.NavigationEvent;
 import edu.scripps.yates.client.ui.wizard.form.ProjectForm;
 import edu.scripps.yates.client.ui.wizard.pages.panels.WizardFormPanel;
 import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
+import edu.scripps.yates.shared.model.ProjectBean;
 
 public class WizardPageProject extends AbstractWizardPage {
 
 	private static final String text1 = "First things first... how do you want to call this dataset?";
 	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
+	private final ProteinRetrievalServiceAsync service2 = ProteinRetrievalServiceAsync.Util.getInstance();
 	private FlexTable panel;
 	private WizardFormPanel textFormPanel;
+	private MyDialogBox loadingDialog;
+	private boolean checkProjectNameAvailability = true;
 
 	public WizardPageProject() {
 		super("Dataset name");
@@ -69,10 +76,11 @@ public class WizardPageProject extends AbstractWizardPage {
 
 	@Override
 	public void beforeFirstShow() {
+		getProjectCreatorWizard().getButton(ButtonType.BUTTON_CANCEL).setEnabled(true);
 		if (getPintImportConfg().getImportID() > 0) {
 			createInteractivePage();
 			getProjectCreatorWizard().showSaveProgressButton(true);
-			getProjectCreatorWizard().getButton(ButtonType.BUTTON_CANCEL).setEnabled(true);
+
 		} else {
 			// set ID
 			service.generateNewImportProcessID(new AsyncCallback<Integer>() {
@@ -100,6 +108,12 @@ public class WizardPageProject extends AbstractWizardPage {
 	}
 
 	@Override
+	public void beforeShow() {
+		checkProjectNameAvailability = true;
+		super.beforeShow();
+	}
+
+	@Override
 	public PageID getPageID() {
 		return PageIDController.getPageIDByPageClass(this.getClass());
 	}
@@ -107,5 +121,39 @@ public class WizardPageProject extends AbstractWizardPage {
 	@Override
 	protected void registerPageTitle(String title) {
 		PageTitleController.addPageTitle(this.getPageID(), title);
+	}
+
+	@Override
+	public void beforeNext(NavigationEvent event) {
+		if (checkProjectNameAvailability) {
+			// check project availability
+			loadingDialog = new MyDialogBox("Checking dataset name availability...", false, true, true);
+			loadingDialog.center();
+			service2.getProjectBean(getContext().getPintImportConfiguration().getProject().getTag(),
+					new AsyncCallback<ProjectBean>() {
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// the project is not found, so in this case is all good
+							loadingDialog.hide();
+							checkProjectNameAvailability = false;
+							getWizard().showPage(event.getDestinationPage());
+							WizardPageProject.super.beforeNext(event);
+
+						}
+
+						@Override
+						public void onSuccess(ProjectBean result) {
+							loadingDialog.hide();
+							StatusReportersRegister.getInstance().notifyStatusReporters(
+									"A dataset with the tag '" + getPintImportConfg().getProject().getTag()
+											+ "' already exist in the database. Please change it to continue.");
+
+						}
+					});
+			event.cancel();
+		} else {
+			super.beforeNext(event);
+		}
 	}
 }

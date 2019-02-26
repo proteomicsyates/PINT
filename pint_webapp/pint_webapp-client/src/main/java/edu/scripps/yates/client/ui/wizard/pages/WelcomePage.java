@@ -132,4 +132,5 @@ public class WelcomePage extends AbstractWizardPage {
 	protected void registerPageTitle(String title) {
 		PageTitleController.addPageTitle(this.getPageID(), title);
 	}
+
 }

@@ -16,6 +16,6 @@ public abstract class AbstractTextBasedFormInformation extends AbstractFormInfor
 
 	@Override
 	public String getValueFromWidget() {
-		return getTextBox().getValue();
+		return getTextBox().getValue().trim();
 	}
 }

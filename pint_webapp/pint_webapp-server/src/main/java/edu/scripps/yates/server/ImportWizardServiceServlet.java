@@ -1592,7 +1592,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			final List<File> files = FileManager.getProjectCfgFileTemplates(getServletContext());
 			if (!files.isEmpty()) {
 				final List<String> listOfNames = files.stream().map(f -> FilenameUtils.getName(f.getAbsolutePath()))
-						.sorted().collect(Collectors.toList());
+						.filter(name -> FilenameUtils.getExtension(name).equals("xml")).sorted()
+						.collect(Collectors.toList());
 				return listOfNames;
 			}
 		} catch (final Exception e) {
