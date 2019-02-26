@@ -38,7 +38,7 @@ public class MainPanel extends InitializableComposite {
 	private final HtmlList listItemPanel;
 	private final FocusPanel focusConfigurationPanel;
 	private final Pint pintEntryPoint;
-	private final boolean TESTING_WIZARD = true;
+	private final boolean TESTING_WIZARD = false;
 
 	public MainPanel(Pint pintEntryPoint) {
 		this.pintEntryPoint = pintEntryPoint;
