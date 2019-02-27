@@ -31,7 +31,7 @@ public class PeptideAmountToPeptideTableMapper {
 
 	public void addCondition(Condition condition) {
 		if (!conditionIDs.contains(condition.getId())) {
-			log.info("Caching peptide amounts of condition " + condition.getName());
+
 			conditionIDs.add(condition.getId());
 			// get the proteinvaluewrappers that point to the
 			// condition

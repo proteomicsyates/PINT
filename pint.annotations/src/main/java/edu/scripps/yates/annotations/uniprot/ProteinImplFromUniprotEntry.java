@@ -74,6 +74,7 @@ public class ProteinImplFromUniprotEntry extends AbstractProtein {
 	public ProteinImplFromUniprotEntry(Entry proteinEntry) {
 		entry = proteinEntry;
 		parsePrimaryAndSecondaryAccessionsFromEntry(proteinEntry);
+		setKey(getAccession());
 	}
 
 	private boolean isIsoform(String accession) {
