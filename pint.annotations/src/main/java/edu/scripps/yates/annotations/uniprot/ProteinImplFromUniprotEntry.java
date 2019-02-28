@@ -174,6 +174,9 @@ public class ProteinImplFromUniprotEntry extends AbstractProtein {
 
 	@Override
 	public Set<ProteinAnnotation> getAnnotations() {
+		if (getKey().equals("P16884")) {
+			log.info(" asdf");
+		}
 		if (!annotationsParsed) {
 			// comments (CC):
 			final List<CommentType> comments = entry.getComment();
