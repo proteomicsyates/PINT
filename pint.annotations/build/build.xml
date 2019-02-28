@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<project name="miape-xml" basedir=".">
+	<property name="src.java" value="../src/main/java" />
+	<property name="src.resources" value="../src/main/resources" />
+
+
+
+	<property name="src.test" value="../src/test" />
+	<property name="reports.tests" value="../bin/classes" />
+	<property name="packagename" value="edu.scripps.yates.uniprot.xml" />
+	<property name="packagename_omim" value="edu.scripps.yates.uniprot.omim.xml" />
+	<property name="packagename_peptidematch" value="edu.scripps.yates.uniprot.peptidematch.xml" />
+	
+	<property name="packagename_uniref" value="edu.scripps.yates.uniprot.uniref.xml" />
+	
+	<property name="dirName" value="edu/scripps/yates/proteindb/uniprot/xml" />
+	<property name="libraries_path" value="libraries" />
+	<property name="jaxb_libraries_path" value="${libraries_path}/jaxb/jaxb-ri-20100511/lib" />
+	
+	<property name="junit.library" value="${libraries_path}/JUnit/junit-4.7.jar" />
+	<property name="mockito.library" value="${libraries_path}/Mockito/mockito-all-1.8.0.jar" />
+
+	<property name="build.classes" value="../bin/classes" />
+	<property name="java.class.path" value="../bin/classes" />
+	<property name="omim.schema.location" value="../src/main/resources/omim.xsd"/>
+		<path id="testlib">
+		<path location="${mockito.library}" />
+		<path location="${libraries_path}" />
+	</path>
+	<property name="peptidematch.schema.location" value="../src/main/resources/peptidematch.xsd"/>
+		<path id="testlib">
+		<path location="${mockito.library}" />
+		<path location="${libraries_path}" />
+	</path>
+	<property name="uniref.schema.location" value="../src/main/resources/uniref.xsd"/>
+		<path id="testlib">
+		<path location="${mockito.library}" />
+		<path location="${libraries_path}" />
+	</path>
+	<property name="uniprot.schema.location" value="https://www.uniprot.org/docs/uniprot.xsd"/>
+
+		<path id="testlib">
+		<path location="${mockito.library}" />
+		<path location="${libraries_path}" />
+	</path>
+	<path id="jaxblib">
+		<path location="${jaxb_libraries_path}/jaxb-xjc.jar" />
+
+		
+	</path>
+
+	<!--taskdef name="schemagen" classname="com.sun.tools.jxc.SchemaGenTask" classpathref="jaxblib"/ -->
+	<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask" classpathref="jaxblib">
+
+	</taskdef>
+
+	<target name="uniprot" description="Produces java classes from uniprot xml xchema">
+				<xjc schema="${uniprot.schema.location}" destdir="${src.java}" package="${packagename}" />
+		</target>
+	<target name="omim" description="Produces java classes from omim xml xchema">
+				<xjc schema="${omim.schema.location}" destdir="${src.java}" package="${packagename_omim}" />
+		</target>
+		<target name="uniref" description="Produces java classes from uniref xml xchema">
+				<xjc schema="${uniref.schema.location}" destdir="${src.java}" package="${packagename_uniref}" />
+		</target>
+	<target name="proteintlas" description="Produces java classes from peptidematch xml xchema">
+				<xjc schema="${peptidematch.schema.location}" destdir="${src.java}" package="${packagename_peptidematch}" />
+		</target>
+	
+	<target name="clean-spectrum-generation">
+			<delete>
+				<fileset dir="${dirName}">
+					<include name="**/**.java" />
+				</fileset>
+			</delete>
+		</target>
+	
+</project>
