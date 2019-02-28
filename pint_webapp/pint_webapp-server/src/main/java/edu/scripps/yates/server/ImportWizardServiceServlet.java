@@ -1403,6 +1403,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	@Override
 	public FileSummary getFileSummary(int importID, String sessionID, FileTypeBean fileTypeBean) throws PintException {
 		try {
+			log.info("getFileSummary called: importID:" + importID + "\tsessionID:" + sessionID + "\tfile type:"
+					+ fileTypeBean.getId());
 			final FileSummaries fileSummaries = FileManager.getFileSummariesByImportID(importID);
 			FileSummary fileSummary = fileSummaries.getFileSummaryByFileID(fileTypeBean.getId());
 			if (fileSummary != null) {
