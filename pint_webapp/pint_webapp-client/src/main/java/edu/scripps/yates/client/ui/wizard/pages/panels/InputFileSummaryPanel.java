@@ -127,29 +127,16 @@ public class InputFileSummaryPanel extends FlexTable {
 			numPSMsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
 			table.setWidget(row, 1, numPSMsValue);
 		}
-		//
-		row++;
-		final Label conditionsLabel = new Label("Experimental conditions:");
-		conditionsLabel.setTitle("Experimental conditions from which the data in this input file is coming from");
-		conditionsLabel.setStyleName(WizardStyles.WizardInfoMessage);
-		table.setWidget(row, 0, conditionsLabel);
-		if (associatedConditionsValues == null) {
-			associatedConditionsValues = new Label("not associated with any condition yet");
-			associatedConditionsValues.setStyleName(WizardStyles.WizardCriticalMessage);
-		} else {
-			updateAssociatedConditionsLabel();
-		}
-		table.setWidget(row, 1, associatedConditionsValues);
 
 		if (result.getFileTypeBean().getFormat() == FileFormat.EXCEL) {
 			//
-			row++;
-			final Label numSheets = new Label("Number of Sheets:");
-			numSheets.setStyleName(WizardStyles.WizardInfoMessage);
-			table.setWidget(row, 0, numSheets);
-			final Label numSheetsValue = new Label(String.valueOf(parsePositiveNonZeroNumber(result.getNumSheets())));
-			numSheetsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
-			table.setWidget(row, 1, numSheetsValue);
+//			row++;
+//			final Label numSheets = new Label("Number of Sheets:");
+//			numSheets.setStyleName(WizardStyles.WizardInfoMessage);
+//			table.setWidget(row, 0, numSheets);
+//			final Label numSheetsValue = new Label(String.valueOf(parsePositiveNonZeroNumber(result.getNumSheets())));
+//			numSheetsValue.setStyleName(WizardStyles.WizardItemWidgetNameLabelNonClickable);
+//			table.setWidget(row, 1, numSheetsValue);
 			//
 			for (final String sheetKeyName : result.getSheetMap().keySet()) {
 				if (sheetName != null && !sheetName.equals(sheetKeyName)) {
@@ -175,7 +162,19 @@ public class InputFileSummaryPanel extends FlexTable {
 			}
 
 		}
-
+		//
+		row++;
+		final Label conditionsLabel = new Label("Experimental conditions:");
+		conditionsLabel.setTitle("Experimental conditions from which the data in this input file is coming from");
+		conditionsLabel.setStyleName(WizardStyles.WizardInfoMessage);
+		table.setWidget(row, 0, conditionsLabel);
+		if (associatedConditionsValues == null) {
+			associatedConditionsValues = new Label("not associated with any condition yet");
+			associatedConditionsValues.setStyleName(WizardStyles.WizardCriticalMessage);
+		} else {
+			updateAssociatedConditionsLabel();
+		}
+		table.setWidget(row, 1, associatedConditionsValues);
 		return table;
 	}
 
