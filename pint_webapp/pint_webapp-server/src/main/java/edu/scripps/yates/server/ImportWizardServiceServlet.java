@@ -1408,8 +1408,10 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			final FileSummaries fileSummaries = FileManager.getFileSummariesByImportID(importID);
 			FileSummary fileSummary = fileSummaries.getFileSummaryByFileID(fileTypeBean.getId());
 			if (fileSummary != null) {
+				log.info("File summary already on the sytem");
 				return fileSummary;
 			}
+			log.info("Creating file Summary");
 			fileSummary = new FileSummary();
 			try {
 				final File file = FileManager.getDataFile(importID, fileTypeBean.getName(), fileTypeBean.getId(),
@@ -1425,16 +1427,19 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 					fileSummary.setNumPSMs(parser.getPSMsByPSMID().size());
 					return fileSummary;
 				} else if (fileTypeBean.getFormat() == FileFormat.CENSUS_OUT_TXT) {
+					log.info("Creating file Summary for census out");
 					final QuantCondition cond1 = new QuantCondition("cond1");
 					final QuantCondition cond2 = new QuantCondition("cond2");
 					final CensusOutParser parser = new CensusOutParser(file, QuantificationLabel.LIGHT, cond1,
 							QuantificationLabel.HEAVY, cond2);
+					log.info("Creating parser for census out");
 					fileSummary.setFileTypeBean(fileTypeBean);
 					fileSummary.setFileSizeString(
 							edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(file.length()));
 					fileSummary.setNumProteins(parser.getProteinMap().size());
 					fileSummary.setNumPeptides(parser.getPeptideMap().size());
 					fileSummary.setNumPSMs(parser.getPSMMap().size());
+					log.info("numbers filled from census parser");
 					return fileSummary;
 				} else if (fileTypeBean.getFormat() == FileFormat.CENSUS_CHRO_XML) {
 					final QuantCondition cond1 = new QuantCondition("cond1");
