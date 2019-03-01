@@ -1416,6 +1416,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			try {
 				final File file = FileManager.getDataFile(importID, fileTypeBean.getName(), fileTypeBean.getId(),
 						fileTypeBean.getFormat());
+				log.info("This is the file: " + file.getAbsolutePath());
 				if (fileTypeBean.getFormat() == FileFormat.DTA_SELECT_FILTER_TXT) {
 					final DTASelectParser parser = new DTASelectParser(file);
 
