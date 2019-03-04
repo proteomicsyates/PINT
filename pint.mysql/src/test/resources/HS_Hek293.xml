@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<pint_import_cfg importID="9">
+    <fileSet>
+        <file id="071215_H_control" name="DTASelect-filter.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/071215_H_control_2015_07_13_11_33458/search/projects2015_11_26_00_89516/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="071215_H_control_Quant" name="census-out.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/071215_H_control_2015_07_13_11_33458/quant/2015_12_03_15_11604">
+            <format>census_out_txt</format>
+        </file>
+        <file id="030515_H_control" name="DTASelect-filter.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/030515_control_HL_PBS_chy_corr_2015_04_14_14_31470/search/projects2015_11_28_22_89577/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="030515_H_control_Quant" name="census-out.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/030515_control_HL_PBS_chy_corr_2015_04_14_14_31470/quant/2015_12_03_15_11602">
+            <format>census_out_txt</format>
+        </file>
+        <file id="030115_H_control" name="DTASelect-filter.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/control_HL_PBS_chy_masscorr_2015_04_13_17_31437/search/projects2015_11_29_07_89581/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="030115_H_control_Quant" name="census-out.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/control_HL_PBS_chy_masscorr_2015_04_13_17_31437/quant/2015_12_03_12_11597">
+            <format>census_out_txt</format>
+        </file>
+        <file id="031515_H_control_ela" name="DTASelect-filter.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/031515_control1_HL_PBS_ela_corr_2015_04_15_16_31508/search/projects2015_12_15_10_90493/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="031515_H_control_ela_Quant" name="census-out.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/031515_control1_HL_PBS_ela_corr_2015_04_15_16_31508/quant/2015_12_15_11_11706">
+            <format>census_out_txt</format>
+        </file>
+        <file id="062115_HS_H" name="DTASelect-filter.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/062115_HS_H_neu_2015_06_22_13_32978/search/projects2015_11_26_23_89534/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="062115_HS_H_Quant" name="census-out.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/062115_HS_H_neu_2015_06_22_13_32978/quant/2015_12_03_15_11605">
+            <format>census_out_txt</format>
+        </file>
+        <file id="061815_HS_H" name="DTASelect-filter.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/061815_5_neu_2015_06_20_11_32943/search/projects2015_11_26_23_89536/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="061815_HS_H_Quant" name="census-out.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/061815_5_neu_2015_06_20_11_32943/quant/2015_12_03_15_11606">
+            <format>census_out_txt</format>
+        </file>
+        <file id="042215_HS_H" name="DTASelect-filter.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/042215_HS42_5_HL_chy_2015_04_23_11_31672/search/projects2015_11_27_21_89561/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="042215_HS_H_Quant" name="census-out.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/042215_HS42_5_HL_chy_2015_04_23_11_31672/quant/2015_12_03_15_11607">
+            <format>census_out_txt</format>
+        </file>
+        <file id="022515_HS_H" name="DTASelect-filter.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/022515_HS42_PBS_chy_corr_2015_04_16_17_31525/search/projects2015_11_28_22_89576/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="022515_HS_H_Quant" name="census-out.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/022515_HS42_PBS_chy_corr_2015_04_16_17_31525/quant/2015_12_03_15_11608">
+            <format>census_out_txt</format>
+        </file>
+        <file id="052515_HS4_H_ela" name="DTASelect-filter.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/052515_5_HS42_ela_2015_06_04_10_32599/search/projects2015_12_04_11_89954/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="052515_HS4_H_ela_Quant" name="census-out.txt" serverRef="Thrall" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/052515_5_HS42_ela_2015_06_04_10_32599/quant/2015_12_08_11_11653">
+            <format>census_out_txt</format>
+        </file>
+    </fileSet>
+    <project name="HS_Hek293" release_date="2016-02-08-08:00" tag="HS_Hek293">
+        <description>HS_Hek293</description>
+        <experimental_conditions>
+            <experimental_condition id="C in vivo" sampleRef="C in vivo sample">
+                <description></description>
+                <identification_info>
+                    <remoteFiles_ident_info msRunRef="071215_H_control_RUN">
+                        <fileRef fileRef="071215_H_control"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="030515_H_control_RUN">
+                        <fileRef fileRef="030515_H_control"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="030115_H_control_RUN">
+                        <fileRef fileRef="030115_H_control"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="031515_H_control_ela_RUN">
+                        <fileRef fileRef="031515_H_control_ela"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                </identification_info>
+                <quantification_info>
+                    <remoteFiles_quant_info msRunRef="071215_H_control_RUN">
+                        <fileRef fileRef="071215_H_control_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="030515_H_control_RUN">
+                        <fileRef fileRef="030515_H_control_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="030115_H_control_RUN">
+                        <fileRef fileRef="030115_H_control_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="031515_H_control_ela_RUN">
+                        <fileRef fileRef="031515_H_control_ela_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                </quantification_info>
+            </experimental_condition>
+            <experimental_condition id="C PD" sampleRef="C PD sample">
+                <description></description>
+                <identification_info>
+                    <remoteFiles_ident_info msRunRef="071215_H_control_RUN">
+                        <fileRef fileRef="071215_H_control"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="030515_H_control_RUN">
+                        <fileRef fileRef="030515_H_control"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="030115_H_control_RUN">
+                        <fileRef fileRef="030115_H_control"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="031515_H_control_ela_RUN">
+                        <fileRef fileRef="031515_H_control_ela"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                </identification_info>
+                <quantification_info>
+                    <remoteFiles_quant_info msRunRef="071215_H_control_RUN">
+                        <fileRef fileRef="071215_H_control_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="030515_H_control_RUN">
+                        <fileRef fileRef="030515_H_control_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="030115_H_control_RUN">
+                        <fileRef fileRef="030115_H_control_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="031515_H_control_ela_RUN">
+                        <fileRef fileRef="031515_H_control_ela_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                </quantification_info>
+            </experimental_condition>
+            <experimental_condition id="HS in vivo" sampleRef="HS in vivo sample">
+                <description></description>
+                <identification_info>
+                    <remoteFiles_ident_info msRunRef="062115_HS_H_RUN">
+                        <fileRef fileRef="062115_HS_H"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="061815_HS_H_RUN">
+                        <fileRef fileRef="061815_HS_H"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="042215_HS_H_RUN">
+                        <fileRef fileRef="042215_HS_H"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="022515_HS_H_RUN">
+                        <fileRef fileRef="022515_HS_H"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="052515_HS4_H_ela_RUN">
+                        <fileRef fileRef="052515_HS4_H_ela"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                </identification_info>
+                <quantification_info>
+                    <remoteFiles_quant_info msRunRef="062115_HS_H_RUN">
+                        <fileRef fileRef="062115_HS_H_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="061815_HS_H_RUN">
+                        <fileRef fileRef="061815_HS_H_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="042215_HS_H_RUN">
+                        <fileRef fileRef="042215_HS_H_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="022515_HS_H_RUN">
+                        <fileRef fileRef="022515_HS_H_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="052515_HS4_H_ela_RUN">
+                        <fileRef fileRef="052515_HS4_H_ela_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                </quantification_info>
+            </experimental_condition>
+            <experimental_condition id="HS PD" sampleRef="HS PD sample">
+                <description></description>
+                <identification_info>
+                    <remoteFiles_ident_info msRunRef="062115_HS_H_RUN">
+                        <fileRef fileRef="062115_HS_H"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="061815_HS_H_RUN">
+                        <fileRef fileRef="061815_HS_H"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="042215_HS_H_RUN">
+                        <fileRef fileRef="042215_HS_H"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="022515_HS_H_RUN">
+                        <fileRef fileRef="022515_HS_H"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="052515_HS4_H_ela_RUN">
+                        <fileRef fileRef="052515_HS4_H_ela"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                </identification_info>
+                <quantification_info>
+                    <remoteFiles_quant_info msRunRef="062115_HS_H_RUN">
+                        <fileRef fileRef="062115_HS_H_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="061815_HS_H_RUN">
+                        <fileRef fileRef="061815_HS_H_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="042215_HS_H_RUN">
+                        <fileRef fileRef="042215_HS_H_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="022515_HS_H_RUN">
+                        <fileRef fileRef="022515_HS_H_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                    <remoteFiles_quant_info msRunRef="052515_HS4_H_ela_RUN">
+                        <fileRef fileRef="052515_HS4_H_ela_Quant"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                </quantification_info>
+            </experimental_condition>
+        </experimental_conditions>
+        <ratios>
+            <psm_amount_ratios>
+                <remoteFiles_ratio name="CPD/CIV1" fileRef="071215_H_control_Quant" msRunRef="071215_H_control_RUN">
+                    <numerator conditionRef="C PD"/>
+                    <denominator conditionRef="C in vivo"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+                <remoteFiles_ratio name="CPD/CIV2" fileRef="030515_H_control_Quant" msRunRef="030515_H_control_RUN">
+                    <numerator conditionRef="C PD"/>
+                    <denominator conditionRef="C in vivo"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+                <remoteFiles_ratio name="CPD/CIV3" fileRef="030115_H_control_Quant" msRunRef="030115_H_control_RUN">
+                    <numerator conditionRef="C PD"/>
+                    <denominator conditionRef="C in vivo"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+                <remoteFiles_ratio name="CPD/CIV4" fileRef="031515_H_control_ela_Quant" msRunRef="031515_H_control_ela_RUN">
+                    <numerator conditionRef="C PD"/>
+                    <denominator conditionRef="C in vivo"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+                <remoteFiles_ratio name="HSPD/HSIV1" fileRef="062115_HS_H_Quant" msRunRef="062115_HS_H_RUN">
+                    <numerator conditionRef="HS PD"/>
+                    <denominator conditionRef="HS in vivo"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+                <remoteFiles_ratio name="HSPD/HSIV2" fileRef="061815_HS_H_Quant" msRunRef="061815_HS_H_RUN">
+                    <numerator conditionRef="HS PD"/>
+                    <denominator conditionRef="HS in vivo"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+                <remoteFiles_ratio name="HSPD/HSIV3" fileRef="042215_HS_H_Quant" msRunRef="042215_HS_H_RUN">
+                    <numerator conditionRef="HS PD"/>
+                    <denominator conditionRef="HS in vivo"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+                <remoteFiles_ratio name="HSPD/HSIV4" fileRef="022515_HS_H_Quant" msRunRef="022515_HS_H_RUN">
+                    <numerator conditionRef="HS PD"/>
+                    <denominator conditionRef="HS in vivo"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+                <remoteFiles_ratio name="HSPD/HSIV5" fileRef="052515_HS4_H_ela_Quant" msRunRef="052515_HS4_H_ela_RUN">
+                    <numerator conditionRef="HS PD"/>
+                    <denominator conditionRef="HS in vivo"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+            </psm_amount_ratios>
+        </ratios>
+        <msRuns>
+            <msRun id="071215_H_control_RUN" path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/071215_H_control_2015_07_13_11_33458/" date="2015-07-13-07:00"/>
+            <msRun id="030515_H_control_RUN" path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/030515_control_HL_PBS_chy_corr_2015_04_14_14_31470/" date="2015-04-14-07:00"/>
+            <msRun id="030115_H_control_RUN" path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/control_HL_PBS_chy_masscorr_2015_04_13_17_31437" date="2015-04-13-07:00"/>
+            <msRun id="031515_H_control_ela_RUN" path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/031515_control1_HL_PBS_ela_corr_2015_04_15_16_31508" date="2015-04-15-07:00"/>
+            <msRun id="062115_HS_H_RUN" path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/062115_HS_H_neu_2015_06_22_13_32978" date="2015-06-22-07:00"/>
+            <msRun id="061815_HS_H_RUN" path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/061815_5_neu_2015_06_20_11_32943" date="2015-11-26-08:00"/>
+            <msRun id="042215_HS_H_RUN" path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/042215_HS42_5_HL_chy_2015_04_23_11_31672" date="2015-04-23-07:00"/>
+            <msRun id="022515_HS_H_RUN" path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/022515_HS42_PBS_chy_corr_2015_04_16_17_31525" date="2015-04-16-07:00"/>
+            <msRun id="052515_HS4_H_ela_RUN" path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/052515_5_HS42_ela_2015_06_04_10_32599" date="2015-06-04-07:00"/>
+        </msRuns>
+        <experimental_design>
+            <sampleSet>
+                <sample id="C in vivo sample" organismRef="Homo sapiens" tissueRef="HECK 293 cell line" labelRef="HEAVY">
+                    <description>control sample in vivo, labeled HEAVY</description>
+                </sample>
+                <sample id="C PD sample" organismRef="Homo sapiens" tissueRef="HECK 293 cell line" labelRef="LIGHT">
+                    <description>Control sample after digestion, labeled LIGHT</description>
+                </sample>
+                <sample id="HS in vivo sample" organismRef="Homo sapiens" tissueRef="HECK 293 cell line" labelRef="HEAVY">
+                    <description>Heat shock sample in vivo, labeled HEAVY</description>
+                </sample>
+                <sample id="HS PD sample" organismRef="Homo sapiens" tissueRef="HECK 293 cell line" labelRef="LIGHT">
+                    <description>Heat shock sample after digestion, labeled LIGHT</description>
+                </sample>
+            </sampleSet>
+            <organismSet>
+                <organism id="Homo sapiens">
+                    <description>9606</description>
+                </organism>
+            </organismSet>
+            <tissueSet>
+                <tissue id="HECK 293 cell line">
+                    <description> human embryonic kidney cells grown in tissue culture</description>
+                </tissue>
+            </tissueSet>
+            <labelSet>
+                <label id="LIGHT" massDiff="0.0"/>
+                <label id="HEAVY" massDiff="8.044"/>
+            </labelSet>
+        </experimental_design>
+    </project>
+    <servers>
+        <server id="Thrall" host_name="thrall.scripps.edu" user_name="salvador" password="Natjeija21"/>
+    </servers>
+</pint_import_cfg>

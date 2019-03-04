@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<pint_import_cfg importID="15">
+    <fileSet>
+        <file name="dimethyl-three-condition-census-out.txt" url="file:/C:/Users/Salva/Desktop/tmp/PInt/data/15/Input%20data%20file%201/CENSUS_OUT_TXT/dimethyl-three-condition-census-out.txt" id="Input data file 1">
+            <format>census_out_txt</format>
+        </file>
+    </fileSet>
+    <project tag="tripleLabeling" release_date="2017-01-31-08:00" name="tripleLabeling">
+        <description>tripleLabeling</description>
+        <experimental_conditions>
+            <experimental_condition sampleRef="Sample 1" id="Condition 2">
+                <description></description>
+                <identification_info>
+                    <remoteFiles_ident_info msRunRef="Run 1">
+                        <fileRef fileRef="Input data file 1"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                </identification_info>
+                <quantification_info>
+                    <remoteFiles_quant_info msRunRef="Run 1">
+                        <fileRef fileRef="Input data file 1"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                </quantification_info>
+            </experimental_condition>
+            <experimental_condition sampleRef="Sample 2" id="Condition 3">
+                <description></description>
+                <identification_info>
+                    <remoteFiles_ident_info msRunRef="Run 1">
+                        <fileRef fileRef="Input data file 1"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                </identification_info>
+                <quantification_info>
+                    <remoteFiles_quant_info msRunRef="Run 1">
+                        <fileRef fileRef="Input data file 1"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                </quantification_info>
+            </experimental_condition>
+            <experimental_condition sampleRef="Sample 3" id="Condition 4">
+                <description></description>
+                <identification_info>
+                    <remoteFiles_ident_info msRunRef="Run 1">
+                        <fileRef fileRef="Input data file 1"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                </identification_info>
+                <quantification_info>
+                    <remoteFiles_quant_info msRunRef="Run 1">
+                        <fileRef fileRef="Input data file 1"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                </quantification_info>
+            </experimental_condition>
+        </experimental_conditions>
+        <ratios>
+            <psm_amount_ratios>
+                <remoteFiles_ratio msRunRef="Run 1" fileRef="Input data file 1" name="Ratio 1">
+                    <numerator conditionRef="Condition 2"/>
+                    <denominator conditionRef="Condition 3"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+                <remoteFiles_ratio msRunRef="Run 1" fileRef="Input data file 1" name="Ratio 2">
+                    <numerator conditionRef="Condition 2"/>
+                    <denominator conditionRef="Condition 4"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+                <remoteFiles_ratio msRunRef="Run 1" fileRef="Input data file 1" name="Ratio 3">
+                    <numerator conditionRef="Condition 3"/>
+                    <denominator conditionRef="Condition 4"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+            </psm_amount_ratios>
+        </ratios>
+        <msRuns>
+            <msRun date="2017-01-31-08:00" path="" id="Run 1"/>
+        </msRuns>
+        <experimental_design>
+            <sampleSet>
+                <sample labelRef="LIGHT" tissueRef="Sample origin 1" organismRef="Organism 1" id="Sample 1">
+                    <description></description>
+                </sample>
+                <sample labelRef="MEDIUM" tissueRef="Sample origin 1" organismRef="Organism 1" id="Sample 2">
+                    <description></description>
+                </sample>
+                <sample labelRef="HEAVY" tissueRef="Sample origin 1" organismRef="Organism 1" id="Sample 3">
+                    <description></description>
+                </sample>
+            </sampleSet>
+            <organismSet>
+                <organism id="Organism 1">
+                    <description></description>
+                </organism>
+            </organismSet>
+            <tissueSet>
+                <tissue id="Sample origin 1">
+                    <description></description>
+                </tissue>
+            </tissueSet>
+            <labelSet>
+                <label id="LIGHT"/>
+                <label id="MEDIUM"/>
+                <label id="HEAVY"/>
+            </labelSet>
+        </experimental_design>
+    </project>
+</pint_import_cfg>

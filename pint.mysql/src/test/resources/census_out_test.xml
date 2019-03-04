@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<pint_import_cfg importID="4">
+    <fileSet>
+        <file id="census" name="census-out.txt" serverRef="Remote location 1" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/071215_H_control_2015_07_13_11_33458/quant/2015_12_03_15_11604">
+            <format>census_out_txt</format>
+        </file>
+        <file id="dtaselect" name="DTASelect-filter.txt" serverRef="Remote location 1" relative_path="/data/2/rpark/ip2_data//cbamberg/CFTR_IPs/071215_H_control_2015_07_13_11_33458/search/projects2015_11_26_00_89516/">
+            <format>dta_select_filter_txt</format>
+        </file>
+    </fileSet>
+    <project name="Project name" release_date="2016-02-09-08:00" tag="census_out_test">
+        <description>Project description</description>
+        <experimental_conditions>
+            <experimental_condition id="Condition 1" sampleRef="Sample 1">
+                <description></description>
+                <identification_info>
+                    <remoteFiles_ident_info msRunRef="Run 1">
+                        <fileRef fileRef="dtaselect"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                </identification_info>
+                <quantification_info>
+                    <remoteFiles_quant_info msRunRef="Run 1">
+                        <fileRef fileRef="census"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                </quantification_info>
+            </experimental_condition>
+            <experimental_condition id="Condition 2" sampleRef="Sample 2">
+                <description></description>
+                <identification_info>
+                    <remoteFiles_ident_info msRunRef="Run 1">
+                        <fileRef fileRef="dtaselect"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_ident_info>
+                </identification_info>
+                <quantification_info>
+                    <remoteFiles_quant_info msRunRef="Run 1">
+                        <fileRef fileRef="census"/>
+                        <discard_decoys>Reverse</discard_decoys>
+                    </remoteFiles_quant_info>
+                </quantification_info>
+            </experimental_condition>
+        </experimental_conditions>
+        <ratios>
+            <psm_amount_ratios>
+                <remoteFiles_ratio name="Ratio 1" fileRef="census" msRunRef="Run 1">
+                    <numerator conditionRef="Condition 1"/>
+                    <denominator conditionRef="Condition 2"/>
+                    <discard_decoys>Reverse</discard_decoys>
+                </remoteFiles_ratio>
+            </psm_amount_ratios>
+        </ratios>
+        <msRuns>
+            <msRun id="Run 1" path="" date="2016-02-09-08:00"/>
+        </msRuns>
+        <experimental_design>
+            <sampleSet>
+                <sample id="Sample 1" organismRef="Organism 1" tissueRef="Sample origin 1" labelRef="LIGHT">
+                    <description></description>
+                </sample>
+				<sample id="Sample 2" organismRef="Organism 1" tissueRef="Sample origin 1" labelRef="HEAVY">
+                    <description></description>
+                </sample>
+            </sampleSet>
+            <organismSet>
+                <organism id="Organism 1">
+                    <description></description>
+                </organism>
+            </organismSet>
+            <tissueSet>
+                <tissue id="Sample origin 1">
+                    <description></description>
+                </tissue>
+            </tissueSet>
+			<labelSet>
+				<label id="LIGHT"/>
+				<label id="HEAVY"/>
+			</labelSet>
+        </experimental_design>
+    </project>
+    <servers>
+        <server id="Remote location 1" host_name="thrall.scripps.edu" user_name="salvador" password="Natjeija21"/>
+    </servers>
+</pint_import_cfg>
