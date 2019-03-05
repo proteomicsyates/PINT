@@ -562,8 +562,8 @@ public class ProjectStatsManager {
 
 	public int getNumDifferentProteins() {
 		if (generalProjectsStats.getNumProteins() == null) {
-			final Integer numProteins = PreparedQueries.getNumDifferentProteins();
-			generalProjectsStats.setNumProteins(numProteins);
+			final Long numProteins = PreparedCriteria.getCriteriaForNumDifferentProteins(null, null, null, null);
+			generalProjectsStats.setNumProteins(numProteins.intValue());
 
 			updateFile(generalProjectsStats.getNumProteinsString(""));
 		}

@@ -179,9 +179,6 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 						final MsRun msRun = (MsRun) obj;
 						peptideAmountValueBean.addMsRun(new MSRunBeanAdapter(msRun, false).adapt());
 					}
-					if (peptide.getMsRun() != null) {
-						peptideAmountValueBean.addMsRun(new MSRunBeanAdapter(peptide.getMsRun(), false).adapt());
-					}
 				}
 				ret.addAmount(peptideAmountValueBean);
 			}

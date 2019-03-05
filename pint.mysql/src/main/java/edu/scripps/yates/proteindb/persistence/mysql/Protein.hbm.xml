@@ -12,9 +12,9 @@
 <!--         <many-to-one name="organism" class="edu.scripps.yates.proteindb.persistence.mysql.Organism" fetch="select"> -->
 <!--             <column name="Organism_taxonomyID" length="90" not-null="true" /> -->
 <!--         </many-to-one> -->
-        <many-to-one name="msRun" class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" fetch="select">
-            <column name="MS_Run_id" not-null="true" />
-        </many-to-one>
+<!--         <many-to-one name="msRun" class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" fetch="select"> -->
+<!--             <column name="MS_Run_id" not-null="true" /> -->
+<!--         </many-to-one> -->
          <property name="acc" type="java.lang.String" >
             <column name="acc" not-null="true" />
         </property>

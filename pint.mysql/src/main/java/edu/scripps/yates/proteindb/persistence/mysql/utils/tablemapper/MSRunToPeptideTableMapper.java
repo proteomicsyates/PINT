@@ -1,6 +1,6 @@
 package edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper;
 
-import java.util.Set;
+import java.util.List;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
@@ -24,7 +24,7 @@ public class MSRunToPeptideTableMapper extends AbstractTableMapper<MsRun, Peptid
 
 	@Override
 	public TIntArrayList queryForIDs(MsRun msRun) {
-		final Set<Integer> proteinIDs = PreparedCriteria.getPeptideIDsFromMsRun(msRun);
+		final List<Integer> proteinIDs = PreparedCriteria.getPeptideIDsFromMsRun(msRun);
 		return transformToTIntArray(proteinIDs);
 	}
 

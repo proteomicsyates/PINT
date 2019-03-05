@@ -160,6 +160,8 @@ ENGINE = InnoDB;
 
 CREATE INDEX `fk_Protein_Organism1_idx` ON `interactome_db`.`Protein` (`Organism_taxonomyID` ASC);
 
+ALTER TABLE `interactome_db`.`protein` ADD FULLTEXT INDEX `idx_acc` (`acc` ASC);
+;
 
 -- -----------------------------------------------------
 -- Table `interactome_db`.`Protein_Accession`
@@ -306,7 +308,7 @@ CREATE TABLE IF NOT EXISTS `interactome_db`.`MS_Run` (
 ENGINE = InnoDB;
 
 CREATE INDEX `fk_MS_Run_Project1_idx` ON `interactome_db`.`MS_Run` (`Project_id` ASC);
-
+ALTER TABLE `interactome_db`.`ms_run` ADD FULLTEXT INDEX `idx_msrun_id` (`runID`);
 
 -- -----------------------------------------------------
 -- Table `interactome_db`.`Confidence_Score_Type`
@@ -470,7 +472,7 @@ CREATE TABLE IF NOT EXISTS `interactome_db`.`Peptide` (
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
-CREATE INDEX `sequence_index` USING BTREE ON `interactome_db`.`Peptide` (`sequence`);
+CREATE FULLTEXT INDEX `sequence_index` USING BTREE ON `interactome_db`.`Peptide` (`sequence`);
 
 
 -- -----------------------------------------------------
@@ -512,6 +514,9 @@ CREATE INDEX `fk_PSM_Peptide1_idx` ON `interactome_db`.`PSM` (`Peptide_id` ASC);
 
 CREATE INDEX `fk_PSM_MS_Run1_idx` ON `interactome_db`.`PSM` (`MS_Run_id` ASC);
 
+ALTER TABLE `interactome_db`.`psm` ADD FULLTEXT INDEX `idx_psm_sequence` (`sequence` ASC);
+
+ALTER TABLE `interactome_db`.`psm` ADD FULLTEXT INDEX `idx_psm_full_sequence` (`full_sequence` ASC);
 
 -- -----------------------------------------------------
 -- Table `interactome_db`.`PTM`

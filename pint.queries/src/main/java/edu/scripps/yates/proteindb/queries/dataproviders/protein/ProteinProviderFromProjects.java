@@ -6,6 +6,7 @@ import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
+import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 import edu.scripps.yates.proteindb.queries.dataproviders.ProteinDataProvider;
@@ -31,7 +32,7 @@ public class ProteinProviderFromProjects extends ProteinDataProvider {
 
 					final List<MsRun> msRuns = PreparedQueries.getMSRunsByProject(projectTag);
 					// for (MsRun msRun : msRuns) {
-					final List<Protein> proteinsByMSRuns = PreparedQueries.getProteinsByMSRuns(msRuns);
+					final List<Protein> proteinsByMSRuns = PreparedCriteria.getProteinsByMSRunsCriteria(msRuns);
 					if (testMode && numProteins + proteinsByMSRuns.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
 						PersistenceUtils.addToMapByPrimaryAcc(result, proteinsByMSRuns.subList(0,
 								Math.min(proteinsByMSRuns.size(), QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins)));

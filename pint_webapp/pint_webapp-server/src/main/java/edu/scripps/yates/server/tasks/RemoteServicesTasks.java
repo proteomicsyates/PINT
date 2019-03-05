@@ -133,7 +133,7 @@ public class RemoteServicesTasks {
 		final List<MsRun> msRuns = PreparedQueries.getMSRunsByProject(projectTag);
 		log.info(msRuns.size() + " MSRuns in project " + projectTag);
 
-		final List<Protein> proteinList = PreparedQueries.getProteinsByMSRuns(msRuns);
+		final List<Protein> proteinList = PreparedCriteria.getProteinsByMSRunsCriteria(msRuns);
 		PersistenceUtils.addToMapByPrimaryAcc(ret, proteinList);
 		log.info(ret.size() + " proteins so far");
 

@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -1072,9 +1070,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			if (task != null) {
 				ServerTaskRegister.getInstance().endTask(task);
 			}
-			log.warn("Rolling back transaction for not making any change in DB");
-			ContextualSessionHandler.rollbackTransaction();
-			log.warn("Transaction rolled back");
+//			log.warn("Rolling back transaction for not making any change in DB");
+//			ContextualSessionHandler.rollbackTransaction();
+//			log.warn("Transaction rolled back");
 			if (lock) {
 				LockerByTag.unlock(projectTags, enclosingMethod);
 				LockerByTag.unlock(sessionID, enclosingMethod);
@@ -2208,19 +2206,13 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 			final Map<String, Entry> annotatedProteinsWithUniprot = RemoteServicesTasks
 					.annotateProteinsWithUniprot(accs, null, projectTag);
-			final Criteria cr = PreparedCriteria.getCriteriaForProteinProjection1(projectTag, null, null, null);
-			// transform the results in ProteinProjections
-			cr.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class));
-			final List<ProteinProjection> list = cr.list();
+
 			final Criteria cr2 = PreparedCriteria.getCriteriaForProteinProjection2(projectTag, null, null, null);
 			// transform the results in ProteinProjections
-			cr2.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class));
-			final List<ProteinProjection> list2 = cr2.list();
-
-			final List<ProteinProjection> newList = Stream.concat(list.stream(), list2.stream()).distinct()
-					.collect(Collectors.toList());
+			final List<ProteinProjection> list = cr2
+					.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class)).list();
 			log.info(list.size() + " protein projections");
-			for (final ProteinProjection proteinProjection : newList) {
+			for (final ProteinProjection proteinProjection : list) {
 				final Entry entry = annotatedProteinsWithUniprot.get(proteinProjection.getAcc());
 				proteinProjection.setDescription(UniprotEntryUtil.getProteinDescription(entry));
 				final List<Pair<String, String>> geneNames = UniprotEntryUtil.getGeneName(entry, true, true);

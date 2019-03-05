@@ -185,11 +185,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 								proteinBean.addMsrun(msRunBean);
 							}
 						}
-						final MsRun msRun = protein.getMsRun();
-						if (msRun != null && msRun.getId() == msRunID) {
-							msRunBean = new MSRunBeanAdapter(msRun, false).adapt();
-							proteinBean.addMsrun(msRunBean);
-						}
+
 					}
 				}
 			}
@@ -219,7 +215,6 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 							final MsRun msRun = (MsRun) object;
 							proteinAmountValueBean.addMsRun(new MSRunBeanAdapter(msRun, false).adapt());
 						}
-						proteinAmountValueBean.addMsRun(new MSRunBeanAdapter(protein.getMsRun(), false).adapt());
 					}
 					proteinBean.addAmount(proteinAmountValueBean);
 				}

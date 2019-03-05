@@ -1,20 +1,19 @@
 ALTER TABLE `interactome_db`.`peptide` 
 DROP FOREIGN KEY `fk_Peptide_MS_Run1`;
 ALTER TABLE `interactome_db`.`peptide` 
-CHANGE COLUMN `MS_Run_id` `MS_Run_id` INT(11) NULL ;
+DROP INDEX `fk_Peptide_MS_Run1_idx` ;
 ALTER TABLE `interactome_db`.`peptide` 
-ADD CONSTRAINT `fk_Peptide_MS_Run1`
-  FOREIGN KEY (`MS_Run_id`)
-  REFERENCES `interactome_db`.`ms_run` (`id`);
+CHANGE COLUMN `MS_Run_id` `MS_Run_id` INT(11) NULL ;
 
 ALTER TABLE `interactome_db`.`protein` 
 DROP FOREIGN KEY `fk_Protein_MS_Run1`;
 ALTER TABLE `interactome_db`.`protein` 
-CHANGE COLUMN `MS_Run_id` `MS_Run_id` INT(11) NULL ;
+DROP INDEX `fk_Protein_MS_Run1_idx` ;
 ALTER TABLE `interactome_db`.`protein` 
-ADD CONSTRAINT `fk_Protein_MS_Run1`
-  FOREIGN KEY (`MS_Run_id`)
-  REFERENCES `interactome_db`.`ms_run` (`id`);
+CHANGE COLUMN `MS_Run_id` `MS_Run_id` INT(11) NULL ;
+
+ALTER TABLE `interactome_db`.`protein` 
+ADD FULLTEXT INDEX `idx_acc` (`acc` ASC);
 
 
 ALTER TABLE `interactome_db`.`ptm` 
@@ -35,7 +34,11 @@ ADD CONSTRAINT `ptm_ibfk_1`
   FOREIGN KEY (`Peptide_id`)
   REFERENCES `interactome_db`.`peptide` (`id`);
 
-
+ALTER TABLE `interactome_db`.`psm` ADD FULLTEXT INDEX `idx_psm_sequence` (`sequence` ASC);
+;
+ALTER TABLE `interactome_db`.`psm` ADD FULLTEXT INDEX `idx_psm_full_sequence` (`full_sequence` ASC);
+;
+ALTER TABLE `interactome_db`.`ms_run` ADD FULLTEXT INDEX `idx_msrun_id` (`runID`);
 -- -----------------------------------------------------
 -- Table `interactome_db`.`Protein_has_MS_Run`
 -- -----------------------------------------------------

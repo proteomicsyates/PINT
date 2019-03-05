@@ -1005,28 +1005,6 @@ public class PreparedQueries {
 		return list1;
 	}
 
-	private final static String PROTEINS_BY_MSRUN = "select distinct protein from Protein protein";
-
-	public static List<Protein> getProteinsByMSRun(MsRun msRun) {
-		final Query query = parseParametersForQuery(PROTEINS_BY_MSRUN, "protein.msRun=:msRun", msRun);
-		query.setCacheable(true);
-		final List<Protein> list1 = query.list();
-		return list1;
-	}
-
-	// TODO
-	public static List<Protein> getProteinsByMSRuns(Collection<MsRun> msRuns) {
-		if (msRuns.isEmpty()) {
-			return Collections.emptyList();
-		}
-		final Set<Object> set = new THashSet<Object>();
-		set.addAll(msRuns);
-		final Query query = parseParametersForQuerySpecial2(PROTEINS_BY_MSRUN, "protein.msRun", "msRun", set);
-		query.setCacheable(true);
-		final List<Protein> list1 = query.list();
-		return list1;
-	}
-
 	private final static String PSM_AMOUNT_TYPES_BY_CONDITION = "select distinct amountType from AmountType amountType join amountType.psmAmounts psmAmount";
 	private final static String PEPTIDE_AMOUNT_TYPES_BY_CONDITION = "select distinct amountType from AmountType amountType join amountType.peptideAmounts peptideAmount";
 	private final static String PROTEIN_AMOUNT_TYPES_BY_CONDITION = "select distinct amountType from AmountType amountType join amountType.proteinAmounts proteinAmount";
@@ -1118,22 +1096,6 @@ public class PreparedQueries {
 		final Query query = parseParametersForQuery(PEPTIDES_WITH_MSRUN, "msrun.runId=:runId", msRunID,
 				"project.tag=:projectTag", projectTag);
 		final List<Peptide> list1 = query.list();
-		return list1;
-	}
-
-	private final static String PSMS_BY_MSRUN = "select distinct psm from " + "Psm psm";
-
-	public static List<Psm> getPsmsByMSRun(MsRun msRun) {
-		final Query query = parseParametersForQuery(PSMS_BY_MSRUN, "psm.msRun=:msrun", msRun);
-		final List<Psm> list1 = query.list();
-		return list1;
-	}
-
-	public static List<Psm> getPsmsByMSRuns(Collection<MsRun> msRuns) {
-		final Set<Object> set = new THashSet<Object>();
-		set.addAll(msRuns);
-		final Query query = parseParametersForQuerySpecial2(PSMS_BY_MSRUN, "psm.msRun", "msRun", set);
-		final List<Psm> list1 = query.list();
 		return list1;
 	}
 
