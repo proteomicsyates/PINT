@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<pint_import_cfg importID="2">
+    <fileSet>
+        <file id="scrambled_053110_file" name="DTASelect-filter.txt" serverRef="Remote location 1" relative_path="/data/2/rpark/ip2_data/pankows/CFTR/Scr_053110_2010_06_01_12_1282/search/upload2010_08_14_11_5159">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="scrambled_031709_file" name="DTASelect-filter.txt" serverRef="Remote location 1" relative_path="/data/2/rpark/ip2_data/pankows/CFTR/scramblesi_031709_2010_03_29_16_908/search/upload2010_08_13_15_5139/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="scrambled_031609_file" name="DTASelect-filter.txt" serverRef="Remote location 1" relative_path="/data/2/rpark/ip2_data/pankows/CFTR/scramblesi_031609_2010_03_29_16_909/search/upload2010_08_13_15_5140/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="scrambled_010509_file" name="DTASelect-filter.txt" serverRef="Remote location 1" relative_path="/data/2/rpark/ip2_data/pankows/CFTR/scramblesi_010509_2010_03_29_15_907/search/upload2010_08_13_16_5149/">
+            <format>dta_select_filter_txt</format>
+        </file>
+        <file id="Input data file 6" url="file:/C:/Users/Salva/Desktop/tmp/PInt/data/2/Input%20data%20file%206/EXCEL/scrambled_xscorefilter.xlsx" name="scrambled_xscorefilter.xlsx">
+            <format>excel</format>
+            <sheets>
+                <sheet id="Input data file 6##Sheet1">
+                    <column id="Input data file 6##Sheet1##A" header="Xscore_filter_scrambled" number="true"/>
+                    <column id="Input data file 6##Sheet1##B" header="scrambled_053110" number="true"/>
+                    <column id="Input data file 6##Sheet1##C" header="scrambled_031709" number="true"/>
+                    <column id="Input data file 6##Sheet1##D" header="scrambled_031609" number="true"/>
+                    <column id="Input data file 6##Sheet1##E" header="scrambled_010509" number="true"/>
+                    <column id="Input data file 6##Sheet1##F" header="scrambled_SUM" number="true"/>
+                    <column id="Input data file 6##Sheet1##G" header="Official Gene symbol" number="false"/>
+                    <column id="Input data file 6##Sheet1##H" header="locus" number="false"/>
+                    <column id="Input data file 6##Sheet1##N" header="present in scrambled" number="true"/>
+                </sheet>
+                <sheet id="Input data file 6##Sheet2">
+                    <column id="Input data file 6##Sheet2##A" header="Xscore_filter_scrambled" number="true"/>
+                    <column id="Input data file 6##Sheet2##B" header="scrambled_053110" number="true"/>
+                    <column id="Input data file 6##Sheet2##C" header="scrambled_031709" number="true"/>
+                    <column id="Input data file 6##Sheet2##D" header="scrambled_031609" number="true"/>
+                    <column id="Input data file 6##Sheet2##E" header="scrambled_010509" number="true"/>
+                    <column id="Input data file 6##Sheet2##F" header="scrambled_SUM" number="true"/>
+                    <column id="Input data file 6##Sheet2##G" header="Official Gene symbol" number="false"/>
+                    <column id="Input data file 6##Sheet2##H" header="locus" number="false"/>
+                </sheet>
+            </sheets>
+        </file>
+    </fileSet>
+    <project name="CFTR_Scramble10" release_date="2015-10-16-07:00" tag="CFTR_Scramble10">
+        <description>CFTR_Scramble condition</description>
+        <experimental_conditions>
+            <experimental_condition id="SCRAMBLED_siRNA" sampleRef="SCRAMBLED_siRNA_Sample">
+                <description></description>
+                <identification_info>
+                    <excel_ident_info msRunRef="scrambled_010509,scrambled_031609,scrambled_031709,scrambled_053110">
+                        <protein_accession groups="false" columnRef="Input data file 6##Sheet2##H">
+                            <regexp>.*</regexp>
+                        </protein_accession>
+                        <protein_thresholds>
+                            <protein_threshold name="xscorefilter" description="" yes_value="1.0" columnRef="Input data file 6##Sheet2##A"/>
+                        </protein_thresholds>
+                    </excel_ident_info>
+                    <remoteFiles_ident_info msRunRef="scrambled_053110">
+                        <fileRef fileRef="scrambled_053110_file"/>
+                        <discard_decoys>[Contaminant|Reverse]</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="scrambled_031709">
+                        <fileRef fileRef="scrambled_031709_file"/>
+                        <discard_decoys>[Contaminant|Reverse]</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="scrambled_031609">
+                        <fileRef fileRef="scrambled_031609_file"/>
+                        <discard_decoys>[Contaminant|Reverse]</discard_decoys>
+                    </remoteFiles_ident_info>
+                    <remoteFiles_ident_info msRunRef="scrambled_010509">
+                        <fileRef fileRef="scrambled_010509_file"/>
+                        <discard_decoys>[Contaminant|Reverse]</discard_decoys>
+                    </remoteFiles_ident_info>
+                </identification_info>
+            </experimental_condition>
+        </experimental_conditions>
+        <ratios/>
+        <msRuns>
+            <msRun id="scrambled_053110" path="/data/2/rpark/ip2_data/pankows/CFTR/Scr_053110_2010_06_01_12_1282/search/upload2010_08_14_11_5159/" date="2010-06-01-07:00"/>
+            <msRun id="scrambled_031709" path="/data/2/rpark/ip2_data/pankows/CFTR/scramblesi_031709_2010_03_29_16_908/search/upload2010_08_13_15_5139/" date="2010-03-29-07:00"/>
+            <msRun id="scrambled_031609" path="/data/2/rpark/ip2_data/pankows/CFTR/scramblesi_031609_2010_03_29_16_909/search/upload2010_08_13_15_5140/" date="2010-03-29-07:00"/>
+            <msRun id="scrambled_010509" path="/data/2/rpark/ip2_data/pankows/CFTR/scramblesi_010509_2010_03_29_15_907/search/upload2010_08_13_16_5149/" date="2010-03-29-07:00"/>
+        </msRuns>
+        <experimental_design>
+            <sampleSet>
+                <sample id="SCRAMBLED_siRNA_Sample" organismRef="Homo sapiens" tissueRef="human tissue">
+                    <description></description>
+                </sample>
+            </sampleSet>
+            <organismSet>
+                <organism id="Homo sapiens">
+                    <description>9606</description>
+                </organism>
+            </organismSet>
+            <tissueSet>
+                <tissue id="human tissue">
+                    <description></description>
+                </tissue>
+            </tissueSet>
+        </experimental_design>
+    </project>
+    <servers>
+        <server id="Remote location 1" host_name="thrall.scripps.edu" user_name="pankows" password="549TfE.Nx"/>
+    </servers>
+</pint_import_cfg>
