@@ -117,7 +117,7 @@ public class JeffAlzheimerProject {
 		try {
 			jaxbContext = JAXBContext.newInstance("edu.scripps.yates.excel.proteindb.importcfg.jaxb");
 			readMsRunsFromFile();
-		} catch (JAXBException e) {
+		} catch (final JAXBException e) {
 			e.printStackTrace();
 		}
 
@@ -125,12 +125,12 @@ public class JeffAlzheimerProject {
 
 	@Test
 	public void createProjectFile() {
-		PintImportCfg root = new PintImportCfg();
+		final PintImportCfg root = new PintImportCfg();
 		try {
 			final Marshaller marshaller = jaxbContext.createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
 
-			ProjectType project = new ProjectType();
+			final ProjectType project = new ProjectType();
 			project.setName("Alzheimer project");
 			project.setTag("Alzheimer");
 			project.setMsRuns(getMsRuns());
@@ -157,16 +157,16 @@ public class JeffAlzheimerProject {
 			final List<RemoteFilesRatioType> psmRatios = new ArrayList<RemoteFilesRatioType>();
 			psmRatios.addAll(project.getRatios().getPsmAmountRatios().getRemoteFilesRatio());
 
-			for (Model model : Model.values()) {
-				for (TimePoint timePoint : TimePoint.values()) {
-					for (BrainRegion brainRegion : BrainRegion.values()) {
-						Set<ExperimentalConditionType> trio = new THashSet<ExperimentalConditionType>();
-						for (MouseType mouse : MouseType.values()) {
+			for (final Model model : Model.values()) {
+				for (final TimePoint timePoint : TimePoint.values()) {
+					for (final BrainRegion brainRegion : BrainRegion.values()) {
+						final Set<ExperimentalConditionType> trio = new THashSet<ExperimentalConditionType>();
+						for (final MouseType mouse : MouseType.values()) {
 							String conditionID = getConditionID(model, mouse, timePoint, brainRegion);
 							if (conditionID.startsWith("pd")) {
 								conditionID = conditionID.replace("pd", "pdapp");
 							}
-							for (ExperimentalConditionType experimentalConditionType : experimentalConditions) {
+							for (final ExperimentalConditionType experimentalConditionType : experimentalConditions) {
 								final String id = experimentalConditionType.getId();
 								if (conditionID.equals(id)) {
 									trio.add(experimentalConditionType);
@@ -180,9 +180,9 @@ public class JeffAlzheimerProject {
 							project.getRatios().getProteinAmountRatios().getRemoteFilesRatio().clear();
 							project.getRatios().getProteinAmountRatios().getExcelRatio().clear();
 							project.getRatios().getPsmAmountRatios().getRemoteFilesRatio().clear();
-							for (ExperimentalConditionType condition : trio) {
+							for (final ExperimentalConditionType condition : trio) {
 								project.getExperimentalConditions().getExperimentalCondition().add(condition);
-								for (RemoteFilesRatioType proteinRatio : proteinRatios) {
+								for (final RemoteFilesRatioType proteinRatio : proteinRatios) {
 									if (proteinRatio.getNumerator().getConditionRef().equals(condition.getId())
 											|| proteinRatio.getDenominator().getConditionRef()
 													.equals(condition.getId())) {
@@ -193,7 +193,7 @@ public class JeffAlzheimerProject {
 										}
 									}
 								}
-								for (ExcelAmountRatioType proteinRatio2 : proteinRatios2) {
+								for (final ExcelAmountRatioType proteinRatio2 : proteinRatios2) {
 									if (proteinRatio2.getNumerator().getConditionRef().equals(condition.getId())
 											|| proteinRatio2.getDenominator().getConditionRef()
 													.equals(condition.getId())) {
@@ -204,7 +204,7 @@ public class JeffAlzheimerProject {
 										}
 									}
 								}
-								for (RemoteFilesRatioType psmRatio : psmRatios) {
+								for (final RemoteFilesRatioType psmRatio : psmRatios) {
 									if (psmRatio.getNumerator().getConditionRef().equals(condition.getId())
 											|| psmRatio.getDenominator().getConditionRef().equals(condition.getId())) {
 										if (!project.getRatios().getPsmAmountRatios().getRemoteFilesRatio()
@@ -217,10 +217,10 @@ public class JeffAlzheimerProject {
 							}
 
 							trio.clear();
-							String conditionName = getConditionID(model, null, timePoint, brainRegion);
+							final String conditionName = getConditionID(model, null, timePoint, brainRegion);
 							// conditionName = conditionName.substring(0,
 							// conditionName.length() - 4);
-							File outputFile = new File(
+							final File outputFile = new File(
 									path + File.separator + "alzheimerProject_NEW_" + conditionName + ".xml");
 							marshaller.marshal(root, outputFile);
 						}
@@ -228,10 +228,10 @@ public class JeffAlzheimerProject {
 					}
 				}
 			}
-		} catch (JAXBException e) {
+		} catch (final JAXBException e) {
 			e.printStackTrace();
 			fail();
-		} catch (Exception e2) {
+		} catch (final Exception e2) {
 			e2.printStackTrace();
 		}
 	}
@@ -244,23 +244,23 @@ public class JeffAlzheimerProject {
 	}
 
 	private RatiosType getRatios1() {
-		RatiosType ret = new RatiosType();
+		final RatiosType ret = new RatiosType();
 		final PsmRatiosType psmRatios = new PsmRatiosType();
 		ret.setPsmAmountRatios(psmRatios);
 		final ProteinRatiosType proteinRatios = new ProteinRatiosType();
 		ret.setProteinAmountRatios(proteinRatios);
-		for (MouseType mouse : MouseType.values()) {
+		for (final MouseType mouse : MouseType.values()) {
 			if (mouse == MouseType.control) {
 				continue;
 			}
-			for (Model model : Model.values()) {
-				for (TimePoint timePoint : TimePoint.values()) {
-					for (BrainRegion brainRegion : BrainRegion.values()) {
+			for (final Model model : Model.values()) {
+				for (final TimePoint timePoint : TimePoint.values()) {
+					for (final BrainRegion brainRegion : BrainRegion.values()) {
 						final List<String> replicateList = replicateNumbersByCondition
 								.get(getConditionID(model, mouse, timePoint, brainRegion));
-						for (String replicate : replicateList) {
+						for (final String replicate : replicateList) {
 
-							RemoteFilesRatioType ratioType = new RemoteFilesRatioType();
+							final RemoteFilesRatioType ratioType = new RemoteFilesRatioType();
 							ratioType.setMsRunRef(getMsRun(model, mouse, timePoint, brainRegion, replicate).getId());
 							ratioType.setDiscardDecoys(getDiscardDecoy());
 							final ExperimentalConditionType experimentalCondition1 = getExperimentalCondition(model,
@@ -285,19 +285,19 @@ public class JeffAlzheimerProject {
 	}
 
 	private RatiosType getRatios2() {
-		RatiosType ret = new RatiosType();
+		final RatiosType ret = new RatiosType();
 
 		final ProteinRatiosType proteinRatios = new ProteinRatiosType();
 		ret.setProteinAmountRatios(proteinRatios);
 
-		for (Model model : Model.values()) {
-			for (TimePoint timePoint : TimePoint.values()) {
-				for (BrainRegion brainRegion : BrainRegion.values()) {
+		for (final Model model : Model.values()) {
+			for (final TimePoint timePoint : TimePoint.values()) {
+				for (final BrainRegion brainRegion : BrainRegion.values()) {
 					final List<String> replicateListWT = replicateNumbersByCondition
 							.get(getConditionID(model, MouseType.wt, timePoint, brainRegion));
 					final List<String> replicateListAD = replicateNumbersByCondition
 							.get(getConditionID(model, MouseType.ad, timePoint, brainRegion));
-					ExcelAmountRatioType ratioType = new ExcelAmountRatioType();
+					final ExcelAmountRatioType ratioType = new ExcelAmountRatioType();
 					ratioType.setName("Ratio 2");
 					ratioType.setColumnRef(getRatio2ColumnRef("ratio", model, timePoint, brainRegion));
 					ratioType.setProteinAccession(getRatio2ProteinAccessionType(model, timePoint, brainRegion));
@@ -310,14 +310,14 @@ public class JeffAlzheimerProject {
 					ratioType.setDenominator(getConditionRefType(adCondition));
 
 					proteinRatios.getExcelRatio().add(ratioType);
-					StringBuilder sb = new StringBuilder();
-					for (String replicate : replicateListWT) {
+					final StringBuilder sb = new StringBuilder();
+					for (final String replicate : replicateListWT) {
 						if (!"".equals(sb.toString())) {
 							sb.append(",");
 						}
 						sb.append(getMsRun(model, MouseType.wt, timePoint, brainRegion, replicate).getId());
 					}
-					for (String replicate : replicateListAD) {
+					for (final String replicate : replicateListAD) {
 						if (!"".equals(sb.toString())) {
 							sb.append(",");
 						}
@@ -332,7 +332,7 @@ public class JeffAlzheimerProject {
 	}
 
 	private ScoreType getRatio2ScoreType(Model model, TimePoint timePoint, BrainRegion brainRegion) {
-		ScoreType ret = new ScoreType();
+		final ScoreType ret = new ScoreType();
 		ret.setScoreName("FDR");
 		ret.setScoreType("False discovery rate");
 		ret.setColumnRef(getRatio2ColumnRef("FDR", model, timePoint, brainRegion));
@@ -341,7 +341,7 @@ public class JeffAlzheimerProject {
 
 	private ProteinAccessionType getRatio2ProteinAccessionType(Model model, TimePoint timePoint,
 			BrainRegion brainRegion) {
-		ProteinAccessionType ret = new ProteinAccessionType();
+		final ProteinAccessionType ret = new ProteinAccessionType();
 		ret.setGroups(false);
 		ret.setRegexp(".*");
 		ret.setColumnRef(getRatio2ColumnRef("locus", model, timePoint, brainRegion));
@@ -351,7 +351,7 @@ public class JeffAlzheimerProject {
 	private String getRatio2ColumnRef(String headerString, Model model, TimePoint timePoint, BrainRegion brainRegion) {
 		final FileType ratio2FileType = getRatio2FileType(model, timePoint, brainRegion);
 		final List<ColumnType> column = ratio2FileType.getSheets().getSheet().get(0).getColumn();
-		for (ColumnType columnType : column) {
+		for (final ColumnType columnType : column) {
 			if (columnType.getHeader().equals(headerString)) {
 				return columnType.getId();
 			}
@@ -360,7 +360,7 @@ public class JeffAlzheimerProject {
 	}
 
 	private String getConditionID(Model model, MouseType mouse2, TimePoint timePoint, BrainRegion brainRegion) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(model.name);
 
 		if (mouse2 != null) {
@@ -375,7 +375,7 @@ public class JeffAlzheimerProject {
 	private FileType getCensusFile(Model model, MouseType mouse, TimePoint timePoint, BrainRegion brainRegion,
 			String replicate) {
 		final String lowerCase = getFileId(model, mouse, timePoint, brainRegion, replicate).toLowerCase() + "_Quant";
-		for (FileType fileType : getCensusFiles()) {
+		for (final FileType fileType : getCensusFiles()) {
 			final String fileId = fileType.getId();
 
 			if (fileId.toLowerCase().equals(lowerCase.toLowerCase())) {
@@ -387,7 +387,7 @@ public class JeffAlzheimerProject {
 
 	private String getFileId(Model model, MouseType mouse, TimePoint timePoint, BrainRegion brainRegion,
 			String replicate) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("File_" + getConditionID(model, mouse, timePoint, brainRegion)).append("_").append(replicate);
 		return sb.toString();
 	}
@@ -396,15 +396,15 @@ public class JeffAlzheimerProject {
 		if (censusFiles == null) {
 			censusFiles = new ArrayList<FileType>();
 
-			List<File> files = getFiles(censusFilesRootFolder, "txt");
-			for (File file : files) {
-				FileType fileType = new FileType();
+			final List<File> files = getFiles(censusFilesRootFolder, "txt");
+			for (final File file : files) {
+				final FileType fileType = new FileType();
 				fileType.setFormat(FormatType.CENSUS_OUT_TXT);
 				fileType.setServerRef(getSealionServer().getId());
 				fileType.setName(FilenameUtils.getName(file.getAbsolutePath()));
 				Model model = null;
 				final Model[] values = Model.values();
-				for (Model model2 : values) {
+				for (final Model model2 : values) {
 					if (file.getAbsolutePath().contains(model2.name())) {
 						model = model2;
 					}
@@ -422,9 +422,9 @@ public class JeffAlzheimerProject {
 
 	@Test
 	public void renameFiles() {
-		List<File> files = getFiles(censusFilesRootFolder, "txt");
+		final List<File> files = getFiles(censusFilesRootFolder, "txt");
 		files.addAll(getFiles(censusFilesRootFolder, "xlsx"));
-		for (File file : files) {
+		for (final File file : files) {
 			String name = FilenameUtils.getName(file.getAbsolutePath());
 			for (int i = 1; i < 4; i++) {
 				name = name.replace(" ", "");
@@ -438,13 +438,13 @@ public class JeffAlzheimerProject {
 	}
 
 	private ConditionRefType getConditionRefType(ExperimentalConditionType experimentalCondition) {
-		ConditionRefType ret = new ConditionRefType();
+		final ConditionRefType ret = new ConditionRefType();
 		ret.setConditionRef(experimentalCondition.getId());
 		return ret;
 	}
 
 	private ExperimentalDesignType getExperimentalDesign() {
-		ExperimentalDesignType ret = new ExperimentalDesignType();
+		final ExperimentalDesignType ret = new ExperimentalDesignType();
 		ret.setSampleSet(getSampleSet());
 		ret.setOrganismSet(getOrganismSet());
 		ret.setTissueSet(getTissueSet());
@@ -453,14 +453,14 @@ public class JeffAlzheimerProject {
 	}
 
 	private LabelSetType getLabelSet() {
-		LabelSetType ret = new LabelSetType();
+		final LabelSetType ret = new LabelSetType();
 		ret.getLabel().add(getLabel(N15Label.N14));
 		ret.getLabel().add(getLabel(N15Label.N15));
 		return ret;
 	}
 
 	private TissueSetType getTissueSet() {
-		TissueSetType ret = new TissueSetType();
+		final TissueSetType ret = new TissueSetType();
 		ret.getTissue().add(getTissue(BrainRegion.cer));
 		ret.getTissue().add(getTissue(BrainRegion.ctx));
 		ret.getTissue().add(getTissue(BrainRegion.hip));
@@ -469,7 +469,7 @@ public class JeffAlzheimerProject {
 	}
 
 	private OrganismSetType getOrganismSet() {
-		OrganismSetType ret = new OrganismSetType();
+		final OrganismSetType ret = new OrganismSetType();
 		ret.getOrganism().add(getMouse());
 		return ret;
 	}
@@ -484,7 +484,7 @@ public class JeffAlzheimerProject {
 
 		static Model getByName(String name) {
 			final Model[] values = Model.values();
-			for (Model model : values) {
+			for (final Model model : values) {
 				if (model.name.equals(name)) {
 					return model;
 				}
@@ -510,11 +510,11 @@ public class JeffAlzheimerProject {
 	};
 
 	private SampleSetType getSampleSet() {
-		SampleSetType ret = new SampleSetType();
-		for (Model model : Model.values()) {
-			for (MouseType mouse : MouseType.values()) {
-				for (TimePoint timePoint : TimePoint.values()) {
-					for (BrainRegion brainRegion : BrainRegion.values()) {
+		final SampleSetType ret = new SampleSetType();
+		for (final Model model : Model.values()) {
+			for (final MouseType mouse : MouseType.values()) {
+				for (final TimePoint timePoint : TimePoint.values()) {
+					for (final BrainRegion brainRegion : BrainRegion.values()) {
 
 						ret.getSample()
 								.add(getSample(model, mouse, timePoint, brainRegion, getLabelByMouseType(mouse)));
@@ -535,11 +535,11 @@ public class JeffAlzheimerProject {
 	}
 
 	private ExperimentalConditionsType getExperimentalConditions() {
-		ExperimentalConditionsType ret = new ExperimentalConditionsType();
-		for (Model model : Model.values()) {
-			for (MouseType mouse : MouseType.values()) {
-				for (TimePoint timePoint : TimePoint.values()) {
-					for (BrainRegion brainRegion : BrainRegion.values()) {
+		final ExperimentalConditionsType ret = new ExperimentalConditionsType();
+		for (final Model model : Model.values()) {
+			for (final MouseType mouse : MouseType.values()) {
+				for (final TimePoint timePoint : TimePoint.values()) {
+					for (final BrainRegion brainRegion : BrainRegion.values()) {
 						ret.getExperimentalCondition()
 								.add(getExperimentalCondition(model, mouse, timePoint, brainRegion));
 
@@ -552,23 +552,23 @@ public class JeffAlzheimerProject {
 
 	private ExperimentalConditionType getExperimentalCondition(Model model, MouseType mouseType, TimePoint timepoint,
 			BrainRegion brainregion) {
-		ExperimentalConditionType ret = new ExperimentalConditionType();
+		final ExperimentalConditionType ret = new ExperimentalConditionType();
 		final N15Label label = getLabelByMouseType(mouseType);
 		ret.setId(model.name().toLowerCase() + "_" + mouseType.name() + "_" + timepoint.name() + "_"
 				+ brainregion.name());
 		ret.setSampleRef(getSample(model, mouseType, timepoint, brainregion, label).getId());
 		ret.setDescription("Model: " + model.name() + ", Mouse type: " + mouseType.name() + ", time-point: "
 				+ timepoint.name() + ", brain region: " + brainregion.name() + ", labelled: " + label.name());
-		IdentificationInfoType identInfoType = new IdentificationInfoType();
+		final IdentificationInfoType identInfoType = new IdentificationInfoType();
 		ret.setIdentificationInfo(identInfoType);
 		// QuantificationInfoType quantInfoType = new QuantificationInfoType();
 		// ret.setQuantificationInfo(quantInfoType);
 
-		String key = getConditionID(model, mouseType, timepoint, brainregion);
+		final String key = getConditionID(model, mouseType, timepoint, brainregion);
 
 		if (replicateNumbersByCondition.containsKey(key)) {
 			final List<String> list = replicateNumbersByCondition.get(key);
-			for (String replicateNumber : list) {
+			for (final String replicateNumber : list) {
 				identInfoType.getRemoteFilesIdentInfo()
 						.add(getRemoteInfo(model, mouseType, timepoint, brainregion, replicateNumber));
 			}
@@ -592,7 +592,7 @@ public class JeffAlzheimerProject {
 
 	private SampleType getSample(Model model, MouseType mouseType, TimePoint timepoint, BrainRegion brainregion,
 			N15Label label) {
-		SampleType ret = new SampleType();
+		final SampleType ret = new SampleType();
 		ret.setId("Sample_" + model.name() + "_" + mouseType.name() + "_" + timepoint.name() + "_" + brainregion.name()
 				+ "_" + label.name());
 		ret.setDescription(ret.getId());
@@ -606,13 +606,13 @@ public class JeffAlzheimerProject {
 	}
 
 	private LabelType getLabel(N15Label label) {
-		LabelType ret = new LabelType();
+		final LabelType ret = new LabelType();
 		ret.setId(label.name());
 		return ret;
 	}
 
 	private IdDescriptionType getTissue(BrainRegion brainregion) {
-		IdDescriptionType ret = new IdDescriptionType();
+		final IdDescriptionType ret = new IdDescriptionType();
 		ret.setId(brainregion.name());
 		return ret;
 	}
@@ -628,7 +628,7 @@ public class JeffAlzheimerProject {
 
 	private RemoteInfoType getRemoteInfo(Model model, MouseType mouseType, TimePoint timepoint, BrainRegion brainregion,
 			String replicateNumber) {
-		RemoteInfoType ret = new RemoteInfoType();
+		final RemoteInfoType ret = new RemoteInfoType();
 		ret.setDiscardDecoys(getDiscardDecoy());
 		ret.setMsRunRef(getMsRun(model, mouseType, timepoint, brainregion, replicateNumber).getId());
 		ret.getFileRef().add(getFileReferenceType(model, mouseType, timepoint, brainregion, replicateNumber));
@@ -637,7 +637,7 @@ public class JeffAlzheimerProject {
 
 	private RemoteInfoType getQuantRemoteInfo(Model model, MouseType mouseType, TimePoint timepoint,
 			BrainRegion brainregion, String replicateNumber) {
-		RemoteInfoType ret = new RemoteInfoType();
+		final RemoteInfoType ret = new RemoteInfoType();
 		ret.setDiscardDecoys(getDiscardDecoy());
 		ret.setMsRunRef(getMsRun(model, mouseType, timepoint, brainregion, replicateNumber).getId());
 		ret.getFileRef().add(getQuantFileReferenceType(model, mouseType, timepoint, brainregion, replicateNumber));
@@ -646,11 +646,11 @@ public class JeffAlzheimerProject {
 
 	private FileReferenceType getQuantFileReferenceType(Model model, MouseType mouseType, TimePoint timepoint,
 			BrainRegion brainregion, String replicateNumber) {
-		FileReferenceType ret = new FileReferenceType();
+		final FileReferenceType ret = new FileReferenceType();
 
 		final List<FileType> fileFromFile = getCensusFiles();
-		MsRunType msRun = getMsRun(model, mouseType, timepoint, brainregion, replicateNumber);
-		for (FileType fileType : fileFromFile) {
+		final MsRunType msRun = getMsRun(model, mouseType, timepoint, brainregion, replicateNumber);
+		for (final FileType fileType : fileFromFile) {
 			if (fileType.getId().equals("File_" + msRun.getId() + "_Quant")) {
 				ret.setFileRef(fileType.getId());
 			}
@@ -663,11 +663,11 @@ public class JeffAlzheimerProject {
 
 	private FileReferenceType getFileReferenceType(Model model, MouseType mouseType, TimePoint timepoint,
 			BrainRegion brainregion, String replicateNumber) {
-		FileReferenceType ret = new FileReferenceType();
+		final FileReferenceType ret = new FileReferenceType();
 
 		final List<FileType> fileFromFile = getDTASelectFileTypes();
-		MsRunType msRun = getMsRun(model, mouseType, timepoint, brainregion, replicateNumber);
-		for (FileType fileType : fileFromFile) {
+		final MsRunType msRun = getMsRun(model, mouseType, timepoint, brainregion, replicateNumber);
+		for (final FileType fileType : fileFromFile) {
 			if (fileType.getId().equals("File_" + msRun.getId())) {
 				ret.setFileRef(fileType.getId());
 			}
@@ -681,7 +681,7 @@ public class JeffAlzheimerProject {
 	private MsRunType getMsRun(Model model, MouseType mouseType, TimePoint timepoint, BrainRegion brainregion,
 			String replicateNumber) {
 		final MsRunsType msRuns = getMsRuns();
-		for (MsRunType msRunType : msRuns.getMsRun()) {
+		for (final MsRunType msRunType : msRuns.getMsRun()) {
 			if (getModelFromMsRun(msRunType) == model) {
 				if (mouseType == MouseType.control || getMouseTypeFromMsRun(msRunType) == mouseType) {
 					if (getTimePointFromMsRun(msRunType) == timepoint) {
@@ -702,7 +702,7 @@ public class JeffAlzheimerProject {
 		try {
 			final String[] split = msRunType.getId().split("_");
 
-			StringBuilder replicateName2 = new StringBuilder();
+			final StringBuilder replicateName2 = new StringBuilder();
 			for (int i = 4; i < split.length; i++) {
 				if (!"".equals(replicateName2.toString())) {
 					replicateName2.append("_");
@@ -720,7 +720,7 @@ public class JeffAlzheimerProject {
 			// - 3);
 			//
 			// return substring3.toLowerCase();
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			final String substring = msRunType.getId().substring(0, msRunType.getId().lastIndexOf("_"));
 			final String substring2 = substring.substring(substring.length() - 1, substring.length());
 			return substring2.toLowerCase();
@@ -758,7 +758,7 @@ public class JeffAlzheimerProject {
 	}
 
 	private FileSetType getFileSet() {
-		FileSetType ret = new FileSetType();
+		final FileSetType ret = new FileSetType();
 		ret.getFile().addAll(getDTASelectFileTypes());
 		ret.getFile().addAll(getCensusFiles());
 		ret.getFile().addAll(getRatio2QuantCompareFiles());
@@ -768,10 +768,11 @@ public class JeffAlzheimerProject {
 	private List<FileType> getRatio2QuantCompareFiles() {
 		if (ratio2QuantCompareFiles == null) {
 			ratio2QuantCompareFiles = new ArrayList<FileType>();
-			File path = new File("C:\\Users\\Salva\\Desktop\\Dropbox\\Alzheimers proteomics\\FDR_data\\final tables");
-			for (File excelFile : path.listFiles()) {
-				String name = FilenameUtils.getBaseName(excelFile.getAbsolutePath());
-				FileType file = new FileType();
+			final File path = new File(
+					"C:\\Users\\Salva\\Desktop\\Dropbox\\Alzheimers proteomics\\FDR_data\\final tables");
+			for (final File excelFile : path.listFiles()) {
+				final String name = FilenameUtils.getBaseName(excelFile.getAbsolutePath());
+				final FileType file = new FileType();
 				file.setFormat(FormatType.EXCEL);
 				file.setId("Excel_" + name);
 				file.setServerRef(getSealionServer().getId());
@@ -794,9 +795,9 @@ public class JeffAlzheimerProject {
 	}
 
 	private FileType getRatio2FileType(Model model, TimePoint timepoint, BrainRegion brainregion) {
-		String fileName = model.name + "_" + timepoint.name() + "_" + brainregion.name() + ".xlsx";
+		final String fileName = model.name + "_" + timepoint.name() + "_" + brainregion.name() + ".xlsx";
 		final List<FileType> ratio2QuantCompareFiles2 = getRatio2QuantCompareFiles();
-		for (FileType fileType : ratio2QuantCompareFiles2) {
+		for (final FileType fileType : ratio2QuantCompareFiles2) {
 			if (fileType.getName().equalsIgnoreCase(fileName)) {
 				return fileType;
 			}
@@ -805,18 +806,18 @@ public class JeffAlzheimerProject {
 	}
 
 	private SheetsType adaptFromFileWithType(File file, String id) {
-		ObjectFactory factory = new ObjectFactory();
-		SheetsType ret = factory.createSheetsType();
+		final ObjectFactory factory = new ObjectFactory();
+		final SheetsType ret = factory.createSheetsType();
 
 		try {
-			ExcelFileImpl excelFile = new ExcelFileImpl(file);
+			final ExcelFileImpl excelFile = new ExcelFileImpl(file);
 			final List<ExcelSheet> sheets = excelFile.getSheets();
-			for (ExcelSheet sheet : sheets) {
-				SheetType sheetCfg = factory.createSheetType();
+			for (final ExcelSheet sheet : sheets) {
+				final SheetType sheetCfg = factory.createSheetType();
 				sheetCfg.setId(id + "##" + sheet.getName());
 				final List<String> columnKeys = sheet.getColumnKeys();
-				for (String columnKey : columnKeys) {
-					ColumnType column = factory.createColumnType();
+				for (final String columnKey : columnKeys) {
+					final ColumnType column = factory.createColumnType();
 					final ExcelColumn excelColumn = sheet.getColumn(columnKey);
 					column.setHeader(excelColumn.getHeader());
 					column.setId(sheetCfg.getId() + "##" + excelColumn.getKey());
@@ -826,7 +827,7 @@ public class JeffAlzheimerProject {
 				ret.getSheet().add(sheetCfg);
 			}
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}
@@ -836,10 +837,10 @@ public class JeffAlzheimerProject {
 	}
 
 	private List<FileType> getDTASelectFileTypes() {
-		List<FileType> list = new ArrayList<FileType>();
+		final List<FileType> list = new ArrayList<FileType>();
 		final List<MsRunType> msRuns = getMsRuns().getMsRun();
-		for (MsRunType msRunType : msRuns) {
-			FileType file = new FileType();
+		for (final MsRunType msRunType : msRuns) {
+			final FileType file = new FileType();
 			file.setFormat(FormatType.DTA_SELECT_FILTER_TXT);
 			file.setId("File_" + msRunType.getId());
 			file.setRelativePath(msRunType.getPath());
@@ -851,7 +852,7 @@ public class JeffAlzheimerProject {
 	}
 
 	private ServerType getJainaServer() {
-		ServerType server = new ServerType();
+		final ServerType server = new ServerType();
 		server.setHostName("jaina.scripps.edu");
 		server.setId("jaina");
 		server.setPassword("Natjeija21");
@@ -860,7 +861,7 @@ public class JeffAlzheimerProject {
 	}
 
 	private ServerType getSealionServer() {
-		ServerType server = new ServerType();
+		final ServerType server = new ServerType();
 		server.setHostName("sealion.scripps.edu");
 		server.setId("sealion");
 		server.setPassword("Natjeija21");
@@ -869,11 +870,11 @@ public class JeffAlzheimerProject {
 	}
 
 	private MsRunsType getMsRuns() {
-		MsRunsType ret = new MsRunsType();
+		final MsRunsType ret = new MsRunsType();
 		if (msRuns == null) {
 			msRuns = readMsRunsFromFile();
 		}
-		for (MsRunType msRunType : msRuns) {
+		for (final MsRunType msRunType : msRuns) {
 			ret.getMsRun().add(msRunType);
 
 		}
@@ -885,17 +886,17 @@ public class JeffAlzheimerProject {
 			msRuns = new ArrayList<MsRunType>();
 			msRunMap = new THashMap<String, MsRunType>();
 			try {
-				Path path = Paths.get(JeffAlzheimerProject.path + File.separator + "AD_search_paths.txt");
-				List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+				final Path path = Paths.get(JeffAlzheimerProject.path + File.separator + "AD_search_paths.txt");
+				final List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
 				String replicateName = null;
 				String modelName = null;
 				String pathName = null;
 				Date date = null;
 				boolean stringLine = false;
-				for (String line : lines) {
+				for (final String line : lines) {
 					if ("".equals(line)) {
 						stringLine = false;
-						MsRunType msRunType = new MsRunType();
+						final MsRunType msRunType = new MsRunType();
 						msRunType.setPath(pathName);
 						msRunType.setId(modelName + "_" + replicateName);
 						msRunType.setDate(DatesUtil.toXMLGregorianCalendar(date));
@@ -908,12 +909,12 @@ public class JeffAlzheimerProject {
 						if (pathName.contains("_201")) {
 							final int beginIndex = pathName.indexOf("_201") + 1;
 							final String substring = pathName.substring(beginIndex);
-							String year = substring.substring(0, 4);
-							String month = substring.substring(5, 7);
-							String day = substring.substring(8, 10);
-							String hour = substring.substring(11, 13);
-							String minutes = substring.substring(14, 16);
-							SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy/hh:mm");
+							final String year = substring.substring(0, 4);
+							final String month = substring.substring(5, 7);
+							final String day = substring.substring(8, 10);
+							final String hour = substring.substring(11, 13);
+							final String minutes = substring.substring(14, 16);
+							final SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy/hh:mm");
 							final String source = day + "/" + month + "/" + year + "/" + hour + ":" + minutes;
 							date = formatter.parse(source);
 
@@ -936,16 +937,16 @@ public class JeffAlzheimerProject {
 						replicateName = replicateName.toLowerCase();
 					}
 				}
-				MsRunType msRunType = new MsRunType();
+				final MsRunType msRunType = new MsRunType();
 				msRunType.setPath(pathName);
 				msRunType.setId(modelName + "_" + replicateName);
 				msRunType.setDate(DatesUtil.toXMLGregorianCalendar(date));
 				msRuns.add(msRunType);
 				msRunMap.put(replicateName.toLowerCase(), msRunType);
 				addReplicateName(msRunType.getId());
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				fail();
-			} catch (ParseException e) {
+			} catch (final ParseException e) {
 				fail();
 			}
 		}
@@ -954,9 +955,9 @@ public class JeffAlzheimerProject {
 
 	private void addReplicateName(String replicateName) {
 		final String[] split = replicateName.split("_");
-		StringBuilder key = new StringBuilder();
+		final StringBuilder key = new StringBuilder();
 		key.append(split[0]).append("_").append(split[1]).append("_").append(split[2]).append("_").append(split[3]);
-		StringBuilder replicateName2 = new StringBuilder();
+		final StringBuilder replicateName2 = new StringBuilder();
 		for (int i = 4; i < split.length; i++) {
 			if (!"".equals(replicateName2.toString())) {
 				replicateName2.append("_");
@@ -968,14 +969,14 @@ public class JeffAlzheimerProject {
 		if (lowerCaseKey.endsWith("_")) {
 			lowerCaseKey = lowerCaseKey.substring(0, lowerCaseKey.length() - 1);
 		}
-		List<String> lowerCaseKeys = new ArrayList<String>();
+		final List<String> lowerCaseKeys = new ArrayList<String>();
 		lowerCaseKeys.add(lowerCaseKey);
 		if (lowerCaseKey.contains("ad")) {
 			lowerCaseKeys.add(lowerCaseKey.replace("ad", "control"));
 		} else if (lowerCaseKey.contains("wt")) {
 			lowerCaseKeys.add(lowerCaseKey.replace("wt", "control"));
 		}
-		for (String lowerCaseKey2 : lowerCaseKeys) {
+		for (final String lowerCaseKey2 : lowerCaseKeys) {
 
 			final String lowerCase = replicateName2.toString().toLowerCase();
 			if (replicateNumbersByCondition.containsKey(lowerCaseKey2)) {
@@ -983,7 +984,7 @@ public class JeffAlzheimerProject {
 					replicateNumbersByCondition.get(lowerCaseKey2).add(lowerCase);
 				}
 			} else {
-				List<String> list = new ArrayList<String>();
+				final List<String> list = new ArrayList<String>();
 				list.add(lowerCase);
 				replicateNumbersByCondition.put(lowerCaseKey2, list);
 			}
@@ -993,18 +994,18 @@ public class JeffAlzheimerProject {
 	@Test
 	public void convertFilestoTxt() {
 		try {
-			File rootFolder = new File("C:\\Users\\Salva\\Desktop\\Dropbox\\Alzheimers proteomics\\Census files");
-			List<File> files = getFiles(rootFolder, "xlsx");
-			for (File file : files) {
+			final File rootFolder = new File("C:\\Users\\Salva\\Desktop\\Dropbox\\Alzheimers proteomics\\Census files");
+			final List<File> files = getFiles(rootFolder, "xlsx");
+			for (final File file : files) {
 
 				if (FilenameUtils.getExtension(file.getAbsolutePath()).equals("xlsx")) {
-					ExcelReader reader = new ExcelReader(file.getAbsolutePath(), 0, 0);
-					File file2 = reader.saveAsTXT("\t");
+					final ExcelReader reader = new ExcelReader(file.getAbsolutePath(), 0, 0);
+					final File file2 = reader.saveAsTXT("\t");
 					System.out.println("Created: " + file2.getAbsolutePath());
 				}
 
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			fail();
 		}
@@ -1013,21 +1014,21 @@ public class JeffAlzheimerProject {
 	@Test
 	public void getPSMLevelRatiosFromFiles() {
 		try {
-			List<File> files = getFiles(censusFilesRootFolder, "txt");
-			for (File file : files) {
+			final List<File> files = getFiles(censusFilesRootFolder, "txt");
+			for (final File file : files) {
 				if (file.getAbsolutePath().contains("AD_postCER1_Sample34")) {
 					if (FilenameUtils.getExtension(file.getAbsolutePath()).equals("txt")) {
-						QuantificationLabel label1 = QuantificationLabel.LIGHT;
-						QuantCondition cond1 = new QuantCondition("cond1");
-						QuantificationLabel label2 = QuantificationLabel.HEAVY;
-						QuantCondition cond2 = new QuantCondition("cond2");
-						CensusOutParser parser = new CensusOutParser(file, label1, cond1, label2, cond2);
+						final QuantificationLabel label1 = QuantificationLabel.LIGHT;
+						final QuantCondition cond1 = new QuantCondition("cond1");
+						final QuantificationLabel label2 = QuantificationLabel.HEAVY;
+						final QuantCondition cond2 = new QuantCondition("cond2");
+						final CensusOutParser parser = new CensusOutParser(file, label1, cond1, label2, cond2);
 
 						final Collection<QuantifiedProteinInterface> quantProteins = parser.getProteinMap().values();
-						for (QuantifiedProteinInterface quantifiedProteinInterface : quantProteins) {
+						for (final QuantifiedProteinInterface quantifiedProteinInterface : quantProteins) {
 							if (quantifiedProteinInterface.getRawFileNames().contains("N5_34_S7")) {
-								final Set<QuantRatio> ratios = quantifiedProteinInterface.getRatios();
-								for (QuantRatio ratio : ratios) {
+								final Set<QuantRatio> ratios = quantifiedProteinInterface.getQuantRatios();
+								for (final QuantRatio ratio : ratios) {
 									final Score ratioScore = ratio.getAssociatedConfidenceScore();
 									System.out.println(quantifiedProteinInterface.getAccession() + "\t"
 											+ ratio.getNonLogRatio(cond1, cond2));
@@ -1039,11 +1040,12 @@ public class JeffAlzheimerProject {
 												+ ratioScore.getValue());
 									}
 								}
-								for (QuantifiedPSMInterface psm : quantifiedProteinInterface.getQuantifiedPSMs()) {
+								for (final QuantifiedPSMInterface psm : quantifiedProteinInterface
+										.getQuantifiedPSMs()) {
 									if (psm.getRawFileNames().contains("N5_34_S7")) {
 
-										final Set<QuantRatio> ratios2 = psm.getRatios();
-										for (QuantRatio ratio : ratios2) {
+										final Set<QuantRatio> ratios2 = psm.getQuantRatios();
+										for (final QuantRatio ratio : ratios2) {
 											System.out.println(psm.getSequence() + "\t"
 													+ ratio.getLog2Ratio(cond1, cond2) + "\t" + ratio.getDescription());
 											final Score ratioScore = ratio.getAssociatedConfidenceScore();
@@ -1062,21 +1064,21 @@ public class JeffAlzheimerProject {
 					}
 				}
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			fail();
 		}
 	}
 
 	private List<File> getFiles(File file, String extension) {
-		List<File> ret = new ArrayList<File>();
+		final List<File> ret = new ArrayList<File>();
 		if (file.isFile()) {
 			if (FilenameUtils.getExtension(file.getAbsolutePath()).equals(extension)) {
 				ret.add(file);
 			}
 		} else {
 			final File[] listFiles = file.listFiles();
-			for (File file2 : listFiles) {
+			for (final File file2 : listFiles) {
 				ret.addAll(getFiles(file2, extension));
 			}
 		}
@@ -1086,15 +1088,15 @@ public class JeffAlzheimerProject {
 	@Test
 	public void readCensusFiles() {
 		try {
-			Map<QuantCondition, QuantificationLabel> labelsByConditions = new THashMap<QuantCondition, QuantificationLabel>();
-			QuantCondition cond1 = new QuantCondition("condition1");
-			QuantCondition cond2 = new QuantCondition("condition2");
+			final Map<QuantCondition, QuantificationLabel> labelsByConditions = new THashMap<QuantCondition, QuantificationLabel>();
+			final QuantCondition cond1 = new QuantCondition("condition1");
+			final QuantCondition cond2 = new QuantCondition("condition2");
 			labelsByConditions.put(cond1, QuantificationLabel.LIGHT);
 			labelsByConditions.put(cond2, QuantificationLabel.HEAVY);
 			final List<FileType> censusFiles2 = getCensusFiles();
-			for (FileType fileType : censusFiles2) {
-				File tmpFile = File.createTempFile("test", "txt");
-				RemoteSSHFileReference ref = new RemoteSSHFileReference(getSealionServer().getHostName(),
+			for (final FileType fileType : censusFiles2) {
+				final File tmpFile = File.createTempFile("test", "txt");
+				final RemoteSSHFileReference ref = new RemoteSSHFileReference(getSealionServer().getHostName(),
 						getSealionServer().getUserName(), getSealionServer().getPassword(), fileType.getName(),
 						tmpFile);
 				ref.setRemotePath(fileType.getRelativePath());
@@ -1105,10 +1107,10 @@ public class JeffAlzheimerProject {
 				final Map<String, QuantifiedProteinInterface> proteinMap = parser.getProteinMap();
 
 			}
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
 			fail();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			fail();
 		}
@@ -1117,28 +1119,28 @@ public class JeffAlzheimerProject {
 	@Test
 	public void parseProjectTest() {
 		try {
-			String uniprotReleasesFolder = "C:\\Users\\Salva\\Desktop\\pint\\uniprot";
+			final String uniprotReleasesFolder = "C:\\Users\\Salva\\Desktop\\pint\\uniprot";
 			UniprotProteinRetrievalSettings.getInstance(new File(uniprotReleasesFolder), true);
 			ImportCfgFileReader.ignoreDTASelectParameterT = true;
-			File file = new File(
+			final File file = new File(
 					"C:\\Users\\Salva\\Desktop\\data\\PINT projects\\Alzheimer dataset Jeff\\alzheimerProject_NEW_n5_pre_cer.xml");
 			// File file2 = new File(
 			// "C:\\Users\\Salva\\Desktop\\data\\PINT projects\\Alzheimer
 			// dataset Jeff\\alzheimerProject_NEW_N5_ad_pos_ctx_TINNY.xml");
-			List<File> listofFiles = new ArrayList<File>();
+			final List<File> listofFiles = new ArrayList<File>();
 			listofFiles.add(file);
 			// listofFiles.add(file2);
 
-			for (File file3 : listofFiles) {
+			for (final File file3 : listofFiles) {
 
-				ImportCfgFileReader r = new ImportCfgFileReader();
+				final ImportCfgFileReader r = new ImportCfgFileReader();
 				final Project projectFromCfgFile = r.getProjectFromCfgFile(file3, null);
 
 				final Set<Protein> proteins = projectFromCfgFile.getConditions().iterator().next().getProteins();
-				for (Protein protein : proteins) {
+				for (final Protein protein : proteins) {
 					boolean found = false;
-					final List<Accession> secondaryAccessions = protein.getSecondaryAccessions();
-					for (Accession accession : secondaryAccessions) {
+					final Set<Accession> secondaryAccessions = protein.getSecondaryAccessions();
+					for (final Accession accession : secondaryAccessions) {
 						if (accession.getAccession().equals("IPI00230766.4")) {
 							System.out.println(protein.getAccession());
 							found = true;
@@ -1149,26 +1151,27 @@ public class JeffAlzheimerProject {
 						final Set<edu.scripps.yates.utilities.proteomicsmodel.Ratio> ratios = protein.getRatios();
 						Assert.assertNotNull(ratios);
 						Assert.assertFalse(ratios.isEmpty());
-						for (edu.scripps.yates.utilities.proteomicsmodel.Ratio ratio : ratios) {
-							System.out.println(protein.getAccession() + " " + ratio.getDescription() + " "
-									+ ratio.getValue() + " " + ratio.getAggregationLevel() + " "
-									+ protein.getConditions().size() + " " + protein.getMSRun().getRunId());
+						for (final edu.scripps.yates.utilities.proteomicsmodel.Ratio ratio : ratios) {
+							System.out.println(
+									protein.getAccession() + " " + ratio.getDescription() + " " + ratio.getValue() + " "
+											+ ratio.getAggregationLevel() + " " + protein.getConditions().size() + " "
+											+ protein.getMSRuns().iterator().next().getRunId());
 						}
 						final Set<Amount> amounts = protein.getAmounts();
-						for (Amount amount : amounts) {
+						for (final Amount amount : amounts) {
 							System.out.println(amount.getCondition().getName() + "\t" + amount.getAmountType().name()
 									+ "\t" + amount.getValue());
 						}
-						final Set<PSM> psMs = protein.getPSMs();
-						for (PSM psm : psMs) {
+						final List<PSM> psMs = protein.getPSMs();
+						for (final PSM psm : psMs) {
 							System.out.println(psm.getIdentifier() + "\t" + psm.getFullSequence());
 							final Set<Amount> amounts2 = psm.getAmounts();
-							for (Amount amount : amounts2) {
+							for (final Amount amount : amounts2) {
 								System.out.println(amount.getCondition().getName() + "\t"
 										+ amount.getAmountType().name() + "\t" + amount.getValue());
 							}
 							final Set<Ratio> ratios2 = psm.getRatios();
-							for (Ratio ratio : ratios2) {
+							for (final Ratio ratio : ratios2) {
 								System.out.println(psm.getFullSequence() + "\t" + ratio.getDescription() + "\t"
 										+ ratio.getValue());
 							}
@@ -1176,13 +1179,13 @@ public class JeffAlzheimerProject {
 					}
 				}
 				ContextualSessionHandler.beginGoodTransaction();
-				MySQLSaver saver = new MySQLSaver();
+				final MySQLSaver saver = new MySQLSaver();
 
 				saver.saveProject(projectFromCfgFile);
 				ContextualSessionHandler.finishGoodTransaction();
 
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			fail();
 		}
@@ -1192,18 +1195,18 @@ public class JeffAlzheimerProject {
 	public void saveProjectTest() {
 		try {
 			ContextualSessionHandler.beginGoodTransaction();
-			String uniprotReleasesFolder = "C:\\Users\\Salva\\Desktop\\pint\\uniprot";
+			final String uniprotReleasesFolder = "C:\\Users\\Salva\\Desktop\\pint\\uniprot";
 			UniprotProteinRetrievalSettings.getInstance(new File(uniprotReleasesFolder), true);
 			ImportCfgFileReader.ignoreDTASelectParameterT = true;
-			File file = new File(
+			final File file = new File(
 					"C:\\Users\\Salva\\Desktop\\data\\PINT projects\\Alzheimer dataset Jeff\\Alzheimer_ad_pre_ctx - Tinny.xml");
-			ImportCfgFileReader r = new ImportCfgFileReader();
+			final ImportCfgFileReader r = new ImportCfgFileReader();
 			final Project projectFromCfgFile = r.getProjectFromCfgFile(file, null);
-			MySQLSaver saver = new MySQLSaver();
+			final MySQLSaver saver = new MySQLSaver();
 
 			saver.saveProject(projectFromCfgFile);
 			ContextualSessionHandler.finishGoodTransaction();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			fail();
 		}
@@ -1215,23 +1218,23 @@ public class JeffAlzheimerProject {
 		try {
 			excel = new ExcelReader(finalFDRFile, 0, 1);
 
-			TIntObjectHashMap<Map<String, Map<String, Double>>> superMap = new TIntObjectHashMap<Map<String, Map<String, Double>>>();
+			final TIntObjectHashMap<Map<String, Map<String, Double>>> superMap = new TIntObjectHashMap<Map<String, Map<String, Double>>>();
 			for (int sheetNumber = 0; sheetNumber <= 1; sheetNumber++) {
-				Map<String, Integer> locusColumnByConditionName = new THashMap<String, Integer>();
-				Map<String, Integer> FDRColumnByConditionName = new THashMap<String, Integer>();
+				final Map<String, Integer> locusColumnByConditionName = new THashMap<String, Integer>();
+				final Map<String, Integer> FDRColumnByConditionName = new THashMap<String, Integer>();
 				populateColumnsByConditions(excel, sheetNumber, locusColumnByConditionName, FDRColumnByConditionName);
 
-				Map<String, Map<String, Double>> map = new THashMap<String, Map<String, Double>>();
+				final Map<String, Map<String, Double>> map = new THashMap<String, Map<String, Double>>();
 				superMap.put(sheetNumber, map);
-				for (String conditionName : locusColumnByConditionName.keySet()) {
-					Map<String, Double> proteinFDRMap = getProteinFDRMap(excel, sheetNumber, conditionName,
+				for (final String conditionName : locusColumnByConditionName.keySet()) {
+					final Map<String, Double> proteinFDRMap = getProteinFDRMap(excel, sheetNumber, conditionName,
 							locusColumnByConditionName.get(conditionName), FDRColumnByConditionName.get(conditionName));
 					map.put(conditionName, proteinFDRMap);
 				}
 			}
 
 			printMap(excel, superMap);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -1241,12 +1244,12 @@ public class JeffAlzheimerProject {
 		for (int i = 0; i <= 1; i++) {
 			System.out.println("Experiment: " + excel.getWorkbook().getSheetName(i));
 			final Map<String, Map<String, Double>> map = superMap.get(i);
-			List<String> conditionNames = new ArrayList<String>();
+			final List<String> conditionNames = new ArrayList<String>();
 			conditionNames.addAll(map.keySet());
 			Collections.sort(conditionNames);
-			for (String conditionName : conditionNames) {
+			for (final String conditionName : conditionNames) {
 				final Map<String, Double> map2 = map.get(conditionName);
-				for (String locus : map2.keySet()) {
+				for (final String locus : map2.keySet()) {
 					System.out.println(conditionName + "\t" + locus + "\t" + map2.get(locus));
 				}
 			}
@@ -1256,12 +1259,12 @@ public class JeffAlzheimerProject {
 
 	private Map<String, Double> getProteinFDRMap(ExcelReader excel, int sheetNumber, String conditionName,
 			int locusColumn, int FDRColumn) {
-		Map<String, Double> ret = new THashMap<String, Double>();
+		final Map<String, Double> ret = new THashMap<String, Double>();
 		int row = 2;
 		while (true) {
-			String fdrValue = excel.getNumberValue(sheetNumber, row, FDRColumn);
+			final String fdrValue = excel.getNumberValue(sheetNumber, row, FDRColumn);
 			if (fdrValue != null) {
-				String locus = excel.getStringValue(sheetNumber, row, locusColumn);
+				final String locus = excel.getStringValue(sheetNumber, row, locusColumn);
 				ret.put(locus, Double.valueOf(fdrValue));
 				row++;
 			} else {
@@ -1276,19 +1279,19 @@ public class JeffAlzheimerProject {
 			Map<String, Integer> locusColumnByConditionName, Map<String, Integer> FDRColumnByConditionName)
 			throws IOException {
 		final List<String> columNames = excel.getColumnNames().get(sheetNumber);
-		List<String> conditionNames = new ArrayList<String>();
+		final List<String> conditionNames = new ArrayList<String>();
 		int index = 0;
 		System.out.println();
-		Map<String, Integer> columnByCondition = new THashMap<String, Integer>();
-		for (String columnName : columNames) {
+		final Map<String, Integer> columnByCondition = new THashMap<String, Integer>();
+		for (final String columnName : columNames) {
 			if (columnName != null) {
 				final String[] split = columnName.split("_");
-				String model = split[0];
-				String[] wtOrADs = { "WT", "AD" };
-				String timepoint = split[1];
-				String brain = split[2];
+				final String model = split[0];
+				final String[] wtOrADs = { "WT", "AD" };
+				final String timepoint = split[1];
+				final String brain = split[2];
 
-				String conditionName = model + "_" + timepoint + "_" + brain;
+				final String conditionName = model + "_" + timepoint + "_" + brain;
 				columnByCondition.put(conditionName, index);
 				conditionNames.add(columnName);
 
@@ -1317,12 +1320,12 @@ public class JeffAlzheimerProject {
 			}
 		}
 		System.out.println("Locus columns:");
-		for (String conditionName : conditionNames) {
+		for (final String conditionName : conditionNames) {
 			System.out.println(conditionName + "\t" + locusColumnByConditionName.get(conditionName));
 		}
 
 		System.out.println("FDR columns:");
-		for (String conditionName : conditionNames) {
+		for (final String conditionName : conditionNames) {
 			System.out.println(conditionName + "\t" + FDRColumnByConditionName.get(conditionName));
 		}
 

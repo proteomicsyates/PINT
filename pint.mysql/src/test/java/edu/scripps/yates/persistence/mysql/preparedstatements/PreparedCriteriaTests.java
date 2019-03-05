@@ -1,6 +1,5 @@
 package edu.scripps.yates.persistence.mysql.preparedstatements;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,6 @@ import junit.framework.Assert;
 public class PreparedCriteriaTests {
 	@Before
 	public void beforeTask() {
-		ContextualSessionHandler.openSession();
 		ContextualSessionHandler.beginGoodTransaction();
 	}
 
@@ -43,40 +41,92 @@ public class PreparedCriteriaTests {
 		try {
 			ContextualSessionHandler.finishGoodTransaction();
 			ContextualSessionHandler.closeSession();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			ContextualSessionHandler.rollbackTransaction();
 		}
 	}
 
 	@Test
+	public void getNumPSMs() {
+		final String projectTag = "_CFTR_";
+		final String runID = "_24h_050710";
+		final String sampleName = "_24h_30C_14h_37C";
+		final String conditionName = "_24h_30C_14h_37C";
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentPSMs(projectTag, null, null, null));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentPSMs(null, runID, null, null));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentPSMs(null, null, sampleName, null));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentPSMs(null, null, null, conditionName));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentPSMs(null, null, null, null));
+	}
+
+	@Test
+	public void getNumPeptides() {
+		final String projectTag = "_CFTR_";
+		final String runID = "_24h_050710";
+		final String sampleName = "_24h_30C_14h_37C";
+		final String conditionName = "_24h_30C_14h_37C";
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentPeptides(projectTag, null, null, null));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentPeptides(null, runID, null, null));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentPeptides(null, null, sampleName, null));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentPeptides(null, null, null, conditionName));
+		System.out.println(PreparedQueries.getNumDifferentPeptides());
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentPeptides(null, null, null, null));
+	}
+
+	@Test
+	public void getNumProteins() {
+		final String projectTag = "_CFTR_";
+		final String runID = "_24h_050710";
+		final String sampleName = "_24h_30C_14h_37C";
+		final String conditionName = "_24h_30C_14h_37C";
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentProteins(projectTag, null, null, null));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentProteins(null, runID, null, null));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentProteins(null, null, sampleName, null));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentProteins(null, null, null, conditionName));
+		System.out.println(PreparedQueries.getNumDifferentProteins());
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentProteins(null, null, null, null));
+	}
+
+	@Test
+	public void getNumMSRuns() {
+		final String projectTag = "_CFTR_";
+		final String sampleName = "_24h_30C_14h_37C";
+		final String conditionName = "_24h_30C_14h_37C";
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentMSRuns(projectTag, null, null));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentMSRuns(null, sampleName, null));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentMSRuns(null, null, conditionName));
+		System.out.println(PreparedCriteria.getCriteriaForNumDifferentMSRuns(null, null, null));
+	}
+
+	@Test
 	public void getProteinsByCondition() {
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 
 		// proteins by project
-		int size = 500;
+		final int size = 500;
 		final String conditionName = "C in vivo";
-		CriterionSet criterionSet = PreparedCriteria.getProteinsByProjectConditionCriteria(null, conditionName);
-		Criteria criteria = PreparedCriteria.getCriteriaByProteinAcc(0, size, "mw", false, criterionSet);
+		final CriterionSet criterionSet = PreparedCriteria.getProteinsByProjectConditionCriteria(null, conditionName);
+		final Criteria criteria = PreparedCriteria.getCriteriaByProteinAcc(0, size, "mw", false, criterionSet);
 		final List<Protein> list = criteria.list();
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements in list");
-		for (Protein protein : list) {
+		for (final Protein protein : list) {
 			System.out.println(protein.getMw());
 		}
 		Assert.assertTrue(list.size() >= size);
-		Map<String, Set<Protein>> map = new THashMap<String, Set<Protein>>();
+		final Map<String, Set<Protein>> map = new THashMap<String, Set<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(map, list);
 
 		Assert.assertEquals(size, map.size());
-		Set<Psm> psmSet = new THashSet<Psm>();
-		for (String acc : map.keySet()) {
+		final Set<Psm> psmSet = new THashSet<Psm>();
+		for (final String acc : map.keySet()) {
 			final Set<Protein> proteinSet = map.get(acc);
-			for (Protein protein : proteinSet) {
+			for (final Protein protein : proteinSet) {
 
 				final Set<Condition> conditions1 = protein.getConditions();
 				boolean found = false;
-				for (Condition condition : conditions1) {
+				for (final Condition condition : conditions1) {
 					if (condition.getName().equals(conditionName)) {
 						found = true;
 					}
@@ -85,10 +135,10 @@ public class PreparedCriteriaTests {
 				final Set<Psm> psms = protein.getPsms();
 				System.out.println(psms.size() + " PSMs in Protein");
 				psmSet.addAll(psms);
-				for (Psm psm : psms) {
+				for (final Psm psm : psms) {
 					found = false;
 					final Set<Condition> conditions = psm.getConditions();
-					for (Condition condition2 : conditions) {
+					for (final Condition condition2 : conditions) {
 						if (condition2.getName().equals(conditionName)) {
 							found = true;
 						}
@@ -96,10 +146,10 @@ public class PreparedCriteriaTests {
 					Assert.assertTrue(found);
 					final Set<Protein> proteins = psm.getProteins();
 					System.out.println(proteins.size() + " proteins in PSM");
-					for (Protein protein2 : proteins) {
+					for (final Protein protein2 : proteins) {
 						final Set<Condition> conditions2 = protein2.getConditions();
 						found = false;
-						for (Condition condition2 : conditions2) {
+						for (final Condition condition2 : conditions2) {
 							if (condition2.getName().equals(conditionName)) {
 								found = true;
 							}
@@ -114,7 +164,7 @@ public class PreparedCriteriaTests {
 				.getInstance("salvador", "natjeija", "jdbc:mysql://localhost:3306/interactome_db").getSessionFactory()
 				.getStatistics();
 		printQueryStats(statistics);
-		long t2 = System.currentTimeMillis();
+		final long t2 = System.currentTimeMillis();
 
 		System.out.println(t2 - t1 + " ms");
 	}
@@ -137,14 +187,14 @@ public class PreparedCriteriaTests {
 	public void testingCriterias() {
 		final Criteria c1 = ContextualSessionHandler.getCurrentSession().createCriteria(Protein.class, "protein");
 		c1.add(Restrictions.like("acc", "P0%"));
-		Criteria c2 = c1.createCriteria("protein.psms", "psm");
+		final Criteria c2 = c1.createCriteria("protein.psms", "psm");
 		c2.add(Restrictions.like("psm.sequence", "A%"));
 
 		final List<Protein> proteinList = c1.list();
-		for (Protein protein : proteinList) {
+		for (final Protein protein : proteinList) {
 			System.out.println(protein.getAcc());
 			final Set<Condition> conditions = protein.getConditions();
-			for (Condition condition : conditions) {
+			for (final Condition condition : conditions) {
 				System.out.print(condition.getName() + "\t");
 			}
 			System.out.println();
@@ -152,11 +202,25 @@ public class PreparedCriteriaTests {
 	}
 
 	@Test
+	public void testingAccs2ByProject() {
+		final Long num = PreparedCriteria.getCriteriaForNumDifferentProteins("_CFTR_", null, null, null);
+
+		System.out.println(num);
+		final List<String> list2 = PreparedCriteria.getCriteriaForProteinPrimaryAccs("_CFTR_", null, null, null);
+
+		int i = 0;
+		for (final Object object : list2) {
+			System.out.println(++i + "\t" + object);
+		}
+
+	}
+
+	@Test
 	public void testingGetMaxRatio() {
-		String condition1Name = "ad_pre_ctx_N14";
-		String condition2Name = "ad_pre_ctx_N15";
-		String projectTag = "Alzh_tinny";
-		String ratioName = "AREA_RATIO";
+		final String condition1Name = "ad_pre_ctx_N14";
+		final String condition2Name = "ad_pre_ctx_N15";
+		final String projectTag = "Alzh_tinny";
+		final String ratioName = "AREA_RATIO";
 		System.out.println(-Double.MAX_VALUE);
 		final double max = (double) PreparedCriteria
 				.getCriteriaForPsmRatioMaximumValue(condition1Name, condition2Name, projectTag, ratioName)
@@ -168,10 +232,10 @@ public class PreparedCriteriaTests {
 
 	@Test
 	public void testingGetMinRatio() {
-		String condition1Name = "ad_pre_ctx_N14";
-		String condition2Name = "ad_pre_ctx_N15";
-		String projectTag = "Alzh_tinny";
-		String ratioName = "AREA_RATIO";
+		final String condition1Name = "ad_pre_ctx_N14";
+		final String condition2Name = "ad_pre_ctx_N15";
+		final String projectTag = "Alzh_tinny";
+		final String ratioName = "AREA_RATIO";
 		System.out.println(-Double.MAX_VALUE);
 
 		final double min = (double) PreparedCriteria
@@ -211,11 +275,12 @@ public class PreparedCriteriaTests {
 
 	@Test
 	public void testingGetPeptidesBySeqRegexp() {
-		String regexp = "LGSGSAAP[P|Y]AASAELTXER";
+		final String regexp = "LGSGSAAP[P|Y]AASAELTXER";
 
 		final String mySQLRegularExpression = getMySQLRegularExpression(regexp);
-		final List<Psm> psms = PreparedCriteria.getCriteriaForPsmSequence(mySQLRegularExpression, null).list();
-		for (Psm psm : psms) {
+		final List<Psm> psms = PreparedCriteria.getCriteriaForPsmSequence(mySQLRegularExpression, null);
+
+		for (final Psm psm : psms) {
 			System.out.println(psm.getSequence());
 
 		}
@@ -226,13 +291,13 @@ public class PreparedCriteriaTests {
 
 	@Test
 	public void testingGetConditionsByMSRun() {
-		List<Project> projects = ContextualSessionHandler.createCriteria(Project.class).list();
-		for (Project project : projects) {
+		final List<Project> projects = ContextualSessionHandler.createCriteria(Project.class).list();
+		for (final Project project : projects) {
 			final List<MsRun> msRunsByProject = PreparedQueries.getMSRunsByProject(project.getTag());
-			for (MsRun msRun : msRunsByProject) {
-				final List<Condition> conditions = PreparedCriteria.getConditionsByMSRunCriteria(msRun).list();
+			for (final MsRun msRun : msRunsByProject) {
+				final List<Condition> conditions = PreparedCriteria.getConditionsByMSRunCriteria(msRun);
 				System.out.println("MSRun " + msRun.getRunId() + " is linked with the following conditions:");
-				for (Condition condition : conditions) {
+				for (final Condition condition : conditions) {
 					System.out.println("\t" + condition.getName());
 				}
 			}
@@ -240,20 +305,35 @@ public class PreparedCriteriaTests {
 	}
 
 	@Test
+	public void testingPeptidesByProject() {
+		final Long cr = PreparedCriteria.getCriteriaForNumDifferentPeptides("fmr_silam", null, null, null);
+
+		System.out.println(cr);
+	}
+
+	@Test
+	public void testingPSMByProject() {
+
+		final Long cr = PreparedCriteria.getCriteriaForNumDifferentPSMs("fmr_silam", null, null, null);
+		System.out.println(cr);
+
+	}
+
+	@Test
 	public void testGetPeptideIdsFromProteinIds() {
 		final String conditionName = "C in vivo";
 		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, conditionName);
-		HashSet<Integer> ids = new HashSet<Integer>();
-		for (Set<Protein> protein : list.values()) {
-			for (Protein protein2 : protein) {
+		final HashSet<Integer> ids = new HashSet<Integer>();
+		for (final Set<Protein> protein : list.values()) {
+			for (final Protein protein2 : protein) {
 				ids.add(protein2.getId());
 			}
 		}
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 		System.out.println("Getting peptides from " + ids.size() + " proteins");
-		List<Integer> peptideIds = PreparedCriteria.getPeptideIdsFromProteins(ids);
+		final List<Integer> peptideIds = PreparedCriteria.getPeptideIdsFromProteins(ids);
 		System.out.println(peptideIds.size() + " peptides");
-		List<Peptide> peptides = PreparedCriteria.getPeptidesByIds(peptideIds);
+		final List<Peptide> peptides = PreparedCriteria.getPeptidesByIds(peptideIds);
 		System.out.println(peptides.size() + " peptides objects");
 		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
 	}
@@ -262,10 +342,10 @@ public class PreparedCriteriaTests {
 	public void testGetPeptideIdsFromProteins() {
 		final String conditionName = "C in vivo";
 		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, conditionName);
-		Set<Peptide> peptides = new THashSet<Peptide>();
-		long t1 = System.currentTimeMillis();
-		for (Set<Protein> protein : list.values()) {
-			for (Protein protein2 : protein) {
+		final Set<Peptide> peptides = new THashSet<Peptide>();
+		final long t1 = System.currentTimeMillis();
+		for (final Set<Protein> protein : list.values()) {
+			for (final Protein protein2 : protein) {
 				peptides.addAll(protein2.getPeptides());
 			}
 		}
@@ -277,20 +357,20 @@ public class PreparedCriteriaTests {
 	public void testGetPsmIdsFromProteinIds() {
 		final String conditionName = "C in vivo";
 		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, conditionName);
-		HashSet<Integer> ids = new HashSet<Integer>();
-		for (Set<Protein> protein : list.values()) {
-			for (Protein protein2 : protein) {
+		final HashSet<Integer> ids = new HashSet<Integer>();
+		for (final Set<Protein> protein : list.values()) {
+			for (final Protein protein2 : protein) {
 				ids.add(protein2.getId());
 			}
 		}
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 		System.out.println("Getting peptides from " + ids.size() + " proteins");
-		List<Integer> psmIds = PreparedCriteria.getPsmIdsFromProteins(ids);
-		TIntHashSet set = new TIntHashSet();
+		final List<Integer> psmIds = PreparedCriteria.getPsmIdsFromProteins(ids);
+		final TIntHashSet set = new TIntHashSet();
 		set.addAll(psmIds);
 		System.out.println(psmIds.size() + " psms");
 		System.out.println(set.size() + " different psms");
-		List<Psm> psms = PreparedCriteria.getPsmsByIds(psmIds);
+		final List<Psm> psms = PreparedCriteria.getPsmsByIds(psmIds);
 		System.out.println(psms.size() + " psms objects");
 		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
 	}
@@ -299,10 +379,10 @@ public class PreparedCriteriaTests {
 	public void testGetPsmIdsFromProteins() {
 		final String conditionName = "C in vivo";
 		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, conditionName);
-		Set<Psm> psms = new THashSet<Psm>();
-		long t1 = System.currentTimeMillis();
-		for (Set<Protein> protein : list.values()) {
-			for (Protein protein2 : protein) {
+		final Set<Psm> psms = new THashSet<Psm>();
+		final long t1 = System.currentTimeMillis();
+		for (final Set<Protein> protein : list.values()) {
+			for (final Protein protein2 : protein) {
 				psms.addAll(protein2.getPsms());
 			}
 		}
@@ -311,14 +391,11 @@ public class PreparedCriteriaTests {
 	}
 
 	@Test
-	public void testGetTissuesFromProtein() {
-		Collection<String> accs = new THashSet<String>();
-		accs.add("Q01726");
-		Set<String> tissueNames = new THashSet<String>();
-		tissueNames.add("brain tissue");
-		tissueNames.add("Embryos");
-		List<Protein> proteinsWithTissues = PreparedCriteria.getProteinsWithTissues(null, tissueNames);
-
-		System.out.println(proteinsWithTissues.size() + " proteins");
+	public void getCriteriaForConditionsInProjectInMSRunTest() {
+		final String projectTag = "_CFTR_";
+		final String msRunID = "_24h_050710";
+		final List<String> conditionNames = PreparedCriteria.getCriteriaForConditionsInProjectInMSRun(projectTag,
+				msRunID);
+		System.out.println(conditionNames.size());
 	}
 }

@@ -15,12 +15,12 @@ import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLSaver;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProjectAdapter;
-import edu.scripps.yates.utilities.model.factories.ProjectEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.ProjectEx;
 import gnu.trove.set.hash.THashSet;
 import gnu.trove.set.hash.TIntHashSet;
 
@@ -29,14 +29,14 @@ public class TripleLabelingProjectSave {
 
 	@Before
 	public void before() {
-		edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings settings = UniprotProteinRetrievalSettings
+		final edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings settings = UniprotProteinRetrievalSettings
 				.getInstance(new File("C:\\Users\\Salva\\Desktop\\tmp\\PInt\\uniprot"), true);
-		ContextualSessionHandler.openSession();
+		ContextualSessionHandler.getCurrentSession();
 	}
 
 	@Test
 	public void projectSave() {
-		ImportCfgFileReader importReader = new ImportCfgFileReader();
+		final ImportCfgFileReader importReader = new ImportCfgFileReader();
 		Project project;
 		try {
 			project = importReader.getProjectFromCfgFile(new ClassPathResource(cfgFileName).getFile(), null);
@@ -58,7 +58,7 @@ public class TripleLabelingProjectSave {
 			//
 			ContextualSessionHandler.finishGoodTransaction();
 			System.out.println("Everything is OK!");
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			fail();
 		}
@@ -66,7 +66,7 @@ public class TripleLabelingProjectSave {
 
 	private void checkSamplesInConditions(Project project) {
 		final Set<Condition> conditions = project.getConditions();
-		for (Condition condition : conditions) {
+		for (final Condition condition : conditions) {
 			if (condition.getSample() == null) {
 				fail();
 			}
@@ -75,7 +75,7 @@ public class TripleLabelingProjectSave {
 
 	private void checkSamplesInConditionsInSQLModel(edu.scripps.yates.proteindb.persistence.mysql.Project project) {
 		final Set<edu.scripps.yates.proteindb.persistence.mysql.Condition> conditions = project.getConditions();
-		for (edu.scripps.yates.proteindb.persistence.mysql.Condition condition : conditions) {
+		for (final edu.scripps.yates.proteindb.persistence.mysql.Condition condition : conditions) {
 			if (condition.getSample() == null) {
 				fail();
 			}
@@ -86,26 +86,26 @@ public class TripleLabelingProjectSave {
 		boolean fail = false;
 		final Set<edu.scripps.yates.proteindb.persistence.mysql.Condition> conditions = project.getConditions();
 		System.out.println(conditions.size() + " conditions");
-		Set<Psm> psmsTotal = new THashSet<Psm>();
-		for (edu.scripps.yates.proteindb.persistence.mysql.Condition condition : conditions) {
+		final Set<Psm> psmsTotal = new THashSet<Psm>();
+		for (final edu.scripps.yates.proteindb.persistence.mysql.Condition condition : conditions) {
 			final Set<Psm> psms = condition.getPsms();
-			for (Psm psm : psms) {
+			for (final Psm psm : psms) {
 				if (psm.getConditions().isEmpty()) {
 					fail();
 				}
 				psmsTotal.add(psm);
 			}
 		}
-		TIntHashSet psmHasCodes = new TIntHashSet();
-		for (Psm psm : psmsTotal) {
+		final TIntHashSet psmHasCodes = new TIntHashSet();
+		for (final Psm psm : psmsTotal) {
 			if (psmHasCodes.contains(psm.hashCode())) {
 				fail = true;
 			}
 			psmHasCodes.add(psm.hashCode());
 		}
 
-		Set<String> psmIds = new THashSet<String>();
-		for (Psm psm : psmsTotal) {
+		final Set<String> psmIds = new THashSet<String>();
+		for (final Psm psm : psmsTotal) {
 			if (psmIds.contains(psm.getPsmId())) {
 				fail = true;
 			}
@@ -123,26 +123,26 @@ public class TripleLabelingProjectSave {
 		boolean fail = false;
 		final Set<edu.scripps.yates.proteindb.persistence.mysql.Condition> conditions = project.getConditions();
 		System.out.println(conditions.size() + " conditions");
-		Set<edu.scripps.yates.proteindb.persistence.mysql.Peptide> peptidesTotal = new THashSet<edu.scripps.yates.proteindb.persistence.mysql.Peptide>();
-		for (edu.scripps.yates.proteindb.persistence.mysql.Condition condition : conditions) {
+		final Set<edu.scripps.yates.proteindb.persistence.mysql.Peptide> peptidesTotal = new THashSet<edu.scripps.yates.proteindb.persistence.mysql.Peptide>();
+		for (final edu.scripps.yates.proteindb.persistence.mysql.Condition condition : conditions) {
 			final Set<edu.scripps.yates.proteindb.persistence.mysql.Peptide> peptides = condition.getPeptides();
-			for (edu.scripps.yates.proteindb.persistence.mysql.Peptide peptide : peptides) {
+			for (final edu.scripps.yates.proteindb.persistence.mysql.Peptide peptide : peptides) {
 				if (peptide.getConditions().isEmpty()) {
 					fail();
 				}
 				peptidesTotal.add(peptide);
 			}
 		}
-		TIntHashSet peptideHasCodes = new TIntHashSet();
-		for (edu.scripps.yates.proteindb.persistence.mysql.Peptide peptide : peptidesTotal) {
+		final TIntHashSet peptideHasCodes = new TIntHashSet();
+		for (final edu.scripps.yates.proteindb.persistence.mysql.Peptide peptide : peptidesTotal) {
 			if (peptideHasCodes.contains(peptide.hashCode())) {
 				fail = true;
 			}
 			peptideHasCodes.add(peptide.hashCode());
 		}
 
-		Set<String> peptideSequences = new THashSet<String>();
-		for (edu.scripps.yates.proteindb.persistence.mysql.Peptide peptide : peptidesTotal) {
+		final Set<String> peptideSequences = new THashSet<String>();
+		for (final edu.scripps.yates.proteindb.persistence.mysql.Peptide peptide : peptidesTotal) {
 			if (peptideSequences.contains(peptide.getSequence())) {
 				fail = true;
 			}
@@ -160,26 +160,26 @@ public class TripleLabelingProjectSave {
 		boolean fail = false;
 		final Set<edu.scripps.yates.proteindb.persistence.mysql.Condition> conditions = project.getConditions();
 		System.out.println(conditions.size() + " conditions");
-		Set<edu.scripps.yates.proteindb.persistence.mysql.Protein> proteinsTotal = new THashSet<edu.scripps.yates.proteindb.persistence.mysql.Protein>();
-		for (edu.scripps.yates.proteindb.persistence.mysql.Condition condition : conditions) {
+		final Set<edu.scripps.yates.proteindb.persistence.mysql.Protein> proteinsTotal = new THashSet<edu.scripps.yates.proteindb.persistence.mysql.Protein>();
+		for (final edu.scripps.yates.proteindb.persistence.mysql.Condition condition : conditions) {
 			final Set<edu.scripps.yates.proteindb.persistence.mysql.Protein> proteins = condition.getProteins();
-			for (edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteins) {
+			for (final edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteins) {
 				if (protein.getConditions().isEmpty()) {
 					fail();
 				}
 				proteinsTotal.add(protein);
 			}
 		}
-		TIntHashSet peptideHasCodes = new TIntHashSet();
-		for (edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteinsTotal) {
+		final TIntHashSet peptideHasCodes = new TIntHashSet();
+		for (final edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteinsTotal) {
 			if (peptideHasCodes.contains(protein.hashCode())) {
 				fail = true;
 			}
 			peptideHasCodes.add(protein.hashCode());
 		}
 
-		Set<String> proteinAccs = new THashSet<String>();
-		for (edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteinsTotal) {
+		final Set<String> proteinAccs = new THashSet<String>();
+		for (final edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteinsTotal) {
 			if (proteinAccs.contains(protein.getAcc())) {
 				fail = true;
 			}
@@ -196,25 +196,25 @@ public class TripleLabelingProjectSave {
 	private void checkUniquenessOfPSMs(Project project) {
 		final Set<Condition> conditions = project.getConditions();
 		System.out.println(conditions.size() + " conditions");
-		Set<PSM> psmsTotal = new THashSet<PSM>();
-		for (Condition condition : conditions) {
+		final Set<PSM> psmsTotal = new THashSet<PSM>();
+		for (final Condition condition : conditions) {
 			final Set<PSM> psMs = condition.getPSMs();
-			for (PSM psm : psMs) {
+			for (final PSM psm : psMs) {
 				psmsTotal.add(psm);
 				if (psm.getConditions().isEmpty()) {
 					fail();
 				}
 			}
 		}
-		TIntHashSet psmHasCodes = new TIntHashSet();
-		for (PSM psm : psmsTotal) {
+		final TIntHashSet psmHasCodes = new TIntHashSet();
+		for (final PSM psm : psmsTotal) {
 			if (psmHasCodes.contains(psm.hashCode())) {
 				fail();
 			}
 			psmHasCodes.add(psm.hashCode());
 		}
-		Set<String> psmIds = new THashSet<String>();
-		for (PSM psm : psmsTotal) {
+		final Set<String> psmIds = new THashSet<String>();
+		for (final PSM psm : psmsTotal) {
 			if (psmIds.contains(psm.getIdentifier())) {
 				fail();
 			}
@@ -229,25 +229,25 @@ public class TripleLabelingProjectSave {
 	private void checkUniquenessOfPeptides(Project project) {
 		final Set<Condition> conditions = project.getConditions();
 		System.out.println(conditions.size() + " conditions");
-		Set<Peptide> peptidesTotal = new THashSet<Peptide>();
-		for (Condition condition : conditions) {
+		final Set<Peptide> peptidesTotal = new THashSet<Peptide>();
+		for (final Condition condition : conditions) {
 			final Set<Peptide> peptides = condition.getPeptides();
-			for (Peptide peptide : peptides) {
+			for (final Peptide peptide : peptides) {
 				peptidesTotal.add(peptide);
 				if (peptide.getConditions().isEmpty()) {
 					fail();
 				}
 			}
 		}
-		TIntHashSet peptideHasCodes = new TIntHashSet();
-		for (Peptide peptide : peptidesTotal) {
+		final TIntHashSet peptideHasCodes = new TIntHashSet();
+		for (final Peptide peptide : peptidesTotal) {
 			if (peptideHasCodes.contains(peptide.hashCode())) {
 				fail();
 			}
 			peptideHasCodes.add(peptide.hashCode());
 		}
-		Set<String> peptideSequences = new THashSet<String>();
-		for (Peptide peptide : peptidesTotal) {
+		final Set<String> peptideSequences = new THashSet<String>();
+		for (final Peptide peptide : peptidesTotal) {
 			if (peptideSequences.contains(peptide.getSequence())) {
 				fail();
 			}
@@ -262,25 +262,25 @@ public class TripleLabelingProjectSave {
 	private void checkUniquenessOfProteins(Project project) {
 		final Set<Condition> conditions = project.getConditions();
 		System.out.println(conditions.size() + " conditions");
-		Set<Protein> proteinTotal = new THashSet<Protein>();
-		for (Condition condition : conditions) {
+		final Set<Protein> proteinTotal = new THashSet<Protein>();
+		for (final Condition condition : conditions) {
 			final Set<Protein> proteins = condition.getProteins();
-			for (Protein protein : proteins) {
+			for (final Protein protein : proteins) {
 				proteinTotal.add(protein);
 				if (protein.getConditions().isEmpty()) {
 					fail();
 				}
 			}
 		}
-		TIntHashSet proteinHasCodes = new TIntHashSet();
-		for (Protein protein : proteinTotal) {
+		final TIntHashSet proteinHasCodes = new TIntHashSet();
+		for (final Protein protein : proteinTotal) {
 			if (proteinHasCodes.contains(protein.hashCode())) {
 				fail();
 			}
 			proteinHasCodes.add(protein.hashCode());
 		}
-		Set<String> proteinACCs = new THashSet<String>();
-		for (Protein protein : proteinTotal) {
+		final Set<String> proteinACCs = new THashSet<String>();
+		for (final Protein protein : proteinTotal) {
 			if (proteinACCs.contains(protein.getAccession())) {
 				fail();
 			}

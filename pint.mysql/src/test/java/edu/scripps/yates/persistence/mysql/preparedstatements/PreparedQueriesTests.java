@@ -26,8 +26,9 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmScore;
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
+import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.set.hash.THashSet;
 import gnu.trove.set.hash.TIntHashSet;
@@ -64,7 +65,7 @@ public class PreparedQueriesTests {
 
 		// proteins by project
 
-		Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition("Alzheimer3", null);
+		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition("Alzheimer3", null);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
@@ -75,7 +76,8 @@ public class PreparedQueriesTests {
 
 		// proteins by project
 
-		Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition("Alzheimer3", "ad_pre_ctx_N15");
+		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition("Alzheimer3",
+				"ad_pre_ctx_N15");
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
@@ -85,18 +87,18 @@ public class PreparedQueriesTests {
 	public void getProteinsByCondition() {
 
 		// proteins by project
-		int size = 500;
-		Map<String, Set<Protein>> map = PreparedQueries.getProteinsByProjectCondition(null, "ad_pre_ctx_N15");
+		final int size = 500;
+		final Map<String, Set<Protein>> map = PreparedQueries.getProteinsByProjectCondition(null, "ad_pre_ctx_N15");
 		Assert.assertFalse(map.isEmpty());
 		System.out.println(map.size() + " elements");
 		Assert.assertEquals(size, map.size());
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(map));
-		for (String acc : map.keySet()) {
+		for (final String acc : map.keySet()) {
 			final Set<Protein> proteinSet = map.get(acc);
-			for (Protein protein : proteinSet) {
+			for (final Protein protein : proteinSet) {
 				final Set<Condition> conditions1 = protein.getConditions();
 				boolean found = false;
-				for (Condition condition : conditions1) {
+				for (final Condition condition : conditions1) {
 					if (condition.getName().equals("ad_pre_ctx_N15")) {
 						found = true;
 					}
@@ -104,10 +106,10 @@ public class PreparedQueriesTests {
 				Assert.assertTrue(found);
 				final Set<Psm> psms = protein.getPsms();
 				System.out.println(psms.size() + " PSMs in Protein");
-				for (Psm psm : psms) {
+				for (final Psm psm : psms) {
 					found = false;
 					final Set<Condition> conditions = psm.getConditions();
-					for (Condition condition2 : conditions) {
+					for (final Condition condition2 : conditions) {
 						if (condition2.getName().equals("ad_pre_ctx_N15")) {
 							found = true;
 						}
@@ -115,10 +117,10 @@ public class PreparedQueriesTests {
 					Assert.assertTrue(found);
 					final Set<Protein> proteins = psm.getProteins();
 					System.out.println(proteins.size() + " proteins in PSM");
-					for (Protein protein2 : proteins) {
+					for (final Protein protein2 : proteins) {
 						final Set<Condition> conditions2 = protein2.getConditions();
 						found = false;
-						for (Condition condition2 : conditions2) {
+						for (final Condition condition2 : conditions2) {
 							if (condition2.getName().equals("ad_pre_ctx_N15")) {
 								found = true;
 							}
@@ -134,9 +136,9 @@ public class PreparedQueriesTests {
 	public void getOrganismByProject() {
 
 		// proteins by project
-		Set<Organism> list = PreparedQueries.getOrganismsByProject(danielsProject);
+		final Set<Organism> list = PreparedQueries.getOrganismsByProject(danielsProject);
 		Assert.assertFalse(list.isEmpty());
-		for (Organism organism : list) {
+		for (final Organism organism : list) {
 			System.out.println(organism.getName());
 		}
 	}
@@ -144,7 +146,7 @@ public class PreparedQueriesTests {
 	@Test
 	public void getAllProteins() {
 
-		Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, null);
+		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, null);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
@@ -152,29 +154,43 @@ public class PreparedQueriesTests {
 	}
 
 	private boolean testIfAllProteinsHasPrimaryAccessions(Map<String, Set<Protein>> proteins) {
-
+		// for (final Set<Protein> proteinSet : proteins.values()) {
+		// for (final Protein protein : proteinSet) {
+		//
+		// boolean hasprimary = false;
+		// final Set<ProteinAccession> set = protein.getProteinAccessions();
+		// for (final ProteinAccession proteinAccession : set) {
+		// if (proteinAccession.isIsPrimary()) {
+		// hasprimary = true;
+		// break;
+		// }
+		// }
+		// if (!hasprimary)
+		// return false;
+		// }
+		// }
 		return true;
 	}
 
 	private boolean testIfAllProteinsHasTheSamePsmsAsItsPeptideHave(Map<String, Set<Protein>> proteins) {
-		for (Set<Protein> proteinSet : proteins.values()) {
+		for (final Set<Protein> proteinSet : proteins.values()) {
 
-			for (Protein protein : proteinSet) {
-				TIntHashSet psmIds = new TIntHashSet();
+			for (final Protein protein : proteinSet) {
+				final TIntHashSet psmIds = new TIntHashSet();
 				System.out.println("PROT: " + protein.getId());
 				final Set<Psm> psms = protein.getPsms();
-				for (Psm psm : psms) {
+				for (final Psm psm : psms) {
 					psmIds.add(psm.getId());
 				}
 				if (psmIds.size() != psms.size())
 					System.out.println("cuidado");
 				Assert.assertEquals(psmIds.size(), psms.size());
 				final Set<Peptide> peptides = protein.getPeptides();
-				TIntHashSet psms2 = new TIntHashSet();
-				for (Peptide peptide : peptides) {
+				final TIntHashSet psms2 = new TIntHashSet();
+				for (final Peptide peptide : peptides) {
 					System.out.println("PEP: " + peptide.getId());
-					for (Object obj : peptide.getPsms()) {
-						Psm psm = (Psm) obj;
+					for (final Object obj : peptide.getPsms()) {
+						final Psm psm = (Psm) obj;
 						System.out.println("PSM: " + psm.getId());
 						if (!psms.contains(psm))
 							System.out.println("cuidado");
@@ -186,7 +202,7 @@ public class PreparedQueriesTests {
 				if (psms2.size() != psms.size())
 					System.out.println("CUIDADO");
 				Assert.assertEquals(psms2.size(), psms.size());
-				for (Integer psm2Id : psms2._set) {
+				for (final Integer psm2Id : psms2._set) {
 					Assert.assertTrue(psmIds.contains(psm2Id));
 				}
 			}
@@ -195,10 +211,10 @@ public class PreparedQueriesTests {
 	}
 
 	private boolean testIfAllProteinsHasDifferentDBID(Map<String, Set<Protein>> proteins) {
-		TIntHashSet proteinIDs = new TIntHashSet();
+		final TIntHashSet proteinIDs = new TIntHashSet();
 
-		for (Set<Protein> proteinSet : proteins.values()) {
-			for (Protein protein : proteinSet) {
+		for (final Set<Protein> proteinSet : proteins.values()) {
+			for (final Protein protein : proteinSet) {
 
 				if (!proteinIDs.contains(protein.getId())) {
 					proteinIDs.add(protein.getId());
@@ -227,10 +243,10 @@ public class PreparedQueriesTests {
 	public void getPSMScores() {
 
 		// psm scores by project
-		List<String> list = PreparedQueries.getPSMScoreNames();
+		final List<String> list = PreparedQueries.getPSMScoreNames();
 		Assert.assertTrue(!list.isEmpty());
 		System.out.println(list.size() + " elements");
-		for (String psmScore : list) {
+		for (final String psmScore : list) {
 			System.out.println(psmScore);
 		}
 	}
@@ -239,10 +255,10 @@ public class PreparedQueriesTests {
 	public void getPSMScoreTypes() {
 
 		// psm scores by project
-		List<ConfidenceScoreType> list = PreparedQueries.getPSMScoreTypeNames();
+		final List<ConfidenceScoreType> list = PreparedQueries.getPSMScoreTypeNames();
 		Assert.assertTrue(!list.isEmpty());
 		System.out.println(list.size() + " elements");
-		for (ConfidenceScoreType psmScore : list) {
+		for (final ConfidenceScoreType psmScore : list) {
 			System.out.println(psmScore.getName());
 		}
 	}
@@ -257,7 +273,7 @@ public class PreparedQueriesTests {
 		list = PreparedQueries.getPSMScoreNamesByProject(sandraProject);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
-		for (String psmScore : list) {
+		for (final String psmScore : list) {
 			System.out.println(psmScore);
 		}
 	}
@@ -269,7 +285,7 @@ public class PreparedQueriesTests {
 		List<PtmSite> list = PreparedQueries.getPTMSitesWithScoresByProject(danielsProject);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
-		for (PtmSite ptmSite : list) {
+		for (final PtmSite ptmSite : list) {
 			System.out.println(ptmSite.getConfidenceScoreName() + " " + ptmSite.getConfidenceScoreType().getName() + " "
 					+ ptmSite.getConfidenceScoreValue());
 		}
@@ -281,7 +297,7 @@ public class PreparedQueriesTests {
 	@Test
 	public void getDistinctPTMScoreNames() {
 
-		List<String> list = PreparedQueries.getPTMScoreNames();
+		final List<String> list = PreparedQueries.getPTMScoreNames();
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 
@@ -290,7 +306,7 @@ public class PreparedQueriesTests {
 	@Test
 	public void getDistinctPTMScoreTypeNames() {
 
-		List<ConfidenceScoreType> list = PreparedQueries.getPTMScoreTypeNames();
+		final List<ConfidenceScoreType> list = PreparedQueries.getPTMScoreTypeNames();
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 	}
@@ -305,7 +321,7 @@ public class PreparedQueriesTests {
 		list = PreparedQueries.getProteinThresholdNamesByProject(sandraProject);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
-		for (String psmScore : list) {
+		for (final String psmScore : list) {
 			System.out.println(psmScore);
 		}
 	}
@@ -314,7 +330,7 @@ public class PreparedQueriesTests {
 	public void getDistinctThresholdNames() {
 
 		// psm scores by project
-		List<String> list = PreparedQueries.getProteinThresholdNames();
+		final List<String> list = PreparedQueries.getProteinThresholdNames();
 		Assert.assertTrue(list.isEmpty());
 
 	}
@@ -326,15 +342,15 @@ public class PreparedQueriesTests {
 		try {
 			list = PreparedQueries.getPSMsFromProtein(-1);
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 
 		}
-		int proteinId = PreparedQueries.getProteinsByProjectCondition(danielsProject, null).values().iterator().next()
-				.iterator().next().getId();
+		final int proteinId = PreparedQueries.getProteinsByProjectCondition(danielsProject, null).values().iterator()
+				.next().iterator().next().getId();
 		list = PreparedQueries.getPSMsFromProtein(proteinId);
 		Assert.assertFalse(list.isEmpty());
 
-		for (Psm psm : list) {
+		for (final Psm psm : list) {
 			System.out.println(psm.getId() + "\t" + psm.getSequence());
 		}
 		System.out.println(list.size() + " elements");
@@ -344,10 +360,10 @@ public class PreparedQueriesTests {
 	public void getProteinRatios() {
 
 		// amounts by project
-		String condition1Name = "WT";
-		String projectName = sandraProject;
-		String condition2Name = "MUT";
-		Map<String, Set<Protein>> list = PreparedQueries.getProteinsWithRatios(condition2Name, condition1Name,
+		final String condition1Name = "WT";
+		final String projectName = sandraProject;
+		final String condition2Name = "MUT";
+		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsWithRatios(condition2Name, condition1Name,
 				projectName, null);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
@@ -358,11 +374,11 @@ public class PreparedQueriesTests {
 	public void getProteinRatiosAndScores() {
 
 		// amounts by project
-		String condition1Name = "WT";
-		String projectName = sandraProject;
-		String condition2Name = "MUT";
-		Map<String, Set<Protein>> list = PreparedQueries.getProteinsWithRatiosAndScores(condition2Name, condition1Name,
-				projectName, "myratio", ">=", 2.0, "myScore", "scoreType", "<", 1.0);
+		final String condition1Name = "WT";
+		final String projectName = sandraProject;
+		final String condition2Name = "MUT";
+		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsWithRatiosAndScores(condition2Name,
+				condition1Name, projectName, "myratio", ">=", 2.0, "myScore", "scoreType", "<", 1.0);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
@@ -372,11 +388,11 @@ public class PreparedQueriesTests {
 	public void getProteinsWithPsmRatios() {
 
 		// amounts by project
-		String condition1Name = "PCP";
-		String projectName = danielsProject;
-		String condition2Name = "Sal";
-		Map<String, Set<Protein>> list = PreparedQueries.getProteinWithPSMWithRatios(condition2Name, condition1Name,
-				projectName, null);
+		final String condition1Name = "PCP";
+		final String projectName = danielsProject;
+		final String condition2Name = "Sal";
+		final Map<String, Set<Protein>> list = PreparedQueries.getProteinWithPSMWithRatios(condition2Name,
+				condition1Name, projectName, null);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
@@ -386,10 +402,11 @@ public class PreparedQueriesTests {
 	public void getPeptideRatios() {
 
 		// amounts by project
-		String condition1Name = "PCP";
-		String projectName = danielsProject;
-		String condition2Name = "Sal";
-		Collection<Psm> list = PreparedQueries.getPSMWithRatios(condition2Name, condition1Name, projectName, null);
+		final String condition1Name = "PCP";
+		final String projectName = danielsProject;
+		final String condition2Name = "Sal";
+		final Collection<Psm> list = PreparedQueries.getPSMWithRatios(condition2Name, condition1Name, projectName,
+				null);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 	}
@@ -398,14 +415,14 @@ public class PreparedQueriesTests {
 	public void getPeptidesRatiosFromTwoWays() {
 
 		// amounts by project
-		String condition1Name = "PCP";
-		String projectName = danielsProject;
-		String condition2Name = "Sal";
-		Map<String, Set<Protein>> list = PreparedQueries.getProteinWithPSMWithRatios(condition2Name, condition1Name,
-				projectName, null);
-		TIntHashSet proteinIds1 = new TIntHashSet();
-		for (Set<Protein> proteinSet : list.values()) {
-			for (Protein protein : proteinSet) {
+		final String condition1Name = "PCP";
+		final String projectName = danielsProject;
+		final String condition2Name = "Sal";
+		final Map<String, Set<Protein>> list = PreparedQueries.getProteinWithPSMWithRatios(condition2Name,
+				condition1Name, projectName, null);
+		final TIntHashSet proteinIds1 = new TIntHashSet();
+		for (final Set<Protein> proteinSet : list.values()) {
+			for (final Protein protein : proteinSet) {
 				proteinIds1.add(protein.getId());
 			}
 		}
@@ -414,13 +431,14 @@ public class PreparedQueriesTests {
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
 		Assert.assertTrue(testIfAllProteinsHasDifferentDBID(list));
 		Assert.assertTrue(testIfAllProteinsHasTheSamePsmsAsItsPeptideHave(list));
-		Collection<Psm> list2 = PreparedQueries.getPSMWithRatios(condition2Name, condition1Name, projectName, null);
+		final Collection<Psm> list2 = PreparedQueries.getPSMWithRatios(condition2Name, condition1Name, projectName,
+				null);
 		Assert.assertFalse(list2.isEmpty());
 		System.out.println(list2.size() + " elements");
-		TIntHashSet proteinIds2 = new TIntHashSet();
-		for (Psm psm : list2) {
+		final TIntHashSet proteinIds2 = new TIntHashSet();
+		for (final Psm psm : list2) {
 			final Set<Protein> proteins = psm.getProteins();
-			for (Protein protein : proteins) {
+			for (final Protein protein : proteins) {
 				if (!proteinIds2.contains(protein.getId())) {
 					proteinIds2.add(protein.getId());
 				}
@@ -433,8 +451,8 @@ public class PreparedQueriesTests {
 	@Test
 	public void getPsmsWithPeptideScores() {
 
-		List<Psm> list = PreparedQueries.getPsmsWithScores("SEQUEST:xcorr", "search engine specific score for PSMs",
-				sandraProject);
+		final List<Psm> list = PreparedQueries.getPsmsWithScores("SEQUEST:xcorr",
+				"search engine specific score for PSMs", sandraProject);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 
@@ -443,14 +461,14 @@ public class PreparedQueriesTests {
 	@Test
 	public void getProteinsWithThresholds() {
 
-		Map<String, Set<Protein>> list = PreparedQueries.getProteinsWithThreshold(null, "Xscorefilter_6h", true);
+		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsWithThreshold(null, "Xscorefilter_6h", true);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
 		Assert.assertTrue(testIfAllProteinsHasDifferentDBID(list));
 
-		Map<String, Set<Protein>> list2 = PreparedQueries.getProteinsWithThreshold(sandraProject, "Xscorefilter_6h",
-				true);
+		final Map<String, Set<Protein>> list2 = PreparedQueries.getProteinsWithThreshold(sandraProject,
+				"Xscorefilter_6h", true);
 		Assert.assertFalse(list2.isEmpty());
 		System.out.println(list2.size() + " elements");
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list2));
@@ -458,15 +476,36 @@ public class PreparedQueriesTests {
 		Assert.assertEquals(list.size(), list2.size());
 	}
 
+	// @Test
+	// public void getProteinsWithGenes() {
+	//
+	// final Map<String, Set<Protein>> list =
+	// PreparedQueries.getProteinsWithGene(null, "Arfgef2");
+	// Assert.assertFalse(list.isEmpty());
+	// System.out.println(list.size() + " elements");
+	// Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
+	// Assert.assertTrue(testIfAllProteinsHasDifferentDBID(list));
+	// for (final Set<Protein> proteins : list.values()) {
+	// for (final Protein protein : proteins) {
+	// final Set<edu.scripps.yates.proteindb.persistence.mysql.Gene> genes =
+	// protein.getGenes();
+	// for (final edu.scripps.yates.proteindb.persistence.mysql.Gene gene :
+	// genes) {
+	// System.out.println(gene.getGeneId());
+	// }
+	// }
+	// }
+	// }
+
 	@Test
 	public void getRatioDescriptorsByProject() {
 
 		// psm scores by project
-		List<RatioDescriptor> list = PreparedQueries.getRatioDescriptorsByProject(danielsProject);
+		final List<RatioDescriptor> list = PreparedQueries.getRatioDescriptorsByProject(danielsProject);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 
-		for (RatioDescriptor descriptor : list) {
+		for (final RatioDescriptor descriptor : list) {
 			System.out.println(descriptor.getDescription());
 		}
 	}
@@ -475,7 +514,7 @@ public class PreparedQueriesTests {
 	public void getPSMsByCondition() {
 
 		// psm scores by project
-		List<Psm> list = PreparedQueries.getPSMsWithPSMAmount("062114_DmDv_isogenic", "LIGHT_DROME", "INTENSITY");
+		final List<Psm> list = PreparedQueries.getPSMsWithPSMAmount("062114_DmDv_isogenic", "LIGHT_DROME", "INTENSITY");
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " psms");
 
@@ -484,7 +523,7 @@ public class PreparedQueriesTests {
 	@Test
 	public void getNumProjects() {
 
-		int num = PreparedQueries.getNumProjects();
+		final int num = PreparedQueries.getNumProjects();
 		Assert.assertTrue(num > 0);
 		System.out.println(num + " projects");
 	}
@@ -492,7 +531,7 @@ public class PreparedQueriesTests {
 	@Test
 	public void getNumDifferentProteins() {
 
-		int num = PreparedQueries.getNumDifferentProteins();
+		final int num = PreparedQueries.getNumDifferentProteins();
 		Assert.assertTrue(num > 0);
 		System.out.println(num + " proteins");
 	}
@@ -500,7 +539,7 @@ public class PreparedQueriesTests {
 	@Test
 	public void getNumdifferentPeptides() {
 
-		int num = PreparedQueries.getNumDifferentPeptides();
+		final int num = PreparedQueries.getNumDifferentPeptides();
 		Assert.assertTrue(num > 0);
 		System.out.println(num + " peptides");
 	}
@@ -508,7 +547,7 @@ public class PreparedQueriesTests {
 	@Test
 	public void getNumPSMs() {
 
-		int num = PreparedQueries.getNumPSMs();
+		final int num = PreparedQueries.getNumPSMs();
 		Assert.assertTrue(num > 0);
 		System.out.println(num + " psms");
 	}
@@ -516,7 +555,7 @@ public class PreparedQueriesTests {
 	@Test
 	public void getNumConditions() {
 
-		int num = PreparedQueries.getNumConditions();
+		final int num = PreparedQueries.getNumConditions();
 		Assert.assertTrue(num > 0);
 		System.out.println(num + " conditions");
 	}
@@ -596,14 +635,59 @@ public class PreparedQueriesTests {
 
 	}
 
+	// @Test
+	// public void getPsmsAndProteinsByTaxonomy() {
+	// final List<Psm> psmsWithTaxonomy =
+	// PreparedQueries.getPsmsWithTaxonomy(null, "Drosophila simulans", null);
+	// final Map<String, Set<Protein>> proteinsWithTaxonomy =
+	// PreparedQueries.getProteinsWithTaxonomy(null,
+	// "Drosophila simulans", null);
+	// final TIntHashSet proteinDBIDFromQuery = new TIntHashSet();
+	// for (final Set<Protein> proteinSet : proteinsWithTaxonomy.values()) {
+	// for (final Protein protein : proteinSet) {
+	// proteinDBIDFromQuery.add(protein.getId());
+	// }
+	// }
+	//
+	// final Map<String, Set<Psm>> psmsFromProteins =
+	// PersistenceUtils.getPsmsFromProteins(proteinsWithTaxonomy, true);
+	// System.out.println(
+	// "PSMs from proteins:" + psmsFromProteins.size() + " PSMs from query:" +
+	// psmsWithTaxonomy.size());
+	// Assert.assertEquals(psmsFromProteins.size(), psmsWithTaxonomy.size());
+	//
+	// final Map<String, Set<Protein>> proteinsFromPsms =
+	// PersistenceUtils.getProteinsFromPsms(psmsWithTaxonomy, true);
+	//
+	// final TIntHashSet proteinDBIDsFromPSMs = new TIntHashSet();
+	// for (final Set<Protein> proteinSet : proteinsFromPsms.values()) {
+	// for (final Protein protein : proteinSet) {
+	// if (protein.getOrganism().getName().equals("Drosophila simulans"))
+	// proteinDBIDsFromPSMs.add(protein.getId());
+	// }
+	// }
+	// System.out.println("Proteins from query:" + proteinDBIDFromQuery.size() +
+	// " Proteins from PSMs:"
+	// + proteinDBIDsFromPSMs.size());
+	//
+	// for (final Integer proteindb2 : proteinDBIDsFromPSMs._set) {
+	// if (!proteinDBIDFromQuery.contains(proteindb2))
+	// System.out.println("Not present : " + proteindb2);
+	// }
+	//
+	// Assert.assertEquals(proteinDBIDFromQuery.size(),
+	// proteinDBIDsFromPSMs.size());
+	//
+	// }
+
 	@Test
 	public void ratioDescriptors() {
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 
 		final List<RatioDescriptor> ratioDescriptorsByProject = PreparedQueries
 				.getRatioDescriptorsByProject("DroHybrids");
 		System.out.println(ratioDescriptorsByProject.size() + " ratio descriptors");
-		for (RatioDescriptor ratioDescriptor : ratioDescriptorsByProject) {
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptorsByProject) {
 			System.out.println(ratioDescriptor.getDescription() + ": "
 					+ ratioDescriptor.getConditionByExperimentalCondition1Id().getName() + " over "
 					+ ratioDescriptor.getConditionByExperimentalCondition2Id().getName());
@@ -613,12 +697,12 @@ public class PreparedQueriesTests {
 
 	@Test
 	public void ratioDescriptorsFromPSMs() {
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 		final List<RatioDescriptor> ratioDescriptorsByProject = PreparedQueries
 				.getPSMRatioDescriptorsByProject("Alzheimer3");
-		long t2 = System.currentTimeMillis();
+		final long t2 = System.currentTimeMillis();
 		System.out.println(ratioDescriptorsByProject.size() + " psm ratio descriptors");
-		for (RatioDescriptor ratioDescriptor : ratioDescriptorsByProject) {
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptorsByProject) {
 			System.out.println(ratioDescriptor.getDescription() + ": "
 					+ ratioDescriptor.getConditionByExperimentalCondition1Id().getName() + " over "
 					+ ratioDescriptor.getConditionByExperimentalCondition2Id().getName());
@@ -629,12 +713,12 @@ public class PreparedQueriesTests {
 
 	@Test
 	public void ratioDescriptorsFromPSMsByCriteria() {
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 		final List<RatioDescriptor> ratioDescriptorsByProject = PreparedQueries
 				.getPSMRatioDescriptorsByProject("Alzheimer3");
-		long t2 = System.currentTimeMillis();
+		final long t2 = System.currentTimeMillis();
 		System.out.println(ratioDescriptorsByProject.size() + " psm ratio descriptors");
-		for (RatioDescriptor ratioDescriptor : ratioDescriptorsByProject) {
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptorsByProject) {
 			System.out.println(ratioDescriptor.getDescription() + ": "
 					+ ratioDescriptor.getConditionByExperimentalCondition1Id().getName() + " over "
 					+ ratioDescriptor.getConditionByExperimentalCondition2Id().getName());
@@ -645,11 +729,11 @@ public class PreparedQueriesTests {
 
 	@Test
 	public void ratioDescriptorsFromProteins() {
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 		final List<RatioDescriptor> ratioDescriptorsByProject = PreparedQueries
 				.getProteinRatioDescriptorsByProject("DroHybrids");
 		System.out.println(ratioDescriptorsByProject.size() + " protein ratio descriptors");
-		for (RatioDescriptor ratioDescriptor : ratioDescriptorsByProject) {
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptorsByProject) {
 			System.out.println(ratioDescriptor.getDescription() + ": "
 					+ ratioDescriptor.getConditionByExperimentalCondition1Id().getName() + " over "
 					+ ratioDescriptor.getConditionByExperimentalCondition2Id().getName());
@@ -660,11 +744,11 @@ public class PreparedQueriesTests {
 
 	@Test
 	public void ratioDescriptorsFromPeptides() {
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 		final List<RatioDescriptor> ratioDescriptorsByProject = PreparedQueries
-				.getPeptideRatioDescriptorsByProject("DroHybrids");
+				.getPeptideRatioDescriptorsByProject("DmDshybrids2014");
 		System.out.println(ratioDescriptorsByProject.size() + " peptide ratio descriptors");
-		for (RatioDescriptor ratioDescriptor : ratioDescriptorsByProject) {
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptorsByProject) {
 			System.out.println(ratioDescriptor.getDescription() + ": "
 					+ ratioDescriptor.getConditionByExperimentalCondition1Id().getName() + " over "
 					+ ratioDescriptor.getConditionByExperimentalCondition2Id().getName());
@@ -675,8 +759,8 @@ public class PreparedQueriesTests {
 
 	@Test
 	public void proteinAccessionRetrieval() {
-		String[] accs = { "A0AVK1", "A0AVL9" };
-		for (String acc : accs) {
+		final String[] accs = { "A0AVK1", "A0AVL9" };
+		for (final String acc : accs) {
 			final List<Protein> proteins = PreparedQueries.getProteinsWithAccession(acc, "HEK_TlLh");
 			Assert.assertTrue(!proteins.isEmpty());
 			System.out.println(acc + " " + proteins.size());
@@ -687,8 +771,8 @@ public class PreparedQueriesTests {
 
 	@Test
 	public void multipleProteinAccessionRetrieval() {
-		String[] accs = { "A0AED4", "A0AUN0" };
-		List<String> list = Arrays.asList(accs);
+		final String[] accs = { "A0AED4", "A0AUN0" };
+		final List<String> list = Arrays.asList(accs);
 		final List<Protein> proteins = PreparedQueries.getProteinsWithAccessions(list, null);
 		Assert.assertTrue(!proteins.isEmpty());
 		System.out.println(proteins.size());
@@ -700,7 +784,7 @@ public class PreparedQueriesTests {
 
 		final List<MsRun> msRuns = PreparedQueries.getMSRunsByProject("VX809");
 		Assert.assertTrue(!msRuns.isEmpty());
-		for (MsRun msRun : msRuns) {
+		for (final MsRun msRun : msRuns) {
 			System.out.println(msRun.getRunId() + " " + msRun.getPath());
 		}
 
@@ -726,23 +810,23 @@ public class PreparedQueriesTests {
 	@Test
 	public void testingBestQueryWayForProteinAndPeptides() {
 		try {
-			Set<Pair<Integer, Long>> times = new THashSet<Pair<Integer, Long>>();
+			final Set<Pair<Integer, Long>> times = new THashSet<Pair<Integer, Long>>();
 			ContextualSessionHandler.beginGoodTransaction();
-			List<edu.scripps.yates.proteindb.persistence.mysql.MsRun> retrieveList = ContextualSessionHandler
+			final List<edu.scripps.yates.proteindb.persistence.mysql.MsRun> retrieveList = ContextualSessionHandler
 					.retrieveList(edu.scripps.yates.proteindb.persistence.mysql.MsRun.class);
-			for (MsRun msrun : retrieveList) {
-				long t1 = System.currentTimeMillis();
+			for (final MsRun msrun : retrieveList) {
+				final long t1 = System.currentTimeMillis();
 				final List<Psm> psmsWithMSRun = PreparedQueries.getPsmsWithMSRun(null, msrun.getRunId());
 				final long time = System.currentTimeMillis() - t1;
 				iterateOverPsms(psmsWithMSRun);
 				System.out.println(psmsWithMSRun.size() + " psms retrieved in " + time);
 				final Pair<Integer, Long> pair = new Pair<Integer, Long>(psmsWithMSRun.size(), time);
 				times.add(pair);
-				for (Psm psm : psmsWithMSRun) {
+				for (final Psm psm : psmsWithMSRun) {
 					final Set<Protein> proteins = psm.getProteins();
-					for (Protein protein : proteins) {
+					for (final Protein protein : proteins) {
 						final Set<Psm> psms = protein.getPsms();
-						for (Psm psm2 : psms) {
+						for (final Psm psm2 : psms) {
 							System.out.println(psm2.getMsRun().getRunId() + " " + psm2.getPsmId());
 						}
 					}
@@ -755,8 +839,8 @@ public class PreparedQueriesTests {
 	}
 
 	private void iterateOverPsms(List<Psm> psmsWithMSRun) {
-		Set<Protein> proteins = new THashSet<Protein>();
-		for (Psm psm : psmsWithMSRun) {
+		final Set<Protein> proteins = new THashSet<Protein>();
+		for (final Psm psm : psmsWithMSRun) {
 			proteins.addAll(psm.getProteins());
 		}
 		System.out.println(proteins.size() + " proteins from " + psmsWithMSRun.size() + " PSMs");
@@ -767,62 +851,10 @@ public class PreparedQueriesTests {
 	}
 
 	private void printTimes(Set<Pair<Integer, Long>> times) {
-		for (Pair<Integer, Long> pair : times) {
+		for (final Pair<Integer, Long> pair : times) {
 			System.out.println(pair.getFirstelement() + "\t" + pair.getSecondElement());
 		}
 
-	}
-
-	@Test
-	public void testingBestQueryWayForProteinAndPeptides2() {
-		try {
-			Set<Pair<Integer, Long>> times = new THashSet<Pair<Integer, Long>>();
-
-			ContextualSessionHandler.beginGoodTransaction();
-			List<edu.scripps.yates.proteindb.persistence.mysql.MsRun> retrieveList = ContextualSessionHandler
-					.retrieveList(edu.scripps.yates.proteindb.persistence.mysql.MsRun.class);
-			for (MsRun msrun : retrieveList) {
-				long t1 = System.currentTimeMillis();
-				final List<Psm> psmsWithMSRun = PreparedQueries.getPsmsByMSRun(msrun);
-				final List<Protein> proteinsByMSRun = PreparedQueries.getProteinsByMSRun(msrun);
-				iterateOverPsms(psmsWithMSRun);
-
-				final long time = System.currentTimeMillis() - t1;
-				System.out.println(psmsWithMSRun.size() + " psms retrieved in " + times);
-				final Pair<Integer, Long> pair = new Pair<Integer, Long>(psmsWithMSRun.size(), time);
-				times.add(pair);
-			}
-			printTimes(times);
-
-		} finally {
-			ContextualSessionHandler.closeSession();
-		}
-	}
-
-	@Test
-	public void testingBestQueryWayForProteinAndPeptides3() {
-		try {
-			Set<Pair<Integer, Long>> times = new THashSet<Pair<Integer, Long>>();
-
-			ContextualSessionHandler.beginGoodTransaction();
-			List<edu.scripps.yates.proteindb.persistence.mysql.MsRun> retrieveList = ContextualSessionHandler
-					.retrieveList(edu.scripps.yates.proteindb.persistence.mysql.MsRun.class);
-
-			long t1 = System.currentTimeMillis();
-			final List<Psm> psmsWithMSRun = PreparedQueries.getPsmsByMSRuns(retrieveList);
-			final List<Protein> proteinsByMSRun = PreparedQueries.getProteinsByMSRuns(retrieveList);
-			iterateOverPsms(psmsWithMSRun);
-
-			final long time = System.currentTimeMillis() - t1;
-			System.out.println(psmsWithMSRun.size() + " psms retrieved in " + times);
-			final Pair<Integer, Long> pair = new Pair<Integer, Long>(psmsWithMSRun.size(), time);
-			times.add(pair);
-
-			printTimes(times);
-
-		} finally {
-			ContextualSessionHandler.closeSession();
-		}
 	}
 
 	@Test
@@ -830,9 +862,9 @@ public class PreparedQueriesTests {
 		try {
 			ContextualSessionHandler.beginGoodTransaction();
 			final List<MsRun> msRuns = ContextualSessionHandler.retrieveList(MsRun.class);
-			for (MsRun msRun : msRuns) {
+			for (final MsRun msRun : msRuns) {
 				final Set<Protein> proteins = msRun.getProteins();
-				Protein protein = proteins.iterator().next();
+				final Protein protein = proteins.iterator().next();
 				final Set<Condition> conditions = protein.getConditions();
 				final Condition condition = conditions.iterator().next();
 				final Project project = condition.getProject();
@@ -853,7 +885,7 @@ public class PreparedQueriesTests {
 			final List<Psm> psmContainingPTM = PreparedQueries.getPSMsContainingPTM("Phosphorylated residue", null);
 			System.out.println(psmContainingPTM.size() + " psms");
 			Assert.assertTrue(!psmContainingPTM.isEmpty());
-			for (Psm psm : psmContainingPTM) {
+			for (final Psm psm : psmContainingPTM) {
 				System.out.println(psm.getFullSequence());
 			}
 
@@ -869,10 +901,10 @@ public class PreparedQueriesTests {
 			final List<Condition> conditionList = ContextualSessionHandler.retrieveList(Condition.class);
 			final Map<Condition, Set<AmountType>> amountsByConditions = PreparedQueries
 					.getPSMAmountTypesByConditions(conditionList);
-			for (Condition condition : amountsByConditions.keySet()) {
+			for (final Condition condition : amountsByConditions.keySet()) {
 				System.out.println("Condition: " + condition.getName());
 				final Set<AmountType> amountTypes = amountsByConditions.get(condition);
-				for (AmountType amountType : amountTypes) {
+				for (final AmountType amountType : amountTypes) {
 					System.out.println("\t" + amountType.getName());
 				}
 			}
@@ -889,10 +921,10 @@ public class PreparedQueriesTests {
 			final List<Condition> conditionList = ContextualSessionHandler.retrieveList(Condition.class);
 			final Map<Condition, Set<AmountType>> amountsByConditions = PreparedQueries
 					.getPeptideAmountTypesByConditions(conditionList);
-			for (Condition condition : amountsByConditions.keySet()) {
+			for (final Condition condition : amountsByConditions.keySet()) {
 				System.out.println("Condition: " + condition.getName());
 				final Set<AmountType> amountTypes = amountsByConditions.get(condition);
-				for (AmountType amountType : amountTypes) {
+				for (final AmountType amountType : amountTypes) {
 					System.out.println("\t" + amountType.getName());
 				}
 			}
@@ -909,10 +941,10 @@ public class PreparedQueriesTests {
 			final List<Condition> conditionList = ContextualSessionHandler.retrieveList(Condition.class);
 			final Map<Condition, Set<AmountType>> amountsByConditions = PreparedQueries
 					.getProteinAmountTypesByConditions(conditionList);
-			for (Condition condition : amountsByConditions.keySet()) {
+			for (final Condition condition : amountsByConditions.keySet()) {
 				System.out.println("Condition: " + condition.getName());
 				final Set<AmountType> amountTypes = amountsByConditions.get(condition);
-				for (AmountType amountType : amountTypes) {
+				for (final AmountType amountType : amountTypes) {
 					System.out.println("\t" + amountType.getName());
 				}
 			}
@@ -920,5 +952,30 @@ public class PreparedQueriesTests {
 		} finally {
 			ContextualSessionHandler.finishGoodTransaction();
 		}
+	}
+
+	@Test
+	public void getProteinsFromMSRunTest() {
+		final String projectTag = "_CFTR_";
+		final String msRunID = "siHDAC7_011909";
+		final List<Protein> proteins = PreparedQueries.getProteinsWithMSRun(projectTag, msRunID);
+		Assert.assertFalse(proteins.isEmpty());
+		System.out.println(proteins.size() + " proteins in msrun " + msRunID);
+
+		final List<Peptide> peptides = PreparedQueries.getPeptidesWithMSRun(projectTag, msRunID);
+		Assert.assertFalse(peptides.isEmpty());
+		System.out.println(peptides.size() + " peptides in msrun " + msRunID);
+
+		final List<MsRun> msRunsByProject = PreparedQueries.getMSRunsByProject(projectTag);
+
+		final List<Protein> proteinsByMSRunCriteria = PreparedCriteria.getProteinsByMSRunsCriteria(msRunsByProject);
+		System.out.println(proteinsByMSRunCriteria.size() + " proteins in project " + projectTag);
+		final List<Protein> proteins2 = PreparedCriteria.getProteinsByMSRunCriteria(msRunsByProject.get(0));
+		System.out.println(proteins2.size() + " proteins in msrun " + msRunsByProject.get(0).getRunId());
+
+		final List<Peptide> peptidesByMSRunCriteria = PreparedCriteria.getPeptidesByMSRunsCriteria(msRunsByProject);
+		System.out.println(peptidesByMSRunCriteria.size() + " peptides in project " + projectTag);
+		final List<Peptide> peptides2 = PreparedCriteria.getPeptidesByMSRunCriteria(msRunsByProject.get(0));
+		System.out.println(peptides2.size() + " peptides in msrun " + msRunsByProject.get(0).getRunId());
 	}
 }

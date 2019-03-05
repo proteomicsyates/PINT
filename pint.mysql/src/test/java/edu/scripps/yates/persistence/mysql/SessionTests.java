@@ -27,10 +27,9 @@ public class SessionTests {
 	@Test
 	public void transationsTest() {
 		try {
-			ContextualSessionHandler.openSession();
 			ContextualSessionHandler.beginGoodTransaction();
 			ContextualSessionHandler.finishGoodTransaction();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			fail();
 		}
@@ -40,7 +39,7 @@ public class SessionTests {
 	public void saveDelteAndRetrievingTest() {
 		try {
 			ContextualSessionHandler.beginGoodTransaction();
-			edu.scripps.yates.utilities.model.factories.SampleEx sample2 = new edu.scripps.yates.utilities.model.factories.SampleEx(
+			final edu.scripps.yates.utilities.proteomicsmodel.factories.SampleEx sample2 = new edu.scripps.yates.utilities.proteomicsmodel.factories.SampleEx(
 					"Mi muestra");
 			sample2.setDescription("Description");
 
@@ -64,7 +63,7 @@ public class SessionTests {
 			ContextualSessionHandler.finishGoodTransaction();
 			final Object sample5 = ContextualSessionHandler.load(id, Sample.class);
 			Assert.assertNull(sample5);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			fail();
 		}
@@ -73,7 +72,7 @@ public class SessionTests {
 	@Test
 	public void retrievingSameObjectTwice() {
 		ContextualSessionHandler.beginGoodTransaction();
-		Psm psmPSM = ContextualSessionHandler.load(4764, Psm.class);
+		final Psm psmPSM = ContextualSessionHandler.load(4764, Psm.class);
 		final Set<Protein> proteinsPSM = psmPSM.getProteins();
 		System.out.println(proteinsPSM.size() + " proteins");
 
@@ -105,10 +104,10 @@ public class SessionTests {
 
 		System.out.println("Loading psm 4764");
 		// load PSM 4764
-		Psm psm = ContextualSessionHandler.load(4764, Psm.class);
+		final Psm psm = ContextualSessionHandler.load(4764, Psm.class);
 		final Set<Protein> proteins = psm.getProteins();
 		System.out.println(proteins.size() + " proteins");
-		for (Protein protein : proteins) {
+		for (final Protein protein : proteins) {
 			System.out.println("Protein:" + protein.getId());
 		}
 		final Iterator<Protein> iterator3 = proteins.iterator();
@@ -117,7 +116,7 @@ public class SessionTests {
 			iterator3.remove();
 		}
 
-		Psm psm2 = ContextualSessionHandler.load(4764, Psm.class);
+		final Psm psm2 = ContextualSessionHandler.load(4764, Psm.class);
 		final Set<Protein> proteins2 = psm2.getProteins();
 		System.out.println(proteins2.size() + " proteins");
 
@@ -125,31 +124,31 @@ public class SessionTests {
 
 	@Test
 	public void persistenceUtilsTest() {
-		Set<Psm> psms = new THashSet<Psm>();
+		final Set<Psm> psms = new THashSet<Psm>();
 		for (int i = 100; i < 200; i++) {
-			Psm psm = ContextualSessionHandler.load(i, Psm.class);
+			final Psm psm = ContextualSessionHandler.load(i, Psm.class);
 			psms.add(psm);
 		}
 		System.out.println(psms.size() + " PSMs retrieved");
 
-		Map<String, Set<Psm>> map = new THashMap<String, Set<Psm>>();
+		final Map<String, Set<Psm>> map = new THashMap<String, Set<Psm>>();
 		PersistenceUtils.addToPSMMapByPsmId(map, psms);
 		final Map<String, Set<Protein>> proteinsMap = PersistenceUtils.getProteinsFromPsms(map, true);
 		System.out.println(proteinsMap.size() + " proteins in map");
-		Set<Protein> proteinSet = new THashSet<Protein>();
-		for (Set<Protein> proteinSet2 : proteinsMap.values()) {
+		final Set<Protein> proteinSet = new THashSet<Protein>();
+		for (final Set<Protein> proteinSet2 : proteinsMap.values()) {
 			proteinSet.addAll(proteinSet2);
 		}
 		System.out.println(proteinSet.size() + " proteins in set");
-		final Map<String, Set<Psm>> psmsMap = PersistenceUtils.getPsmsFromProteins(proteinSet, false);
+		final Map<String, Set<Psm>> psmsMap = PersistenceUtils.getPsmsFromProteins(proteinSet, true);
 		System.out.println(psmsMap.size() + " PSMs");
-		Set<Psm> psmSet = new THashSet<Psm>();
-		for (Set<Psm> psmSet2 : psmsMap.values()) {
+		final Set<Psm> psmSet = new THashSet<Psm>();
+		for (final Set<Psm> psmSet2 : psmsMap.values()) {
 			psmSet.addAll(psmSet2);
 		}
 		System.out.println(psmSet.size() + " PSMs in set");
 
-		for (Psm psm : psmSet) {
+		for (final Psm psm : psmSet) {
 			System.out.println("PSM " + psm.getId() + " has " + psm.getProteins().size() + " proteins");
 		}
 
@@ -157,7 +156,7 @@ public class SessionTests {
 
 	@Test
 	public void otroTest() {
-		Psm psm = ContextualSessionHandler.load(170, Psm.class);
+		final Psm psm = ContextualSessionHandler.load(170, Psm.class);
 		final Set<Protein> proteins = psm.getProteins();
 		System.out.println("PSM " + psm.getId() + " has " + psm.getProteins().size() + " proteins");
 
@@ -172,12 +171,12 @@ public class SessionTests {
 		System.out.println("Protein " + protein.getId() + " has " + protein.getPsms().size() + " psms");
 		System.out.println("PSM " + psm.getId() + " has " + psm.getProteins().size() + " proteins");
 
-		Set<Protein> set = new THashSet<Protein>();
+		final Set<Protein> set = new THashSet<Protein>();
 		set.add(protein);
-		final Map<String, Set<Psm>> psmsFromProteins = PersistenceUtils.getPsmsFromProteins(set, false);
+		final Map<String, Set<Psm>> psmsFromProteins = PersistenceUtils.getPsmsFromProteins(set, true);
 		System.out.println(psmsFromProteins.size());
 
-		Set<Psm> set2 = new THashSet<Psm>();
+		final Set<Psm> set2 = new THashSet<Psm>();
 		set2.add(psm);
 		final Map<String, Set<Protein>> proteinsFromPsms = PersistenceUtils.getProteinsFromPsms(set2, true);
 		System.out.println(proteinsFromPsms.size());
@@ -186,12 +185,12 @@ public class SessionTests {
 
 	@Test
 	public void otroTest2() {
-		Protein protein = ContextualSessionHandler.load(34, Protein.class);
+		final Protein protein = ContextualSessionHandler.load(34, Protein.class);
 		final Psm psm = (Psm) protein.getPsms().iterator().next();
 		final Integer psmID = psm.getId();
 		System.out.println(psm.getId() + " " + psm.getSequence());
 		psm.setSequence("ASDFASDFASDF");
-		Psm psm2 = ContextualSessionHandler.load(psmID, Psm.class);
+		final Psm psm2 = ContextualSessionHandler.load(psmID, Psm.class);
 		Assert.assertEquals(psm, psm2);
 		System.out.println(psm.getId() + " " + psm.getSequence());
 		System.out.println(psm2.getId() + " " + psm2.getSequence());
@@ -200,12 +199,12 @@ public class SessionTests {
 
 	@Test
 	public void otroTest3() {
-		Protein protein = ContextualSessionHandler.load(34, Protein.class);
+		final Protein protein = ContextualSessionHandler.load(34, Protein.class);
 		final Psm psm = (Psm) protein.getPsms().iterator().next();
 		final Integer psmID = psm.getId();
 		System.out.println(psm.getId() + " " + psm.getSequence());
 		psm.setSequence("ASDFASDFASDF");
-		Psm psm2 = ContextualSessionHandler.load(psmID, Psm.class);
+		final Psm psm2 = ContextualSessionHandler.load(psmID, Psm.class);
 		Assert.assertEquals(psm, psm2);
 		System.out.println(psm.getId() + " " + psm.getSequence());
 		System.out.println(psm2.getId() + " " + psm2.getSequence());
@@ -215,7 +214,7 @@ public class SessionTests {
 	@Test
 	public void hibernateFilterTest() {
 		try {
-			SessionFactory sf = HibernateUtil
+			final SessionFactory sf = HibernateUtil
 					.getInstance("salvador", "natjeija", "jdbc:mysql://localhost:3306/interactome_db")
 					.getSessionFactory();
 			org.hibernate.Session currentSession = sf.openSession();
@@ -247,7 +246,7 @@ public class SessionTests {
 			currentSession.getTransaction().commit();
 
 			currentSession.close();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			fail();
 		}
