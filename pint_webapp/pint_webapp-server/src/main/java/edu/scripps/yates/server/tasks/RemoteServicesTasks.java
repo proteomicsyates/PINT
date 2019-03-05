@@ -217,13 +217,16 @@ public class RemoteServicesTasks {
 	 * @param proteinBeans
 	 * @param uniprotVersion
 	 * @param hiddenPTMs
+	 * @param ignoreReferences   to speed up if they are not necessary, set to false
+	 * @param ignoreDBReferences to speed up if they are not necessary, set to false
 	 */
 	public static void annotateProteinBeansWithUniprot(Collection<ProteinBean> proteinBeans, String uniprotVersion,
-			Collection<String> hiddenPTMs) {
+			Collection<String> hiddenPTMs, boolean ignoreReferences, boolean ignoreDBReferences) {
 		final int initialProteinNumber = proteinBeans.size();
+
 		final UniprotProteinRetriever uplr = new UniprotProteinRetriever(uniprotVersion,
 				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
-				UniprotProteinRetrievalSettings.getInstance().isUseIndex(), true, true);
+				UniprotProteinRetrievalSettings.getInstance().isUseIndex(), ignoreReferences, ignoreDBReferences);
 		uplr.setCacheEnabled(false);
 		log.info("Getting annotations from " + proteinBeans.size() + " protein beans using uniprot version: "
 				+ uniprotVersion);
@@ -318,7 +321,7 @@ public class RemoteServicesTasks {
 						boolean found = false;
 						for (final AccessionBean proteinAccBean : proteinBean.getSecondaryAccessions()) {
 							if (proteinAccBean.getAccession().equals(proteinAnnotation.getAccession())) {
-								found = true;
+								found = ignoreReferences;
 							}
 						}
 						if (!found) {

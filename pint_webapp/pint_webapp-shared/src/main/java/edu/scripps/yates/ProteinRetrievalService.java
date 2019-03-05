@@ -60,7 +60,8 @@ public interface ProteinRetrievalService extends RemoteService {
 			boolean separateNonConclusiveProteins, Integer defaultQueryIndex, boolean testMode) throws PintException;
 
 	QueryResultSubLists getProteinsFromQuery(String sessionID, String queryText, Set<String> projectTags,
-			boolean separateNonConclusiveProteins, boolean lock, boolean testMode) throws PintException;
+			boolean separateNonConclusiveProteins, boolean lock, boolean testMode, boolean ignoreReferences,
+			boolean ignoreDBReferences) throws PintException;
 
 	Set<String> getExperimentalConditionsFromProject(String projectTag) throws PintException;
 

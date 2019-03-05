@@ -357,7 +357,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				}
 			}
 			final QueryResultSubLists proteinsFromQuery = getProteinsFromQuery(sessionID, querySB.toString(),
-					projectTags, separateNonConclusiveProteins, false, testMode);
+					projectTags, separateNonConclusiveProteins, false, testMode, false, false);
 
 			if (defaultQueryIndex == null && !dataSet.getProteins().isEmpty()) {
 				// add to cache by project tags
@@ -918,7 +918,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public QueryResultSubLists getProteinsFromQuery(String sessionID, String queryText, Set<String> projectTags,
-			boolean separateNonConclusiveProteins, boolean lock, boolean testMode) throws PintException {
+			boolean separateNonConclusiveProteins, boolean lock, boolean testMode, boolean ignoreReferences,
+			boolean ignoreDBReferences) throws PintException {
 		GetProteinsFromQuery task = null;
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
@@ -1031,7 +1032,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 					log.info("Getting Uniprot annotations in session '" + sessionID + "'");
 					RemoteServicesTasks.annotateProteinBeansWithUniprot(dataSet.getProteins(), null,
-							getHiddenPTMs(projectTags));
+							getHiddenPTMs(projectTags), ignoreReferences, ignoreDBReferences);
 
 					log.info("Getting OMIM annotations in session '" + sessionID + "'");
 					task.setTaskDescription("Retrieving OMIM annotations...");

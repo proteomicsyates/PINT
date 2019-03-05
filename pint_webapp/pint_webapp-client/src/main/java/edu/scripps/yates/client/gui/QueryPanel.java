@@ -1362,7 +1362,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		updateStatus("Sending query '" + queryText + "' to server...");
 		// send query to server
 		proteinRetrievingService.getProteinsFromQuery(sessionID, queryText, loadedProjects,
-				proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), true, testMode,
+				proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), true, testMode, false, false,
 				new AsyncCallback<QueryResultSubLists>() {
 
 					@Override

@@ -51,7 +51,8 @@ public interface ProteinRetrievalServiceAsync {
 	 */
 	void getProteinsFromQuery(java.lang.String sessionID, java.lang.String queryText,
 			java.util.Set<java.lang.String> projectTags, boolean separateNonConclusiveProteins, boolean lock,
-			boolean testMode, AsyncCallback<edu.scripps.yates.shared.util.sublists.QueryResultSubLists> callback);
+			boolean testMode, boolean ignoreReferences, boolean ignoreDBReferences,
+			AsyncCallback<edu.scripps.yates.shared.util.sublists.QueryResultSubLists> callback);
 
 	/**
 	 * GWT-RPC service asynchronous (client-side) interface
