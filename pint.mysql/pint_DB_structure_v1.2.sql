@@ -447,18 +447,7 @@ CREATE TABLE IF NOT EXISTS `interactome_db`.`Operator_Type` (
   PRIMARY KEY (`name`))
 ENGINE = InnoDB;
 
-
--- -----------------------------------------------------
--- Table `interactome_db`.`Gene`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `interactome_db`.`Gene` ;
-
-CREATE TABLE IF NOT EXISTS `interactome_db`.`Gene` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `gene_id` VARCHAR(100) NOT NULL,
-  `geneType` VARCHAR(45) NULL,
-  PRIMARY KEY (`id`))
-ENGINE = InnoDB;
+ 
 
 
 -- -----------------------------------------------------
@@ -605,31 +594,7 @@ ENGINE = InnoDB;
 
 CREATE INDEX `fk_PSM_Score_Confidence_Score_Type1_idx` ON `interactome_db`.`PSM_Score` (`Confidence_Score_Type_name` ASC);
 
-
--- -----------------------------------------------------
--- Table `interactome_db`.`Protein_has_Gene`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `interactome_db`.`Protein_has_Gene` ;
-
-CREATE TABLE IF NOT EXISTS `interactome_db`.`Protein_has_Gene` (
-  `Protein_id` INT NOT NULL,
-  `Gene_id` INT NOT NULL,
-  PRIMARY KEY (`Protein_id`, `Gene_id`),
-  CONSTRAINT `fk_Protein_has_Gene_Protein1`
-    FOREIGN KEY (`Protein_id`)
-    REFERENCES `interactome_db`.`Protein` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Protein_has_Gene_Gene1`
-    FOREIGN KEY (`Gene_id`)
-    REFERENCES `interactome_db`.`Gene` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-CREATE INDEX `fk_Protein_has_Gene_Gene1_idx` ON `interactome_db`.`Protein_has_Gene` (`Gene_id` ASC);
-
-CREATE INDEX `fk_Protein_has_Gene_Protein1_idx` ON `interactome_db`.`Protein_has_Gene` (`Protein_id` ASC);
+ 
 
 
 -- -----------------------------------------------------

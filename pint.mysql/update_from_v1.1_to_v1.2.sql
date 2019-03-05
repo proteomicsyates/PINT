@@ -39,6 +39,13 @@ ALTER TABLE `interactome_db`.`psm` ADD FULLTEXT INDEX `idx_psm_sequence` (`seque
 ALTER TABLE `interactome_db`.`psm` ADD FULLTEXT INDEX `idx_psm_full_sequence` (`full_sequence` ASC);
 ;
 ALTER TABLE `interactome_db`.`ms_run` ADD FULLTEXT INDEX `idx_msrun_id` (`runID`);
+
+ALTER TABLE `interactome_db`.`protein_has_gene` DROP FOREIGN KEY `fk_Protein_has_Gene_Protein1`, DROP FOREIGN KEY `fk_Protein_has_Gene_Gene1`;
+ALTER TABLE `interactome_db`.`protein_has_gene` DROP INDEX `fk_Protein_has_Gene_Gene1_idx` ;
+ALTER TABLE `interactome_db`.`protein_has_gene` DROP INDEX `fk_Protein_has_Gene_Protein1_idx` ;
+DROP TABLE `interactome_db`.`gene`;
+DROP TABLE `interactome_db`.`protein_has_gene`;
+
 -- -----------------------------------------------------
 -- Table `interactome_db`.`Protein_has_MS_Run`
 -- -----------------------------------------------------

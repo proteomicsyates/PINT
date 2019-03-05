@@ -67,7 +67,7 @@
 		<property name="hibernate.search.Rules.directory_provider">nio</property>
 		<property name="hibernate.search.default.indexBase">C:\Users\Salva\Desktop\tmp\lucene_index</property>
         
-        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Gene.hbm.xml" />
+<!--         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Gene.hbm.xml" /> -->
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ProteinAmount.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/PeptideAmount.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Sample.hbm.xml" />

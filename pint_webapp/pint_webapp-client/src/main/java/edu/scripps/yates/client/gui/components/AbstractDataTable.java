@@ -350,6 +350,7 @@ public abstract class AbstractDataTable<T> extends Composite
 				if (column != null) {
 					// dataGrid.sortColumn(column, order);
 					dataGrid.pushColumnToColumnSortList(column, order);
+					refreshData();
 				}
 			} else {
 				for (final MyColumn<T> myColumn : columns) {
@@ -359,6 +360,7 @@ public abstract class AbstractDataTable<T> extends Composite
 							final Column<T, ?> column = (Column<T, ?>) myColumn;
 							// dataGrid.sortColumn(column, order);
 							dataGrid.pushColumnToColumnSortList(column, order);
+							refreshData();
 						}
 					}
 				}
@@ -436,7 +438,8 @@ public abstract class AbstractDataTable<T> extends Composite
 				final Column<T, String> column = (Column<T, String>) mycolumn;
 				final String condition1ReferredByColumn = idColumn.getExperimentalConditionName();
 				final String condition2ReferredByColumn = idColumn.getExperimentalCondition2Name() != null
-						? idColumn.getExperimentalCondition2Name() : condition1ReferredByColumn;
+						? idColumn.getExperimentalCondition2Name()
+						: condition1ReferredByColumn;
 
 				if (projectName == null || idColumn.getProjectTag().equalsIgnoreCase(projectName)) {
 					if (conditionNames == null || (conditionNames.contains(condition1ReferredByColumn)

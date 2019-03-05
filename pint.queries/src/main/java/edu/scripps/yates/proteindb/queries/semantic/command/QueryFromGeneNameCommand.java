@@ -4,7 +4,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.proteindb.persistence.mysql.Gene;
 import edu.scripps.yates.proteindb.queries.Query;
 import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
@@ -13,6 +12,7 @@ import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinS
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.util.CommandReference;
 import edu.scripps.yates.proteindb.queries.semantic.util.MyCommandTokenizer;
+import edu.scripps.yates.utilities.proteomicsmodel.Gene;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AggregationLevel;
 import edu.scripps.yates.utilities.strings.StringUtils;
 import gnu.trove.set.hash.THashSet;
@@ -55,7 +55,7 @@ public class QueryFromGeneNameCommand extends AbstractQuery {
 			// will have to match
 			for (final Gene gene : genes) {
 				for (final String geneName : geneNames) {
-					if (StringUtils.compareStrings(gene.getGeneId(), geneName, true, true, false)) {
+					if (StringUtils.compareStrings(gene.getGeneID(), geneName, true, true, false)) {
 						return true;
 					}
 				}
@@ -73,7 +73,7 @@ public class QueryFromGeneNameCommand extends AbstractQuery {
 			// will have to match
 			for (final Gene gene : genes) {
 				for (final String geneName : geneNames) {
-					if (StringUtils.compareStrings(gene.getGeneId(), geneName, true, true, false)) {
+					if (StringUtils.compareStrings(gene.getGeneID(), geneName, true, true, false)) {
 						return true;
 					}
 				}

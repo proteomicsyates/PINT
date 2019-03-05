@@ -29,7 +29,7 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 	@Override
 	public synchronized Project adapt() {
 		clearStaticInformation();
-		Project ret = new Project();
+		final Project ret = new Project();
 		if (map.containsKey(project.hashCode()))
 			return map.get(project.hashCode());
 		map.put(project.hashCode(), ret);
@@ -39,7 +39,7 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 		ret.setBig(project.isBig());
 		try {
 			ret.setPubmedLink(project.getPubmedLink().toURI().toString());
-		} catch (Exception e) {
+		} catch (final Exception e) {
 		}
 		ret.setReleaseDate(project.getReleaseDate());
 		final Date uploadedDate = project.getUploadedDate();
@@ -54,29 +54,29 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 		final Set<Condition> conditions = project.getConditions();
 
 		// create all the adapters and then adapt them
-		Set<ConditionAdapter> adapters = new THashSet<ConditionAdapter>();
-		for (Condition condition : conditions) {
+		final Set<ConditionAdapter> adapters = new THashSet<ConditionAdapter>();
+		for (final Condition condition : conditions) {
 
 			adapters.add(new ConditionAdapter(condition, ret));
 		}
-		for (ConditionAdapter conditionAdapter : adapters) {
+		for (final ConditionAdapter conditionAdapter : adapters) {
 			ret.getConditions().add(conditionAdapter.adapt());
 		}
 		// msRuns
 		final Set<MSRun> msRuns = project.getMSRuns();
 		if (msRuns != null) {
-			for (MSRun msRun : msRuns) {
+			for (final MSRun msRun : msRuns) {
 				ret.getMsRuns().add(new MSRunAdapter(msRun, ret).adapt());
 			}
 		}
 
 		// add the peptides and psms to the conditions
-		for (Object obj : ret.getConditions()) {
-			edu.scripps.yates.proteindb.persistence.mysql.Condition condition = (edu.scripps.yates.proteindb.persistence.mysql.Condition) obj;
+		for (final Object obj : ret.getConditions()) {
+			final edu.scripps.yates.proteindb.persistence.mysql.Condition condition = (edu.scripps.yates.proteindb.persistence.mysql.Condition) obj;
 			final Set<edu.scripps.yates.proteindb.persistence.mysql.Protein> proteins = condition.getProteins();
 			log.info("Assigning peptides and psms to condition " + condition.getName());
 
-			for (edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteins) {
+			for (final edu.scripps.yates.proteindb.persistence.mysql.Protein protein : proteins) {
 				condition.getPeptides().addAll(protein.getPeptides());
 				condition.getPsms().addAll(protein.getPsms());
 			}
@@ -95,7 +95,6 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 		CombinationTypeAdapter.clearStaticInformation();
 		ConditionAdapter.clearStaticInformation();
 		ConfidenceScoreTypeAdapter.clearStaticInformation();
-		GeneAdapter.clearStaticInformation();
 		LabelAdapter.clearStaticInformation();
 		MSRunAdapter.clearStaticInformation();
 		OrganismAdapter.clearStaticInformation();

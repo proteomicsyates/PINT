@@ -11,7 +11,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.AnnotationType;
 import edu.scripps.yates.proteindb.persistence.mysql.CombinationType;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
-import edu.scripps.yates.proteindb.persistence.mysql.Gene;
 import edu.scripps.yates.proteindb.persistence.mysql.Label;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
@@ -56,7 +55,7 @@ import gnu.trove.set.hash.THashSet;
  */
 public class MySQLSaver {
 	private final static Logger log = Logger.getLogger(MySQLSaver.class);
-	private int geneLength = 0;
+	private final int geneLength = 0;
 
 	private boolean saveProtein(edu.scripps.yates.proteindb.persistence.mysql.Protein protein) {
 		// final Set<ProteinAccession> proteinAccessions =
@@ -315,13 +314,6 @@ public class MySQLSaver {
 				ContextualSessionHandler.save(ptmSite);
 			}
 		}
-
-	}
-
-	private void saveGene(Gene gene) {
-		if (geneLength < gene.getGeneId().length())
-			geneLength = gene.getGeneId().length();
-		ContextualSessionHandler.save(gene);
 
 	}
 

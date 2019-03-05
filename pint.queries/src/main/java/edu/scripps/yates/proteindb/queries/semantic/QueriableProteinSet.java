@@ -16,7 +16,6 @@ import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
-import edu.scripps.yates.proteindb.persistence.mysql.Gene;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
@@ -36,6 +35,7 @@ import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.GeneEx;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -66,7 +66,7 @@ public class QueriableProteinSet {
 	private THashSet<ProteinThreshold> proteinThresholds;
 	private THashSet<ProteinAmount> proteinAmounts;
 	private THashSet<ProteinAnnotation> proteinAnnotations;
-	private THashSet<Gene> genes;
+	private THashSet<edu.scripps.yates.utilities.proteomicsmodel.Gene> genes;
 	private THashSet<Condition> conditions;
 	private Organism organism;
 	private Set<Tissue> tissues;
@@ -126,9 +126,9 @@ public class QueriableProteinSet {
 	}
 
 	/**
-	 * Returns the proteins, assuring that the returned protein is available in
-	 * the current Hibernate session, by calling merge(Protein) if
-	 * {@link Protein} is not in the session.
+	 * Returns the proteins, assuring that the returned protein is available in the
+	 * current Hibernate session, by calling merge(Protein) if {@link Protein} is
+	 * not in the session.
 	 *
 	 * @return the proteins
 	 */
@@ -248,9 +248,9 @@ public class QueriableProteinSet {
 	}
 
 	/**
-	 * Returns the peptides, assuring that the returned peptides are available
-	 * in the current Hibernate session, by calling merge(Peptide) if
-	 * {@link Peptide} is not in the session.
+	 * Returns the peptides, assuring that the returned peptides are available in
+	 * the current Hibernate session, by calling merge(Peptide) if {@link Peptide}
+	 * is not in the session.
 	 *
 	 * @return the peptides
 	 */
@@ -272,9 +272,9 @@ public class QueriableProteinSet {
 	}
 
 	/**
-	 * Returns the peptides, assuring that the returned peptides are available
-	 * in the current Hibernate session, by calling merge(Peptide) if
-	 * {@link Peptide} is not in the session.
+	 * Returns the peptides, assuring that the returned peptides are available in
+	 * the current Hibernate session, by calling merge(Peptide) if {@link Peptide}
+	 * is not in the session.
 	 *
 	 * @return the peptides
 	 */
@@ -307,9 +307,9 @@ public class QueriableProteinSet {
 	}
 
 	/**
-	 * Returns the first {@link ProteinAccession} from the {@link Protein} that
-	 * is annotated as primary accession (isIsPrimary()=true). If not found,
-	 * return one of the accessions.
+	 * Returns the first {@link ProteinAccession} from the {@link Protein} that is
+	 * annotated as primary accession (isIsPrimary()=true). If not found, return one
+	 * of the accessions.
 	 *
 	 * @return
 	 */
@@ -465,8 +465,8 @@ public class QueriableProteinSet {
 	}
 
 	/**
-	 * Gets the {@link ProteinThreshold}s of the {@link Protein}s assuring that
-	 * they are linked to the session
+	 * Gets the {@link ProteinThreshold}s of the {@link Protein}s assuring that they
+	 * are linked to the session
 	 *
 	 * @return
 	 */
@@ -488,13 +488,13 @@ public class QueriableProteinSet {
 		return proteinThresholds;
 	}
 
-	public Set<Gene> getGenes() {
+	public Set<edu.scripps.yates.utilities.proteomicsmodel.Gene> getGenes() {
 		if (genes == null) {
-			genes = new THashSet<Gene>();
+			genes = new THashSet<edu.scripps.yates.utilities.proteomicsmodel.Gene>();
 			final List<Pair<String, String>> geneNames = UniprotEntryUtil.getGeneName(getUniprotEntry(), false, false);
 			for (int i = 0; i < geneNames.size(); i++) {
 				final Pair<String, String> geneName = geneNames.get(i);
-				final Gene newGene = new Gene(geneName.getFirstelement());
+				final GeneEx newGene = new GeneEx(geneName.getFirstelement());
 				newGene.setGeneType(geneName.getSecondElement());
 				genes.add(newGene);
 			}

@@ -9,7 +9,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
-import edu.scripps.yates.proteindb.persistence.mysql.Gene;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
@@ -43,6 +42,7 @@ import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
 import edu.scripps.yates.shared.model.ThresholdBean;
+import edu.scripps.yates.utilities.proteomicsmodel.Gene;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
 
@@ -153,8 +153,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// + " with linkToPSMs=" + linkToPSMs);
 		final Set<Gene> genes = queriableProtein.getGenes();
 		if (genes != null && !genes.isEmpty()) {
-			for (final Object obj : genes) {
-				final Gene gene = (Gene) obj;
+			for (final Gene gene : genes) {
 				proteinBean.addGene(new GeneBeanAdapter(gene).adapt());
 			}
 		} else {

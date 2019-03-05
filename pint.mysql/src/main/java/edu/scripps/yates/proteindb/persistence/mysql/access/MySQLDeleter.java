@@ -17,7 +17,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.AnnotationType;
 import edu.scripps.yates.proteindb.persistence.mysql.CombinationType;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
-import edu.scripps.yates.proteindb.persistence.mysql.Gene;
 import edu.scripps.yates.proteindb.persistence.mysql.Label;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
@@ -326,12 +325,6 @@ public class MySQLDeleter {
 		}
 
 		ContextualSessionHandler.delete(ptm);
-
-	}
-
-	private void deleteGene(Gene gene) {
-
-		ContextualSessionHandler.delete(gene);
 
 	}
 

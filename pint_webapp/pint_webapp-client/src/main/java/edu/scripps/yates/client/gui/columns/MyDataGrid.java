@@ -69,7 +69,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 		if (this.columnMapByColumnName.containsKey(columnName)) {
 			this.columnMapByColumnName.get(columnName).add(myColumn);
 		} else {
-			Set<Column<T, ?>> set = new HashSet<Column<T, ?>>();
+			final Set<Column<T, ?>> set = new HashSet<Column<T, ?>>();
 			set.add(myColumn);
 			this.columnMapByColumnName.put(columnName, set);
 		}
@@ -87,7 +87,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 		if (this.columnMapByColumnName.containsKey(columnName)) {
 			final Set<Column<T, ?>> set = this.columnMapByColumnName.get(columnName);
 			// remove the columns
-			for (Column<T, ?> column : set) {
+			for (final Column<T, ?> column : set) {
 				this.removeColumn(column);
 			}
 			// remove from map
@@ -122,7 +122,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 
 	public boolean isEmptyColumn(Column<T, ?> column) {
 		final List<T> visibleItems = getVisibleItems();
-		for (T t : visibleItems) {
+		for (final T t : visibleItems) {
 			if (!"".equals(column.getValue(t)))
 				return false;
 		}
@@ -131,15 +131,15 @@ public class MyDataGrid<T> extends CellTable<T> {
 
 	public boolean isNumberColumn(Column<T, ?> column) {
 		final List<T> visibleItems = getVisibleItems();
-		for (T t : visibleItems) {
+		for (final T t : visibleItems) {
 			final Object value = column.getValue(t);
 			if (value instanceof String) {
 				try {
 					Double.valueOf((String) value);
-				} catch (NumberFormatException e) {
+				} catch (final NumberFormatException e) {
 					if (!"".equals(value) && !"-".equals(value))
 						return false;
-				} catch (NullPointerException e) {
+				} catch (final NullPointerException e) {
 
 				}
 			}
@@ -173,7 +173,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 				setColumnWidth(col, width);
 
 				// get index
-				int index = getIndexForColumnInTable(myColumn, columnManager);
+				final int index = getIndexForColumnInTable(myColumn, columnManager);
 
 				insertColumn(index, col, header);
 			}
@@ -201,7 +201,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 
 	private void addColumnToMap(Column<T, ?> col) {
 		if (col instanceof MyColumn) {
-			MyColumn<T> mycol = (MyColumn<T>) col;
+			final MyColumn<T> mycol = (MyColumn<T>) col;
 			addColumnToMap(mycol.getColumnName(), col);
 		}
 	}
@@ -230,14 +230,14 @@ public class MyDataGrid<T> extends CellTable<T> {
 				return true;
 			}
 		}
-		if (col instanceof MyColumn){
-			final MyColumn myCol = (MyColumn)col;
-			if (columnMapByColumnName.containsKey(myCol.getColumnName())){
+		if (col instanceof MyColumn) {
+			final MyColumn myCol = (MyColumn) col;
+			if (columnMapByColumnName.containsKey(myCol.getColumnName())) {
 				final Set<Column<T, ?>> set = columnMapByColumnName.get(myCol.getColumnName());
-				for (Column<T, ?> column : set) {
-					 if (column.equals(col)){
-						 return true;
-					 }
+				for (final Column<T, ?> column : set) {
+					if (column.equals(col)) {
+						return true;
+					}
 				}
 			}
 		}
@@ -285,8 +285,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 	 * (non-Javadoc)
 	 * 
 	 * @see com.google.gwt.user.cellview.client.AbstractCellTable#addColumn(com.
-	 * google .gwt.user.cellview.client.Column, java.lang.String,
-	 * java.lang.String)
+	 * google .gwt.user.cellview.client.Column, java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void addColumn(Column<T, ?> col, String headerString, String footerString) {
@@ -323,8 +322,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.google.gwt.user.cellview.client.AbstractCellTable#removeColumn(com
+	 * @see com.google.gwt.user.cellview.client.AbstractCellTable#removeColumn(com
 	 * .google.gwt.user.cellview.client.Column)
 	 */
 	@Override
@@ -334,7 +332,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 			@Override
 			public void execute() {
 				if (col instanceof MyColumn) {
-					MyColumn<T> mycol = (MyColumn<T>) col;
+					final MyColumn<T> mycol = (MyColumn<T>) col;
 					columnMapByColumnName.remove(mycol.getColumnName());
 				}
 				if (containsColumn(col)) {
@@ -348,8 +346,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.google.gwt.user.cellview.client.AbstractCellTable#removeColumn(int)
+	 * @see com.google.gwt.user.cellview.client.AbstractCellTable#removeColumn(int)
 	 */
 	@Override
 	public void removeColumn(int index) {
@@ -360,8 +357,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.google.gwt.user.cellview.client.AbstractCellTable#setColumnWidth(
+	 * @see com.google.gwt.user.cellview.client.AbstractCellTable#setColumnWidth(
 	 * com.google.gwt.user.cellview.client.Column, java.lang.String)
 	 */
 	@Override
@@ -423,6 +419,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 				if (ORDER.DESCENDING.equals(order)) {
 					getColumnSortList().push(column);
 				}
+				ColumnSortEvent.fire(MyDataGrid.this, getColumnSortList());
 			}
 		});
 
@@ -436,8 +433,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 	}
 
 	/**
-	 * @param forceToRefresh
-	 *            the forceToRefresh to set
+	 * @param forceToRefresh the forceToRefresh to set
 	 */
 	public void setForceToRefresh(boolean forceToRefresh) {
 		this.forceToRefresh = forceToRefresh;
@@ -451,8 +447,7 @@ public class MyDataGrid<T> extends CellTable<T> {
 	}
 
 	/**
-	 * @param forceToReload
-	 *            the forceToReload to set
+	 * @param forceToReload the forceToReload to set
 	 */
 	public void setforceToReload(boolean forceToReload) {
 		this.forceToReload = forceToReload;

@@ -25,7 +25,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.AmountType;
 import edu.scripps.yates.proteindb.persistence.mysql.CombinationType;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
-import edu.scripps.yates.proteindb.persistence.mysql.Gene;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
@@ -624,16 +623,6 @@ public class PreparedCriteria {
 			cr.add(Restrictions.eq("project.tag", projectTag));
 		}
 		return (Long) cr.uniqueResult();
-	}
-
-	public static Criteria getCriteriaForGenesInProjectInCondition(String projectTag, String conditionName) {
-		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Gene.class, "gene")
-				.createAlias("gene.proteins", "protein").createAlias("protein.conditions", "condition")
-				.createAlias("condition.project", "project")
-				.setProjection(Projections.distinct(Projections.property("geneId")));
-		cr.add(Restrictions.eq("condition.name", conditionName)).add(Restrictions.eq("project.tag", projectTag))
-				.addOrder(Order.asc("geneId").ignoreCase());
-		return cr;
 	}
 
 	public static Criteria getCriteriaForMSRunsInProject(String projectTag) {
