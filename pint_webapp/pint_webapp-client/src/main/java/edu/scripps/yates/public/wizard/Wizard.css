@@ -52,13 +52,13 @@
 
 .muse-gwt-Wizard .wizardPages .inactiveSmaller {
 	color: #8b472e;
-	font-size:12px;
+	font-size:10px;
 	white-space: nowrap;
 }
 
 .muse-gwt-Wizard .wizardPages .activeSmaller {
 	color: #000000;
-	font-size:12px;
+	font-size:10px;
 	white-space: nowrap;
 }
 
@@ -83,33 +83,30 @@
 
 .wizardWelcome {
 	padding: 3%;
-	width: 100%;
+/* 	width: 100%; */
  }
  .wizardRegularPage {
 	padding: 0.5%;
  }
 .wizardWelcomelabel1{
-	font-size: 17pt;
+	font-size: 15pt;
 	font-weight: bolder;
 	padding-bottom: 20px;
 	white-space: pre-line;
 }
 .wizardWelcomelabel2{
-	font-size: 14pt;
+	font-size: 12pt;
 	padding-bottom: 10px;
 	white-space: pre-line;
 }
 
-.wizardBottomMessageLabel{
-	font-size: 20px;
-	padding-top: 40px;
-}
+
 
 .wizardNavigation{
 	
 }
 .wizardPageList{
-	font-size: 14px !important;
+	font-size: 12px !important;
 }
 .wizardQuestionPanel{
 	background: #e9f8f7;
@@ -140,7 +137,7 @@
     padding-right: 10px;
 }
 .wizardQuestionLabel{
-	font-size: 2.0em;
+	font-size: 1.2em;
 	font-family: Circular,arial,sans-serif;
 /* 	text-align: center; */
 	padding-top: 20px;
@@ -156,7 +153,6 @@
 }
 
 .wizard-Button {
-  font-size:17px !important;
   margin: 0;
   padding: 5px 7px;
   text-decoration: none;
@@ -202,14 +198,14 @@
 
 .progressLabel {
     font-family: Arial, sans-serif;
-    font-size: 12px;
+    font-size: 10px;
 }
 .dropFilesLabel {
     margin-top: 6px;
     padding-top: 28px;
     padding-bottom: 28px;
     font-family: verdana, arial, sans-serif;
-    font-size: 12px;
+    font-size: 10px;
     color: #2d4b6d;
     font-weight: bold;
     text-align: center;
@@ -249,54 +245,54 @@
 }
 .wizardCriticalMessage{
 	color: #ff0000;
-	font-size: 14px;
+	font-size: 12px;
 }
 .wizardInfoMessage{
 	color: #808080;
-	font-size: 13px;
+	font-size: 11px;
 }
 .wizardInfoMessageSelected{
 	color: #800000;
-	font-size: 13px;
+	font-size: 11px;
 	font-weight: bold;
 }
 .wizardInfoMessageSelectedPast{
 	color: #800000;
-	font-size: 13px;
+	font-size: 11px;
 }
 .wizardInfoMessageNonselected{
 	color: #808080;
-	font-size: 13px;
+	font-size: 11px;
 	
 }
 .WizardErrorLabel1{
 	color: #9d0000;
-	font-size: 13px;
+	font-size: 11px;
 	font-weight: bold;
 }
 
 .linkText{
-	font-size: 14px; 
+	font-size: 12px; 
 	color: #BB4B44;
 }
 .linkText:hover{
-	font-size: 14px; 
+	font-size: 12px; 
 	color: #000000;
 }
 .wizardTextBox{
-	font-size: 14px;
+	font-size: 12px;
 }
 .wizardTextBoxGrey{
-	font-size: 14px;
+	font-size: 12px;
 	color: grey;
 }
 .wizardFormTextLabel{
-	font-size: 2.0em;
+	font-size: 1.2em;
 	font-family: Circular,arial,sans-serif;
 	white-space: nowrap;
 }
 .wizardFormTextLabelError{
-	font-size: 2.0em;
+	font-size: 1.2em;
 	font-family: Circular,arial,sans-serif;
 	white-space: nowrap;
 	color:red;
@@ -318,7 +314,7 @@
     padding-left:5px;
     padding-right:5px;
     font-family: verdana, arial, sans-serif;
-    font-size: 12px;
+/*     font-size: 12px; */
     color: #2d4b6d;
     font-weight: bold;
     text-align: center;
@@ -342,7 +338,7 @@
     padding-left:10px;
     padding-right:10px;
     font-family: verdana, arial, sans-serif;
-    font-size: 12px;
+    font-size: 10px;
     color: #2d4b6d;
     font-weight: bold;
 /*     text-align: center; */
@@ -368,7 +364,7 @@
 .wizardItemWidgetNameLabel{
     padding-right:10px;
     font-family: verdana, arial, sans-serif;
-    font-size: 12px;
+    font-size: 10px;
     color: #2d4b6d;
     font-weight: bold;
 /*     text-align: left; */
@@ -379,7 +375,7 @@
 .wizardItemWidgetNameLabelNonClickable{
     padding-right:10px;
     font-family: verdana, arial, sans-serif;
-    font-size: 12px;
+    font-size: 10px;
     color: #2d4b6d;
     font-weight: bold;
 /*     text-align: left; */
@@ -388,7 +384,7 @@
 .wizardItemWidgetNameLabelNonClickableRed{
     padding-right:10px;
     font-family: verdana, arial, sans-serif;
-    font-size: 12px;
+    font-size: 10px;
     color: #800000;
     font-weight: bold;
 /*     text-align: left; */
@@ -679,7 +675,7 @@
 	cursor:pointer;
 	color:#333333;
 	font-family:Arial;
-	font-size:12px;
+/* 	font-size:12px; */
 	padding:5px 10px;
 	text-decoration:none;
 	text-shadow:0px 1px 0px #ffee66;
