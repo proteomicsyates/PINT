@@ -32,7 +32,7 @@
             </key>
             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PsmAmount" />
         </set>
-        <set name="peptides" table="peptide_has_condition" inverse="false" lazy="true" fetch="select" >
+        <set name="peptides" table="peptide_has_condition" inverse="true" lazy="true" fetch="select" >
             <key>
                 <column name="Condition_id" not-null="true" />
             </key>
@@ -52,7 +52,7 @@
             </key>
             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor" />
         </set>
-        <set name="proteins" table="protein_has_condition" inverse="false" lazy="true" fetch="select" >
+        <set name="proteins" table="protein_has_condition" inverse="true" lazy="true" fetch="select" >
             <key>
                 <column name="Condition_id" not-null="true" />
             </key>
@@ -72,7 +72,7 @@
             </key>
             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor" />
         </set>
-        <set name="psms" table="psm_has_condition" inverse="false" lazy="true" fetch="select" >
+        <set name="psms" table="psm_has_condition" inverse="true" lazy="true" fetch="select" >
             <key>
                 <column name="Condition_id" not-null="true" />
             </key>

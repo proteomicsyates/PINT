@@ -9,7 +9,7 @@
             <column name="id" />
             <generator class="identity" />
         </id>
-        <many-to-one name="msRun" class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" fetch="select">
+        <many-to-one name="msRun" class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" fetch="select" >
             <column name="MS_Run_id" not-null="true" />
         </many-to-one>
         <many-to-one name="peptide" class="edu.scripps.yates.proteindb.persistence.mysql.Peptide" fetch="select">
@@ -72,7 +72,7 @@
             </key>
             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Ptm" />
         </set>
-        <set name="conditions" table="psm_has_condition" inverse="true" lazy="true" fetch="select" >
+        <set name="conditions" table="psm_has_condition" inverse="false" lazy="true" fetch="select">
             <key>
                 <column name="PSM_id" not-null="true" />
             </key>
@@ -81,7 +81,7 @@
             </many-to-many>
         </set>
 <!--         <set name="proteins" table="protein_has_psm" inverse="false" lazy="true" fetch="select" > -->
-        <set name="proteins" table="protein_has_psm" inverse="false" lazy="extra" fetch="join" batch-size="10" >
+        <set name="proteins" table="protein_has_psm" inverse="true" lazy="extra" fetch="join" batch-size="10">
             <key>
                 <column name="PSM_id" not-null="true" />
             </key>
@@ -89,7 +89,7 @@
                 <column name="Protein_id" not-null="true" />
             </many-to-many>
         </set>
-        <set name="psmRatioValues" table="psm_ratio_value" inverse="true" lazy="true" fetch="select" >
+        <set name="psmRatioValues" table="psm_ratio_value" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="PSM_id" not-null="true" />
             </key>

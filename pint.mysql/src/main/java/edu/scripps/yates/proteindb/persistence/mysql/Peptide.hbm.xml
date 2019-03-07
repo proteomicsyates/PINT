@@ -3,93 +3,102 @@
                                    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <!-- Generated Feb 24, 2015 2:42:08 PM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
- <class catalog="interactome_db"
-  name="edu.scripps.yates.proteindb.persistence.mysql.Peptide" table="peptide">
-  <cache include="all" usage="read-write"/>
-  <id name="id" type="java.lang.Integer">
-   <column name="id"/>
-   <generator class="identity"/>
-  </id>
-<!--   <many-to-one -->
-<!--    class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" -->
-<!--    fetch="select" name="msRun"> -->
-<!--    <column name="MS_Run_id" not-null="true"/> -->
-<!--   </many-to-one> -->
-  <property generated="never" lazy="false" name="sequence" type="string">
-   <column length="400" name="sequence" not-null="true"/>
-  </property>
-  <property generated="never" lazy="false" name="fullSequence" type="string">
-   <column length="300" name="full_sequence"  not-null="true"/>  
-   
-  </property>
-   <property generated="never" lazy="false" name="numPsms" type="java.lang.Integer">
- 	<column name="num_psms" precision="22" scale="0" not-null="true" />
-    </property>
-  <set fetch="select" inverse="true" lazy="true" name="peptideAmounts"
-   sort="unsorted" table="peptide_amount">
-   <key>
-    <column name="Peptide_id" not-null="true"/>
-   </key>
-   <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PeptideAmount"/>
-  </set>
-  <set fetch="select" inverse="true" lazy="true"
-   name="peptideRatioValues" sort="unsorted" table="peptide_ratio_value">
-   <key>
-    <column name="Peptide_id" not-null="true"/>
-   </key>
-   <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue"/>
-  </set>
-  <set fetch="select" inverse="true" lazy="true" name="psms"
-   sort="unsorted" table="psm">
-   <key>
-    <column name="Peptide_id" not-null="true"/>
-   </key>
-   <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Psm"/>
-  </set>
-  <set fetch="select" inverse="true" lazy="true" name="conditions"
-   sort="unsorted" table="peptide_has_condition">
-   <key>
-    <column name="Peptide_id" not-null="true"/>
-   </key>
-   <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Condition" unique="false">
-    <column name="Condition_id" not-null="true"/>
-   </many-to-many>
-  </set>
-  <set fetch="select" inverse="true" lazy="true" name="peptideScores"
-   sort="unsorted" table="peptide_score">
-   <key>
-    <column name="Peptide_id" not-null="true"/>
-   </key>
-   <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.PeptideScore"/>
-  </set>
-  <set fetch="join" lazy="extra" name="proteins" table="protein_has_peptide" batch-size="100">
-<!--   <set fetch="select" lazy="true" name="proteins" sort="unsorted" table="protein_has_peptide"> -->
-   <key>
-    <column name="Peptide_id" not-null="true"/>
-   </key>
-   <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.Protein" unique="false">
-    <column name="Protein_id" not-null="true"/>
-   </many-to-many>
-  </set>
-  <set name="ptms" table="ptm" inverse="true" lazy="true" fetch="select">
-   <key>
-    <column name="Peptide_id" not-null="true" />
-   </key>
-   <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.Ptm" />
-  </set>
-  <set name="msRuns" table="peptide_has_ms_run" inverse="true" lazy="true" fetch="select" >
-            <key>
-                <column name="Peptide_id" not-null="true" />
-            </key>
-            <many-to-many entity-name="edu.scripps.yates.proteindb.persistence.mysql.MsRun">
-                <column name="MS_Run_id" not-null="true" />
-            </many-to-many>
-        </set>
- </class>
- 
-<!--  <sql-query name="callGetPSMIDsFromPeptide"> -->
-<!-- 	<return-scalar type="integer" column="id"/> -->
-<!-- 	<![CDATA[CALL getPSMIdsFromPeptide(:id)]]> -->
-<!--  </sql-query> -->
-    
+	<class catalog="interactome_db"
+		name="edu.scripps.yates.proteindb.persistence.mysql.Peptide"
+		table="peptide">
+		<cache include="all" usage="read-write" />
+		<id name="id" type="java.lang.Integer">
+			<column name="id" />
+			<generator class="identity" />
+		</id>
+		<!-- <many-to-one -->
+		<!-- class="edu.scripps.yates.proteindb.persistence.mysql.MsRun" -->
+		<!-- fetch="select" name="msRun"> -->
+		<!-- <column name="MS_Run_id" not-null="true"/> -->
+		<!-- </many-to-one> -->
+		<property generated="never" lazy="false" name="sequence"
+			type="string">
+			<column length="400" name="sequence" not-null="true" />
+		</property>
+		<property generated="never" lazy="false" name="fullSequence"
+			type="string">
+			<column length="300" name="full_sequence" not-null="true" />
+
+		</property>
+		<property generated="never" lazy="false" name="numPsms" type="java.lang.Integer">
+			<column name="num_psms" precision="22" scale="0"
+				not-null="true" />
+		</property>
+		<set fetch="select" inverse="true" lazy="true" name="peptideAmounts" sort="unsorted" table="peptide_amount" cascade="all-delete-orphan">
+			<key>
+				<column name="Peptide_id" not-null="true" />
+			</key>
+			<one-to-many
+				class="edu.scripps.yates.proteindb.persistence.mysql.PeptideAmount" />
+		</set>
+		<set fetch="select" inverse="true" lazy="true" name="peptideRatioValues" sort="unsorted" table="peptide_ratio_value">
+			<key>
+				<column name="Peptide_id" not-null="true" />
+			</key>
+			<one-to-many
+				class="edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue" />
+		</set>
+		<set fetch="select" inverse="true" lazy="true" name="psms" sort="unsorted" table="psm" >
+			<key>
+				<column name="Peptide_id" not-null="true" />
+			</key>
+			<one-to-many
+				class="edu.scripps.yates.proteindb.persistence.mysql.Psm" />
+		</set>
+		<set fetch="select" inverse="false" lazy="true" name="conditions" sort="unsorted" table="peptide_has_condition">
+			<key>
+				<column name="Peptide_id" not-null="true" />
+			</key>
+			<many-to-many
+				entity-name="edu.scripps.yates.proteindb.persistence.mysql.Condition"
+				unique="false">
+				<column name="Condition_id" not-null="true" />
+			</many-to-many>
+		</set>
+		<set fetch="select" inverse="true" lazy="true" name="peptideScores" sort="unsorted" table="peptide_score">
+			<key>
+				<column name="Peptide_id" not-null="true" />
+			</key>
+			<one-to-many
+				class="edu.scripps.yates.proteindb.persistence.mysql.PeptideScore" />
+		</set>
+		<set fetch="join" lazy="extra" name="proteins" table="protein_has_peptide" batch-size="500" inverse="true" >
+			<!-- <set fetch="select" lazy="true" name="proteins" sort="unsorted" table="protein_has_peptide"> -->
+			<key>
+				<column name="Peptide_id" not-null="true" />
+			</key>
+			<many-to-many
+				entity-name="edu.scripps.yates.proteindb.persistence.mysql.Protein"
+				unique="false">
+				<column name="Protein_id" not-null="true" />
+			</many-to-many>
+		</set>
+		<set name="ptms" table="ptm" inverse="true" lazy="true" fetch="select">
+			<key>
+				<column name="Peptide_id" not-null="true" />
+			</key>
+			<one-to-many
+				class="edu.scripps.yates.proteindb.persistence.mysql.Ptm" />
+		</set>
+		<set name="msRuns" table="peptide_has_ms_run" inverse="false" lazy="true" fetch="select">
+			<key>
+				<column name="Peptide_id" not-null="true" />
+			</key>
+			<many-to-many
+				entity-name="edu.scripps.yates.proteindb.persistence.mysql.MsRun">
+				<column name="MS_Run_id" not-null="true" />
+			</many-to-many>
+		</set>
+	</class>
+
+	<!-- <sql-query name="callGetPSMIDsFromPeptide"> -->
+	<!-- <return-scalar type="integer" column="id"/> -->
+	<!-- <![CDATA[CALL getPSMIdsFromPeptide(:id)]]> -->
+	<!-- </sql-query> -->
+
 </hibernate-mapping>

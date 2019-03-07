@@ -43,6 +43,7 @@ public class ContextualSessionHandler {
 
 	private static Logger log = Logger.getLogger(ContextualSessionHandler.class);
 	private static Statistics statistics;
+	public static boolean flushEnabledAfterDeletion = false;
 
 	/**
 	 * Setup the session factory with a propertiesFile that contains the username
@@ -145,6 +146,9 @@ public class ContextualSessionHandler {
 	public static <T> void delete(T object) {
 		if (object != null) {
 			getCurrentSession().delete(object);
+			if (flushEnabledAfterDeletion) {
+				flush();
+			}
 		}
 	}
 

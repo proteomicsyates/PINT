@@ -11,14 +11,15 @@ public class ProjectDeleter {
 	@Test
 	public void deleteProject() {
 		try {
-			ContextualSessionHandler.beginGoodTransaction();
-			MySQLDeleter deleter = new MySQLDeleter();
-			deleter.deleteProject("4DNucleome2");
+			final MySQLDeleter deleter = new MySQLDeleter();
+			deleter.deleteProject("alzheimeno");
 			ContextualSessionHandler.finishGoodTransaction();
-		} catch (Exception e) {
+
+		} catch (final Exception e) {
 			e.printStackTrace();
-			fail();
 			ContextualSessionHandler.rollbackTransaction();
+			fail();
+
 		} finally {
 			ContextualSessionHandler.closeSession();
 		}

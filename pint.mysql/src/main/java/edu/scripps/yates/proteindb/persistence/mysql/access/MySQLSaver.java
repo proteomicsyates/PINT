@@ -20,7 +20,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideScore;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
@@ -535,34 +534,6 @@ public class MySQLSaver {
 		}
 		ContextualSessionHandler.save(psmAmount);
 
-	}
-
-	public void saveProteinAccession(ProteinAccession proteinAccession, Protein protein) {
-
-		if (proteinAccession == null || proteinAccession.getAccession() == null)
-			log.warn("CUIDADO");
-		final ProteinAccession proteinAccessionInDB = ContextualSessionHandler.load(proteinAccession.getAccession(),
-				ProteinAccession.class);
-		if (proteinAccessionInDB != null) {
-			if (proteinAccession.hashCode() == proteinAccessionInDB.hashCode()) {
-				return;
-			}
-			proteinAccessionInDB.setAccessionType(proteinAccession.getAccessionType());
-			proteinAccessionInDB.setDescription(proteinAccession.getDescription());
-			if (proteinAccession.isIsPrimary()) {
-				proteinAccessionInDB.setIsPrimary(proteinAccession.isIsPrimary());
-			}
-			proteinAccessionInDB.setAlternativeNames(proteinAccession.getAlternativeNames());
-			// protein.getProteinAccessions().remove(proteinAccession);
-			// protein.getProteinAccessions().add(proteinAccessionInDB);
-			ContextualSessionHandler.saveOrUpdate(protein);
-			ContextualSessionHandler.saveOrUpdate(proteinAccessionInDB);
-			proteinAccession = proteinAccessionInDB;
-		} else {
-			// log.debug("saving " + proteinAccession.getAccession());
-			ContextualSessionHandler.save(proteinAccession);
-
-		}
 	}
 
 	private void saveAmountTypeForProtein(AmountType amountType, ProteinAmount proteinAmount) {

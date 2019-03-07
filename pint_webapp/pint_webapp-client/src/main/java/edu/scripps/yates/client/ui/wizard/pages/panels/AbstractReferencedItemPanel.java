@@ -43,8 +43,8 @@ public abstract class AbstractReferencedItemPanel<IB> extends FlexTable implemen
 		this.format = format;
 		setStyleName(WizardStyles.WizardQuestionPanel);
 		this.getElement().getStyle().setPaddingTop(10, Unit.PX);
-		this.getElement().getStyle().setWidth(470, Unit.PX); // this more or less the width of the message of label2 in
-																// init() method
+//		this.getElement().getStyle().setWidth(470, Unit.PX); // this more or less the width of the message of label2 in
+		// init() method
 		init();
 
 	}
@@ -65,7 +65,7 @@ public abstract class AbstractReferencedItemPanel<IB> extends FlexTable implemen
 	}
 
 	private void init() {
-		final Label label2 = new Label("Drag these items to the appropiate target in order to make the association:");
+		final Label label2 = new Label("Drag items to the appropiate target to make the association:");
 		label2.setStyleName(WizardStyles.WizardInfoMessage);
 		setWidget(0, 0, label2);
 		getFlexCellFormatter().setColSpan(0, 0, 2);

@@ -46,6 +46,14 @@ ALTER TABLE `interactome_db`.`protein_has_gene` DROP INDEX `fk_Protein_has_Gene_
 DROP TABLE `interactome_db`.`gene`;
 DROP TABLE `interactome_db`.`protein_has_gene`;
 
+ALTER TABLE `interactome_db`.`protein_has_protein_accession` 
+DROP FOREIGN KEY `fk_Protein_has_Protein_Accession_Protein_Accession1`,
+DROP FOREIGN KEY `fk_Protein_has_Protein_Accession_Protein1`;
+ALTER TABLE `interactome_db`.`protein_has_protein_accession` 
+DROP INDEX `fk_Protein_has_Protein_Accession_Protein_Accession1_idx` ;
+;
+DROP TABLE `interactome_db`.`protein_has_protein_accession`;
+DROP TABLE `interactome_db`.`protein_accession`;
 -- -----------------------------------------------------
 -- Table `interactome_db`.`Protein_has_MS_Run`
 -- -----------------------------------------------------
