@@ -52,7 +52,8 @@ public class WelcomePage extends AbstractWizardPage {
 		flowPanel.add(welcomeLabel3);
 
 		final Label welcomeLabel4 = new Label(welcomeText4);
-		welcomeLabel4.setStyleName(WizardStyles.WizardBottomMessageLabel);
+		welcomeLabel4.setStyleName(WizardStyles.WizardWelcomeLabel2);
+		welcomeLabel4.getElement().getStyle().setMarginTop(40, Unit.PX);
 		flowPanel.add(welcomeLabel4);
 
 		return flowPanel;
