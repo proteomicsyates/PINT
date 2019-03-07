@@ -24,8 +24,8 @@ public class WizardNavigationPanel extends Composite implements HasWizardButtons
 	private final WizardButton next;
 	private final WizardButton cancel;
 	private final WizardButton finish;
-	private final String buttonWidth = "125px";
-	private final String buttonHeight = "40px";
+	private final String buttonWidth = "80px";
+	private final String buttonHeight = "30px";
 
 	public WizardNavigationPanel() {
 		this("< Prev", "Next >");

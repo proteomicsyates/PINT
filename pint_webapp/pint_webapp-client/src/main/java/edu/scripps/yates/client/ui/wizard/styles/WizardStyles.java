@@ -7,7 +7,6 @@ public class WizardStyles {
 	public static final String wizardRegularPage = "wizardRegularPage";
 	public static final String WizardWelcomeLabel1 = "wizardWelcomelabel1";
 	public static final String WizardWelcomeLabel2 = "wizardWelcomelabel2";
-	public static final String WizardBottomMessageLabel = "wizardBottomMessageLabel";
 	public static final String WizardQuestionLabel = "wizardQuestionLabel";
 	public static final String WizardExplanationLabel = "wizardExplanationLabel";
 	public static final String WizardQuestionPanel = "wizardQuestionPanel";
