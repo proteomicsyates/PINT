@@ -60,6 +60,7 @@ public class AnalysisSubmiter {
 				@Override
 				public void onError(Request request, Throwable exception) {
 					// TODO fireEvent(new ServiceUnavailableEvent());
+					handler.onAnalysisError(exception);
 				}
 			});
 		} catch (final RequestException ex) {
@@ -94,6 +95,7 @@ public class AnalysisSubmiter {
 
 			@Override
 			public void onFailure(Throwable caught) {
+				handler.onAnalysisError(caught);
 				StatusReportersRegister.getInstance().notifyStatusReporters(caught);
 			}
 		});
