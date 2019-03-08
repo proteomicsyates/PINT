@@ -66,25 +66,25 @@
 <!--                 <column name="Protein_Accession_accession" length="15" not-null="true" /> -->
 <!--             </many-to-many> -->
 <!--         </set> -->
-        <set name="proteinScores" table="protein_score" inverse="true" lazy="true" fetch="select"  cascade="all-delete-orphan">
+        <set name="proteinScores" table="protein_score" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="Protein_id" not-null="true" />
             </key>
             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinScore" />
         </set>
-        <set name="proteinAmounts" table="protein_amount" inverse="true" lazy="true" fetch="select"  cascade="all-delete-orphan">
+        <set name="proteinAmounts" table="protein_amount" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="Protein_id" not-null="true" />
             </key>
             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount" />
         </set>
-        <set name="proteinThresholds" table="protein_threshold" inverse="true" lazy="true" fetch="select"  cascade="all-delete-orphan">
+        <set name="proteinThresholds" table="protein_threshold" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="Protein_id" not-null="true" />
             </key>
             <one-to-many class="edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold" />
         </set>
-        <set name="proteinAnnotations" table="protein_annotation" inverse="true" lazy="true" fetch="select"  cascade="all-delete-orphan">
+        <set name="proteinAnnotations" table="protein_annotation" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="Protein_id" not-null="true" />
             </key>

@@ -29,7 +29,7 @@
 			<column name="num_psms" precision="22" scale="0"
 				not-null="true" />
 		</property>
-		<set fetch="select" inverse="true" lazy="true" name="peptideAmounts" sort="unsorted" table="peptide_amount" cascade="all-delete-orphan">
+		<set fetch="select" inverse="true" lazy="true" name="peptideAmounts" sort="unsorted" table="peptide_amount">
 			<key>
 				<column name="Peptide_id" not-null="true" />
 			</key>
