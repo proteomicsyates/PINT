@@ -17,7 +17,7 @@ public class WizardPageOrganisms extends AbstractWizardPage {
 	private FlexTable panel;
 
 	public WizardPageOrganisms() {
-		super("Sample organism(s)");
+		super("Organisms");
 
 	}
 

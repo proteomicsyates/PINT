@@ -1,6 +1,7 @@
 package edu.scripps.yates.client.ui.wizard.view.widget;
 
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.ui.wizard.Wizard;
 import edu.scripps.yates.client.ui.wizard.Wizard.Display;
@@ -16,4 +17,10 @@ import edu.scripps.yates.client.ui.wizard.view.HasIndexedWidgets;
  *
  */
 public class WizardDeckPanel extends DeckPanel implements HasIndexedWidgets {
+
+	@Override
+	public void add(int index, Widget wiget) {
+
+		super.insert(wiget, index);
+	}
 }

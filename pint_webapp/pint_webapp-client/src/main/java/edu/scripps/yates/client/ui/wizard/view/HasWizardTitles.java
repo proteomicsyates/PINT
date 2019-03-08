@@ -18,17 +18,18 @@ public interface HasWizardTitles {
 	 * 
 	 * @param title the title of the page to add
 	 */
-	public void addPage(String title);
+	public void addPage(String title, int index);
 
 	/**
 	 * By Salva:<br>
 	 * Adds a page title with custom styles
 	 * 
 	 * @param title
+	 * @param index
 	 * @param styleNameActive
 	 * @param styleNameInactive
 	 */
-	public void addPage(String title, String styleNameActive, String styleNameInactive);
+	public void addPage(String title, int index, String styleNameActive, String styleNameInactive);
 
 	/**
 	 * Sets a page title as the currently active title.

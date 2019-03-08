@@ -22,7 +22,7 @@ public interface HasIndexedWidgets {
 	 * 
 	 * @param wiget the Widget to add to the panel
 	 */
-	public void add(Widget wiget);
+	public void add(int index, Widget wiget);
 
 	/**
 	 * Show the Widget at the specified index.

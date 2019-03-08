@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.hibernate.PropertyValueException;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.AmountType;
@@ -26,7 +25,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideScore;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
-import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAnnotation;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
@@ -42,6 +40,8 @@ import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
 import edu.scripps.yates.proteindb.persistence.mysql.Threshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
+import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
+import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -111,31 +111,35 @@ public class MySQLDeleter {
 		for (final ProteinAmount amount : amounts) {
 			deleteProteinAmount(amount);
 		}
+
 		// conditions
-		final Set<Condition> conditions = protein.getConditions();
-		for (final Condition condition : conditions) {
-			condition.getProteins().remove(protein);
-		}
-		// peptides
-		protein.getPeptides().clear();
+//		final Set<Condition> conditions = protein.getConditions();
+//		for (final Condition condition : conditions) {
+//			condition.getProteins().remove(protein);
+//		}
+		protein.getConditions().clear();
+
+		protein.getMsRuns().clear();
+
+		// peptides are the owners of protein-peptide relationships
 		final Iterator<Peptide> peptideIterator = protein.getPeptides().iterator();
 		while (peptideIterator.hasNext()) {
 			final Peptide peptide = peptideIterator.next();
-			// peptide.getProteins().remove(peptide);
-			// peptideIterator.remove();
+			peptide.getProteins().remove(protein);
+			peptideIterator.remove();
 			deletePeptide(peptide);
 		}
 
-		// psms
-		// final Iterator<Psm> psmsIterator = protein.getPsms().iterator();
-		// while (psmsIterator.hasNext()) {
-		// Psm psm = psmsIterator.next();
-		// psm.getProteins().remove(protein);
-		// psmsIterator.remove();
-		// // deletePSM(psm);
-		// }
-		protein.getPsms().clear();
+		// psms are the owners of the protein-psm relationship
+		final Iterator<Psm> psmsIterator = protein.getPsms().iterator();
+		while (psmsIterator.hasNext()) {
+			final Psm psm = psmsIterator.next();
+			psm.getProteins().remove(protein);
+			psmsIterator.remove();
+			deletePSM(psm);
+		}
 
+		// delete protein who is not the owner of the relationship
 		ContextualSessionHandler.delete(protein);
 	}
 
@@ -182,33 +186,22 @@ public class MySQLDeleter {
 				deletePsmRatio(psmRatioValue);
 			}
 		}
-		// conditions
-		final Set<Condition> conditions = psm.getConditions();
-		for (final Condition condition : conditions) {
-			condition.getPsms().remove(psm);
-		}
-		// proteins
-		// final Iterator<Protein> proteinIterator =
-		// psm.getProteins().iterator();
-		// while (proteinIterator.hasNext()) {
-		// Protein protein = proteinIterator.next();
-		// protein.getPsms().remove(psm);
-		// proteinIterator.remove();
-		// // deleteProtein(protein);
-		// }
-		psm.getProteins().clear();
 
-		try {
-			ContextualSessionHandler.delete(psm);
-		} catch (final PropertyValueException e) {
-			e.printStackTrace();
-			log.info(psm.getPeptide());
+		// conditions
+//		final Set<Condition> conditions = psm.getConditions();
+//		for (final Condition condition : conditions) {
+//			condition.getPsms().remove(psm);
+//		}
+		psm.getConditions().clear();
+
+		psm.setMsRun(null);
+		final Iterator<Protein> iterator = psm.getProteins().iterator();
+		while (iterator.hasNext()) {
+			final Protein protein = iterator.next();
+			protein.getPsms().remove(psm);
+			iterator.remove();
 		}
-		// peptide
-		// if (psm.getPeptide() != null) {
-		// psm.getPeptide().getPsms().remove(psm);
-		// deletePeptide(psm.getPeptide());
-		// }
+		ContextualSessionHandler.delete(psm);
 	}
 
 	private void deletePeptide(Peptide peptide) {
@@ -248,34 +241,30 @@ public class MySQLDeleter {
 				deletePeptideRatio(peptideRatioValue);
 			}
 		}
+
 		// conditions
-		final Set<Condition> conditions = peptide.getConditions();
-		for (final Condition condition : conditions) {
-			condition.getPeptides().remove(peptide);
-		}
-		// psms
-		peptide.getPsms().clear();
+//		final Set<Condition> conditions = peptide.getConditions();
+//		for (final Condition condition : conditions) {
+//			condition.getPeptides().remove(peptide);
+//		}
+		peptide.getConditions().clear();
+		peptide.getMsRuns().clear();
+
+		// psms are the owners
 		final Iterator<Psm> psmsIterator = peptide.getPsms().iterator();
 		while (psmsIterator.hasNext()) {
 			final Psm psm = psmsIterator.next();
-			// actually delete psm before peptide
 			deletePSM(psm);
-			// psm.getPeptide().getPsms().remove(peptide);
-			// psmsIterator.remove();
+			psmsIterator.remove();
 		}
-
-		// proteins
-		peptide.getProteins().clear();
-		// final Iterator<Protein> proteinIterator =
-		// peptide.getProteins().iterator();
-		// while (proteinIterator.hasNext()) {
-		// Protein protein = proteinIterator.next();
-		// protein.getPeptides().remove(peptide);
-		// proteinIterator.remove();
-		// // deleteProtein(protein);
-		// }
-
+		final Iterator<Protein> proteinIterator = peptide.getProteins().iterator();
+		while (proteinIterator.hasNext()) {
+			final Protein protein = proteinIterator.next();
+			protein.getPeptides().remove(peptide);
+			proteinIterator.remove();
+		}
 		ContextualSessionHandler.delete(peptide);
+
 	}
 
 	private void deletePSMScore(PsmScore psmScore) {
@@ -313,17 +302,17 @@ public class MySQLDeleter {
 
 	private void deletePTM(Ptm ptm) {
 		final Set<PtmSite> ptmSites = ptm.getPtmSites();
-
-		for (final PtmSite ptmSite : ptmSites) {
-			// final ConfidenceScoreType confidenceScoreType =
-			// ptmSite.getConfidenceScoreType();
-			// if (confidenceScoreType != null) {
-			// confidenceScoreType.getPtmSites().remove(ptmSite);
-			// deleteConfidenceScoreType(confidenceScoreType);
-			// }
-			ContextualSessionHandler.delete(ptmSite);
+		if (false) {
+			for (final PtmSite ptmSite : ptmSites) {
+				// final ConfidenceScoreType confidenceScoreType =
+				// ptmSite.getConfidenceScoreType();
+				// if (confidenceScoreType != null) {
+				// confidenceScoreType.getPtmSites().remove(ptmSite);
+				// deleteConfidenceScoreType(confidenceScoreType);
+				// }
+				ContextualSessionHandler.delete(ptmSite);
+			}
 		}
-
 		ContextualSessionHandler.delete(ptm);
 
 	}
@@ -345,6 +334,7 @@ public class MySQLDeleter {
 		// }
 
 		ContextualSessionHandler.delete(proteinRatioValue);
+//		proteinRatioValue.getRatioDescriptor().getProteinRatioValues().remove(proteinRatioValue);
 
 	}
 
@@ -429,7 +419,7 @@ public class MySQLDeleter {
 	}
 
 	private void deleteProteinAmount(ProteinAmount proteinAmount) {
-
+		proteinAmount.getCondition().getProteinAmounts().remove(proteinAmount);
 		ContextualSessionHandler.delete(proteinAmount);
 		// amount type
 		// final AmountType amountType = proteinAmount.getAmountType();
@@ -445,6 +435,7 @@ public class MySQLDeleter {
 	}
 
 	private void deletePeptideAmount(PeptideAmount peptideAmount) {
+		peptideAmount.getCondition().getPeptideAmounts().remove(peptideAmount);
 
 		ContextualSessionHandler.delete(peptideAmount);
 		// amount type
@@ -461,7 +452,7 @@ public class MySQLDeleter {
 	}
 
 	private void deletePsmAmount(PsmAmount psmAmount) {
-
+		psmAmount.getCondition().getPsmAmounts().remove(psmAmount);
 		ContextualSessionHandler.delete(psmAmount);
 		// amount type
 		// final AmountType amountType = psmAmount.getAmountType();
@@ -473,30 +464,6 @@ public class MySQLDeleter {
 		// if (combinationType != null) {
 		// deleteCombinationType(combinationType);
 		// }
-	}
-
-	private void deleteProteinAccession(ProteinAccession proteinAccession) {
-
-		if (proteinAccession == null || proteinAccession.getAccession() == null)
-			log.warn("CUIDADO");
-		final ProteinAccession proteinAccessionInDB = ContextualSessionHandler.load(proteinAccession.getAccession(),
-				ProteinAccession.class);
-		if (proteinAccessionInDB != null) {
-			if (proteinAccession.hashCode() == proteinAccessionInDB.hashCode())
-				return;
-			proteinAccessionInDB.setAccessionType(proteinAccession.getAccessionType());
-			proteinAccessionInDB.setDescription(proteinAccession.getDescription());
-			if (proteinAccession.isIsPrimary())
-				proteinAccessionInDB.setIsPrimary(proteinAccession.isIsPrimary());
-			proteinAccessionInDB.setAlternativeNames(proteinAccession.getAlternativeNames());
-			proteinAccessionInDB.getProteins().addAll(proteinAccession.getProteins());
-			ContextualSessionHandler.delete(proteinAccessionInDB);
-			proteinAccession = proteinAccessionInDB;
-		} else {
-			// log.debug("saving " + proteinAccession.getAccession());
-			ContextualSessionHandler.delete(proteinAccession);
-
-		}
 	}
 
 	private void deleteAmountType(AmountType amountType) {
@@ -536,48 +503,60 @@ public class MySQLDeleter {
 		log.info("Deleting MSRun:  " + msRun.getRunId() + " of project " + msRun.getProject().getTag());
 		ContextualSessionHandler.refresh(msRun);
 
-		int num = 0;
 		final Set<Protein> proteins = msRun.getProteins();
-		double percentage = 0;
-		for (final Protein protein : proteins) {
-			num++;
-			final int newPercentage = Double.valueOf(num * 100.0 / proteins.size()).intValue();
-			if (newPercentage != percentage) {
-				percentage = newPercentage;
-				log.info(num + "/" + proteins.size() + "(" + newPercentage + "%) proteins deleted ");
+		ProgressCounter counter = new ProgressCounter(proteins.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
+		counter.setShowRemainingTime(true);
+		counter.setSuffix("proteins deleted");
+		final Iterator<Protein> iterator = proteins.iterator();
+		while (iterator.hasNext()) {
+			final Protein protein = iterator.next();
+			counter.increment();
+			final String printIfNecessary = counter.printIfNecessary();
+			if (printIfNecessary != null && !"".equals(printIfNecessary)) {
+				ContextualSessionHandler.flush();
+				log.info(printIfNecessary);
 			}
 			deleteProtein(protein);
+			iterator.remove();
 			if (Thread.interrupted()) {
 				throw new InterruptedException();
 			}
 		}
-		num = 0;
 		final Set<Peptide> peptides = msRun.getPeptides();
-		percentage = 0;
-		for (final Peptide peptide : peptides) {
-			num++;
-			final int newPercentage = Double.valueOf(num * 100.0 / peptides.size()).intValue();
-			if (newPercentage != percentage) {
-				percentage = newPercentage;
-				log.info(num + "/" + peptides.size() + "(" + newPercentage + "%) peptides deleted ");
+		counter = new ProgressCounter(peptides.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
+		counter.setShowRemainingTime(true);
+		counter.setSuffix("peptides deleted");
+		final Iterator<Peptide> iterator2 = peptides.iterator();
+		while (iterator2.hasNext()) {
+			final Peptide peptide = iterator2.next();
+			counter.increment();
+			final String print = counter.printIfNecessary();
+			if (print != null && !"".equals(print)) {
+				ContextualSessionHandler.flush();
+				log.info(print);
 			}
 			deletePeptide(peptide);
+			iterator2.remove();
 			if (Thread.interrupted()) {
 				throw new InterruptedException();
 			}
 		}
 
 		final Set<Psm> psms = msRun.getPsms();
-		percentage = 0;
-		num = 0;
-		for (final Psm psm : psms) {
-			num++;
-			final int newPercentage = Double.valueOf(num * 100.0 / psms.size()).intValue();
-			if (newPercentage != percentage) {
-				percentage = newPercentage;
-				log.info(num + "/" + psms.size() + "(" + newPercentage + "%) PSMs deleted ");
+		counter = new ProgressCounter(psms.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
+		counter.setShowRemainingTime(true);
+		counter.setSuffix("PSMs deleted");
+		final Iterator<Psm> iterator3 = psms.iterator();
+		while (iterator3.hasNext()) {
+			final Psm psm = iterator3.next();
+			counter.increment();
+			final String print = counter.printIfNecessary();
+			if (print != null && !"".equals(print)) {
+				ContextualSessionHandler.flush();
+				log.info(print);
 			}
 			deletePSM(psm);
+			iterator3.remove();
 			if (Thread.interrupted()) {
 				throw new InterruptedException();
 			}
@@ -696,10 +675,10 @@ public class MySQLDeleter {
 		// created
 		final Project hibProject = MySQLProteinDBInterface.getDBProjectByTag(projectTag);
 		if (hibProject != null) {
-			log.info("deleting project " + hibProject.getTag());
+			log.info("deleting project " + hibProject.getTag() + " with id: " + hibProject.getId());
 			// get a map between MSRuns and Conditions
 			final Map<MsRun, Set<Condition>> conditionsByMSRun = getConditionsByMSRun(hibProject);
-			final Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(conditionsByMSRun);
+//			final Map<Condition, Set<MsRun>> msRunsByCondition = getMSRunsByCondition(conditionsByMSRun);
 			int initialMSRunNumber = 0;
 
 			ContextualSessionHandler.beginGoodTransaction();
@@ -789,6 +768,10 @@ public class MySQLDeleter {
 			set.addAll(conditions);
 			log.info("MSRun " + msRun.getRunId() + " mapped to " + conditions.size() + " conditions");
 			conditionsByMSRun.put(msRun, set);
+
+			if (true) {
+				break;
+			}
 		}
 		log.info(conditionsByMSRun.size() + " conditions mapped to MSRuns.");
 

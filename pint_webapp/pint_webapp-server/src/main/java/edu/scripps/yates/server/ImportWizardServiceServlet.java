@@ -987,12 +987,17 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 								}
 								for (final Pair<String, String> pair : samplePairsInRatios) {
 									if (pair.getFirstElement().equals(sample.getId())) {
-										pair.setFirstElement(sample.getLabelRef());
+										if (sample.getLabelRef() != null) {
+											pair.setFirstElement(sample.getLabelRef());
+										}
 									}
 									if (pair.getSecondElement().equals(sample.getId())) {
-										pair.setSecondElement(sample.getLabelRef());
+										if (sample.getLabelRef() != null) {
+											pair.setSecondElement(sample.getLabelRef());
+										}
 									}
-									if (pair.getFirstElement().equals(pair.getSecondElement())) {
+									if (pair.getFirstElement() != null && pair.getSecondElement() != null
+											&& pair.getFirstElement().equals(pair.getSecondElement())) {
 										errorString
 												.append("There is a Ratio between 2 conditions having the same label '"
 														+ pair.getFirstElement() + "' coming from sample '"
@@ -1135,11 +1140,11 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			// ThreadSessionHandler.beginGoodTransaction();
 			new MySQLSaver().saveProject(projectFromCfgFile);
 			// ThreadSessionHandler.finishGoodTransaction();
-			log.info("Project sucessfully saved in database");
 			// log.info("Removing data files from server");
 			// FileManager.removeDataFiles(jobID, projectFilesPath);
 			// log.info("Data files removed");
 			ContextualSessionHandler.finishGoodTransaction();
+			log.info("Project sucessfully saved in database");
 
 			onSubmitProjectSuccessfull(jobID);
 			final String encryptedProjectTag = CryptoUtil.encrypt(pintImportCfgBean.getProject().getTag());
