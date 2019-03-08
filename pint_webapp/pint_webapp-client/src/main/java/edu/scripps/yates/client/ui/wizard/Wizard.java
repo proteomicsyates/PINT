@@ -521,7 +521,7 @@ public class Wizard<C extends WizardContext> extends Composite {
 	}
 
 	// === WizardPages ====================
-	public void addPage(final WizardPage<C> page, String activeStyleName, String inactiveStyleName)
+	public void addPage(final WizardPage<C> page, int index, String activeStyleName, String inactiveStyleName)
 			throws DuplicatePageException {
 		// make sure the page hasn't been added already
 		if (pages.contains(page)) {
@@ -530,9 +530,9 @@ public class Wizard<C extends WizardContext> extends Composite {
 
 		// add the title for so addPageTitle()
 		// doesn't fail due to a duplicate title.
-		addPageTitle(page.getTitle(), activeStyleName, inactiveStyleName);
+		addPageTitle(page.getTitle(), index, activeStyleName, inactiveStyleName);
 		// logical addition
-		pages.add(page);
+		pages.add(index, page);
 		// add the content
 		if (useLazyPageLoading) { // TODO: Adding content in Wizard#addPage should depend on view for DOM
 									// attachment
@@ -542,9 +542,9 @@ public class Wizard<C extends WizardContext> extends Composite {
 					return page.asWidget();
 				}
 			};
-			display.getContent().add(p);
+			display.getContent().add(index, p);
 		} else {
-			display.getContent().add(page.asWidget());
+			display.getContent().add(index, page.asWidget());
 		}
 		// callback to inject the helper
 		page.onPageAdd(helper);
@@ -594,9 +594,17 @@ public class Wizard<C extends WizardContext> extends Composite {
 	}
 
 	/**
-	 * Adds a {@link WizardPage} to the Wizard.
+	 * Adds a {@link WizardPage} to the Wizard as the last page
 	 */
 	public void addPage(final WizardPage<C> page) throws DuplicatePageException {
+		final int indexToInsertPage = this.getPages().size();
+		addPage(page, indexToInsertPage);
+	}
+
+	/**
+	 * Adds a {@link WizardPage} to the Wizard.
+	 */
+	public void addPage(final WizardPage<C> page, int index) throws DuplicatePageException {
 		// make sure the page hasn't been added already
 		if (pages.contains(page)) {
 			throw new DuplicatePageException();
@@ -604,9 +612,9 @@ public class Wizard<C extends WizardContext> extends Composite {
 
 		// add the title for so addPageTitle()
 		// doesn't fail due to a duplicate title.
-		addPageTitle(page.getTitle());
+		addPageTitle(page.getTitle(), index);
 		// logical addition
-		pages.add(page);
+		pages.add(index, page);
 		// add the content
 		if (useLazyPageLoading) { // TODO: Adding content in Wizard#addPage should depend on view for DOM
 									// attachment
@@ -616,9 +624,9 @@ public class Wizard<C extends WizardContext> extends Composite {
 					return page.asWidget();
 				}
 			};
-			display.getContent().add(p);
+			display.getContent().add(index, p);
 		} else {
-			display.getContent().add(page.asWidget());
+			display.getContent().add(index, page.asWidget());
 		}
 		// callback to inject the helper
 		page.onPageAdd(helper);
@@ -649,7 +657,7 @@ public class Wizard<C extends WizardContext> extends Composite {
 	 * 
 	 * @param title the title to add to the list
 	 */
-	private void addPageTitle(String title) {
+	private void addPageTitle(String title, int index) {
 		// Add the title to the list... maybe.
 		boolean addTitle = true;
 		if (title == null || title.isEmpty())
@@ -663,7 +671,7 @@ public class Wizard<C extends WizardContext> extends Composite {
 			}
 		}
 		if (addTitle)
-			display.getPageList().addPage(title);
+			display.getPageList().addPage(title, index);
 	}
 
 	private void removePageTitle(String title) {
@@ -692,7 +700,7 @@ public class Wizard<C extends WizardContext> extends Composite {
 	 * 
 	 * @param title the title to add to the list
 	 */
-	private void addPageTitle(String title, String activeStyleName, String inactiveStyleName) {
+	private void addPageTitle(String title, int index, String activeStyleName, String inactiveStyleName) {
 		// Add the title to the list... maybe.
 		boolean addTitle = true;
 		if (title == null || title.isEmpty())
@@ -706,7 +714,7 @@ public class Wizard<C extends WizardContext> extends Composite {
 			}
 		}
 		if (addTitle)
-			display.getPageList().addPage(title, activeStyleName, inactiveStyleName);
+			display.getPageList().addPage(title, index, activeStyleName, inactiveStyleName);
 	}
 
 	/**

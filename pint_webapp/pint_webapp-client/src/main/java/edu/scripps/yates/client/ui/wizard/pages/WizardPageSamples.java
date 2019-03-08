@@ -27,7 +27,7 @@ public class WizardPageSamples extends AbstractWizardPage {
 	private SamplesPanel samplePanel;
 
 	public WizardPageSamples() {
-		super("Samples definition");
+		super("Samples");
 
 	}
 

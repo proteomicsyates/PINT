@@ -97,7 +97,7 @@ public class WizardView extends Composite implements Display {
 
 		// add all the panels
 		outerPanel.addNorth(titlePanel, 50);
-		outerPanel.addWest(pageNamePanelContainer, 220);
+		outerPanel.addWest(pageNamePanelContainer, 180);
 		outerPanel.addSouth(navigationPanel, 50);
 		outerPanel.add(pagePanel);
 		outerPanel.getWidgetContainerElement(navigationPanel);

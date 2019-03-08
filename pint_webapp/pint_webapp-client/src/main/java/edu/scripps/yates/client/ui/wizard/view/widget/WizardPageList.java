@@ -52,13 +52,16 @@ public class WizardPageList extends Composite implements HasWizardTitles {
 	}
 
 	@Override
-	public void addPage(String name, String styleNameActive, String styleNameInactive) {
-		if (!pageNames.contains(name))
-			pageNames.add(name);
+	public void addPage(String name, int indexToInsert, String styleNameActive, String styleNameInactive) {
+		boolean isTheLastPage = false;
+		if (!pageNames.contains(name)) {
+			if (indexToInsert == pageNames.size()) {
+				isTheLastPage = true;
+			}
+			pageNames.add(indexToInsert, name);
+		}
 
 		final int index = pageNames.indexOf(name);
-		activeStyle.put(index, styleNameActive);
-		inactiveStyle.put(index, styleNameInactive);
 
 		String reducedName = name;
 		if (reducedName.length() > MAX_LENGTH_TITLE) {
@@ -67,8 +70,25 @@ public class WizardPageList extends Composite implements HasWizardTitles {
 		final Label label = new Label(reducedName);
 		label.setStyleName(WizardStyles.WizardInfoMessage);
 		label.setTitle(name);
-		table.setWidget(index, 1, label);
 
+		if (!isTheLastPage) {
+			// move all widgets to the bottom one position from the position to inser
+			final int rowCount = table.getRowCount();
+			for (int i = rowCount - 1; i >= indexToInsert; i--) {
+				final Widget lastWidget = table.getWidget(i, 1);
+				final int rowToInsert = i + 1;
+				table.setWidget(rowToInsert, 1, lastWidget);
+				table.getCellFormatter().setVerticalAlignment(rowToInsert, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+				table.getCellFormatter().setHorizontalAlignment(rowToInsert, 1, HasHorizontalAlignment.ALIGN_LEFT);
+				table.getCellFormatter().setVerticalAlignment(rowToInsert, 1, HasVerticalAlignment.ALIGN_BOTTOM);
+				table.getCellFormatter().addStyleName(rowToInsert, 1, styleNameInactive);
+				activeStyle.put(rowToInsert, styleNameActive);
+				inactiveStyle.put(rowToInsert, styleNameInactive);
+			}
+		}
+		table.setWidget(index, 1, label);
+		activeStyle.put(index, styleNameActive);
+		inactiveStyle.put(index, styleNameInactive);
 		table.getCellFormatter().setVerticalAlignment(index, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 		table.getCellFormatter().setHorizontalAlignment(index, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		table.getCellFormatter().setVerticalAlignment(index, 1, HasVerticalAlignment.ALIGN_BOTTOM);
@@ -76,8 +96,8 @@ public class WizardPageList extends Composite implements HasWizardTitles {
 	}
 
 	@Override
-	public void addPage(String name) {
-		addPage(name, WizardStyles.WizardInfoMessageSelected, WizardStyles.WizardInfoMessageNonSelected);
+	public void addPage(String name, int index) {
+		addPage(name, index, WizardStyles.WizardInfoMessageSelected, WizardStyles.WizardInfoMessageNonSelected);
 
 	}
 

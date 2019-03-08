@@ -2,6 +2,7 @@ package edu.scripps.yates.client.ui.wizard.pages;
 
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -9,7 +10,9 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ExcelColumnRefPanel;
+import edu.scripps.yates.client.pint.wizard.PintContext;
 import edu.scripps.yates.client.pint.wizard.PintImportCfgUtil;
+import edu.scripps.yates.client.ui.wizard.WizardPage;
 import edu.scripps.yates.client.ui.wizard.exception.DuplicatePageException;
 import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageCensusOutFileProcessor;
 import edu.scripps.yates.client.ui.wizard.pages.inputfiles.WizardPageDTASelectFileProcessor;
@@ -77,20 +80,33 @@ public class WizardPageSummary1 extends AbstractWizardPage {
 		// look for the input files and create a page for each of them
 		final List<FileTypeBean> files = PintImportCfgUtil.getFiles(wizard.getContext().getPintImportConfiguration());
 		int fileNumber = 1;
+		int indexToInsert = -1;
+		int i = 0;
+		// figure out in which index we want to start inserting the pages
+		// that will be after Summary of Elements
+		final PageID pageID = PageIDController.getPageIDByPageClass(WizardPageSummary1.class);
+		for (final WizardPage<PintContext> page : wizard.getPages()) {
+			if (page.getPageID() == pageID) {
+				indexToInsert = i + 1;
+				GWT.log("Inserting page in index " + indexToInsert);
+				break;
+			}
+			i++;
+		}
 		for (final FileTypeBean fileTypeBean : files) {
 			try {
 				switch (fileTypeBean.getFormat()) {
 				case CENSUS_CHRO_XML:
 					wizard.addPage(new WizardPageCensusOutFileProcessor(getContext(), fileNumber++, fileTypeBean),
-							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
+							indexToInsert, WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				case CENSUS_OUT_TXT:
 					wizard.addPage(new WizardPageCensusOutFileProcessor(getContext(), fileNumber++, fileTypeBean),
-							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
+							indexToInsert, WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				case DTA_SELECT_FILTER_TXT:
 					wizard.addPage(new WizardPageDTASelectFileProcessor(getContext(), fileNumber++, fileTypeBean),
-							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
+							indexToInsert, WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				case EXCEL:
 
@@ -99,17 +115,18 @@ public class WizardPageSummary1 extends AbstractWizardPage {
 						final WizardPageExcelFileProcessor excelProcessor = new WizardPageExcelFileProcessor(
 								getContext(), fileNumber++, fileTypeBean,
 								ExcelColumnRefPanel.getSheetName(sheet.getId()));
-						wizard.addPage(excelProcessor, WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
+						wizard.addPage(excelProcessor, indexToInsert, WizardStyles.activeSmaller,
+								WizardStyles.inactiveSmaller);
 					}
 
 					break;
 				case FASTA:
 					wizard.addPage(new WizardPageFastaFileProcessor(getContext(), fileNumber++, fileTypeBean),
-							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
+							indexToInsert, WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				case MZIDENTML:
 					wizard.addPage(new WizardPageMzIdentMLFileProcessor(getContext(), fileNumber++, fileTypeBean),
-							WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
+							indexToInsert, WizardStyles.activeSmaller, WizardStyles.inactiveSmaller);
 					break;
 				default:
 					break;
