@@ -4,7 +4,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -150,8 +149,8 @@ public class WizardPageFinal extends AbstractWizardPage {
 	}
 
 	protected void showDatasetSubmissionSuccessfull(String encryptedDatasetCode) {
-		final String privateURL = Window.Location.getProtocol() + "//" + Window.Location.getHost() + "/?project="
-				+ encryptedDatasetCode;
+
+		final String privateURL = GWT.getModuleBaseURL() + "?project=" + encryptedDatasetCode;
 		StatusReportersRegister.getInstance()
 				.notifyStatusReporters("Dataset '" + getContext().getPintImportConfiguration().getProject().getTag()
 						+ "' has been successfully imported to PINT.\n"
