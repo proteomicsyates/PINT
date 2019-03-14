@@ -83,7 +83,6 @@ public class MySQLSaver {
 		if (protein.getId() == null) {
 			log.info("Protein with no ID after saving it");
 		}
-
 		// protein accesssions
 
 		// if (proteinAccessions.isEmpty())
@@ -164,6 +163,7 @@ public class MySQLSaver {
 				saveProteinAmount(amount);
 			}
 		}
+
 		return true;
 	}
 
@@ -931,6 +931,19 @@ public class MySQLSaver {
 			final String printIfNecessary = counter2.printIfNecessary();
 			if (printIfNecessary != null && !"".equals(printIfNecessary)) {
 				log.info("Saving psms " + printIfNecessary + " in condition " + hibExperimentalCondition.getName());
+			}
+			log.info("this shouldnt happen");
+			if (hibExperimentalCondition.getPeptides().contains(psm.getPeptide())) {
+				final Integer pepID = psm.getPeptide().getId();
+				log.info(pepID);
+			}
+			final Set<Protein> proteinSet = psm.getProteins();
+			for (final Protein protein : proteinSet) {
+				if (hibExperimentalCondition.getProteins().contains(protein)) {
+					final Integer proteinID = protein.getId();
+					log.info(proteinID);
+				}
+
 			}
 			savePSM(psm);
 
