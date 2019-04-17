@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.dataproviders;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +25,7 @@ public interface DataProviderFromDB {
 	 * @return
 	 */
 
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode);
+	public Map<String, Collection<Protein>> getProteinMap(boolean testMode);
 
 	/**
 	 * Gets a psm Map using the peptide sequence as key
@@ -32,7 +33,7 @@ public interface DataProviderFromDB {
 	 * @return
 	 */
 
-	public Map<String, Set<Psm>> getPsmMap(boolean testMode);
+	public Map<String, Collection<Psm>> getPsmMap(boolean testMode);
 
 	/**
 	 * Gets a peptide Set
@@ -40,10 +41,10 @@ public interface DataProviderFromDB {
 	 * @return
 	 */
 
-	public Set<Peptide> getPeptideSet(boolean testMode);
+	public Collection<Peptide> getPeptideSet(boolean testMode);
 
 	/**
-	 * Set a constriction in the protein provider to only take proteins from the
+	 * Set a restriction in the protein provider to only take proteins from the
 	 * projects in the parameter
 	 *
 	 * @param projectTags

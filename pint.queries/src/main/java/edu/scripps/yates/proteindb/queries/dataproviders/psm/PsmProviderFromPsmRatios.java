@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
@@ -30,9 +29,9 @@ public class PsmProviderFromPsmRatios extends PsmDataProvider {
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
+	public Map<String, Collection<Psm>> getPsmMap(boolean testMode) {
 		if (result == null) {
-			result = new THashMap<String, Set<Psm>>();
+			result = new THashMap<String, Collection<Psm>>();
 			int numPSMs = 0;
 			// condition1 and condition2 only can contain one ConditionProject
 			if (condition1.getConditionProjects().size() != 1) {
