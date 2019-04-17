@@ -24,6 +24,7 @@ import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SampleBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
+import edu.scripps.yates.shared.tasks.Task;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantAnnotationDatabase;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantCVTol;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantLiteratureBias;
@@ -57,11 +58,12 @@ public interface ProteinRetrievalService extends RemoteService {
 	List<ProjectBean> getProjectBeans(Set<String> projectTags) throws PintException;
 
 	QueryResultSubLists getProteinsFromProjects(String sessionID, Set<String> projectTags, String uniprotVersion,
-			boolean separateNonConclusiveProteins, Integer defaultQueryIndex, boolean testMode) throws PintException;
+			boolean separateNonConclusiveProteins, Integer defaultQueryIndex, boolean testMode, Task task)
+			throws PintException;
 
 	QueryResultSubLists getProteinsFromQuery(String sessionID, String queryText, Set<String> projectTags,
-			boolean separateNonConclusiveProteins, boolean lock, boolean testMode, boolean ignoreReferences,
-			boolean ignoreDBReferences) throws PintException;
+			String uniprotVersion, boolean separateNonConclusiveProteins, boolean lock, boolean testMode,
+			boolean ignoreReferences, boolean ignoreDBReferences, Task task) throws PintException;
 
 	Set<String> getExperimentalConditionsFromProject(String projectTag) throws PintException;
 
@@ -87,8 +89,8 @@ public interface ProteinRetrievalService extends RemoteService {
 	// TInHashSet proteinBeanUniqueIdentifiers,
 	// boolean separateNonConclusiveProteins) throws PintException;
 
-	ProteinGroupBeanSubList groupProteins(String sessionID, boolean separateNonConclusiveProteins, int pageSize)
-			throws PintException;
+	ProteinGroupBeanSubList groupProteins(String sessionID, boolean separateNonConclusiveProteins, int pageSize,
+			Task task) throws PintException;
 
 	int getNumExperiments() throws PintException;
 
@@ -123,7 +125,7 @@ public interface ProteinRetrievalService extends RemoteService {
 
 	DefaultView getDefaultViewByProject(String projectTag) throws PintException;
 
-	ProgressStatus getProgressStatus(String sessionID, String taskKey) throws PintException;
+	ProgressStatus getProgressStatus(String sessionID, Task task) throws PintException;
 
 	ProteinBeanSubList getProteinBeansFromList(String sessionID, int start, int end) throws PintException;
 
@@ -191,8 +193,6 @@ public interface ProteinRetrievalService extends RemoteService {
 			throws PintException;
 
 	FileDescriptor getDownloadLinkForReactomeAnalysisResult(String sessionID) throws PintException;
-
-	List<ProteinProjection> getProteinProjectionsFromProject(String projectTag) throws PintException;
 
 	Map<String, Set<ProteinProjection>> getProteinProjectionsByProteinACCFromProject(String projectTag)
 			throws PintException;
