@@ -55,11 +55,9 @@ import edu.scripps.yates.server.adapters.PSMBeanAdapter;
 import edu.scripps.yates.server.adapters.PSMRatioBeanAdapter;
 import edu.scripps.yates.server.adapters.PTMBeanAdapter;
 import edu.scripps.yates.server.adapters.PTMSiteBeanAdapter;
-import edu.scripps.yates.server.adapters.PeptideBeanAdapterFromPeptideSet;
 import edu.scripps.yates.server.adapters.PeptideRatioBeanAdapter;
 import edu.scripps.yates.server.adapters.ProjectBeanAdapter;
 import edu.scripps.yates.server.adapters.ProteinAnnotationBeanAdapter;
-import edu.scripps.yates.server.adapters.ProteinBeanAdapterFromProteinSet;
 import edu.scripps.yates.server.adapters.ProteinRatioBeanAdapter;
 import edu.scripps.yates.server.adapters.SampleBeanAdapter;
 import edu.scripps.yates.server.adapters.ThresholdBeanAdapter;
@@ -75,6 +73,7 @@ import edu.scripps.yates.server.cache.ServerCacheProteinBeansByQueryString;
 import edu.scripps.yates.server.cache.ServerCacheProteinFileDescriptorByProjectName;
 import edu.scripps.yates.server.cache.ServerCacheProteinGroupFileDescriptorByProjectName;
 import edu.scripps.yates.server.cache.ServerCacheProteinNameProteinProjectionsByProjectTag;
+import edu.scripps.yates.server.cache.ServerCacheProteinProjectionsByProjectTag;
 import edu.scripps.yates.server.columns.ServerPSMComparator;
 import edu.scripps.yates.server.columns.ServerProteinComparator;
 import edu.scripps.yates.server.columns.ServerProteinGroupComparator;
@@ -84,15 +83,8 @@ import edu.scripps.yates.server.lock.LockerByTag;
 import edu.scripps.yates.server.projectStats.ProjectStatsManager;
 import edu.scripps.yates.server.pseaquant.PSEAQuantSender;
 import edu.scripps.yates.server.pseaquant.PSEAQuantSender.RATIO_AVERAGING;
-import edu.scripps.yates.server.tasks.GetDownloadLinkFromProteinGroupsFromQueryTask;
-import edu.scripps.yates.server.tasks.GetDownloadLinkFromProteinGroupsInProjectTask;
-import edu.scripps.yates.server.tasks.GetDownloadLinkFromProteinsInProjectTask;
-import edu.scripps.yates.server.tasks.GetDownloadLinkFromProteinsfromQueryTask;
-import edu.scripps.yates.server.tasks.GetProteinsFromProjectTask;
-import edu.scripps.yates.server.tasks.GetProteinsFromQuery;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.tasks.ServerTaskRegister;
-import edu.scripps.yates.server.tasks.Task;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.HttpUtils;
 import edu.scripps.yates.server.util.ServerConstants;
@@ -115,7 +107,12 @@ import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SampleBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
-import edu.scripps.yates.shared.tasks.SharedTaskKeyGenerator;
+import edu.scripps.yates.shared.tasks.GetDownloadLinkFromProteinGroupsFromQueryTask;
+import edu.scripps.yates.shared.tasks.GetDownloadLinkFromProteinGroupsInProjectTask;
+import edu.scripps.yates.shared.tasks.GetDownloadLinkFromProteinsInProjectTask;
+import edu.scripps.yates.shared.tasks.GetDownloadLinkFromProteinsfromQueryTask;
+import edu.scripps.yates.shared.tasks.Task;
+import edu.scripps.yates.shared.tasks.TaskKeyGenerator;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantAnnotationDatabase;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantCVTol;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantLiteratureBias;
@@ -125,6 +122,7 @@ import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantResult;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantSupportedOrganism;
 import edu.scripps.yates.shared.util.AlignmentResult;
 import edu.scripps.yates.shared.util.DefaultView;
+import edu.scripps.yates.shared.util.DefaultView.ORDER;
 import edu.scripps.yates.shared.util.FileDescriptor;
 import edu.scripps.yates.shared.util.ProgressStatus;
 import edu.scripps.yates.shared.util.ProteinPeptideClusterAlignmentResults;
@@ -265,7 +263,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			for (final edu.scripps.yates.proteindb.persistence.mysql.Project project : retrieveList) {
 				if (project.isHidden())
 					continue;
-				final ProjectBean projectBean = new ProjectBeanAdapter(project, false).adapt();
+				final ProjectBean projectBean = new ProjectBeanAdapter(project, false, false).adapt();
 				ServerCacheProjectBeanByProjectTag.getInstance().addtoCache(projectBean, projectBean.getTag());
 				projectTagSet.add(project.getTag());
 			}
@@ -281,7 +279,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public QueryResultSubLists getProteinsFromProjects(String sessionID, Set<String> projectTags, String uniprotVersion,
-			boolean separateNonConclusiveProteins, Integer defaultQueryIndex, boolean testMode) throws PintException {
+			boolean separateNonConclusiveProteins, Integer defaultQueryIndex, boolean testMode, Task task)
+			throws PintException {
 
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
@@ -289,28 +288,30 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		final String projectTagsString = getProjectTagString(projectTags, defaultQueryIndex);
 		log.info("GET PROTEINS FROM PROJECT '" + projectTagsString + "' IN SESSION: " + sessionID);
 		log.info(++times + " times getting proteins from project ");
-		GetProteinsFromProjectTask task = null;
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
 			LockerByTag.lock(projectTags, enclosingMethod);
-			// create a Task
-			task = new GetProteinsFromProjectTask(projectTagsString, uniprotVersion);
-
-			// register task
-			ServerTaskRegister.getInstance().registerTask(task);
 
 			DataSetsManager.clearDataSet(sessionID);
 			// set current thread as the one holding this dataset
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, projectTagsString, true, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, projectTagsString, true, getPSMCentric(),
+					getHiddenPTMs(projectTags));
 			dataSet.setActiveDatasetThread(Thread.currentThread());
 
 			if (ServerCacheProteinBeansByProjectTag.getInstance().contains(projectTagsString)
 					&& defaultQueryIndex == null) {
+
+				// register task
+				ServerTaskRegister.getInstance().registerTask(task);
+				task.setMaxSteps(2); // getting from cache and generating sublist
+				task.setTaskDescription("Getting data from cache");
 				log.info("Getting proteinBeans from cache for project(s): '" + projectTagsString + "' in session '"
 						+ sessionID + "'");
 				final List<ProteinBean> proteinBeansInCache = ServerCacheProteinBeansByProjectTag.getInstance()
 						.getFromCache(projectTagsString);
 				if (proteinBeansInCache != null) {
+					task.setCurrentStep(1);
+					task.setTaskDescription("Getting data ready");
 					log.info(proteinBeansInCache.size() + " protein beans retrieved from cache");
 					if (!proteinBeansInCache.isEmpty()) {
 						// add to the dataset
@@ -321,14 +322,18 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 						log.info("Setting dataset ready in session '" + sessionID + "'");
 						dataSet.setReady(true);
 						log.info(dataSet);
+						//
+						//
+						final boolean includePeptides = false;
+						//
+						//
 						final QueryResultSubLists ret = getQueryResultSubListsFromDataSet(dataSet, projectTags,
-								separateNonConclusiveProteins);
+								separateNonConclusiveProteins, includePeptides);
+						task.setCurrentStep(2);
 						return ret;
 					}
 				}
 			}
-
-			task.setTaskDescription("Loading proteins from  project(s) " + projectTagsString + "''...");
 
 			final StringBuilder querySB = new StringBuilder();
 			for (final String projectTag : projectTags) {
@@ -349,15 +354,16 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					}
 				} catch (final Exception e) {
 					final Task runningTask = ServerTaskRegister.getInstance().getRunningTask(
-							SharedTaskKeyGenerator.getKeyForGetProteinsFromProjectTask(projectTag, uniprotVersion));
+							TaskKeyGenerator.getKeyForGetProteinsFromProjectTask(projectTag, uniprotVersion));
 					if (runningTask != null)
 						runningTask.setAsFinished();
 					e.printStackTrace();
 					throw e;
 				}
 			}
+
 			final QueryResultSubLists proteinsFromQuery = getProteinsFromQuery(sessionID, querySB.toString(),
-					projectTags, separateNonConclusiveProteins, false, testMode, false, false);
+					projectTags, uniprotVersion, separateNonConclusiveProteins, false, testMode, false, false, task);
 
 			if (defaultQueryIndex == null && !dataSet.getProteins().isEmpty()) {
 				// add to cache by project tags
@@ -509,7 +515,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				if (proteinResultFilesByQueryStringInOrder.containsKey(queryInOrder + projectTagCollectionKey)) {
 					file = proteinResultFilesByQueryStringInOrder.get(queryInOrder + projectTagCollectionKey);
 				} else {
-					final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, true, getPSMCentric());
+					final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, true, getPSMCentric(),
+							getHiddenPTMs(projectTags));
 					if (!dataSet.isEmpty() && dataSet.isReady()) {
 						log.info("Getting download link from query: " + queryText + " in projects "
 								+ projectTagCollectionKey + " dataset '" + dataSet.getName() + "' in SessionID: "
@@ -585,7 +592,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				if (proteinGroupResultFilesByQueryStringInOrder.containsKey(queryInOrder + projectTagCollectionKey)) {
 					file = proteinGroupResultFilesByQueryStringInOrder.get(queryInOrder + projectTagCollectionKey);
 				} else {
-					final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, true, getPSMCentric());
+					final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, true, getPSMCentric(),
+							getHiddenPTMs(projectTags));
 					if (!dataSet.isEmpty() && dataSet.isReady()) {
 						log.info("Getting download link from query: " + queryText + " in projects "
 								+ projectTagCollectionKey + " dataset '" + dataSet.getName() + " SessionID: "
@@ -776,7 +784,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			final UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
 					UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 					UniprotProteinRetrievalSettings.getInstance().isUseIndex(), true, true);
-			upr.setCacheEnabled(false);
+			upr.setCacheEnabled(true);
 			final Set<String> uniprotversions = upr.getUniprotVersionsForProjects(uploadDatesByProjectTags);
 			ret.addAll(uniprotversions);
 			return ret;
@@ -898,49 +906,68 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	@Override
-	public ProteinGroupBeanSubList groupProteins(String sessionID, boolean separateNonConclusiveProteins, int pageSize)
-			throws PintException {
+	public ProteinGroupBeanSubList groupProteins(String sessionID, boolean separateNonConclusiveProteins, int pageSize,
+			Task task) throws PintException {
 		try {
 			final Method enclosingMethod = new Object() {
 			}.getClass().getEnclosingMethod();
 			logMethodCall(enclosingMethod);
 
-			return DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric())
+			// register task
+			ServerTaskRegister.getInstance().registerTask(task);
+
+			return DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null)
 					.getLightProteinGroupBeanSubList(separateNonConclusiveProteins, 0, pageSize);
 		} catch (final Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
 				throw e;
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		} finally {
+			// release task
+			if (task != null) {
+				ServerTaskRegister.getInstance().endTask(task);
+			}
 		}
-
 	}
 
 	@Override
 	public QueryResultSubLists getProteinsFromQuery(String sessionID, String queryText, Set<String> projectTags,
-			boolean separateNonConclusiveProteins, boolean lock, boolean testMode, boolean ignoreReferences,
-			boolean ignoreDBReferences) throws PintException {
-		GetProteinsFromQuery task = null;
+			String uniprotVersion, boolean separateNonConclusiveProteins, boolean lock, boolean testMode,
+			boolean ignoreReferences, boolean ignoreDBReferences, Task task) throws PintException {
+
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
+
 		try {
 
 			logMethodCall(enclosingMethod);
+			// ******************
+			//
+			// INCLUDE PEPTIDES:
+			//
+			// ******************
+			final boolean includePeptides = false;
+			//
+			//
+
+			final QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode, getPSMCentric());
+			final String queryInOrder = expressionTree.printInOrder();
+
+			// register task
+			ServerTaskRegister.getInstance().registerTask(task);
+
 			if (lock) {
 				LockerByTag.lock(sessionID, enclosingMethod);
 				LockerByTag.lock(projectTags, enclosingMethod);
 			}
-			final QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode, getPSMCentric());
-			final String queryInOrder = expressionTree.printInOrder();
-			// create task
-			task = new GetProteinsFromQuery(projectTags, queryInOrder);
-			// register task
-			ServerTaskRegister.getInstance().registerTask(task);
+
 			// clear map of current proteins for this sessionID
 			DataSetsManager.clearDataSet(sessionID);
 
 			// set current thread as the one holding this dataset
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, queryInOrder, true, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, queryInOrder, true, getPSMCentric(),
+					getHiddenPTMs(projectTags));
 			dataSet.setActiveDatasetThread(Thread.currentThread());
 
 			// look into cache
@@ -964,14 +991,15 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					// set datasetReady
 					dataSet.setReady(true);
 					log.info(dataSet);
-					return getQueryResultSubListsFromDataSet(dataSet, projectTags, separateNonConclusiveProteins);
+					return getQueryResultSubListsFromDataSet(dataSet, projectTags, separateNonConclusiveProteins,
+							includePeptides);
 				}
 			}
 
 			try {
 
 				task.setTaskDescription("Performing query...");
-				task.setMaxSteps(2);
+				task.setMaxSteps(7);
 				task.setCurrentStep(1);
 
 				// clear static data by DB identifiers
@@ -985,39 +1013,44 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				}
 				// end clearing cache
 
-				final QueryResult result = getQueryResultFromQuery(expressionTree, projectTags, testMode);
+				final QueryResult result = getQueryResultFromQuery(expressionTree, projectTags);
 
 				final Map<String, QueriableProteinSet> proteins = result.getProteins();
 				log.info(proteins.size() + " proteins comming from command  '" + queryText + "'");
 				if (!proteins.isEmpty()) {
-
+					task.setTaskDescription("Processing data retrieved from database");
+					task.setCurrentStep(2);
 					// adapt experimental conditions first so that the
 					// proteintocondition mapper is ready
+
 					for (final String projectTag : projectTags) {
 						final List<Condition> conditions = PreparedCriteria
 								.getCriteriaForConditionsInProject(projectTag);
 						for (final Condition condition : conditions) {
-							new ConditionBeanAdapter(condition, true).adapt();
+							new ConditionBeanAdapter(condition, true, includePeptides).adapt();
 						}
 					}
 
 					log.info("Getting UniprotKB annotations in session '" + sessionID + "'");
-					task.setTaskDescription("Retrieving UniprotKB annotations in session '" + sessionID + "'");
-					task.incrementProgress(1);
+					task.setTaskDescription("Retrieving annotations ");
+					task.setCurrentStep(3);
 					log.info(proteins.size() + " protein before annotate");
 					// I do not save the annotated proteins because they will be
 					// accessed from the queriableProteinSets
-					RemoteServicesTasks.annotateProteinsWithUniprot(proteins.keySet(), null, projectTagsString);
+					RemoteServicesTasks.annotateProteinsWithUniprot(proteins.keySet(), uniprotVersion,
+							projectTagsString);
 					log.info(proteins.size() + " protein after annotate");
 
 					log.info("Creating Protein beans in session '" + sessionID + "'");
+					task.setTaskDescription("Preparing dataset to show");
+					task.setCurrentStep(4);
 					// RemoteServicesTasks.createProteinBeansFromQueriableProteins(sessionID,
 					// proteins,
 					// getHiddenPTMs(projectTags),
 					// getProjectTagString(projectTags));
 					RemoteServicesTasks.createProteinBeansFromQueriableProteins(sessionID, proteins,
 							getHiddenPTMs(projectTags), projectTagsString, expressionTree.isProteinLevelQuery(),
-							getPSMCentric());
+							getPSMCentric(), includePeptides);
 					// proteins have to be before creating peptides, because
 					// when peptides are created, the cache of the proteins is
 					// used.
@@ -1030,14 +1063,15 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					log.info("Setting dataset ready in session '" + sessionID + "'");
 					dataSet.setReady(true);
 
+					task.setTaskDescription("Merging annotations with dataset");
+					task.setCurrentStep(5);
 					log.info("Getting Uniprot annotations in session '" + sessionID + "'");
-					RemoteServicesTasks.annotateProteinBeansWithUniprot(dataSet.getProteins(), null,
+					RemoteServicesTasks.annotateProteinBeansWithUniprot(dataSet.getProteins(), uniprotVersion,
 							getHiddenPTMs(projectTags), ignoreReferences, ignoreDBReferences);
 
 					log.info("Getting OMIM annotations in session '" + sessionID + "'");
-					task.setTaskDescription("Retrieving OMIM annotations...");
-					task.incrementProgress(1);
-
+					task.setTaskDescription("Retrieving OMIM annotations");
+					task.setCurrentStep(6);
 					RemoteServicesTasks.annotateProteinsOMIM(dataSet.getProteins(), PintConfigurationPropertiesIO
 							.readProperties(FileManager.getPINTPropertiesFile(getServletContext())).getOmimKey());
 				}
@@ -1045,17 +1079,18 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				if (!dataSet.getProteins().isEmpty()) {
 					ServerCacheProteinBeansByQueryString.getInstance().addtoCache(dataSet.getProteins(), key);
 				}
-
+				task.setTaskDescription("Sorting result lists");
+				task.setCurrentStep(7);
 				final QueryResultSubLists ret = getQueryResultSubListsFromDataSet(dataSet, projectTags,
-						separateNonConclusiveProteins);
+						separateNonConclusiveProteins, includePeptides);
 
 				return ret;
 
 			} finally {
 				// clear static data by DB identifiers
 				clearThreadLocalStaticMaps();
-				ServerCacheProteinBeansByProteinDBId.getInstance().clearCache();
-				ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
+//				ServerCacheProteinBeansByProteinDBId.getInstance().clearCache();
+//				ServerCachePSMBeansByPSMDBId.getInstance().clearCache();
 				// end clearing cache
 
 			}
@@ -1102,13 +1137,13 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		SampleBeanAdapter.clearStaticMap();
 		ThresholdBeanAdapter.clearStaticMap();
 		TissueBeanAdapter.clearStaticMap();
-		PeptideBeanAdapterFromPeptideSet.clearStaticMap();
-		ProteinBeanAdapterFromProteinSet.clearStaticMap();
+//		PeptideBeanAdapterFromPeptideSet.clearStaticMap();
+//		ProteinBeanAdapterFromProteinSet.clearStaticMap();
 		log.info("Static beans objects by DB Identifiers cleared");
 
 	}
 
-	public QueryResult getQueryResultFromQuery(QueryInterface expressionTree, Set<String> projectTags, boolean testMode)
+	public QueryResult getQueryResultFromQuery(QueryInterface expressionTree, Set<String> projectTags)
 			throws PintException {
 		try {
 
@@ -1134,7 +1169,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	private QueryResultSubLists getQueryResultSubListsFromDataSet(DataSet dataSet, Set<String> projectTags,
-			boolean separateNonConclusiveProteins) throws PintException {
+			boolean separateNonConclusiveProteins, boolean includePeptides) throws PintException {
 		int psmsPageSize = 100;
 		int proteinsPageSize = 50;
 		int proteinGroupsPageSize = 50;
@@ -1151,13 +1186,21 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		log.info("Getting query result sub lists from dataset:");
 		log.info(dataSet);
 		log.info("Sorting dataset according to default view of the project");
-
-		final ServerProteinGroupComparator proteinGroupComparator = new ServerProteinGroupComparator(
+		Comparator<ProteinGroupBean> proteinGroupComparator = new ServerProteinGroupComparator(
 				defaultViewByProject.getProteinGroupsSortedBy());
-		final ServerProteinComparator proteinComparator = new ServerProteinComparator(
+		if (defaultViewByProject.getProteinGroupOrder() == ORDER.DESCENDING) {
+			proteinGroupComparator = new ReverseComparator(proteinGroupComparator);
+		}
+		Comparator<ProteinBean> proteinComparator = new ServerProteinComparator(
 				defaultViewByProject.getProteinsSortedBy());
-		final ServerPSMComparator psmComparator = new ServerPSMComparator(defaultViewByProject.getPsmsSortedBy());
+		if (defaultViewByProject.getProteinOrder() == ORDER.DESCENDING) {
+			proteinComparator = new ReverseComparator(proteinComparator);
+		}
 
+		Comparator<PSMBean> psmComparator = new ServerPSMComparator(defaultViewByProject.getPsmsSortedBy());
+		if (defaultViewByProject.getPsmOrder() == ORDER.DESCENDING) {
+			psmComparator = new ReverseComparator(psmComparator);
+		}
 		log.info("Sorting dataset according to default view of the project: protein groups by "
 				+ defaultViewByProject.getProteinGroupsSortedBy().getName() + ", proteins sorted by "
 				+ defaultViewByProject.getProteinsSortedBy().getName() + " and PSMs sorted by "
@@ -1171,21 +1214,30 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 		// get sublists
 		log.info("Getting sublists of the data");
-		final ProteinBeanSubList proteinBeanSubList = dataSet.getLightProteinBeanSubList(0, proteinsPageSize);
-		final PsmBeanSubList psmBeanSubList = dataSet.getLightPsmBeanSubList(0, psmsPageSize);
-		final ProteinGroupBeanSubList proteinGroupBeanSubList = dataSet
-				.getLightProteinGroupBeanSubList(separateNonConclusiveProteins, 0, proteinGroupsPageSize);
-		final PeptideBeanSubList peptideSubList = dataSet.getLightPeptideBeanSubList(0, peptidesPageSize);
-		final int numDifferentSequencesDistinguishingModifieds = dataSet.getNumDifferentSequences(true);
-		final int numDifferentSequences = dataSet.getNumDifferentSequences(false);
+//		final ProteinBeanSubList proteinBeanSubList = dataSet.getLightProteinBeanSubList(0, proteinsPageSize);
+//		final PsmBeanSubList psmBeanSubList = dataSet.getLightPsmBeanSubList(0, psmsPageSize);
+//		final ProteinGroupBeanSubList proteinGroupBeanSubList = dataSet
+//				.getLightProteinGroupBeanSubList(separateNonConclusiveProteins, 0, proteinGroupsPageSize);
+
 		final QueryResultSubLists ret = new QueryResultSubLists(dataSet.getProteinScores(), dataSet.getPeptideScores(),
 				dataSet.getPsmScores(), dataSet.getPtmScores(), dataSet.getScoreTypes());
-		ret.setProteinGroupSubList(proteinGroupBeanSubList);
-		ret.setProteinSubList(proteinBeanSubList);
-		ret.setPsmSubList(psmBeanSubList);
-		ret.setPeptideSubList(peptideSubList);
-		ret.setNumDifferentSequences(numDifferentSequences);
-		ret.setNumDifferentSequencesDistinguishingModifieds(numDifferentSequencesDistinguishingModifieds);
+
+		if (includePeptides) {
+			final int numDifferentSequencesDistinguishingModifieds = dataSet.getNumDifferentSequences(true);
+			final int numDifferentSequences = dataSet.getNumDifferentSequences(false);
+//			final PeptideBeanSubList peptideSubList = dataSet.getLightPeptideBeanSubList(0, peptidesPageSize);
+//			ret.setPeptideSubList(peptideSubList);
+			ret.setNumDifferentSequences(numDifferentSequences);
+			ret.setNumDifferentSequencesDistinguishingModifieds(numDifferentSequencesDistinguishingModifieds);
+		}
+
+//		ret.setProteinGroupSubList(proteinGroupBeanSubList);
+		ret.setNumTotalProteinGroups(dataSet.getProteinGroups(separateNonConclusiveProteins).size());
+//		ret.setProteinSubList(proteinBeanSubList);
+		ret.setNumTotalProteins(dataSet.getProteins().size());
+//		ret.setPsmSubList(psmBeanSubList);
+		ret.setNumTotalPSMs(dataSet.getPsms().size());
+
 		log.info("Sublists data ready to be returned");
 		return ret;
 	}
@@ -1378,7 +1430,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	public void sendTrackingEmail(String projectTag, String... annotations) {
 		try {
-			if (SharedConstants.EMAIL_ENABLED) {
+			if (SharedConstants.EMAIL_ENABLED && !isTestServer()) {
 
 				log.info("Trying to send the tracking email");
 				String remoteHost = "";
@@ -1417,18 +1469,18 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	@Override
-	public ProgressStatus getProgressStatus(String sessionID, String taskKey) {
-		final Method enclosingMethod = new Object() {
-		}.getClass().getEnclosingMethod();
-		logMethodCall(enclosingMethod);
+	public ProgressStatus getProgressStatus(String sessionID, Task task) {
+//		final Method enclosingMethod = new Object() {
+//		}.getClass().getEnclosingMethod();
+//		logMethodCall(enclosingMethod);
 
-		log.info("Request for progress on task: " + taskKey + " received");
-		final Task runningTask = ServerTaskRegister.getInstance().getRunningTask(taskKey);
+		log.debug("Request for progress on task: " + task.getKey() + " received");
+		final Task runningTask = ServerTaskRegister.getInstance().getRunningTask(task.getKey());
 		if (runningTask != null) {
-			log.info("The progress is: " + runningTask.getProgressStatus());
+			log.debug("The progress is: " + runningTask.getProgressStatus());
 			return runningTask.getProgressStatus();
 		}
-		log.info(taskKey + " is not running. Returning null progress");
+		log.info(task.getKey() + " is not running. Returning null progress");
 		return null;
 	}
 
@@ -1441,7 +1493,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			LockerByTag.lock(sessionID, enclosingMethod);
 			// log.info("Getting protein list from " + start + " to " + end + "
 			// in session ID: " + sessionID);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				final ProteinBeanSubList proteinBeanSubList = dataSet.getLightProteinBeanSubList(start, end);
 				return proteinBeanSubList;
@@ -1493,7 +1545,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				log.info("Getting sorted protein list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID);
@@ -1533,7 +1585,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		logMethodCall(enclosingMethod);
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				log.info("Getting protein group list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID);
@@ -1560,7 +1612,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		logMethodCall(enclosingMethod);
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				final PsmBeanSubList proteinGroupBeanSubList = dataSet.getLightPsmBeanSubList(start, end);
 				return proteinGroupBeanSubList;
@@ -1589,7 +1641,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
@@ -1627,7 +1679,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
@@ -1664,7 +1716,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				log.info("Getting sorted psm list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID + " for psmProvider");
@@ -1715,7 +1767,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		logMethodCall(enclosingMethod);
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				log.info("Getting list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID + " for psmProvider");
@@ -1825,7 +1877,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				if (peptideProvider instanceof ProteinGroupBean) {
 					log.info("Getting peptide-protein table for protein group "
@@ -1836,11 +1888,15 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 							+ ((ProteinBean) peptideProvider).getPrimaryAccession().getAccession() + " in dataset '"
 							+ dataSet.getName() + "'");
 				}
+
+				//
 				ProteinPeptideCluster ret = null;
 				// get the non light version of the object
 				if (peptideProvider instanceof ProteinBean) {
 					final ProteinBean proteinBean = dataSet.getProteinBeansByUniqueIdentifier()
 							.get(((ProteinBean) peptideProvider).getProteinBeanUniqueIdentifier());
+					// this will force to query the peptides in case they have not been queried yet.
+					dataSet.getPeptidesFromPeptideProvider(proteinBean);
 					ret = new ProteinPeptideCluster(proteinBean);
 				} else if (peptideProvider instanceof ProteinGroupBean) {
 					final ProteinGroupBean proteinGroupLight = (ProteinGroupBean) peptideProvider;
@@ -1848,12 +1904,22 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					for (final ProteinBean proteinBeanLight : proteinGroupLight) {
 						final ProteinBean proteinBean = dataSet.getProteinBeansByUniqueIdentifier()
 								.get(proteinBeanLight.getProteinBeanUniqueIdentifier());
+						// this will force to query the peptides in case they have not been queried yet.
 						proteinGroup.add(proteinBean);
 					}
+					final List<PeptideBean> peptidesFromIndividualProteins = dataSet
+							.getPeptidesFromPeptideProvider(proteinGroup);
+					for (final PeptideBean peptideBean : peptidesFromIndividualProteins) {
+						proteinGroup.addPeptide(peptideBean);
+					}
+					// now create the cluster
 					ret = new ProteinPeptideCluster(proteinGroup);
 				}
 				final ProteinPeptideClusterAlignmentResults peptideAlignment = getPeptideAlignment(ret);
 				ret.setAligmentResults(peptideAlignment);
+
+				System.out.println(ret.getRelationships().size() + " peptides");
+				System.out.println(ret.getExtendedRelationships().size() + " peptides in extended");
 				return ret;
 			}
 		} catch (final Exception e) {
@@ -1948,12 +2014,14 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				if (!ascendant) {
 					comparator = new ReverseComparator(comparator);
 				}
 				try {
+					// allow to get peptides
+					dataSet.setReadyForGettingPeptides(true);
 					dataSet.sortPeptides(comparator);
 				} catch (final Exception e) {
 					e.printStackTrace();
@@ -1981,7 +2049,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				final PeptideBeanSubList peptideBeanSubList = dataSet.getLightPeptideBeanSubList(start, end);
 				return peptideBeanSubList;
@@ -2009,7 +2077,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				log.info("Getting sorted peptide list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID + " for peptideProvider");
@@ -2061,7 +2129,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		logMethodCall(enclosingMethod);
 		try {
 			LockerByTag.lock(sessionID, enclosingMethod);
-			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric());
+			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
 				log.info("Getting list from " + start + " to " + end + " dataset '" + dataSet.getName()
 						+ "' in session ID: " + sessionID + " for peptideProvider");
@@ -2195,33 +2263,44 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}
 	}
 
-	@Override
-	public List<ProteinProjection> getProteinProjectionsFromProject(String projectTag) throws PintException {
+	private List<ProteinProjection> getProteinProjectionsFromProject(String projectTag) throws PintException {
 		try {
 			final Method enclosingMethod = new Object() {
 			}.getClass().getEnclosingMethod();
 			logMethodCall(enclosingMethod);
-
-			log.info("Retrieving protein projections for project '" + projectTag + "'");
-			final List<String> accs = PreparedCriteria.getCriteriaForProteinPrimaryAccs(projectTag, null, null, null);
-
-			final Map<String, Entry> annotatedProteinsWithUniprot = RemoteServicesTasks
-					.annotateProteinsWithUniprot(accs, null, projectTag);
-
-			final Criteria cr2 = PreparedCriteria.getCriteriaForProteinProjection2(projectTag, null, null, null);
-			// transform the results in ProteinProjections
-			final List<ProteinProjection> list = cr2
-					.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class)).list();
-			log.info(list.size() + " protein projections");
-			for (final ProteinProjection proteinProjection : list) {
-				final Entry entry = annotatedProteinsWithUniprot.get(proteinProjection.getAcc());
-				proteinProjection.setDescription(UniprotEntryUtil.getProteinDescription(entry));
-				final List<Pair<String, String>> geneNames = UniprotEntryUtil.getGeneName(entry, true, true);
-				if (!geneNames.isEmpty()) {
-					proteinProjection.setGene(geneNames.get(0).getFirstelement());
+			final String lockTag = projectTag + "_protein_projections";
+			try {
+				LockerByTag.lock(lockTag, null);
+				if (ServerCacheProteinProjectionsByProjectTag.getInstance().contains(projectTag)) {
+					log.info("Protein projections for project '" + projectTag + "' found in cache");
+					return ServerCacheProteinProjectionsByProjectTag.getInstance().getFromCache(projectTag);
 				}
+
+				log.info("Retrieving protein projections for project '" + projectTag + "'");
+				final List<String> accs = PreparedCriteria.getCriteriaForProteinPrimaryAccs(projectTag, null, null,
+						null);
+
+				final Map<String, Entry> annotatedProteinsWithUniprot = RemoteServicesTasks
+						.annotateProteinsWithUniprot(accs, null, projectTag);
+
+				final Criteria cr2 = PreparedCriteria.getCriteriaForProteinProjection2(projectTag, null, null, null);
+				// transform the results in ProteinProjections
+				final List<ProteinProjection> list = cr2
+						.setResultTransformer(Transformers.aliasToBean(ProteinProjection.class)).list();
+				log.info(list.size() + " protein projections");
+				for (final ProteinProjection proteinProjection : list) {
+					final Entry entry = annotatedProteinsWithUniprot.get(proteinProjection.getAcc());
+					proteinProjection.setDescription(UniprotEntryUtil.getProteinDescription(entry));
+					final List<Pair<String, String>> geneNames = UniprotEntryUtil.getGeneName(entry, true, true);
+					if (!geneNames.isEmpty()) {
+						proteinProjection.setGene(geneNames.get(0).getFirstelement());
+					}
+				}
+				ServerCacheProteinProjectionsByProjectTag.getInstance().addtoCache(list, projectTag);
+				return list;
+			} finally {
+				LockerByTag.unlock(lockTag, enclosingMethod);
 			}
-			return list;
 		} catch (final Exception e) {
 			e.printStackTrace();
 			if (e instanceof PintException)
