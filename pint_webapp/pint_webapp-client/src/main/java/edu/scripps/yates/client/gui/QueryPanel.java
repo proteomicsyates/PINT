@@ -32,7 +32,9 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -74,6 +76,7 @@ import edu.scripps.yates.client.gui.components.dataprovider.AsyncPeptideBeanList
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncPeptideBeanListFromPeptideProvider;
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncProteinBeanListDataProvider;
 import edu.scripps.yates.client.gui.components.dataprovider.AsyncProteinGroupBeanListDataProvider;
+import edu.scripps.yates.client.gui.components.progressbar.AdvancedProgressDialog;
 import edu.scripps.yates.client.gui.components.projectCreatorWizard.ProjectCreatorWizardUtil;
 import edu.scripps.yates.client.gui.components.pseaquant.PSEAQuantFormPanel;
 import edu.scripps.yates.client.gui.incrementalCommands.DoSomethingTask;
@@ -85,7 +88,7 @@ import edu.scripps.yates.client.statusreporter.StatusReporter;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.tasks.PendingTaskHandler;
 import edu.scripps.yates.client.tasks.PendingTasksManager;
-import edu.scripps.yates.client.tasks.TaskType;
+import edu.scripps.yates.client.ui.wizard.styles.WizardStyles;
 import edu.scripps.yates.client.util.ClientDataUtil;
 import edu.scripps.yates.client.util.ClientGUIUtil;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
@@ -104,6 +107,12 @@ import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.ProteinProjection;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
+import edu.scripps.yates.shared.tasks.CancellingTask;
+import edu.scripps.yates.shared.tasks.GetProteinsFromProjectTask;
+import edu.scripps.yates.shared.tasks.GetProteinsFromQuery;
+import edu.scripps.yates.shared.tasks.GroupProteinsTask;
+import edu.scripps.yates.shared.tasks.Task;
+import edu.scripps.yates.shared.tasks.TaskType;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.DefaultView.TAB;
 import edu.scripps.yates.shared.util.FileDescriptor;
@@ -191,6 +200,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	private Timer timer;
 	private final QueryHelpPanel helpPanel;
 
+	private AdvancedProgressDialog advancedProgressDialog;
+
 	public QueryPanel(String sessionID, Set<String> projectTags, boolean testMode, boolean directAccess) {
 		this(sessionID, testMode);
 		loadProjectListFromServer(projectTags, testMode, directAccess);
@@ -217,7 +228,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		final DockLayoutPanel mainPanel = new DockLayoutPanel(Unit.PX);
 		mainPanel.setStyleName("MainPanel");
 		initWidget(mainPanel);
-		showLoadingDialog("Loading PINT components...", null, null);
+//		showLoadingDialogOLD("Loading PINT components...", null, null);
 
 		// HeaderPanel header = new HeaderPanel();
 		// mainPanel.add(header);
@@ -913,7 +924,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		setStyleName("MainPanel");
 
 		// select project tab
-		selectProjectInfoTab();
+		changeToProjectInfoTab();
 
 	}
 
@@ -956,17 +967,17 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// show the query tab
 		final Widget widget = firstLevelTabPanel.getWidget(firstLevelTabPanel.getSelectedIndex());
 		if (!widget.equals(queryEditorPanel)) {
-			selectQueryTab();
+			changeToQueryTab();
 		}
 		// proteinTablePanel.getDataGrid().setFocus(true);
 		// proteinTablePanel.getDataGrid().redraw();
 	}
 
-	private void selectQueryTab() {
+	private void changeToQueryTab() {
 		firstLevelTabPanel.selectTab(scrollQueryPanel);
 	}
 
-	private void selectProjectInfoTab() {
+	private void changeToProjectInfoTab() {
 		firstLevelTabPanel.selectTab(scrollProjectInformationPanel);
 	}
 
@@ -986,18 +997,18 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					public void execute() {
 						GWT.log("Sending proteins to group");
 						// add PendingTask
-						final String taskKey = PendingTasksManager.addPendingTask(TaskType.GROUP_PROTEINS, "");
+						final Task task = PendingTasksManager.addPendingTask(new GroupProteinsTask(loadedProjects));
 						proteinGroupTablePanel.clearTable();
 						proteinRetrievingService.groupProteins(sessionID,
 								proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(),
-								proteinGroupTablePanel.getDataGrid().getPageSize(),
+								proteinGroupTablePanel.getDataGrid().getPageSize(), task,
 								new AsyncCallback<ProteinGroupBeanSubList>() {
 
 									@Override
 									public void onFailure(Throwable caught) {
 										updateStatus(caught);
 										// remove PendingTask
-										PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, taskKey);
+										PendingTasksManager.removeTask(task);
 									}
 
 									@Override
@@ -1008,7 +1019,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											loadProteinGroupsOnGrid(0, proteinGroupSubList);
 										}
 										// remove PendingTask
-										PendingTasksManager.removeTask(TaskType.GROUP_PROTEINS, taskKey);
+										PendingTasksManager.removeTask(task);
 									}
 
 								});
@@ -1338,7 +1349,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// peptideTablePanel.clearTable();
 		if ("".equals(queryText)) {
 			updateStatus("Empty query. Loading whole project...");
-			loadProteinsFromProject(uniprotVersion, null, null, testMode);
+			loadProteinsFromProject(uniprotVersion, null, null, //
+					false // showProjectWindow
+					, testMode);
 			return;
 		}
 
@@ -1355,14 +1368,14 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 		queryEditorPanel.setSendingStatusText(logMessage);
 		queryEditorPanel.setLinksToResultsVisible(false);
-		queryEditorPanel.updateQueryResult(null);
+		queryEditorPanel.updateQueryResultSummary(null);
 		// add pending task
-		final String taskKey = PendingTasksManager.addPendingTask(TaskType.QUERY_SENT, queryText);
+		final Task task = PendingTasksManager.addPendingTask(new GetProteinsFromQuery(loadedProjects, queryText));
 		// set status
 		updateStatus("Sending query '" + queryText + "' to server...");
 		// send query to server
-		proteinRetrievingService.getProteinsFromQuery(sessionID, queryText, loadedProjects,
-				proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), true, testMode, false, false,
+		proteinRetrievingService.getProteinsFromQuery(sessionID, queryText, loadedProjects, uniprotVersion,
+				proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), true, testMode, false, false, task,
 				new AsyncCallback<QueryResultSubLists>() {
 
 					@Override
@@ -1372,7 +1385,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							queryEditorPanel.setSendingStatusText(null);
 						} finally {
 							// remove pending task
-							PendingTasksManager.removeTask(TaskType.QUERY_SENT, taskKey);
+							PendingTasksManager.removeTask(task);
 						}
 					}
 
@@ -1380,7 +1393,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					public void onSuccess(QueryResultSubLists result) {
 						try {
 							final String nullString = null;
-							queryEditorPanel.updateQueryResult(result);
+							queryEditorPanel.updateQueryResultSummary(result);
+							queryEditorPanel.setSendingStatusText(null); // set null to come back to default
 							proteinGroupTablePanel.setEmptyTableWidget(nullString);
 							proteinTablePanel.setEmptyTableWidget(nullString);
 							if (Pint.getPSMCentric()) {
@@ -1392,29 +1406,24 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							}
 							peptideOnlyTablePanel.setEmptyTableWidget(nullString);
 							if (Pint.getPSMCentric()) {
-								updateStatus(result.getPsmSubList().getTotalNumber() + " psms received.");
+								updateStatus(result.getNumTotalPSMs() + " psms received.");
 							}
-							updateStatus(result.getPeptideSubList().getTotalNumber() + " peptides received.");
-							updateStatus(result.getProteinSubList().getTotalNumber() + " proteins received.");
-							updateStatus(
-									result.getProteinGroupSubList().getTotalNumber() + " protein groups received.");
+//							updateStatus(result.getNumDifferentSequences() + " peptides received.");
+							updateStatus(result.getNumTotalProteins() + " proteins received.");
+							updateStatus(result.getNumTotalProteinGroups() + " protein groups received.");
 
-							// dont load the data and wait for the default view
-							// loadProteinsOnGrid(0,
-							// result.getProteinSubList());
-							// loadPSMsOnlyOnGrid(0, result.getPsmSubList());
-							// loadPeptidesOnlyOnGrid(0,
-							// result.getPeptideSubList());
-							// loadProteinGroupsOnGrid(0,
-							// result.getProteinGroupSubList());
-
-							if (result.getPsmSubList().getTotalNumber() > 0) {
+							if (result.getNumTotalProteins() > 0) {
 								prepareDownloadLinksForQuery();
 							}
 
 							// if (!defaultViewsApplied) {
-							requestDefaultViews(loadedProjectBeanSet.iterator().next(), true, false, false, true,
-									loadedProjectBeanSet.containsBigProject(), testMode);
+							requestDefaultViews(loadedProjectBeanSet.iterator().next(), true, // modify columns
+									false, // showMaxNumberMaxNumberOfProjectAtOnceMessage
+									true, // changeToDataTab
+									loadedProjectBeanSet.containsBigProject(), //
+									testMode, //
+									false // showWelcomeProjectWindow
+							);
 							proteinGroupTablePanel.reloadData();
 							proteinTablePanel.reloadData();
 							if (Pint.getPSMCentric()) {
@@ -1428,7 +1437,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							// }
 						} finally {
 							// remove pending task
-							PendingTasksManager.removeTask(TaskType.QUERY_SENT, taskKey);
+							PendingTasksManager.removeTask(task);
 						}
 					}
 				});
@@ -1936,8 +1945,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	protected void checkLoadedProjectsAndLoadProjects(List<ProjectBean> projectBeans, boolean checkPrivateProjects,
 			boolean testMode, boolean directAccess) {
-		// show the welcome box
-		final boolean showWelcome = true;
+
 		final ProjectBean projectBeanForDisplay = loadedProjectBeanSet.getBigProject() != null
 				? loadedProjectBeanSet.getBigProject()
 				: projectBeans.get(0);
@@ -1951,8 +1959,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		final boolean changeToDataTab = false;
 		final boolean showMaxNumberOfProjectsAtOnceMessage = loadedProjectBeanSet
 				.size() > SharedConstants.MAX_NUM_PROJECTS_LOADED_AT_ONCE;
-		requestDefaultViews(projectBeanForDisplay, modifyColumns, showWelcome, showMaxNumberOfProjectsAtOnceMessage,
-				changeToDataTab, loadedProjectBeanSet.containsBigProject(), testMode);
+		requestDefaultViews(projectBeanForDisplay, modifyColumns, showMaxNumberOfProjectsAtOnceMessage, changeToDataTab,
+				loadedProjectBeanSet.containsBigProject(), testMode, //
+				false // showWelcomeProjectWindow
+		);
 		// load the project
 		if (loadedProjectBeanSet.containsBigProject()) {
 			// disable queries for big projects. Only allow
@@ -1986,7 +1996,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				peptideOnlyTablePanel.setEmptyTableWidget(emptyLabelString);
 			}
 		} else {
-			loadProteinsFromProject(null, null, null, testMode);
+			loadProteinsFromProject(null, null, null, //
+					true, // showWelcomeProject
+					testMode);
 		}
 	}
 
@@ -2154,7 +2166,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	 * @param string
 	 */
 	public void loadProteinsFromProject(final String uniprotVersion, Integer defaultQueryIndex, String queryName,
-			final boolean testMode) {
+			boolean showWelcomeProjectWindowAfterQuery, final boolean testMode) {
 		// emtpy protein group panel
 		proteinGroupTablePanel.clearTable();
 		proteinGroupTablePanel.setVisible(false);
@@ -2199,7 +2211,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			peptideOnlyTablePanel.clearTable();
 
 			// enable Peptide only tab
-			peptideOnlyTablePanel.setEmptyTableWidget("Please wait for Peptides to be loaded...");
+			peptideOnlyTablePanel.setEmptyTableWidget(getPeptideOnlyTableEmptyWidget());
 			if (!loadedProjects.isEmpty()) {
 
 				if (Pint.getPSMCentric()) {
@@ -2226,11 +2238,11 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 				final String projectTagsString = getProjectTagString(loadedProjects);
 				GWT.log("Getting proteins from project " + projectTagsString);
-				final String taskKey = PendingTasksManager.addPendingTask(TaskType.PROTEINS_BY_PROJECT,
-						projectTagsString);
+				final Task task = PendingTasksManager
+						.addPendingTask(new GetProteinsFromProjectTask(projectTagsString, uniprotVersion));
 				proteinRetrievingService.getProteinsFromProjects(sessionID, loadedProjects, uniprotVersion,
 						proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), defaultQueryIndex, testMode,
-						new AsyncCallback<QueryResultSubLists>() {
+						task, new AsyncCallback<QueryResultSubLists>() {
 
 							@Override
 							public void onFailure(Throwable caught) {
@@ -2239,7 +2251,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									updateStatus(caught);
 								} finally {
 									// removePending task
-									PendingTasksManager.removeTask(TaskType.PROTEINS_BY_PROJECT, taskKey);
+									PendingTasksManager.removeTask(task);
 								}
 							}
 
@@ -2247,17 +2259,15 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							public void onSuccess(QueryResultSubLists result) {
 								try {
 									// progressDialog.finishAndHide(2000);
-									queryEditorPanel.updateQueryResult(result);
+									queryEditorPanel.updateQueryResultSummary(result);
 									if (result != null) {
 										if (Pint.getPSMCentric()) {
-											updateStatus(result.getPsmSubList().getTotalNumber() + " psms received.");
+											updateStatus(result.getNumTotalPSMs() + " psms received.");
 										}
-										updateStatus(
-												result.getPeptideSubList().getTotalNumber() + " peptides received.");
-										updateStatus(
-												result.getProteinSubList().getTotalNumber() + " proteins received.");
-										updateStatus(result.getProteinGroupSubList().getTotalNumber()
-												+ " protein groups received.");
+//										updateStatus(
+//												result.getPeptideSubList().getTotalNumber() + " peptides received.");
+										updateStatus(result.getNumTotalProteins() + " proteins received.");
+										updateStatus(result.getNumTotalProteinGroups() + " protein groups received.");
 										if (Pint.getPSMCentric()) {
 											addPSMScoreNames(result.getPsmScores());
 										}
@@ -2274,7 +2284,14 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 											final DefaultView defaultView = ClientCacheDefaultViewByProjectTag
 													.getInstance().getFromCache(projectTag);
 											applyDefaultViews(loadedProjectBeanSet.getByTag(projectTag), loadedProjects,
-													defaultView, true, false, false, true, false, testMode);
+													defaultView, //
+													true, // modifyColumns
+													false, // showMaxNumberOfProjectsAtOnceMessage
+													false, // changeToDataTab
+													false, // bigProject
+													testMode, // testMode
+													true // showWelcomeProjectWindow
+											);
 										}
 
 										// load on the grid
@@ -2304,7 +2321,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									}
 								} finally {
 									// removePending task
-									PendingTasksManager.removeTask(TaskType.PROTEINS_BY_PROJECT, taskKey);
+									PendingTasksManager.removeTask(task);
 								}
 							}
 						});
@@ -2313,6 +2330,45 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			}
 		}
 
+	}
+
+	/**
+	 * This widget will show a button to load the entire peptide table if desired,
+	 * warning of that it could be slow depending on the amount of data.
+	 * 
+	 * @return
+	 */
+	private Widget getPeptideOnlyTableEmptyWidget() {
+		final FlexTable table = new FlexTable();
+
+		final Label label1 = new Label("In order to load the peptide table click on the button below.");
+		label1.setStyleName("ProjectItemContentTitle");
+		label1.getElement().getStyle().setMargin(10, Unit.PX);
+		table.setWidget(0, 0, label1);
+		table.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+		//
+		final Label label2 = new Label(
+				"Depending on the size of the dataset this task can take from seconds to minutes.");
+		label2.setStyleName("ProjectItemContentTitle");
+		label2.getElement().getStyle().setMargin(10, Unit.PX);
+		table.setWidget(1, 0, label2);
+		table.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+		//
+		final Label button = new Label("Load peptide table");
+		button.setStyleName(WizardStyles.WizardButton);
+		table.setWidget(2, 0, button);
+		table.getFlexCellFormatter().setHorizontalAlignment(2, 0, HasHorizontalAlignment.ALIGN_CENTER);
+		button.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				showMessage("Loading peptide table...");
+				peptideOnlyTablePanel.setReadyToShowData(true);
+				peptideOnlyTablePanel.refreshData();
+			}
+		});
+
+		return table;
 	}
 
 	@Override
@@ -2391,8 +2447,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	 * @param bigProject
 	 */
 	private void requestDefaultViews(final ProjectBean projectBean, final boolean modifyColumns,
-			final boolean showWelcomeWindowBox, boolean showMaxNumberOfProjectsAtOnceMessage,
-			final boolean changeToDataTab, final boolean bigProject, final boolean testMode) {
+			boolean showMaxNumberOfProjectsAtOnceMessage, final boolean changeToDataTab, final boolean bigProject,
+			final boolean testMode, boolean showWelcomeProjectWindow) {
 		if (loadedProjects.isEmpty()) {
 			return;
 		}
@@ -2405,8 +2461,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 				final DefaultView defaultViews = ClientCacheDefaultViewByProjectTag.getInstance()
 						.getFromCache(projectTag);
-				applyDefaultViews(projectBean, loadedProjects, defaultViews, modifyColumns, showWelcomeWindowBox,
-						showMaxNumberOfProjectsAtOnceMessage, changeToDataTab, bigProject, testMode);
+				applyDefaultViews(projectBean, loadedProjects, defaultViews, modifyColumns,
+						showMaxNumberOfProjectsAtOnceMessage, changeToDataTab, bigProject, testMode,
+						showWelcomeProjectWindow);
 				projectInformationPanel.addProjectView(projectBean, defaultViews);
 			} else {
 				GWT.log("Requesting default view of project " + projectTag + " ");
@@ -2429,8 +2486,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							// the parameters
 							if (projectBean.getTag().equals(projectTag)) {
 								applyDefaultViews(projectBean, loadedProjects, defaultViews, modifyColumns,
-										showWelcomeWindowBox, showMaxNumberOfProjectsAtOnceMessage, changeToDataTab,
-										bigProject, testMode);
+										showMaxNumberOfProjectsAtOnceMessage, changeToDataTab, bigProject, testMode,
+										showWelcomeProjectWindow);
 							}
 							ClientCacheDefaultViewByProjectTag.getInstance().addtoCache(defaultViews, projectTag);
 							final ProjectBean projectBean2 = loadedProjectBeanSet.getByTag(projectTag);
@@ -2516,8 +2573,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	}
 
 	private void applyDefaultViews(ProjectBean projectBean, Set<String> loadedprojects, DefaultView defaultViews,
-			boolean modifyColumns, boolean showWelcomeWindowBox, boolean showMaxNumberOfProjectsAtOnceMessage,
-			boolean changeToDataTab, boolean bigProject, boolean testMode) {
+			boolean modifyColumns, boolean showMaxNumberOfProjectsAtOnceMessage, boolean changeToDataTab,
+			boolean bigProject, boolean testMode, boolean showWelcomeProjectWindow) {
 
 		if (modifyColumns) {
 			setDefaultViewInTables(defaultViews);
@@ -2532,49 +2589,58 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			Collections.sort(list);
 			welcomeToProjectWindowBox.setWidget(new MyWarningMultipleProjectsLoadedPanel(list));
 			welcomeToProjectWindowBox.setText("Multiple projects loaded");
-			final DoSomethingTask<Void> doSomething = new DoSomethingTask<Void>() {
-				@Override
-				public Void doSomething() {
-					onTaskRemovedOrAdded();
-					// show project information tab when closing
-					selectProjectInfoTab();
-					return null;
-				}
-			};
-			// add loadingDialogShowerTask to close event
-			welcomeToProjectWindowBox.addCloseEventDoSomethingTask(doSomething);
+			if (!changeToDataTab) {
+				final DoSomethingTask<Void> doSomething = new DoSomethingTask<Void>() {
+					@Override
+					public Void doSomething() {
+						onTaskRemovedOrAdded();
+						// show project information tab when closing
+						changeToProjectInfoTab();
+						return null;
+					}
+				};
+				// add loadingDialogShowerTask to close event
+				welcomeToProjectWindowBox.addCloseEventDoSomethingTask(doSomething);
+			}
 			welcomeToProjectWindowBox.setGlassEnabled(true);
 			welcomeToProjectWindowBox.center();
-		} else if (showWelcomeWindowBox) {
-			GWT.log("Showing welcome window for project");
-			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+		} else if (showWelcomeProjectWindow) {
+			showWelcomeToProjectWindow(projectBean, defaultViews, testMode, !changeToDataTab);
+		}
+		if (changeToDataTab) {
+			changeToDataTab(defaultViews);
+		}
+	}
 
-				@Override
-				public void execute() {
-					welcomeToProjectWindowBox = new WindowBox(true, true, true, true, false);
-					welcomeToProjectWindowBox.setAnimationEnabled(true);
-					welcomeToProjectWindowBox.setWidget(new MyWelcomeProjectPanel(welcomeToProjectWindowBox,
-							projectBean, defaultViews, QueryPanel.this, testMode));
-					welcomeToProjectWindowBox.setText("Project '" + defaultViews.getProjectTag() + "'");
+	protected void showWelcomeToProjectWindow(ProjectBean projectBean, DefaultView defaultViews, boolean testMode,
+			boolean openProjectInfoTabAfterClose) {
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+			@Override
+			public void execute() {
+				GWT.log("Showing welcome window for project");
+				welcomeToProjectWindowBox = new WindowBox(true, true, true, true, false);
+				welcomeToProjectWindowBox.setAnimationEnabled(true);
+				welcomeToProjectWindowBox.setWidget(new MyWelcomeProjectPanel(welcomeToProjectWindowBox, projectBean,
+						defaultViews, QueryPanel.this, testMode));
+				welcomeToProjectWindowBox.setText("Project '" + defaultViews.getProjectTag() + "'");
+				if (openProjectInfoTabAfterClose) {
 					final DoSomethingTask<Void> doSomething = new DoSomethingTask<Void>() {
 						@Override
 						public Void doSomething() {
 							onTaskRemovedOrAdded();
 							// show project information tab when closing
-							selectProjectInfoTab();
+							changeToProjectInfoTab();
 							return null;
 						}
 					};
 					// add loadingDialogShowerTask to close event
 					welcomeToProjectWindowBox.addCloseEventDoSomethingTask(doSomething);
-					welcomeToProjectWindowBox.setGlassEnabled(true);
-					welcomeToProjectWindowBox.center();
 				}
-			});
-		}
-		if (changeToDataTab) {
-			changeToDataTab(defaultViews);
-		}
+				welcomeToProjectWindowBox.setGlassEnabled(true);
+				welcomeToProjectWindowBox.center();
+			}
+		});
 	}
 
 	@Override
@@ -2604,15 +2670,15 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		for (final TaskType taskType : taskTypes) {
 			String buttonText = null;
 			ClickHandler handler = null;
-			final List<String> pendingTaskKeys = PendingTasksManager.getPendingTaskKeys(taskType);
-			if (!pendingTaskKeys.isEmpty()) {
+			final List<Task> pendingTasks = PendingTasksManager.getPendingTasks(taskType);
+			if (!pendingTasks.isEmpty()) {
 				if (taskType == TaskType.QUERY_SENT || taskType == TaskType.PROTEINS_BY_PROJECT) {
 					buttonText = "Cancel";
 					handler = new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent event) {
-							showLoadingDialog("Cancelling...", null, null);
-							final String taskKey = PendingTasksManager.addPendingTask(TaskType.CANCELLING_REQUEST, "");
+							showLoadingDialogOLD("Cancelling...", null, null);
+							final Task task = PendingTasksManager.addPendingTask(new CancellingTask());
 							proteinRetrievingService.cancelQuery(sessionID, new AsyncCallback<Void>() {
 								@Override
 								public void onFailure(Throwable caught) {
@@ -2620,15 +2686,15 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 									updateStatus("Error trying to cancel task");
 									updateStatus(caught);
 									hiddeLoadingDialog();
-									PendingTasksManager.removeTask(TaskType.CANCELLING_REQUEST, taskKey);
+									PendingTasksManager.removeTask(task);
 								}
 
 								@Override
 								public void onSuccess(Void result) {
-									for (final String pendingTaskKey : pendingTaskKeys) {
-										PendingTasksManager.removeTask(taskType, pendingTaskKey);
+									for (final Task pendingTask : pendingTasks) {
+										PendingTasksManager.removeTask(pendingTask);
 									}
-									PendingTasksManager.removeTask(TaskType.CANCELLING_REQUEST, taskKey);
+									PendingTasksManager.removeTask(task);
 									updateStatus("Task cancelled.");
 									hiddeLoadingDialog();
 								}
@@ -2639,20 +2705,23 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				}
 
 				someTaskIsPending = true;
-				if (pendingTaskKeys.size() == 1) {
-
-					showLoadingDialog(taskType.getSingleTaskMessage("'" + pendingTaskKeys.get(0) + "'"), buttonText,
-							handler);
+				if (pendingTasks.size() == 1) {
+//					final String singleTaskMessage = taskType
+//							.getSingleTaskMessage("'" + pendingTaskKeys.get(0).getTaskKey() + "'");
+					showNewLoadingDialog(sessionID, pendingTasks.get(0), true, true, buttonText, handler);
+//					showLoadingDialog(singleTaskMessage,							buttonText, handler);
 				} else {
-					showLoadingDialog(taskType.getMultipleTaskMessage("" + pendingTaskKeys.size()), buttonText,
+					showLoadingDialogOLD(taskType.getMultipleTaskMessage("" + pendingTasks.size()), buttonText,
 							handler);
 				}
 			}
 		}
 		// if there is not any pending task, hidde the loading
 		// dialog
-		if (!someTaskIsPending)
+		if (!someTaskIsPending) {
 			hiddeLoadingDialog();
+			hiddeAdvancedProgressDialog();
+		}
 		return;
 	}
 
@@ -2683,7 +2752,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	// }
 	// }
 
-	private void showLoadingDialog(String text, boolean autohide, boolean modal, String buttonText,
+	private void showLoadingDialogOLD(String text, boolean autohide, boolean modal, String buttonText,
 			ClickHandler clickHandler) {
 		if (loadingDialog == null) {
 			loadingDialog = new MyDialogBox(text, autohide, modal, getTimerOnClosingLoadingDialog(), buttonText);
@@ -2698,17 +2767,37 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	}
 
+	private void showNewLoadingDialog(String sessionID, Task task, boolean autohide, boolean modal, String buttonText,
+			ClickHandler clickHandler) {
+
+		advancedProgressDialog = new AdvancedProgressDialog(sessionID, task);
+		advancedProgressDialog.setAutoHideEnabled(autohide);
+		advancedProgressDialog.setModal(modal);
+		advancedProgressDialog.setButtonText(buttonText);
+		advancedProgressDialog.setButtonAction(clickHandler);
+		advancedProgressDialog.center();
+
+	}
+
 	/**
 	 * Modal false and autohide true
 	 *
 	 * @param text
 	 */
-	public void showLoadingDialog(String text, String buttonText, ClickHandler handler) {
-		showLoadingDialog(text, true, false, buttonText, handler);
+	public void showLoadingDialogOLD(String text, String buttonText, ClickHandler handler) {
+		showLoadingDialogOLD(text, true, false, buttonText, handler);
 	}
 
 	private void hiddeLoadingDialog() {
-		loadingDialog.hide();
+		if (loadingDialog != null) {
+			loadingDialog.hide();
+		}
+	}
+
+	private void hiddeAdvancedProgressDialog() {
+		if (advancedProgressDialog != null) {
+			advancedProgressDialog.finishAndHide();
+		}
 	}
 
 	private void loadRatioDescriptors(final Set<String> selectedProjects) {

@@ -1,8 +1,8 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.protein;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
@@ -23,11 +23,11 @@ public class ProteinProviderFromProteinScores extends ProteinDataProvider {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+	public Map<String, Collection<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
 			int numProteins = 0;
 
-			result = new THashMap<String, Set<Protein>>();
+			result = new THashMap<String, Collection<Protein>>();
 			if (projectTags == null || projectTags.isEmpty()) {
 				final List<Protein> proteinsWithScores = PreparedQueries.getProteinsWithScores(scoreNameString,
 						scoreTypeString, null);

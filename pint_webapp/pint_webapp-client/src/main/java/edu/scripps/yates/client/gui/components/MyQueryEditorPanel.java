@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -24,6 +25,7 @@ import com.google.gwt.user.client.ui.SuggestBox.DefaultSuggestionDisplay;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBoxBase;
 
+import edu.scripps.yates.Pint;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.shared.model.ProteinProjection;
 import edu.scripps.yates.shared.util.sublists.QueryResultSubLists;
@@ -52,8 +54,8 @@ public class MyQueryEditorPanel extends FlowPanel {
 	private final Label numProteinGroupsLabel;
 	private final Label lblNumberOfProteins;
 	private final Label numProteinsLabel;
-	private final Label lblNumberOfPsms;
-	private final Label numPSMsLabel;
+	private Label lblNumberOfPsms;
+	private Label numPSMsLabel;
 	private final Label lblNumberOfDifferent;
 	private final Label numDifferentSequencesLabel;
 	private final FlowPanel flowPanel_1;
@@ -83,20 +85,20 @@ public class MyQueryEditorPanel extends FlowPanel {
 		setWidth("100%");
 		// tabLayoutPanel.add(this, "Query", false);
 
-		InlineHTML nlnhtmlWriteYourQuery = new InlineHTML("Write your queries in the boxes below:");
+		final InlineHTML nlnhtmlWriteYourQuery = new InlineHTML("Write your queries in the boxes below:");
 		this.add(nlnhtmlWriteYourQuery);
 
-		CaptionPanel captionPanelSimpleQueryEditor = new CaptionPanel("Simple Query Editor");
+		final CaptionPanel captionPanelSimpleQueryEditor = new CaptionPanel("Simple Query Editor");
 		captionPanelSimpleQueryEditor.setStyleName("QueryPanel-horizontal");
 		this.add(captionPanelSimpleQueryEditor);
 		captionPanelSimpleQueryEditor.setSize("90%", "30%");
-		FlowPanel superFlow = new FlowPanel();
+		final FlowPanel superFlow = new FlowPanel();
 		superFlow.setStyleName("verticalComponent");
 
 		// search by protein name
-		FlowPanel flow1 = new FlowPanel();
+		final FlowPanel flow1 = new FlowPanel();
 		flow1.setStyleName("horizontalComponent");
-		Label label = new Label("Type here to search for protein names: ");
+		final Label label = new Label("Type here to search for protein names: ");
 		label.getElement().getStyle().setProperty("margin", "10px");
 		label.setStyleName("horizontalComponent");
 		flow1.add(label);
@@ -119,9 +121,9 @@ public class MyQueryEditorPanel extends FlowPanel {
 		superFlow.add(flow1);
 
 		// search by protein name
-		FlowPanel flow2 = new FlowPanel();
+		final FlowPanel flow2 = new FlowPanel();
 		flow2.setStyleName("horizontalComponent");
-		Label label2 = new Label("Type here to search for protein accessions: ");
+		final Label label2 = new Label("Type here to search for protein accessions: ");
 		label2.getElement().getStyle().setProperty("margin", "10px");
 		label2.setStyleName("horizontalComponent");
 		flow2.add(label2);
@@ -144,9 +146,9 @@ public class MyQueryEditorPanel extends FlowPanel {
 		superFlow.add(flow2);
 
 		// search by protein name
-		FlowPanel flow3 = new FlowPanel();
+		final FlowPanel flow3 = new FlowPanel();
 		flow3.setStyleName("horizontalComponent");
-		Label label3 = new Label("Type here to search for gene names: ");
+		final Label label3 = new Label("Type here to search for gene names: ");
 		label3.getElement().getStyle().setProperty("margin", "10px");
 		label3.setStyleName("horizontalComponent");
 		flow3.add(label3);
@@ -169,7 +171,7 @@ public class MyQueryEditorPanel extends FlowPanel {
 		superFlow.add(flow3);
 		captionPanelSimpleQueryEditor.setContentWidget(superFlow);
 
-		CaptionPanel captionPanelQueryEditor = new CaptionPanel("Advanced Query Editor");
+		final CaptionPanel captionPanelQueryEditor = new CaptionPanel("Advanced Query Editor");
 		captionPanelQueryEditor.setStyleName("QueryPanel-horizontal");
 		this.add(captionPanelQueryEditor);
 		captionPanelQueryEditor.setSize("90%", "30%");
@@ -191,9 +193,9 @@ public class MyQueryEditorPanel extends FlowPanel {
 		getComplexQueryTextBox().setSize("400px", "132px");
 
 		// uniprot versions
-		FlowPanel flow5 = new FlowPanel();
+		final FlowPanel flow5 = new FlowPanel();
 		flow5.setStyleName("QueryPanel-vertical");
-		InlineHTML inLineHtml = new InlineHTML("Available Uniprot Annotations for the selected projects:");
+		final InlineHTML inLineHtml = new InlineHTML("Available Uniprot Annotations for the selected projects:");
 		flow5.add(inLineHtml);
 		uniprotVersionListBox = new ListBox();
 		uniprotVersionListBox.setMultipleSelect(false);
@@ -211,7 +213,7 @@ public class MyQueryEditorPanel extends FlowPanel {
 
 		inlinelabelSendingStatus.setWidth("354px");
 
-		Grid buttonAndStatusGrid = new Grid(1, 2);
+		final Grid buttonAndStatusGrid = new Grid(1, 2);
 		buttonAndStatusGrid.setCellSpacing(5);
 		flowPanel.add(buttonAndStatusGrid);
 		buttonAndStatusGrid.setWidget(0, 0, inlinelabelSendingStatus);
@@ -224,12 +226,12 @@ public class MyQueryEditorPanel extends FlowPanel {
 		flexTable = new FlexTable();
 		flowPanel_1.add(flexTable);
 
-		Label lblForHelpAbout = new Label(
+		final Label lblForHelpAbout = new Label(
 				"Use the pulldown menus on the left for building your queries. For more complex queries download guide here:");
 		lblForHelpAbout.setWordWrap(false);
 		flexTable.setWidget(0, 0, lblForHelpAbout);
 
-		Anchor lblLink = new Anchor(true);
+		final Anchor lblLink = new Anchor(true);
 		lblLink.setHref("PINT_help_Query_Commands.pdf");
 		lblLink.setTarget("_blank");
 		lblLink.setText("(here)");
@@ -243,10 +245,13 @@ public class MyQueryEditorPanel extends FlowPanel {
 
 		resultSummaryGrid = new FlexTable();
 		resultSummaryGrid.setStyleName("QueryPanel-horizontal");
+		resultSummaryGrid.getElement().getStyle().setMargin(0, Unit.PX);
+		resultSummaryGrid.getElement().getStyle().setPadding(0, Unit.PX);
 		flowPanelLinks.add(resultSummaryGrid);
 		resultSummaryGrid.setWidth("");
 
 		lblNumberOfFeatures = new Label("Number of features in current dataset:");
+		lblNumberOfFeatures.setStyleName("PSEAQuantPanel-Title-Label");
 		resultSummaryGrid.setWidget(0, 0, lblNumberOfFeatures);
 
 		lblNumberOfProteinGroups = new Label("Number of protein groups:");
@@ -264,13 +269,14 @@ public class MyQueryEditorPanel extends FlowPanel {
 		numProteinsLabel = new Label("-");
 		resultSummaryGrid.setWidget(2, 1, numProteinsLabel);
 
-		lblNumberOfPsms = new Label("Number of PSMs:");
-		resultSummaryGrid.setWidget(3, 0, lblNumberOfPsms);
+		if (Pint.getPSMCentric()) {
+			lblNumberOfPsms = new Label("Number of PSMs:");
+			resultSummaryGrid.setWidget(3, 0, lblNumberOfPsms);
 
-		numPSMsLabel = new Label("-");
-		resultSummaryGrid.setWidget(3, 1, numPSMsLabel);
-
-		lblNumberOfDifferent = new Label("Number of different sequences:");
+			numPSMsLabel = new Label("-");
+			resultSummaryGrid.setWidget(3, 1, numPSMsLabel);
+		}
+		lblNumberOfDifferent = new Label("Number of peptides:");
 		resultSummaryGrid.setWidget(4, 0, lblNumberOfDifferent);
 
 		numDifferentSequencesLabel = new Label("-");
@@ -279,6 +285,7 @@ public class MyQueryEditorPanel extends FlowPanel {
 		resultSummaryGrid.getCellFormatter().setVerticalAlignment(4, 1, HasVerticalAlignment.ALIGN_MIDDLE);
 
 		lblDownloadDataHere = new Label("Download data here:");
+		lblDownloadDataHere.setStyleName("PSEAQuantPanel-Title-Label");
 		resultSummaryGrid.setWidget(0, 2, lblDownloadDataHere);
 
 		lblProteins = new Label("Proteins:");
@@ -383,9 +390,9 @@ public class MyQueryEditorPanel extends FlowPanel {
 
 	public void addSimpleQueryByProteinNameSuggestionsAsProteinProjections(
 			Map<String, Set<ProteinProjection>> proteinProjections) {
-		for (String proteinName : proteinProjections.keySet()) {
+		for (final String proteinName : proteinProjections.keySet()) {
 			addSimpleQueryByProteinNameSuggestion(proteinName);
-			for (ProteinProjection p : proteinProjections.get(proteinName)) {
+			for (final ProteinProjection p : proteinProjections.get(proteinName)) {
 				addProteinProjectionByProteinName(p);
 			}
 		}
@@ -393,9 +400,9 @@ public class MyQueryEditorPanel extends FlowPanel {
 
 	public void addSimpleQueryByAccSuggestionsAsProteinProjections(
 			Map<String, Set<ProteinProjection>> proteinProjections) {
-		for (String acc : proteinProjections.keySet()) {
+		for (final String acc : proteinProjections.keySet()) {
 			addSimpleQueryByAccSuggestion(acc);
-			for (ProteinProjection p : proteinProjections.get(acc)) {
+			for (final ProteinProjection p : proteinProjections.get(acc)) {
 				addProteinProjectionByAcc(p);
 			}
 		}
@@ -403,9 +410,9 @@ public class MyQueryEditorPanel extends FlowPanel {
 
 	public void addSimpleQueryByGeneNameSuggestionsAsProteinProjections(
 			Map<String, Set<ProteinProjection>> proteinProjections) {
-		for (String geneName : proteinProjections.keySet()) {
+		for (final String geneName : proteinProjections.keySet()) {
 			addSimpleQueryByGeneNameSuggestion(geneName);
-			for (ProteinProjection p : proteinProjections.get(geneName)) {
+			for (final ProteinProjection p : proteinProjections.get(geneName)) {
 				addProteinProjectionByGeneName(p);
 			}
 		}
@@ -442,12 +449,14 @@ public class MyQueryEditorPanel extends FlowPanel {
 	 * 
 	 * @param queryResult
 	 */
-	public void updateQueryResult(QueryResultSubLists queryResult) {
+	public void updateQueryResultSummary(QueryResultSubLists queryResult) {
 		if (queryResult != null) {
-			numProteinGroupsLabel.setText(String.valueOf(queryResult.getProteinGroupSubList().getTotalNumber()));
-			numProteinsLabel.setText(String.valueOf(queryResult.getProteinSubList().getTotalNumber()));
-			numPSMsLabel.setText(String.valueOf(queryResult.getPsmSubList().getTotalNumber()));
-			StringBuilder numdiffSequencesText = new StringBuilder();
+			numProteinGroupsLabel.setText(String.valueOf(queryResult.getNumTotalProteinGroups()));
+			numProteinsLabel.setText(String.valueOf(queryResult.getNumTotalProteins()));
+			if (Pint.getPSMCentric()) {
+				numPSMsLabel.setText(String.valueOf(queryResult.getNumTotalPSMs()));
+			}
+			final StringBuilder numdiffSequencesText = new StringBuilder();
 			numdiffSequencesText.append(queryResult.getNumDifferentSequences());
 			if (queryResult.getNumDifferentSequences() != queryResult
 					.getNumDifferentSequencesDistinguishingModifieds()) {
@@ -460,7 +469,9 @@ public class MyQueryEditorPanel extends FlowPanel {
 		} else {
 			numProteinGroupsLabel.setText("-");
 			numProteinsLabel.setText("-");
-			numPSMsLabel.setText("-");
+			if (Pint.getPSMCentric()) {
+				numPSMsLabel.setText("-");
+			}
 			numDifferentSequencesLabel.setText("-");
 		}
 	}
@@ -506,7 +517,7 @@ public class MyQueryEditorPanel extends FlowPanel {
 		if (map.containsKey(key)) {
 			map.get(key).add(p);
 		} else {
-			Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+			final Set<ProteinProjection> set = new HashSet<ProteinProjection>();
 			set.add(p);
 			map.put(key, set);
 		}
@@ -514,7 +525,7 @@ public class MyQueryEditorPanel extends FlowPanel {
 	}
 
 	private Set<ProteinProjection> getProteinProjectionsByAcc(String key) {
-		Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+		final Set<ProteinProjection> set = new HashSet<ProteinProjection>();
 
 		if (proteinProjectionsByAcc.containsKey(key)) {
 			set.addAll(proteinProjectionsByAcc.get(key));
@@ -524,7 +535,7 @@ public class MyQueryEditorPanel extends FlowPanel {
 	}
 
 	private Set<ProteinProjection> getProteinProjectionsByProteinName(String key) {
-		Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+		final Set<ProteinProjection> set = new HashSet<ProteinProjection>();
 		if (proteinProjectionsByProteinName.containsKey(key)) {
 			set.addAll(proteinProjectionsByProteinName.get(key));
 		}
@@ -532,7 +543,7 @@ public class MyQueryEditorPanel extends FlowPanel {
 	}
 
 	private Set<ProteinProjection> getProteinProjectionsByGeneName(String key) {
-		Set<ProteinProjection> set = new HashSet<ProteinProjection>();
+		final Set<ProteinProjection> set = new HashSet<ProteinProjection>();
 		if (proteinProjectionsByGeneName.containsKey(key)) {
 			set.addAll(proteinProjectionsByGeneName.get(key));
 		}
@@ -562,16 +573,16 @@ public class MyQueryEditorPanel extends FlowPanel {
 		if (proteinProjections == null || proteinProjections.isEmpty()) {
 			return null;
 		}
-		Set<String> accs = new HashSet<String>();
+		final Set<String> accs = new HashSet<String>();
 		// get all the accs
-		for (ProteinProjection p : proteinProjections) {
+		for (final ProteinProjection p : proteinProjections) {
 			accs.add(p.getAcc());
 		}
 		// build the query
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("ACC[");
 		int i = 0;
-		for (String acc : accs) {
+		for (final String acc : accs) {
 			i++;
 			sb.append(acc);
 			if (i != accs.size()) {

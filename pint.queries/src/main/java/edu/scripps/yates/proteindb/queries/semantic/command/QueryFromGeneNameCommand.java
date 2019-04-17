@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -49,7 +50,7 @@ public class QueryFromGeneNameCommand extends AbstractQuery {
 	@Override
 	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
 
-		final Set<Gene> genes = link.getQueriableProtein().getGenes();
+		final List<Gene> genes = link.getQueriableProtein().getGenes();
 		if (genes != null) {
 			// to be included in the result, at least one gene
 			// will have to match
@@ -67,7 +68,7 @@ public class QueryFromGeneNameCommand extends AbstractQuery {
 	@Override
 	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
 
-		final Set<Gene> genes = link.getQueriableProtein().getGenes();
+		final List<Gene> genes = link.getQueriableProtein().getGenes();
 		if (genes != null) {
 			// to be included in the result, at least one gene
 			// will have to match

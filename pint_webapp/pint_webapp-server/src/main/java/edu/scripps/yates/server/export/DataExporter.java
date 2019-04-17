@@ -102,12 +102,13 @@ public class DataExporter {
 					proteinBeans = new THashSet<ProteinBean>();
 					proteinBeans.addAll(fromCache);
 				} else {
-					final Map<String, Set<Protein>> proteinMap = RemoteServicesTasks.getProteinsFromProject(null,
+					final Map<String, Collection<Protein>> proteinMap = RemoteServicesTasks.getProteinsFromProject(null,
 							projectTag, null, hiddenPTMs, omimAPIKey);
 					// I do not save the annotated proteins because they will be
 					// accessed from the queriableProteinSets
 					RemoteServicesTasks.annotateProteinsWithUniprot(proteinMap.keySet(), null, projectTag);
-					proteinBeans = RemoteServicesTasks.createProteinBeans(null, proteinMap, hiddenPTMs, psmCentric);
+					proteinBeans = RemoteServicesTasks.createProteinBeans(null, proteinMap, hiddenPTMs, psmCentric,
+							true);
 					final List<ProteinBean> list = new ArrayList<ProteinBean>();
 					list.addAll(proteinBeans);
 					ServerCacheProteinBeansByProjectTag.getInstance().addtoCache(list, projectTag);
@@ -213,13 +214,14 @@ public class DataExporter {
 					proteinBeans = new THashSet<ProteinBean>();
 					proteinBeans.addAll(fromCache);
 				} else {
-					final Map<String, Set<Protein>> proteinMap = RemoteServicesTasks.getProteinsFromProject(null,
+					final Map<String, Collection<Protein>> proteinMap = RemoteServicesTasks.getProteinsFromProject(null,
 							projectTag, null, hiddenPTMs, omimAPIKey);
 					// I do not save the annotated proteins because they will be
 					// accessed from the queriableProteinSets
 					RemoteServicesTasks.annotateProteinsWithUniprot(proteinMap.keySet(), null, projectTag);
 
-					proteinBeans = RemoteServicesTasks.createProteinBeans(null, proteinMap, hiddenPTMs, psmCentric);
+					proteinBeans = RemoteServicesTasks.createProteinBeans(null, proteinMap, hiddenPTMs, psmCentric,
+							true);
 					final List<ProteinBean> list = new ArrayList<ProteinBean>();
 					list.addAll(proteinBeans);
 					ServerCacheProteinBeansByProjectTag.getInstance().addtoCache(list, projectTag);
@@ -1218,7 +1220,7 @@ public class DataExporter {
 
 	public static File exportProteinsForReactome(String sessionID, ServletContext servletContext, boolean psmCentric)
 			throws PintException {
-		final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, psmCentric);
+		final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, psmCentric, null);
 		if (dataSet == null || dataSet.isEmpty() || !dataSet.isReady()) {
 			if (dataSet != null && !dataSet.getActiveDatasetThread().isAlive()) {
 				DataSetsManager.removeDataSet(sessionID);

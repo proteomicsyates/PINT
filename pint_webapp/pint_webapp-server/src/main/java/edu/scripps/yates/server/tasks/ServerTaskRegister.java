@@ -6,6 +6,8 @@ import java.util.concurrent.locks.StampedLock;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.shared.tasks.Task;
+import edu.scripps.yates.shared.tasks.TaskKey;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -19,13 +21,9 @@ public class ServerTaskRegister {
 	private static Logger log = Logger.getLogger(ServerTaskRegister.class);
 
 	private final Set<Task> runningTasks = new THashSet<Task>();
-	/**
-	 * To avoid concurrent access to the runningTasks
-	 */
-	private boolean accessRequested;
 
 	private static ServerTaskRegister instance;
-	private StampedLock lock = new StampedLock();
+	private final StampedLock lock = new StampedLock();
 	private long currentStamp;
 
 	private ServerTaskRegister() {
@@ -45,7 +43,7 @@ public class ServerTaskRegister {
 	 *
 	 * @param task
 	 */
-	public void registerTask(Task task) {
+	public synchronized void registerTask(Task task) {
 		if (task == null) {
 			return;
 		}
@@ -54,30 +52,36 @@ public class ServerTaskRegister {
 				log.info("Waiting for a previous task: " + task);
 				log.info(runningTasks.size() + " tasks in the queue");
 				Thread.sleep(5000);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		runningTasks.add(task);
-		log.info("Task registered: " + task);
+		try {
+			waitForAccess();
+			runningTasks.add(task);
+			log.info("Task registered: " + task);
+		} finally {
+			log.debug("Trying to unlock access to set of task with stamp " + currentStamp);
+			lock.unlock(currentStamp);
+			log.debug("Access to set of task unlocked with stamp " + currentStamp);
+		}
 
 	}
 
-	public synchronized Task getRunningTask(String key) {
+	public synchronized Task getRunningTask(TaskKey key) {
 		try {
 			waitForAccess();
 			final Iterator<Task> iterator = runningTasks.iterator();
 			while (iterator.hasNext()) {
-				Task task = iterator.next();
+				final Task task = iterator.next();
 				if (task.getKey().equals(key))
 					return task;
 			}
 			return null;
 		} finally {
-			log.info("Trying to unlock access to set of task with stamp " + currentStamp);
-			accessRequested = false;
+			log.debug("Trying to unlock access to set of task with stamp " + currentStamp);
 			lock.unlock(currentStamp);
-			log.info("Access to set of task unlocked with stamp " + currentStamp);
+			log.debug("Access to set of task unlocked with stamp " + currentStamp);
 		}
 	}
 
@@ -86,7 +90,7 @@ public class ServerTaskRegister {
 			waitForAccess();
 			final Iterator<Task> iterator = runningTasks.iterator();
 			while (iterator.hasNext()) {
-				Task task = iterator.next();
+				final Task task = iterator.next();
 				if (task.equals(task2))
 					return true;
 				if (task.getClass().equals(task2.getClass())) {
@@ -100,7 +104,6 @@ public class ServerTaskRegister {
 			return false;
 		} finally {
 			log.info("Trying to unlock access to set of task with stamp " + currentStamp);
-			accessRequested = false;
 			lock.unlock(currentStamp);
 			log.info("Access to set of task unlocked with stamp " + currentStamp);
 		}
@@ -113,7 +116,7 @@ public class ServerTaskRegister {
 			waitForAccess();
 			final Iterator<Task> iterator = runningTasks.iterator();
 			while (iterator.hasNext()) {
-				Task task = iterator.next();
+				final Task task = iterator.next();
 				if (task.getClass().equals(task2.getClass())) {
 					if (task.getKey().equals(task2.getKey())) {
 						iterator.remove();
@@ -125,7 +128,6 @@ public class ServerTaskRegister {
 			return;
 		} finally {
 			log.info("Trying to unlock access to set of task with stamp " + currentStamp);
-			accessRequested = false;
 			lock.unlock(currentStamp);
 			log.info("Access to set of task unlocked with stamp " + currentStamp);
 		}
@@ -136,12 +138,11 @@ public class ServerTaskRegister {
 			try {
 				log.info("Waiting for accessing to the set of tasks");
 				Thread.sleep(1000);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		accessRequested = true;
-		log.info("Access to set of tasks requested with stamp " + currentStamp);
+		log.debug("Access to set of tasks requested with stamp " + currentStamp);
 	}
 
 	/**
@@ -151,7 +152,7 @@ public class ServerTaskRegister {
 	 * @param class1
 	 * @return
 	 */
-	public boolean isRunningTask(String key, Class<? extends Task> class1) {
+	public boolean isRunningTask(TaskKey key, Class<? extends Task> class1) {
 		final Task runningTask = getRunningTask(key);
 		if (runningTask != null) {
 			if (runningTask.getClass().equals(class1)) {

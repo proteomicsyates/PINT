@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.protein;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,16 +30,16 @@ public class ProteinProviderFromProteinAmounts extends ProteinDataProvider {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+	public Map<String, Collection<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
-			result = new THashMap<String, Set<Protein>>();
+			result = new THashMap<String, Collection<Protein>>();
 			int numProteins = 0;
 			final Set<ConditionProject> conditionProjects = condition.getConditionProjects();
 			for (final ConditionProject conditionProject : conditionProjects) {
 
 				if (projectTags == null || projectTags.isEmpty() || conditionProject.getProjectTag() == null
 						|| (projectTags.contains(conditionProject.getProjectTag()))) {
-					final Map<String, Set<Protein>> proteinsWithAmount = PreparedQueries.getProteinsWithAmount(
+					final Map<String, Collection<Protein>> proteinsWithAmount = PreparedQueries.getProteinsWithAmount(
 							conditionProject.getProjectTag(), conditionProject.getConditionName(), amountTypeString);
 					if (testMode && numProteins + proteinsWithAmount.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
 						PersistenceUtils.addToMapByPrimaryAcc(result, QueriesUtil.getProteinSubList(proteinsWithAmount,

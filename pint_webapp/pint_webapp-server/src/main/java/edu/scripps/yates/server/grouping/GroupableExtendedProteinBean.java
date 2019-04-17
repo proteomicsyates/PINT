@@ -3,10 +3,12 @@ package edu.scripps.yates.server.grouping;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ProteinBean;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
@@ -17,7 +19,7 @@ public class GroupableExtendedProteinBean implements GroupableProtein {
 	public final static Map<String, GroupableExtendedProteinBean> map = new THashMap<String, GroupableExtendedProteinBean>();
 
 	private final ProteinBean protein;
-	private ArrayList<GroupablePeptide> groupablePeptides;
+	private List<GroupablePeptide> groupablePeptides;
 	private String primaryAccession;
 	private ProteinGroup proteinGroup;
 	private ProteinEvidence evidence;
@@ -49,11 +51,28 @@ public class GroupableExtendedProteinBean implements GroupableProtein {
 				}
 			} else {
 				final List<PeptideBean> peptides = protein.getPeptides();
-				for (final PeptideBean peptide : peptides) {
-					if (GroupableExtendedPeptideBean.map.containsKey(peptide.getId())) {
-						groupablePeptides.add(GroupableExtendedPeptideBean.map.get(peptide.getId()));
-					} else {
-						groupablePeptides.add(new GroupableExtendedPeptideBean(peptide));
+				if (!peptides.isEmpty()) {
+					for (final PeptideBean peptide : peptides) {
+						if (GroupableExtendedPeptideBean.map.containsKey(peptide.getId())) {
+							groupablePeptides.add(GroupableExtendedPeptideBean.map.get(peptide.getId()));
+						} else {
+							groupablePeptides.add(new GroupableExtendedPeptideBean(peptide));
+						}
+					}
+				} else {
+					// this happens if the loading of the peptides is disabled
+					// but we have the peptideIds
+					final Set<String> fullPeptideSequences = protein.getDifferentSequences();
+					for (final String fullPeptideSequence : fullPeptideSequences) {
+						final String cleanPeptideSequence = FastaParser.cleanSequence(fullPeptideSequence);
+						GroupableExtendedPeptideBean peptide = null;
+						if (GroupableExtendedPeptideBean.map.containsKey(cleanPeptideSequence)) {
+							peptide = GroupableExtendedPeptideBean.map.get(cleanPeptideSequence);
+						} else {
+							peptide = new GroupableExtendedPeptideBean(cleanPeptideSequence);
+						}
+						groupablePeptides.add(peptide);
+						peptide.addGroupableProteins(this);
 					}
 				}
 			}

@@ -1,7 +1,7 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.protein;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -35,10 +35,10 @@ public class ProteinProviderFromProteinRatiosAndScore extends ProteinDataProvide
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+	public Map<String, Collection<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
 			final int numProteins = 0;
-			result = new THashMap<String, Set<Protein>>();
+			result = new THashMap<String, Collection<Protein>>();
 			// condition1 and condition2 only can contain one ConditionProject
 			if (condition1.getConditionProjects().size() != 1) {
 				throw new IllegalArgumentException("First condition con only be referring to one condition");
@@ -74,7 +74,7 @@ public class ProteinProviderFromProteinRatiosAndScore extends ProteinDataProvide
 			if (projectTags != null && !projectTags.isEmpty()) {
 				for (final String projectTag : projectTags) {
 					final String projectTagFromQuery = conditionProject2.getProjectTag();
-					final Map<String, Set<Protein>> proteinsWithRatiosAndScores = PreparedQueries
+					final Map<String, Collection<Protein>> proteinsWithRatiosAndScores = PreparedQueries
 							.getProteinsWithRatiosAndScores(conditionProject1.getConditionName(),
 									conditionProject2.getConditionName(), projectTag, ratioName, ratioOperator,
 									ratioValue, scoreName, scoreType, scoreOperator, scoreValue);
@@ -101,7 +101,7 @@ public class ProteinProviderFromProteinRatiosAndScore extends ProteinDataProvide
 					}
 				}
 			} else {
-				final Map<String, Set<Protein>> proteinsWithRatiosAndScores = PreparedQueries
+				final Map<String, Collection<Protein>> proteinsWithRatiosAndScores = PreparedQueries
 						.getProteinsWithRatiosAndScores(conditionProject1.getConditionName(),
 								conditionProject2.getConditionName(), null, ratioName, ratioOperator, ratioValue,
 								scoreName, scoreType, scoreOperator, scoreValue);

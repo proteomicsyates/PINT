@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
+import java.util.Collection;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -28,14 +29,14 @@ import gnu.trove.set.hash.THashSet;
 public class QueryFromTissueCommand extends AbstractQuery {
 	private static Logger log = Logger.getLogger(QueryFromTissueCommand.class);
 
-	private Set<String> tissueNames = new THashSet<String>();
+	private final Set<String> tissueNames = new THashSet<String>();
 
 	public QueryFromTissueCommand(CommandReference commandReference) throws MalformedQueryException {
 		super(commandReference);
 
 		final String[] split = MyCommandTokenizer.splitCommand(commandReference.getCommandValue());
 		if (split.length >= 1) {
-			for (String string : split) {
+			for (final String string : split) {
 				tissueNames.add(string);
 			}
 
@@ -72,10 +73,10 @@ public class QueryFromTissueCommand extends AbstractQuery {
 
 	}
 
-	private boolean isValidTissue(Set<Tissue> tissues) {
+	private boolean isValidTissue(Collection<Tissue> tissues) {
 
 		if (tissues != null) {
-			for (Tissue tissue : tissues) {
+			for (final Tissue tissue : tissues) {
 				if (tissueNames.contains(tissue.getName()) || tissueNames.contains(tissue.getTissueId())) {
 					return true;
 				}
@@ -92,7 +93,7 @@ public class QueryFromTissueCommand extends AbstractQuery {
 
 	@Override
 	public DataProviderFromDB initProtenProvider() {
-		DataProviderFromDB ret = new ProteinProviderFromTissues(tissueNames);
+		final DataProviderFromDB ret = new ProteinProviderFromTissues(tissueNames);
 		return ret;
 	}
 

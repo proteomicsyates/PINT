@@ -1,7 +1,7 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.protein;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
@@ -20,13 +20,13 @@ public class ProteinProviderFromTaxonomy extends ProteinDataProvider {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+	public Map<String, Collection<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
 			int numProteins = 0;
-			result = new THashMap<String, Set<Protein>>();
+			result = new THashMap<String, Collection<Protein>>();
 			if (projectTags == null || projectTags.isEmpty()) {
-				final Map<String, Set<Protein>> proteinsWithTaxonomy = PreparedQueries.getProteinsWithTaxonomy(null,
-						organismName, ncbiTaxID);
+				final Map<String, Collection<Protein>> proteinsWithTaxonomy = PreparedQueries
+						.getProteinsWithTaxonomy(null, organismName, ncbiTaxID);
 				if (testMode && numProteins + proteinsWithTaxonomy.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
 					PersistenceUtils.addToMapByPrimaryAcc(result, QueriesUtil.getProteinSubList(proteinsWithTaxonomy,
 							QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
@@ -37,7 +37,7 @@ public class ProteinProviderFromTaxonomy extends ProteinDataProvider {
 				numProteins += proteinsWithTaxonomy.size();
 			} else {
 				for (final String projectTag : projectTags) {
-					final Map<String, Set<Protein>> proteinsWithTaxonomy = PreparedQueries
+					final Map<String, Collection<Protein>> proteinsWithTaxonomy = PreparedQueries
 							.getProteinsWithTaxonomy(projectTag, organismName, ncbiTaxID);
 					if (testMode && numProteins + proteinsWithTaxonomy.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
 						PersistenceUtils.addToMapByPrimaryAcc(result, QueriesUtil.getProteinSubList(

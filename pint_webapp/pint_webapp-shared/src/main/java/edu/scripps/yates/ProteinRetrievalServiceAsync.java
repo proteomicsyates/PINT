@@ -3,6 +3,8 @@ package edu.scripps.yates;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import edu.scripps.yates.shared.tasks.Task;
+
 public interface ProteinRetrievalServiceAsync {
 
 	/**
@@ -42,7 +44,8 @@ public interface ProteinRetrievalServiceAsync {
 	 */
 	void getProteinsFromProjects(java.lang.String sessionID, java.util.Set<java.lang.String> projectTags,
 			java.lang.String uniprotVersion, boolean separateNonConclusiveProteins, java.lang.Integer defaultQueryIndex,
-			boolean testMode, AsyncCallback<edu.scripps.yates.shared.util.sublists.QueryResultSubLists> callback);
+			boolean testMode, Task task,
+			AsyncCallback<edu.scripps.yates.shared.util.sublists.QueryResultSubLists> callback);
 
 	/**
 	 * GWT-RPC service asynchronous (client-side) interface
@@ -50,8 +53,8 @@ public interface ProteinRetrievalServiceAsync {
 	 * @see edu.scripps.yates.ProteinRetrievalService
 	 */
 	void getProteinsFromQuery(java.lang.String sessionID, java.lang.String queryText,
-			java.util.Set<java.lang.String> projectTags, boolean separateNonConclusiveProteins, boolean lock,
-			boolean testMode, boolean ignoreReferences, boolean ignoreDBReferences,
+			java.util.Set<java.lang.String> projectTags, String uniprotVersion, boolean separateNonConclusiveProteins,
+			boolean lock, boolean testMode, boolean ignoreReferences, boolean ignoreDBReferences, Task task,
 			AsyncCallback<edu.scripps.yates.shared.util.sublists.QueryResultSubLists> callback);
 
 	/**
@@ -130,7 +133,7 @@ public interface ProteinRetrievalServiceAsync {
 	 * 
 	 * @see edu.scripps.yates.ProteinRetrievalService
 	 */
-	void groupProteins(java.lang.String sessionID, boolean separateNonConclusiveProteins, int pageSize,
+	void groupProteins(java.lang.String sessionID, boolean separateNonConclusiveProteins, int pageSize, Task task,
 			AsyncCallback<edu.scripps.yates.shared.util.sublists.ProteinGroupBeanSubList> callback);
 
 	/**
@@ -258,7 +261,7 @@ public interface ProteinRetrievalServiceAsync {
 	 * 
 	 * @see edu.scripps.yates.ProteinRetrievalService
 	 */
-	void getProgressStatus(java.lang.String sessionID, java.lang.String taskKey,
+	void getProgressStatus(java.lang.String sessionID, Task task,
 			AsyncCallback<edu.scripps.yates.shared.util.ProgressStatus> callback);
 
 	/**
@@ -483,14 +486,6 @@ public interface ProteinRetrievalServiceAsync {
 	 */
 	void getDownloadLinkForReactomeAnalysisResult(java.lang.String sessionID,
 			AsyncCallback<edu.scripps.yates.shared.util.FileDescriptor> callback);
-
-	/**
-	 * GWT-RPC service asynchronous (client-side) interface
-	 * 
-	 * @see edu.scripps.yates.ProteinRetrievalService
-	 */
-	void getProteinProjectionsFromProject(java.lang.String projectTag,
-			AsyncCallback<java.util.List<edu.scripps.yates.shared.model.ProteinProjection>> callback);
 
 	/**
 	 * GWT-RPC service asynchronous (client-side) interface

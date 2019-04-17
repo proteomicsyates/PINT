@@ -1,11 +1,10 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
-import java.util.Set;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
-import edu.scripps.yates.proteindb.persistence.mysql.Threshold;
 import edu.scripps.yates.proteindb.queries.dataproviders.DataProviderFromDB;
 import edu.scripps.yates.proteindb.queries.dataproviders.protein.ProteinProviderFromProteinThresholds;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
@@ -59,34 +58,32 @@ public class QueryFromThresholdCommand extends AbstractQuery {
 
 	@Override
 	public boolean evaluate(LinkBetweenQueriableProteinSetAndPSM link) {
-		final Set<ProteinThreshold> proteinThresholds = link.getQueriableProtein().getProteinThresholds();
+		final List<ProteinThreshold> proteinThresholds = link.getQueriableProtein().getProteinThresholds();
 
 		for (final ProteinThreshold proteinThreshold : proteinThresholds) {
-			final Threshold threshold = proteinThreshold.getThreshold();
-			if (threshold != null) {
-				if (thresholdName.equalsIgnoreCase(threshold.getName())) {
-					if (Boolean.compare(pass, proteinThreshold.isPassThreshold()) == 0) {
-						return true;
-					}
+
+			if (thresholdName.equalsIgnoreCase(proteinThreshold.getName())) {
+				if (Boolean.compare(pass, proteinThreshold.isPassThreshold()) == 0) {
+					return true;
 				}
 			}
+
 		}
 		return false;
 	}
 
 	@Override
 	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
-		final Set<ProteinThreshold> proteinThresholds = link.getQueriableProtein().getProteinThresholds();
+		final List<ProteinThreshold> proteinThresholds = link.getQueriableProtein().getProteinThresholds();
 
 		for (final ProteinThreshold proteinThreshold : proteinThresholds) {
-			final Threshold threshold = proteinThreshold.getThreshold();
-			if (threshold != null) {
-				if (thresholdName.equalsIgnoreCase(threshold.getName())) {
-					if (Boolean.compare(pass, proteinThreshold.isPassThreshold()) == 0) {
-						return true;
-					}
+
+			if (thresholdName.equalsIgnoreCase(proteinThreshold.getName())) {
+				if (Boolean.compare(pass, proteinThreshold.isPassThreshold()) == 0) {
+					return true;
 				}
 			}
+
 		}
 		return false;
 	}

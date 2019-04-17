@@ -708,21 +708,22 @@ public class ProteinImplFromUniprotEntry extends AbstractProtein {
 	@Override
 	public Float getMw() {
 		if (!mwParsed) {
-			final String sequence = getSequence();
-			if (sequence != null && !"".equals(sequence)) {
-				try {
-					final double mass = new AASequenceImpl(sequence).getMass();
-					if (mass > 0.0) {
-						setMw(Double.valueOf(mass).floatValue());
-						return super.getMw();
-					}
-				} catch (final Exception e) {
-					e.printStackTrace();
-				}
-			}
 
 			if (entry.getSequence() != null) {
 				setMw(Integer.valueOf(entry.getSequence().getMass()).floatValue());
+			} else {
+				final String sequence = getSequence();
+				if (sequence != null && !"".equals(sequence)) {
+					try {
+						final double mass = new AASequenceImpl(sequence).getMass();
+						if (mass > 0.0) {
+							setMw(Double.valueOf(mass).floatValue());
+							return super.getMw();
+						}
+					} catch (final Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
 			mwParsed = true;
 		}

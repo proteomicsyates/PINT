@@ -8,9 +8,11 @@ import javax.servlet.ServletContext;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.server.ProteinRetrievalServicesServlet;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
+import edu.scripps.yates.server.tasks.ServerTaskRegister;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.server.util.ServerUtil;
 import edu.scripps.yates.shared.model.ProjectBean;
+import edu.scripps.yates.shared.tasks.GetProteinsFromProjectTask;
 import gnu.trove.set.hash.THashSet;
 
 public class PreLoadPublicProjects extends PintServerDaemonTask {
@@ -87,14 +89,18 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 					continue;
 				}
 				if (projectsToLoad.contains(projectBean.getTag())) {
+					final GetProteinsFromProjectTask task = new GetProteinsFromProjectTask(projectBean.getTag(), null);
 					try {
 						ContextualSessionHandler.beginGoodTransaction();
 
 						final long t1 = System.currentTimeMillis();
+
+						ServerTaskRegister.getInstance().registerTask(task);
 						log.info("Pre loading project: " + projectBean.getTag());
 						final Set<String> projectTagSet = new THashSet<String>();
 						projectTagSet.add(projectBean.getTag());
-						proteinRetrieval.getProteinsFromProjects(sessionID, projectTagSet, null, false, null, false);
+						proteinRetrieval.getProteinsFromProjects(sessionID, projectTagSet, null, false, null, false,
+								task);
 						final double t2 = (System.currentTimeMillis() * 1.0 - t1 * 1.0) / 1000;
 						log.info(projectBean.getTag() + " pre loaded in " + myFormatter.format(t2) + " seconds");
 					} catch (final Exception e) {
@@ -102,7 +108,7 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 						ContextualSessionHandler.rollbackTransaction();
 					} finally {
 						ContextualSessionHandler.finishGoodTransaction();
-
+						ServerTaskRegister.getInstance().endTask(task);
 					}
 				}
 			}

@@ -8,10 +8,13 @@ public class QueryResultSubLists implements Serializable {
 	 *
 	 */
 	private static final long serialVersionUID = 3500609597581892746L;
-	private PsmBeanSubList psmSubList;
-	private PeptideBeanSubList peptideSubList;
-	private ProteinBeanSubList proteinSubList;
-	private ProteinGroupBeanSubList proteinGroupSubList;
+//	private PsmBeanSubList psmSubList;
+//	private PeptideBeanSubList peptideSubList;
+//	private ProteinBeanSubList proteinSubList;
+//	private ProteinGroupBeanSubList proteinGroupSubList;
+	private int numTotalPSMs;
+	private int numTotalProteins;
+	private int numTotalProteinGroups;
 	private int numDifferentSequences;
 	private int numDifferentSequencesDistinguishingModifieds;
 	private List<String> proteinScores;
@@ -34,55 +37,56 @@ public class QueryResultSubLists implements Serializable {
 
 	}
 
-	/**
-	 * @return the psmSubList
-	 */
-	public PsmBeanSubList getPsmSubList() {
-		return psmSubList;
-	}
-
-	/**
-	 * @param psmSubList
-	 *            the psmSubList to set
-	 */
-	public void setPsmSubList(PsmBeanSubList psmSubList) {
-		this.psmSubList = psmSubList;
-	}
-
-	/**
-	 * @return the proteinSubList
-	 */
-	public ProteinBeanSubList getProteinSubList() {
-		return proteinSubList;
-	}
-
-	/**
-	 * @param proteinSubList
-	 *            the proteinSubList to set
-	 */
-	public void setProteinSubList(ProteinBeanSubList proteinSubList) {
-		this.proteinSubList = proteinSubList;
-	}
-
-	/**
-	 * @return the proteinGroupSubList
-	 */
-	public ProteinGroupBeanSubList getProteinGroupSubList() {
-		return proteinGroupSubList;
-	}
-
-	/**
-	 * @param proteinGroupSubList
-	 *            the proteinGroupSubList to set
-	 */
-	public void setProteinGroupSubList(ProteinGroupBeanSubList proteinGroupSubList) {
-		this.proteinGroupSubList = proteinGroupSubList;
-	}
+//	/**
+//	 * @return the psmSubList
+//	 */
+//	public PsmBeanSubList getPsmSubList() {
+//		return psmSubList;
+//	}
+//
+//	/**
+//	 * @param psmSubList
+//	 *            the psmSubList to set
+//	 */
+//	public void setPsmSubList(PsmBeanSubList psmSubList) {
+//		this.psmSubList = psmSubList;
+//	}
+//
+//	/**
+//	 * @return the proteinSubList
+//	 */
+//	public ProteinBeanSubList getProteinSubList() {
+//		return proteinSubList;
+//	}
+//
+//	/**
+//	 * @param proteinSubList
+//	 *            the proteinSubList to set
+//	 */
+//	public void setProteinSubList(ProteinBeanSubList proteinSubList) {
+//		this.proteinSubList = proteinSubList;
+//	}
+//
+//	/**
+//	 * @return the proteinGroupSubList
+//	 */
+//	public ProteinGroupBeanSubList getProteinGroupSubList() {
+//		return proteinGroupSubList;
+//	}
+//
+//	/**
+//	 * @param proteinGroupSubList
+//	 *            the proteinGroupSubList to set
+//	 */
+//	public void setProteinGroupSubList(ProteinGroupBeanSubList proteinGroupSubList) {
+//		this.proteinGroupSubList = proteinGroupSubList;
+//	}
 
 	public boolean isEmpty() {
-		if (proteinSubList != null)
-			return proteinSubList.isEmpty();
-		return true;
+		return getNumTotalProteins() <= 0;
+//		if (proteinSubList != null)
+//			return proteinSubList.isEmpty();
+//		return true;
 
 	}
 
@@ -94,8 +98,7 @@ public class QueryResultSubLists implements Serializable {
 	}
 
 	/**
-	 * @param numDifferentSequences
-	 *            the numDifferentSequences to set
+	 * @param numDifferentSequences the numDifferentSequences to set
 	 */
 	public void setNumDifferentSequences(int numDifferentSequences) {
 		this.numDifferentSequences = numDifferentSequences;
@@ -109,27 +112,28 @@ public class QueryResultSubLists implements Serializable {
 	}
 
 	/**
-	 * @param numDifferentSequencesDistinguishingModifieds
-	 *            the numDifferentSequencesDistinguishingModifieds to set
+	 * @param numDifferentSequencesDistinguishingModifieds the
+	 *                                                     numDifferentSequencesDistinguishingModifieds
+	 *                                                     to set
 	 */
 	public void setNumDifferentSequencesDistinguishingModifieds(int numDifferentSequencesDistinguishingModifieds) {
 		this.numDifferentSequencesDistinguishingModifieds = numDifferentSequencesDistinguishingModifieds;
 	}
 
-	/**
-	 * @return the peptideSubList
-	 */
-	public PeptideBeanSubList getPeptideSubList() {
-		return peptideSubList;
-	}
+//	/**
+//	 * @return the peptideSubList
+//	 */
+//	public PeptideBeanSubList getPeptideSubList() {
+//		return peptideSubList;
+//	}
 
-	/**
-	 * @param peptideSubList
-	 *            the peptideSubList to set
-	 */
-	public void setPeptideSubList(PeptideBeanSubList peptideSubList) {
-		this.peptideSubList = peptideSubList;
-	}
+//	/**
+//	 * @param peptideSubList
+//	 *            the peptideSubList to set
+//	 */
+//	public void setPeptideSubList(PeptideBeanSubList peptideSubList) {
+//		this.peptideSubList = peptideSubList;
+//	}
 
 	public List<String> getProteinScores() {
 		return proteinScores;
@@ -169,5 +173,29 @@ public class QueryResultSubLists implements Serializable {
 
 	public void setScoreTypes(List<String> scoreTypes) {
 		this.scoreTypes = scoreTypes;
+	}
+
+	public int getNumTotalPSMs() {
+		return numTotalPSMs;
+	}
+
+	public void setNumTotalPSMs(int numTotalPSMs) {
+		this.numTotalPSMs = numTotalPSMs;
+	}
+
+	public int getNumTotalProteins() {
+		return numTotalProteins;
+	}
+
+	public void setNumTotalProteins(int numTotalProteins) {
+		this.numTotalProteins = numTotalProteins;
+	}
+
+	public int getNumTotalProteinGroups() {
+		return numTotalProteinGroups;
+	}
+
+	public void setNumTotalProteinGroups(int numTotalProteinGroups) {
+		this.numTotalProteinGroups = numTotalProteinGroups;
 	}
 }

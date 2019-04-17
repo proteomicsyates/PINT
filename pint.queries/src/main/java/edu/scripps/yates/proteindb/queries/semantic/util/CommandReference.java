@@ -13,7 +13,7 @@ import edu.scripps.yates.proteindb.queries.semantic.Command;
  *
  */
 public class CommandReference {
-	public static final String COMMAND_REGEX = "(\\S+?)\\s*(\\[.*?\\].*)";
+	public static final String COMMAND_REGEX = "(.*?)(\\[.*?\\].*)";
 
 	private Command command;
 	private String commandValue;
@@ -21,19 +21,24 @@ public class CommandReference {
 
 	/**
 	 *
-	 * @param command
-	 *            COMMAND[command value]
+	 * @param command COMMAND[command value]
 	 * @throws MalformedQueryException
 	 */
 	public CommandReference(String command) throws MalformedQueryException {
-		Pattern pattern = Pattern.compile(COMMAND_REGEX);
+
+		final Pattern pattern = Pattern.compile(COMMAND_REGEX);
 		final Matcher matcher = pattern.matcher(command.trim());
+
 		if (matcher.find()) {
 			isNegative = false;
-			String commandWord = matcher.group(1);
+
+			String commandWord = matcher.group(1).trim();
 			if (commandWord.startsWith("!")) {
 				isNegative = true;
 				commandWord = commandWord.substring(1);
+			} else if (commandWord.toLowerCase().startsWith("not")) {
+				isNegative = true;
+				commandWord = commandWord.substring(3).trim();
 			}
 
 			commandValue = getCommandFromInsideOfBrackets(matcher.group(2));
@@ -48,13 +53,13 @@ public class CommandReference {
 	}
 
 	private String getCommandFromInsideOfBrackets(String text) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		int currentIdex = 0;
 
 		int numOpenBrackets = 0;
 		while (currentIdex <= text.length()) {
 
-			char currentChar = text.charAt(currentIdex);
+			final char currentChar = text.charAt(currentIdex);
 			sb.append(currentChar);
 			if (currentChar == '[')
 				numOpenBrackets++;
@@ -94,11 +99,12 @@ public class CommandReference {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		if (isNegative)
 			sb.append("!");
 		sb.append(command.getAbbreviation() + commandValue);

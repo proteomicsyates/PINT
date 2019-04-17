@@ -182,8 +182,9 @@
     border: 1px solid #1f2b31;
     background-color: #67A7E3 ;
     height: 16px;
-    width: 50%;
+    width: 300px;
     margin-left: 10px;
+    margin-right: 10px;
 }
 
 .gwt-ProgressBar-shell .gwt-ProgressBar-bar {

@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -287,7 +288,7 @@ public class QueryFromRatioCommand extends AbstractQuery {
 		if (isTheProteinToLog(queriableProtein)) {
 			log.info("*****" + this);
 		}
-		final Set<ProteinRatioValue> proteinRatios = queriableProtein.getProteinRatiosBetweenTwoConditions(
+		final List<ProteinRatioValue> proteinRatios = queriableProtein.getProteinRatiosBetweenTwoConditions(
 				conditionProject1.getConditionName(), conditionProject2.getConditionName(), ratioName);
 
 		if (proteinRatios != null && !proteinRatios.isEmpty()) {
@@ -440,7 +441,7 @@ public class QueryFromRatioCommand extends AbstractQuery {
 
 		case PEPTIDE:
 
-			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptide());
+			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptideSet());
 			return queryOverPeptide;
 
 		default:

@@ -15,6 +15,7 @@ public class RatioDescriptorBean implements Serializable {
 	private String proteinScoreName;
 	private String peptideScoreName;
 	private String psmScoreName;
+	private Integer ratioDescriptorID;
 
 	public RatioDescriptorBean() {
 
@@ -28,7 +29,7 @@ public class RatioDescriptorBean implements Serializable {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof RatioDescriptorBean) {
-			RatioDescriptorBean ratioDescriptor = (RatioDescriptorBean) obj;
+			final RatioDescriptorBean ratioDescriptor = (RatioDescriptorBean) obj;
 			if (ratioDescriptor.getCondition1Name().equals(condition1Name)) {
 				if (ratioDescriptor.getCondition2Name().equals(condition2Name)) {
 					if (ratioDescriptor.getProjectTag().equals(projectTag)) {
@@ -49,8 +50,7 @@ public class RatioDescriptorBean implements Serializable {
 	}
 
 	/**
-	 * @param condition1Name
-	 *            the condition1Name to set
+	 * @param condition1Name the condition1Name to set
 	 */
 	public void setCondition1Name(String condition1Name) {
 		this.condition1Name = condition1Name;
@@ -64,8 +64,7 @@ public class RatioDescriptorBean implements Serializable {
 	}
 
 	/**
-	 * @param condition2Name
-	 *            the condition2Name to set
+	 * @param condition2Name the condition2Name to set
 	 */
 	public void setCondition2Name(String condition2Name) {
 		this.condition2Name = condition2Name;
@@ -79,8 +78,7 @@ public class RatioDescriptorBean implements Serializable {
 	}
 
 	/**
-	 * @param projectName
-	 *            the projectName to set
+	 * @param projectName the projectName to set
 	 */
 	public void setProjectTag(String projectTag) {
 		this.projectTag = projectTag;
@@ -106,8 +104,7 @@ public class RatioDescriptorBean implements Serializable {
 	}
 
 	/**
-	 * @param aggregationLevel
-	 *            the aggregationLevel to set
+	 * @param aggregationLevel the aggregationLevel to set
 	 */
 	public void setAggregationLevel(SharedAggregationLevel aggregationLevel) {
 		this.aggregationLevel = aggregationLevel;
@@ -135,6 +132,14 @@ public class RatioDescriptorBean implements Serializable {
 
 	public void setPsmScoreName(String psmScoreName) {
 		this.psmScoreName = psmScoreName;
+	}
+
+	public void setRatioDescriptorID(int ratioDescriptorID) {
+		this.ratioDescriptorID = ratioDescriptorID;
+	}
+
+	public Integer getRatioDescriptorID() {
+		return ratioDescriptorID;
 	}
 
 }

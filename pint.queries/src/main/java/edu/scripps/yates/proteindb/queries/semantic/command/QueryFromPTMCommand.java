@@ -135,7 +135,7 @@ public class QueryFromPTMCommand extends AbstractQuery {
 	@Override
 	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
 
-		final Set<Ptm> ptms = link.getQueriablePeptide().getPtms();
+		final Set<Ptm> ptms = link.getQueriablePeptideSet().getPtms();
 		int numValidPTMs = 0;
 		if (ptms != null) {
 			// to be included in the result, at least one gene

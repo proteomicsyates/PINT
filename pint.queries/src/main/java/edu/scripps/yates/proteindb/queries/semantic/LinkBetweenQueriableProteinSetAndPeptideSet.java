@@ -14,7 +14,7 @@ import edu.scripps.yates.utilities.hash.HashGenerator;
 public class LinkBetweenQueriableProteinSetAndPeptideSet {
 	private static final Logger log = Logger.getLogger(LinkBetweenQueriableProteinSetAndPeptideSet.class);
 	private final QueriableProteinSet queriableProteinSet;
-	private final QueriablePeptideSet queriablePeptide;
+	private final QueriablePeptideSet queriablePeptideSet;
 	// private final Map<Boolean, Set<QueriableProtein2PSMLink>>
 	// evaluatedProtein2PSMLinks = new THashMap<Boolean,
 	// Set<QueriableProtein2PSMLink>>();
@@ -28,19 +28,23 @@ public class LinkBetweenQueriableProteinSetAndPeptideSet {
 	private LinkBetweenQueriableProteinSetAndPeptideSet(QueriableProteinSet queriableProteinSet,
 			QueriablePeptideSet queriablePeptideSet) {
 		this.queriableProteinSet = queriableProteinSet;
-		queriablePeptide = queriablePeptideSet;
+		this.queriablePeptideSet = queriablePeptideSet;
 
 		this.queriableProteinSet.addLinkToPeptide(this);
-		queriablePeptide.addLink(this);
-
+		if (queriablePeptideSet != null) {
+			this.queriablePeptideSet.addLink(this);
+		}
 	}
 
 	@Override
 	public int hashCode() {
 		if (hashCode == -1) {
 			final List<String> list = new ArrayList<String>();
+
 			list.addAll(queriableProteinSet.getProteinAccessions());
-			list.add(queriablePeptide.getSequence());
+			if (queriablePeptideSet != null) {
+				list.add(queriablePeptideSet.getSequence());
+			}
 			hashCode = HashGenerator.generateHash(list);
 		}
 		return hashCode;
@@ -51,7 +55,7 @@ public class LinkBetweenQueriableProteinSetAndPeptideSet {
 		if (obj instanceof LinkBetweenQueriableProteinSetAndPeptideSet) {
 			final LinkBetweenQueriableProteinSetAndPeptideSet link2 = (LinkBetweenQueriableProteinSetAndPeptideSet) obj;
 			if (link2.getQueriableProtein() == getQueriableProtein()
-					&& link2.getQueriablePeptide() == getQueriablePeptide()) {
+					&& link2.getQueriablePeptideSet() == getQueriablePeptideSet()) {
 				return true;
 			}
 			return false;
@@ -71,8 +75,8 @@ public class LinkBetweenQueriableProteinSetAndPeptideSet {
 	 * @return the psm
 	 */
 
-	public QueriablePeptideSet getQueriablePeptide() {
-		return queriablePeptide;
+	public QueriablePeptideSet getQueriablePeptideSet() {
+		return queriablePeptideSet;
 	}
 
 	// /**
@@ -110,8 +114,9 @@ public class LinkBetweenQueriableProteinSetAndPeptideSet {
 	 */
 	public void detachFromProteinAndPeptide() {
 		queriableProteinSet.removeLink(this);
-		queriablePeptide.removeProteinSetLink(this);
-
+		if (queriablePeptideSet != null) {
+			queriablePeptideSet.removeProteinSetLink(this);
+		}
 	}
 
 	/*
@@ -121,7 +126,7 @@ public class LinkBetweenQueriableProteinSetAndPeptideSet {
 	 */
 	@Override
 	public String toString() {
-		return hashCode() + ": Link between " + queriableProteinSet + " and " + queriablePeptide;
+		return hashCode() + ": Link between " + queriableProteinSet + " and " + queriablePeptideSet;
 	}
 
 	/**
@@ -132,6 +137,7 @@ public class LinkBetweenQueriableProteinSetAndPeptideSet {
 	 */
 	public Set<Protein> getIndividualProteins() {
 		return queriableProteinSet.getIndividualProteins();
+
 	}
 
 	/**
@@ -142,25 +148,25 @@ public class LinkBetweenQueriableProteinSetAndPeptideSet {
 	}
 
 	/**
-	 * @param linkSetForSameProtein
-	 *            the linkSetForSameProtein to set
+	 * @param linkSetForSameProtein the linkSetForSameProtein to set
 	 */
 	public void setLinkSetForSameProtein(Set<LinkBetweenQueriableProteinSetAndPeptideSet> linkSetForSameProtein) {
 		this.linkSetForSameProtein = linkSetForSameProtein;
 	}
 
 	public void invalidateLink() {
-		final List<Peptide> peptides = getQueriablePeptide().getIndividualPeptides();
-		for (final Peptide peptide : peptides) {
-			// PersistenceUtils.detachPSM(psm, false, false, false);
-			final List<Protein> allProteins = getQueriableProtein().getAllProteins();
-			final Set<Protein> proteinsFromPeptide = peptide.getProteins();
-			for (final Protein protein : allProteins) {
-				protein.getPeptides().remove(peptide);
-				proteinsFromPeptide.remove(protein);
+		if (queriablePeptideSet != null) {
+			final List<Peptide> peptides = queriablePeptideSet.getIndividualPeptides();
+			for (final Peptide peptide : peptides) {
+				// PersistenceUtils.detachPSM(psm, false, false, false);
+				final List<Protein> allProteins = getQueriableProtein().getAllProteins();
+				final Set<Protein> proteinsFromPeptide = peptide.getProteins();
+				for (final Protein protein : allProteins) {
+					protein.getPeptides().remove(peptide);
+					proteinsFromPeptide.remove(protein);
+				}
 			}
 		}
-
 	}
 
 	// public void setProtein2PsmResult(QueriableProtein2PSMLink

@@ -15,6 +15,7 @@ import javax.servlet.ServletContext;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLDeleter;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.IDTableMapperRegistry;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.shared.model.ProjectBean;
@@ -71,6 +72,7 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 							previouslyTried.remove(projectTag);
 							setProjectListOfPReviouslyTriedProjects(previouslyTried);
 						}
+						onDeleteProjectSuccessfull();
 					} catch (final Exception e) {
 						e.printStackTrace();
 						ContextualSessionHandler.rollbackTransaction();
@@ -84,6 +86,11 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 			// Close the Session
 			ContextualSessionHandler.closeSession();
 		}
+	}
+
+	private void onDeleteProjectSuccessfull() {
+		// remap table maps
+		IDTableMapperRegistry.clearTableMappers();
 	}
 
 	private void setProjectListOfPReviouslyTriedProjects(List<String> previouslyTried) throws IOException {

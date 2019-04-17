@@ -1,9 +1,11 @@
 package edu.scripps.yates.persistence.mysql.preparedstatements;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
@@ -24,8 +26,13 @@ import edu.scripps.yates.proteindb.persistence.mysql.access.CriterionSet;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToPeptideIDTableMapper;
 import edu.scripps.yates.utilities.dates.DatesUtil;
+import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
+import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
+import gnu.trove.list.array.TLongArrayList;
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.THashSet;
 import gnu.trove.set.hash.TIntHashSet;
 import junit.framework.Assert;
@@ -34,6 +41,7 @@ public class PreparedCriteriaTests {
 	@Before
 	public void beforeTask() {
 		ContextualSessionHandler.beginGoodTransaction();
+		ProteinIDToPeptideIDTableMapper.getInstance();
 	}
 
 	@After
@@ -115,13 +123,13 @@ public class PreparedCriteriaTests {
 			System.out.println(protein.getMw());
 		}
 		Assert.assertTrue(list.size() >= size);
-		final Map<String, Set<Protein>> map = new THashMap<String, Set<Protein>>();
+		final Map<String, Collection<Protein>> map = new THashMap<String, Collection<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(map, list);
 
 		Assert.assertEquals(size, map.size());
 		final Set<Psm> psmSet = new THashSet<Psm>();
 		for (final String acc : map.keySet()) {
-			final Set<Protein> proteinSet = map.get(acc);
+			final Collection<Protein> proteinSet = map.get(acc);
 			for (final Protein protein : proteinSet) {
 
 				final Set<Condition> conditions1 = protein.getConditions();
@@ -322,29 +330,63 @@ public class PreparedCriteriaTests {
 	@Test
 	public void testGetPeptideIdsFromProteinIds() {
 		final String conditionName = "C in vivo";
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, conditionName);
-		final HashSet<Integer> ids = new HashSet<Integer>();
-		for (final Set<Protein> protein : list.values()) {
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null,
+				conditionName);
+		final TIntSet ids = new TIntHashSet();
+		for (final Collection<Protein> protein : list.values()) {
 			for (final Protein protein2 : protein) {
 				ids.add(protein2.getId());
 			}
 		}
-		final long t1 = System.currentTimeMillis();
+
 		System.out.println("Getting peptides from " + ids.size() + " proteins");
-		final List<Integer> peptideIds = PreparedCriteria.getPeptideIdsFromProteins(ids);
-		System.out.println(peptideIds.size() + " peptides");
-		final List<Peptide> peptides = PreparedCriteria.getPeptidesByIds(peptideIds);
-		System.out.println(peptides.size() + " peptides objects");
+		long t1 = System.currentTimeMillis();
+		final TIntSet peptideIds = PreparedCriteria.getPeptideIdsFromProteinIDsUsingNewProteinPeptideMapper(ids);
 		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
+		System.out.println(peptideIds.size() + " peptide IDs with first method");
+
+//		t1 = System.currentTimeMillis();
+//		final List<Peptide> peptides = PreparedCriteria.getPeptidesByIds(peptideIds);
+//		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
+//		System.out.println(peptides.size() + " peptides objects");
+
+//		t1 = System.currentTimeMillis();
+//		final List<Peptide> peptides = PreparedCriteria.getPeptideFromPeptideIDs(peptideIds);
+//		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
+//		System.out.println(peptides.size() + " peptides objects");
+//
+//		t1 = System.currentTimeMillis();
+//		final List<Peptide> peptides = PreparedCriteria.getPeptideFromPeptideIDs2(peptideIds);
+//		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
+//		System.out.println(peptides.size() + " peptides objects");
+//
+//		t1 = System.currentTimeMillis();
+//		final List<Peptide> peptides = PreparedCriteria.getPeptideFromPeptideIDs3(peptideIds,true,2500);
+//		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
+//		System.out.println(peptides.size() + " peptides objects");
+
+		final List<Peptide> peptides = PreparedCriteria.getPeptidesFromPeptideIDs(peptideIds, true, 500);
+		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
+		System.out.println(peptides.size() + " peptides objects");
+		t1 = System.currentTimeMillis();
+		Set<String> seqs = peptides.stream().map(peptide -> peptide.getFullSequence()).collect(Collectors.toSet());
+		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
+		System.out.println(seqs.size() + " different sequences");
+
+		t1 = System.currentTimeMillis();
+		seqs = peptides.parallelStream().map(peptide -> peptide.getFullSequence()).collect(Collectors.toSet());
+		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
+		System.out.println(seqs.size() + " different sequences in parallel");
 	}
 
 	@Test
 	public void testGetPeptideIdsFromProteins() {
 		final String conditionName = "C in vivo";
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, conditionName);
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null,
+				conditionName);
 		final Set<Peptide> peptides = new THashSet<Peptide>();
 		final long t1 = System.currentTimeMillis();
-		for (final Set<Protein> protein : list.values()) {
+		for (final Collection<Protein> protein : list.values()) {
 			for (final Protein protein2 : protein) {
 				peptides.addAll(protein2.getPeptides());
 			}
@@ -356,9 +398,10 @@ public class PreparedCriteriaTests {
 	@Test
 	public void testGetPsmIdsFromProteinIds() {
 		final String conditionName = "C in vivo";
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, conditionName);
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null,
+				conditionName);
 		final HashSet<Integer> ids = new HashSet<Integer>();
-		for (final Set<Protein> protein : list.values()) {
+		for (final Collection<Protein> protein : list.values()) {
 			for (final Protein protein2 : protein) {
 				ids.add(protein2.getId());
 			}
@@ -370,7 +413,7 @@ public class PreparedCriteriaTests {
 		set.addAll(psmIds);
 		System.out.println(psmIds.size() + " psms");
 		System.out.println(set.size() + " different psms");
-		final List<Psm> psms = PreparedCriteria.getPsmsByIds(psmIds);
+		final List<Psm> psms = PreparedCriteria.getPsmsFromPsmIDs(psmIds, true, 500);
 		System.out.println(psms.size() + " psms objects");
 		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
 	}
@@ -378,10 +421,11 @@ public class PreparedCriteriaTests {
 	@Test
 	public void testGetPsmIdsFromProteins() {
 		final String conditionName = "C in vivo";
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, conditionName);
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null,
+				conditionName);
 		final Set<Psm> psms = new THashSet<Psm>();
 		final long t1 = System.currentTimeMillis();
-		for (final Set<Protein> protein : list.values()) {
+		for (final Collection<Protein> protein : list.values()) {
 			for (final Protein protein2 : protein) {
 				psms.addAll(protein2.getPsms());
 			}
@@ -397,5 +441,116 @@ public class PreparedCriteriaTests {
 		final List<String> conditionNames = PreparedCriteria.getCriteriaForConditionsInProjectInMSRun(projectTag,
 				msRunID);
 		System.out.println(conditionNames.size());
+	}
+
+	@Test
+	public void getCriteriaForConditionsInProjectTest() {
+		final long t1 = System.currentTimeMillis();
+		final String projectTag = "_CFTR_";
+		final List<Condition> conditions = PreparedCriteria.getCriteriaForConditionsInProject(projectTag);
+		final long x = System.currentTimeMillis() - t1;
+
+		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(x));
+		System.out.println(conditions.size());
+	}
+
+	@Test
+	public void getCriteriaForGettingPeptidesFromProteinIDs() {
+
+		final TLongArrayList times = new TLongArrayList();
+		final String projectTag = "Islet Aging";
+		int num = 0;
+		final List<Condition> conditions = PreparedCriteria.getCriteriaForConditionsInProject(projectTag);
+		for (final Condition condition : conditions) {
+			final List<Integer> proteinIDsByConditionCriteria = PreparedCriteria.getProteinIDsFromCondition(condition);
+			final TIntSet intSet = new TIntHashSet(proteinIDsByConditionCriteria);
+			final List<Protein> proteins = PreparedCriteria.getProteinsFromIDs(intSet, true, 20);
+			final Map<String, Collection<Protein>> map = new THashMap<String, Collection<Protein>>();
+			PersistenceUtils.addToMapByPrimaryAcc(map, proteins);
+			final ProgressCounter counter = new ProgressCounter(map.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0,
+					true);
+			for (final String acc : map.keySet()) {
+				counter.increment();
+				final String printIfNecessary = counter.printIfNecessary();
+				if (!"".equals(printIfNecessary)) {
+					System.out.println(printIfNecessary);
+				}
+				final Collection<Protein> proteinSet = map.get(acc);
+				final Set<Integer> proteinIDSet = proteinSet.stream().map(protein -> protein.getId())
+						.collect(Collectors.toSet());
+				final TIntSet tintSet = new TIntHashSet(proteinIDSet);
+				final long t1 = System.currentTimeMillis();
+				num++;
+//				final List<Peptide> peptides = PreparedCriteria.getPeptidesFromProteinIDs(proteinIDSet);
+//				final List<Integer> peptideIDs = PreparedCriteria.getPeptideIdsFromProteinIDs(proteinIDSet);
+				final TIntSet peptideIDs = PreparedCriteria
+						.getPeptideIdsFromProteinIDsUsingNewProteinPeptideMapper(tintSet);
+				final List<Peptide> peptides = PreparedCriteria.getPeptidesFromPeptideIDs(peptideIDs, true, 100);
+				for (final Peptide peptide : peptides) {
+					final int id = peptide.getId();
+				}
+				final long x = System.currentTimeMillis() - t1;
+				times.add(x);
+//				System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(times.sum() / (1.0 * num)));
+			}
+			break;
+		}
+		final double y = times.sum() / (1.0 * num);
+		System.out.println(y);
+		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(y));
+
+	}
+
+	@Test
+	public void getCriteriaForGettingPeptidesFromProteinIDs2() {
+
+		final TLongArrayList times = new TLongArrayList();
+		final String projectTag = "Islet Aging";
+		int num = 0;
+		final List<Condition> conditions = PreparedCriteria.getCriteriaForConditionsInProject(projectTag);
+		for (final Condition condition : conditions) {
+			final List<Integer> proteinIDsByConditionCriteria = PreparedCriteria.getProteinIDsFromCondition(condition);
+			final TIntSet intSet = new TIntHashSet(proteinIDsByConditionCriteria);
+			final List<Protein> proteins = PreparedCriteria.getProteinsFromIDs(intSet, true, 20);
+			final Map<String, Collection<Protein>> map = new THashMap<String, Collection<Protein>>();
+			PersistenceUtils.addToMapByPrimaryAcc(map, proteins);
+			final ProgressCounter counter = new ProgressCounter(map.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0,
+					true);
+			for (final String acc : map.keySet()) {
+				counter.increment();
+				final String printIfNecessary = counter.printIfNecessary();
+				if (!"".equals(printIfNecessary)) {
+					System.out.println(printIfNecessary);
+				}
+				final Collection<Protein> proteinSet = map.get(acc);
+				final Set<Integer> proteinIDSet = proteinSet.stream().map(protein -> protein.getId())
+						.collect(Collectors.toSet());
+				final TIntSet tintSet = new TIntHashSet(proteinIDSet);
+
+				num++;
+//				final List<Peptide> peptides = PreparedCriteria.getPeptidesFromProteinIDs(proteinIDSet);
+//				final List<Integer> peptideIDs = PreparedCriteria.getPeptideIdsFromProteinIDs(proteinIDSet);
+				final TIntSet peptideIDs = PreparedCriteria
+						.getPeptideIdsFromProteinIDsUsingNewProteinPeptideMapper(tintSet);
+				final List<Peptide> peptides = PreparedCriteria.getPeptidesFromPeptideIDs(peptideIDs, true, 100);
+				final long t1 = System.currentTimeMillis();
+				final Map<String, List<Protein>> proteinMap = PersistenceUtils
+						.getProteinMapUsingProteinToPeptideMappingTable(peptides, intSet);
+				for (final String acc2 : proteinMap.keySet()) {
+					final List<Protein> proteinSet2 = proteinMap.get(acc2);
+					for (final Protein protein2 : proteinSet2) {
+						protein2.getId();
+					}
+				}
+				final long x = System.currentTimeMillis() - t1;
+				times.add(x);
+//				System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(times.sum() / (1.0 * num)));
+			}
+			break;
+		}
+		final double y = times.sum() / (1.0 * num);
+		System.out.println(y);
+		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs(y));
+
 	}
 }

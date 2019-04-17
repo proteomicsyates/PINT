@@ -2,15 +2,12 @@ package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-
-import com.google.common.collect.Iterables;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
@@ -27,9 +24,15 @@ import edu.scripps.yates.proteindb.persistence.mysql.ProteinScore;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
+import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAccessionAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToProteinTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToConditionIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToMSRunIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToPSMIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToPeptideIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToProteinScoreIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToProteinThresholdIDTableMapper;
 import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.FastaParser;
@@ -37,7 +40,10 @@ import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.GeneEx;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.TIntCollection;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.THashSet;
 import gnu.trove.set.hash.TIntHashSet;
 
@@ -48,8 +54,8 @@ import gnu.trove.set.hash.TIntHashSet;
  *
  */
 public class QueriableProteinSet {
-	private final Set<LinkBetweenQueriableProteinSetAndPSM> linksToPSMs = new THashSet<LinkBetweenQueriableProteinSetAndPSM>();
-	private final Set<LinkBetweenQueriableProteinSetAndPeptideSet> linksToPeptides = new THashSet<LinkBetweenQueriableProteinSetAndPeptideSet>();
+	private final List<LinkBetweenQueriableProteinSetAndPSM> linksToPSMs = new ArrayList<LinkBetweenQueriableProteinSetAndPSM>();
+	private final List<LinkBetweenQueriableProteinSetAndPeptideSet> linksToPeptides = new ArrayList<LinkBetweenQueriableProteinSetAndPeptideSet>();
 
 	/**
 	 * Proteins that share the same primary accession
@@ -60,22 +66,25 @@ public class QueriableProteinSet {
 	private Set<Protein> individualProteins;
 	private String uniprotKBVersion;
 	private Set<String> proteinAccs;
-	private THashSet<ProteinScore> proteinScores;
-	private THashSet<MsRun> msRuns;
-	private THashSet<ProteinRatioValue> proteinRatios;
-	private THashSet<ProteinThreshold> proteinThresholds;
-	private THashSet<ProteinAmount> proteinAmounts;
-	private THashSet<ProteinAnnotation> proteinAnnotations;
-	private THashSet<edu.scripps.yates.utilities.proteomicsmodel.Gene> genes;
-	private THashSet<Condition> conditions;
+	private List<ProteinScore> proteinScores;
+	private List<MsRun> msRuns;
+	private List<ProteinRatioValue> proteinRatios;
+	private List<ProteinThreshold> proteinThresholds;
+	private List<ProteinAmount> proteinAmounts;
+	private List<ProteinAnnotation> proteinAnnotations;
+	private List<edu.scripps.yates.utilities.proteomicsmodel.Gene> genes;
+	private List<Condition> conditions;
 	private Organism organism;
-	private Set<Tissue> tissues;
+	private List<Tissue> tissues;
+	private List<Psm> psmList;
+	private List<Peptide> peptideList;
 	private static UniprotProteinLocalRetriever uplr;
 
 	private final static Logger log = Logger.getLogger(QueriableProteinSet.class);
 	private static final Map<String, QueriableProteinSet> map = new THashMap<String, QueriableProteinSet>();
 
 	public static QueriableProteinSet getInstance(Collection<Protein> proteins, boolean forceToCreateNewObject) {
+
 		final String id = getProteinsID(proteins);
 
 		if (!forceToCreateNewObject && map.containsKey(id)) {
@@ -89,14 +98,14 @@ public class QueriableProteinSet {
 	}
 
 	private static String getProteinsID(Collection<Protein> proteins) {
-		final List<Integer> individualIds = new ArrayList<Integer>();
+		final TIntArrayList individualIds = new TIntArrayList(proteins.size());
 		for (final Protein protein : proteins) {
 			individualIds.add(protein.getId());
 		}
-		Collections.sort(individualIds);
+		individualIds.sort();
 		final StringBuilder sb = new StringBuilder();
-		for (final Integer integer : individualIds) {
-			sb.append(integer);
+		for (final int id : individualIds.toArray()) {
+			sb.append(id);
 		}
 		return sb.toString();
 	}
@@ -183,14 +192,14 @@ public class QueriableProteinSet {
 	/**
 	 * @return the links
 	 */
-	public Set<LinkBetweenQueriableProteinSetAndPSM> getLinksToPSMs() {
+	public List<LinkBetweenQueriableProteinSetAndPSM> getLinksToPSMs() {
 		return linksToPSMs;
 	}
 
 	/**
 	 * @return the links
 	 */
-	public Set<LinkBetweenQueriableProteinSetAndPeptideSet> getLinksToPeptides() {
+	public List<LinkBetweenQueriableProteinSetAndPeptideSet> getLinksToPeptides() {
 		return linksToPeptides;
 	}
 
@@ -255,20 +264,17 @@ public class QueriableProteinSet {
 	 * @return the peptides
 	 */
 
-	public Set<Peptide> getPeptides() {
-
-		final Set<Peptide> peptideSet = new THashSet<Peptide>();
-		for (final Protein protein : getIndividualProteins()) {
-			final Set<Peptide> peptides = protein.getPeptides();
-			for (Peptide peptide : peptides) {
-				if (!ContextualSessionHandler.getCurrentSession().contains(peptide)) {
-					peptide = (Peptide) ContextualSessionHandler.load(peptide.getId(), Peptide.class);
-				}
-				peptideSet.add(peptide);
+	public List<Peptide> getPeptides() {
+		if (peptideList == null || peptideList.isEmpty()) {
+			final TIntArrayList proteinIds = new TIntArrayList();
+			for (final Protein protein : getIndividualProteins()) {
+				proteinIds.add(protein.getId());
 			}
+			final TIntSet peptideIDs = ProteinIDToPeptideIDTableMapper.getInstance()
+					.getPeptideIDsFromProteinIDs(proteinIds);
+			peptideList = (List<Peptide>) PreparedCriteria.getBatchLoadByIDs(Peptide.class, peptideIDs, true, 250);
 		}
-
-		return peptideSet;
+		return peptideList;
 	}
 
 	/**
@@ -279,20 +285,27 @@ public class QueriableProteinSet {
 	 * @return the peptides
 	 */
 
-	public Set<Psm> getPsms() {
-
-		final Set<Psm> psmSet = new THashSet<Psm>();
-		for (final Protein protein : getIndividualProteins()) {
-			final Set<Psm> psms = protein.getPsms();
-			for (Psm psm : psms) {
-				if (!ContextualSessionHandler.getCurrentSession().contains(psm)) {
-					psm = (Psm) ContextualSessionHandler.load(psm.getId(), Psm.class);
-				}
-				psmSet.add(psm);
+	public List<Psm> getPsms() {
+		if (psmList == null || psmList.isEmpty()) {
+			final TIntArrayList proteinIds = new TIntArrayList();
+			for (final Protein protein : getIndividualProteins()) {
+				proteinIds.add(protein.getId());
 			}
-		}
+			final TIntSet psmIDs = ProteinIDToPSMIDTableMapper.getInstance().getPSMIDsFromProteinIDs(proteinIds);
+			psmList = (List<Psm>) PreparedCriteria.getBatchLoadByIDs(Psm.class, psmIDs, true, 250);
 
-		return psmSet;
+//		final Set<Psm> psmSet = new THashSet<Psm>();
+//		for (final Protein protein : getIndividualProteins()) {
+//			final Set<Psm> psms = protein.getPsms();
+//			for (Psm psm : psms) {
+//				if (!ContextualSessionHandler.getCurrentSession().contains(psm)) {
+//					psm = (Psm) ContextualSessionHandler.load(psm.getId(), Psm.class);
+//				}
+//				psmSet.add(psm);
+//			}
+//		}
+		}
+		return psmList;
 	}
 
 	public Set<String> getProteinAccessions() {
@@ -352,23 +365,27 @@ public class QueriableProteinSet {
 	 *
 	 * @return
 	 */
-	public Set<Condition> getConditions() {
+	public List<Condition> getConditions() {
 		if (conditions == null) {
-			conditions = new THashSet<Condition>();
+			final TIntArrayList proteinIds = new TIntArrayList();
 			for (final Protein protein : getIndividualProteins()) {
-				final List<Condition> conditions2 = ConditionToProteinTableMapper.getInstance().getConditions(protein);
-				conditions.addAll(conditions2);
+				proteinIds.add(protein.getId());
 			}
+			final TIntSet conditionIDs = ProteinIDToConditionIDTableMapper.getInstance()
+					.getConditionIDsFromProteinIDs(proteinIds);
+			conditions = (List<Condition>) PreparedCriteria.getBatchLoadByIDs(Condition.class, conditionIDs, true, 250);
 		}
 		return conditions;
 	}
 
-	public Set<Tissue> getTissues() {
+	public List<Tissue> getTissues() {
 		if (tissues == null) {
-			tissues = new THashSet<Tissue>();
+			tissues = new ArrayList<Tissue>();
 			for (final Condition condition : getConditions()) {
 				final Tissue tissue = condition.getSample().getTissue();
-				tissues.add(tissue);
+				if (!tissues.contains(tissue)) {
+					tissues.add(tissue);
+				}
 			}
 		}
 		return tissues;
@@ -381,9 +398,10 @@ public class QueriableProteinSet {
 	 * @return
 	 */
 
-	public Set<ProteinAmount> getProteinAmounts() {
+	public List<ProteinAmount> getProteinAmounts() {
 		if (proteinAmounts == null) {
-			proteinAmounts = new THashSet<ProteinAmount>();
+			proteinAmounts = new ArrayList<ProteinAmount>();
+
 			for (final Protein protein : getIndividualProteins()) {
 				final Set<ProteinAmount> proteinAmounts = protein.getProteinAmounts();
 				for (ProteinAmount proteinAmount : proteinAmounts) {
@@ -422,10 +440,13 @@ public class QueriableProteinSet {
 	public Organism getOrganism() {
 		if (organism == null) {
 			final Entry uniprotEntry = getUniprotEntry();
-			final String taxonomyName = UniprotEntryUtil.getTaxonomyName(uniprotEntry);
-			final String taxonomyNCBIID = UniprotEntryUtil.getTaxonomyNCBIID(uniprotEntry);
-			organism = new Organism(taxonomyNCBIID);
-			organism.setName(taxonomyName);
+			if (uniprotEntry != null) {
+				final String taxonomyName = UniprotEntryUtil.getTaxonomyName(uniprotEntry);
+				final String taxonomyNCBIID = UniprotEntryUtil.getTaxonomyNCBIID(uniprotEntry);
+
+				organism = new Organism(taxonomyNCBIID);
+				organism.setName(taxonomyName);
+			}
 
 			// if
 			// (!ContextualSessionHandler.getCurrentSession().contains(organism))
@@ -452,9 +473,9 @@ public class QueriableProteinSet {
 	 * @return
 	 */
 
-	public Set<ProteinAnnotation> getProteinAnnotations() {
+	public List<ProteinAnnotation> getProteinAnnotations() {
 		if (proteinAnnotations == null) {
-			proteinAnnotations = new THashSet<ProteinAnnotation>();
+			proteinAnnotations = new ArrayList<ProteinAnnotation>();
 			proteinAnnotations.addAll(
 					ProteinAnnotator.getInstance(uniprotKBVersion).getProteinAnnotationByProteinAcc(primaryAcc));
 			for (final Protein protein : getIndividualProteins()) {
@@ -471,26 +492,24 @@ public class QueriableProteinSet {
 	 * @return
 	 */
 
-	public Set<ProteinThreshold> getProteinThresholds() {
+	public List<ProteinThreshold> getProteinThresholds() {
 		if (proteinThresholds == null) {
-			proteinThresholds = new THashSet<ProteinThreshold>();
+
+			final TIntArrayList proteinIds = new TIntArrayList();
 			for (final Protein protein : getIndividualProteins()) {
-				final Set<ProteinThreshold> proteinThresholds = protein.getProteinThresholds();
-				for (ProteinThreshold proteinThreshold : proteinThresholds) {
-					if (!ContextualSessionHandler.getCurrentSession().contains(proteinThreshold)) {
-						proteinThreshold = (ProteinThreshold) ContextualSessionHandler.getCurrentSession()
-								.merge(proteinThreshold);
-					}
-					proteinThresholds.add(proteinThreshold);
-				}
+				proteinIds.add(protein.getId());
 			}
+			final TIntSet proteinThresholdIDs = ProteinIDToProteinThresholdIDTableMapper.getInstance()
+					.getProteinThresholdIDsFromProteinIDs(proteinIds);
+			proteinThresholds = (List<ProteinThreshold>) PreparedCriteria.getBatchLoadByIDs(ProteinThreshold.class,
+					proteinThresholdIDs, true, 250);
 		}
 		return proteinThresholds;
 	}
 
-	public Set<edu.scripps.yates.utilities.proteomicsmodel.Gene> getGenes() {
+	public List<edu.scripps.yates.utilities.proteomicsmodel.Gene> getGenes() {
 		if (genes == null) {
-			genes = new THashSet<edu.scripps.yates.utilities.proteomicsmodel.Gene>();
+			genes = new ArrayList<edu.scripps.yates.utilities.proteomicsmodel.Gene>();
 			final List<Pair<String, String>> geneNames = UniprotEntryUtil.getGeneName(getUniprotEntry(), false, false);
 			for (int i = 0; i < geneNames.size(); i++) {
 				final Pair<String, String> geneName = geneNames.get(i);
@@ -502,9 +521,9 @@ public class QueriableProteinSet {
 		return genes;
 	}
 
-	public Set<ProteinRatioValue> getProteinRatiosBetweenTwoConditions(String condition1Name, String condition2Name,
+	public List<ProteinRatioValue> getProteinRatiosBetweenTwoConditions(String condition1Name, String condition2Name,
 			String ratioName) {
-		final Set<ProteinRatioValue> ret = new THashSet<ProteinRatioValue>();
+		final List<ProteinRatioValue> ret = new ArrayList<ProteinRatioValue>();
 		for (final Protein protein : getIndividualProteins()) {
 			final Set<ProteinRatioValue> proteinRatiosBetweenTwoConditions = PersistenceUtils
 					.getProteinRatiosBetweenTwoConditions(protein, condition1Name, condition2Name, ratioName);
@@ -513,30 +532,39 @@ public class QueriableProteinSet {
 		return ret;
 	}
 
-	public Set<ProteinScore> getProteinScores() {
+	public List<ProteinScore> getProteinScores() {
 		if (proteinScores == null) {
-			proteinScores = new THashSet<ProteinScore>();
+
+			final TIntSet proteinIDs = new TIntHashSet();
 			for (final Protein protein : getIndividualProteins()) {
-				proteinScores.addAll(protein.getProteinScores());
+				proteinIDs.add(protein.getId());
+
 			}
+			final TIntSet proteinScoreIDs = ProteinIDToProteinScoreIDTableMapper.getInstance()
+					.getProteinScoreIDsFromProteinIDs(proteinIDs);
+			proteinScores = (List<ProteinScore>) PreparedCriteria.getBatchLoadByIDs(ProteinScore.class, proteinScoreIDs,
+					true, 250);
 		}
 		return proteinScores;
 
 	}
 
-	public Iterator<ProteinScore> getProteinScoresIterator() {
-		Iterable<ProteinScore> ret = null;
+	public List<ProteinScore> getProteinScores(TIntCollection proteinIDsToIgnore) {
 
+		final TIntArrayList proteinIds = new TIntArrayList();
 		for (final Protein protein : getIndividualProteins()) {
-			final Set<ProteinScore> proteinScores = protein.getProteinScores();
-			if (ret == null) {
-				ret = proteinScores;
-			} else {
-				ret = Iterables.concat(ret, proteinScores);
+			if (proteinIDsToIgnore.contains(protein.getId())) {
+				continue;
 			}
+			proteinIds.add(protein.getId());
 		}
+		final TIntSet proteinScoreIDs = ProteinIDToProteinScoreIDTableMapper.getInstance()
+				.getProteinScoreIDsFromProteinIDs(proteinIds);
+		final List<ProteinScore> proteinScores = (List<ProteinScore>) PreparedCriteria
+				.getBatchLoadByIDs(ProteinScore.class, proteinScoreIDs, true, 250);
 
-		return ret.iterator();
+		return proteinScores;
+
 	}
 
 	public Integer getLength() {
@@ -552,19 +580,27 @@ public class QueriableProteinSet {
 		return getIndividualProteins().iterator().next().getPi();
 	}
 
-	public Set<MsRun> getMsRuns() {
+	public List<MsRun> getMsRuns() {
 		if (msRuns == null) {
-			msRuns = new THashSet<MsRun>();
+			msRuns = new ArrayList<MsRun>();
+			final TIntSet msRunIDs = new TIntHashSet();
 			for (final Protein protein : getIndividualProteins()) {
-				msRuns.addAll(protein.getMsRuns());
+				final TIntSet msRunIDs2 = ProteinIDToMSRunIDTableMapper.getInstance()
+						.getMSRunIDsFromProteinID(protein.getId());
+				msRunIDs.addAll(msRunIDs2);
+			}
+			final List<MsRun> msRuns2 = (List<MsRun>) PreparedCriteria.getBatchLoadByIDs(MsRun.class, msRunIDs, true,
+					50);
+			for (final MsRun msRun : msRuns2) {
+				msRuns.add(msRun);
 			}
 		}
 		return msRuns;
 	}
 
-	public Set<ProteinRatioValue> getProteinRatioValues() {
+	public List<ProteinRatioValue> getProteinRatioValues() {
 		if (proteinRatios == null) {
-			proteinRatios = new THashSet<ProteinRatioValue>();
+			proteinRatios = new ArrayList<ProteinRatioValue>();
 			for (final Protein protein : getIndividualProteins()) {
 				proteinRatios.addAll(protein.getProteinRatioValues());
 			}
@@ -572,31 +608,20 @@ public class QueriableProteinSet {
 		return proteinRatios;
 	}
 
-	public Iterator<ProteinRatioValue> getProteinRatioValuesIterator() {
-		Iterable<ProteinRatioValue> ret = null;
-
-		for (final Protein protein : getIndividualProteins()) {
-			final Set<ProteinRatioValue> proteinRatioValues = protein.getProteinRatioValues();
-			if (ret == null) {
-				ret = proteinRatioValues;
-			} else {
-				ret = Iterables.concat(ret, proteinRatioValues);
-			}
-		}
-
-		return ret.iterator();
-	}
-
 	public void addLinkToPSM(LinkBetweenQueriableProteinSetAndPSM link) {
-		linksToPSMs.add(link);
-		// force to recreate the individual proteins
-		individualProteins = null;
+		if (!linksToPSMs.contains(link)) {
+			linksToPSMs.add(link);
+			// force to recreate the individual proteins
+			individualProteins = null;
+		}
 	}
 
 	public void addLinkToPeptide(LinkBetweenQueriableProteinSetAndPeptideSet link) {
-		linksToPeptides.add(link);
-		// force to recreate the individual proteins
-		individualProteins = null;
+		if (!linksToPeptides.contains(link)) {
+			linksToPeptides.add(link);
+			// force to recreate the individual proteins
+			individualProteins = null;
+		}
 	}
 
 	public void clearLinks() {

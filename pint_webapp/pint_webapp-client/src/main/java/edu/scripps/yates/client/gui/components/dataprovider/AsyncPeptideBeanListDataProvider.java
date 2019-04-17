@@ -13,6 +13,7 @@ import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.util.sublists.PeptideBeanSubList;
 
 public class AsyncPeptideBeanListDataProvider extends AbstractAsyncDataProvider<PeptideBean> {
+	private boolean isReadyForProvidingData = false;
 
 	public AsyncPeptideBeanListDataProvider(String sessionID) {
 		super(sessionID);
@@ -21,7 +22,11 @@ public class AsyncPeptideBeanListDataProvider extends AbstractAsyncDataProvider<
 	@Override
 	protected void retrieveData(MyColumn<PeptideBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
 			final Range range) {
-
+		if (!isReadyForProvidingData) {
+			GWT.log("Asynchronous data provider for peptides is not set to ready, so it will not ask for data");
+			retrievingDataFinished();
+			return;
+		}
 		GWT.log("Getting peptide beans sorted");
 		Comparator<PeptideBean> comparator = null;
 		if (column != null) {
@@ -64,6 +69,14 @@ public class AsyncPeptideBeanListDataProvider extends AbstractAsyncDataProvider<
 					}
 				});
 
+	}
+
+	public boolean isReadyForProvidingData() {
+		return isReadyForProvidingData;
+	}
+
+	public void setReadyForProvidingData(boolean isReadyForProvidingData) {
+		this.isReadyForProvidingData = isReadyForProvidingData;
 	}
 
 }

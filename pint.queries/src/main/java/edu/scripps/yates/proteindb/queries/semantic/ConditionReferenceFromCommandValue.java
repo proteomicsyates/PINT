@@ -1,6 +1,7 @@
 package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
@@ -141,8 +142,8 @@ public class ConditionReferenceFromCommandValue {
 
 	/**
 	 * Returns true only if there is only one {@link Condition} in the
-	 * {@link ConditionReferenceFromCommandValue} and is the same as passed in
-	 * the argument
+	 * {@link ConditionReferenceFromCommandValue} and is the same as passed in the
+	 * argument
 	 *
 	 * @param condition
 	 * @return
@@ -159,8 +160,8 @@ public class ConditionReferenceFromCommandValue {
 	}
 
 	/**
-	 * returns true if contains at least one protein in the referenced condition
-	 * in the referenced project
+	 * returns true if contains at least one protein in the referenced condition in
+	 * the referenced project
 	 *
 	 * @param protein
 	 * @return
@@ -171,8 +172,8 @@ public class ConditionReferenceFromCommandValue {
 	}
 
 	/**
-	 * returns true if contains at least one protein in the referenced condition
-	 * in the referenced project
+	 * returns true if contains at least one protein in the referenced condition in
+	 * the referenced project
 	 *
 	 * @param protein
 	 * @return
@@ -182,14 +183,14 @@ public class ConditionReferenceFromCommandValue {
 		for (final ConditionProject conditionProject : conditionProjects) {
 			projectTags.add(conditionProject.projectTag);
 		}
-		final Set<Condition> conditions = protein.getConditions();
+		final List<Condition> conditions = protein.getConditions();
 		return passCondition(conditions);
 	}
 
 	/**
-	 * Returns true if there at least one protein in the set of proteins pass
-	 * the condition, that is that belongs to the referenced condition in the
-	 * referenced project
+	 * Returns true if there at least one protein in the set of proteins pass the
+	 * condition, that is that belongs to the referenced condition in the referenced
+	 * project
 	 *
 	 * @param proteins
 	 * @return
@@ -203,8 +204,8 @@ public class ConditionReferenceFromCommandValue {
 	}
 
 	/**
-	 * returns true if contains at least one peptide in the referenced condition
-	 * in the referenced project
+	 * returns true if contains at least one peptide in the referenced condition in
+	 * the referenced project
 	 *
 	 * @param protein
 	 * @return
@@ -216,8 +217,8 @@ public class ConditionReferenceFromCommandValue {
 
 	/**
 	 * Returns true if there at least one peptide in the set of peptide pass the
-	 * condition, that is that belongs to the referenced condition in the
-	 * referenced project
+	 * condition, that is that belongs to the referenced condition in the referenced
+	 * project
 	 *
 	 * @param proteins
 	 * @return
@@ -231,8 +232,8 @@ public class ConditionReferenceFromCommandValue {
 	}
 
 	/**
-	 * returns true if contains at least one psm in the referenced condition in
-	 * the referenced project
+	 * returns true if contains at least one psm in the referenced condition in the
+	 * referenced project
 	 *
 	 * @param psm
 	 * @return
@@ -243,8 +244,8 @@ public class ConditionReferenceFromCommandValue {
 	}
 
 	/**
-	 * returns true if contains at least one psm in the referenced condition in
-	 * the referenced project
+	 * returns true if contains at least one psm in the referenced condition in the
+	 * referenced project
 	 *
 	 * @param psm
 	 * @return
@@ -254,9 +255,8 @@ public class ConditionReferenceFromCommandValue {
 	}
 
 	/**
-	 * Returns true if there at least one psm in the set of psm pass the
-	 * condition, that is that belongs to the referenced condition in the
-	 * referenced project
+	 * Returns true if there at least one psm in the set of psm pass the condition,
+	 * that is that belongs to the referenced condition in the referenced project
 	 *
 	 * @param psms
 	 * @return

@@ -1,7 +1,7 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.protein;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
@@ -23,13 +23,13 @@ public class ProteinProviderFromProteinThresholds extends ProteinDataProvider {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+	public Map<String, Collection<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
 			int numProteins = 0;
-			result = new THashMap<String, Set<Protein>>();
+			result = new THashMap<String, Collection<Protein>>();
 			if (projectTags == null || projectTags.isEmpty()) {
-				final Map<String, Set<Protein>> proteinsWithThreshold = PreparedQueries.getProteinsWithThreshold(null,
-						thresholdName, pass);
+				final Map<String, Collection<Protein>> proteinsWithThreshold = PreparedQueries
+						.getProteinsWithThreshold(null, thresholdName, pass);
 				if (testMode && numProteins + proteinsWithThreshold.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
 					PersistenceUtils.addToMapByPrimaryAcc(result, QueriesUtil.getProteinSubList(proteinsWithThreshold,
 							QueriesUtil.TEST_MODE_NUM_PROTEINS - numProteins));
@@ -40,7 +40,7 @@ public class ProteinProviderFromProteinThresholds extends ProteinDataProvider {
 				numProteins += proteinsWithThreshold.size();
 			} else {
 				for (final String projectName : projectTags) {
-					final Map<String, Set<Protein>> proteinsWithThreshold = PreparedQueries
+					final Map<String, Collection<Protein>> proteinsWithThreshold = PreparedQueries
 							.getProteinsWithThreshold(projectName, thresholdName, pass);
 					if (testMode && numProteins + proteinsWithThreshold.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
 						PersistenceUtils.addToMapByPrimaryAcc(result, QueriesUtil.getProteinSubList(

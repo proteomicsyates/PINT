@@ -16,23 +16,33 @@ public class GroupableExtendedPeptideBean implements GroupablePeptide {
 	public final static Map<String, GroupableExtendedPeptideBean> map = new THashMap<String, GroupableExtendedPeptideBean>();
 	private final PeptideBean peptide;
 	private PeptideRelation relation;
-	private ArrayList<GroupableProtein> groupableProteins;
+	private List<GroupableProtein> groupableProteins;
+	private final String sequence;
 
 	public GroupableExtendedPeptideBean(PeptideBean peptide) {
 		this.peptide = peptide;
+		this.sequence = peptide.getId();
 		map.put(peptide.getId(), this);
+	}
+
+	public GroupableExtendedPeptideBean(String cleanPeptideSequence) {
+		this.peptide = null;
+		this.sequence = cleanPeptideSequence;
+		map.put(cleanPeptideSequence, this);
 	}
 
 	@Override
 	public List<GroupableProtein> getGroupableProteins() {
 		if (groupableProteins == null) {
 			groupableProteins = new ArrayList<GroupableProtein>();
-			final Set<ProteinBean> proteins = peptide.getProteins();
-			for (final ProteinBean protein : proteins) {
-				if (GroupableExtendedProteinBean.map.containsKey(protein.getId())) {
-					groupableProteins.add(GroupableExtendedProteinBean.map.get(protein.getId()));
-				} else {
-					groupableProteins.add(new GroupableExtendedProteinBean(protein, false));
+			if (peptide != null) {
+				final Set<ProteinBean> proteins = peptide.getProteins();
+				for (final ProteinBean protein : proteins) {
+					if (GroupableExtendedProteinBean.map.containsKey(protein.getId())) {
+						groupableProteins.add(GroupableExtendedProteinBean.map.get(protein.getId()));
+					} else {
+						groupableProteins.add(new GroupableExtendedProteinBean(protein, false));
+					}
 				}
 			}
 		}
@@ -41,7 +51,11 @@ public class GroupableExtendedPeptideBean implements GroupablePeptide {
 
 	@Override
 	public String getIdentifier() {
-		return String.valueOf(peptide.getPeptideBeanUniqueIdentifier());
+		if (peptide != null) {
+			return String.valueOf(peptide.getPeptideBeanUniqueIdentifier());
+		} else {
+			return sequence;
+		}
 	}
 
 	@Override
@@ -57,7 +71,7 @@ public class GroupableExtendedPeptideBean implements GroupablePeptide {
 
 	@Override
 	public String getSequence() {
-		return peptide.getSequence();
+		return sequence;
 	}
 
 	/**
@@ -65,6 +79,13 @@ public class GroupableExtendedPeptideBean implements GroupablePeptide {
 	 */
 	public PeptideBean getPeptide() {
 		return peptide;
+	}
+
+	public boolean addGroupableProteins(GroupableExtendedProteinBean groupableExtendedProteinBean) {
+		if (!getGroupableProteins().contains(groupableExtendedProteinBean)) {
+			return getGroupableProteins().add(groupableExtendedProteinBean);
+		}
+		return false;
 	}
 
 }

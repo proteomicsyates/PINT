@@ -35,9 +35,9 @@ import edu.scripps.yates.client.pint.wizard.NewProjectCreatorWizard;
 import edu.scripps.yates.client.statusreporter.StatusReporterImpl;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.tasks.PendingTasksManager;
-import edu.scripps.yates.client.tasks.TaskType;
 import edu.scripps.yates.client.util.ClientToken;
 import edu.scripps.yates.shared.configuration.PintConfigurationProperties;
+import edu.scripps.yates.shared.tasks.TaskType;
 import edu.scripps.yates.shared.util.CryptoUtil;
 
 /**
@@ -305,7 +305,7 @@ public class Pint implements EntryPoint {
 													// login
 				queryPanel = new QueryPanel(getSessionID(), projectTags, testMode, directAccess);
 			}
-			queryPanel.showLoadingDialog("Loading dataset view...", null, null);
+//			queryPanel.showLoadingDialogOLD("Loading dataset view...", null, null);
 			History.newItem(TargetHistory.QUERY.getTargetHistory());
 
 		} else {

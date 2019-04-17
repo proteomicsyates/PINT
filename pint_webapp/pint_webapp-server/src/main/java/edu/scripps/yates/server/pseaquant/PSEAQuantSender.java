@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -253,7 +254,7 @@ public class PSEAQuantSender {
 					if (pseaQuantReplicate.isCondition()) {
 						final String conditionName = pair.get(projectName);
 						log.info("Getting proteins in condition: " + conditionName);
-						final Map<String, Set<Protein>> proteinsByProjectCondition = PreparedQueries
+						final Map<String, Collection<Protein>> proteinsByProjectCondition = PreparedQueries
 								.getProteinsByProjectCondition(projectName, conditionName);
 						log.info(proteinsByProjectCondition.size() + " proteins in condition: " + conditionName);
 						addToProteinList(proteinsInReplicate, proteinsByProjectCondition);
@@ -330,7 +331,7 @@ public class PSEAQuantSender {
 					if (pseaQuantReplicate.isCondition()) {
 						final String conditionName = pair.get(projectName);
 						log.info("Getting proteins in condition: " + conditionName);
-						final Map<String, Set<Protein>> proteinsByProjectCondition = PreparedQueries
+						final Map<String, Collection<Protein>> proteinsByProjectCondition = PreparedQueries
 								.getProteinsByProjectCondition(projectName, conditionName);
 						log.info(proteinsByProjectCondition.size() + " proteins in condition: " + conditionName);
 						addToProteinList(proteinsInReplicate, proteinsByProjectCondition);
@@ -469,8 +470,8 @@ public class PSEAQuantSender {
 		return null;
 	}
 
-	private void addToProteinList(List<Protein> proteinsList, Map<String, Set<Protein>> proteinMap) {
-		for (final Set<Protein> proteinSet : proteinMap.values()) {
+	private void addToProteinList(List<Protein> proteinsList, Map<String, Collection<Protein>> proteinMap) {
+		for (final Collection<Protein> proteinSet : proteinMap.values()) {
 			proteinsList.addAll(proteinSet);
 		}
 	}

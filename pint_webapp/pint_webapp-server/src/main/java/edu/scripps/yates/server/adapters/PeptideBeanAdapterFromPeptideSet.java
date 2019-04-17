@@ -13,11 +13,13 @@ import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
+import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToPeptideTableMapper;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.MSRunToPeptideTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.PeptideAmountToPeptideTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.PeptideRatioToPeptideTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToMSRunIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToPTMIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.wrappers.AmountValueWrapper;
 import edu.scripps.yates.proteindb.persistence.mysql.wrappers.RatioValueWrapper;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePeptideSet;
@@ -35,6 +37,7 @@ import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -46,14 +49,21 @@ import gnu.trove.set.hash.THashSet;
  */
 public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 	private final static Logger log = Logger.getLogger(PeptideBeanAdapterFromPeptideSet.class);
-	private final QueriablePeptideSet queriablePeptideSet;
+	private final Collection<Peptide> peptideSet;
 	private final boolean psmCentric;
 	private final Collection<String> hiddenPTMs;
 	public static final java.util.Map<String, PeptideBean> map = new THashMap<String, PeptideBean>();
 
 	public PeptideBeanAdapterFromPeptideSet(QueriablePeptideSet queriablePeptideSet, Set<String> hiddenPTMs,
 			boolean psmCentric) {
-		this.queriablePeptideSet = queriablePeptideSet;
+		this.peptideSet = queriablePeptideSet.getIndividualPeptides();
+		this.psmCentric = psmCentric;
+		this.hiddenPTMs = hiddenPTMs;
+	}
+
+	public PeptideBeanAdapterFromPeptideSet(Collection<Peptide> peptideSet, Set<String> hiddenPTMs,
+			boolean psmCentric) {
+		this.peptideSet = peptideSet;
 		this.psmCentric = psmCentric;
 		this.hiddenPTMs = hiddenPTMs;
 	}
@@ -64,20 +74,22 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 
 	@Override
 	public PeptideBean adapt() {
-		if (map.containsKey(queriablePeptideSet.getFullSequence())) {
-			return map.get(queriablePeptideSet.getFullSequence());
-		}
 		PeptideBean ret = null;
-		// if (primaryAcc != null && map.containsKey(primaryAcc)) {
-		// ret = map.get(primaryAcc);
-		// } else {
-		ret = new PeptideBean();
-		map.put(queriablePeptideSet.getFullSequence(), ret);
-		ret.setNumPSMs(0);
+		if (map.containsKey(peptideSet.iterator().next().getFullSequence())) {
+			ret = map.get(peptideSet.iterator().next().getFullSequence());
+		} else {
+
+			// if (primaryAcc != null && map.containsKey(primaryAcc)) {
+			// ret = map.get(primaryAcc);
+			// } else {
+			ret = new PeptideBean();
+			map.put(peptideSet.iterator().next().getFullSequence(), ret);
+		}
+//		ret.setNumPSMs(0);
 		// if (primaryAcc != null)
 		// map.put(primaryAcc, ret);
 		// }
-		for (final Peptide peptide : queriablePeptideSet.getIndividualPeptides()) {
+		for (final Peptide peptide : peptideSet) {
 			addPeptideInformation(ret, peptide);
 		}
 
@@ -85,7 +97,9 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 	}
 
 	private void addPeptideInformation(PeptideBean ret, Peptide peptide) {
-
+		if (ret.getDbIds().contains(peptide.getId())) {
+			return;
+		}
 		ret.addDbId(peptide.getId());
 
 		if (peptide.getNumPsms() != null) {
@@ -98,17 +112,21 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 		}
 
 		if (!peptide.getFullSequence().equals(peptide.getSequence())) {
-			final Set<Ptm> ptms = peptide.getPtms();
-			ret.setFullSequence(
-					PSMBeanAdapter.getFullSequence(peptide.getFullSequence(), peptide.getSequence(), ptms, hiddenPTMs));
-			if (ptms != null) {
-				for (final Object obj : ptms) {
-					final Ptm ptm = (Ptm) obj;
+			final TIntSet ptmIDs = PeptideIDToPTMIDTableMapper.getInstance().getPTMIDsFromPeptideID(peptide.getId());
+			if (!ptmIDs.isEmpty()) {
+				final List<Ptm> ptms = (List<Ptm>) PreparedCriteria.getBatchLoadByIDs(Ptm.class, ptmIDs, true, 10);
+
+				ret.setFullSequence(PSMBeanAdapter.getFullSequence(peptide.getFullSequence(), peptide.getSequence(),
+						ptms, hiddenPTMs));
+
+				for (final Ptm ptm : ptms) {
+
 					// skip PTMs in the list of hidden PTMs
 					if (hiddenPTMs != null && hiddenPTMs.contains(ptm.getName()))
 						continue;
 					ret.addPtm(new PTMBeanAdapter(ptm).adapt());
 				}
+
 			}
 		} else {
 			ret.setFullSequence(peptide.getSequence());
@@ -166,8 +184,20 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 						.getBeanByPeptideAmountValueID(peptideAmountValueWrapper.getId());
 				if (peptideAmountValueBean == null) {
 					peptideAmountValueBean = new AmountBean();
-					peptideAmountValueBean.setExperimentalCondition(
-							ConditionBeanAdapter.getBeanByConditionID(peptideAmountValueWrapper.getConditionID()));
+					ExperimentalConditionBean condition = ConditionBeanAdapter
+							.getBeanByConditionID(peptideAmountValueWrapper.getConditionID());
+
+					if (condition == null) {
+						final Set<Condition> hibConditions = peptide.getConditions();
+						for (final Condition hibCondition : hibConditions) {
+							if (hibCondition.getId() == peptideAmountValueWrapper.getConditionID()) {
+								condition = new ConditionBeanAdapter(hibCondition, true, true).adapt();
+								break;
+							}
+						}
+
+					}
+					peptideAmountValueBean.setExperimentalCondition(condition);
 					if (peptideAmountValueWrapper.getAmountType() != null) {
 						peptideAmountValueBean.setAmountType(edu.scripps.yates.shared.model.AmountType
 								.fromValue(peptideAmountValueWrapper.getAmountType().getName()));
@@ -276,15 +306,14 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 			for (final int conditionID : conditionIDs.toArray()) {
 				ExperimentalConditionBean conditionBean = ConditionBeanAdapter.getBeanByConditionID(conditionID);
 				if (conditionBean == null) {
-					if (peptide.getConditions() != null) {
-						for (final Object obj : peptide.getConditions()) {
-							final Condition condition = (Condition) obj;
-							if (condition.getId() == conditionID) {
-								conditionBean = new ConditionBeanAdapter(condition, true).adapt();
-								break;
-							}
+					final Set<Condition> hibConditions = peptide.getConditions();
+					for (final Condition hibCondition : hibConditions) {
+						if (hibCondition.getId() == conditionID) {
+							conditionBean = new ConditionBeanAdapter(hibCondition, true, true).adapt();
+							break;
 						}
 					}
+
 				}
 				if (conditionBean != null) {
 					ret.addCondition(conditionBean);
@@ -308,7 +337,8 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 
 		// log.debug("Adapting msRun for peptide DbID: " + peptide.getId());
 		// first look into the peptide to msrun mapper
-		final TIntArrayList msRunIDs = MSRunToPeptideTableMapper.getInstance().mapIDs1(peptide);
+//		final TIntArrayList msRunIDs = MSRunToPeptideTableMapper.getInstance().mapIDs1(peptide);
+		final TIntSet msRunIDs = PeptideIDToMSRunIDTableMapper.getInstance().getMSRunIDsFromPeptideID(peptide.getId());
 		if (msRunIDs != null) {
 			for (final int msRunID : msRunIDs.toArray()) {
 				MSRunBean msRunBean = MSRunBeanAdapter.getBeanByMSRunID(msRunID);

@@ -414,6 +414,7 @@
 	font-size:1EM;
 	font-family:'Courier New';
 	color: #339933;
+	white-space: nowrap;
 }
 
 .ProteinEvidence-Ambiguous-bold{
@@ -421,12 +422,14 @@
 	font-family:'Courier New';
 	font-weight:bolder;
 	color: #339933;
+	white-space: nowrap;
 }
 
 .ProteinEvidence-Conclusive{
 	font-size:1EM;
 	font-family:'Courier New';
 	color: #0099FF;	
+	white-space: nowrap;
 }
 
 .ProteinEvidence-Conclusive-bold{
@@ -434,12 +437,14 @@
 	font-family:'Courier New';
 	font-weight:bolder;
 	color: #0099FF;	
+	white-space: nowrap;
 }
 
 .ProteinEvidence-Filtered{
 	font-size:1EM;
 	font-family:'Courier New';
 	color: #999966;
+	white-space: nowrap;
 }
 
 .ProteinEvidence-Filtered-bold{
@@ -447,12 +452,14 @@
 	font-family:'Courier New';
 	font-weight:bolder;
 	color: #999966;
+	white-space: nowrap;
 }
 
 .ProteinEvidence-Indistinguisable{
 	font-size:1EM;
 	font-family:'Courier New';
 	color: #CC9900;
+	white-space: nowrap;
 }
 
 .ProteinEvidence-Indistinguisable-bold{
@@ -460,12 +467,14 @@
 	font-family:'Courier New';
 	font-weight:bolder;
 	color: #CC9900;
+	white-space: nowrap;
 }
 
 .ProteinEvidence-NonConclusive{
 	font-size:1EM;
 	font-family:'Courier New';
 	color: #ff5151;
+	white-space: nowrap;
 	
 }
 
@@ -474,6 +483,7 @@
 	font-family:'Courier New';
 	font-weight:bolder;
 	color: #ff5151;
+	white-space: nowrap;
 }
 
 .ProteinExistence-Inferred{
@@ -1065,6 +1075,7 @@
   background-color: #AAAAAA;
   height: 14pt;
   width: 50%;
+  margin: 10px;
 }
 
 .gwt-ProgressBar-shell .gwt-ProgressBar-bar {
@@ -1482,10 +1493,12 @@ height:300px;
 
 .sharingPeptidesPanel {
 	display:block;
-	margin: 10px 0px;
+/* 	margin: 10px 0px; */
 	padding: 10px;
-	overflow-y: scroll;
-    height: 500px;
+/* 	overflow-y: scroll; */
+/* 	overflow-x: scroll; */
+    max-height: 500px;
+    max-width: 800px;
 }
 
 .sharingPeptidesPanel-Elements{
@@ -1856,4 +1869,19 @@ table td{
 
 .queryPanelHelpText{
 	font-size: 20px;
+}
+
+.ProgressBarTitle{
+	font-size:1.5EM;
+ 	color: #000000;
+	white-space: nowrap;
+	margin: 10px;
+	width: 100%;
+}
+.ProgressBarTaskDescription{
+	font-size:1.0EM;
+ 	color: #000000;
+	white-space: nowrap;
+	margin: 10px;
+	width: 100%;
 }

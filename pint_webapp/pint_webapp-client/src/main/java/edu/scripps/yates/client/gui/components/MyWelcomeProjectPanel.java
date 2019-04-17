@@ -46,9 +46,8 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 	 *
 	 * @param parentWindow
 	 * @param defaultView
-	 * @param queryPanel
-	 *            provide it for call to loadProteins when clicking on the
-	 *            query.
+	 * @param queryPanel   provide it for call to loadProteins when clicking on the
+	 *                     query.
 	 */
 	public MyWelcomeProjectPanel(WindowBox parentWindow, ProjectBean projectBean, DefaultView defaultView,
 			QueryPanel queryPanel, boolean testMode) {
@@ -168,8 +167,7 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 	/**
 	 *
 	 * @param projectNamedQuery
-	 * @param defaultOne
-	 *            print an '*' before the query name
+	 * @param defaultOne        print an '*' before the query name
 	 * @return
 	 */
 	public static Panel getLinkToDataView(WindowBox parentWindowBox, final ProjectNamedQuery projectNamedQuery,
@@ -197,6 +195,7 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 					parentWindowBox.hide();
 				}
 				queryPanel.loadProteinsFromProject(null, projectNamedQuery.getIndex(), projectNamedQuery.getName(),
+						false, // showWelcomeProjectWindow
 						testMode);
 			}
 		});
@@ -207,8 +206,7 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 	/**
 	 *
 	 * @param projectNamedQuery
-	 * @param defaultOne
-	 *            print an '*' before the query name
+	 * @param defaultOne        print an '*' before the query name
 	 * @return
 	 */
 	public static Panel getLinkToLoadProject(WindowBox parentWindowBox, QueryPanel queryPanel, boolean testMode,
@@ -232,7 +230,9 @@ public class MyWelcomeProjectPanel extends FlowPanel {
 				if (parentWindowBox != null) {
 					parentWindowBox.hide();
 				}
-				queryPanel.loadProteinsFromProject(null, null, null, testMode);
+				queryPanel.loadProteinsFromProject(null, null, null, //
+						false, // showWelcomeProjectwindow
+						testMode);
 			}
 		});
 		ret.add(nameLabel);

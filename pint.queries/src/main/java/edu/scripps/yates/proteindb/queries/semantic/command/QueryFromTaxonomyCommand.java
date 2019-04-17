@@ -110,7 +110,7 @@ public class QueryFromTaxonomyCommand extends AbstractQuery {
 			final boolean queryOverProtein = queryOverProtein(link.getQueriableProtein());
 			return queryOverProtein;
 		case PEPTIDE:
-			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptide());
+			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptideSet());
 			return queryOverPeptide;
 
 		default:

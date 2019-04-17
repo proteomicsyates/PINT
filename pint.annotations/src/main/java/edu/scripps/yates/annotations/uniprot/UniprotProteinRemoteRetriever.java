@@ -512,8 +512,15 @@ public class UniprotProteinRemoteRetriever {
 			final long t1 = System.currentTimeMillis();
 			final Set<String> toSearch = new THashSet<>();
 			for (final String acc : accessions) {
+				// force to be a uniprot entry
+
 				if (!doNotFound.contains(acc)) {
-					toSearch.add(acc);
+					final String uniprotACC = FastaParser.getUniProtACC(acc);
+					if (uniprotACC != null) {
+						toSearch.add(uniprotACC);
+					} else {
+						doNotFound.add(acc);
+					}
 				}
 			}
 			final Uniprot proteins = getProteins(toSearch, uniprotVersion, cache);

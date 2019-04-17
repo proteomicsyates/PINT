@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.dataproviders;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,15 +11,15 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
 
 public abstract class PsmDataProvider implements DataProviderFromDB {
 	protected Set<String> projectTags;
-	protected Map<String, Set<Psm>> result;
+	protected Map<String, Collection<Psm>> result;
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+	public Map<String, Collection<Protein>> getProteinMap(boolean testMode) {
 		return PersistenceUtils.getProteinsFromPsms(getPsmMap(testMode), true);
 	}
 
 	@Override
-	public Set<Peptide> getPeptideSet(boolean testMode) {
+	public Collection<Peptide> getPeptideSet(boolean testMode) {
 		return PersistenceUtils.getPeptidesFromPsms(getPsmMap(testMode));
 	}
 

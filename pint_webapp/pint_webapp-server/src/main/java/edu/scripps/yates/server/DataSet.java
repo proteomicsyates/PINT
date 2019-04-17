@@ -13,6 +13,13 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
+import edu.scripps.yates.proteindb.persistence.mysql.Protein;
+import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToPeptideIDTableMapper;
+import edu.scripps.yates.server.adapters.PeptideBeanAdapterFromPeptideSet;
+import edu.scripps.yates.server.adapters.ProteinBeanAdapterFromProteinSet;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.util.RatioAnalyzer;
 import edu.scripps.yates.shared.model.PSMBean;
@@ -34,7 +41,9 @@ import edu.scripps.yates.shared.util.sublists.ProteinGroupBeanSubList;
 import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.THashSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 public class DataSet {
 	private final List<ProteinGroupBean> proteinGroups = new ArrayList<ProteinGroupBean>();
@@ -65,10 +74,13 @@ public class DataSet {
 	private final static Logger log = Logger.getLogger(DataSet.class);
 	private Date latestAccess;
 	private final boolean psmCentric;
+	private final Set<String> hiddenPTMs;
+	private boolean readyForGettingPeptides;
 
-	public DataSet(String sessionID, String name, boolean psmCentric) {
+	public DataSet(String sessionID, String name, boolean psmCentric, Set<String> hiddenPTMs) {
 		sessionId = sessionID;
 		this.psmCentric = psmCentric;
+		this.hiddenPTMs = hiddenPTMs;
 		setName(name);
 		activeDatasetThread = Thread.currentThread();
 		setLatestAccess(new Date());
@@ -95,13 +107,18 @@ public class DataSet {
 	public List<PeptideBean> getPeptides() {
 		if (!ready)
 			return Collections.emptyList();
-		if (peptides.isEmpty()) {
-
-			final List<PeptideBean> peptideBeansFromProteinBeans = SharedDataUtil
-					.getPeptideBeansFromProteinBeans(proteins);
-			for (final PeptideBean peptideBean : peptideBeansFromProteinBeans) {
-				addPeptide(peptideBean);
+		if (peptides.isEmpty() && readyForGettingPeptides) {
+			for (final ProteinBean proteinBean : proteins) {
+				final List<PeptideBean> peptidesFromProtein = getPeptidesFromProtein(proteinBean);
+				for (final PeptideBean peptideBean : peptidesFromProtein) {
+					addPeptide(peptideBean);
+				}
 			}
+//			final List<PeptideBean> peptideBeansFromProteinBeans = SharedDataUtil
+//					.getPeptideBeansFromProteinBeans(proteins);
+//			for (final PeptideBean peptideBean : peptideBeansFromProteinBeans) {
+//				addPeptide(peptideBean);
+//			}
 		}
 		return peptides;
 	}
@@ -258,7 +275,7 @@ public class DataSet {
 
 	public int getNumDifferentSequences(boolean distinguisModifiedPeptides) {
 		if (distinguisModifiedPeptides) {
-			return psmsByRawSequence.size();
+			return peptidesBySequence.size();
 		} else {
 			return psmsBySequence.size();
 		}
@@ -268,7 +285,13 @@ public class DataSet {
 		log.info("Getting protein list from " + start + " to " + end + " dataset '" + getName() + "' in session ID: "
 				+ sessionId);
 		final List<ProteinBean> proteins2 = getProteins(start, end);
-		return ProteinBeanSubList.getLightProteinBeanSubList(proteins2, getProteins().size());
+		final List<ProteinBean> lightProteins = new ArrayList<ProteinBean>();
+		for (final ProteinBean heavyProtein : proteins2) {
+			final ProteinBean lightProteinBean = heavyProtein.cloneToLightProteinBean();
+			getPeptidesFromProtein(lightProteinBean);
+			lightProteins.add(lightProteinBean);
+		}
+		return ProteinBeanSubList.getLightProteinBeanSubList(lightProteins, getProteins().size());
 	}
 
 	public PeptideBeanSubList getLightPeptideBeanSubList(int start, int end) {
@@ -416,6 +439,7 @@ public class DataSet {
 	}
 
 	public List<PeptideBean> getPeptidesFromPeptideProvider(ContainsPeptides peptideProvider) {
+
 		log.info("Getting peptides from peptideProvider");
 		if (peptideProvider instanceof ProteinBean) {
 			log.info("peptideProvider is a Protein");
@@ -425,6 +449,7 @@ public class DataSet {
 			return getPeptidesFromProteinGroup((ProteinGroupBean) peptideProvider);
 		}
 		return Collections.emptyList();
+
 	}
 
 	public List<PSMBean> getPsmsFromProteinGroup(ProteinGroupBean proteinGroup) {
@@ -446,12 +471,12 @@ public class DataSet {
 		return Collections.emptyList();
 	}
 
-	public List<PeptideBean> getPeptidesFromProteinGroup(ProteinGroupBean proteinGroup) {
+	private List<PeptideBean> getPeptidesFromProteinGroup(ProteinGroupBean proteinGroup) {
 		if (proteinGroup != null) {
 			log.info("Getting Peptides from protein Group " + proteinGroup.getPrimaryAccessionsString());
 			final List<PeptideBean> ret = new ArrayList<PeptideBean>();
 			for (final ProteinBean proteinBean : proteinGroup) {
-				final List<PeptideBean> peptides2 = getPeptidesFromPeptideProvider(proteinBean);
+				final List<PeptideBean> peptides2 = getPeptidesFromProtein(proteinBean);
 				for (final PeptideBean peptideBean : peptides2) {
 					if (!ret.contains(peptideBean)) {
 						ret.add(peptideBean);
@@ -513,17 +538,64 @@ public class DataSet {
 		return Collections.emptyList();
 	}
 
-	public List<PeptideBean> getPeptidesFromProtein(ProteinBean protein) {
-		if (protein != null) {
-			log.info("Getting Peptides from protein " + protein.getPrimaryAccession().getAccession());
+	private List<PeptideBean> getPeptidesFromProtein(ProteinBean lightProtein) {
+
+		if (lightProtein != null) {
+
+			log.debug("Getting Peptides from protein " + lightProtein.getPrimaryAccession().getAccession());
 			// search for the proteinbean with the same unique identifier
-			final int uniqueId = protein.getProteinBeanUniqueIdentifier();
+			final int uniqueId = lightProtein.getProteinBeanUniqueIdentifier();
 			if (proteinsByProteinBeanUniqueIdentifier.containsKey(uniqueId)) {
-				final List<PeptideBean> peptides2 = proteinsByProteinBeanUniqueIdentifier.get(uniqueId).getPeptides();
-				if (peptides2 != null && !peptides2.isEmpty()) {
-					log.info("Protein " + protein.getPrimaryAccession().getAccession() + " contains " + peptides2.size()
-							+ " peptides");
+
+				final ProteinBean proteinBean = proteinsByProteinBeanUniqueIdentifier.get(uniqueId);
+				if (!proteinBean.needsToQueryPeptides()) {
+					final List<PeptideBean> peptides2 = proteinBean.getPeptides();
+					log.debug("Protein " + lightProtein.getPrimaryAccession().getAccession() + " contains "
+							+ peptides2.size() + " peptides");
 					return peptides2;
+				} else {
+					// they are not retrieved yet from the database
+					log.debug("Peptide from proteins " + lightProtein.getPrimaryAccession().getAccession()
+							+ " were not retrived from DB yet....now querying them...");
+					final Set<Integer> peptideDBIds = proteinBean.getPeptideDBIds();
+					final TIntSet tintset = new TIntHashSet(peptideDBIds);
+					final List<Peptide> peptides = PreparedCriteria.getPeptidesFromPeptideIDs(tintset, true, 2500);
+					final Map<String, List<Peptide>> peptideMap = new THashMap<String, List<Peptide>>();
+					PersistenceUtils.addToPeptideMapByFullSequence(peptideMap, peptides);
+					// now create the peptideBean from the peptideMap
+					final List<PeptideBean> ret = new ArrayList<PeptideBean>();
+					for (final List<Peptide> peptideSet : peptideMap.values()) {
+						final PeptideBean peptideBean = new PeptideBeanAdapterFromPeptideSet(peptideSet, hiddenPTMs,
+								psmCentric).adapt();
+
+						ret.add(peptideBean);
+						peptideBean.addProteinToPeptide(lightProtein);
+						proteinBean.addPeptideToProtein(peptideBean);
+						//
+						final Map<String, Collection<Protein>> proteinsFromPeptides = PersistenceUtils
+								.getProteinsFromPeptidesUsingProteinToPeptideMappingTable(peptideSet, false);
+						for (final Collection<Protein> proteinSet : proteinsFromPeptides.values()) {
+
+							final ProteinBean newProteinBean = new ProteinBeanAdapterFromProteinSet(proteinSet,
+									hiddenPTMs, psmCentric).adapt();
+
+							peptideBean.addProteinToPeptide(newProteinBean);
+							newProteinBean.addPeptideToProtein(peptideBean);
+							if (peptideBean.getRelation() == null) {
+								peptideBean.setRelation(
+										newProteinBean.getPeptideRelationsBySequence().get(peptideBean.getSequence()));
+							}
+						}
+
+					}
+					exploreConnections(proteinBean);
+
+					// call to annotate protein, because it will ask for the protein sequence in
+					// uniprot and will draw the proteinSequenceGraph and will assign the starting
+					// position of each peptide in the protein
+					annotateProtein(proteinBean);
+					return ret;
+
 				}
 			} else {
 				log.warn("Protein not found in proteins by unique protein bean identifier");
@@ -532,6 +604,116 @@ public class DataSet {
 		}
 		log.info("Protein is null...returning empty Peptide list");
 		return Collections.emptyList();
+
+	}
+
+	/**
+	 * it will ask for the protein sequence in uniprot and will draw the
+	 * proteinSequenceGraph and will assign the starting position of each peptide in
+	 * the protein
+	 * 
+	 * @param proteinBean
+	 */
+	private void annotateProtein(ProteinBean proteinBean) {
+
+		final THashSet<ProteinBean> proteinBeans = new THashSet<ProteinBean>();
+		proteinBeans.add(proteinBean);
+		RemoteServicesTasks.annotateProteinBeansWithUniprot(proteinBeans, null, hiddenPTMs, true, true);
+
+	}
+
+	private void exploreConnections(ProteinBean proteinBean) {
+		final TIntSet proteinDBIDsTotal = new TIntHashSet();
+		final TIntSet peptideDBIDsTotal = new TIntHashSet();
+		proteinDBIDsTotal.addAll(proteinBean.getDbIds());
+		exploreConnectionFromPeptides(proteinBean, proteinDBIDsTotal, peptideDBIDsTotal);
+
+	}
+
+	private void exploreConnectionFromPeptides(ProteinBean proteinBean, TIntSet proteinDBIDsTotal,
+			TIntSet peptideDBIDsTotal) {
+		final Set<Integer> peptideDBIds = proteinBean.getPeptideDBIds();
+		final TIntSet toQuery = new TIntHashSet();
+		for (final Integer pepID : peptideDBIds) {
+			if (peptideDBIDsTotal.contains(pepID)) {
+				continue;
+			}
+			toQuery.add(pepID);
+		}
+		if (toQuery.isEmpty()) {
+			return;
+		}
+		// I get the peptides from the DB that are not yet retrieved
+		final List<Peptide> peptides = PreparedCriteria.getPeptidesFromPeptideIDs(toQuery, true, 2500);
+		peptideDBIDsTotal.addAll(toQuery);
+		// I pull them by full sequences to create the peptideMap per each set
+		final Map<String, List<Peptide>> peptideMap = new THashMap<String, List<Peptide>>();
+		PersistenceUtils.addToPeptideMapByFullSequence(peptideMap, peptides);
+		final TIntSet proteinIDsToFollow = new TIntHashSet();
+		final Map<Integer, PeptideBean> peptideBeanByPeptideIDs = new THashMap<Integer, PeptideBean>();
+		for (final String fullSequence : peptideMap.keySet()) {
+			final List<Peptide> peptideSet = peptideMap.get(fullSequence);
+			// I create the peptideBean or retrieve the peptide Bean that was already
+			// associated with that full sequence
+			final PeptideBean newPeptideBean = new PeptideBeanAdapterFromPeptideSet(peptideSet, hiddenPTMs, psmCentric)
+					.adapt();
+			// add the peptideBean to the proteinBean
+			proteinBean.addPeptideToProtein(newPeptideBean);
+//			peptidesByPeptideBeanUniqueIdentifier.put(newPeptideBean.getPeptideBeanUniqueIdentifier(), newPeptideBean);
+			// if the peptideBean was not present when grouping was done, retrieve the
+			// peptideRelation from its protein by sequence and set it to the peptide
+			if (newPeptideBean.getRelation() == null) {
+				newPeptideBean
+						.setRelation(proteinBean.getPeptideRelationsBySequence().get(newPeptideBean.getSequence()));
+			}
+			// associate the created peptideBean with the identifiers of the peptides we
+			// used to create it
+			for (final Peptide peptide : peptideSet) {
+				peptideBeanByPeptideIDs.put(peptide.getId(), newPeptideBean);
+				// check if some of the proteins of these peptides have not been processed yet
+				// and in that case, store them in a set
+				final TIntSet proteinIDs = ProteinIDToPeptideIDTableMapper.getInstance()
+						.getProteinIDsFromPeptideID(peptide.getId());
+				for (final int proteinID : proteinIDs.toArray()) {
+					if (!proteinDBIDsTotal.contains(proteinID)) {
+						proteinIDsToFollow.add(proteinID);
+					}
+				}
+			}
+		}
+
+		// if the set of proteins to followUp is not empty
+		if (!proteinIDsToFollow.isEmpty()) {
+			final List<Protein> proteinsToFollow = (List<Protein>) PreparedCriteria.getBatchLoadByIDs(Protein.class,
+					proteinIDsToFollow, true, 200);
+			// group them by primary accession map
+			final Map<String, Collection<Protein>> proteinMap = new THashMap<String, Collection<Protein>>();
+			PersistenceUtils.addToMapByPrimaryAcc(proteinMap, proteinsToFollow);
+			final Set<ProteinBean> newProteinBeansToExplore = new THashSet<ProteinBean>();
+			for (final String acc : proteinMap.keySet()) {
+				final Collection<Protein> proteinSet = proteinMap.get(acc);
+				// create a new ProteinBean per each proteinSet with the same primary accession
+				final ProteinBean newProteinBean = new ProteinBeanAdapterFromProteinSet(proteinSet, hiddenPTMs,
+						psmCentric).adapt();
+				final Set<Integer> peptideDBIds2 = newProteinBean.getPeptideDBIds();
+				// clone it, otherwise will be a concurrent exception because when adding
+				// peptide to protein, the id will be added to the same array we are iterating
+				final TIntSet peptideDBIDs2 = new TIntHashSet();
+				peptideDBIDs2.addAll(peptideDBIds2);
+				for (final int peptideDBId : peptideDBIDs2.toArray()) {
+					newProteinBean.addPeptideToProtein(peptideBeanByPeptideIDs.get(peptideDBId));
+				}
+				proteinsByProteinBeanUniqueIdentifier.put(newProteinBean.getProteinBeanUniqueIdentifier(),
+						newProteinBean);
+				for (final Protein protein : proteinSet) {
+					proteinDBIDsTotal.add(protein.getId());
+				}
+				newProteinBeansToExplore.add(newProteinBean);
+			}
+			for (final ProteinBean newProteinBeanToExplore : newProteinBeansToExplore) {
+				exploreConnectionFromPeptides(newProteinBeanToExplore, proteinDBIDsTotal, peptideDBIDsTotal);
+			}
+		}
 	}
 
 	/*
@@ -732,6 +914,14 @@ public class DataSet {
 	}
 
 	public static DataSet emptyDataSet() {
-		return new DataSet(null, null, false);
+		return new DataSet(null, null, false, null);
+	}
+
+	public void setReadyForGettingPeptides(boolean b) {
+		this.readyForGettingPeptides = b;
+	}
+
+	protected boolean isReadyForGettingPeptides() {
+		return readyForGettingPeptides;
 	}
 }

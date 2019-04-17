@@ -2,7 +2,6 @@ package edu.scripps.yates.server.adapters;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -13,19 +12,19 @@ import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAccession;
+import edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount;
+import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinScore;
+import edu.scripps.yates.proteindb.persistence.mysql.ProteinThreshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
-import edu.scripps.yates.proteindb.persistence.mysql.Threshold;
+import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToProteinTableMapper;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.MSRunToProteinTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ProteinAmountToProteinTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ProteinRatioToProteinTableMapper;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ThresholdToProteinTableMapper;
-import edu.scripps.yates.proteindb.persistence.mysql.wrappers.AmountValueWrapper;
-import edu.scripps.yates.proteindb.persistence.mysql.wrappers.ProteinThresholdWrapper;
-import edu.scripps.yates.proteindb.persistence.mysql.wrappers.RatioValueWrapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToMSRunIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToProteinThresholdIDTableMapper;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
@@ -45,6 +44,9 @@ import edu.scripps.yates.shared.model.ThresholdBean;
 import edu.scripps.yates.utilities.proteomicsmodel.Gene;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.THashSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * Adapter for creating a single {@link ProteinBean} from a {@link Collection}
@@ -61,13 +63,13 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	// private final String primaryAcc;
 	private final Set<String> hiddenPTMs;
 	private final boolean psmCentric;
+	private boolean includePeptides;
 	public static final java.util.Map<String, ProteinBean> map = new THashMap<String, ProteinBean>();
 
 	public ProteinBeanAdapterFromProteinSet(Collection<Protein> proteins, Set<String> hiddenPTMs, boolean psmCentric) {
 		this.psmCentric = psmCentric;
 		// primaryAcc = primaryAcc;
 		this.hiddenPTMs = hiddenPTMs;
-
 		// for (Protein protein : proteins) {
 		queriableProtein = QueriableProteinSet.getInstance(proteins, false);
 		// }
@@ -88,24 +90,28 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	}
 
 	public ProteinBeanAdapterFromProteinSet(QueriableProteinSet queriableProteins, Set<String> hiddenPTMs,
-			boolean psmCentric) {
+			boolean psmCentric, boolean includePeptides) {
 		queriableProtein = queriableProteins;
 		this.hiddenPTMs = hiddenPTMs;
 		this.psmCentric = psmCentric;
+		this.includePeptides = includePeptides;
 	}
 
 	@Override
 	public ProteinBean adapt() {
 		final String primaryAccession = queriableProtein.getPrimaryAccession();
-		if (map.containsKey(primaryAccession)) {
-			return map.get(primaryAccession);
-		}
 		ProteinBean ret = null;
-		// if (primaryAcc != null && map.containsKey(primaryAcc)) {
-		// ret = map.get(primaryAcc);
-		// } else {
-		ret = new ProteinBean();
-		map.put(primaryAccession, ret);
+		if (map.containsKey(primaryAccession)) {
+			ret = map.get(primaryAccession);
+
+		} else {
+
+			// if (primaryAcc != null && map.containsKey(primaryAcc)) {
+			// ret = map.get(primaryAcc);
+			// } else {
+			ret = new ProteinBean();
+			map.put(primaryAccession, ret);
+		}
 		// if (primaryAcc != null)
 		// map.put(primaryAcc, ret);
 		// }
@@ -130,13 +136,28 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	 */
 	private void addProteinInformationToProteinBean(ProteinBean proteinBean, QueriableProteinSet queriableProtein,
 			Set<String> hiddenPTMs) {
-		for (final Integer dbId : queriableProtein.getProteinDBIds()._set) {
+		// keep the ones already added in a set, so that we ignore them in the loops of
+		// this method
+		final TIntSet individualProteinsAlreadyAdded = new TIntHashSet();
+		boolean thereAreNewProteins = false;
+		for (final Protein protein : queriableProtein.getAllProteins()) {
+			if (proteinBean.getDbIds().contains(protein.getId())) {
+				individualProteinsAlreadyAdded.add(protein.getId());
+			} else {
+				thereAreNewProteins = true;
+			}
+		}
+		if (!thereAreNewProteins) {
+			return;
+		}
+		for (final int dbId : queriableProtein.getProteinDBIds().toArray()) {
 			ServerCacheProteinBeansByProteinDBId.getInstance().addtoCache(proteinBean, dbId);
 		}
-		proteinBean.addDbIds(queriableProtein.getProteinDBIds()._set);
+		proteinBean.addDbIds(queriableProtein.getProteinDBIds().toArray());
 		final ProteinAccession primaryProteinAccession = queriableProtein.getPrimaryProteinAccession();
 		proteinBean.setPrimaryAccession(new AccessionBeanAdapter(primaryProteinAccession).adapt());
 
+		final String acc = proteinBean.getPrimaryAccession().getAccession();
 		// for (final ProteinAccession proteinAccession :
 		// queriableProtein.getProteinAccessions()) {
 		// if
@@ -151,7 +172,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		}
 		// log.debug("Adapting genes for protein DbID: " + protein.getId()
 		// + " with linkToPSMs=" + linkToPSMs);
-		final Set<Gene> genes = queriableProtein.getGenes();
+		final List<Gene> genes = queriableProtein.getGenes();
 		if (genes != null && !genes.isEmpty()) {
 			for (final Gene gene : genes) {
 				proteinBean.addGene(new GeneBeanAdapter(gene).adapt());
@@ -170,49 +191,59 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 
 		// log.debug("Adapting msRun for protein DbID: " + protein.getId());
 		// first look into the protein to msrun mapper
-		for (final Protein protein : queriableProtein.getAllProteins()) {
-			final TIntArrayList msRunIDs = MSRunToProteinTableMapper.getInstance().mapIDs1(protein);
-			if (msRunIDs != null) {
-				for (final int msRunID : msRunIDs.toArray()) {
-					MSRunBean msRunBean = MSRunBeanAdapter.getBeanByMSRunID(msRunID);
-					if (msRunBean == null) {
-						final Set msRuns = protein.getMsRuns();
-						for (final Object object : msRuns) {
-							final MsRun msRun = (MsRun) object;
-							if (msRun.getId() == msRunID) {
-								msRunBean = new MSRunBeanAdapter(msRun, false).adapt();
-								proteinBean.addMsrun(msRunBean);
-							}
-						}
 
+		for (final Protein protein : queriableProtein.getAllProteins()) {
+			if (individualProteinsAlreadyAdded.contains(protein.getId())) {
+				continue;
+			}
+			final Set<MSRunBean> msrunsForThatProtein = new THashSet<MSRunBean>();
+//			final TIntArrayList msRunIDs = MSRunToProteinTableMapper.getInstance().mapIDs1(protein);
+			final TIntSet msRunIDs = ProteinIDToMSRunIDTableMapper.getInstance()
+					.getMSRunIDsFromProteinID(protein.getId());
+			if (msRunIDs != null) {
+				final TIntSet msRunIDsMissing = new TIntHashSet();
+				for (final int msRunID : msRunIDs.toArray()) {
+					final MSRunBean msRunBean = MSRunBeanAdapter.getBeanByMSRunID(msRunID);
+					if (msRunBean == null) {
+						msRunIDsMissing.add(msRunID);
+
+					} else {
+
+						proteinBean.addMsrun(msRunBean);
+						msrunsForThatProtein.add(msRunBean);
 					}
 				}
-			}
-		}
+				if (!msRunIDsMissing.isEmpty()) {
+					final List<MsRun> msRuns = (List<MsRun>) PreparedCriteria.getBatchLoadByIDs(MsRun.class,
+							msRunIDsMissing, true, 250);
+					for (final MsRun msRun : msRuns) {
+						final MSRunBean msRunBean = new MSRunBeanAdapter(msRun, false).adapt();
+						proteinBean.addMsrun(msRunBean);
+						msrunsForThatProtein.add(msRunBean);
+					}
+				}
 
-		// log.debug("Adapting amounts for protein DbID: " +
-		// protein.getId());
-		for (final Protein protein : queriableProtein.getIndividualProteins()) {
-			final List<AmountValueWrapper> proteinAmountValueWrappers = ProteinAmountToProteinTableMapper.getInstance()
+			}
+
+			final List<ProteinAmount> proteinAmountValues = ProteinAmountToProteinTableMapper.getInstance()
 					.mapProtein(protein);
-			if (proteinAmountValueWrappers != null && !proteinAmountValueWrappers.isEmpty()) {
-				for (final AmountValueWrapper proteinAmountValueWrapper : proteinAmountValueWrappers) {
+			if (proteinAmountValues != null && !proteinAmountValues.isEmpty()) {
+				for (final ProteinAmount proteinAmountValue : proteinAmountValues) {
 					AmountBean proteinAmountValueBean = AmountBeanAdapter
-							.getBeanByProteinAmountValueID(proteinAmountValueWrapper.getId());
+							.getBeanByProteinAmountValueID(proteinAmountValue.getId());
 					if (proteinAmountValueBean == null) {
 						proteinAmountValueBean = new AmountBean();
 						proteinAmountValueBean.setExperimentalCondition(
-								ConditionBeanAdapter.getBeanByConditionID(proteinAmountValueWrapper.getConditionID()));
-						if (proteinAmountValueWrapper.getAmountType() != null) {
+								ConditionBeanAdapter.getBeanByConditionID(proteinAmountValue.getCondition().getId()));
+						if (proteinAmountValue.getAmountType() != null) {
 							proteinAmountValueBean.setAmountType(edu.scripps.yates.shared.model.AmountType
-									.fromValue(proteinAmountValueWrapper.getAmountType().getName()));
+									.fromValue(proteinAmountValue.getAmountType().getName()));
 						}
-						proteinAmountValueBean.setValue(proteinAmountValueWrapper.getValue());
-						proteinAmountValueBean.setManualSPC(proteinAmountValueWrapper.getManualSPC());
-						proteinAmountValueBean.setComposed(proteinAmountValueWrapper.getCombinationType() != null);
-						for (final Object object : protein.getMsRuns()) {
-							final MsRun msRun = (MsRun) object;
-							proteinAmountValueBean.addMsRun(new MSRunBeanAdapter(msRun, false).adapt());
+						proteinAmountValueBean.setValue(proteinAmountValue.getValue());
+						proteinAmountValueBean.setManualSPC(proteinAmountValue.getManualSPC());
+						proteinAmountValueBean.setComposed(proteinAmountValue.getCombinationType() != null);
+						for (final MSRunBean msRunBean : msrunsForThatProtein) {
+							proteinAmountValueBean.addMsRun(msRunBean);
 						}
 					}
 					proteinBean.addAmount(proteinAmountValueBean);
@@ -238,37 +269,45 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// }
 		// }
 		for (final Protein protein : queriableProtein.getAllProteins()) {
-			final List<RatioValueWrapper> proteinRatioValueWrappers = ProteinRatioToProteinTableMapper.getInstance()
+			if (individualProteinsAlreadyAdded.contains(protein.getId())) {
+				continue;
+			}
+			final List<ProteinRatioValue> proteinRatioValueWrappers = ProteinRatioToProteinTableMapper.getInstance()
 					.mapProtein(protein);
 			if (proteinRatioValueWrappers != null && !proteinRatioValueWrappers.isEmpty()) {
-				for (final RatioValueWrapper proteinRatioValueWrapper : proteinRatioValueWrappers) {
+				for (final ProteinRatioValue proteinRatioValue : proteinRatioValueWrappers) {
 					RatioBean proteinRatioValueBean = ProteinRatioBeanAdapter
-							.getBeanByProteinRatioValueID(proteinRatioValueWrapper.getId());
+							.getBeanByProteinRatioValueID(proteinRatioValue.getId());
 					if (proteinRatioValueBean == null) {
 						proteinRatioValueBean = new RatioBean();
-						final RatioDescriptor ratioDescriptor = ProteinRatioToProteinTableMapper.getInstance()
-								.getRatioDescriptor(proteinRatioValueWrapper.getRatioDescriptorID());
+
+//						final RatioDescriptor ratioDescriptor = ProteinRatioToProteinTableMapper.getInstance()
+//								.getRatioDescriptor(proteinRatioValueWrapper.getRatioDescriptorID());
+						// TODO make sure that this doesnt make a query:
+						final RatioDescriptor ratioDescriptor = proteinRatioValue.getRatioDescriptor();
 						proteinRatioValueBean.setDescription(ratioDescriptor.getDescription());
+
 						proteinRatioValueBean.setCondition1(ConditionBeanAdapter.getBeanByConditionID(
 								ratioDescriptor.getConditionByExperimentalCondition1Id().getId()));
 						proteinRatioValueBean.setCondition2(ConditionBeanAdapter.getBeanByConditionID(
 								ratioDescriptor.getConditionByExperimentalCondition2Id().getId()));
-						proteinRatioValueBean.setDbID(proteinRatioValueWrapper.getId());
+						proteinRatioValueBean.setDbID(proteinRatioValue.getId());
 						final RatioDescriptorBean ratioDescriptorBean = new RatioDescriptorBean();
 						ratioDescriptorBean.setAggregationLevel(SharedAggregationLevel.PROTEIN);
 						ratioDescriptorBean.setCondition1Name(proteinRatioValueBean.getCondition1().getId());
 						ratioDescriptorBean.setCondition2Name(proteinRatioValueBean.getCondition2().getId());
 						ratioDescriptorBean.setRatioName(ratioDescriptor.getDescription());
-						ratioDescriptorBean.setProteinScoreName(proteinRatioValueWrapper.getConfidenceScoreName());
+						ratioDescriptorBean.setProteinScoreName(proteinRatioValue.getConfidenceScoreName());
+						ratioDescriptorBean.setRatioDescriptorID(ratioDescriptor.getId());
 						proteinRatioValueBean.setRatioDescriptorBean(ratioDescriptorBean);
 
-						if (proteinRatioValueWrapper.getConfidenceScoreValue() != null) {
+						if (proteinRatioValue.getConfidenceScoreValue() != null) {
 							proteinRatioValueBean.setAssociatedConfidenceScore(
-									new ScoreBeanAdapter(proteinRatioValueWrapper.getConfidenceScoreValue().toString(),
-											proteinRatioValueWrapper.getConfidenceScoreName(),
-											proteinRatioValueWrapper.getConfidenceScoreType()).adapt());
+									new ScoreBeanAdapter(proteinRatioValue.getConfidenceScoreValue().toString(),
+											proteinRatioValue.getConfidenceScoreName(),
+											proteinRatioValue.getConfidenceScoreType()).adapt());
 						}
-						proteinRatioValueBean.setValue(proteinRatioValueWrapper.getValue());
+						proteinRatioValueBean.setValue(proteinRatioValue.getValue());
 					}
 					proteinBean.addProteinRatio(proteinRatioValueBean);
 				}
@@ -292,9 +331,9 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// proteinScore.getConfidenceScoreType()).adapt());
 		// }
 		// }
-		final Iterator<ProteinScore> proteinScoresIterator = queriableProtein.getProteinScoresIterator();
-		while (proteinScoresIterator.hasNext()) {
-			final ProteinScore proteinScore = proteinScoresIterator.next();
+		final List<ProteinScore> proteinScoresIterator = queriableProtein
+				.getProteinScores(individualProteinsAlreadyAdded);
+		for (final ProteinScore proteinScore : proteinScoresIterator) {
 			proteinBean.addScore(new ScoreBeanAdapter(String.valueOf(proteinScore.getValue()), proteinScore.getName(),
 					proteinScore.getConfidenceScoreType()).adapt());
 		}
@@ -313,21 +352,26 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// thresholds
 		// first check in the mapper of thresholds to proteins
 		for (final Protein protein : queriableProtein.getAllProteins()) {
-			final List<ProteinThresholdWrapper> thresholdWrappers = ThresholdToProteinTableMapper.getInstance()
-					.mapProtein(protein);
-			if (thresholdWrappers != null && !thresholdWrappers.isEmpty()) {
-				for (final ProteinThresholdWrapper proteinThresholdWrapper : thresholdWrappers) {
-					ThresholdBean thresholdBean = ThresholdBeanAdapter
-							.getBeanByConditionID(proteinThresholdWrapper.getId());
-					if (thresholdBean == null) {
-						thresholdBean = new ThresholdBean();
-						final Threshold threshold = ThresholdToProteinTableMapper.getInstance()
-								.getThreshold(proteinThresholdWrapper);
-						thresholdBean.setPass(proteinThresholdWrapper.isPass());
-						thresholdBean.setDescription(threshold.getDescription());
-						thresholdBean.setName(threshold.getName());
+			if (individualProteinsAlreadyAdded.contains(protein.getId())) {
+				continue;
+			}
+			final TIntSet proteinThresholdIDs = ProteinIDToProteinThresholdIDTableMapper.getInstance()
+					.getProteinThresholdIDsFromProteinID(protein.getId());
+			if (proteinThresholdIDs != null && !proteinThresholdIDs.isEmpty()) {
+				final List<ProteinThreshold> proteinThresholds = (List<ProteinThreshold>) PreparedCriteria
+						.getBatchLoadByIDs(ProteinThreshold.class, proteinThresholdIDs, true, 100);
+				if (proteinThresholds != null && !proteinThresholds.isEmpty()) {
+					for (final ProteinThreshold proteinThreshold : proteinThresholds) {
+						ThresholdBean thresholdBean = ThresholdBeanAdapter
+								.getBeanByConditionID(proteinThreshold.getId());
+						if (thresholdBean == null) {
+							thresholdBean = new ThresholdBean();
+							thresholdBean.setPass(proteinThreshold.isPassThreshold());
+							thresholdBean.setDescription(proteinThreshold.getDescription());
+							thresholdBean.setName(proteinThreshold.getName());
+						}
+						proteinBean.addThreshold(thresholdBean);
 					}
-					proteinBean.addThreshold(thresholdBean);
 				}
 			}
 		}
@@ -340,6 +384,9 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// conditions
 		// first check in the mapper of conditions to proteins
 		for (final Protein protein : queriableProtein.getAllProteins()) {
+			if (individualProteinsAlreadyAdded.contains(protein.getId())) {
+				continue;
+			}
 			final TIntArrayList conditionIDs = ConditionToProteinTableMapper.getInstance().mapIDs1(protein);
 			if (conditionIDs != null) {
 				for (final int conditionID : conditionIDs.toArray()) {
@@ -348,7 +395,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 						for (final Object obj : protein.getConditions()) {
 							final Condition condition = (Condition) obj;
 							if (condition.getId() == conditionID) {
-								conditionBean = new ConditionBeanAdapter(condition, true).adapt();
+								conditionBean = new ConditionBeanAdapter(condition, true, includePeptides).adapt();
 								break;
 							}
 						}
@@ -383,8 +430,8 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 
 					final Set<Condition> conditions = psm.getConditions();
 					for (final Condition condition : conditions) {
-						final ExperimentalConditionBean conditionBean = new ConditionBeanAdapter(condition, true)
-								.adapt();
+						final ExperimentalConditionBean conditionBean = new ConditionBeanAdapter(condition, true,
+								includePeptides).adapt();
 
 						// psms by condition ID
 						if (proteinBean.getPSMDBIdsByCondition().containsKey(conditionBean)) {
@@ -409,18 +456,36 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 					throw new PintRuntimeException("Thread interrupted while adapting proteinBean from proteinSet",
 							PINT_ERROR_TYPE.THREAD_INTERRUPTED);
 				}
-				final PeptideBean peptideBean = new PeptideBeanAdapterFromPeptideSet(link.getQueriablePeptide(),
+				if (link.getQueriablePeptideSet() != null) {
+					proteinBean.getDifferentSequences().add(link.getQueriablePeptideSet().getFullSequence());
+				}
+				final List<LinkBetweenQueriableProteinSetAndPeptideSet> linkToPeptides = link.getQueriableProtein()
+						.getLinksToPeptides();
+				int numPSMs = 0;
+				for (final LinkBetweenQueriableProteinSetAndPeptideSet link2 : linkToPeptides) {
+					numPSMs += link2.getQueriablePeptideSet().getNumPSMs();
+				}
+				proteinBean.setNumPSMs(numPSMs);
+				if (!includePeptides) {
+					// add peptideDBIds to proteinBean
+					if (link.getQueriablePeptideSet() != null) {
+						link.getQueriablePeptideSet().getIndividualPeptides().stream()
+								.forEach(peptide -> proteinBean.addPeptideDBId(peptide.getId()));
+					}
+					continue;
+				}
+				final PeptideBean peptideBean = new PeptideBeanAdapterFromPeptideSet(link.getQueriablePeptideSet(),
 						hiddenPTMs, psmCentric).adapt();
 				proteinBean.addPeptideToProtein(peptideBean);
-				proteinBean.getDifferentSequences().add(link.getQueriablePeptide().getFullSequence());
+
 				if (psmCentric) {
-					final List<Peptide> peptides = link.getQueriablePeptide().getIndividualPeptides();
+					final List<Peptide> peptides = link.getQueriablePeptideSet().getIndividualPeptides();
 					for (final Peptide peptide : peptides) {
 						if (!proteinBean.getPeptideDBIds().contains(peptide.getId())) {
 							final Set<Condition> conditions = peptide.getConditions();
 							for (final Condition condition : conditions) {
 								final ExperimentalConditionBean conditionBean = new ConditionBeanAdapter(condition,
-										true).adapt();
+										true, includePeptides).adapt();
 
 								// psms by condition ID
 								if (proteinBean.getPSMDBIdsByCondition().containsKey(conditionBean)) {

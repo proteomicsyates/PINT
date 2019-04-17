@@ -1,5 +1,7 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,7 +61,8 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 				+ commandReference.getCommand().getFormat());
 	}
 
-	public boolean evaluate(Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations) {
+	public boolean evaluate(
+			Collection<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations) {
 		if (proteinAnnotations != null) {
 			final boolean found = false;
 			final Map<edu.scripps.yates.utilities.proteomicsmodel.AnnotationType, Integer> map = new THashMap<edu.scripps.yates.utilities.proteomicsmodel.AnnotationType, Integer>();
@@ -142,7 +145,7 @@ public class QueryFromSimpleAnnotationCommand extends AbstractQuery {
 	}
 
 	public boolean evaluate(QueriableProteinSet protein) {
-		final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = protein
+		final List<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = protein
 				.getProteinAnnotations();
 		return evaluate(proteinAnnotations);
 	}

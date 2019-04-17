@@ -26,6 +26,7 @@ import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtil;
 import edu.scripps.yates.shared.util.UniprotFeatures;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.strings.StringUtils;
 import gnu.trove.list.array.TIntArrayList;
 
@@ -37,7 +38,7 @@ public class ServerDataUtil {
 
 	public static void calculateProteinCoverage(ProteinBean proteinBean, String proteinSeq) {
 		final Pair<Double, char[]> pair = calculateProteinCoverage(proteinBean.getPsms(), proteinBean.getPeptides(),
-				proteinSeq, proteinBean.getPrimaryAccession().getAccession());
+				proteinBean.getDifferentSequences(), proteinSeq, proteinBean.getPrimaryAccession().getAccession());
 		proteinBean.setCoverage(pair.getFirstElement());
 		proteinBean.setCoverageArrayString(pair.getSecondElement());
 	}
@@ -55,7 +56,7 @@ public class ServerDataUtil {
 	 *         element
 	 */
 	public static Pair<Double, char[]> calculateProteinCoverage(Collection<PSMBean> psms,
-			Collection<PeptideBean> peptides, String proteinSeq, String accession) {
+			Collection<PeptideBean> peptides, Collection<String> fullSequences, String proteinSeq, String accession) {
 		final StringBuilder proteinSeqTMP = new StringBuilder();
 		proteinSeqTMP.append(proteinSeq);
 		// RemoteServicesTasks.getPSMsFromProtein( sessionID,
@@ -78,7 +79,7 @@ public class ServerDataUtil {
 				}
 			}
 		}
-		if (peptides != null) {
+		if (peptides != null && !peptides.isEmpty()) {
 			for (final PeptideBean peptideBean : peptides) {
 				final String pepSeq = peptideBean.getSequence();
 				if (pepSeq != null && !"".equals(pepSeq)) {
@@ -95,7 +96,25 @@ public class ServerDataUtil {
 					}
 				}
 			}
+		} else if (fullSequences != null) {
+			for (final String fulllSequence : fullSequences) {
+				final String pepSeq = FastaParser.cleanSequence(fulllSequence);
+				if (pepSeq != null && !"".equals(pepSeq)) {
+					final String specialString = getSpecialString(pepSeq.length());
+					final TIntArrayList positions = StringUtils.allPositionsOf(proteinSeq, pepSeq);
+					if (!positions.isEmpty()) {
+						for (final int position : positions.toArray()) {
+//							peptideBean.addPositionByProtein(accession,
+//									new Pair<Integer, Integer>(position, position + pepSeq.length()));
+							// replace the peptide in the protein with
+							// an special string
+							proteinSeqTMP.replace(position - 1, position + pepSeq.length() - 1, specialString);
+						}
+					}
+				}
+			}
 		}
+
 		// calculate the protein coverage
 		final int numberOfCoveredAA = StringUtils.allPositionsOf(proteinSeqTMP.toString(), SPECIAL_CHARACTER).size();
 		final double coverage = Double.valueOf(numberOfCoveredAA) / Double.valueOf(proteinSeq.length());
@@ -211,8 +230,8 @@ public class ServerDataUtil {
 	}
 
 	public static String getScoreString(PTMBean ptm, String ptmScoreName) {
-		StringBuilder sb = new StringBuilder();
-		for (PTMSiteBean ptmSite : ptm.getPtmSites()) {
+		final StringBuilder sb = new StringBuilder();
+		for (final PTMSiteBean ptmSite : ptm.getPtmSites()) {
 			final ScoreBean score = ptmSite.getScore();
 			if (score != null && ptmScoreName.equals(score.getScoreName())) {
 				if (!"".equals(sb.toString()))
@@ -231,10 +250,10 @@ public class ServerDataUtil {
 	 */
 	public static String getParsedScoreValue(ScoreBean score) {
 		try {
-			double doubleValue = Double.valueOf(score.getValue());
+			final double doubleValue = Double.valueOf(score.getValue());
 			final ServerNumberFormat format = new ServerNumberFormat("#.###");
 			return format.format(doubleValue);
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			return score.getValue();
 		}
 	}
@@ -347,8 +366,8 @@ public class ServerDataUtil {
 	}
 
 	public static String getScoreString(PTMBean ptm) {
-		StringBuilder sb = new StringBuilder();
-		for (PTMSiteBean ptmSite : ptm.getPtmSites()) {
+		final StringBuilder sb = new StringBuilder();
+		for (final PTMSiteBean ptmSite : ptm.getPtmSites()) {
 			final ScoreBean score = ptmSite.getScore();
 			if (score != null) {
 				if (!"".equals(sb.toString()))
@@ -604,14 +623,14 @@ public class ServerDataUtil {
 		return parseEmptyString("");
 	}
 
-	public static String getAmountString(Set<AmountBean> proteinAmountSet, String projectTag) {
+	public static String getAmountString(List<AmountBean> proteinAmountSet, String projectTag) {
 		final StringBuilder sb = new StringBuilder();
 		List<AmountBean> proteinAmounts = SharedDataUtil.sortAmountsByRunID(proteinAmountSet);
 		if (proteinAmounts != null) {
 			// if some amounts are resulting from the combination
 			// (sum/average...)
 			// over other amounts, report only them
-			final Set<AmountBean> composedAmounts = AmountBean.getComposedAmounts(proteinAmounts);
+			final List<AmountBean> composedAmounts = AmountBean.getComposedAmounts(proteinAmounts);
 			if (!composedAmounts.isEmpty()) {
 				proteinAmounts = SharedDataUtil.sortAmountsByRunID(composedAmounts);
 			}
@@ -666,7 +685,7 @@ public class ServerDataUtil {
 			return parseEmptyString(String.valueOf(p.getPtms().size()));
 		case NUM_PTM_SITES:
 			int count = 0;
-			for (PTMBean ptm : p.getPtms()) {
+			for (final PTMBean ptm : p.getPtms()) {
 				count += ptm.getPtmSites().size();
 			}
 			return parseEmptyString(String.valueOf(count));
@@ -683,7 +702,7 @@ public class ServerDataUtil {
 						return ServerNumberFormat.getFormat("#.###").format(valueOf);
 					else
 						return scoreByName.getValue();
-				} catch (NumberFormatException e) {
+				} catch (final NumberFormatException e) {
 					return scoreByName.getValue();
 				}
 

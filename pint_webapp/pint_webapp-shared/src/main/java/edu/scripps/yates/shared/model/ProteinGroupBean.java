@@ -175,12 +175,12 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	@Override
-	public Set<AmountBean> getAmounts() {
-		final Set<AmountBean> ret = new HashSet<AmountBean>();
+	public List<AmountBean> getAmounts() {
+		final List<AmountBean> ret = new ArrayList<AmountBean>();
 		// be carefull with the SPC amounts comming from proteins, because we
 		// dont want to count several times the spectral counts.
 		for (final ProteinBean protein : this) {
-			final Set<AmountBean> amounts = protein.getAmounts();
+			final List<AmountBean> amounts = protein.getAmounts();
 			for (final AmountBean amountBean : amounts) {
 				// ignore the SPC amounts at protein group level because here
 				// has no sense. Recalculate them later
@@ -235,16 +235,16 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	}
 
 	@Override
-	public HashMap<String, Set<AmountBean>> getAmountsByExperimentalCondition() {
-		final HashMap<String, Set<AmountBean>> ret = new HashMap<String, Set<AmountBean>>();
+	public HashMap<String, List<AmountBean>> getAmountsByExperimentalCondition() {
+		final HashMap<String, List<AmountBean>> ret = new HashMap<String, List<AmountBean>>();
 		for (final ProteinBean protein : this) {
-			final HashMap<String, Set<AmountBean>> amountsByExperimentalCondition = protein
+			final HashMap<String, List<AmountBean>> amountsByExperimentalCondition = protein
 					.getAmountsByExperimentalCondition();
 			for (final String conditionName : amountsByExperimentalCondition.keySet()) {
 				if (ret.containsKey(conditionName)) {
 					ret.get(conditionName).addAll(amountsByExperimentalCondition.get(conditionName));
 				} else {
-					final Set<AmountBean> set = new HashSet<AmountBean>();
+					final List<AmountBean> set = new ArrayList<AmountBean>();
 					set.addAll(amountsByExperimentalCondition.get(conditionName));
 					ret.put(conditionName, set);
 				}
@@ -587,6 +587,8 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 				lightVersion.amounts.add(amount);
 			}
 			lightVersion.ratioDistributions = getRatioDistributions();
+			// set the light version of the light version to itself
+			lightVersion.lightVersion = lightVersion;
 		}
 		return lightVersion;
 	}

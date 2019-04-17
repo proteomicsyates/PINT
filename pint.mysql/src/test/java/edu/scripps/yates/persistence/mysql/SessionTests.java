@@ -2,6 +2,7 @@ package edu.scripps.yates.persistence.mysql;
 
 import static org.junit.Assert.fail;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -131,19 +132,19 @@ public class SessionTests {
 		}
 		System.out.println(psms.size() + " PSMs retrieved");
 
-		final Map<String, Set<Psm>> map = new THashMap<String, Set<Psm>>();
+		final Map<String, Collection<Psm>> map = new THashMap<String, Collection<Psm>>();
 		PersistenceUtils.addToPSMMapByPsmId(map, psms);
-		final Map<String, Set<Protein>> proteinsMap = PersistenceUtils.getProteinsFromPsms(map, true);
+		final Map<String, Collection<Protein>> proteinsMap = PersistenceUtils.getProteinsFromPsms(map, true);
 		System.out.println(proteinsMap.size() + " proteins in map");
 		final Set<Protein> proteinSet = new THashSet<Protein>();
-		for (final Set<Protein> proteinSet2 : proteinsMap.values()) {
+		for (final Collection<Protein> proteinSet2 : proteinsMap.values()) {
 			proteinSet.addAll(proteinSet2);
 		}
 		System.out.println(proteinSet.size() + " proteins in set");
-		final Map<String, Set<Psm>> psmsMap = PersistenceUtils.getPsmsFromProteins(proteinSet, true);
+		final Map<String, Collection<Psm>> psmsMap = PersistenceUtils.getPsmsFromProteins(proteinSet, true);
 		System.out.println(psmsMap.size() + " PSMs");
 		final Set<Psm> psmSet = new THashSet<Psm>();
-		for (final Set<Psm> psmSet2 : psmsMap.values()) {
+		for (final Collection<Psm> psmSet2 : psmsMap.values()) {
 			psmSet.addAll(psmSet2);
 		}
 		System.out.println(psmSet.size() + " PSMs in set");
@@ -173,12 +174,12 @@ public class SessionTests {
 
 		final Set<Protein> set = new THashSet<Protein>();
 		set.add(protein);
-		final Map<String, Set<Psm>> psmsFromProteins = PersistenceUtils.getPsmsFromProteins(set, true);
+		final Map<String, Collection<Psm>> psmsFromProteins = PersistenceUtils.getPsmsFromProteins(set, true);
 		System.out.println(psmsFromProteins.size());
 
 		final Set<Psm> set2 = new THashSet<Psm>();
 		set2.add(psm);
-		final Map<String, Set<Protein>> proteinsFromPsms = PersistenceUtils.getProteinsFromPsms(set2, true);
+		final Map<String, Collection<Protein>> proteinsFromPsms = PersistenceUtils.getProteinsFromPsms(set2, true);
 		System.out.println(proteinsFromPsms.size());
 
 	}

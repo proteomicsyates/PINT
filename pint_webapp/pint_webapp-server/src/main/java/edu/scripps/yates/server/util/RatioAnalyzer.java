@@ -1,16 +1,20 @@
 package edu.scripps.yates.server.util;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.RatioDescriptorIDToProteinRatioValueIDTableMapper;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDistribution;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
 import edu.scripps.yates.shared.util.SharedDataUtil;
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.TIntSet;
 
 public class RatioAnalyzer {
 	private final static Logger log = Logger.getLogger(RatioAnalyzer.class);
@@ -27,21 +31,36 @@ public class RatioAnalyzer {
 		final SharedAggregationLevel aggregationLevel = ratio.getRatioDescriptorBean().getAggregationLevel();
 		switch (aggregationLevel) {
 		case PROTEIN:
-			final Object uniqueResult = PreparedCriteria
-					.getCriteriaForProteinRatioMaximumValue(ratio.getCondition1().getId(),
-							ratio.getCondition2().getId(), ratio.getCondition1().getProject().getTag(), ratio.getId())
-					.uniqueResult();
-			if (uniqueResult != null) {
-				max = (Double) uniqueResult;
-				log.info("max= " + min);
-			}
-			final Object uniqueResult2 = PreparedCriteria
-					.getCriteriaForProteinRatioMinimumValue(ratio.getCondition1().getId(),
-							ratio.getCondition2().getId(), ratio.getCondition1().getProject().getTag(), ratio.getId())
-					.uniqueResult();
-			if (uniqueResult2 != null) {
-				min = (Double) uniqueResult2;
-				log.info("min= " + min);
+			if (ratio.getRatioDescriptorBean().getRatioDescriptorID() != null) {
+				final TIntSet proteinRatioValueIDs = RatioDescriptorIDToProteinRatioValueIDTableMapper.getInstance()
+						.getProteinRatioValueIDsFromRatioDescriptorID(
+								ratio.getRatioDescriptorBean().getRatioDescriptorID());
+				final List<ProteinRatioValue> proteinRatioValues = (List<ProteinRatioValue>) PreparedCriteria
+						.getBatchLoadByIDs(ProteinRatioValue.class, proteinRatioValueIDs, true, 100);
+				for (final ProteinRatioValue proteinRatioValue : proteinRatioValues) {
+					if (proteinRatioValue.getValue() > max) {
+						max = proteinRatioValue.getValue();
+					}
+					if (proteinRatioValue.getValue() < min) {
+						min = proteinRatioValue.getValue();
+					}
+				}
+			} else {
+
+				final Object uniqueResult = PreparedCriteria.getCriteriaForProteinRatioMaximumValue(
+						ratio.getCondition1().getId(), ratio.getCondition2().getId(),
+						ratio.getCondition1().getProject().getTag(), ratio.getId()).uniqueResult();
+				if (uniqueResult != null) {
+					max = (Double) uniqueResult;
+					log.info("max= " + min);
+				}
+				final Object uniqueResult2 = PreparedCriteria.getCriteriaForProteinRatioMinimumValue(
+						ratio.getCondition1().getId(), ratio.getCondition2().getId(),
+						ratio.getCondition1().getProject().getTag(), ratio.getId()).uniqueResult();
+				if (uniqueResult2 != null) {
+					min = (Double) uniqueResult2;
+					log.info("min= " + min);
+				}
 			}
 			break;
 		case PEPTIDE:

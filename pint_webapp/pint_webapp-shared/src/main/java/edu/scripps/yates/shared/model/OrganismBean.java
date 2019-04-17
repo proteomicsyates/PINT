@@ -23,10 +23,12 @@ public class OrganismBean extends HasId implements Serializable {
 	}
 
 	/**
-	 * @param ncbiTaxID
-	 *            the ncbiTaxID to set
+	 * @param ncbiTaxID the ncbiTaxID to set
 	 */
 	public void setNcbiTaxID(String ncbiTaxID) {
+		if (ncbiTaxID == null) {
+			System.out.println("? ");
+		}
 		this.ncbiTaxID = ncbiTaxID;
 	}
 
@@ -47,15 +49,18 @@ public class OrganismBean extends HasId implements Serializable {
 	}
 
 	/**
-	 * @param name
-	 *            the name to set
+	 * @param name the name to set
 	 */
 	public void setName(String name) {
+		if (name == null) {
+			System.out.println("? ");
+		}
 		this.name = name;
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 
@@ -67,7 +72,7 @@ public class OrganismBean extends HasId implements Serializable {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof OrganismBean) {
-			OrganismBean organism = (OrganismBean) obj;
+			final OrganismBean organism = (OrganismBean) obj;
 			if (organism.getNcbiTaxID().equals(ncbiTaxID))
 				return true;
 			return false;
@@ -77,6 +82,7 @@ public class OrganismBean extends HasId implements Serializable {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

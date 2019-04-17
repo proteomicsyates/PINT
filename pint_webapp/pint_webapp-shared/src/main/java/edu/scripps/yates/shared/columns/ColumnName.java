@@ -144,15 +144,16 @@ public enum ColumnName {
 	// UNIPROT FEATURES FOR PROTEINS
 	PROTEIN_DOMAIN_FAMILIES("Family & Domains", "Family & Domains",
 			"UniProt annnotation for providing information on sequence similarities with other proteins and the domain(s) present in a protein."), //
-	PROTEIN_ACTIVE_SITE("Functional sites", "Funct. sites", "UniProt annnotation for protein functional sites"), //
-	PROTEIN_MOLECULAR_PROCESSING("Molecular Processing", "Processing",
+	PROTEIN_ACTIVE_SITE("Functional sites", "Functional sites", "UniProt annnotation for protein functional sites"), //
+	PROTEIN_MOLECULAR_PROCESSING("Molecular Processing", "Molecular Processing",
 			"UniProt annnotation for describing processing events."), //
 	PROTEIN_PTM("Known PTMs", "Known PTMs", "UniProt annnotation for described aminoacid modifications in the protein"), //
-	PROTEIN_NATURAL_VARIATIONS("Natural Variations", "Nat. variations",
+	PROTEIN_NATURAL_VARIATIONS("Natural Variations", "Natural variations",
 			"UniProt annnotation for amino acid change(s) producing alternate protein isoforms / Description of a natural variant of the protein"), //
 	PROTEIN_SECONDARY_STRUCTURE("Secondary structure", "Sec. Struct.",
 			"UniProt annnotation for protein secondary structure (helix, beta strand or turn)"), //
-	PROTEIN_EXPERIMENTAL_INFO("Experimental info", "Exp. Info", "UniProt experimental information"), //
+	PROTEIN_EXPERIMENTAL_INFO("Experimental information", "Experimental information",
+			"UniProt experimental information"), //
 	// UNIPROT FEATURES FOR PEPTIDES
 	PEPTIDE_DOMAIN_FAMILIES("Family & Domains", "Family & Domains",
 			"UniProt annnotation for providing information on sequence similarities with other proteins and the domain(s) present in a PEPTIDE."), //
@@ -162,9 +163,9 @@ public enum ColumnName {
 	PEPTIDE_PTM("Known PTMs", "Known PTMs", "UniProt annnotation for described aminoacid modifications in the protein"), //
 	PEPTIDE_NATURAL_VARIATIONS("Natural Variations", "Nat. variations",
 			"UniProt annnotation for amino acid change(s) producing alternate protein isoforms / Description of a natural variant of the protein"), //
-	PEPTIDE_SECONDARY_STRUCTURE("Secondary structure", "Sec. Struct.",
+	PEPTIDE_SECONDARY_STRUCTURE("Secondary structure", "Second. Structure",
 			"UniProt annnotation for protein secondary structure (helix, beta strand or turn)"), //
-	PEPTIDE_EXPERIMENTAL_INFO("Experimental info", "Exp. Info", "UniProt experimental information"),
+	PEPTIDE_EXPERIMENTAL_INFO("Experimental info.", "Experimental information", "UniProt experimental information"),
 
 	// link to pride cluster
 	LINK_TO_PRIDE_CLUSTER("Link to PRIDE cluster (EBI)", "PRIDE", "Link to information in PRIDE cluster (EBI)",
@@ -320,8 +321,7 @@ public enum ColumnName {
 	}
 
 	/**
-	 * @param addColumnByDefault
-	 *            the addColumnByDefault to set
+	 * @param addColumnByDefault the addColumnByDefault to set
 	 */
 	public void setAddColumnByDefault(boolean addColumnByDefault) {
 		this.addColumnByDefault = addColumnByDefault;

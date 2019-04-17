@@ -160,7 +160,6 @@ public class ProgressBar extends Widget implements ResizableWidget {
 		DOM.appendChild(getElement(), textElement);
 		textElement.getStyle().setPosition(Position.ABSOLUTE);
 		textElement.getStyle().setTop(0, Unit.PX);
-		textElement.setClassName("gwt-ProgressBar-text-firstHalf");
 
 		// Set the current progress
 		setProgress(curProgress);
@@ -193,7 +192,7 @@ public class ProgressBar extends Widget implements ResizableWidget {
 	public double getPercent() {
 		// If we have no range
 		if (maxProgress <= minProgress) {
-			return 0.0;
+			return 1.0;
 		}
 
 		// Calculate the relative progress
@@ -295,11 +294,8 @@ public class ProgressBar extends Widget implements ResizableWidget {
 		textElement.setInnerHTML(generateText(curProgress));
 
 		// Set the style depending on the size of the bar
-		if (percent < 50) {
-			textElement.setClassName("gwt-ProgressBar-text gwt-ProgressBar-text-firstHalf");
-		} else {
-			textElement.setClassName("gwt-ProgressBar-text gwt-ProgressBar-text-secondHalf");
-		}
+
+		updateTextStyle(percent);
 
 		// Realign the text
 		redraw();
@@ -385,5 +381,18 @@ public class ProgressBar extends Widget implements ResizableWidget {
 	 */
 	protected void resetProgress() {
 		setProgress(getProgress());
+	}
+
+	private void onTextStyleChange() {
+		final int percent = (int) (100 * getPercent());
+		updateTextStyle(percent);
+	}
+
+	private void updateTextStyle(int percent) {
+		if (percent < 50) {
+			textElement.setClassName("gwt-ProgressBar-text gwt-ProgressBar-text-firstHalf");
+		} else {
+			textElement.setClassName("gwt-ProgressBar-text gwt-ProgressBar-text-secondHalf");
+		}
 	}
 }

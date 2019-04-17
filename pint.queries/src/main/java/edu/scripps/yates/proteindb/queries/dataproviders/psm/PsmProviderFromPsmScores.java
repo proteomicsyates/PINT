@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
@@ -24,10 +23,10 @@ public class PsmProviderFromPsmScores extends PsmDataProvider {
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
+	public Map<String, Collection<Psm>> getPsmMap(boolean testMode) {
 		if (result == null) {
 			int numPSMs = 0;
-			result = new THashMap<String, Set<Psm>>();
+			result = new THashMap<String, Collection<Psm>>();
 			if (projectTags == null || projectTags.isEmpty()) {
 				final List<Psm> psms1 = PreparedQueries.getPsmsWithScores(scoreNameString, scoreTypeString, null);
 				final List<Psm> psms2 = PreparedQueries.getPsmsWithPTMScores(scoreNameString, scoreTypeString, null);

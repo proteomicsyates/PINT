@@ -26,7 +26,7 @@ public class ConditionToProteinTableMapper extends AbstractTableMapper<Condition
 	}
 
 	@Override
-	public TIntArrayList queryForIDs(Condition condition) {
+	public TIntArrayList doMapping(Condition condition) {
 		final List<Integer> proteinIDs = PreparedCriteria.getProteinIDsFromCondition(condition);
 		return transformToTIntArray(proteinIDs);
 	}

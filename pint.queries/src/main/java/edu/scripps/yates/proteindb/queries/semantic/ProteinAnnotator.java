@@ -44,7 +44,7 @@ public class ProteinAnnotator {
 	 * 
 	 * @param proteinMap
 	 */
-	public void annotateProteins(Map<String, Set<Protein>> proteinMap) {
+	public void annotateProteins(Map<String, Collection<Protein>> proteinMap) {
 		log.info("Getting Uniprot annotations from " + proteinMap.size() + " proteins");
 		final Set<String> accessions = proteinMap.keySet();
 		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = getAnnotatedProteins(
@@ -56,7 +56,7 @@ public class ProteinAnnotator {
 				final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = annotatedProtein
 						.getAnnotations();
 				for (final edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation proteinAnnotation : proteinAnnotations) {
-					final Set<Protein> proteinSet = proteinMap.get(accession);
+					final Collection<Protein> proteinSet = proteinMap.get(accession);
 					for (final Protein protein : proteinSet) {
 						addAnnotationByProtein(protein, proteinAnnotation);
 					}

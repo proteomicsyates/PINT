@@ -74,8 +74,6 @@ public abstract class AbstractServerCache<T, K> implements Cache<T, K> {
 		final ReadLock readLock = lock.readLock();
 		try {
 			readLock.lock();
-			if (true)
-				System.out.println("asdf");
 			final K processedKey = processKey(key);
 			return map.containsKey(processedKey);
 		} finally {

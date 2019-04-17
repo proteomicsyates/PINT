@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.IntegerBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.ScrollPanel;
 
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
@@ -59,22 +60,23 @@ public class SharingPeptidesPanel extends Composite {
 		if (cluster == null) {
 			StatusReportersRegister.getInstance().notifyStatusReporters("Protein-peptide cluster is null");
 		}
-		FlowPanel flowPanel = new FlowPanel();
-		initWidget(flowPanel);
+		final ScrollPanel scroll = new ScrollPanel();
+		final FlowPanel flowPanel = new FlowPanel();
+		scroll.add(flowPanel);
+		initWidget(scroll);
 
 		flowPanel.setStyleName("sharingPeptidesPanel");
 
-		FlowPanel explanationFlowPanel = new FlowPanel();
-		SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		final FlowPanel explanationFlowPanel = new FlowPanel();
+		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		String protenProviderType = "protein";
-		if (proteinPeptideCluster.getPeptideProvider() instanceof ProteinGroupBean) {
+		if (proteinPeptideCluster.getLightPeptideProvider() instanceof ProteinGroupBean) {
 			protenProviderType = "protein group";
 		}
 		sb.appendEscapedLines("Here you can see all shared peptides of the selected " + protenProviderType + ".\n"
 				+ "Select any of the three options to change the view of the panel.\n"
-				+ "Place the cursor over the protein accessions and over the peptide sequences\n"
-				+ "to see more information about them.\n"
-				+ "In 'by similarity' type view, a Neddleman-Wunsch alignment algorithm is performed.\n"
+				+ "Place the cursor over the protein accessions and over the peptide sequences to see more information about them.\n"
+				+ "In 'by similarity' type view, a Neddleman-Wunsch sequence alignment algorithm is performed. "
 				+ "Change the default thresholds in order to consider or discard different alignments.");
 		explanationFlowPanel.add(new InlineHTML(sb.toSafeHtml()));
 		flowPanel.add(explanationFlowPanel);
@@ -83,7 +85,7 @@ public class SharingPeptidesPanel extends Composite {
 		// relationships
 		final String groupName = "simpleOrExtended";
 
-		FlexTable flexTable = new FlexTable();
+		final FlexTable flexTable = new FlexTable();
 		flexTable.setStyleName("sharingPeptidesPanel-Elements");
 		flowPanel.add(flexTable);
 
@@ -91,11 +93,11 @@ public class SharingPeptidesPanel extends Composite {
 		errorLabel.setStyleName("font-red");
 		errorLabel.setVisible(false);
 		flexTable.setWidget(0, 0, errorLabel);
-		Label lblViewType = new Label("View type:");
+		final Label lblViewType = new Label("View type:");
 		flexTable.setWidget(1, 0, lblViewType);
-		RadioButton simple = new RadioButton(groupName, "simple");
+		final RadioButton simple = new RadioButton(groupName, "simple (show peptides of the selected protein(s))");
 		simple.setTitle(
-				"Show the peptides of the proteins selected, but not all other proteins belonging to these peptides.");
+				"Show the peptides of the proteins selected, but not all other proteins mapping to these peptides.");
 		flexTable.setWidget(1, 1, simple);
 		simple.setValue(true);
 		simple.addClickHandler(new ClickHandler() {
@@ -110,8 +112,10 @@ public class SharingPeptidesPanel extends Composite {
 
 			}
 		});
-		RadioButton extended = new RadioButton(groupName, "extended");
-		extended.setTitle("Show the peptides of the proteins selected, as well as the proteins of all these peptides.");
+		final RadioButton extended = new RadioButton(groupName,
+				"extended (show extended relationships proteins-peptides)");
+		extended.setTitle(
+				"Show the peptides of the proteins selected, as well as the proteins (and their peptides) of all these peptides.");
 		flexTable.setWidget(2, 1, extended);
 		extended.addClickHandler(new ClickHandler() {
 
@@ -125,7 +129,7 @@ public class SharingPeptidesPanel extends Composite {
 
 			}
 		});
-		RadioButton bysimilarity = new RadioButton(groupName, "by similarity");
+		final RadioButton bysimilarity = new RadioButton(groupName, "by similarity");
 		bysimilarity
 				.setTitle("Show the peptides of the proteins selected, as well as the proteins of all these peptides.\n"
 						+ "Additionally, allows to align similar peptides applying the Needleman-Wunsch alignment algorithm");
@@ -236,7 +240,7 @@ public class SharingPeptidesPanel extends Composite {
 			final Set<AlignmentResult> alignmentResults = aligments.getResultsByPeptideSequence()
 					.get(peptide.getSequence());
 			if (alignmentResults != null) {
-				for (AlignmentResult alignmentResult : alignmentResults) {
+				for (final AlignmentResult alignmentResult : alignmentResults) {
 					if (alignmentResult.getFinalAlignmentScore() >= getAlignmentScoreThreshold()) {
 						if (Double.compare(alignmentResult.getSequenceIdentity(),
 								getAlignmentIdentityThreshold()) >= 0) {
@@ -272,40 +276,47 @@ public class SharingPeptidesPanel extends Composite {
 						getAlignmentScoreThreshold();
 						getAlignmentIdentityThreshold();
 
-						List<PeptideBean> sortedPeptides = getSortedSequences(result.keySet());
-						Map<String, ProteinBean> proteinMap = new HashMap<String, ProteinBean>();
-						List<String> totalProteinAccs = new ArrayList<String>();
-						for (PeptideBean peptide : sortedPeptides) {
+						final List<PeptideBean> sortedPeptides = getSortedSequences(result.keySet());
+						final Map<String, ProteinBean> proteinMap = new HashMap<String, ProteinBean>();
+						final List<String> totalProteinAccs = new ArrayList<String>();
+						for (final PeptideBean peptide : sortedPeptides) {
 
 							final Set<ProteinBean> proteins = result.get(peptide);
-							for (ProteinBean protein : proteins) {
+							for (final ProteinBean protein : proteins) {
 								proteinMap.put(protein.getPrimaryAccession().getAccession(), protein);
 								if (!totalProteinAccs.contains(protein.getPrimaryAccession().getAccession()))
 									totalProteinAccs.add(protein.getPrimaryAccession().getAccession());
 							}
 						}
 						Collections.sort(totalProteinAccs);
-						// column headers: proteinAccs
-						int i = 1;
-						for (String proteinAcc : totalProteinAccs) {
+						// column headers: Num - Peptide - proteinAccs
+						int row = 0;
+						int col = 0;
+						table.setWidget(row, col, new Label("Num."));
+						table.getCellFormatter().setAlignment(row, col, HasHorizontalAlignment.ALIGN_CENTER,
+								HasVerticalAlignment.ALIGN_MIDDLE);
+						col++;
+						table.setWidget(row, col, new Label("Peptide"));
+						table.getCellFormatter().setAlignment(row, col, HasHorizontalAlignment.ALIGN_CENTER,
+								HasVerticalAlignment.ALIGN_MIDDLE);
+						col++;
+						for (final String proteinAcc : totalProteinAccs) {
 							final Label proteinAccLabel = new Label(proteinAcc);
 							final ProteinBean proteinBean = proteinMap.get(proteinAcc);
 							proteinAccLabel.setTitle(getProteinAccessionTitle(proteinBean));
 							proteinAccLabel.setStyleName(getProteinCSSStyleName(proteinBean));
-							table.setWidget(0, i, proteinAccLabel);
-							table.getCellFormatter().setAlignment(0, i, HasHorizontalAlignment.ALIGN_CENTER,
+							table.setWidget(row, col, proteinAccLabel);
+							table.getCellFormatter().setAlignment(row, col, HasHorizontalAlignment.ALIGN_CENTER,
 									HasVerticalAlignment.ALIGN_MIDDLE);
-							i++;
+							col++;
 						}
-						table.setWidget(0, i, new Label("- # -"));
-						table.getCellFormatter().setAlignment(0, i, HasHorizontalAlignment.ALIGN_CENTER,
-								HasVerticalAlignment.ALIGN_MIDDLE);
 
-						Set<PeptideBean> peptidesProcessed = new HashSet<PeptideBean>();
+						final Set<PeptideBean> peptidesProcessed = new HashSet<PeptideBean>();
 						// numbering the peptides
-						int j = 1;
+						row = 1;
+						col = 0;
 						int numDifferentPeptides = 0;
-						for (PeptideBean peptide : sortedPeptides) {
+						for (final PeptideBean peptide : sortedPeptides) {
 							if (peptidesProcessed.contains(peptide))
 								continue;
 							peptidesProcessed.add(peptide);
@@ -314,24 +325,24 @@ public class SharingPeptidesPanel extends Composite {
 							if (alignmentResult != null) {
 								peptidesProcessed.add(alignmentResult.getSeq1());
 								peptidesProcessed.add(alignmentResult.getSeq2());
-								table.setWidget(j, i, numPeptideLabel);
-								table.getFlexCellFormatter().setRowSpan(j, i, 3);
-								table.getCellFormatter().setAlignment(j, i, HasHorizontalAlignment.ALIGN_CENTER,
+								table.setWidget(row, col, numPeptideLabel);
+								table.getFlexCellFormatter().setRowSpan(row, col, 3);
+								table.getCellFormatter().setAlignment(row, col, HasHorizontalAlignment.ALIGN_CENTER,
 										HasVerticalAlignment.ALIGN_MIDDLE);
-								j = j + 3;
+								row = row + 3;
 							} else {
-								table.setWidget(j, i, numPeptideLabel);
-								table.getFlexCellFormatter().setRowSpan(j, i, 1);
-								table.getCellFormatter().setAlignment(j, i, HasHorizontalAlignment.ALIGN_CENTER,
+								table.setWidget(row, col, numPeptideLabel);
+								table.getCellFormatter().setAlignment(row, col, HasHorizontalAlignment.ALIGN_CENTER,
 										HasVerticalAlignment.ALIGN_MIDDLE);
-								j++;
+								row++;
 							}
 						}
 
 						// row header
 						peptidesProcessed.clear();
-						j = 1;
-						for (PeptideBean peptide : sortedPeptides) {
+						row = 1;
+						col = 1;
+						for (final PeptideBean peptide : sortedPeptides) {
 							if (peptidesProcessed.contains(peptide))
 								continue;
 							peptidesProcessed.add(peptide);
@@ -344,63 +355,63 @@ public class SharingPeptidesPanel extends Composite {
 								final Label peptide1SequenceLabel = new Label(alignmentResult.getAlignedSequence1());
 								peptide1SequenceLabel.setTitle(getPeptideBeanTitle(alignmentResult.getSeq1()));
 								peptide1SequenceLabel.setStyleName(getPeptideCSSStyleName(alignmentResult.getSeq1()));
-								table.setWidget(j, 0, peptide1SequenceLabel);
-								table.getCellFormatter().setAlignment(j, 0, HasHorizontalAlignment.ALIGN_LEFT,
+								table.setWidget(row, col, peptide1SequenceLabel);
+								table.getCellFormatter().setAlignment(row, col, HasHorizontalAlignment.ALIGN_LEFT,
 										HasVerticalAlignment.ALIGN_MIDDLE);
-								table.getFlexCellFormatter().setRowSpan(j, 0, 1);
-								j++;
+								row++;
 								// print the alignment connections
 								final Label label2 = new Label(
 										alignmentResult.getAlignmentConnections().replace(" ", "_"));
 								label2.setTitle(getAlignmentTitle(alignmentResult));
-								table.setWidget(j, 0, label2);
+								table.setWidget(row, col - 1, label2);
 								label2.setStyleName("labelFixedWidth");
-								table.getCellFormatter().setAlignment(j, 0, HasHorizontalAlignment.ALIGN_LEFT,
+								table.getCellFormatter().setAlignment(row, col - 1, HasHorizontalAlignment.ALIGN_LEFT,
 										HasVerticalAlignment.ALIGN_MIDDLE);
-								table.getFlexCellFormatter().setRowSpan(j, 0, 1);
-								j++;
+								row++;
 								// print the second peptide
 								final Label peptide2SequenceLabel = new Label(alignmentResult.getAlignedSequence2());
 								peptide2SequenceLabel.setTitle(getPeptideBeanTitle(alignmentResult.getSeq2()));
 								peptide2SequenceLabel.setStyleName(getPeptideCSSStyleName(alignmentResult.getSeq2()));
-								table.setWidget(j, 0, peptide2SequenceLabel);
-								table.getCellFormatter().setAlignment(j, 0, HasHorizontalAlignment.ALIGN_LEFT,
+								table.setWidget(row, col - 1, peptide2SequenceLabel);
+								table.getCellFormatter().setAlignment(row, col - 1, HasHorizontalAlignment.ALIGN_LEFT,
 										HasVerticalAlignment.ALIGN_MIDDLE);
-								table.getFlexCellFormatter().setRowSpan(j, 0, 1);
 							} else {
 
 								final Label peptideSequenceLabel = new Label(peptide.getSequence());
 								peptideSequenceLabel.setTitle(getPeptideBeanTitle(peptide));
 								peptideSequenceLabel.setStyleName(getPeptideCSSStyleName(peptide));
-								table.setWidget(j, 0, peptideSequenceLabel);
-								table.getCellFormatter().setAlignment(j, 0, HasHorizontalAlignment.ALIGN_LEFT,
+								table.setWidget(row, col, peptideSequenceLabel);
+								table.getCellFormatter().setAlignment(row, col, HasHorizontalAlignment.ALIGN_LEFT,
 										HasVerticalAlignment.ALIGN_MIDDLE);
-								table.getFlexCellFormatter().setRowSpan(j, 0, 1);
 
 							}
-							j++;
+							row++;
 						}
 
+						// X or . mapping between peptides and proteins
 						peptidesProcessed.clear();
-						int row = 1;
-						for (PeptideBean peptide : sortedPeptides) {
+						row = 1;
+						for (final PeptideBean peptide : sortedPeptides) {
 							if (peptidesProcessed.contains(peptide))
 								continue;
 							peptidesProcessed.add(peptide);
-							int col = 1;
+							col = 2;
 							final AlignmentResult passAlignmentThresholds = passAlignmentThresholds(peptide,
 									alignmentResults);
+
 							if (passAlignmentThresholds != null) {
 								peptidesProcessed.add(passAlignmentThresholds.getSeq1());
 								peptidesProcessed.add(passAlignmentThresholds.getSeq2());
-								for (String proteinAcc : totalProteinAccs) {
-									ProteinBean protein = proteinMap.get(proteinAcc);
+								for (final String proteinAcc : totalProteinAccs) {
+									final ProteinBean protein = proteinMap.get(proteinAcc);
 									if (result.get(passAlignmentThresholds.getSeq1()).contains(protein)
 											|| result.get(passAlignmentThresholds.getSeq2()).contains(protein)) {
-										table.setWidget(row, col, new Label("x"));
+										final Label xLabel = new Label("x");
+										xLabel.setTitle("Peptide '" + peptide.getSequence() + " present in protein "
+												+ proteinAcc);
+										table.setWidget(row, col, xLabel);
 										table.getCellFormatter().setAlignment(row, col,
 												HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
-
 									} else {
 										table.setWidget(row, col, new Label("."));
 										table.getCellFormatter().setAlignment(row, col,
@@ -411,10 +422,13 @@ public class SharingPeptidesPanel extends Composite {
 								}
 								row = row + 3;
 							} else {
-								for (String proteinAcc : totalProteinAccs) {
-									ProteinBean protein = proteinMap.get(proteinAcc);
+								for (final String proteinAcc : totalProteinAccs) {
+									final ProteinBean protein = proteinMap.get(proteinAcc);
 									if (result.get(peptide).contains(protein)) {
-										table.setWidget(row, col, new Label("x"));
+										final Label xLabel = new Label("x");
+										xLabel.setTitle("Peptide '" + peptide.getSequence() + " present in protein "
+												+ proteinAcc);
+										table.setWidget(row, col, xLabel);
 										table.getCellFormatter().setAlignment(row, col,
 												HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
 									} else {
@@ -422,14 +436,13 @@ public class SharingPeptidesPanel extends Composite {
 										table.getCellFormatter().setAlignment(row, col,
 												HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
 									}
-									table.getFlexCellFormatter().setRowSpan(row, col, 1);
 									col++;
 								}
 								row++;
 							}
 
 						}
-					} catch (PintException e) {
+					} catch (final PintException e) {
 						showError(e);
 					}
 				}
@@ -441,10 +454,10 @@ public class SharingPeptidesPanel extends Composite {
 
 	private String getProteinCSSStyleName(ProteinBean proteinBean) {
 		boolean bold = false;
-		if (cluster.getPeptideProvider().equals(proteinBean)) {
+		if (cluster.getLightPeptideProvider().equals(proteinBean)) {
 			bold = true;
-		} else if (cluster.getPeptideProvider() instanceof ProteinGroupBean) {
-			if (((ProteinGroupBean) cluster.getPeptideProvider()).contains(proteinBean)) {
+		} else if (cluster.getLightPeptideProvider() instanceof ProteinGroupBean) {
+			if (((ProteinGroupBean) cluster.getLightPeptideProvider()).contains(proteinBean)) {
 				bold = true;
 			}
 		}
@@ -454,7 +467,7 @@ public class SharingPeptidesPanel extends Composite {
 
 	private String getPeptideCSSStyleName(PeptideBean peptideBean) {
 		boolean bold = false;
-		if (cluster.getPeptideProvider().getPeptides().contains(peptideBean)) {
+		if (cluster.getLightPeptideProvider().getPeptides().contains(peptideBean)) {
 			bold = true;
 		}
 		return ClientSafeHtmlUtils.getRelationCSSStyleName(peptideBean.getRelation(), bold);
@@ -463,7 +476,7 @@ public class SharingPeptidesPanel extends Composite {
 	private String getAlignmentTitle(AlignmentResult passAlignmentThresholds) {
 		if (passAlignmentThresholds == null)
 			return null;
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("Score: " + passAlignmentThresholds.getFinalAlignmentScore() + SharedConstants.SEPARATOR);
 		sb.append("Alignment lenth: " + passAlignmentThresholds.getAlignmentLength() + SharedConstants.SEPARATOR);
 		sb.append("Identical lenth: " + passAlignmentThresholds.getIdenticalLength() + SharedConstants.SEPARATOR);
@@ -476,12 +489,14 @@ public class SharingPeptidesPanel extends Composite {
 	private String getPeptideBeanTitle(PeptideBean peptideBean) {
 		if (peptideBean == null)
 			return null;
-		StringBuilder sb = new StringBuilder();
-		sb.append("Evidence: " + peptideBean.getRelation() + SharedConstants.SEPARATOR);
+		final StringBuilder sb = new StringBuilder();
+		sb.append("Peptide sequence: " + peptideBean.getFullSequence() + SharedConstants.SEPARATOR);
+		sb.append("Evidence: " + peptideBean.getRelation() + "\t(" + peptideBean.getRelation().getDefinition() + ")"
+				+ SharedConstants.SEPARATOR);
 		sb.append("# PSMs: " + peptideBean.getNumPSMs() + SharedConstants.SEPARATOR);
 		final Set<OrganismBean> organisms = peptideBean.getOrganisms();
 		if (organisms != null && !organisms.isEmpty()) {
-			List<OrganismBean> list = new ArrayList<OrganismBean>();
+			final List<OrganismBean> list = new ArrayList<OrganismBean>();
 			list.addAll(organisms);
 			if (list.size() > 1) {
 				Collections.sort(list, new Comparator<OrganismBean>() {
@@ -493,7 +508,7 @@ public class SharingPeptidesPanel extends Composite {
 				});
 			}
 			int i = 0;
-			for (OrganismBean organismBean : list) {
+			for (final OrganismBean organismBean : list) {
 				if (i > 0)
 					sb.append(", ");
 				i++;
@@ -506,7 +521,7 @@ public class SharingPeptidesPanel extends Composite {
 		}
 		if (peptideBean.getRawSequences() != null && peptideBean.getRawSequences().size() > 1) {
 			sb.append("Different versions of this peptide where detected: " + SharedConstants.SEPARATOR);
-			for (String seq : peptideBean.getRawSequences()) {
+			for (final String seq : peptideBean.getRawSequences()) {
 				sb.append("\t" + seq + SharedConstants.SEPARATOR);
 			}
 		}
@@ -516,9 +531,14 @@ public class SharingPeptidesPanel extends Composite {
 	private String getProteinAccessionTitle(ProteinBean proteinBean) {
 		if (proteinBean == null)
 			return null;
-		StringBuilder sb = new StringBuilder();
-		sb.append(proteinBean.getPrimaryAccession().getAccession() + ":\t" + proteinBean.getDescriptionString()
-				+ SharedConstants.SEPARATOR);
+		final StringBuilder sb = new StringBuilder();
+		final String descriptionString = proteinBean.getDescriptionString();
+		sb.append(proteinBean.getPrimaryAccession().getAccession());
+		if (descriptionString != null) {
+			sb.append(":\t" + descriptionString + SharedConstants.SEPARATOR);
+		} else {
+			sb.append(":\t No description available");
+		}
 		sb.append("Evidence: " + proteinBean.getEvidence() + SharedConstants.SEPARATOR);
 		sb.append("# PSMs: " + proteinBean.getNumPSMs() + SharedConstants.SEPARATOR);
 		sb.append("# Peptides: " + proteinBean.getNumPeptides() + SharedConstants.SEPARATOR);
@@ -533,19 +553,21 @@ public class SharingPeptidesPanel extends Composite {
 				}
 				organismText += "(" + proteinBean.getOrganism().getNcbiTaxID() + ")";
 			}
-			sb.append("Taxonomy: " + proteinBean.getOrganism() + SharedConstants.SEPARATOR);
+			sb.append("Taxonomy: " + organismText + SharedConstants.SEPARATOR);
 		}
 		return sb.toString();
 	}
 
 	private List<PeptideBean> getSortedSequences(Collection<PeptideBean> peptides) {
-		List<PeptideBean> list = new ArrayList<PeptideBean>();
-		Set<String> peptideSeqs = new HashSet<String>();
-		for (PeptideBean peptideBean : peptides) {
-			if (peptideSeqs.contains(peptideBean.getSequence())) {
+		final List<PeptideBean> list = new ArrayList<PeptideBean>();
+		final Set<String> peptideSeqs = new HashSet<String>();
+		for (final PeptideBean peptideBean : peptides) {
+			final String sequence = peptideBean.getSequence();
+
+			if (peptideSeqs.contains(sequence)) {
 				continue;
 			}
-			peptideSeqs.add(peptideBean.getSequence());
+			peptideSeqs.add(sequence);
 			list.add(peptideBean);
 		}
 		Collections.sort(list, new Comparator<PeptideBean>() {

@@ -25,6 +25,7 @@ import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
+import edu.scripps.yates.server.lock.LockerByTag;
 import edu.scripps.yates.server.util.FileManager;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;
@@ -298,7 +299,7 @@ public class ProjectStatsManager {
 		if (projectStatsFromSample.getNumGenes() == null) {
 			final List<String> genes = PreparedCriteria.getCriteriaForProteinPrimaryAccs(projectTag, null,
 					sample.getId(), null);
-			final int numGenes = getGenesFromUniprot(genes).size();
+			final int numGenes = getGenesFromUniprot(genes, LockerByTag.getLockForUniprotAnnotation(projectTag)).size();
 			if (numGenes > 0) {
 				projectStatsFromSample.setNumGenes(numGenes);
 				updateFile(projectStatsFromSample.getNumGenesString(projectTag));
@@ -374,7 +375,7 @@ public class ProjectStatsManager {
 		if (projectStatsFromCondition.getNumGenes() == null) {
 			final List<String> accs = PreparedCriteria.getCriteriaForProteinPrimaryAccs(projectTag, null, null,
 					condition.getId());
-			final int numGenes = getGenesFromUniprot(accs).size();
+			final int numGenes = getGenesFromUniprot(accs, LockerByTag.getLockForUniprotAnnotation(projectTag)).size();
 			if (numGenes > 0) {
 				projectStatsFromCondition.setNumGenes(numGenes);
 				updateFile(projectStatsFromCondition.getNumGenesString(projectTag));
@@ -428,7 +429,7 @@ public class ProjectStatsManager {
 		if (projectStatsFromMSRun.getNumGenes() == null) {
 			final List<String> accs = PreparedCriteria.getCriteriaForProteinPrimaryAccs(projectTag, msRun.getRunID(),
 					null, null);
-			final int numGenes = getGenesFromUniprot(accs).size();
+			final int numGenes = getGenesFromUniprot(accs, LockerByTag.getLockForUniprotAnnotation(projectTag)).size();
 			if (numGenes > 0) {
 				projectStatsFromMSRun.setNumGenes(numGenes);
 				updateFile(projectStatsFromMSRun.getNumGenesString(projectTag));
@@ -437,7 +438,7 @@ public class ProjectStatsManager {
 		return checkNull(projectStatsFromMSRun.getNumGenes());
 	}
 
-	private Set<String> getGenesFromUniprot(List<String> accs) {
+	private Set<String> getGenesFromUniprot(List<String> accs, String lockTagForUniprotAnnotation) {
 		final Iterator<String> iterator = accs.iterator();
 		while (iterator.hasNext()) {
 			final String acc = iterator.next();
@@ -446,24 +447,30 @@ public class ProjectStatsManager {
 			}
 		}
 		if (!accs.isEmpty()) {
-			final String uniprotVersion = null;
-			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
-					UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
-					UniprotProteinRetrievalSettings.getInstance().isUseIndex(), true, true);
-			uplr.setCacheEnabled(false);
-			final Map<String, Entry> annotatedProteins = uplr.getAnnotatedProteins(uniprotVersion, accs);
-			final Set<String> genes = new THashSet<String>();
-			for (final String acc : accs) {
-				if (annotatedProteins.containsKey(acc)) {
-					final List<Pair<String, String>> geneNames = UniprotEntryUtil
-							.getGeneName(annotatedProteins.get(acc), true, true);
-					if (geneNames != null && !geneNames.isEmpty()) {
-						final Pair<String, String> pair = geneNames.get(0);
-						genes.add(pair.getFirstelement());
+
+			LockerByTag.lock(lockTagForUniprotAnnotation, null);
+			try {
+				final String uniprotVersion = null;
+				final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
+						UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
+						UniprotProteinRetrievalSettings.getInstance().isUseIndex(), true, true);
+				uplr.setCacheEnabled(true);
+				final Map<String, Entry> annotatedProteins = uplr.getAnnotatedProteins(uniprotVersion, accs);
+				final Set<String> genes = new THashSet<String>();
+				for (final String acc : accs) {
+					if (annotatedProteins.containsKey(acc)) {
+						final List<Pair<String, String>> geneNames = UniprotEntryUtil
+								.getGeneName(annotatedProteins.get(acc), true, true);
+						if (geneNames != null && !geneNames.isEmpty()) {
+							final Pair<String, String> pair = geneNames.get(0);
+							genes.add(pair.getFirstelement());
+						}
 					}
 				}
+				return genes;
+			} finally {
+				LockerByTag.unlock(lockTagForUniprotAnnotation, null);
 			}
-			return genes;
 		}
 		return Collections.emptySet();
 	}
@@ -513,7 +520,7 @@ public class ProjectStatsManager {
 		if (projectStatsFromProject.getNumGenes() == null) {
 			final List<String> accs = PreparedCriteria.getCriteriaForProteinPrimaryAccs(projectTag, null, null, null);
 
-			final int numGenes = getGenesFromUniprot(accs).size();
+			final int numGenes = getGenesFromUniprot(accs, LockerByTag.getLockForUniprotAnnotation(projectTag)).size();
 			if (numGenes > 0) {
 				projectStatsFromProject.setNumGenes(numGenes);
 				updateFile(projectStatsFromProject.getNumGenesString(projectTag));
@@ -577,7 +584,7 @@ public class ProjectStatsManager {
 	public int getNumGenes() {
 		if (generalProjectsStats.getNumGenes() == null) {
 			final List<String> accs = PreparedCriteria.getCriteriaForProteinPrimaryAccs(null, null, null, null);
-			final Set<String> genes = getGenesFromUniprot(accs);
+			final Set<String> genes = getGenesFromUniprot(accs, LockerByTag.getLockForUniprotAnnotation(null));
 
 			final Integer numGenes = genes.size();
 			if (numGenes > 0) {

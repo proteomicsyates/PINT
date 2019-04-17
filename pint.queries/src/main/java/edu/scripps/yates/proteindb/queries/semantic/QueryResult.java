@@ -104,7 +104,7 @@ public class QueryResult {
 						.iterator();
 				while (linksIterator.hasNext()) {
 					final LinkBetweenQueriableProteinSetAndPeptideSet link = linksIterator.next();
-					final QueriablePeptideSet queriablePeptide = link.getQueriablePeptide();
+					final QueriablePeptideSet queriablePeptide = link.getQueriablePeptideSet();
 					if (!queriablePeptide.getLinksToProteins().isEmpty()) {
 						addToMap(peptideMap, queriablePeptide);
 					} else {
@@ -152,7 +152,7 @@ public class QueryResult {
 
 				psmSet = new THashSet<QueriablePsm>();
 				for (final LinkBetweenQueriableProteinSetAndPeptideSet link : validLinksBetweenProteinsAndPeptides) {
-					final Set<Psm> psms = link.getQueriablePeptide().getPsms();
+					final Set<Psm> psms = link.getQueriablePeptideSet().getPsms();
 					for (final Psm psm : psms) {
 						psmSet.add(QueriablePsm.getInstance(psm, false));
 					}

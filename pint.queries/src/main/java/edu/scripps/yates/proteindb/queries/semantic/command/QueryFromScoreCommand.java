@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -111,7 +112,7 @@ public class QueryFromScoreCommand extends AbstractQuery {
 			final boolean queryOverProtein = queryOverProtein(link.getQueriableProtein());
 			return queryOverProtein;
 		case PEPTIDE:
-			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptide());
+			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptideSet());
 			return queryOverPeptide;
 
 		default:
@@ -215,7 +216,7 @@ public class QueryFromScoreCommand extends AbstractQuery {
 	}
 
 	private boolean queryOverProtein(QueriableProteinSet protein) {
-		final Set<ProteinScore> proteinScores = protein.getProteinScores();
+		final List<ProteinScore> proteinScores = protein.getProteinScores();
 		if (proteinScores != null) {
 			boolean scoreFound = false;
 			for (final ProteinScore score : proteinScores) {

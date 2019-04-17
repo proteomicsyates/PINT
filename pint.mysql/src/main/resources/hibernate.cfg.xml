@@ -71,7 +71,6 @@
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ProteinAmount.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/PeptideAmount.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Sample.hbm.xml" />
-        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Threshold.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Condition.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Project.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Tissue.hbm.xml" />

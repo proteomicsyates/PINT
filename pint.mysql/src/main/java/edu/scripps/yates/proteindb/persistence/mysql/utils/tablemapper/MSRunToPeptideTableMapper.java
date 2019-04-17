@@ -23,7 +23,7 @@ public class MSRunToPeptideTableMapper extends AbstractTableMapper<MsRun, Peptid
 	}
 
 	@Override
-	public TIntArrayList queryForIDs(MsRun msRun) {
+	public TIntArrayList doMapping(MsRun msRun) {
 		final List<Integer> proteinIDs = PreparedCriteria.getPeptideIDsFromMsRun(msRun);
 		return transformToTIntArray(proteinIDs);
 	}

@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.psm;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,9 +20,9 @@ public class PsmProviderFromMSRun extends PsmDataProvider {
 	}
 
 	@Override
-	public Map<String, Set<Psm>> getPsmMap(boolean testMode) {
+	public Map<String, Collection<Psm>> getPsmMap(boolean testMode) {
 		if (result == null) {
-			result = new THashMap<String, Set<Psm>>();
+			result = new THashMap<String, Collection<Psm>>();
 			int numPSMs = 0;
 			if (projectTags != null) {
 				for (final String projectTag : projectTags) {

@@ -15,9 +15,9 @@ import org.hibernate.cfg.Configuration;
 // if false: uses production database (using hibernate.cfg.xml)
 public class HibernateUtil {
 	private final SessionFactory sessionFactory;
-	private final String dbUserName;
-	private final String dbPassword;
-	private final String dbURL;
+	private String dbUserName;
+	private String dbPassword;
+	private String dbURL;
 	private static Logger log = Logger.getLogger(HibernateUtil.class);
 	private static HibernateUtil instance;
 	private static boolean testEnabled;
@@ -141,9 +141,10 @@ public class HibernateUtil {
 			configure.setProperty("hibernate.connection.useSSL", "false");
 			configure.setProperty("hibernate.connection.autoReconnect", "true");
 			// check DB connection first
-			checkDBConnection(configure.getProperty("hibernate.connection.url"),
-					configure.getProperty("hibernate.connection.username"),
-					configure.getProperty("hibernate.connection.password"));
+			this.dbURL = configure.getProperty("hibernate.connection.url");
+			this.dbUserName = configure.getProperty("hibernate.connection.username");
+			this.dbPassword = configure.getProperty("hibernate.connection.password");
+			checkDBConnection(this.dbURL, this.dbUserName, this.dbPassword);
 			final SessionFactory buildSessionFactory = configure.buildSessionFactory();
 			errorMessage = null;
 			return buildSessionFactory;
@@ -164,11 +165,18 @@ public class HibernateUtil {
 	}
 
 	private void checkDBConnection(String dbURL, String dbUsername, String dbPassword) throws SQLException {
+
+		final Connection connection = getNewConnection(dbURL, dbUsername, dbPassword);
+
+		connection.close();
+	}
+
+	public Connection getNewConnection(String dbURL, String dbUsername, String dbPassword) throws SQLException {
 		checkDriver();
 		log.info("Trying connection to database using " + dbURL + " " + dbUsername + " password (not shown)");
 		final Connection connection = DriverManager.getConnection(dbURL, dbUsername, dbPassword);
 		log.info("Database connected using " + dbURL + " " + dbUsername + " password (not shown)");
-		connection.close();
+		return connection;
 	}
 
 	private void checkDriver() {
@@ -185,4 +193,17 @@ public class HibernateUtil {
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
+
+	protected String getDbUserName() {
+		return dbUserName;
+	}
+
+	protected String getDbPassword() {
+		return dbPassword;
+	}
+
+	protected String getDbURL() {
+		return dbURL;
+	}
+
 }

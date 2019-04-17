@@ -297,7 +297,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			}
 		}
 		if (ret.size() != listofpairs.size()) {
-			log.debug("keys to access the index were merged to optimze access from " + listofpairs.size() + " to "
+			log.info("keys to access the index were merged to optimze access from " + listofpairs.size() + " to "
 					+ ret.size());
 		}
 		return ret;
@@ -343,8 +343,8 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 	}
 
 	/**
-	 * Adds an item to the index. It will be written in the indexed file, and
-	 * the index file will be updated.
+	 * Adds an item to the index. It will be written in the indexed file, and the
+	 * index file will be updated.
 	 *
 	 * @param item
 	 * @return

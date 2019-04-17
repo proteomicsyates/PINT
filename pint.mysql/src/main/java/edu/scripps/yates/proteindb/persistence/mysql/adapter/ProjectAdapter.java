@@ -117,7 +117,6 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 		// PTMSiteAdapter.clearStaticInformation();
 		RatioDescriptorAdapter.clearStaticInformation();
 		SampleAdapter.clearStaticInformation();
-		ThresholdAdapter.clearStaticInformation();
 		TissueAdapter.clearStaticInformation();
 		StaticProteomicsModelStorage.clearData();
 	}

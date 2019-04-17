@@ -8,11 +8,14 @@
             <column name="id" />
             <generator class="identity" />
         </id>
+        <property name="name" type="string">
+            <column name="name" length="45" not-null="true" />
+        </property>
+        <property name="description" type="string">
+            <column name="description" length="4000" />
+        </property>
         <many-to-one name="protein" class="edu.scripps.yates.proteindb.persistence.mysql.Protein" fetch="select">
             <column name="Protein_id" not-null="true" />
-        </many-to-one>
-        <many-to-one name="threshold" class="edu.scripps.yates.proteindb.persistence.mysql.Threshold" fetch="select">
-            <column name="Threshold_id" not-null="true" />
         </many-to-one>
         <property name="passThreshold" type="boolean">
             <column name="pass_threshold" not-null="true" />

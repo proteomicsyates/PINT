@@ -26,7 +26,7 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 	public ProteinGroupFooterManager(MyDataGrid<ProteinGroupBean> datagrid) {
 		super(datagrid);
 		final ColumnName[] columnNames = ColumnName.values();
-		for (ColumnName columnName : columnNames) {
+		for (final ColumnName columnName : columnNames) {
 			switch (columnName) {
 
 			case ACC:
@@ -61,24 +61,24 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 	@Override
 	public Header<String> getAmountFooterByCondition(final String conditionName, final AmountType amountType,
 			final String projectName) {
-		Header<String> header = new Header<String>(new TextCell()) {
+		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
+				final List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "-";
 				} else {
 					double sum = 0;
-					List<Double> validAmounts = new ArrayList<Double>();
-					for (ProteinGroupBean item : visibleItems) {
+					final List<Double> validAmounts = new ArrayList<Double>();
+					for (final ProteinGroupBean item : visibleItems) {
 						boolean validAmount = false;
-						Set<AmountBean> amounts = item.getAmountsByExperimentalCondition().get(conditionName);
+						final List<AmountBean> amounts = item.getAmountsByExperimentalCondition().get(conditionName);
 						if (amounts == null || amounts.isEmpty())
 							continue;
 						Double amountValue = 0.0;
 						// try to convert to double the amountString
 						try {
-							DataGridRenderValue data = DataGridRenderValue.getAmountDataGridRenderValue(item,
+							final DataGridRenderValue data = DataGridRenderValue.getAmountDataGridRenderValue(item,
 									conditionName, amountType, projectName, new ClientNumberFormat("#.##"));
 							if (data.getActualNonRoundedValue() != null) {
 								amountValue = data.getActualNonRoundedValue();
@@ -86,9 +86,9 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 								amountValue = Double.valueOf(data.getValue());
 							}
 							validAmount = true;
-						} catch (NumberFormatException e) {
+						} catch (final NumberFormatException e) {
 							double subSum = 0.0;
-							for (AmountBean proteinAmountBean : amounts) {
+							for (final AmountBean proteinAmountBean : amounts) {
 								if (proteinAmountBean.getExperimentalCondition().getProject().getTag()
 										.equals(projectName))
 									subSum += proteinAmountBean.getValue();
@@ -118,16 +118,16 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 	@Override
 	public Header<String> getRatioFooterByConditions(final String condition1Name, final String condition2Name,
 			final String projectTag, final String ratioName) {
-		Header<String> header = new Header<String>(new TextCell()) {
+		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
+				final List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					double sum = 0;
-					List<Double> validRatios = new ArrayList<Double>();
-					for (ProteinGroupBean item : visibleItems) {
+					final List<Double> validRatios = new ArrayList<Double>();
+					for (final ProteinGroupBean item : visibleItems) {
 						final List<RatioBean> ratios = item.getRatiosByConditions(condition1Name, condition2Name,
 								projectTag, ratioName, true);
 						if (ratios == null || ratios.isEmpty())
@@ -139,9 +139,9 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 							ratioValue = Double.valueOf(ClientDataUtil.getRatioStringByConditions(item, condition1Name,
 									condition2Name, projectTag, ratioName, true, false));
 							validRatio = true;
-						} catch (NumberFormatException e) {
+						} catch (final NumberFormatException e) {
 							double subSum = 0.0;
-							for (RatioBean ratio : ratios) {
+							for (final RatioBean ratio : ratios) {
 								subSum += ratio.getValue();
 							}
 							ratioValue = subSum / ratios.size();
@@ -172,15 +172,15 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 	}
 
 	private Header<String> getNumProteinGroupMembersFooter() {
-		Header<String> header = new Header<String>(new TextCell()) {
+		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
+				final List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
-					List<Integer> nums = new ArrayList<Integer>();
-					for (ProteinGroupBean item : visibleItems) {
+					final List<Integer> nums = new ArrayList<Integer>();
+					for (final ProteinGroupBean item : visibleItems) {
 						final int num = item.size();
 						if (num > 0) {
 							nums.add(num);
@@ -194,16 +194,16 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 	}
 
 	private Header<String> getSpectrumCountFooter() {
-		Header<String> header = new Header<String>(new TextCell()) {
+		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
+				final List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					int sum = 0;
 					int total = 0;
-					for (ProteinGroupBean item : visibleItems) {
+					for (final ProteinGroupBean item : visibleItems) {
 						final int specCount = item.getNumPSMs();
 						if (specCount > 0) {
 							sum += specCount;
@@ -218,16 +218,16 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 	}
 
 	private Header<String> getSeqCountFooter() {
-		Header<String> header = new Header<String>(new TextCell()) {
+		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
+				final List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					int sum = 0;
 					int total = 0;
-					for (ProteinGroupBean item : visibleItems) {
+					for (final ProteinGroupBean item : visibleItems) {
 						final int seqCount = item.getNumPeptides();
 						if (seqCount > 0) {
 							sum += seqCount;
@@ -242,17 +242,17 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 	}
 
 	private Header<String> getGeneFooter() {
-		Header<String> header = new Header<String>(new TextCell()) {
+		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
+				final List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
-					Set<String> geneNames = new HashSet<String>();
-					for (ProteinGroupBean item : visibleItems) {
+					final Set<String> geneNames = new HashSet<String>();
+					for (final ProteinGroupBean item : visibleItems) {
 						final List<GeneBean> genes = item.getGenes(false);
-						for (GeneBean geneBean : genes) {
+						for (final GeneBean geneBean : genes) {
 							if (geneBean != null) {
 								geneNames.add(geneBean.getGeneID());
 							} else {
@@ -270,7 +270,7 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 	}
 
 	private Header<String> getEmptyFooter() {
-		Header<String> emptyHeader = new Header<String>(new TextCell()) {
+		final Header<String> emptyHeader = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
 				return "-";
@@ -280,18 +280,18 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 	}
 
 	private Header<String> getNumSecondaryAccsFooter() {
-		Header<String> header = new Header<String>(new TextCell()) {
+		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
+				final List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
-					Set<String> set = new HashSet<String>();
-					for (ProteinGroupBean item : visibleItems) {
+					final Set<String> set = new HashSet<String>();
+					for (final ProteinGroupBean item : visibleItems) {
 						final List<AccessionBean> secondaryAccessions = item.getSecondaryAccessions();
 						if (secondaryAccessions != null) {
-							for (AccessionBean accessionBean : secondaryAccessions) {
+							for (final AccessionBean accessionBean : secondaryAccessions) {
 								set.add(accessionBean.getAccession());
 							}
 						}
@@ -308,16 +308,16 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 	public Header<String> getRatioScoreFooterByConditions(final String condition1Name, final String condition2Name,
 			final String projectTag, final String ratioName, final String ratioScoreName) {
 
-		Header<String> header = new Header<String>(new TextCell()) {
+		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
+				final List<ProteinGroupBean> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					double sum = 0;
-					List<Double> validRatios = new ArrayList<Double>();
-					for (ProteinGroupBean item : visibleItems) {
+					final List<Double> validRatios = new ArrayList<Double>();
+					for (final ProteinGroupBean item : visibleItems) {
 						final List<RatioBean> ratios = item.getRatiosByConditions(condition1Name, condition2Name,
 								projectTag, ratioName, true);
 						if (ratios == null || ratios.isEmpty())
@@ -330,9 +330,9 @@ public class ProteinGroupFooterManager extends FooterManager<ProteinGroupBean> {
 									.valueOf(ClientDataUtil.getRatioScoreStringByConditions(item, condition1Name,
 											condition2Name, projectTag, ratioName, ratioScoreName, true, false));
 							validRatio = true;
-						} catch (NumberFormatException e) {
+						} catch (final NumberFormatException e) {
 							double subSum = 0.0;
-							for (RatioBean ratio : ratios) {
+							for (final RatioBean ratio : ratios) {
 								subSum += ratio.getValue();
 							}
 							ratioValue = subSum / ratios.size();

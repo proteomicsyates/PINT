@@ -36,14 +36,14 @@ public class PeptideRatioBeanAdapter implements Adapter<RatioBean> {
 									.adapt());
 		}
 		ret.setCondition1(new ConditionBeanAdapter(
-				peptideRatioValue.getRatioDescriptor().getConditionByExperimentalCondition1Id(), true).adapt());
+				peptideRatioValue.getRatioDescriptor().getConditionByExperimentalCondition1Id(), true, true).adapt());
 		ret.setCondition2(new ConditionBeanAdapter(
-				peptideRatioValue.getRatioDescriptor().getConditionByExperimentalCondition2Id(), true).adapt());
+				peptideRatioValue.getRatioDescriptor().getConditionByExperimentalCondition2Id(), true, true).adapt());
 		ret.setDescription(peptideRatioValue.getRatioDescriptor().getDescription());
 		ret.setValue(PersistenceUtils.parseRatioValueConvert2Infinities(peptideRatioValue.getValue()));
 		ret.setDbID(peptideRatioValue.getId());
 		final RatioDescriptorBean ratioDescriptorBean = new RatioDescriptorAdapter(
-				peptideRatioValue.getRatioDescriptor(), SharedAggregationLevel.PEPTIDE).adapt();
+				peptideRatioValue.getRatioDescriptor(), SharedAggregationLevel.PEPTIDE, peptideRatioValue).adapt();
 		ret.setRatioDescriptorBean(ratioDescriptorBean);
 		return ret;
 	}
