@@ -75,6 +75,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.mzidentmlparser.MzIdentMLIdentificationsParser;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.access.MySQLSaver;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.IDTableMapperRegistry;
 import edu.scripps.yates.server.configuration.PintConfigurationPropertiesIO;
 import edu.scripps.yates.server.lock.LockerByTag;
 import edu.scripps.yates.server.projectCreator.ImportCfgFileParserUtil;
@@ -1160,7 +1161,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	private void onSubmitProjectSuccessfull(int importID) {
 		// release fileSummaries
 		FileManager.removeFileSummaries(importID);
-
+		// remap table maps
+		IDTableMapperRegistry.clearTableMappers();
 	}
 
 	@Override
