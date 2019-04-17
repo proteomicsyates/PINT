@@ -5,13 +5,16 @@ import java.util.logging.Logger;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.shared.GWT;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -24,15 +27,18 @@ import edu.scripps.yates.shared.util.ProgressStatus;
 
 public abstract class ProgressLoadingDialog extends DialogBox {
 	protected static final Logger log = Logger.getLogger("PINT");
-	private static final int DELAY = 1000;
-	private final InlineHTML inlineHTML;
+	private static final int DELAY = 2000;
+	private final InlineHTML titleText;
+	private final InlineHTML currentTaskText;
 	private final VerticalPanel panel;
 	protected final ProteinRetrievalServiceAsync service = GWT.create(ProteinRetrievalService.class);
 	protected final ProgressBar bar = new ProgressBar(100);
 	protected boolean started = false;
+	protected boolean finished = false;
 	protected com.google.gwt.core.client.Scheduler.RepeatingCommand command;
 	private Image imageLoader;
 	private Button button;
+	private HandlerRegistration buttonHandler;
 
 	public ProgressLoadingDialog(boolean showDynamicBar) {
 		this("Progress on task", showDynamicBar, false);
@@ -67,32 +73,46 @@ public abstract class ProgressLoadingDialog extends DialogBox {
 		panel.setSize("100%", "100%");
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		final VerticalPanel verticalPanel = new VerticalPanel();
-		inlineHTML = new InlineHTML(text);
-		inlineHTML.setWidth("100%");
-		verticalPanel.add(inlineHTML);
+		verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		titleText = new InlineHTML(text);
+		titleText.setStyleName("ProgressBarTitle");
+		verticalPanel.add(titleText);
+
+		panel.add(verticalPanel);
+
+		final MyClientBundle myClientBundle = MyClientBundle.INSTANCE;
+		if (showDynamicBar) {
+			imageLoader = new Image(myClientBundle.horizontalLoader());
+			imageLoader.getElement().getStyle().setMargin(10, Unit.PX);
+			final HorizontalPanel horizontal = new HorizontalPanel();
+			horizontal.add(imageLoader);
+			horizontal.setCellHorizontalAlignment(imageLoader, HasHorizontalAlignment.ALIGN_CENTER);
+			panel.add(horizontal);
+		}
+
+		currentTaskText = new InlineHTML("Starting...");
+		currentTaskText.setStyleName("ProgressBarTaskDescription");
+		panel.add(currentTaskText);
+		final VerticalPanel p = new VerticalPanel();
+		p.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		p.getElement().getStyle().setWidth(100, Unit.PX);
+		p.add(bar);
+		panel.add(p);
+
+		bar.setTextVisible(true);
+		bar.setProgress(0);
+
 		if (showButton) {
 			button = new Button("Close");
-			button.addClickHandler(new ClickHandler() {
+			buttonHandler = button.addClickHandler(new ClickHandler() {
 
 				@Override
 				public void onClick(ClickEvent event) {
 					ProgressLoadingDialog.this.hide();
 				}
 			});
-			verticalPanel.add(button);
+			panel.add(button);
 		}
-		panel.add(verticalPanel);
-
-		final MyClientBundle myClientBundle = MyClientBundle.INSTANCE;
-		if (showDynamicBar) {
-			imageLoader = new Image(myClientBundle.roundedLoader());
-			panel.add(imageLoader);
-		}
-
-		panel.add(bar);
-
-		bar.setTextVisible(true);
-		bar.setProgress(0);
 		setWidget(panel);
 	}
 
@@ -110,61 +130,81 @@ public abstract class ProgressLoadingDialog extends DialogBox {
 		button.addClickHandler(handler);
 	}
 
-	protected void start() {
-		Scheduler.get().scheduleFixedDelay(getRepeatingCommand(), DELAY);
+	public void setButtonAction(ClickHandler handler) {
+		if (button == null) {
+			throw new IllegalArgumentException("Dialog has no button!");
+		}
+		if (buttonHandler != null) {
+			buttonHandler.removeHandler();
+		}
+		if (handler != null) {
+			button.addClickHandler(handler);
+		}
 	}
 
-	protected abstract RepeatingCommand getRepeatingCommand();
+	protected void start() {
+		Scheduler.get().scheduleFixedDelay(getRepeatingCommandForAskingProgress(), DELAY);
+	}
+
+	protected abstract RepeatingCommand getRepeatingCommandForAskingProgress();
 
 	@Override
 	public void setText(String text) {
-		inlineHTML.setHTML(new SafeHtmlBuilder().appendEscapedLines(text).toSafeHtml());
+		titleText.setHTML(new SafeHtmlBuilder().appendEscapedLines(text).toSafeHtml());
 	}
 
 	/**
 	 * Hide the dialog after a delay stated in milliseconds
 	 *
-	 * @param delayMg
+	 * @param delayMillis
 	 */
-	protected void hideAfter(int delayMg) {
+	protected void hideAfter(int delayMillis) {
 		final Timer timer = new Timer() {
 			@Override
 			public void run() {
 				hide();
 			}
 		};
-		timer.schedule(delayMg);
+		timer.schedule(delayMillis);
 	}
 
 	protected void setStatusOnBar(ProgressStatus progressStatus) {
+		if (finished) {
+			return;
+		}
 		if (progressStatus != null) {
-			if (Long.compare(Double.valueOf(bar.getMaxProgress()).longValue(), progressStatus.getMaxSteps()) != 0) {
-				bar.setProgress(progressStatus.getCurrentStep());
-				bar.setMaxProgress(Double.valueOf(progressStatus.getMaxSteps()));
-				bar.setVisible(true);
-
-			}
+			// if maxProgress is different than maxSteps, set the maxProgress
+//			if (Long.compare(Double.valueOf(bar.getMaxProgress()).longValue(), progressStatus.getMaxSteps()) != 0) {
+//				bar.setProgress(progressStatus.getCurrentStep());
+//				bar.setMaxProgress(Double.valueOf(progressStatus.getMaxSteps()));
+//				bar.setVisible(true);
+//				return;
+//			}
 			if (progressStatus.getTaskDescription() != null && !"".equals(progressStatus.getTaskDescription())) {
-				inlineHTML.setText(progressStatus.getTaskDescription());
+				currentTaskText.setText(progressStatus.getTaskDescription());
 			}
 			bar.setMaxProgress(Double.valueOf(progressStatus.getMaxSteps()));
 			bar.setProgress(Double.valueOf(progressStatus.getCurrentStep()));
-			started = true;
+			if (progressStatus.getCurrentStep() == progressStatus.getMaxSteps()) {
+				finishAndHide(1000);
+			}
 		}
+		started = true;
 	}
 
-	public void setStatusAsFinished() {
+	private void setStatusAsFinished() {
 		bar.setProgress(bar.getMaxProgress());
+		finished = true;
 	}
 
 	public void finishAndHide() {
 		finishAndHide(0);
 	}
 
-	public void finishAndHide(int delay) {
-		started = true;
+	public void finishAndHide(int delayMillis) {
+		started = false;
 		setStatusAsFinished();
-		hideAfter(delay);
+		hideAfter(delayMillis);
 	}
 
 }

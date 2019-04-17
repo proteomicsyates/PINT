@@ -1,60 +1,61 @@
 package edu.scripps.yates.client.gui.components.progressbar;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import edu.scripps.yates.shared.tasks.SharedTaskKeyGenerator;
+import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
+import edu.scripps.yates.shared.tasks.Task;
 import edu.scripps.yates.shared.util.ProgressStatus;
 
-public class ProteinsByProjectLoadingDialog extends ProgressLoadingDialog {
+public class AdvancedProgressDialog extends ProgressLoadingDialog {
 	private final String sessionID;
-	private final String projectTag;
-	private final String uniprotVersion;
+	private final Task task;
 
-	public ProteinsByProjectLoadingDialog(final String sessionID, String projectTag, String uniprotVersion) {
-		super("Loading proteins from project", true, false);
+	public AdvancedProgressDialog(final String sessionID, Task task) {
+		super(task.getTaskDescription(), true, true);
+		this.task = task;
 		this.sessionID = sessionID;
-		this.projectTag = projectTag;
-		this.uniprotVersion = uniprotVersion;
 		start();
 	}
 
 	@Override
-	protected RepeatingCommand getRepeatingCommand() {
-		RepeatingCommand command = new RepeatingCommand() {
+	protected RepeatingCommand getRepeatingCommandForAskingProgress() {
+		final RepeatingCommand command = new RepeatingCommand() {
 			boolean waitingResponse = false;
-			final String key = SharedTaskKeyGenerator.getKeyForGetProteinsFromProjectTask(projectTag, uniprotVersion);
 
 			@Override
 			public boolean execute() {
-				log.info("Executing scheduled task in ProteinsByProjectLoadingDialog");
+				GWT.log("Executing scheduled task in ProteinsByProjectLoadingDialog with key: " + task);
 				if (!waitingResponse) {
 					waitingResponse = true;
-					service.getProgressStatus(sessionID, key, new AsyncCallback<ProgressStatus>() {
+					service.getProgressStatus(sessionID, task, new AsyncCallback<ProgressStatus>() {
 
 						@Override
 						public void onSuccess(ProgressStatus progressStatus) {
 							center();
-							log.info("Progress status received for task " + key + ": " + progressStatus);
+							GWT.log("Progress status received for task " + task + ": " + progressStatus);
 
 							waitingResponse = false;
 							if (progressStatus != null) {
-								log.info("Setting progress to " + progressStatus.getCurrentStep() + " / "
+								GWT.log("Setting progress to " + progressStatus.getCurrentStep() + " / "
 										+ progressStatus.getMaxSteps());
 								setStatusOnBar(progressStatus);
-							} else {
-								setStatusAsFinished();
 							}
 						}
 
 						@Override
 						public void onFailure(Throwable caught) {
 							waitingResponse = false;
-							log.warning("Error when requesting progress on task " + key + ": " + caught.getMessage());
+							final String message = "Error when requesting progress on task " + task + ": "
+									+ caught.getMessage();
+							GWT.log(message);
+							StatusReportersRegister.getInstance().notifyStatusReporters(message);
+							finishAndHide(1000);
 						}
 					});
 				}
-				if (bar.getPercent() >= 1.0 && started) {
+				if (finished || (bar.getPercent() >= 1.0 && started)) {
 					started = false;
 					// close the dialog after 2 sg
 					hideAfter(2000);

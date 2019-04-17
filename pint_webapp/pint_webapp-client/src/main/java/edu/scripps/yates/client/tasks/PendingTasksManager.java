@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.scripps.yates.shared.tasks.Task;
+import edu.scripps.yates.shared.tasks.TaskType;
+
 public class PendingTasksManager {
-	private static final Map<TaskType, List<String>> tasks = new HashMap<TaskType, List<String>>();
+	private static final Map<TaskType, List<Task>> tasks = new HashMap<TaskType, List<Task>>();
 	private static final Set<PendingTaskHandler> controllers = new HashSet<PendingTaskHandler>();
 
 	private static enum OPERATION {
@@ -17,8 +20,8 @@ public class PendingTasksManager {
 	};
 
 	/**
-	 * This will register the {@link PendingTaskHandler} in order to notify him
-	 * each time a new task is added or removed
+	 * This will register the {@link PendingTaskHandler} in order to notify him each
+	 * time a new task is added or removed
 	 *
 	 * @param controller
 	 */
@@ -33,21 +36,21 @@ public class PendingTasksManager {
 	 * @param taskType
 	 * @return
 	 */
-	public static List<String> getPendingTaskKeys(TaskType taskType) {
+	public static List<Task> getPendingTasks(TaskType taskType) {
 		// to ensure to return an empty set:
 		if (!tasks.containsKey(taskType)) {
-			final List<String> set = new ArrayList<String>();
+			final List<Task> set = new ArrayList<Task>();
 			tasks.put(taskType, set);
 		}
 		return tasks.get(taskType);
 	}
 
-	public static String addPendingTask(TaskType taskType, String key) {
-		key = key + "-" + System.currentTimeMillis();
-		final List<String> pendingTaskKeys = getPendingTaskKeys(taskType);
-		pendingTaskKeys.add(key);
+	public static Task addPendingTask(Task task) {
+		final TaskType taskType = task.getType();
+		final List<Task> pendingTasks = getPendingTasks(taskType);
+		pendingTasks.add(task);
 		notifyPendingTaskControllers(OPERATION.ADD);
-		return key;
+		return task;
 	}
 
 	private static void notifyPendingTaskControllers(OPERATION add) {
@@ -66,31 +69,31 @@ public class PendingTasksManager {
 
 	}
 
-	public static int removeTask(TaskType taskType, String key) {
-		getPendingTaskKeys(taskType).remove(key);
+	public static int removeTask(Task task) {
+		getPendingTasks(task.getType()).remove(task);
 		notifyPendingTaskControllers(OPERATION.REMOVE);
-		return getNumPendingTasks(taskType);
+		return getNumPendingTasks(task.getType());
 	}
 
-	public static int removeTasks(TaskType taskType, Collection<String> keys) {
-		if (keys == null || keys.isEmpty()) {
+	public static int removeTasks(TaskType taskType, Collection<Task> tasks) {
+		if (tasks == null || tasks.isEmpty()) {
 			return getNumPendingTasks(taskType);
 		}
-		getPendingTaskKeys(taskType).removeAll(keys);
+		getPendingTasks(taskType).removeAll(tasks);
 		notifyPendingTaskControllers(OPERATION.REMOVE);
 		return getNumPendingTasks(taskType);
 	}
 
 	public static boolean isAnyPendingTask(TaskType taskType) {
-		return !getPendingTaskKeys(taskType).isEmpty();
+		return !getPendingTasks(taskType).isEmpty();
 	}
 
 	public static int getNumPendingTasks(TaskType taskType) {
-		return getPendingTaskKeys(taskType).size();
+		return getPendingTasks(taskType).size();
 	}
 
 	public static void removeAllTasks(TaskType taskType) {
-		removeTasks(taskType, getPendingTaskKeys(taskType));
+		removeTasks(taskType, getPendingTasks(taskType));
 	}
 
 }

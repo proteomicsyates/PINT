@@ -440,7 +440,7 @@ public class ClientDataUtil {
 			return parseEmptyString(String.valueOf(p.getPtms().size()));
 		case NUM_PTM_SITES:
 			int count = 0;
-			for (PTMBean ptm : p.getPtms()) {
+			for (final PTMBean ptm : p.getPtms()) {
 				count += ptm.getPtmSites().size();
 			}
 			return parseEmptyString(String.valueOf(count));
@@ -457,7 +457,7 @@ public class ClientDataUtil {
 						return ClientNumberFormat.getFormat("#.###").format(valueOf);
 					else
 						return scoreByName.getValue();
-				} catch (NumberFormatException e) {
+				} catch (final NumberFormatException e) {
 					return scoreByName.getValue();
 				}
 
@@ -520,14 +520,14 @@ public class ClientDataUtil {
 		}
 	}
 
-	public static String getAmountString(Set<AmountBean> proteinAmountSet, String projectTag) {
+	public static String getAmountString(List<AmountBean> proteinAmountSet, String projectTag) {
 		final StringBuilder sb = new StringBuilder();
 		List<AmountBean> proteinAmounts = SharedDataUtil.sortAmountsByRunID(proteinAmountSet);
 		if (proteinAmounts != null) {
 			// if some amounts are resulting from the combination
 			// (sum/average...)
 			// over other amounts, report only them
-			final Set<AmountBean> composedAmounts = AmountBean.getComposedAmounts(proteinAmounts);
+			final List<AmountBean> composedAmounts = AmountBean.getComposedAmounts(proteinAmounts);
 			if (!composedAmounts.isEmpty()) {
 				proteinAmounts = SharedDataUtil.sortAmountsByRunID(composedAmounts);
 			}
@@ -569,7 +569,7 @@ public class ClientDataUtil {
 
 	public static String getRatioDistributionString(RatioDistribution ratioDistribution) {
 		final ClientNumberFormat format = new ClientNumberFormat("#.##");
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("Ratio distribution in the entire dataset: " + ratioDistribution.getRatioKey() + " [")
 				.append(format.format(ratioDistribution.getMinRatio())).append(",")
 				.append(format.format(ratioDistribution.getMaxRatio())).append("]");
@@ -584,10 +584,10 @@ public class ClientDataUtil {
 	 */
 	public static String getParsedScoreValue(ScoreBean score) {
 		try {
-			double doubleValue = Double.valueOf(score.getValue());
+			final double doubleValue = Double.valueOf(score.getValue());
 			final ClientNumberFormat format = new ClientNumberFormat("#.###");
 			return format.format(doubleValue);
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			return score.getValue();
 		}
 	}
@@ -612,8 +612,8 @@ public class ClientDataUtil {
 	}
 
 	public static String getScoreString(PTMBean ptm) {
-		StringBuilder sb = new StringBuilder();
-		for (PTMSiteBean ptmSite : ptm.getPtmSites()) {
+		final StringBuilder sb = new StringBuilder();
+		for (final PTMSiteBean ptmSite : ptm.getPtmSites()) {
 			final ScoreBean score = ptmSite.getScore();
 			if (score != null) {
 				if (!"".equals(sb.toString()))
@@ -625,8 +625,8 @@ public class ClientDataUtil {
 	}
 
 	public static String getScoreString(PTMBean ptm, String ptmScoreName) {
-		StringBuilder sb = new StringBuilder();
-		for (PTMSiteBean ptmSite : ptm.getPtmSites()) {
+		final StringBuilder sb = new StringBuilder();
+		for (final PTMSiteBean ptmSite : ptm.getPtmSites()) {
 			final ScoreBean score = ptmSite.getScore();
 			if (score != null && ptmScoreName.equals(score.getScoreName())) {
 				if (!"".equals(sb.toString()))

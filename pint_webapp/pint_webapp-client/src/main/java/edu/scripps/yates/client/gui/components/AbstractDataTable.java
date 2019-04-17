@@ -106,8 +106,10 @@ public abstract class AbstractDataTable<T> extends Composite
 		// add the pager
 		pager = makePager();
 		mainPanel.add(pager);
-		// Add the CellList to the adapter in the database.
-		asyncDataListProvider.addDataDisplay(dataGrid);
+
+		// disabled because this triggers a call from the asyncdatalistprovider
+		// so now is assigned at refreshData() method
+		// asyncDataListProvider.addDataDisplay(dataGrid);
 		final AsyncHandler asyncHandler = new AsyncHandler(dataGrid);
 		dataGrid.addColumnSortHandler(asyncHandler);
 		dataGrid.setAutoHeaderRefreshDisabled(true);
@@ -186,7 +188,9 @@ public abstract class AbstractDataTable<T> extends Composite
 		getAsyncDataProvider().updateRowCount(0, true);
 		getAsyncDataProvider().updateRowData(0, Collections.<T>emptyList());
 		setEmptyTableWidget(emptyWidget);
-		refreshData();
+
+//		refreshData();
+
 	}
 
 	/**
@@ -216,6 +220,7 @@ public abstract class AbstractDataTable<T> extends Composite
 	public final void setEmptyTableWidget(Widget emptyWidget) {
 		if (dataGrid != null) {
 			if (emptyWidget != null) {
+				emptyWidget.getElement().getStyle().setMarginTop(30, Unit.PX);
 				dataGrid.setEmptyTableWidget(emptyWidget);
 			} else {
 				dataGrid.setEmptyTableWidget(null);
@@ -227,6 +232,11 @@ public abstract class AbstractDataTable<T> extends Composite
 	@Override
 	public final void refreshData() {
 		// dataGrid.redrawVisibleItems();
+
+		if (asyncDataListProvider.getDataDisplays().isEmpty()) {
+			asyncDataListProvider.addDataDisplay(dataGrid);
+		}
+
 		this.setVisible(true);
 		dataGrid.setForceToRefresh(true);
 		RangeChangeEvent.fire(dataGrid, dataGrid.getVisibleRange());
@@ -372,7 +382,7 @@ public abstract class AbstractDataTable<T> extends Composite
 	 * After calling this method, the empty widget will be the loading bar
 	 */
 	public final void setLoadingWidget() {
-		dataGrid.setEmptyTableWidget(loadingPanel);
+		dataGrid.setLoadingIndicator(loadingPanel);
 
 	}
 
@@ -415,18 +425,6 @@ public abstract class AbstractDataTable<T> extends Composite
 			}
 		});
 
-	}
-
-	private ScheduledCommand getShowTableCommand() {
-		return new ScheduledCommand() {
-
-			@Override
-			public void execute() {
-				if (queryPanel != null) {
-					queryPanel.selectDataTab(AbstractDataTable.this);
-				}
-			}
-		};
 	}
 
 	@Override
