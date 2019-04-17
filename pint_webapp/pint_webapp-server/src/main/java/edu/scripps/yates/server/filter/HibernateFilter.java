@@ -30,7 +30,8 @@ public class HibernateFilter implements Filter {
 		}
 
 		try {
-			log.info("Entering in the Hibernate filter in " + numCall + ". Num calls that are ongoing: " + numRPCCalls);
+			log.debug(
+					"Entering in the Hibernate filter in " + numCall + ". Num calls that are ongoing: " + numRPCCalls);
 
 			// /////
 			// log.info("Creating a new session from Hibernate filter");
@@ -62,7 +63,7 @@ public class HibernateFilter implements Filter {
 				numRPCCalls--;
 			}
 
-			log.warn("Closing session from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
+			log.debug("Closing session from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
 					+ numRPCCalls);
 
 			try {
@@ -74,7 +75,7 @@ public class HibernateFilter implements Filter {
 				log.error("Error closing session: " + e.getMessage());
 			}
 			// SessionPerKeyHandler.printStatistics();
-			log.info("Session closed from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
+			log.debug("Session closed from filter in Hibernate filter in call " + numCall + ". Num calls ongoing: "
 					+ numRPCCalls);
 			// //////
 		}
