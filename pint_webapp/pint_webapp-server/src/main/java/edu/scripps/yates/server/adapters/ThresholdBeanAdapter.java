@@ -32,8 +32,8 @@ public class ThresholdBeanAdapter implements Adapter<ThresholdBean> {
 		}
 		final ThresholdBean ret = new ThresholdBean();
 		map.get().put(appliedThreshold.getId(), ret);
-		ret.setDescription(appliedThreshold.getThreshold().getDescription());
-		ret.setName(appliedThreshold.getThreshold().getName());
+		ret.setDescription(appliedThreshold.getDescription());
+		ret.setName(appliedThreshold.getName());
 		ret.setPass(appliedThreshold.isPassThreshold());
 		return ret;
 	}

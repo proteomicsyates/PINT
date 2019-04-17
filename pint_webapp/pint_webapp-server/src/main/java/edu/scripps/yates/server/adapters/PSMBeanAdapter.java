@@ -121,7 +121,7 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 		if (psm.getConditions() != null) {
 			for (final Object obj : psm.getConditions()) {
 				final Condition condition = (Condition) obj;
-				ret.addCondition(new ConditionBeanAdapter(condition, true).adapt());
+				ret.addCondition(new ConditionBeanAdapter(condition, true, true).adapt());
 			}
 		}
 		return ret;
@@ -166,7 +166,7 @@ public class PSMBeanAdapter implements Adapter<PSMBean> {
 	 * @param hiddenPTMs2
 	 * @return
 	 */
-	protected static String getFullSequence(String fullSequence, String cleanSequence, Set<Ptm> ptms,
+	protected static String getFullSequence(String fullSequence, String cleanSequence, Collection<Ptm> ptms,
 			Collection<String> hiddenPTMs) {
 		try {
 			if (fullSequence == null) {

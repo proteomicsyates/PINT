@@ -12,11 +12,13 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 public class ProjectBeanAdapter implements Adapter<ProjectBean> {
 	private final Project project;
 	private final boolean mapTables;
+	private final boolean includePeptides;
 	private static ThreadLocal<TIntObjectHashMap<ProjectBean>> map = new ThreadLocal<TIntObjectHashMap<ProjectBean>>();
 
-	public ProjectBeanAdapter(Project project, boolean mapTables) {
+	public ProjectBeanAdapter(Project project, boolean mapTables, boolean includePeptides) {
 		this.project = project;
 		this.mapTables = mapTables;
+		this.includePeptides = includePeptides;
 		initializeMap();
 	}
 
@@ -45,7 +47,7 @@ public class ProjectBeanAdapter implements Adapter<ProjectBean> {
 		final Set<Condition> conditions = project.getConditions();
 		if (conditions != null) {
 			for (final Condition condition : conditions) {
-				ret.getConditions().add(new ConditionBeanAdapter(condition, false).adapt());
+				ret.getConditions().add(new ConditionBeanAdapter(condition, false, includePeptides).adapt());
 			}
 
 		}

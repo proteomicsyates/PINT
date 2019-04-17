@@ -35,14 +35,14 @@ public class PSMRatioBeanAdapter implements Adapter<RatioBean> {
 							psmRatioValue.getConfidenceScoreName(), psmRatioValue.getConfidenceScoreType()).adapt());
 		}
 		ret.setCondition1(new ConditionBeanAdapter(
-				psmRatioValue.getRatioDescriptor().getConditionByExperimentalCondition1Id(), false).adapt());
+				psmRatioValue.getRatioDescriptor().getConditionByExperimentalCondition1Id(), false, false).adapt());
 		ret.setCondition2(new ConditionBeanAdapter(
-				psmRatioValue.getRatioDescriptor().getConditionByExperimentalCondition2Id(), false).adapt());
+				psmRatioValue.getRatioDescriptor().getConditionByExperimentalCondition2Id(), false, false).adapt());
 		ret.setDescription(psmRatioValue.getRatioDescriptor().getDescription());
 		ret.setValue(PersistenceUtils.parseRatioValueConvert2Infinities(psmRatioValue.getValue()));
 		ret.setDbID(psmRatioValue.getId());
 		final RatioDescriptorBean ratioDescriptorBean = new RatioDescriptorAdapter(psmRatioValue.getRatioDescriptor(),
-				SharedAggregationLevel.PSM).adapt();
+				SharedAggregationLevel.PSM, psmRatioValue).adapt();
 		ret.setRatioDescriptorBean(ratioDescriptorBean);
 		return ret;
 	}

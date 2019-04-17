@@ -2,8 +2,6 @@ package edu.scripps.yates.server.adapters;
 
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.MSRunToPeptideTableMapper;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.MSRunToProteinTableMapper;
 import edu.scripps.yates.shared.model.MSRunBean;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
@@ -28,8 +26,8 @@ public class MSRunBeanAdapter implements Adapter<MSRunBean> {
 	public MSRunBean adapt() {
 		if (map.get().containsKey(msRun.getId())) {
 			if (mapTables) {
-				MSRunToProteinTableMapper.getInstance().addObject1(msRun);
-				MSRunToPeptideTableMapper.getInstance().addObject1(msRun);
+//				MSRunToProteinTableMapper.getInstance().addObject1(msRun);
+//				MSRunToPeptideTableMapper.getInstance().addObject1(msRun);
 			}
 			return map.get().get(msRun.getId());
 		}
@@ -39,10 +37,10 @@ public class MSRunBeanAdapter implements Adapter<MSRunBean> {
 		ret.setPath(msRun.getPath());
 		ret.setRunID(msRun.getRunId());
 		ret.setDbID(msRun.getId());
-		ret.setProject(new ProjectBeanAdapter(msRun.getProject(), false).adapt());
+		ret.setProject(new ProjectBeanAdapter(msRun.getProject(), false, false).adapt());
 		if (mapTables) {
-			MSRunToProteinTableMapper.getInstance().addObject1(msRun);
-			MSRunToPeptideTableMapper.getInstance().addObject1(msRun);
+//			MSRunToProteinTableMapper.getInstance().addObject1(msRun);
+//			MSRunToPeptideTableMapper.getInstance().addObject1(msRun);
 		}
 		return ret;
 	}
