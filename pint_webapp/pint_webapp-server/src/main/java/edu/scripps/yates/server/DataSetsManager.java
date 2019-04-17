@@ -2,6 +2,7 @@ package edu.scripps.yates.server;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -11,12 +12,13 @@ public class DataSetsManager {
 	private static final Map<String, DataSet> dataSetMap = new THashMap<String, DataSet>();
 	private final static Logger log = Logger.getLogger(DataSetsManager.class);
 
-	public static DataSet getDataSet(String sessionID, String name, boolean createIfNotExist, boolean psmCentric) {
+	public static DataSet getDataSet(String sessionID, String name, boolean createIfNotExist, boolean psmCentric,
+			Set<String> hiddenPTMs) {
 
 		if (createIfNotExist && (!dataSetMap.containsKey(sessionID) || dataSetMap.get(sessionID) == null)) {
 			log.info("Creating new dataset '" + name + "' for sessionID: " + sessionID + " from thread "
 					+ Thread.currentThread().getId());
-			final DataSet dataSet = new DataSet(sessionID, name, psmCentric);
+			final DataSet dataSet = new DataSet(sessionID, name, psmCentric, hiddenPTMs);
 			dataSetMap.put(sessionID, dataSet);
 			log.info(printStatistics());
 			log.info("");
