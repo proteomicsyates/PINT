@@ -285,15 +285,29 @@ public class SharedDataUtil {
 	 * @param projectTags
 	 * @return
 	 */
-	public static String getProjectTagCollectionKey(Collection<String> projectTags) {
+	public static String getProjectTagCollectionKey(Collection<String> projectTags, String separator) {
 		final List<String> list = new ArrayList<String>();
 		list.addAll(projectTags);
 		Collections.sort(list);
 		String ret = "";
 		for (final String string : list) {
+			if (separator != null && ret.equals("")) {
+				ret += separator;
+			}
 			ret += string;
 		}
 		return ret;
+	}
+
+	/**
+	 * Gets a unique string key for the collection of project tags by sorting them
+	 * and returning the concatenated string of them
+	 *
+	 * @param projectTags
+	 * @return
+	 */
+	public static String getProjectTagCollectionKey(Collection<String> projectTags) {
+		return getProjectTagCollectionKey(projectTags, null);
 	}
 
 	/**
@@ -575,7 +589,7 @@ public class SharedDataUtil {
 		if (proteinBeans != null) {
 			for (final ProteinBean proteinBean : proteinBeans) {
 				final List<PeptideBean> peptideBeans = proteinBean.getPeptides();
-				if (peptideBeans != null) {
+				if (peptideBeans != null && !peptideBeans.isEmpty()) {
 					for (final PeptideBean peptideBean : peptideBeans) {
 						final String fullSequence = peptideBean.getFullSequence();
 						if (!peptideIDs.contains(peptideBean.getId())) {
@@ -1183,14 +1197,11 @@ public class SharedDataUtil {
 		return string;
 	}
 
-	public static List<AmountBean> sortAmountsByRunID(Set<AmountBean> composedAmounts) {
+	public static List<AmountBean> sortAmountsByRunID(List<AmountBean> composedAmounts) {
 		if (composedAmounts == null)
 			return null;
-		final List<AmountBean> ret = new ArrayList<AmountBean>();
 
-		ret.addAll(composedAmounts);
-
-		Collections.sort(ret, new Comparator<AmountBean>() {
+		Collections.sort(composedAmounts, new Comparator<AmountBean>() {
 			@Override
 			public int compare(AmountBean o1, AmountBean o2) {
 				final StringBuilder sb1 = new StringBuilder();
@@ -1200,7 +1211,7 @@ public class SharedDataUtil {
 				return sb1.toString().compareTo(sb2.toString());
 			}
 		});
-		return ret;
+		return composedAmounts;
 	}
 
 	public static List<RatioBean> getRatiosByConditions(ContainsRatios containsRatios, String condition1Name,
