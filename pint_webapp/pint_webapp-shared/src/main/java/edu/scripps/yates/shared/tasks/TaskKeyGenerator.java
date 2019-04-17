@@ -4,52 +4,69 @@ import java.util.Collection;
 
 import edu.scripps.yates.shared.util.SharedDataUtil;
 
-public class SharedTaskKeyGenerator {
-	public static String getKeyForGetDownloadLinkFromProteinGroups(String projectName,
+public class TaskKeyGenerator {
+	public static TaskKey getKeyForGetDownloadLinkFromProteinGroups(String projectName,
 			boolean separateNonConclusiveProteins) {
-		return "GetDownloadLinkFromProteinGroups: " + projectName + Boolean.valueOf(separateNonConclusiveProteins);
+		return TaskKey.createKey(
+				"GetDownloadLinkFromProteinGroups: " + projectName + Boolean.valueOf(separateNonConclusiveProteins));
 	}
 
-	public static String getKeyForGetDownloadLinkFromProteins(String projectTag) {
-		return "GetDownloadLinkFromProteins: " + projectTag;
+	public static TaskKey getKeyForGetDownloadLinkFromProteins(String projectTag) {
+		return TaskKey.createKey("GetDownloadLinkFromProteins: " + projectTag);
 	}
 
-	public static String getKeyForGetProteinsFromProjectTask(String projectTag, String uniprotVersion) {
-		return "GetProteinsFromProjectTask: " + projectTag + uniprotVersion;
+	public static TaskKey getKeyForGetProteinsFromProjectTask(String projectTag, String uniprotVersion) {
+		return TaskKey.createKey("GetProteinsFromProjectTask: " + projectTag + " " + uniprotVersion);
 	}
 
-	public static String getKeyForGetProteinsFromQuery(Collection<String> projectTags, String queryInOrder) {
-		return "GetProteinsFromQuery: " + SharedDataUtil.getProjectTagCollectionKey(projectTags) + queryInOrder;
+	public static TaskKey getKeyForGetProteinsFromQuery(Collection<String> projectTags, String queryText) {
+		return TaskKey.createKey("GetProteinsFromQuery: " + SharedDataUtil.getProjectTagCollectionKey(projectTags) + " "
+				+ queryText.toLowerCase());
 	}
 
-	public static String getKeyForGetPSMsFromProjectTask(String projectTag) {
-		return "GetPSMsFromProjectTask: " + projectTag;
+	public static TaskKey getKeyForGetProteinsFromQuery(Collection<String> projectTags) {
+		return TaskKey.createKey("GroupingProteins: " + SharedDataUtil.getProjectTagCollectionKey(projectTags));
 	}
 
-	public static String getKeyForGetRandomProteinsAccessionsFromCensusChroFileTask(String filePath, long fileLenth,
+	public static TaskKey getKeyForGetPSMsFromProjectTask(String projectTag) {
+		return TaskKey.createKey("GetPSMsFromProjectTask: " + projectTag);
+	}
+
+	public static TaskKey getKeyForCancellingTask() {
+		return TaskKey.createKey("cancelling task: ");
+	}
+
+	public static TaskKey getKeyForGetRandomProteinsAccessionsFromCensusChroFileTask(String filePath, long fileLenth,
 			String discardDecoyExpression) {
-		return "GetRandomProteinsAccessionsFromCensusChroFileTask: " + filePath + fileLenth + discardDecoyExpression;
+		return TaskKey.createKey("GetRandomProteinsAccessionsFromCensusChroFileTask: " + filePath + " " + fileLenth
+				+ " " + discardDecoyExpression);
 	}
 
-	public static String getKeyForGetRandomProteinsAccessionsFromCensusOutFileTask(String filePath, long fileLenth,
+	public static TaskKey getKeyForGetRandomProteinsAccessionsFromCensusOutFileTask(String filePath, long fileLenth,
 			String discardDecoyExpression) {
-		return "GetRandomProteinsAccessionsFromCensusOutFileTask: " + filePath + fileLenth + discardDecoyExpression;
+		return TaskKey.createKey("GetRandomProteinsAccessionsFromCensusOutFileTask: " + filePath + " " + fileLenth + " "
+				+ discardDecoyExpression);
 	}
 
-	public static String getKeyForGetRandomProteinsAccessionsFromDTASelectFileTask(String filePath, long fileLenth,
+	public static TaskKey getKeyForGetRandomProteinsAccessionsFromDTASelectFileTask(String filePath, long fileLenth,
 			String discardDecoyExpression) {
-		return "GetRandomProteinsAccessionsFromDTASelectFileTask: " + filePath + fileLenth + discardDecoyExpression;
+		return TaskKey.createKey("GetRandomProteinsAccessionsFromDTASelectFileTask: " + filePath + " " + fileLenth + " "
+				+ discardDecoyExpression);
 	}
 
-	public static String getKeyForGetDownloadLinkFromProteinGroupsFromQuery(String projectName,
+	public static TaskKey getKeyForShowPeptidesSharedByProteinsTask(String proteinAccessions) {
+		return TaskKey.createKey("showPeptidesSharedbyProteinsTask: " + proteinAccessions);
+	}
+
+	public static TaskKey getKeyForGetDownloadLinkFromProteinGroupsFromQuery(String projectName,
 			boolean separateNonConclusiveProteins) {
 
-		return "GetDownloadLinkFromProteinGroupsFromQuery: " + projectName
-				+ Boolean.valueOf(separateNonConclusiveProteins);
+		return TaskKey.createKey("GetDownloadLinkFromProteinGroupsFromQuery: " + projectName + " "
+				+ Boolean.valueOf(separateNonConclusiveProteins));
 	}
 
-	public static String getKeyForGetDownloadLinkFromProteinsFromQuery(String projectName) {
+	public static TaskKey getKeyForGetDownloadLinkFromProteinsFromQuery(String projectName) {
 
-		return "GetDownloadLinkFromProteinsFromQuery: " + projectName;
+		return TaskKey.createKey("GetDownloadLinkFromProteinsFromQuery: " + projectName);
 	}
 }

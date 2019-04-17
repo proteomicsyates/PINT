@@ -1,6 +1,4 @@
-package edu.scripps.yates.server.tasks;
-
-import edu.scripps.yates.shared.tasks.SharedTaskKeyGenerator;
+package edu.scripps.yates.shared.tasks;
 
 public class GetDownloadLinkFromProteinsInProjectTask extends Task {
 	/**
@@ -13,8 +11,13 @@ public class GetDownloadLinkFromProteinsInProjectTask extends Task {
 	}
 
 	public GetDownloadLinkFromProteinsInProjectTask(String projectName) {
-		super(SharedTaskKeyGenerator
-				.getKeyForGetDownloadLinkFromProteins(projectName));
+		super(TaskKeyGenerator.getKeyForGetDownloadLinkFromProteins(projectName),
+				TaskType.GET_DOWNLOAD_LINK_FOR_PROTEINS);
+	}
+
+	@Override
+	public String getTaskDescription() {
+		return getType().getSingleTaskMessage(null);
 	}
 
 }

@@ -1,8 +1,4 @@
-package edu.scripps.yates.server.tasks;
-
-import java.io.File;
-
-import edu.scripps.yates.shared.tasks.SharedTaskKeyGenerator;
+package edu.scripps.yates.shared.tasks;
 
 public class GetRandomProteinsAccessionsFromCensusChroFileTask extends Task {
 
@@ -15,12 +11,15 @@ public class GetRandomProteinsAccessionsFromCensusChroFileTask extends Task {
 
 	}
 
-	public GetRandomProteinsAccessionsFromCensusChroFileTask(File file,
+	public GetRandomProteinsAccessionsFromCensusChroFileTask(String fileAbsolutePath, long fileLength,
 			String discardDecoyExpression) {
-		super(SharedTaskKeyGenerator
-				.getKeyForGetRandomProteinsAccessionsFromCensusChroFileTask(
-						file.getAbsolutePath(), file.length(),
-						discardDecoyExpression));
+		super(TaskKeyGenerator.getKeyForGetRandomProteinsAccessionsFromCensusChroFileTask(fileAbsolutePath, fileLength,
+				discardDecoyExpression), TaskType.PROTEINS_FROM_FILE);
+	}
+
+	@Override
+	public String getTaskDescription() {
+		return getType().getSingleTaskMessage(null);
 	}
 
 }

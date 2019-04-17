@@ -1,8 +1,6 @@
-package edu.scripps.yates.server.tasks;
+package edu.scripps.yates.shared.tasks;
 
 import java.util.Collection;
-
-import edu.scripps.yates.shared.tasks.SharedTaskKeyGenerator;
 
 public class GetProteinsFromQuery extends Task {
 
@@ -15,8 +13,13 @@ public class GetProteinsFromQuery extends Task {
 
 	}
 
-	public GetProteinsFromQuery(Collection<String> projectTags, String queryInOrder) {
-		super(SharedTaskKeyGenerator.getKeyForGetProteinsFromQuery(projectTags, queryInOrder));
+	public GetProteinsFromQuery(Collection<String> projectTags, String queryText) {
+		super(TaskKeyGenerator.getKeyForGetProteinsFromQuery(projectTags, queryText), TaskType.QUERY_SENT);
+	}
+
+	@Override
+	public String getTaskDescription() {
+		return getType().getSingleTaskMessage(null);
 	}
 
 }
