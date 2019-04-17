@@ -1,6 +1,7 @@
 package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,6 @@ public class QueryInterface {
 	private QueryResult queryResult;
 	private final QueryBinaryTree queryBinaryTree;
 	private static final Logger log = Logger.getLogger(QueryInterface.class);
-	private static final int MAX_NUMBER_PARALLEL_PROCESSES = 16;
 	private boolean needLinkEvaluation = true;
 	private final Set<String> projectTags;
 	private final boolean testMode;
@@ -56,6 +56,7 @@ public class QueryInterface {
 		this.proteinProvider.setProjectTags(projectTags);
 		queryBinaryTree = new Infix2QueryBinaryTree().convertExpresion(queryString);
 		final List<AbstractQuery> abstractQueries = queryBinaryTree.getAbstractQueries();
+
 		// TODO
 		// if there is only one abstract query, use the proteinprovider of the
 		// abstract query
@@ -253,7 +254,7 @@ public class QueryInterface {
 		final String uniprotKBVersion = null;
 
 		// get all the proteins
-		final Map<String, Set<Protein>> proteinMap = proteinProvider.getProteinMap(testMode);
+		final Map<String, Collection<Protein>> proteinMap = proteinProvider.getProteinMap(testMode);
 		// annotate them. After, they will be available by
 		// getProteinAnnotationByProteinAcc(acc)
 		ProteinAnnotator.getInstance(uniprotKBVersion).annotateProteins(proteinMap);
@@ -412,7 +413,7 @@ public class QueryInterface {
 					// }
 				}
 			} else {
-				final Map<String, Set<Protein>> proteinMap = proteinProvider.getProteinMap(testMode);
+				final Map<String, Collection<Protein>> proteinMap = proteinProvider.getProteinMap(testMode);
 				linksBetweenProteinsAndPeptides = QueriesUtil.createProteinPeptideLinks(proteinMap);
 				invalidLinksBetweenProteinsAndPeptides = new ArrayList<LinkBetweenQueriableProteinSetAndPeptideSet>();
 				if (needLinkEvaluation) {

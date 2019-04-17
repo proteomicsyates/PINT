@@ -2,11 +2,9 @@ package edu.scripps.yates.proteindb.queries.semantic;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -25,12 +23,13 @@ import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.AmountTypeAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToPeptideTableMapper;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class QueriablePeptideSet {
 	private final List<Peptide> peptides = new ArrayList<Peptide>();
-	private final Set<LinkBetweenQueriableProteinSetAndPeptideSet> links = new THashSet<LinkBetweenQueriableProteinSetAndPeptideSet>();
+	private final List<LinkBetweenQueriableProteinSetAndPeptideSet> links = new ArrayList<LinkBetweenQueriableProteinSetAndPeptideSet>();
 	private List<Peptide> individualPeptides;
 	private Set<Condition> conditions;
 	private Set<PeptideScore> peptideScores;
@@ -38,10 +37,14 @@ public class QueriablePeptideSet {
 	private Set<PeptideRatioValue> peptideRatios;
 	private Set<PeptideAmount> peptideAmounts;
 	private Set<Ptm> ptms;
+	private int numPSMs;
 	private static final Map<String, QueriablePeptideSet> map = new THashMap<String, QueriablePeptideSet>();
 	private final static Logger log = Logger.getLogger(QueriablePeptideSet.class);
 
 	public static QueriablePeptideSet getInstance(Collection<Peptide> peptides, boolean forceToCreateNewObject) {
+		if (peptides == null || peptides.isEmpty()) {
+			return null;
+		}
 		final String id = getPeptidesID(peptides);
 		if (!forceToCreateNewObject && map.containsKey(id)) {
 			final QueriablePeptideSet queriablePeptide = map.get(id);
@@ -55,24 +58,24 @@ public class QueriablePeptideSet {
 	}
 
 	private static String getPeptidesID(Collection<Peptide> peptides) {
-		final List<Integer> individualIds = new ArrayList<Integer>();
+		final TIntArrayList individualIds = new TIntArrayList(peptides.size());
 		for (final Peptide peptide : peptides) {
 			individualIds.add(peptide.getId());
 		}
-		Collections.sort(individualIds);
+		individualIds.sort();
 		final StringBuilder sb = new StringBuilder();
-		for (final Integer integer : individualIds) {
-			sb.append(integer);
+		for (final int id : individualIds.toArray()) {
+			sb.append(id);
 		}
 		return sb.toString();
 	}
 
 	private QueriablePeptideSet(Collection<Peptide> peptides) {
-		this.peptides.addAll(peptides);
-		// quality check
-		final Set<String> fullSequence = peptides.stream().map(p -> p.getFullSequence()).collect(Collectors.toSet());
-		if (fullSequence.size() != 1) {
-			log.info("wrong");
+		for (final Peptide peptide : peptides) {
+			if (!this.peptides.contains(peptide)) {
+				this.peptides.add(peptide);
+				numPSMs += peptide.getNumPsms();
+			}
 		}
 	}
 
@@ -92,7 +95,7 @@ public class QueriablePeptideSet {
 	/**
 	 * @return the links
 	 */
-	public Set<LinkBetweenQueriableProteinSetAndPeptideSet> getLinksToProteins() {
+	public List<LinkBetweenQueriableProteinSetAndPeptideSet> getLinksToProteins() {
 		return links;
 	}
 
@@ -105,7 +108,7 @@ public class QueriablePeptideSet {
 	public Set<Organism> getOrganisms() {
 		final Set<String> organismNames = new THashSet<String>();
 		final Set<Organism> ret = new THashSet<Organism>();
-		final Set<LinkBetweenQueriableProteinSetAndPeptideSet> links = getLinksToProteins();
+		final List<LinkBetweenQueriableProteinSetAndPeptideSet> links = getLinksToProteins();
 		for (final LinkBetweenQueriableProteinSetAndPeptideSet link : links) {
 			final Organism organism = link.getQueriableProtein().getOrganism();
 			if (!organismNames.contains(organism.getName())) {
@@ -151,7 +154,9 @@ public class QueriablePeptideSet {
 	}
 
 	public void addLink(LinkBetweenQueriableProteinSetAndPeptideSet link) {
-		links.add(link);
+		if (!links.contains(link)) {
+			links.add(link);
+		}
 	}
 
 	public Set<PeptideScore> getPeptideScores() {
@@ -254,6 +259,16 @@ public class QueriablePeptideSet {
 
 	public String getSequence() {
 		return getIndividualPeptides().get(0).getSequence();
+	}
+
+	public int getNumPSMs() {
+		if (numPSMs == 0) {
+
+			for (final Peptide peptide : peptides) {
+				numPSMs += peptide.getNumPsms();
+			}
+		}
+		return numPSMs;
 	}
 
 }
