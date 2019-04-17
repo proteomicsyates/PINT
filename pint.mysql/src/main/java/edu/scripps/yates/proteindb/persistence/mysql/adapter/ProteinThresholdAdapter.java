@@ -22,10 +22,11 @@ public class ProteinThresholdAdapter
 
 	@Override
 	public ProteinThreshold adapt() {
-		ProteinThreshold ret = new ProteinThreshold();
+		final ProteinThreshold ret = new ProteinThreshold();
 
 		ret.setPassThreshold(threshold.isPassThreshold());
-		ret.setThreshold(new ThresholdAdapter(threshold, ret).adapt());
+		ret.setDescription(threshold.getDescription());
+		ret.setName(threshold.getName());
 		ret.setProtein(protein);
 
 		return ret;

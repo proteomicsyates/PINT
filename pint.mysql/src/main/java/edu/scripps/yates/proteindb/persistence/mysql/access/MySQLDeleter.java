@@ -38,7 +38,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
-import edu.scripps.yates.proteindb.persistence.mysql.Threshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
@@ -410,12 +409,6 @@ public class MySQLDeleter {
 		// deleteThreshold(appliedThreshold.getThreshold());
 
 		ContextualSessionHandler.delete(appliedThreshold);
-	}
-
-	private void deleteThreshold(Threshold threshold) {
-
-		ContextualSessionHandler.delete(threshold);
-
 	}
 
 	private void deleteProteinAmount(ProteinAmount proteinAmount) {

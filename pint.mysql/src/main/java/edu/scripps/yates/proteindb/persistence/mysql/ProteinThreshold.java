@@ -9,17 +9,18 @@ public class ProteinThreshold implements java.io.Serializable {
 
 	private Integer id;
 	private Protein protein;
-	private Threshold threshold;
 	private boolean passThreshold;
+	private String name;
+	private String description;
 
 	public ProteinThreshold() {
 	}
 
-	public ProteinThreshold(Protein protein, Threshold threshold,
-			boolean passThreshold) {
+	public ProteinThreshold(Protein protein, boolean passThreshold, String name, String description) {
 		this.protein = protein;
-		this.threshold = threshold;
 		this.passThreshold = passThreshold;
+		this.name = name;
+		this.description = description;
 	}
 
 	public Integer getId() {
@@ -38,20 +39,28 @@ public class ProteinThreshold implements java.io.Serializable {
 		this.protein = protein;
 	}
 
-	public Threshold getThreshold() {
-		return this.threshold;
-	}
-
-	public void setThreshold(Threshold threshold) {
-		this.threshold = threshold;
-	}
-
 	public boolean isPassThreshold() {
 		return this.passThreshold;
 	}
 
 	public void setPassThreshold(boolean passThreshold) {
 		this.passThreshold = passThreshold;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }

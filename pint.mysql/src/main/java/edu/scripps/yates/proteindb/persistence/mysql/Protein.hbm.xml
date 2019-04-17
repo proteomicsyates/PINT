@@ -66,7 +66,7 @@
 <!--                 <column name="Protein_Accession_accession" length="15" not-null="true" /> -->
 <!--             </many-to-many> -->
 <!--         </set> -->
-        <set name="proteinScores" table="protein_score" inverse="true" lazy="true" fetch="select">
+        <set name="proteinScores" table="protein_score" inverse="true" lazy="true" fetch="select" batch-size="100">
             <key>
                 <column name="Protein_id" not-null="true" />
             </key>

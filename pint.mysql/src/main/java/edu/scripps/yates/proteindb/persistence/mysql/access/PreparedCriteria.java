@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.MultiIdentifierLoadAccess;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.criterion.CriteriaSpecification;
@@ -37,10 +38,10 @@ import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
-import edu.scripps.yates.proteindb.persistence.mysql.Threshold;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToPeptideIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.wrappers.AmountValueWrapper;
-import edu.scripps.yates.proteindb.persistence.mysql.wrappers.ProteinThresholdWrapper;
 import edu.scripps.yates.proteindb.persistence.mysql.wrappers.RatioValueWrapper;
+import gnu.trove.set.TIntSet;
 
 public class PreparedCriteria {
 	private static final Logger log = Logger.getLogger(PreparedCriteria.class);
@@ -257,7 +258,9 @@ public class PreparedCriteria {
 		if (projectTag != null) {
 			cr.createAlias("condition.project", "project");
 		}
-		cr.setProjection(Projections.projectionList().add(Projections.property("protein.acc"), "acc"));
+		cr.setProjection(
+				Projections.distinct(Projections.projectionList().add(Projections.property("protein.acc"), "acc")));
+//		cr.setProjection(				 Projections.projectionList().add(Projections.property("protein.acc"), "acc"));
 
 		if (runID != null) {
 			cr.add(Restrictions.eq("msRun.runId", runID));
@@ -692,7 +695,7 @@ public class PreparedCriteria {
 
 	public static List<Integer> getCriteriaForConditionIDsInProject(String projectTag) {
 		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Condition.class, "condition")
-				.createAlias("condition.proteins", "protein").createAlias("condition.project", "project")
+				.createAlias("condition.project", "project")
 				.setProjection(Projections.distinct(Projections.property("condition.id")));
 		cr.add(Restrictions.eq("project.tag", projectTag));
 		return cr.list();
@@ -700,37 +703,106 @@ public class PreparedCriteria {
 
 	public static List<Condition> getCriteriaForConditionsInProject(String projectTag) {
 		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Condition.class, "condition")
-				.createAlias("condition.proteins", "protein").createAlias("condition.project", "project");
+				.createAlias("condition.project", "project");
 		cr.add(Restrictions.eq("project.tag", projectTag));
 		return cr.list();
 	}
 
-	public static List<Peptide> getPeptidesByIds(Collection<Integer> peptideIds) {
-		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Peptide.class, "peptide")
-				.add(Restrictions.in("peptide.id", peptideIds));
-		return cr.list();
+//	public static List<Integer> getPeptideIdsFromProteinIDs(Collection<Integer> proteinIds) {
+//
+//		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Peptide.class, "peptide")
+//				.createAlias("peptide.proteins", "protein").add(Restrictions.in("protein.id", proteinIds))
+//				.setProjection(
+//						Projections.projectionList().add(Projections.distinct(Projections.property("peptide.id"))));
+//		return cr.list();
+//
+//	}
+
+	public static TIntSet getPeptideIdsFromProteinIDsUsingNewProteinPeptideMapper(TIntSet proteinIds) {
+
+		return ProteinIDToPeptideIDTableMapper.getInstance().getPeptideIDsFromProteinIDs(proteinIds);
+
 	}
 
-	public static List<Protein> getProteinsByIds(Collection<Integer> proteinIds) {
-		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Protein.class, "protein")
-				.add(Restrictions.in("protein.id", proteinIds));
-		return cr.list();
+//	public static List<Peptide> getPeptidesFromProteinIDs(Collection<Integer> proteinIds) {
+//
+//		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Peptide.class, "peptide")
+//				.createAlias("peptide.proteins", "protein").add(Restrictions.in("protein.id", proteinIds));
+//		return cr.list();
+//
+//	}
+
+//	public static List<Integer> getPeptidesFromProteinIDs3(Collection<Integer> proteinIds) {
+//		final Query query = ContextualSessionHandler.getCurrentSession().createSQLQuery(
+//				"Select distinct pp.peptide_id FROM Protein_has_Peptide as pp where pp.protein_id in (:ids)");
+//		query.setParameterList("ids", proteinIds);
+//		final List<Integer> peptideIds = query.list();
+//		return peptideIds;
+//	}
+
+//	public static List<Peptide> getPeptidesFromPeptideIDs2(Collection<Integer> peptideIds) {
+//		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Peptide.class, "peptide")
+//				.add(Restrictions.in("peptide.id", peptideIds));
+//		return cr.list();
+//	}
+
+//	public static List<Peptide> getPeptidesFromPeptideIDs(Collection<Integer> peptideIds, boolean checkFirstLevelCache,
+//			int batchSize) {
+//		if (peptideIds instanceof List) {
+//			return getPeptidesFromPeptideIDs(peptideIds, checkFirstLevelCache, batchSize);
+//		} else {
+//			final List<Integer> peptideIDList = new ArrayList<Integer>();
+//			peptideIDList.addAll(peptideIds);
+//			return getPeptidesFromPeptideIDs(peptideIDList, checkFirstLevelCache, batchSize);
+//		}
+//	}
+
+	public static List<Peptide> getPeptidesFromPeptideIDs(TIntSet peptideIds, boolean checkFirstLevelCache,
+			int batchSize) {
+		final MultiIdentifierLoadAccess<Peptide> multiLoadAccess = ContextualSessionHandler.getCurrentSession()
+				.byMultipleIds(Peptide.class);
+
+		final List<Integer> asList = new ArrayList<Integer>();
+		for (final int id : peptideIds.toArray()) {
+			asList.add(id);
+		}
+		final List<Peptide> ret = multiLoadAccess.withBatchSize(batchSize).enableSessionCheck(checkFirstLevelCache)
+				.multiLoad(asList);
+		return ret;
 	}
 
-	public static List<Psm> getPsmsByIds(Collection<Integer> psmIds) {
+	public static List<Psm> getPsmsFromPsmIDs2(Collection<Integer> psmIds) {
 		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Psm.class, "psm")
 				.add(Restrictions.in("psm.id", psmIds));
 		return cr.list();
 	}
 
-	public static List<Integer> getPeptideIdsFromProteins(Collection<Integer> proteinIds) {
-		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Peptide.class, "peptide")
-				.createAlias("peptide.proteins", "protein").add(Restrictions.in("protein.id", proteinIds))
-				.setProjection(
-						Projections.projectionList().add(Projections.distinct(Projections.property("peptide.id"))));
-		return cr.list();
-
+	public static List<Psm> getPsmsFromPsmIDs(List<Integer> psmIds, boolean checkFirstLevelCache, int batchSize) {
+		final MultiIdentifierLoadAccess<Psm> multiLoadAccess = ContextualSessionHandler.getCurrentSession()
+				.byMultipleIds(Psm.class);
+		final List<Psm> ret = multiLoadAccess.withBatchSize(batchSize).enableSessionCheck(checkFirstLevelCache)
+				.multiLoad(psmIds);
+		return ret;
 	}
+
+	public static List<Protein> getProteinsFromIDs(TIntSet proteinIds, boolean checkFirstLevelCache, int batchSize) {
+		final MultiIdentifierLoadAccess<Protein> multiLoadAccess = ContextualSessionHandler.getCurrentSession()
+				.byMultipleIds(Protein.class);
+
+		final List<Integer> asList = new ArrayList<Integer>();
+		for (final int id : proteinIds.toArray()) {
+			asList.add(id);
+		}
+		final List<Protein> ret = multiLoadAccess.withBatchSize(batchSize).enableSessionCheck(checkFirstLevelCache)
+				.multiLoad(asList);
+		return ret;
+	}
+
+//	public static List<Protein> getProteinsFromIDs2(Collection<Integer> proteinIds) {
+//		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Protein.class, "protein")
+//				.add(Restrictions.in("protein.id", proteinIds));
+//		return cr.list();
+//	}
 
 	public static List<Integer> getPsmIdsFromProteins(Collection<Integer> proteinIds) {
 		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Psm.class, "psm")
@@ -772,18 +844,6 @@ public class PreparedCriteria {
 		return query.list();
 	}
 
-	public static List<ProteinThresholdWrapper> getProteinThresholdsFromProteinThreshold(Threshold threshold) {
-		final SQLQuery query = ContextualSessionHandler.getCurrentSession().createSQLQuery(
-				"SELECT protein_threshold.id,protein_threshold.Protein_id,protein_threshold.Threshold_id,protein_threshold.pass_threshold FROM protein_threshold where protein_threshold.Threshold_id= :id");
-		query.setParameter("id", threshold.getId());
-		final List<Object[]> lists = query.list();
-		final List<ProteinThresholdWrapper> ret = new ArrayList<ProteinThresholdWrapper>();
-		for (final Object[] list : lists) {
-			ret.add(new ProteinThresholdWrapper(list));
-		}
-		return ret;
-	}
-
 	public static List<Integer> getPeptideIDsFromCondition(Condition condition) {
 		final SQLQuery query = ContextualSessionHandler.getCurrentSession().createSQLQuery(
 				"SELECT Peptide_id FROM peptide_has_condition where peptide_has_condition.Condition_id= :condition_id");
@@ -814,6 +874,14 @@ public class PreparedCriteria {
 				Restrictions.eq("ratioDescriptor.conditionByExperimentalCondition1Id", condition)));
 		cr.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		final List<RatioDescriptor> list = cr.list();
+		return list;
+	}
+
+	public static List<ProteinRatioValue> getProteinRatioValuesFromRatioDescriptor(RatioDescriptor ratioDescriptor) {
+		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(ProteinRatioValue.class,
+				"ratio");
+		cr.add(Restrictions.eq("ratio.ratioDescriptor", ratioDescriptor));
+		final List<ProteinRatioValue> list = cr.list();
 		return list;
 	}
 
@@ -951,15 +1019,6 @@ public class PreparedCriteria {
 		return list;
 	}
 
-	public static List<Integer> getProteinIDsByConditionCriteria(Condition condition) {
-		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Protein.class, "protein")
-				.createAlias("protein.conditions", "condition");
-		cr.add(Restrictions.eq("condition", condition));
-		cr.setProjection(Projections.projectionList().add(Projections.distinct(Projections.property("protein.id"))));
-		final List<Integer> list = cr.list();
-		return list;
-	}
-
 	public static List<Integer> getPsmIDsByConditionCriteria(Condition condition) {
 		final Criteria cr = ContextualSessionHandler.getCurrentSession().createCriteria(Psm.class, "psm")
 				.createAlias("psm.conditions", "condition");
@@ -985,4 +1044,362 @@ public class PreparedCriteria {
 		final List<Condition> list = cr.list();
 		return list;
 	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first, the protein
+	 * id and the second the peptide id
+	 * 
+	 * @return
+	 */
+	public static int[][] getProteinToPeptideTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select * from protein_has_peptide");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first, the protein
+	 * id and the second the psm id
+	 * 
+	 * @return
+	 */
+	public static int[][] getProteinToPSMTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select * from protein_has_psm");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first, the protein
+	 * id and the second the msRun id
+	 * 
+	 * @return
+	 */
+	public static int[][] getProteinToMSRunTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select * from protein_has_ms_run");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first, the peptide
+	 * id and the second the msRun id
+	 * 
+	 * @return
+	 */
+	public static int[][] getPeptideToMSRunTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select * from peptide_has_ms_run");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first, the protein
+	 * id and the second the condition id
+	 * 
+	 * @return
+	 */
+	public static int[][] getProteinToConditionTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select * from protein_has_condition");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first, the peptide
+	 * id and the second the condition id
+	 * 
+	 * @return
+	 */
+	public static int[][] getPeptideToConditionTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select * from peptide_has_condition");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 3 elements, the first, the ratio
+	 * descriptor id, the second a condition id and the third a condition id
+	 * 
+	 * @return
+	 */
+	public static int[][] getRatioDescriptorsTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession().createSQLQuery(
+				"Select id, experimental_condition_1_id, experimental_condition_2_id from ratio_descriptor");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][3];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			ret[i][2] = (int) ids[2];
+			i++;
+		}
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<RatioDescriptor> getRatioDescriptorsFromRatioDescriptorIDs(TIntSet ratioDescriptorIDs,
+			boolean checkFirstLevelCache, int batchSize) {
+		return (List<RatioDescriptor>) getBatchLoadByIDs(RatioDescriptor.class, ratioDescriptorIDs,
+				checkFirstLevelCache, batchSize);
+	}
+
+	public static List<?> getBatchLoadByIDs(Class<?> clazz, TIntSet ids, boolean checkFirstLevelCache, int batchSize) {
+		final MultiIdentifierLoadAccess<?> multiLoadAccess = ContextualSessionHandler.getCurrentSession()
+				.byMultipleIds(clazz);
+
+		final List<Integer> asList = new ArrayList<Integer>();
+		for (final int id : ids.toArray()) {
+			asList.add(id);
+		}
+		final List<?> ret = multiLoadAccess.withBatchSize(batchSize).enableSessionCheck(checkFirstLevelCache)
+				.multiLoad(asList);
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first the ratio
+	 * descriptor id and the second the protein ratio value ID
+	 * 
+	 * @return
+	 */
+	public static int[][] getProteinRatioValuesToRatioDescriptorTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select ratio_descriptor_id, id from protein_ratio_value");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first the ratio
+	 * descriptor id and the second the peptide ratio value ID
+	 * 
+	 * @return
+	 */
+	public static int[][] getPeptideRatioValuesToRatioDescriptorTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select ratio_descriptor_id, id from peptide_ratio_value");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first the ratio
+	 * descriptor id and the second the psm ratio value ID
+	 * 
+	 * @return
+	 */
+	public static int[][] getPsmRatioValuesToRatioDescriptorTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select ratio_descriptor_id, id from psm_ratio_value");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first the
+	 * condition id and the second the protein amount id
+	 * 
+	 * @return
+	 */
+	public static int[][] getProteinAmountsTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select condition_id, id from protein_amount");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first the protein
+	 * id and the second the threshold id
+	 * 
+	 * @return
+	 */
+	public static int[][] getProteinToProteinThresholdTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select protein_id, id from protein_threshold");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first the protein
+	 * id and the second the protein score id
+	 * 
+	 * @return
+	 */
+	public static int[][] getProteinToProteinScoreTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select protein_id, id from protein_score");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first the peptide
+	 * id and the second the peptide score id
+	 * 
+	 * @return
+	 */
+	public static int[][] getPeptideToPeptideScoreTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select peptide_id, id from peptide_score");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first the psm id
+	 * and the second the psm score id
+	 * 
+	 * @return
+	 */
+	public static int[][] getPsmToPsmScoreTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select psm_id, id from psm_score");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first the peptide
+	 * id and the second the ptm id
+	 * 
+	 * @return
+	 */
+	public static int[][] getPeptideToPTMTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select peptide_id, id from ptm where not isnull(peptide_id)");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
 }

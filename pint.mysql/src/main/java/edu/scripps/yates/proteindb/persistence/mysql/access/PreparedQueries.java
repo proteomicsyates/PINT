@@ -80,10 +80,10 @@ public class PreparedQueries {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static Map<String, Set<Protein>> getProteinsWithAmount(String projectTag) {
+	public static Map<String, Collection<Protein>> getProteinsWithAmount(String projectTag) {
 		final List<Protein> list = parseParametersForQuery(PROTEINS_WITH_AMOUNT, "project.tag=:projectTag", projectTag)
 				.list();
-		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Collection<Protein>> ret = new THashMap<String, Collection<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -95,11 +95,11 @@ public class PreparedQueries {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static Map<String, Set<Protein>> getProteinsWithAmount(String projectTag, String conditionName,
+	public static Map<String, Collection<Protein>> getProteinsWithAmount(String projectTag, String conditionName,
 			String amountType) {
 		final List<Protein> list = parseParametersForQuery(PROTEINS_WITH_AMOUNT, "project.tag=:projectTag", projectTag,
 				"condition.name=:conditionName", conditionName, "amountType.name=:amountType", amountType).list();
-		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Collection<Protein>> ret = new THashMap<String, Collection<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -114,12 +114,13 @@ public class PreparedQueries {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static Map<String, Set<Protein>> getProteinsByProjectCondition(String projectTag, String conditionName) {
+	public static Map<String, Collection<Protein>> getProteinsByProjectCondition(String projectTag,
+			String conditionName) {
 		final List<Protein> list = parseParametersForQuery(PROTEINS_BY_PROJECT, "project.tag=:projectTag", projectTag,
 				"condition.name=:conditionName", conditionName).list();
 		log.info("Returning " + list.size() + " proteins from the query");
 
-		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Collection<Protein>> ret = new THashMap<String, Collection<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -319,10 +320,9 @@ public class PreparedQueries {
 	// TODO : as soon as the threshold had a reference to the project and/or to
 	// the condition, this query should be changed
 
-	private final static String PROTEIN_THRESHOLD_NAMES_BY_PROJECT = "select distinct threshold.name from "
-			+ "ProteinThreshold proteinThreshold " + "join proteinThreshold.threshold threshold "
-			+ "join proteinThreshold.protein protein " + "join protein.conditions condition "
-			+ "join condition.project project";
+	private final static String PROTEIN_THRESHOLD_NAMES_BY_PROJECT = "select distinct proteinThreshold.name from "
+			+ "ProteinThreshold proteinThreshold " + "join proteinThreshold.protein protein "
+			+ "join protein.conditions condition " + "join condition.project project";
 
 	/**
 	 * projectTag can be null for querying over all projects
@@ -364,7 +364,7 @@ public class PreparedQueries {
 			+ "join ratioDescriptor.proteinRatioValues ratio_values " + "join ratio_values.protein protein";
 
 	@SuppressWarnings("unchecked")
-	public static Map<String, Set<Protein>> getProteinsWithRatios(String condition1Name, String condition2Name,
+	public static Map<String, Collection<Protein>> getProteinsWithRatios(String condition1Name, String condition2Name,
 			String projectTag, String ratioName) {
 		final List<Protein> list = parseParametersForQuery(PROTEINS_WITH_RATIOS, "condition1.name=:condition1",
 				condition1Name, "condition2.name=:condition2", condition2Name, "project1.tag=:project1", projectTag,
@@ -378,9 +378,9 @@ public class PreparedQueries {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Map<String, Set<Protein>> getProteinsWithRatiosAndScores(String condition1Name, String condition2Name,
-			String projectTag, String ratioName, String ratioOperator, Double ratioValue, String scoreName,
-			String scoreType, String operator, Double scoreValue) {
+	public static Map<String, Collection<Protein>> getProteinsWithRatiosAndScores(String condition1Name,
+			String condition2Name, String projectTag, String ratioName, String ratioOperator, Double ratioValue,
+			String scoreName, String scoreType, String operator, Double scoreValue) {
 		Criteria cr = ContextualSessionHandler.createCriteria(Protein.class, "protein");
 		if (projectTag != null) {
 			cr.createAlias("protein.conditions", "condition");
@@ -498,8 +498,8 @@ public class PreparedQueries {
 			+ "join psm.proteins protein";
 
 	@SuppressWarnings("unchecked")
-	public static Map<String, Set<Protein>> getProteinWithPSMWithRatios(String condition1Name, String condition2Name,
-			String projectTag, String ratioName) {
+	public static Map<String, Collection<Protein>> getProteinWithPSMWithRatios(String condition1Name,
+			String condition2Name, String projectTag, String ratioName) {
 		final List<Protein> list = parseParametersForQuery(PROTEIN_WITH_PSM_WITH_RATIOS, "condition1.name=:condition1",
 				condition1Name, "condition2.name=:condition2", condition2Name, "project1.tag=:project1", projectTag,
 				"project2.tag=:project2", projectTag, "ratioDescriptor.description=:ratioName", ratioName).list();
@@ -682,9 +682,9 @@ public class PreparedQueries {
 		return property.substring(property.indexOf("=:") + 2);
 	}
 
-	private static final String PROTEINS_WITH_THRESHOLD = "select distinct protein from " + "Threshold threshold "
-			+ "join threshold.proteinThresholds protein_threshold " + "join protein_threshold.protein protein "
-			+ "join protein.conditions condition " + "join condition.project project";
+	private static final String PROTEINS_WITH_THRESHOLD = "select distinct protein from ProteinThreshold threshold "
+			+ "join threshold.protein protein " + "join protein.conditions condition "
+			+ "join condition.project project";
 
 	/**
 	 * projectTag can be null for querying over all projects
@@ -695,13 +695,13 @@ public class PreparedQueries {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static Map<String, Set<Protein>> getProteinsWithThreshold(String projectTag, String thresholdName,
+	public static Map<String, Collection<Protein>> getProteinsWithThreshold(String projectTag, String thresholdName,
 			boolean pass) {
 
-		final Query query = parseParametersForQuery(PROTEINS_WITH_THRESHOLD, "protein_threshold.passThreshold=:pass",
-				pass, "threshold.name=:threshold_name", thresholdName, "project.tag=:project_name", projectTag);
+		final Query query = parseParametersForQuery(PROTEINS_WITH_THRESHOLD, "threshold.passThreshold=:pass", pass,
+				"threshold.name=:threshold_name", thresholdName, "project.tag=:project_name", projectTag);
 		final List<Protein> list = query.list();
-		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Collection<Protein>> ret = new THashMap<String, Collection<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -718,12 +718,12 @@ public class PreparedQueries {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static Map<String, Set<Protein>> getProteinsWithGene(String projectTag, String geneName) {
+	public static Map<String, Collection<Protein>> getProteinsWithGene(String projectTag, String geneName) {
 
 		final Query query = parseParametersForQuery(PROTEINS_WITH_GENES, "gene.geneId=:gene_name", geneName,
 				"project.tag=:project_name", projectTag);
 		final List<Protein> list = query.list();
-		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Collection<Protein>> ret = new THashMap<String, Collection<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, list);
 		return ret;
 	}
@@ -898,12 +898,12 @@ public class PreparedQueries {
 			+ "Protein protein join protein.organism organism " + "join protein.conditions condition "
 			+ "join condition.project project";
 
-	public static Map<String, Set<Protein>> getProteinsWithTaxonomy(String projectTag, String organismName,
+	public static Map<String, Collection<Protein>> getProteinsWithTaxonomy(String projectTag, String organismName,
 			String ncbiTaxID) {
 		final Query query = parseParametersForQuery(PROTEINS_BY_TAXONOMY, "project.tag=:project_tag", projectTag,
 				"organism.taxonomyId=:taxonomy_id", ncbiTaxID, "organism.name=:organism_name", organismName);
 		final List<Protein> proteinList = query.list();
-		final Map<String, Set<Protein>> ret = new THashMap<String, Set<Protein>>();
+		final Map<String, Collection<Protein>> ret = new THashMap<String, Collection<Protein>>();
 		PersistenceUtils.addToMapByPrimaryAcc(ret, proteinList);
 		return ret;
 	}

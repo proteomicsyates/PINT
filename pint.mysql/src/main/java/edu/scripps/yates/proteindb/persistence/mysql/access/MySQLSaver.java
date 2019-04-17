@@ -33,7 +33,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.Sample;
-import edu.scripps.yates.proteindb.persistence.mysql.Threshold;
 import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ConditionAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProjectAdapter;
@@ -411,9 +410,6 @@ public class MySQLSaver {
 	}
 
 	private void saveAppliedThreshold(ProteinThreshold appliedThreshold) {
-		final Threshold threshold = appliedThreshold.getThreshold();
-
-		ContextualSessionHandler.save(threshold);
 
 		ContextualSessionHandler.save(appliedThreshold);
 	}
