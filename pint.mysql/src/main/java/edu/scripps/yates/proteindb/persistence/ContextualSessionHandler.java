@@ -1,6 +1,7 @@
 package edu.scripps.yates.proteindb.persistence;
 
 import java.io.Serializable;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
@@ -44,6 +45,9 @@ public class ContextualSessionHandler {
 	private static Logger log = Logger.getLogger(ContextualSessionHandler.class);
 	private static Statistics statistics;
 	public static boolean flushEnabledAfterDeletion = false;
+	private static String dbUserName;
+	private static String dbPassword;
+	private static String dbURL;
 
 	/**
 	 * Setup the session factory with a propertiesFile that contains the username
@@ -54,11 +58,20 @@ public class ContextualSessionHandler {
 	 */
 	public static SessionFactory getSessionFactory(String dbUsername, String dbPassword, String dbURL) {
 		if (sessionFactory == null) {
-			sessionFactory = HibernateUtil.getInstance(dbUsername, dbPassword, dbURL).getSessionFactory();
+			final HibernateUtil instance = HibernateUtil.getInstance(dbUsername, dbPassword, dbURL);
+			sessionFactory = instance.getSessionFactory();
+			ContextualSessionHandler.dbUserName = instance.getDbUserName();
+			ContextualSessionHandler.dbPassword = instance.getDbPassword();
+			ContextualSessionHandler.dbURL = instance.getDbURL();
 			// enable statistics
 			sessionFactory.getStatistics().setStatisticsEnabled(true);
 		}
 		return sessionFactory;
+	}
+
+	public static Connection getNewConnection() throws SQLException {
+
+		return HibernateUtil.getInstance(null, null, null).getNewConnection(dbURL, dbUserName, dbPassword);
 	}
 
 	public static void clearSessionFactory() {
@@ -429,7 +442,7 @@ public class ContextualSessionHandler {
 		if (getSessionFactory() != null) {
 			ContextualSessionHandler.statistics = getSessionFactory().getStatistics();
 			if (statistics != null) {
-				log.info("Sessions: " + statistics.getSessionOpenCount() + ", OPEN="
+				log.debug("Sessions: " + statistics.getSessionOpenCount() + ", OPEN="
 						+ (statistics.getSessionOpenCount() - statistics.getSessionCloseCount()) + ", Transactions="
 						+ statistics.getTransactionCount() + ", Connections=" + statistics.getConnectCount());
 
