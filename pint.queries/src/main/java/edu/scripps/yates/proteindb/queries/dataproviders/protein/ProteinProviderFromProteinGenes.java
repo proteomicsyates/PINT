@@ -22,13 +22,13 @@ public class ProteinProviderFromProteinGenes extends ProteinDataProvider {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+	public Map<String, Collection<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
-			result = new THashMap<String, Set<Protein>>();
+			result = new THashMap<String, Collection<Protein>>();
 			int numProteins = 0;
 			if (projectTags == null || projectTags.isEmpty()) {
 				for (final String geneName : geneNames) {
-					final Map<String, Set<Protein>> proteinsWithGene = PreparedQueries.getProteinsWithGene(null,
+					final Map<String, Collection<Protein>> proteinsWithGene = PreparedQueries.getProteinsWithGene(null,
 							geneName);
 					if (testMode && numProteins + proteinsWithGene.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
 						PersistenceUtils.addToMapByPrimaryAcc(result, QueriesUtil.getProteinSubList(proteinsWithGene,
@@ -42,7 +42,7 @@ public class ProteinProviderFromProteinGenes extends ProteinDataProvider {
 			} else {
 				for (final String projectName : projectTags) {
 					for (final String geneName : geneNames) {
-						final Map<String, Set<Protein>> proteinsWithGene = PreparedQueries
+						final Map<String, Collection<Protein>> proteinsWithGene = PreparedQueries
 								.getProteinsWithGene(projectName, geneName);
 						if (testMode && numProteins + proteinsWithGene.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
 							PersistenceUtils.addToMapByPrimaryAcc(result, QueriesUtil.getProteinSubList(

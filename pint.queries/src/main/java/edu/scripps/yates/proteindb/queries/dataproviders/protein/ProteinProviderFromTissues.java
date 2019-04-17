@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.protein;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,13 +20,13 @@ public class ProteinProviderFromTissues extends ProteinDataProvider {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+	public Map<String, Collection<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
 			int numProteins = 0;
-			result = new THashMap<String, Set<Protein>>();
+			result = new THashMap<String, Collection<Protein>>();
 			if (projectTags == null || projectTags.isEmpty()) {
 				final List<Protein> proteinsWithTissues = PreparedCriteria.getProteinsWithTissues(null, tissueNames);
-				Map<String, Set<Protein>> map = new THashMap<String, Set<Protein>>();
+				final Map<String, Collection<Protein>> map = new THashMap<String, Collection<Protein>>();
 				PersistenceUtils.addToMapByPrimaryAcc(map, proteinsWithTissues);
 				if (testMode && numProteins + map.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
 					PersistenceUtils.addToMapByPrimaryAcc(result,
@@ -39,7 +40,7 @@ public class ProteinProviderFromTissues extends ProteinDataProvider {
 				for (final String projectTag : projectTags) {
 					final List<Protein> proteinsWithTissues = PreparedCriteria.getProteinsWithTissues(projectTag,
 							tissueNames);
-					Map<String, Set<Protein>> map = new THashMap<String, Set<Protein>>();
+					final Map<String, Collection<Protein>> map = new THashMap<String, Collection<Protein>>();
 					PersistenceUtils.addToMapByPrimaryAcc(map, proteinsWithTissues);
 					if (testMode && numProteins + proteinsWithTissues.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
 						PersistenceUtils.addToMapByPrimaryAcc(result,

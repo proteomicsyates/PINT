@@ -1,7 +1,7 @@
 package edu.scripps.yates.proteindb.queries.dataproviders.protein;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -29,10 +29,10 @@ public class ProteinProviderFromProteinRatios extends ProteinDataProvider {
 	}
 
 	@Override
-	public Map<String, Set<Protein>> getProteinMap(boolean testMode) {
+	public Map<String, Collection<Protein>> getProteinMap(boolean testMode) {
 		if (result == null) {
 			int numProteins = 0;
-			result = new THashMap<String, Set<Protein>>();
+			result = new THashMap<String, Collection<Protein>>();
 			// condition1 and condition2 only can contain one ConditionProject
 			if (condition1.getConditionProjects().size() != 1) {
 				throw new IllegalArgumentException("First condition con only be referring to one condition");
@@ -50,7 +50,7 @@ public class ProteinProviderFromProteinRatios extends ProteinDataProvider {
 			if (projectTags != null && !projectTags.isEmpty()) {
 				for (final String projectName : projectTags) {
 					final String projectTagFromQuery = conditionProject2.getProjectTag();
-					final Map<String, Set<Protein>> proteinsWithRatios = PreparedQueries.getProteinsWithRatios(
+					final Map<String, Collection<Protein>> proteinsWithRatios = PreparedQueries.getProteinsWithRatios(
 							conditionProject1.getConditionName(), conditionProject2.getConditionName(), projectName,
 							ratioName);
 					if (projectTagFromQuery == null) {
@@ -79,7 +79,7 @@ public class ProteinProviderFromProteinRatios extends ProteinDataProvider {
 				}
 			} else {
 
-				final Map<String, Set<Protein>> proteinsWithRatios = PreparedQueries.getProteinsWithRatios(
+				final Map<String, Collection<Protein>> proteinsWithRatios = PreparedQueries.getProteinsWithRatios(
 						conditionProject1.getConditionName(), conditionProject2.getConditionName(),
 						conditionProject2.getProjectTag(), ratioName);
 				if (testMode && numProteins + proteinsWithRatios.size() > QueriesUtil.TEST_MODE_NUM_PROTEINS) {
