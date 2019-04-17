@@ -40,6 +40,7 @@ public class SharedConstants {
 	public static final boolean FOOTERS_ENABLED = false;
 	// enable or disable the daemon tasks in PintserverDaemon.java
 	public static final boolean DAEMON_TASKS_ENABLED = true;
+	public static final boolean DAEMON_TASKS_ENABLED_IN_TEST_SERVER = false;
 
 	// for development purposes. Set to Integer.MAX_VALUE in production mode.
 	public static final int MAX_NUM_PROTEINS = Integer.MAX_VALUE;
@@ -48,6 +49,7 @@ public class SharedConstants {
 	// client sides
 	public static boolean SERVER_CACHE_ENABLED = true;
 	public static boolean CLIENT_CACHE_ENABLED = true;
+	public static boolean loadTableIDMappingsOnCommonServlet = true;
 
 	// aligment of peptides
 	public static final int DEFAULT_ALIGNMENT_SCORE = 20;
