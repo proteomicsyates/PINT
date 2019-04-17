@@ -8,16 +8,19 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
+import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
-import edu.scripps.yates.proteindb.persistence.mysql.wrappers.RatioValueWrapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ConditionIDToRatioDescriptorIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.RatioDescriptorIDToProteinRatioValueIDTableMapper;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.THashSet;
 import gnu.trove.set.hash.TIntHashSet;
 
 public class ProteinRatioToProteinTableMapper {
 	private final static Logger log = Logger.getLogger(ProteinRatioToProteinTableMapper.class);
-	private final TIntObjectHashMap<List<RatioValueWrapper>> protein_to_proteinRatioValue = new TIntObjectHashMap<List<RatioValueWrapper>>();
+	private final TIntObjectHashMap<List<ProteinRatioValue>> protein_to_proteinRatioValue = new TIntObjectHashMap<List<ProteinRatioValue>>();
 	private static ProteinRatioToProteinTableMapper instance;
 	private final TIntObjectHashMap<RatioDescriptor> ratioDescriptorMap = new TIntObjectHashMap<RatioDescriptor>();
 	private final TIntHashSet conditionIDs = new TIntHashSet();
@@ -38,20 +41,27 @@ public class ProteinRatioToProteinTableMapper {
 			log.info("Caching protein ratios of condition " + condition.getName());
 			conditionIDs.add(condition.getId());
 			// get the ratio descriptors that imply the condition
-			final List<RatioDescriptor> ratioDescriptors = PreparedCriteria.getRatioDescriptorsFromCondition(condition);
+			final TIntSet ratioDescriptorIDs = ConditionIDToRatioDescriptorIDTableMapper.getInstance()
+					.getRatioDescriptorIDsFromConditionID(condition.getId());
+
+			final List<RatioDescriptor> ratioDescriptors = PreparedCriteria
+					.getRatioDescriptorsFromRatioDescriptorIDs(ratioDescriptorIDs, true, 100);
 			// get the proteinratiovaluewrappers that point to the
 			// ratiodescriptors
 			for (final RatioDescriptor ratioDescriptor : ratioDescriptors) {
 				if (!ratioDescriptorMap.containsKey(ratioDescriptor.getId())) {
 					ratioDescriptorMap.put(ratioDescriptor.getId(), ratioDescriptor);
-					final List<RatioValueWrapper> proteinRatioValues = PreparedCriteria
-							.getProteinRatioValuesWrappersFromRatioDescriptor(ratioDescriptor);
+					final TIntSet proteinRatioValueIDs = RatioDescriptorIDToProteinRatioValueIDTableMapper.getInstance()
+							.getProteinRatioValueIDsFromRatioDescriptorID(ratioDescriptor.getId());
+					final List<ProteinRatioValue> proteinRatioValues = (List<ProteinRatioValue>) PreparedCriteria
+							.getBatchLoadByIDs(ProteinRatioValue.class, proteinRatioValueIDs, true, 100);
+// 							.getProteinRatioValuesWrappersFromRatioDescriptor(ratioDescriptor);
 					final Set<Integer> proteinIDs = new THashSet<Integer>();
-					for (final RatioValueWrapper proteinRatioValue : proteinRatioValues) {
-
-						final int proteinID = proteinRatioValue.getProteinPeptideOrPSMID();
+					for (final ProteinRatioValue proteinRatioValue : proteinRatioValues) {
+						// TODO chech if this makes a query:
+						final int proteinID = proteinRatioValue.getProtein().getId();
 						if (!protein_to_proteinRatioValue.containsKey(proteinID)) {
-							final List<RatioValueWrapper> list = new ArrayList<RatioValueWrapper>();
+							final List<ProteinRatioValue> list = new ArrayList<ProteinRatioValue>();
 							protein_to_proteinRatioValue.put(proteinID, list);
 						}
 
@@ -62,7 +72,7 @@ public class ProteinRatioToProteinTableMapper {
 		}
 	}
 
-	public List<RatioValueWrapper> mapProtein(Protein protein) {
+	public List<ProteinRatioValue> mapProtein(Protein protein) {
 
 		return protein_to_proteinRatioValue.get(protein.getId());
 	}
