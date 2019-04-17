@@ -40,6 +40,7 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.annotations.uniprot.index.UniprotXmlIndex;
 import edu.scripps.yates.annotations.util.UniprotEntryCache;
 import edu.scripps.yates.utilities.annotations.UniprotProteinLocalRetrieverInterface;
+import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ObjectFactory;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Uniprot;
@@ -50,6 +51,7 @@ import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
 import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
+import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -377,6 +379,9 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 	@Override
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions,
 			boolean retrieveFastaIsoforms) {
+		if (accessions.size() > 1) {
+			log.info("Getting uniprot annotations from " + accessions.size());
+		}
 		final Set<String> accsToSearch = new THashSet<>();
 		for (final String acc : accessions) {
 			// only search for the uniprot ones
@@ -423,7 +428,7 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 			log.debug(foundInCache + " entries found in cache");
 			if (foundInCache == toFindInCache) {
 				final Map<String, Entry> queryProteinsMap = new THashMap<>();
-				addEntriesToMap(queryProteinsMap, entries);
+				addEntriesToMap(queryProteinsMap, entries, true);
 				return queryProteinsMap;
 			}
 		}
@@ -457,17 +462,21 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 					}
 					int numEntriesRetrievedFromIndex = 0;
 					if (!uniprotIndex.isEmpty() && !accsToSearch.isEmpty()) {
-						log.debug("Looking " + accsToSearch.size() + " entries in the local index of annotations at "
-								+ uniprotXmlFile.getAbsolutePath());
+						if (accsToSearch.size() > 1) {
+							log.info("Looking " + accsToSearch.size() + " entries in the local index of annotations at "
+									+ uniprotXmlFile.getAbsolutePath());
+						}
 						final ProgressCounter counter = new ProgressCounter(accsToSearch.size(),
 								ProgressPrintingType.PERCENTAGE_STEPS, 0);
+						counter.setShowRemainingTime(true);
+						counter.setSuffix("looking into index of annotations.");
 						final Iterator<Entry> itemIterator = uniprotIndex.getIteratorOfItems(accsToSearch);
 						while (itemIterator.hasNext()) {
 
 							counter.increment();
 							final String printIfNecessary = counter.printIfNecessary();
 							if (accsToSearch.size() > 1 && !"".equals(printIfNecessary)) {
-								log.debug(printIfNecessary);
+								log.info(printIfNecessary);
 							}
 							if (Thread.currentThread().isInterrupted()) {
 								throw new RuntimeException("Thread interrupted");
@@ -527,9 +536,9 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 				}
 			}
 			final Map<String, Entry> queryProteinsMap = new THashMap<>();
-			addEntriesToMap(queryProteinsMap, entries);// noIsoformAccs,
-														// queryProteinsMap,
-														// entries);
+			addEntriesToMap(queryProteinsMap, entries, true);// noIsoformAccs,
+			// queryProteinsMap,
+			// entries);
 
 			// look for some protein missing in the local system
 			missingProteinAccs = getMissingAccessions(accsToSearch, queryProteinsMap);// noIsoformAccs,
@@ -768,12 +777,20 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 	}
 
 	protected static void addEntriesToMap(Map<String, Entry> map, List<Entry> entries) {
+		addEntriesToMap(map, entries, true);
+	}
+
+	protected static void addEntriesToMap(Map<String, Entry> map, List<Entry> entries, boolean indexByGeneToo) {
 		for (final Entry entry : entries) {
-			addEntryToMap(map, entry);
+			addEntryToMap(map, entry, indexByGeneToo);
 		}
 	}
 
 	protected static void addEntryToMap(Map<String, Entry> map, Entry entry) {
+		addEntryToMap(map, entry, true);
+	}
+
+	protected static void addEntryToMap(Map<String, Entry> map, Entry entry, boolean indexByGeneToo) {
 
 		final List<String> accessions = entry.getAccession();
 		for (final String accession : accessions) {
@@ -783,6 +800,12 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 		}
 		for (final String name : entry.getName()) {
 			map.put(name, entry);
+		}
+		if (indexByGeneToo) {
+			final List<Pair<String, String>> geneNames = UniprotEntryUtil.getGeneName(entry, true, true);
+			for (final Pair<String, String> pair : geneNames) {
+				map.put(pair.getFirstelement(), entry);
+			}
 		}
 	}
 
