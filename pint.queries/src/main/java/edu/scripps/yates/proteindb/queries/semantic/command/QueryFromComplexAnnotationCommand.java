@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -98,7 +99,7 @@ public class QueryFromComplexAnnotationCommand extends AbstractQuery {
 	public boolean evaluate(QueriableProteinSet protein) {
 		// annotateProtein(protein, uniprotVersion);
 
-		final Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = protein
+		final List<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations = protein
 				.getProteinAnnotations();
 		return evaluate(proteinAnnotations);
 	}
@@ -241,7 +242,8 @@ public class QueryFromComplexAnnotationCommand extends AbstractQuery {
 		return false;
 	}
 
-	public boolean evaluate(Set<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations) {
+	public boolean evaluate(
+			Collection<edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation> proteinAnnotations) {
 		if (proteinAnnotations != null) {
 			int numMatchedAnnotations = 0;
 			// to be included in the result, at least one annotation

@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -117,7 +118,7 @@ public class QueryFromLabelCommand extends AbstractQuery {
 			return queryOverProtein;
 
 		case PEPTIDE:
-			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptide());
+			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptideSet());
 			return queryOverPeptide;
 
 		default:
@@ -128,7 +129,7 @@ public class QueryFromLabelCommand extends AbstractQuery {
 
 	private boolean queryOverProtein(QueriableProteinSet protein) {
 
-		final Set<Condition> conditions = protein.getConditions();
+		final List<Condition> conditions = protein.getConditions();
 		if (conditions != null) {
 			for (final Condition condition : conditions) {
 				final Sample sample = condition.getSample();

@@ -127,7 +127,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 		// for SPC, take the SPC off all the proteins in that condition
 		if (!thereIsProteinAmountManuallyAdded && amountType == AmountType.SPC) {
 			final Set<ProteinAmount> specCounts = new THashSet<ProteinAmount>();
-			final Set<Condition> conditions = queriableProtein.getConditions();
+			final List<Condition> conditions = queriableProtein.getConditions();
 			for (final Condition condition : conditions) {
 				specCounts.add(getSpectralCountProteinAmount(condition, queriableProtein));
 			}
@@ -232,7 +232,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 
 	private Set<ProteinAmount> getProteinAmountsByType(QueriableProteinSet protein) {
 		final Set<ProteinAmount> ret = new THashSet<ProteinAmount>();
-		final Set<ProteinAmount> proteinAmounts = protein.getProteinAmounts();
+		final List<ProteinAmount> proteinAmounts = protein.getProteinAmounts();
 		thereIsProteinAmountManuallyAdded = false;
 		for (final ProteinAmount proteinAmount : proteinAmounts) {
 			if (amountType == null) {
@@ -253,7 +253,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 			}
 		}
 		if (!thereIsProteinAmountManuallyAdded && amountType == AmountType.SPC) {
-			final Set<Condition> conditions = protein.getConditions();
+			final List<Condition> conditions = protein.getConditions();
 			for (final Condition condition : conditions) {
 				ret.add(getSpectralCountProteinAmount(condition, protein));
 			}
@@ -275,8 +275,8 @@ public class QueryFromAmountCommand extends AbstractQuery {
 			}
 		} else {
 			for (final LinkBetweenQueriableProteinSetAndPeptideSet link : protein.getLinksToPeptides()) {
-				if (link.getQueriablePeptide().getConditions().contains(condition)) {
-					final List<Peptide> peptides = link.getQueriablePeptide().getIndividualPeptides();
+				if (link.getQueriablePeptideSet().getConditions().contains(condition)) {
+					final List<Peptide> peptides = link.getQueriablePeptideSet().getIndividualPeptides();
 					for (final Peptide peptide : peptides) {
 						if (peptide.getConditions().contains(condition)) {
 							spcNum += peptide.getNumPsms();
@@ -359,7 +359,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 			return queryOverProtein;
 
 		case PEPTIDE:
-			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptide());
+			final boolean queryOverPeptide = queryOverPeptide(link.getQueriablePeptideSet());
 
 			return queryOverPeptide;
 

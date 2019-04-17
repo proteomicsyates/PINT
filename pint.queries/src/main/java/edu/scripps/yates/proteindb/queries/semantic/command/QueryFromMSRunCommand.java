@@ -1,5 +1,6 @@
 package edu.scripps.yates.proteindb.queries.semantic.command;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -69,7 +70,7 @@ public class QueryFromMSRunCommand extends AbstractQuery {
 
 	private boolean queryOverProtein(QueriableProteinSet queriableProtein) {
 
-		final Set<MsRun> msRuns = queriableProtein.getMsRuns();
+		final List<MsRun> msRuns = queriableProtein.getMsRuns();
 		for (final MsRun msRun : msRuns) {
 			if (msRunIDs.contains(msRun.getRunId())) {
 				return true;

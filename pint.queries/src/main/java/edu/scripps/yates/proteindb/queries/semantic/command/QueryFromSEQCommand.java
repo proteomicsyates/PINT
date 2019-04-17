@@ -169,7 +169,7 @@ public class QueryFromSEQCommand extends AbstractQuery {
 	public boolean evaluate(LinkBetweenQueriableProteinSetAndPeptideSet link) {
 		switch (aggregationLevel) {
 		case PEPTIDE:
-			return evaluate(link.getQueriablePeptide());
+			return evaluate(link.getQueriablePeptideSet());
 
 		case PROTEIN:
 			return evaluate(link.getQueriableProtein());
