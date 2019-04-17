@@ -17,6 +17,7 @@ public class BatchQueryExecutionTask extends PintServerDaemonTask {
 	private final File queriesFile;
 	private final File outputFile;
 	private final boolean psmCentric;
+	private final boolean includePeptides = true;
 
 	public BatchQueryExecutionTask(ServletContext servletContext, boolean psmCentric) {
 		super(servletContext);
@@ -35,7 +36,7 @@ public class BatchQueryExecutionTask extends PintServerDaemonTask {
 		final Set<String> projects = new THashSet<String>();
 		projects.add("DmDshybrids2014");
 		final Map<String, Pair<DataSet, String>> results = RemoteServicesTasks.batchQuery(queriesFile, projects, false,
-				psmCentric);
+				psmCentric, includePeptides);
 		FileWriter out = null;
 		try {
 			out = new FileWriter(outputFile);
