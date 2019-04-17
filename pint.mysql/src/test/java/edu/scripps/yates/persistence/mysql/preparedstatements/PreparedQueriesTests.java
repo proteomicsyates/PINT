@@ -65,7 +65,7 @@ public class PreparedQueriesTests {
 
 		// proteins by project
 
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition("Alzheimer3", null);
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinsByProjectCondition("Alzheimer3", null);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
@@ -76,7 +76,7 @@ public class PreparedQueriesTests {
 
 		// proteins by project
 
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition("Alzheimer3",
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinsByProjectCondition("Alzheimer3",
 				"ad_pre_ctx_N15");
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
@@ -88,13 +88,14 @@ public class PreparedQueriesTests {
 
 		// proteins by project
 		final int size = 500;
-		final Map<String, Set<Protein>> map = PreparedQueries.getProteinsByProjectCondition(null, "ad_pre_ctx_N15");
+		final Map<String, Collection<Protein>> map = PreparedQueries.getProteinsByProjectCondition(null,
+				"ad_pre_ctx_N15");
 		Assert.assertFalse(map.isEmpty());
 		System.out.println(map.size() + " elements");
 		Assert.assertEquals(size, map.size());
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(map));
 		for (final String acc : map.keySet()) {
-			final Set<Protein> proteinSet = map.get(acc);
+			final Collection<Protein> proteinSet = map.get(acc);
 			for (final Protein protein : proteinSet) {
 				final Set<Condition> conditions1 = protein.getConditions();
 				boolean found = false;
@@ -146,14 +147,14 @@ public class PreparedQueriesTests {
 	@Test
 	public void getAllProteins() {
 
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, null);
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinsByProjectCondition(null, null);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
 		Assert.assertTrue(testIfAllProteinsHasTheSamePsmsAsItsPeptideHave(list));
 	}
 
-	private boolean testIfAllProteinsHasPrimaryAccessions(Map<String, Set<Protein>> proteins) {
+	private boolean testIfAllProteinsHasPrimaryAccessions(Map<String, Collection<Protein>> proteins) {
 		// for (final Set<Protein> proteinSet : proteins.values()) {
 		// for (final Protein protein : proteinSet) {
 		//
@@ -172,8 +173,8 @@ public class PreparedQueriesTests {
 		return true;
 	}
 
-	private boolean testIfAllProteinsHasTheSamePsmsAsItsPeptideHave(Map<String, Set<Protein>> proteins) {
-		for (final Set<Protein> proteinSet : proteins.values()) {
+	private boolean testIfAllProteinsHasTheSamePsmsAsItsPeptideHave(Map<String, Collection<Protein>> proteins) {
+		for (final Collection<Protein> proteinSet : proteins.values()) {
 
 			for (final Protein protein : proteinSet) {
 				final TIntHashSet psmIds = new TIntHashSet();
@@ -210,10 +211,10 @@ public class PreparedQueriesTests {
 		return true;
 	}
 
-	private boolean testIfAllProteinsHasDifferentDBID(Map<String, Set<Protein>> proteins) {
+	private boolean testIfAllProteinsHasDifferentDBID(Map<String, Collection<Protein>> proteins) {
 		final TIntHashSet proteinIDs = new TIntHashSet();
 
-		for (final Set<Protein> proteinSet : proteins.values()) {
+		for (final Collection<Protein> proteinSet : proteins.values()) {
 			for (final Protein protein : proteinSet) {
 
 				if (!proteinIDs.contains(protein.getId())) {
@@ -363,8 +364,8 @@ public class PreparedQueriesTests {
 		final String condition1Name = "WT";
 		final String projectName = sandraProject;
 		final String condition2Name = "MUT";
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsWithRatios(condition2Name, condition1Name,
-				projectName, null);
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinsWithRatios(condition2Name,
+				condition1Name, projectName, null);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
@@ -377,7 +378,7 @@ public class PreparedQueriesTests {
 		final String condition1Name = "WT";
 		final String projectName = sandraProject;
 		final String condition2Name = "MUT";
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsWithRatiosAndScores(condition2Name,
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinsWithRatiosAndScores(condition2Name,
 				condition1Name, projectName, "myratio", ">=", 2.0, "myScore", "scoreType", "<", 1.0);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
@@ -391,7 +392,7 @@ public class PreparedQueriesTests {
 		final String condition1Name = "PCP";
 		final String projectName = danielsProject;
 		final String condition2Name = "Sal";
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinWithPSMWithRatios(condition2Name,
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinWithPSMWithRatios(condition2Name,
 				condition1Name, projectName, null);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
@@ -418,10 +419,10 @@ public class PreparedQueriesTests {
 		final String condition1Name = "PCP";
 		final String projectName = danielsProject;
 		final String condition2Name = "Sal";
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinWithPSMWithRatios(condition2Name,
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinWithPSMWithRatios(condition2Name,
 				condition1Name, projectName, null);
 		final TIntHashSet proteinIds1 = new TIntHashSet();
-		for (final Set<Protein> proteinSet : list.values()) {
+		for (final Collection<Protein> proteinSet : list.values()) {
 			for (final Protein protein : proteinSet) {
 				proteinIds1.add(protein.getId());
 			}
@@ -461,13 +462,14 @@ public class PreparedQueriesTests {
 	@Test
 	public void getProteinsWithThresholds() {
 
-		final Map<String, Set<Protein>> list = PreparedQueries.getProteinsWithThreshold(null, "Xscorefilter_6h", true);
+		final Map<String, Collection<Protein>> list = PreparedQueries.getProteinsWithThreshold(null, "Xscorefilter_6h",
+				true);
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 		Assert.assertTrue(testIfAllProteinsHasPrimaryAccessions(list));
 		Assert.assertTrue(testIfAllProteinsHasDifferentDBID(list));
 
-		final Map<String, Set<Protein>> list2 = PreparedQueries.getProteinsWithThreshold(sandraProject,
+		final Map<String, Collection<Protein>> list2 = PreparedQueries.getProteinsWithThreshold("_CFTR_",
 				"Xscorefilter_6h", true);
 		Assert.assertFalse(list2.isEmpty());
 		System.out.println(list2.size() + " elements");
@@ -577,28 +579,28 @@ public class PreparedQueriesTests {
 
 	@Test
 	public void getProteinsByTaxonomy() {
-		final Map<String, Set<Protein>> proteinsWithTaxonomy = PreparedQueries.getProteinsWithTaxonomy(null,
+		final Map<String, Collection<Protein>> proteinsWithTaxonomy = PreparedQueries.getProteinsWithTaxonomy(null,
 				"Drosophila simulans", null);
 		Assert.assertNotNull(proteinsWithTaxonomy);
 		System.out.println(proteinsWithTaxonomy.size());
 		Assert.assertTrue(!proteinsWithTaxonomy.isEmpty());
 
-		final Map<String, Set<Protein>> proteinsWithTaxonomy2 = PreparedQueries.getProteinsWithTaxonomy(null, null,
-				"7240");
+		final Map<String, Collection<Protein>> proteinsWithTaxonomy2 = PreparedQueries.getProteinsWithTaxonomy(null,
+				null, "7240");
 		Assert.assertNotNull(proteinsWithTaxonomy2);
 		System.out.println(proteinsWithTaxonomy2.size());
 		Assert.assertTrue(!proteinsWithTaxonomy2.isEmpty());
 
 		Assert.assertEquals(proteinsWithTaxonomy.size(), proteinsWithTaxonomy2.size());
 
-		final Map<String, Set<Protein>> proteinsWithTaxonomy3 = PreparedQueries
+		final Map<String, Collection<Protein>> proteinsWithTaxonomy3 = PreparedQueries
 				.getProteinsWithTaxonomy("not valid project tag", null, "7240");
 		Assert.assertNotNull(proteinsWithTaxonomy3);
 		System.out.println(proteinsWithTaxonomy3.size());
 		Assert.assertTrue(proteinsWithTaxonomy3.isEmpty());
 
-		final Map<String, Set<Protein>> proteinsWithTaxonomy4 = PreparedQueries.getProteinsWithTaxonomy("DroHybrids",
-				null, "7240");
+		final Map<String, Collection<Protein>> proteinsWithTaxonomy4 = PreparedQueries
+				.getProteinsWithTaxonomy("DroHybrids", null, "7240");
 		Assert.assertNotNull(proteinsWithTaxonomy4);
 		System.out.println(proteinsWithTaxonomy4.size());
 		Assert.assertTrue(!proteinsWithTaxonomy4.isEmpty());
