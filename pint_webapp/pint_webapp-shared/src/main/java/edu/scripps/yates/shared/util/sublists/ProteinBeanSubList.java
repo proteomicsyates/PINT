@@ -6,7 +6,7 @@ import java.util.List;
 
 import edu.scripps.yates.shared.model.ProteinBean;
 
-public class ProteinBeanSubList extends DataSubList<ProteinBean>implements Serializable {
+public class ProteinBeanSubList extends DataSubList<ProteinBean> implements Serializable {
 
 	/**
 	 *
@@ -23,13 +23,18 @@ public class ProteinBeanSubList extends DataSubList<ProteinBean>implements Seria
 
 	public static ProteinBeanSubList getLightProteinBeanSubList(List<ProteinBean> proteins, int totalNumberOfItems) {
 
-		List<ProteinBean> clonedProteins = new ArrayList<ProteinBean>();
-		for (ProteinBean proteinBean : proteins) {
-			ProteinBean clonedProtein = proteinBean.cloneToLightProteinBean();
+		final List<ProteinBean> clonedProteins = new ArrayList<ProteinBean>();
+		for (final ProteinBean proteinBean : proteins) {
+			final ProteinBean clonedProtein = proteinBean.cloneToLightProteinBean();
 			clonedProteins.add(clonedProtein);
 
 		}
 		return new ProteinBeanSubList(clonedProteins, totalNumberOfItems);
 	}
 
+	public static ProteinBeanSubList getLightProteinBeanSubListFromLightProteins(List<ProteinBean> lightProteins,
+			int totalNumberOfItems) {
+
+		return new ProteinBeanSubList(lightProteins, totalNumberOfItems);
+	}
 }
