@@ -1,8 +1,10 @@
 package edu.scripps.yates.shared.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class AmountBean implements Serializable {
@@ -66,15 +68,14 @@ public class AmountBean implements Serializable {
 	}
 
 	/**
-	 * @param isComposed
-	 *            the isComposed to set
+	 * @param isComposed the isComposed to set
 	 */
 	public void setComposed(boolean isComposed) {
 		this.isComposed = isComposed;
 	}
 
-	public static Set<AmountBean> getComposedAmounts(Collection<AmountBean> amounts) {
-		final Set<AmountBean> ret = new HashSet<AmountBean>();
+	public static List<AmountBean> getComposedAmounts(Collection<AmountBean> amounts) {
+		final List<AmountBean> ret = new ArrayList<AmountBean>();
 		for (final AmountBean amount : amounts) {
 			if (amount.isComposed())
 				ret.add(amount);
@@ -91,8 +92,7 @@ public class AmountBean implements Serializable {
 	}
 
 	/**
-	 * @param msRun
-	 *            the msRun to set
+	 * @param msRun the msRun to set
 	 */
 	public void setMsRun(Set<MSRunBean> msRuns) {
 		this.msRuns = msRuns;

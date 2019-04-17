@@ -41,9 +41,9 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	private Double ionProportion;
 	private Double pi;
 	private Map<String, ScoreBean> scores = new HashMap<String, ScoreBean>();
-	private Set<AmountBean> amounts = new HashSet<AmountBean>();
-	private HashMap<String, Set<AmountBean>> amountsByExperimentalCondition = new HashMap<String, Set<AmountBean>>();
-	private HashMap<String, List<RatioBean>> ratiosByExperimentalcondition = new HashMap<String, List<RatioBean>>();
+	private List<AmountBean> amounts = new ArrayList<AmountBean>();
+	private HashMap<String, List<AmountBean>> amountsByExperimentalCondition = new HashMap<String, List<AmountBean>>();
+	private HashMap<String, Set<RatioBean>> ratiosByExperimentalcondition = new HashMap<String, Set<RatioBean>>();
 	private Set<ProteinBean> proteins = new HashSet<ProteinBean>();
 	private Set<RatioBean> ratios = new HashSet<RatioBean>();
 	private List<AccessionBean> proteinsPrimaryAccessions = new ArrayList<AccessionBean>();
@@ -270,11 +270,11 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	}
 
 	@Override
-	public Set<AmountBean> getAmounts() {
+	public List<AmountBean> getAmounts() {
 		return amounts;
 	}
 
-	public void setAmounts(Set<AmountBean> amounts) {
+	public void setAmounts(List<AmountBean> amounts) {
 		this.amounts = amounts;
 	}
 
@@ -282,7 +282,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	 * @return the proteinAmountsByExperimentalCondition
 	 */
 	@Override
-	public HashMap<String, Set<AmountBean>> getAmountsByExperimentalCondition() {
+	public HashMap<String, List<AmountBean>> getAmountsByExperimentalCondition() {
 		return amountsByExperimentalCondition;
 	}
 
@@ -292,7 +292,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	 *                                              to set
 	 */
 	public void setAmountsByExperimentalCondition(
-			HashMap<String, Set<AmountBean>> proteinAmountsByExperimentalCondition) {
+			HashMap<String, List<AmountBean>> proteinAmountsByExperimentalCondition) {
 		amountsByExperimentalCondition = proteinAmountsByExperimentalCondition;
 	}
 
@@ -303,12 +303,12 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		addtoMap(amountsByExperimentalCondition, psmAmount);
 	}
 
-	private void addtoMap(HashMap<String, Set<AmountBean>> map, AmountBean amount) {
+	private void addtoMap(HashMap<String, List<AmountBean>> map, AmountBean amount) {
 		final String key = amount.getExperimentalCondition().getId();
 		if (map.containsKey(key)) {
 			map.get(key).add(amount);
 		} else {
-			final Set<AmountBean> set = new HashSet<AmountBean>();
+			final List<AmountBean> set = new ArrayList<AmountBean>();
 			set.add(amount);
 			map.put(key, set);
 		}
@@ -404,14 +404,14 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		if (ratiosByExperimentalcondition.containsKey(condition1.getId())) {
 			ratiosByExperimentalcondition.get(condition1.getId()).add(ratioBean);
 		} else {
-			final List<RatioBean> set = new ArrayList<RatioBean>();
+			final Set<RatioBean> set = new HashSet<RatioBean>();
 			set.add(ratioBean);
 			ratiosByExperimentalcondition.put(condition1.getId(), set);
 		}
 		if (ratiosByExperimentalcondition.containsKey(condition2.getId())) {
 			ratiosByExperimentalcondition.get(condition2.getId()).add(ratioBean);
 		} else {
-			final List<RatioBean> set = new ArrayList<RatioBean>();
+			final Set<RatioBean> set = new HashSet<RatioBean>();
 			set.add(ratioBean);
 			ratiosByExperimentalcondition.put(condition2.getId(), set);
 		}
@@ -449,14 +449,14 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	/**
 	 * @return the ratiosByExperimentalcondition
 	 */
-	public HashMap<String, List<RatioBean>> getRatiosByExperimentalcondition() {
+	public HashMap<String, Set<RatioBean>> getRatiosByExperimentalcondition() {
 		return ratiosByExperimentalcondition;
 	}
 
 	/**
 	 * @param ratiosByExperimentalcondition the ratiosByExperimentalcondition to set
 	 */
-	public void setRatiosByExperimentalcondition(HashMap<String, List<RatioBean>> ratiosByExperimentalcondition) {
+	public void setRatiosByExperimentalcondition(HashMap<String, Set<RatioBean>> ratiosByExperimentalcondition) {
 		this.ratiosByExperimentalcondition = ratiosByExperimentalcondition;
 	}
 
@@ -485,7 +485,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	public String getAmountTypeString(String conditionName, String projectTag) {
 
 		final Set<AmountType> amountTypes = new HashSet<AmountType>();
-		final Set<AmountBean> amounts2 = getAmounts();
+		final List<AmountBean> amounts2 = getAmounts();
 		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
@@ -508,7 +508,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	@Override
 	public boolean hasCombinationAmounts(String conditionName, String projectTag) {
 
-		final Set<AmountBean> amounts2 = getAmounts();
+		final List<AmountBean> amounts2 = getAmounts();
 		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
@@ -525,7 +525,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	public List<AmountBean> getCombinationAmount(String conditionName, String projectTag) {
 		final List<AmountBean> ret = new ArrayList<AmountBean>();
 
-		final Set<AmountBean> amounts2 = getAmounts();
+		final List<AmountBean> amounts2 = getAmounts();
 		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
@@ -541,7 +541,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	@Override
 	public List<AmountBean> getNonCombinationAmounts(String conditionName, String projectTag) {
 		final List<AmountBean> ret = new ArrayList<AmountBean>();
-		final Set<AmountBean> amounts2 = getAmounts();
+		final List<AmountBean> amounts2 = getAmounts();
 		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
@@ -836,6 +836,8 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 			lightVersion.setTotalIntensity(getTotalIntensity());
 			lightVersion.setRelation(getRelation());
 			lightVersion.ratioDistributions = getRatioDistributions();
+			// set the light version of the light version to itself
+			lightVersion.lightVersion = lightVersion;
 		}
 		return lightVersion;
 	}

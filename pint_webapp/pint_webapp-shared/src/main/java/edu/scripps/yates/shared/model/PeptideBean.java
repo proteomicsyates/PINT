@@ -42,8 +42,8 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	private int length;
 	private Double calculatedMH;
 	private Map<String, ScoreBean> scores = new HashMap<String, ScoreBean>();
-	private Set<AmountBean> amounts = new HashSet<AmountBean>();
-	private HashMap<String, Set<AmountBean>> amountsByExperimentalCondition = new HashMap<String, Set<AmountBean>>();
+	private List<AmountBean> amounts = new ArrayList<AmountBean>();
+	private HashMap<String, List<AmountBean>> amountsByExperimentalCondition = new HashMap<String, List<AmountBean>>();
 	private HashMap<String, List<RatioBean>> ratiosByExperimentalcondition = new HashMap<String, List<RatioBean>>();
 	private Set<ProteinBean> proteins = new HashSet<ProteinBean>();
 	private List<PSMBean> psms = new ArrayList<PSMBean>();
@@ -62,7 +62,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	private Set<String> rawSequences = new HashSet<String>();
 	private int peptideBeanUniqueIdentifier;
 	private int numPSMs;
-	private PeptideBean lightVersion;
+	PeptideBean lightVersion;
 	private PeptideRelation relation;
 	private Map<String, RatioDistribution> ratioDistributions;
 	private List<PTMBean> ptms = new ArrayList<PTMBean>();
@@ -129,7 +129,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	}
 
 	public void addPSMToPeptide(PSMBean psm) {
-		if (psm == null || psmIds.contains(psm.getDbID()) || psms.contains(psm)) {
+		if (psm == null || (psmIds.contains(psm.getDbID()) && !psms.isEmpty()) || psms.contains(psm)) {
 			return;
 		}
 		psms.add(psm);
@@ -233,8 +233,6 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	public void addScore(ScoreBean score) {
 		if (scores == null)
 			scores = new HashMap<String, ScoreBean>();
-		if (score.getScoreName() == null)
-			System.out.println("Asdf");
 		scores.put(score.getScoreName(), score);
 	}
 
@@ -243,11 +241,11 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	}
 
 	@Override
-	public Set<AmountBean> getAmounts() {
+	public List<AmountBean> getAmounts() {
 		return amounts;
 	}
 
-	public void setAmounts(Set<AmountBean> amounts) {
+	public void setAmounts(List<AmountBean> amounts) {
 		this.amounts = amounts;
 	}
 
@@ -255,7 +253,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	 * @return the proteinAmountsByExperimentalCondition
 	 */
 	@Override
-	public HashMap<String, Set<AmountBean>> getAmountsByExperimentalCondition() {
+	public HashMap<String, List<AmountBean>> getAmountsByExperimentalCondition() {
 		return amountsByExperimentalCondition;
 	}
 
@@ -265,7 +263,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	 *                                              to set
 	 */
 	public void setAmountsByExperimentalCondition(
-			HashMap<String, Set<AmountBean>> proteinAmountsByExperimentalCondition) {
+			HashMap<String, List<AmountBean>> proteinAmountsByExperimentalCondition) {
 		amountsByExperimentalCondition = proteinAmountsByExperimentalCondition;
 	}
 
@@ -276,12 +274,12 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		addtoMap(amountsByExperimentalCondition, psmAmount);
 	}
 
-	private void addtoMap(HashMap<String, Set<AmountBean>> map, AmountBean amount) {
+	private void addtoMap(HashMap<String, List<AmountBean>> map, AmountBean amount) {
 		final String key = amount.getExperimentalCondition().getId();
 		if (map.containsKey(key)) {
 			map.get(key).add(amount);
 		} else {
-			final Set<AmountBean> set = new HashSet<AmountBean>();
+			final List<AmountBean> set = new ArrayList<AmountBean>();
 			set.add(amount);
 			map.put(key, set);
 		}
@@ -301,7 +299,8 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	}
 
 	public boolean addProteinToPeptide(ProteinBean protein) {
-		if (protein == null || proteins.contains(protein) || proteinDBIds.containsAll(protein.getDbIds())) {
+
+		if (protein == null || proteins.contains(protein)) {
 			return false;
 		}
 		proteins.add(protein);
@@ -310,7 +309,6 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 			proteinsPrimaryAccessions.add(protein.getPrimaryAccession());
 		}
 		protein.addPeptideToProtein(this);
-
 		// final List<PSMBean> psms2 = protein.getPsms();
 		// for (PSMBean psmBean : psms2) {
 		// addPSMToPeptide(psmBean);
@@ -440,7 +438,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	public String getAmountTypeString(String conditionName, String projectTag) {
 
 		final Set<AmountType> amountTypes = new HashSet<AmountType>();
-		final Set<AmountBean> amounts2 = getAmounts();
+		final List<AmountBean> amounts2 = getAmounts();
 		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
@@ -463,7 +461,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	@Override
 	public boolean hasCombinationAmounts(String conditionName, String projectTag) {
 
-		final Set<AmountBean> amounts2 = getAmounts();
+		final List<AmountBean> amounts2 = getAmounts();
 		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
@@ -480,7 +478,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	public List<AmountBean> getCombinationAmount(String conditionName, String projectTag) {
 		final List<AmountBean> ret = new ArrayList<AmountBean>();
 
-		final Set<AmountBean> amounts2 = getAmounts();
+		final List<AmountBean> amounts2 = getAmounts();
 		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
@@ -496,7 +494,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	@Override
 	public List<AmountBean> getNonCombinationAmounts(String conditionName, String projectTag) {
 		final List<AmountBean> ret = new ArrayList<AmountBean>();
-		final Set<AmountBean> amounts2 = getAmounts();
+		final List<AmountBean> amounts2 = getAmounts();
 		for (final AmountBean amountBean : amounts2) {
 			if (amountBean.getExperimentalCondition().getId().equals(conditionName)) {
 				if (amountBean.getExperimentalCondition().getProject().getTag().equals(projectTag)) {
@@ -799,6 +797,8 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		if (lightVersion == null) {
 			seqs.add(getSequence());
 			lightVersion = new PeptideBean();
+			// set the light version of the light version to itself
+			lightVersion.lightVersion = lightVersion;
 			lightVersion.setAmounts(getAmounts());
 			lightVersion.setAmountsByExperimentalCondition(getAmountsByExperimentalCondition());
 			lightVersion.setCalculatedMH(getCalculatedMH());
@@ -836,8 +836,37 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 				final ProteinBean lightProtein = proteinBean.cloneToLightProteinBean();
 				lightVersion.addProteinToPeptide(lightProtein);
 			}
+
+		}
+		if (needsToQueryProteins()) {
+			for (final ProteinBean proteinBean : getProteins()) {
+				ProteinBean lightProtein = proteinBean.lightVersion;
+				if (lightProtein == null) {
+					lightProtein = proteinBean.cloneToLightProteinBean();
+				}
+				lightVersion.addProteinToPeptide(lightProtein);
+			}
 		}
 		return lightVersion;
+	}
+
+	/**
+	 * Returns true if some proteinDBIds are not retrieved yet
+	 * 
+	 * @return
+	 */
+	public boolean needsToQueryProteins() {
+
+		final Set<ProteinBean> proteins2 = getProteins();
+		final Set<Integer> proteinDBIds3 = new HashSet<Integer>();
+		for (final ProteinBean proteinBean : proteins2) {
+			proteinDBIds3.addAll(proteinBean.getDbIds());
+		}
+		if (proteinDBIds3.size() != getProteinDBIds().size()) {
+			System.out.println("Needs to query proteins from peptideBean " + this.getId());
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -880,6 +909,9 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	 * @return the relation
 	 */
 	public PeptideRelation getRelation() {
+		if (relation == null) {
+			relation = getProteins().iterator().next().getPeptideRelationsBySequence().get(getSequence());
+		}
 		return relation;
 	}
 
