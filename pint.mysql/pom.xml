@@ -6,7 +6,6 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <hibernate.version>5.1.0.Final</hibernate.version>
-    <spring-framework.version>4.1.4.RELEASE</spring-framework.version>
   </properties>
   <distributionManagement>
 		<repository>
@@ -46,11 +45,6 @@
   		<version>1.2.16</version>
   	</dependency>
   	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-core</artifactId>
-		<version>${spring-framework.version}</version>
-	</dependency>
-    <dependency>
 		<groupId>xerces</groupId>
 		<artifactId>xercesImpl</artifactId>
 		<version>2.11.0</version>
