@@ -364,7 +364,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			}
 
 			final QueryResultSubLists proteinsFromQuery = getProteinsFromQuery(sessionID, querySB.toString(),
-					projectTags, uniprotVersion, separateNonConclusiveProteins, false, testMode, false, false, task);
+					projectTags, uniprotVersion, separateNonConclusiveProteins, //
+					false, // do not lock
+					testMode, false, false, task);
 
 			if (defaultQueryIndex == null && !dataSet.getProteins().isEmpty()) {
 				// add to cache by project tags
