@@ -95,7 +95,6 @@ public class PreLoadPublicProjects extends PintServerDaemonTask {
 
 						final long t1 = System.currentTimeMillis();
 
-						ServerTaskRegister.getInstance().registerTask(task);
 						log.info("Pre loading project: " + projectBean.getTag());
 						final Set<String> projectTagSet = new THashSet<String>();
 						projectTagSet.add(projectBean.getTag());
