@@ -64,15 +64,21 @@ public class GroupableExtendedProteinBean implements GroupableProtein {
 					// but we have the peptideIds
 					final Set<String> fullPeptideSequences = protein.getDifferentSequences();
 					for (final String fullPeptideSequence : fullPeptideSequences) {
-						final String cleanPeptideSequence = FastaParser.cleanSequence(fullPeptideSequence);
-						GroupableExtendedPeptideBean peptide = null;
-						if (GroupableExtendedPeptideBean.map.containsKey(cleanPeptideSequence)) {
-							peptide = GroupableExtendedPeptideBean.map.get(cleanPeptideSequence);
-						} else {
-							peptide = new GroupableExtendedPeptideBean(cleanPeptideSequence);
+						try {
+							final String cleanPeptideSequence = FastaParser.cleanSequence(fullPeptideSequence);
+
+							GroupableExtendedPeptideBean peptide = null;
+							if (GroupableExtendedPeptideBean.map.containsKey(cleanPeptideSequence)) {
+								peptide = GroupableExtendedPeptideBean.map.get(cleanPeptideSequence);
+							} else {
+								peptide = new GroupableExtendedPeptideBean(cleanPeptideSequence);
+							}
+							groupablePeptides.add(peptide);
+							peptide.addGroupableProteins(this);
+						} catch (final IllegalArgumentException e) {
+							continue;
+							// ignore that peptide
 						}
-						groupablePeptides.add(peptide);
-						peptide.addGroupableProteins(this);
 					}
 				}
 			}
