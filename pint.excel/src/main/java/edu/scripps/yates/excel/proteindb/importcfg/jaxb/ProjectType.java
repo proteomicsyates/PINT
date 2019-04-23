@@ -5,7 +5,6 @@
 // Generated on: 2017.03.11 at 03:44:17 PM PST 
 //
 
-
 package edu.scripps.yates.excel.proteindb.importcfg.jaxb;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,11 +15,13 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for projectType complex type.
+ * <p>
+ * Java class for projectType complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType name="projectType">
@@ -45,249 +46,228 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "projectType", propOrder = {
-    "description",
-    "experimentalConditions",
-    "ratios",
-    "msRuns",
-    "experimentalDesign"
-})
+@XmlType(name = "projectType", propOrder = { "description", "experimentalConditions", "ratios", "msRuns",
+		"experimentalDesign", "principalInvestigator" })
 public class ProjectType {
 
-    @XmlElement(required = true)
-    protected String description;
-    @XmlElement(name = "experimental_conditions", required = true)
-    protected ExperimentalConditionsType experimentalConditions;
-    @XmlElement(required = true)
-    protected RatiosType ratios;
-    @XmlElement(required = true)
-    protected MsRunsType msRuns;
-    @XmlElement(name = "experimental_design", required = true)
-    protected ExperimentalDesignType experimentalDesign;
-    @XmlAttribute(name = "name", required = true)
-    protected String name;
-    @XmlAttribute(name = "quantitative")
-    protected Boolean quantitative;
-    @XmlAttribute(name = "release_date")
-    @XmlSchemaType(name = "date")
-    protected XMLGregorianCalendar releaseDate;
-    @XmlAttribute(name = "tag", required = true)
-    protected String tag;
+	@XmlElement(required = true)
+	protected String description;
+	@XmlElement(name = "experimental_conditions", required = true)
+	protected ExperimentalConditionsType experimentalConditions;
+	@XmlElement(required = true)
+	protected RatiosType ratios;
+	@XmlElement(required = true)
+	protected MsRunsType msRuns;
+	@XmlElement(name = "experimental_design", required = true)
+	protected ExperimentalDesignType experimentalDesign;
+	@XmlElement(name = "principal_investigator")
+	protected PrincipalInvestigatorType principalInvestigator;
+	@XmlAttribute(name = "name", required = true)
+	protected String name;
+	@XmlAttribute(name = "quantitative")
+	protected Boolean quantitative;
+	@XmlAttribute(name = "release_date")
+	@XmlSchemaType(name = "date")
+	protected XMLGregorianCalendar releaseDate;
+	@XmlAttribute(name = "tag", required = true)
+	protected String tag;
+	@XmlAttribute(name = "instruments")
+	protected String instruments;
 
-    /**
-     * Gets the value of the description property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDescription() {
-        return description;
-    }
+	public String getInstruments() {
+		return instruments;
+	}
 
-    /**
-     * Sets the value of the description property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDescription(String value) {
-        this.description = value;
-    }
+	public void setInstruments(String instruments) {
+		this.instruments = instruments;
+	}
 
-    /**
-     * Gets the value of the experimentalConditions property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ExperimentalConditionsType }
-     *     
-     */
-    public ExperimentalConditionsType getExperimentalConditions() {
-        return experimentalConditions;
-    }
+	/**
+	 * Gets the value of the description property.
+	 * 
+	 * @return possible object is {@link String }
+	 * 
+	 */
+	public String getDescription() {
+		return description;
+	}
 
-    /**
-     * Sets the value of the experimentalConditions property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ExperimentalConditionsType }
-     *     
-     */
-    public void setExperimentalConditions(ExperimentalConditionsType value) {
-        this.experimentalConditions = value;
-    }
+	/**
+	 * Sets the value of the description property.
+	 * 
+	 * @param value allowed object is {@link String }
+	 * 
+	 */
+	public void setDescription(String value) {
+		this.description = value;
+	}
 
-    /**
-     * Gets the value of the ratios property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link RatiosType }
-     *     
-     */
-    public RatiosType getRatios() {
-        return ratios;
-    }
+	/**
+	 * Gets the value of the experimentalConditions property.
+	 * 
+	 * @return possible object is {@link ExperimentalConditionsType }
+	 * 
+	 */
+	public ExperimentalConditionsType getExperimentalConditions() {
+		return experimentalConditions;
+	}
 
-    /**
-     * Sets the value of the ratios property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link RatiosType }
-     *     
-     */
-    public void setRatios(RatiosType value) {
-        this.ratios = value;
-    }
+	/**
+	 * Sets the value of the experimentalConditions property.
+	 * 
+	 * @param value allowed object is {@link ExperimentalConditionsType }
+	 * 
+	 */
+	public void setExperimentalConditions(ExperimentalConditionsType value) {
+		this.experimentalConditions = value;
+	}
 
-    /**
-     * Gets the value of the msRuns property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link MsRunsType }
-     *     
-     */
-    public MsRunsType getMsRuns() {
-        return msRuns;
-    }
+	/**
+	 * Gets the value of the ratios property.
+	 * 
+	 * @return possible object is {@link RatiosType }
+	 * 
+	 */
+	public RatiosType getRatios() {
+		return ratios;
+	}
 
-    /**
-     * Sets the value of the msRuns property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link MsRunsType }
-     *     
-     */
-    public void setMsRuns(MsRunsType value) {
-        this.msRuns = value;
-    }
+	/**
+	 * Sets the value of the ratios property.
+	 * 
+	 * @param value allowed object is {@link RatiosType }
+	 * 
+	 */
+	public void setRatios(RatiosType value) {
+		this.ratios = value;
+	}
 
-    /**
-     * Gets the value of the experimentalDesign property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ExperimentalDesignType }
-     *     
-     */
-    public ExperimentalDesignType getExperimentalDesign() {
-        return experimentalDesign;
-    }
+	/**
+	 * Gets the value of the msRuns property.
+	 * 
+	 * @return possible object is {@link MsRunsType }
+	 * 
+	 */
+	public MsRunsType getMsRuns() {
+		return msRuns;
+	}
 
-    /**
-     * Sets the value of the experimentalDesign property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ExperimentalDesignType }
-     *     
-     */
-    public void setExperimentalDesign(ExperimentalDesignType value) {
-        this.experimentalDesign = value;
-    }
+	/**
+	 * Sets the value of the msRuns property.
+	 * 
+	 * @param value allowed object is {@link MsRunsType }
+	 * 
+	 */
+	public void setMsRuns(MsRunsType value) {
+		this.msRuns = value;
+	}
 
-    /**
-     * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getName() {
-        return name;
-    }
+	/**
+	 * Gets the value of the experimentalDesign property.
+	 * 
+	 * @return possible object is {@link ExperimentalDesignType }
+	 * 
+	 */
+	public ExperimentalDesignType getExperimentalDesign() {
+		return experimentalDesign;
+	}
 
-    /**
-     * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setName(String value) {
-        this.name = value;
-    }
+	/**
+	 * Sets the value of the experimentalDesign property.
+	 * 
+	 * @param value allowed object is {@link ExperimentalDesignType }
+	 * 
+	 */
+	public void setExperimentalDesign(ExperimentalDesignType value) {
+		this.experimentalDesign = value;
+	}
 
-    /**
-     * Gets the value of the quantitative property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    public Boolean isQuantitative() {
-        return quantitative;
-    }
+	/**
+	 * Gets the value of the name property.
+	 * 
+	 * @return possible object is {@link String }
+	 * 
+	 */
+	public String getName() {
+		return name;
+	}
 
-    /**
-     * Sets the value of the quantitative property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    public void setQuantitative(Boolean value) {
-        this.quantitative = value;
-    }
+	/**
+	 * Sets the value of the name property.
+	 * 
+	 * @param value allowed object is {@link String }
+	 * 
+	 */
+	public void setName(String value) {
+		this.name = value;
+	}
 
-    /**
-     * Gets the value of the releaseDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getReleaseDate() {
-        return releaseDate;
-    }
+	/**
+	 * Gets the value of the quantitative property.
+	 * 
+	 * @return possible object is {@link Boolean }
+	 * 
+	 */
+	public Boolean isQuantitative() {
+		return quantitative;
+	}
 
-    /**
-     * Sets the value of the releaseDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setReleaseDate(XMLGregorianCalendar value) {
-        this.releaseDate = value;
-    }
+	/**
+	 * Sets the value of the quantitative property.
+	 * 
+	 * @param value allowed object is {@link Boolean }
+	 * 
+	 */
+	public void setQuantitative(Boolean value) {
+		this.quantitative = value;
+	}
 
-    /**
-     * Gets the value of the tag property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getTag() {
-        return tag;
-    }
+	/**
+	 * Gets the value of the releaseDate property.
+	 * 
+	 * @return possible object is {@link XMLGregorianCalendar }
+	 * 
+	 */
+	public XMLGregorianCalendar getReleaseDate() {
+		return releaseDate;
+	}
 
-    /**
-     * Sets the value of the tag property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setTag(String value) {
-        this.tag = value;
-    }
+	/**
+	 * Sets the value of the releaseDate property.
+	 * 
+	 * @param value allowed object is {@link XMLGregorianCalendar }
+	 * 
+	 */
+	public void setReleaseDate(XMLGregorianCalendar value) {
+		this.releaseDate = value;
+	}
+
+	/**
+	 * Gets the value of the tag property.
+	 * 
+	 * @return possible object is {@link String }
+	 * 
+	 */
+	public String getTag() {
+		return tag;
+	}
+
+	/**
+	 * Sets the value of the tag property.
+	 * 
+	 * @param value allowed object is {@link String }
+	 * 
+	 */
+	public void setTag(String value) {
+		this.tag = value;
+	}
+
+	public PrincipalInvestigatorType getPrincipalInvestigator() {
+		return principalInvestigator;
+	}
+
+	public void setPrincipalInvestigator(PrincipalInvestigatorType principalInvestigator) {
+		this.principalInvestigator = principalInvestigator;
+	}
 
 }

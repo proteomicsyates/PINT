@@ -35,6 +35,12 @@
         <property name="big" type="boolean">
             <column name="big" not-null="true" />
         </property>
+        <property name="pi" type="string">
+            <column name="pi" length="8000" />
+        </property>
+        <property name="instruments" type="string">
+            <column name="instruments" length="4000" />
+        </property>
         <set name="conditions" table="condition" inverse="true" lazy="true" fetch="select" >
             <key>
                 <column name="Project_id" not-null="true" />

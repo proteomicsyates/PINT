@@ -19,10 +19,12 @@ public class Project implements java.io.Serializable {
 	private boolean private_;
 	private Date uploadedDate;
 	private String tag;
+	private String pi;
 	private boolean hidden;
 	private boolean big;
 	private Set conditions = new HashSet(0);
 	private Set msRuns = new HashSet(0);
+	private String instruments;
 
 	public Project() {
 	}
@@ -139,8 +141,7 @@ public class Project implements java.io.Serializable {
 	}
 
 	/**
-	 * @param big
-	 *            the big to set
+	 * @param big the big to set
 	 */
 	public void setBig(boolean big) {
 		this.big = big;
@@ -154,11 +155,25 @@ public class Project implements java.io.Serializable {
 	}
 
 	/**
-	 * @param msRuns
-	 *            the msRuns to set
+	 * @param msRuns the msRuns to set
 	 */
 	public void setMsRuns(Set msRuns) {
 		this.msRuns = msRuns;
 	}
 
+	public String getPi() {
+		return pi;
+	}
+
+	public void setPi(String pi) {
+		this.pi = pi;
+	}
+
+	public void setInstruments(String instruments) {
+		this.instruments = instruments;
+	}
+
+	public String getInstruments() {
+		return this.instruments;
+	}
 }

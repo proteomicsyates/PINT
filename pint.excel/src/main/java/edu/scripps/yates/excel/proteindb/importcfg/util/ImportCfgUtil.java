@@ -35,6 +35,7 @@ import gnu.trove.map.hash.THashMap;
 public class ImportCfgUtil {
 	private final static Logger log = Logger.getLogger(ImportCfgUtil.class);
 	private static final Map<String, DBIndexImpl> dbIndexes = new THashMap<String, DBIndexImpl>();
+	public static final String PI_SEPARATOR = "------";
 
 	public static SampleType getSampleCfg(String sampleRef, SampleSetType sampleSetType) {
 		if (sampleSetType != null) {
@@ -150,9 +151,8 @@ public class ImportCfgUtil {
 	}
 
 	/**
-	 * Due to the prefix that is required to create a temp file has to be at
-	 * least 3 characters longer, this function will add some extra "_" if
-	 * needed
+	 * Due to the prefix that is required to create a temp file has to be at least 3
+	 * characters longer, this function will add some extra "_" if needed
 	 *
 	 * @param id
 	 * @return
@@ -183,9 +183,9 @@ public class ImportCfgUtil {
 	}
 
 	/**
-	 * Gets a {@link DBIndexImpl} from a {@link FileType}. If the
-	 * {@link FileType} is a remote file, get it from remote location. Then,
-	 * store it in the dbIndex location. Otherwise
+	 * Gets a {@link DBIndexImpl} from a {@link FileType}. If the {@link FileType}
+	 * is a remote file, get it from remote location. Then, store it in the dbIndex
+	 * location. Otherwise
 	 *
 	 * @param fileCfg
 	 * @return

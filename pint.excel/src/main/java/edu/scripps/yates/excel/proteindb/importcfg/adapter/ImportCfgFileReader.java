@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +63,7 @@ import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteFilesRatioType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.RemoteInfoType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SampleType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.SequenceType;
+import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.excel.util.ExcelUtils;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
@@ -75,6 +77,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.HasRatios;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
+import edu.scripps.yates.utilities.proteomicsmodel.PrincipalInvestigator;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
@@ -214,6 +217,25 @@ public class ImportCfgFileReader {
 		project.setTag(projectCfg.getTag());
 		project.setUploadedDate(new Date());
 		project.setPrivate(true);
+		if (projectCfg.getPrincipalInvestigator() != null) {
+			final PrincipalInvestigator pi = new PrincipalInvestigator(projectCfg.getPrincipalInvestigator().getName());
+			pi.setCountry(projectCfg.getPrincipalInvestigator().getCountry());
+			pi.setEmail(projectCfg.getPrincipalInvestigator().getEmail());
+			pi.setInstitution(projectCfg.getPrincipalInvestigator().getInstitution());
+			project.setPrincipalInvestigator(pi);
+		}
+		if (projectCfg.getInstruments() != null && !"".equals(projectCfg.getInstruments())) {
+			final Set<String> instruments = new HashSet<String>();
+			if (projectCfg.getInstruments().contains(ImportCfgUtil.PI_SEPARATOR)) {
+				final String[] split = projectCfg.getInstruments().split(ImportCfgUtil.PI_SEPARATOR);
+				for (final String string : split) {
+					instruments.add(string);
+				}
+			} else {
+				instruments.add(projectCfg.getInstruments());
+			}
+			project.setInstruments(instruments);
+		}
 
 		excelReader = new ExcelFileReader(cfg.getFileSet(), cfg.getServers());
 

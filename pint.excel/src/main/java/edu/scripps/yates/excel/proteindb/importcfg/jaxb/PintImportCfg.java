@@ -5,7 +5,6 @@
 // Generated on: 2017.03.11 at 03:44:17 PM PST 
 //
 
-
 package edu.scripps.yates.excel.proteindb.importcfg.jaxb;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,11 +12,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
+ * <p>
+ * Java class for anonymous complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType>
@@ -33,9 +34,6 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @XmlRootElement(name = "pint_import_cfg")
-public class PintImportCfg
-    extends PintImportCfgType
-{
-
+public class PintImportCfg extends PintImportCfgType {
 
 }

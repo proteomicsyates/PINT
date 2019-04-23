@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
@@ -81,6 +82,26 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 				condition.getPsms().addAll(protein.getPsms());
 			}
 
+		}
+
+		if (project.getPrincipalInvestigator() != null) {
+			final StringBuilder sb = new StringBuilder();
+			sb.append(project.getPrincipalInvestigator().getName()).append(ImportCfgUtil.PI_SEPARATOR)
+					.append(project.getPrincipalInvestigator().getEmail()).append(ImportCfgUtil.PI_SEPARATOR)
+					.append(project.getPrincipalInvestigator().getInstitution()).append(ImportCfgUtil.PI_SEPARATOR)
+					.append(project.getPrincipalInvestigator().getCountry());
+			ret.setPi(sb.toString());
+		}
+
+		if (project.getInstruments() != null) {
+			final StringBuilder sb = new StringBuilder();
+			for (final String instrument : project.getInstruments()) {
+				if (!"".equals(sb.toString())) {
+					sb.append(ImportCfgUtil.PI_SEPARATOR);
+				}
+				sb.append(instrument);
+			}
+			ret.setInstruments(sb.toString());
 		}
 
 		clearStaticInformation();

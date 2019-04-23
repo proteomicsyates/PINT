@@ -5,7 +5,6 @@
 // Generated on: 2017.03.11 at 03:44:17 PM PST 
 //
 
-
 package edu.scripps.yates.excel.proteindb.importcfg.jaxb;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -15,11 +14,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for pint_import_cfgType complex type.
+ * <p>
+ * Java class for pint_import_cfgType complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType name="pint_import_cfgType">
@@ -40,144 +41,118 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "pint_import_cfgType", propOrder = {
-    "fileSet",
-    "project",
-    "servers"
-})
-@XmlSeeAlso({
-    PintImportCfg.class
-})
+@XmlType(name = "pint_import_cfgType", propOrder = { "fileSet", "project", "servers" })
+@XmlSeeAlso({ PintImportCfg.class })
 public class PintImportCfgType {
 
-    @XmlElement(required = true)
-    protected FileSetType fileSet;
-    @XmlElement(required = true)
-    protected ProjectType project;
-    protected ServersType servers;
-    @XmlAttribute(name = "version")
-    protected String version;
-    @XmlAttribute(name = "importID")
-    protected Integer importID;
+	@XmlElement(required = true)
+	protected FileSetType fileSet;
+	@XmlElement(required = true)
+	protected ProjectType project;
+	protected ServersType servers;
+	@XmlAttribute(name = "version")
+	protected String version;
+	@XmlAttribute(name = "importID")
+	protected Integer importID;
 
-    /**
-     * Gets the value of the fileSet property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link FileSetType }
-     *     
-     */
-    public FileSetType getFileSet() {
-        return fileSet;
-    }
+	/**
+	 * Gets the value of the fileSet property.
+	 * 
+	 * @return possible object is {@link FileSetType }
+	 * 
+	 */
+	public FileSetType getFileSet() {
+		return fileSet;
+	}
 
-    /**
-     * Sets the value of the fileSet property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link FileSetType }
-     *     
-     */
-    public void setFileSet(FileSetType value) {
-        this.fileSet = value;
-    }
+	/**
+	 * Sets the value of the fileSet property.
+	 * 
+	 * @param value allowed object is {@link FileSetType }
+	 * 
+	 */
+	public void setFileSet(FileSetType value) {
+		this.fileSet = value;
+	}
 
-    /**
-     * Gets the value of the project property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ProjectType }
-     *     
-     */
-    public ProjectType getProject() {
-        return project;
-    }
+	/**
+	 * Gets the value of the project property.
+	 * 
+	 * @return possible object is {@link ProjectType }
+	 * 
+	 */
+	public ProjectType getProject() {
+		return project;
+	}
 
-    /**
-     * Sets the value of the project property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ProjectType }
-     *     
-     */
-    public void setProject(ProjectType value) {
-        this.project = value;
-    }
+	/**
+	 * Sets the value of the project property.
+	 * 
+	 * @param value allowed object is {@link ProjectType }
+	 * 
+	 */
+	public void setProject(ProjectType value) {
+		this.project = value;
+	}
 
-    /**
-     * Gets the value of the servers property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ServersType }
-     *     
-     */
-    public ServersType getServers() {
-        return servers;
-    }
+	/**
+	 * Gets the value of the servers property.
+	 * 
+	 * @return possible object is {@link ServersType }
+	 * 
+	 */
+	public ServersType getServers() {
+		return servers;
+	}
 
-    /**
-     * Sets the value of the servers property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ServersType }
-     *     
-     */
-    public void setServers(ServersType value) {
-        this.servers = value;
-    }
+	/**
+	 * Sets the value of the servers property.
+	 * 
+	 * @param value allowed object is {@link ServersType }
+	 * 
+	 */
+	public void setServers(ServersType value) {
+		this.servers = value;
+	}
 
-    /**
-     * Gets the value of the version property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getVersion() {
-        return version;
-    }
+	/**
+	 * Gets the value of the version property.
+	 * 
+	 * @return possible object is {@link String }
+	 * 
+	 */
+	public String getVersion() {
+		return version;
+	}
 
-    /**
-     * Sets the value of the version property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setVersion(String value) {
-        this.version = value;
-    }
+	/**
+	 * Sets the value of the version property.
+	 * 
+	 * @param value allowed object is {@link String }
+	 * 
+	 */
+	public void setVersion(String value) {
+		this.version = value;
+	}
 
-    /**
-     * Gets the value of the importID property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    public Integer getImportID() {
-        return importID;
-    }
+	/**
+	 * Gets the value of the importID property.
+	 * 
+	 * @return possible object is {@link Integer }
+	 * 
+	 */
+	public Integer getImportID() {
+		return importID;
+	}
 
-    /**
-     * Sets the value of the importID property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    public void setImportID(Integer value) {
-        this.importID = value;
-    }
+	/**
+	 * Sets the value of the importID property.
+	 * 
+	 * @param value allowed object is {@link Integer }
+	 * 
+	 */
+	public void setImportID(Integer value) {
+		this.importID = value;
+	}
 
 }
