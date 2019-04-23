@@ -56,7 +56,13 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 					final CustomClickableImageColumnOpenLinkToComplexPortal customTextButtonColumn = new CustomClickableImageColumnOpenLinkToComplexPortal(
 							columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
 					super.addColumn(customTextButtonColumn);
-				} else {
+				} else if (columnWithVisibility.getColumn() == ColumnName.PROTEIN_SEQUENCE_COVERAGE_IMG) {
+					final CustomClickableColumnProteinSequenceGraph customTextButtonColumn = new CustomClickableColumnProteinSequenceGraph(
+							columnWithVisibility.getColumn(), columnWithVisibility.isVisible());
+					super.addColumn(customTextButtonColumn);
+				}
+
+				else {
 					super.addColumn(createColumn(columnWithVisibility.getColumn(), columnWithVisibility.isVisible()));
 				}
 			}
@@ -114,9 +120,9 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName), SharedDataUtil.getRatioScoreHeaderTooltip(columnName,
 						condition1Name, condition2Name, ratioName, scoreName));
-		final ProteinTextColumn column = new ProteinTextColumn(columnName,
-				visibleState, header, footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name,
-						projectTag, ratioName, scoreName),
+		final ProteinTextColumn column = new ProteinTextColumn(
+				columnName, visibleState, header, footerManager.getRatioScoreFooterByConditions(condition1Name,
+						condition2Name, projectTag, ratioName, scoreName),
 				condition1Name, condition2Name, projectTag, ratioName, scoreName);
 		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, condition1Name, condition1Symbol,
 				condition2Name, condition2Symbol, projectTag, ratioName, scoreName));

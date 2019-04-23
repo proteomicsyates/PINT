@@ -9,6 +9,7 @@ import java.util.Set;
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Header;
 
@@ -404,7 +405,8 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			}
 			break;
 		case PROTEIN_SEQUENCE_COVERAGE_IMG:
-			sb.append(ClientSafeHtmlUtils.getProteinCoverageGraphic(p));
+			final SafeHtml proteinCoverageGraphic = ClientSafeHtmlUtils.getProteinCoverageGraphic(p);
+			sb.append(proteinCoverageGraphic);
 			break;
 		case PROTEIN_RATIO_GRAPH:
 			final List<RatioBean> ratios = p.getRatiosByConditions(conditionName, condition2Name, projectTag, ratioName,
