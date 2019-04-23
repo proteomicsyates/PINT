@@ -32,6 +32,9 @@ public class RatioDescriptorBean implements Serializable {
 			final RatioDescriptorBean ratioDescriptor = (RatioDescriptorBean) obj;
 			if (ratioDescriptor.getCondition1Name().equals(condition1Name)) {
 				if (ratioDescriptor.getCondition2Name().equals(condition2Name)) {
+					if (ratioDescriptor.getProjectTag() == null) {
+						System.out.println("asdf");
+					}
 					if (ratioDescriptor.getProjectTag().equals(projectTag)) {
 						if (ratioDescriptor.getRatioName().equals(ratioName))
 							return true;

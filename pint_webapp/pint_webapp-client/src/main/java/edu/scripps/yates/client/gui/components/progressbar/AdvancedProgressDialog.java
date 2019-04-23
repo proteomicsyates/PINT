@@ -33,7 +33,6 @@ public class AdvancedProgressDialog extends ProgressLoadingDialog {
 
 						@Override
 						public void onSuccess(ProgressStatus progressStatus) {
-							center();
 							GWT.log("Progress status received for task " + task + ": " + progressStatus);
 
 							waitingResponse = false;
@@ -41,6 +40,7 @@ public class AdvancedProgressDialog extends ProgressLoadingDialog {
 								GWT.log("Setting progress to " + progressStatus.getCurrentStep() + " / "
 										+ progressStatus.getMaxSteps());
 								setStatusOnBar(progressStatus);
+								center();
 							}
 						}
 

@@ -69,4 +69,8 @@ public class TaskKeyGenerator {
 
 		return TaskKey.createKey("GetDownloadLinkFromProteinsFromQuery: " + projectName);
 	}
+
+	public static TaskKey getKeyForGetDownloadLinkForInputFilesOfProjectTask(String projectName) {
+		return TaskKey.createKey("GetDownloadLinkForInputFilesOfProjectTask: " + projectName);
+	}
 }

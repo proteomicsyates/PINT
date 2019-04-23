@@ -1,5 +1,7 @@
 package edu.scripps.yates;
 
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -270,4 +272,6 @@ public interface ImportWizardServiceAsync {
 	void getPintImportCfgTypeBeanByProcessKey(int hashCode, AsyncCallback<PintImportCfgBean> asyncCallback);
 
 	void getTemplateFiles(AsyncCallback<java.util.Map<String, String>> asyncCallback);
+
+	void getInstrumentList(AsyncCallback<List<String>> asyncCallback);
 }

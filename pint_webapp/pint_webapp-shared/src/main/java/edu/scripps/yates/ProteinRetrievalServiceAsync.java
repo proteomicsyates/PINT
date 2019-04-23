@@ -228,7 +228,10 @@ public interface ProteinRetrievalServiceAsync {
 	 * 
 	 * @see edu.scripps.yates.ProteinRetrievalService
 	 */
-	void getDownloadLinkForProteinsInProject(java.util.List<java.lang.String> projectTags,
+	void getDownloadLinkForProteinsInProject(java.util.Collection<java.lang.String> projectTags,
+			AsyncCallback<edu.scripps.yates.shared.util.FileDescriptor> callback);
+
+	void getDownloadLinkForInputFilesOfProject(String projectTag,
 			AsyncCallback<edu.scripps.yates.shared.util.FileDescriptor> callback);
 
 	/**
@@ -236,7 +239,7 @@ public interface ProteinRetrievalServiceAsync {
 	 * 
 	 * @see edu.scripps.yates.ProteinRetrievalService
 	 */
-	void getDownloadLinkForProteinGroupsInProject(java.util.List<java.lang.String> projectTags,
+	void getDownloadLinkForProteinGroupsInProject(java.util.Collection<java.lang.String> projectTags,
 			boolean separateNonConclusiveProteins,
 			AsyncCallback<edu.scripps.yates.shared.util.FileDescriptor> callback);
 

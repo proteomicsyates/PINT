@@ -25,6 +25,8 @@ public class ProjectBean extends HasId implements Serializable {
 	private List<ExperimentalConditionBean> conditions = new ArrayList<ExperimentalConditionBean>();
 	private List<MSRunBean> msRuns = new ArrayList<MSRunBean>();
 	private boolean hidden;
+	private PrincipalInvestigatorBean principalInvestigator;
+	private List<String> instruments = new ArrayList<String>();
 
 	public void setName(String name) {
 		this.name = name;
@@ -83,8 +85,7 @@ public class ProjectBean extends HasId implements Serializable {
 	}
 
 	/**
-	 * @param tag
-	 *            the tag to set
+	 * @param tag the tag to set
 	 */
 	public void setTag(String tag) {
 		this.tag = tag;
@@ -98,8 +99,7 @@ public class ProjectBean extends HasId implements Serializable {
 	}
 
 	/**
-	 * @param uploadedDate
-	 *            the uploadedDate to set
+	 * @param uploadedDate the uploadedDate to set
 	 */
 	public void setUploadedDate(Date uploadedDate) {
 		this.uploadedDate = uploadedDate;
@@ -110,8 +110,7 @@ public class ProjectBean extends HasId implements Serializable {
 	}
 
 	/**
-	 * @param dbId
-	 *            the dbId to set
+	 * @param dbId the dbId to set
 	 */
 	public void setDbId(Integer dbId) {
 		this.dbId = dbId;
@@ -125,8 +124,7 @@ public class ProjectBean extends HasId implements Serializable {
 	}
 
 	/**
-	 * @param publicAvailable
-	 *            the publicAvailable to set
+	 * @param publicAvailable the publicAvailable to set
 	 */
 	public void setPublicAvailable(boolean publicAvailable) {
 		this.publicAvailable = publicAvailable;
@@ -140,8 +138,7 @@ public class ProjectBean extends HasId implements Serializable {
 	}
 
 	/**
-	 * @param conditions
-	 *            the conditions to set
+	 * @param conditions the conditions to set
 	 */
 	public void setConditions(List<ExperimentalConditionBean> conditions) {
 		this.conditions = conditions;
@@ -155,8 +152,7 @@ public class ProjectBean extends HasId implements Serializable {
 	}
 
 	/**
-	 * @param big
-	 *            the big to set
+	 * @param big the big to set
 	 */
 	public void setBig(boolean big) {
 		this.big = big;
@@ -175,8 +171,7 @@ public class ProjectBean extends HasId implements Serializable {
 	}
 
 	/**
-	 * @param hidden
-	 *            the hidden to set
+	 * @param hidden the hidden to set
 	 */
 	public void setHidden(boolean hidden) {
 		this.hidden = hidden;
@@ -190,11 +185,26 @@ public class ProjectBean extends HasId implements Serializable {
 	}
 
 	/**
-	 * @param msRuns
-	 *            the msRuns to set
+	 * @param msRuns the msRuns to set
 	 */
 	public void setMsRuns(List<MSRunBean> msRuns) {
 		this.msRuns = msRuns;
+	}
+
+	public PrincipalInvestigatorBean getPrincipalInvestigator() {
+		return principalInvestigator;
+	}
+
+	public void setPrincipalInvestigator(PrincipalInvestigatorBean principalInvestigator) {
+		this.principalInvestigator = principalInvestigator;
+	}
+
+	public List<String> getInstruments() {
+		return instruments;
+	}
+
+	public void setInstruments(List<String> instruments) {
+		this.instruments = instruments;
 	}
 
 }

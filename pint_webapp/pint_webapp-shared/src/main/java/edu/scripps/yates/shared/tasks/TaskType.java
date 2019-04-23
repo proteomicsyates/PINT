@@ -7,11 +7,13 @@ public enum TaskType {
 	PSMS_BY_PROTEIN("Loading PSMs from protein %...", "Loading PSMs from % proteins..."), //
 	PSMS_BY_PROTEIN_GROUP("Loading PSMs from protein group %...", "Loading PSMs from % protein groups..."), //
 	QUERY_SENT("Waiting for query results. Please wait...", "Waiting for query results. Please wait..."), //
-	SHOW_PEPTIDES_SHARED_BY_PROTEINS("Retrieving peptides shared by protein %...", "Retrieving peptides shared by protein group"), //
+	SHOW_PEPTIDES_SHARED_BY_PROTEINS("Retrieving peptides shared by protein %...",
+			"Retrieving peptides shared by protein group"), //
 	CANCELLING_REQUEST("Cancelling request...", "Cancelling requests..."), //
-	PROTEINS_FROM_FILE("Retrieving proteins from file...", "Retrieving proteins from files..."),
-	GET_DOWNLOAD_LINK_FOR_PROTEINGROUPS("Generating download link for protein groups"),
-	GET_DOWNLOAD_LINK_FOR_PROTEINS("Generating download link for proteins");
+	PROTEINS_FROM_FILE("Retrieving proteins from file...", "Retrieving proteins from files..."), //
+	GET_DOWNLOAD_LINK_FOR_PROTEINGROUPS("Generating download link for protein groups"), //
+	GET_DOWNLOAD_LINK_FOR_PROTEINS("Generating download link for proteins"), //
+	GET_DOWNLOAD_LINK_FOR_INPUT_FILES_OF_PROJECT("Generating download link for input files of the dataset");
 
 	private String singleTaskMessage;
 	private String multipleTaskMessage;

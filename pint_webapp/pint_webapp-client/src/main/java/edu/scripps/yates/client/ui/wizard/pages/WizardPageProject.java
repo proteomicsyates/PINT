@@ -24,7 +24,6 @@ public class WizardPageProject extends AbstractWizardPage {
 	private final ImportWizardServiceAsync service = ImportWizardServiceAsync.Util.getInstance();
 	private final ProteinRetrievalServiceAsync service2 = ProteinRetrievalServiceAsync.Util.getInstance();
 	private FlexTable panel;
-	private WizardFormPanel textFormPanel;
 	private MyDialogBox loadingDialog;
 	private boolean checkProjectNameAvailability = true;
 
@@ -58,7 +57,7 @@ public class WizardPageProject extends AbstractWizardPage {
 		panel.setWidget(1, 0, label1);
 
 		final ProjectForm projectTextForm = new ProjectForm(getContext());
-		textFormPanel = new WizardFormPanel(projectTextForm, getWizard());
+		final WizardFormPanel textFormPanel = new WizardFormPanel(projectTextForm, getWizard());
 		projectTextForm.setOnProjectTagTyped(new DoSomethingTask<Void>() {
 
 			@Override
@@ -126,6 +125,16 @@ public class WizardPageProject extends AbstractWizardPage {
 	@Override
 	public void beforeNext(NavigationEvent event) {
 		if (checkProjectNameAvailability) {
+			// check that project tag is not more than DB size (15 characteres)
+			if (getPintImportConfg().getProject().getTag() != null) {
+				if (getPintImportConfg().getProject().getTag().length() > 15) {
+					StatusReportersRegister.getInstance()
+							.notifyStatusReporters("Project tag cannot be longer than 15 characters.");
+					event.cancel();
+					return;
+				}
+			}
+
 			// check project availability
 			loadingDialog = new MyDialogBox("Checking dataset name availability...", false, true, true);
 			loadingDialog.center();

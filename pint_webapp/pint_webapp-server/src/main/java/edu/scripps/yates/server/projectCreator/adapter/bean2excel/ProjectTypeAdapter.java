@@ -1,6 +1,7 @@
 package edu.scripps.yates.server.projectCreator.adapter.bean2excel;
 
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ProjectType;
+import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.projectCreator.excel.ProjectTypeBean;
 import edu.scripps.yates.utilities.dates.DatesUtil;
@@ -35,6 +36,20 @@ public class ProjectTypeAdapter implements Adapter<ProjectType> {
 		}
 		if (projectTypeBean.getReleaseDate() != null) {
 			ret.setReleaseDate(DatesUtil.toXMLGregorianCalendar(projectTypeBean.getReleaseDate()));
+		}
+		if (projectTypeBean.getPrincipalInvestigator() != null) {
+			ret.setPrincipalInvestigator(
+					new PrincipalInvestigatorTypeAdapter(projectTypeBean.getPrincipalInvestigator()).adapt());
+		}
+		if (projectTypeBean.getInstruments() != null) {
+			final StringBuilder sb = new StringBuilder();
+			for (final String instrument : projectTypeBean.getInstruments()) {
+				if (!"".equals(sb.toString())) {
+					sb.append(ImportCfgUtil.PI_SEPARATOR);
+				}
+				sb.append(instrument);
+			}
+			ret.setInstruments(sb.toString());
 		}
 		return ret;
 	}

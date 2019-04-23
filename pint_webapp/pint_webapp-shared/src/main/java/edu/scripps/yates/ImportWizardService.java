@@ -332,4 +332,7 @@ public interface ImportWizardService extends RemoteService {
 	public PintImportCfgBean getPintImportCfgTypeBeanByProcessKey(int hashCode) throws PintException;
 
 	public Map<String, String> getTemplateFiles() throws PintException;
+
+	public List<String> getInstrumentList() throws PintException;
+
 }

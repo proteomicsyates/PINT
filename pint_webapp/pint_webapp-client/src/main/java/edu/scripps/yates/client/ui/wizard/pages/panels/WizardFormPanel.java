@@ -73,6 +73,7 @@ public class WizardFormPanel extends FlexTable {
 				mandatoryLabel.getElement().getStyle().setFontWeight(FontWeight.BOLDER);
 				mandatoryLabel.setTitle(MANDATORY_TITLE);
 				setWidget(row, 0, mandatoryLabel);
+				getFlexCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_TOP);
 				mandatoryLabel.getElement().getStyle().setPaddingLeft(10, Unit.PX);
 			}
 

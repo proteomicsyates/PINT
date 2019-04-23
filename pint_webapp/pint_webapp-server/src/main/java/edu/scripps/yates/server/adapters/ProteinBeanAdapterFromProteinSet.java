@@ -299,6 +299,8 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 						ratioDescriptorBean.setRatioName(ratioDescriptor.getDescription());
 						ratioDescriptorBean.setProteinScoreName(proteinRatioValue.getConfidenceScoreName());
 						ratioDescriptorBean.setRatioDescriptorID(ratioDescriptor.getId());
+						final String projectTag = proteinRatioValueBean.getCondition1().getProject().getTag();
+						ratioDescriptorBean.setProjectTag(projectTag);
 						proteinRatioValueBean.setRatioDescriptorBean(ratioDescriptorBean);
 
 						if (proteinRatioValue.getConfidenceScoreValue() != null) {

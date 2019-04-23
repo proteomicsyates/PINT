@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.SuggestBox.DefaultSuggestionDisplay;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBoxBase;
 
-import edu.scripps.yates.Pint;
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.shared.model.ProteinProjection;
 import edu.scripps.yates.shared.util.sublists.QueryResultSubLists;
@@ -54,10 +53,6 @@ public class MyQueryEditorPanel extends FlowPanel {
 	private final Label numProteinGroupsLabel;
 	private final Label lblNumberOfProteins;
 	private final Label numProteinsLabel;
-	private Label lblNumberOfPsms;
-	private Label numPSMsLabel;
-	private final Label lblNumberOfDifferent;
-	private final Label numDifferentSequencesLabel;
 	private final FlowPanel flowPanel_1;
 	private final FlexTable flexTable;
 	private final Label lblNumberOfFeatures;
@@ -92,84 +87,76 @@ public class MyQueryEditorPanel extends FlowPanel {
 		captionPanelSimpleQueryEditor.setStyleName("QueryPanel-horizontal");
 		this.add(captionPanelSimpleQueryEditor);
 		captionPanelSimpleQueryEditor.setSize("90%", "30%");
-		final FlowPanel superFlow = new FlowPanel();
-		superFlow.setStyleName("verticalComponent");
+		final FlexTable superTable = new FlexTable();
+		superTable.setStyleName("verticalComponent");
 
 		// search by protein name
-		final FlowPanel flow1 = new FlowPanel();
-		flow1.setStyleName("horizontalComponent");
+
 		final Label label = new Label("Type here to search for protein names: ");
-		label.getElement().getStyle().setProperty("margin", "10px");
+		label.getElement().getStyle().setMarginLeft(10, Unit.PX);
 		label.setStyleName("horizontalComponent");
-		flow1.add(label);
+		superTable.setWidget(0, 0, label);
 		simpleQueryByProteinNameTextBox = new SuggestBox(simpleQueryByProteinNameCommandSuggestion);
 		simpleQueryByProteinNameTextBox.setEnabled(false);
 		simpleQueryByProteinNameTextBox.setLimit(50);
 		simpleQueryByProteinNameTextBox.setStyleName("horizontalComponent");
 		((DefaultSuggestionDisplay) simpleQueryByProteinNameTextBox.getSuggestionDisplay()).setAnimationEnabled(true);
-		simpleQueryByProteinNameTextBox.getElement().getStyle().setProperty("margin", "10px");
-		flow1.add(simpleQueryByProteinNameTextBox);
+		simpleQueryByProteinNameTextBox.getElement().getStyle().setMarginLeft(10, Unit.PX);
+		superTable.setWidget(0, 1, simpleQueryByProteinNameTextBox);
 		simpleQueryByProteinNameReadyState = new Image(MyClientBundle.INSTANCE.smallLoader());
 		simpleQueryByProteinNameReadyState.setTitle("Initializing queries by protein name...");
-		flow1.add(simpleQueryByProteinNameReadyState);
+		superTable.setWidget(0, 2, simpleQueryByProteinNameReadyState);
 		sendSimpleQueryByProteinNameButton = new Button("Go");
 		sendSimpleQueryByProteinNameButton.setTitle("Search by protein name");
 		sendSimpleQueryByProteinNameButton.setEnabled(false);
 		sendSimpleQueryByProteinNameButton.addClickHandler(sendSimpleQueryByProteinNameClickHandler);
-		sendSimpleQueryByProteinNameButton.getElement().getStyle().setProperty("margin", "10px");
-		flow1.add(sendSimpleQueryByProteinNameButton);
-		superFlow.add(flow1);
+		sendSimpleQueryByProteinNameButton.getElement().getStyle().setMarginLeft(10, Unit.PX);
+		superTable.setWidget(0, 3, sendSimpleQueryByProteinNameButton);
 
 		// search by protein name
-		final FlowPanel flow2 = new FlowPanel();
-		flow2.setStyleName("horizontalComponent");
 		final Label label2 = new Label("Type here to search for protein accessions: ");
-		label2.getElement().getStyle().setProperty("margin", "10px");
+		label2.getElement().getStyle().setMarginLeft(10, Unit.PX);
 		label2.setStyleName("horizontalComponent");
-		flow2.add(label2);
+		superTable.setWidget(1, 0, label2);
 		simpleQueryByAccTextBox = new SuggestBox(simpleQueryByAccCommandSuggestion);
 		simpleQueryByAccTextBox.setEnabled(false);
 		simpleQueryByAccTextBox.setLimit(50);
 		simpleQueryByAccTextBox.setStyleName("horizontalComponent");
 		((DefaultSuggestionDisplay) simpleQueryByAccTextBox.getSuggestionDisplay()).setAnimationEnabled(true);
-		simpleQueryByAccTextBox.getElement().getStyle().setProperty("margin", "10px");
-		flow2.add(simpleQueryByAccTextBox);
+		simpleQueryByAccTextBox.getElement().getStyle().setMarginLeft(10, Unit.PX);
+		superTable.setWidget(1, 1, simpleQueryByAccTextBox);
 		simpleQueryByAccReadyState = new Image(MyClientBundle.INSTANCE.smallLoader());
 		simpleQueryByAccReadyState.setTitle("Initializing queries by protein accession...");
-		flow2.add(simpleQueryByAccReadyState);
+		superTable.setWidget(1, 2, simpleQueryByAccReadyState);
 		sendSimpleQueryByAccButton = new Button("Go");
 		sendSimpleQueryByAccButton.setTitle("Search by protein accession");
 		sendSimpleQueryByAccButton.setEnabled(false);
 		sendSimpleQueryByAccButton.addClickHandler(sendSimpleQueryByAccClickHandler);
-		sendSimpleQueryByAccButton.getElement().getStyle().setProperty("margin", "10px");
-		flow2.add(sendSimpleQueryByAccButton);
-		superFlow.add(flow2);
+		sendSimpleQueryByAccButton.getElement().getStyle().setMarginLeft(10, Unit.PX);
+		superTable.setWidget(1, 3, sendSimpleQueryByAccButton);
 
 		// search by protein name
-		final FlowPanel flow3 = new FlowPanel();
-		flow3.setStyleName("horizontalComponent");
 		final Label label3 = new Label("Type here to search for gene names: ");
-		label3.getElement().getStyle().setProperty("margin", "10px");
+		label3.getElement().getStyle().setMarginLeft(10, Unit.PX);
 		label3.setStyleName("horizontalComponent");
-		flow3.add(label3);
+		superTable.setWidget(2, 0, label3);
 		simpleQueryByGeneNameTextBox = new SuggestBox(simpleQueryByGeneNameCommandSuggestion);
 		simpleQueryByGeneNameTextBox.setEnabled(false);
 		simpleQueryByGeneNameTextBox.setLimit(50);
 		simpleQueryByGeneNameTextBox.setStyleName("horizontalComponent");
 		((DefaultSuggestionDisplay) simpleQueryByGeneNameTextBox.getSuggestionDisplay()).setAnimationEnabled(true);
-		simpleQueryByGeneNameTextBox.getElement().getStyle().setProperty("margin", "10px");
-		flow3.add(simpleQueryByGeneNameTextBox);
+		simpleQueryByGeneNameTextBox.getElement().getStyle().setMarginLeft(10, Unit.PX);
+		superTable.setWidget(2, 1, simpleQueryByGeneNameTextBox);
 		simpleQueryByGeneNameReadyState = new Image(MyClientBundle.INSTANCE.smallLoader());
 		simpleQueryByGeneNameReadyState.setTitle("Initializing queries by gene name...");
-		flow3.add(simpleQueryByGeneNameReadyState);
+		superTable.setWidget(2, 2, simpleQueryByGeneNameReadyState);
 		sendSimpleQueryByGeneNameButton = new Button("Go");
 		sendSimpleQueryByGeneNameButton.setTitle("Search by gene name");
 		sendSimpleQueryByGeneNameButton.setEnabled(false);
 		sendSimpleQueryByGeneNameButton.addClickHandler(sendSimpleQueryByGeneNameClickHandler);
-		sendSimpleQueryByGeneNameButton.getElement().getStyle().setProperty("margin", "10px");
-		flow3.add(sendSimpleQueryByGeneNameButton);
-		superFlow.add(flow3);
-		captionPanelSimpleQueryEditor.setContentWidget(superFlow);
+		sendSimpleQueryByGeneNameButton.getElement().getStyle().setMarginLeft(10, Unit.PX);
+		superTable.setWidget(2, 3, sendSimpleQueryByGeneNameButton);
+		captionPanelSimpleQueryEditor.setContentWidget(superTable);
 
 		final CaptionPanel captionPanelQueryEditor = new CaptionPanel("Advanced Query Editor");
 		captionPanelQueryEditor.setStyleName("QueryPanel-horizontal");
@@ -190,7 +177,7 @@ public class MyQueryEditorPanel extends FlowPanel {
 		flowPanel.add(complexQueryTextBox);
 
 		captionPanelQueryEditor.setContentWidget(flowPanel);
-		getComplexQueryTextBox().setSize("400px", "132px");
+		getComplexQueryTextBox().setSize("99%", "5em");
 
 		// uniprot versions
 		final FlowPanel flow5 = new FlowPanel();
@@ -254,35 +241,17 @@ public class MyQueryEditorPanel extends FlowPanel {
 		lblNumberOfFeatures.setStyleName("PSEAQuantPanel-Title-Label");
 		resultSummaryGrid.setWidget(0, 0, lblNumberOfFeatures);
 
-		lblNumberOfProteinGroups = new Label("Number of protein groups:");
-		resultSummaryGrid.setWidget(1, 0, lblNumberOfProteinGroups);
-		resultSummaryGrid.getCellFormatter().setHorizontalAlignment(4, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-		resultSummaryGrid.getCellFormatter().setVerticalAlignment(4, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-
-		numProteinGroupsLabel = new Label("-");
-		resultSummaryGrid.setWidget(1, 1, numProteinGroupsLabel);
-		resultSummaryGrid.getCellFormatter().setWidth(4, 1, "");
-
 		lblNumberOfProteins = new Label("Number of proteins:");
-		resultSummaryGrid.setWidget(2, 0, lblNumberOfProteins);
+		resultSummaryGrid.setWidget(1, 0, lblNumberOfProteins);
 
 		numProteinsLabel = new Label("-");
-		resultSummaryGrid.setWidget(2, 1, numProteinsLabel);
+		resultSummaryGrid.setWidget(1, 1, numProteinsLabel);
 
-		if (Pint.getPSMCentric()) {
-			lblNumberOfPsms = new Label("Number of PSMs:");
-			resultSummaryGrid.setWidget(3, 0, lblNumberOfPsms);
+		lblNumberOfProteinGroups = new Label("Number of protein groups:");
+		resultSummaryGrid.setWidget(2, 0, lblNumberOfProteinGroups);
 
-			numPSMsLabel = new Label("-");
-			resultSummaryGrid.setWidget(3, 1, numPSMsLabel);
-		}
-		lblNumberOfDifferent = new Label("Number of peptides:");
-		resultSummaryGrid.setWidget(4, 0, lblNumberOfDifferent);
-
-		numDifferentSequencesLabel = new Label("-");
-		resultSummaryGrid.setWidget(4, 1, numDifferentSequencesLabel);
-		resultSummaryGrid.getCellFormatter().setHorizontalAlignment(4, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		resultSummaryGrid.getCellFormatter().setVerticalAlignment(4, 1, HasVerticalAlignment.ALIGN_MIDDLE);
+		numProteinGroupsLabel = new Label("-");
+		resultSummaryGrid.setWidget(2, 1, numProteinGroupsLabel);
 
 		lblDownloadDataHere = new Label("Download data here:");
 		lblDownloadDataHere.setStyleName("PSEAQuantPanel-Title-Label");
@@ -301,15 +270,11 @@ public class MyQueryEditorPanel extends FlowPanel {
 		resultSummaryGrid.getCellFormatter().setVerticalAlignment(2, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 		resultSummaryGrid.getCellFormatter().setHorizontalAlignment(2, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		resultSummaryGrid.getCellFormatter().setVerticalAlignment(2, 1, HasVerticalAlignment.ALIGN_MIDDLE);
-		resultSummaryGrid.getCellFormatter().setHorizontalAlignment(3, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-		resultSummaryGrid.getCellFormatter().setVerticalAlignment(3, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-		resultSummaryGrid.getCellFormatter().setHorizontalAlignment(3, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		resultSummaryGrid.getCellFormatter().setVerticalAlignment(3, 1, HasVerticalAlignment.ALIGN_MIDDLE);
+
 		resultSummaryGrid.getCellFormatter().setVerticalAlignment(1, 2, HasVerticalAlignment.ALIGN_MIDDLE);
 		resultSummaryGrid.getCellFormatter().setHorizontalAlignment(2, 2, HasHorizontalAlignment.ALIGN_RIGHT);
 		resultSummaryGrid.getCellFormatter().setVerticalAlignment(2, 2, HasVerticalAlignment.ALIGN_MIDDLE);
-		resultSummaryGrid.getCellFormatter().setHorizontalAlignment(3, 2, HasHorizontalAlignment.ALIGN_RIGHT);
-		resultSummaryGrid.getCellFormatter().setVerticalAlignment(3, 2, HasVerticalAlignment.ALIGN_MIDDLE);
+
 		resultSummaryGrid.getFlexCellFormatter().setColSpan(1, 2, 1);
 		resultSummaryGrid.getCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 		resultSummaryGrid.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -453,26 +418,11 @@ public class MyQueryEditorPanel extends FlowPanel {
 		if (queryResult != null) {
 			numProteinGroupsLabel.setText(String.valueOf(queryResult.getNumTotalProteinGroups()));
 			numProteinsLabel.setText(String.valueOf(queryResult.getNumTotalProteins()));
-			if (Pint.getPSMCentric()) {
-				numPSMsLabel.setText(String.valueOf(queryResult.getNumTotalPSMs()));
-			}
-			final StringBuilder numdiffSequencesText = new StringBuilder();
-			numdiffSequencesText.append(queryResult.getNumDifferentSequences());
-			if (queryResult.getNumDifferentSequences() != queryResult
-					.getNumDifferentSequencesDistinguishingModifieds()) {
-				numdiffSequencesText.append(" (" + queryResult.getNumDifferentSequencesDistinguishingModifieds() + ")");
-			}
-			numDifferentSequencesLabel.setText(numdiffSequencesText.toString());
-			numDifferentSequencesLabel.setTitle(
-					"Between parenthesis is the number of " + "different peptide sequences by considering different "
-							+ "sequences differentially modified peptides");
+
 		} else {
 			numProteinGroupsLabel.setText("-");
 			numProteinsLabel.setText("-");
-			if (Pint.getPSMCentric()) {
-				numPSMsLabel.setText("-");
-			}
-			numDifferentSequencesLabel.setText("-");
+
 		}
 	}
 

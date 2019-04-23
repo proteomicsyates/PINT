@@ -31,8 +31,7 @@ public class PintImportCfgTypeBean implements Serializable {
 	}
 
 	/**
-	 * @param importID
-	 *            the importID to set
+	 * @param importID the importID to set
 	 */
 	public void setImportID(int importID) {
 		this.importID = importID;
@@ -51,8 +50,7 @@ public class PintImportCfgTypeBean implements Serializable {
 	/**
 	 * Sets the value of the fileSet property.
 	 * 
-	 * @param value
-	 *            allowed object is {@link FileSetTypeBean }
+	 * @param value allowed object is {@link FileSetTypeBean }
 	 * 
 	 */
 	public void setFileSet(FileSetTypeBean value) {
@@ -72,8 +70,7 @@ public class PintImportCfgTypeBean implements Serializable {
 	/**
 	 * Sets the value of the project property.
 	 * 
-	 * @param value
-	 *            allowed object is {@link ProjectTypeBean }
+	 * @param value allowed object is {@link ProjectTypeBean }
 	 * 
 	 */
 	public void setProject(ProjectTypeBean value) {
@@ -93,8 +90,7 @@ public class PintImportCfgTypeBean implements Serializable {
 	/**
 	 * Sets the value of the servers property.
 	 * 
-	 * @param value
-	 *            allowed object is {@link ServersTypeBean }
+	 * @param value allowed object is {@link ServersTypeBean }
 	 * 
 	 */
 	public void setServers(ServersTypeBean value) {
@@ -114,8 +110,7 @@ public class PintImportCfgTypeBean implements Serializable {
 	/**
 	 * Sets the value of the version property.
 	 * 
-	 * @param value
-	 *            allowed object is {@link String }
+	 * @param value allowed object is {@link String }
 	 * 
 	 */
 	public void setVersion(String value) {

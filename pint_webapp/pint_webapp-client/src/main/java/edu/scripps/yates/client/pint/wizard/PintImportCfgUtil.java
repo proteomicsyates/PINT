@@ -2458,4 +2458,51 @@ public class PintImportCfgUtil {
 
 	}
 
+	public static void updateInstrument(PintImportCfgBean pintImportConfiguration, String oldInstrument,
+			String newInstrument) throws PintException {
+		List<String> instruments = pintImportConfiguration.getProject().getInstruments();
+		if (instruments == null) {
+			instruments = new ArrayList<String>();
+			pintImportConfiguration.getProject().setInstruments(instruments);
+		}
+
+		if (instruments.contains(newInstrument)) {
+			throw new PintException(
+					"There is already an instrument with the name '" + newInstrument + "'. Try a different name.",
+					PINT_ERROR_TYPE.ITEM_ID_REPEATED);
+		}
+		final List<String> newInstruments = new ArrayList<String>();
+		for (final String oldInstrument2 : instruments) {
+			if (oldInstrument2.equals(oldInstrument)) {
+				newInstruments.add(newInstrument);
+			} else {
+				newInstruments.add(oldInstrument2);
+			}
+		}
+
+		pintImportConfiguration.getProject().setInstruments(newInstruments);
+
+	}
+
+	public static void removeInstrument(PintImportCfgBean pintImportConfiguration, String instrument) {
+		pintImportConfiguration.getProject().getInstruments().remove(instrument);
+
+	}
+
+	public static List<String> getInstruments(PintImportCfgBean pintImportConfiguration) {
+		if (pintImportConfiguration.getProject().getInstruments() == null) {
+			pintImportConfiguration.getProject().setInstruments(new ArrayList<String>());
+		}
+		return pintImportConfiguration.getProject().getInstruments();
+	}
+
+	public static void addInstrument(PintImportCfgBean pintImportConfiguration, String instrument) {
+		List<String> instruments = pintImportConfiguration.getProject().getInstruments();
+		if (instruments == null) {
+			instruments = new ArrayList<String>();
+			pintImportConfiguration.getProject().setInstruments(instruments);
+		}
+		instruments.add(instrument);
+	}
+
 }

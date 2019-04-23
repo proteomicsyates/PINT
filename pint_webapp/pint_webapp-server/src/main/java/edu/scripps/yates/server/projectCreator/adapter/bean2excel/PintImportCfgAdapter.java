@@ -23,6 +23,7 @@ public class PintImportCfgAdapter implements Adapter<PintImportCfg> {
 		if (pintImportCfgBean.getServers() != null && !pintImportCfgBean.getServers().getServer().isEmpty()) {
 			ret.setServers(new ServersTypeAdapter(pintImportCfgBean.getServers()).adapt());
 		}
+
 		ret.setVersion(pintImportCfgBean.getVersion());
 		ret.setImportID(pintImportCfgBean.getImportID());
 		return ret;

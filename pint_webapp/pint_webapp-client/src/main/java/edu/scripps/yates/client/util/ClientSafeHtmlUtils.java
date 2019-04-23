@@ -463,6 +463,10 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static SafeHtml getProteinCoverageGraphic(ProteinBean p) {
+		return getProteinCoverageGraphic(p, false);
+	}
+
+	public static SafeHtml getProteinCoverageGraphic(ProteinBean p, boolean bigRepresentation) {
 		final NumberFormat formatter = NumberFormat.getFormat("#.#");
 		final char[] coverageArrayString = p.getCoverageArrayString();
 		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
@@ -532,26 +536,26 @@ public class ClientSafeHtmlUtils {
 				final Boolean covered = coveredOrNot.get(i);
 				percentage = percentages.get(i);
 				SafeHtml safeHtml = null;
+
 				if (covered) {
-					// safeHtml = HtmlTemplates.instance.domainImage(percentage,
-					// MyClientBundle.INSTANCE.sequenceMarker().getSafeUri(),
-					// titles.get(i));
-					// safeHtml = HtmlTemplates.instance.simpleDiv(percentage,
-					// titles.get(i), "Domain graphicalview");
+
 					final SimplePanel simplePanel = new SimplePanel();
-					simplePanel.setStyleName("Domain graphicalview");
+					if (bigRepresentation) {
+						simplePanel.setStyleName("Domain graphicalview_big");
+					} else {
+						simplePanel.setStyleName("Domain graphicalview");
+					}
 					simplePanel.setWidth(percentage + "%");
 					simplePanel.setTitle(titles.get(i));
-
 					safeHtml = new SafeHtmlBuilder().appendHtmlConstant(simplePanel.toString()).toSafeHtml();
 				} else {
-					// safeHtml = HtmlTemplates.instance.bufferImage(percentage,
-					// MyClientBundle.INSTANCE.sequenceBuffer().getSafeUri(),
-					// titles.get(i));
-					// safeHtml = HtmlTemplates.instance.simpleDiv(percentage,
-					// titles.get(i), "buffer graphicalview");
+
 					final SimplePanel simplePanel = new SimplePanel();
-					simplePanel.setStyleName("buffer graphicalview");
+					if (bigRepresentation) {
+						simplePanel.setStyleName("buffer graphicalview_big");
+					} else {
+						simplePanel.setStyleName("buffer graphicalview");
+					}
 					simplePanel.setWidth(percentage + "%");
 					simplePanel.setTitle(titles.get(i));
 
@@ -560,6 +564,7 @@ public class ClientSafeHtmlUtils {
 				sb.append(safeHtml);
 				sb.appendEscaped(" ");
 			}
+
 		} else {
 			sb.appendEscaped("-");
 			return sb.toSafeHtml();
@@ -905,6 +910,13 @@ public class ClientSafeHtmlUtils {
 		// return GWT.getModuleBaseURL() + "download?" +
 		// SharedConstants.FILE_TO_DOWNLOAD + "=" + fileName + "&"
 		// + SharedConstants.FILE_TYPE + "=" + fileType;
+	}
+
+	public static String getProjectZipDownloadURL(String projectTag) {
+
+		return GWT.getModuleBaseURL() + "download?" + SharedConstants.FILE_TO_DOWNLOAD + "=" + projectTag + "&"
+				+ SharedConstants.FILE_TYPE + "=" + SharedConstants.DATASET_INPUT_FILES_ZIP;
+
 	}
 
 	public static SafeHtml getUniprotFeatureSafeHtml(PSMBean p, String... featureTypes) {

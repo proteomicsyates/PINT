@@ -59,7 +59,7 @@ public class DataExporter {
 	private static final String PG = "PG";
 	private static final String EMPTY = "-";
 
-	public static File existsFileProteinsFromProjects(List<String> projectTags) throws PintException {
+	public static File existsFileProteinsFromProjects(Collection<String> projectTags) throws PintException {
 
 		final String projectsStringTag = SharedDataUtil.getProjectTagCollectionKey(projectTags);
 		final File newFile = FileManager.getDownloadFile("proteins-" + projectsStringTag + ".csv");
@@ -68,7 +68,7 @@ public class DataExporter {
 		return null;
 	}
 
-	public static File exportProteinsFromProjects(List<String> projectTags, String omimAPIKey, boolean psmCentric)
+	public static File exportProteinsFromProjects(Collection<String> projectTags, String omimAPIKey, boolean psmCentric)
 			throws PintException {
 
 		final String projectsStringTag = SharedDataUtil.getProjectTagCollectionKey(projectTags);
@@ -157,7 +157,7 @@ public class DataExporter {
 		}
 	}
 
-	public static File existsFileProteinGroupsFromProjects(List<String> projectTags,
+	public static File existsFileProteinGroupsFromProjects(Collection<String> projectTags,
 			boolean separateNonConclusiveProteins) throws PintException {
 
 		final String projectsStringTag = SharedDataUtil.getProjectTagCollectionKey(projectTags);
@@ -167,8 +167,8 @@ public class DataExporter {
 		return null;
 	}
 
-	public static File exportProteinGroupsFromProjects(List<String> projectTags, boolean separateNonConclusiveProteins,
-			String omimAPIKey, boolean psmCentric) throws PintException {
+	public static File exportProteinGroupsFromProjects(Collection<String> projectTags,
+			boolean separateNonConclusiveProteins, String omimAPIKey, boolean psmCentric) throws PintException {
 
 		final String projectsStringTag = SharedDataUtil.getProjectTagCollectionKey(projectTags);
 		final File newFile = FileManager.getDownloadFile("proteinGroups-" + projectsStringTag + ".csv");
@@ -271,10 +271,15 @@ public class DataExporter {
 		}
 	}
 
-	private static void writePSMRow(FileWriter fw, PSMBean psmBean, String actualprojectTag, List<String> projectTags,
-			Map<String, List<String>> conditionsByProject,
+	private static void writePSMRow(FileWriter fw, PSMBean psmBean, String actualprojectTag,
+			Collection<String> projectTagCollection, Map<String, List<String>> conditionsByProject,
 			Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects, List<String> psmScoreNames,
 			List<String> ptmScoreNames) throws IOException, PintException {
+
+		final List<String> projectTags = new ArrayList<String>();
+		projectTags.addAll(projectTagCollection);
+		Collections.sort(projectTags);
+
 		// line identifier: PSM
 		fw.write(PSM);
 		fw.write(TAB);
@@ -420,9 +425,13 @@ public class DataExporter {
 	}
 
 	private static void writePeptideRow(FileWriter fw, PeptideBean peptideBean, String actualprojectTag,
-			List<String> projectTags, Map<String, List<String>> conditionsByProject,
+			Collection<String> projectTagCollection, Map<String, List<String>> conditionsByProject,
 			Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects, List<String> psmScoreNames,
 			List<String> ptmScoreNames) throws IOException, PintException {
+		final List<String> projectTags = new ArrayList<String>();
+		projectTags.addAll(projectTagCollection);
+		Collections.sort(projectTags);
+
 		// line identifier: PSM
 		fw.write(PSM);
 		fw.write(TAB);
@@ -570,9 +579,12 @@ public class DataExporter {
 	}
 
 	private static void writeProteinRow(FileWriter fw, ProteinBean proteinBean, String actualprojectTag,
-			List<String> projectTags, Map<String, List<String>> conditionsByProject,
+			Collection<String> projectTagCollection, Map<String, List<String>> conditionsByProject,
 			Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects, List<String> proteinScoreNames)
 			throws IOException, PintException {
+		final List<String> projectTags = new ArrayList<String>();
+		projectTags.addAll(projectTagCollection);
+		Collections.sort(projectTags);
 		// log.info("writing row for "
 		// + proteinBean.getPrimaryAccession().getAccession());
 		// line identifier: PROT
@@ -704,13 +716,16 @@ public class DataExporter {
 	}
 
 	private static void writeProteinGroupRow(FileWriter fw, ProteinGroupBean proteinGroup, String actualprojectTag,
-			List<String> projectTags, Map<String, List<String>> conditionsByProject,
+			Collection<String> projectTagCollection, Map<String, List<String>> conditionsByProject,
 			Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects) throws IOException, PintException {
 		// line identifier: PROT
 		fw.write(PG + TAB);
 		// project
 		fw.write(actualprojectTag + TAB);
 
+		final List<String> projectTags = new ArrayList<String>();
+		projectTags.addAll(projectTagCollection);
+		Collections.sort(projectTags);
 		// protein header
 		final List<ColumnWithVisibility> proteinColumns = ProteinGroupColumns.getInstance().getColumns();
 		for (final ColumnWithVisibility columnWithOrder : proteinColumns) {
@@ -825,11 +840,15 @@ public class DataExporter {
 
 	}
 
-	private static void writeHeader(FileWriter fw, List<String> projectTags,
+	private static void writeHeader(FileWriter fw, Collection<String> projectTagCollection,
 			Map<String, List<String>> conditionsByProject,
 			Map<String, List<RatioDescriptorBean>> ratioDescriptorsByProjects, List<String> psmScoreNames,
 			List<String> ptmScoreNames, List<String> proteinScoreNames, ColumnProvider proteinColumnProvider,
 			ColumnProvider psmColumnProvider) throws IOException, PintException {
+		final List<String> projectTags = new ArrayList<String>();
+		projectTags.addAll(projectTagCollection);
+		Collections.sort(projectTags);
+
 		final int numProjects = projectTags.size();
 		// line identifier: PEP, PROT, PG
 		fw.write("ROW TYPE" + TAB);
@@ -981,7 +1000,8 @@ public class DataExporter {
 		fw.write(NEW_LINE);
 	}
 
-	private static Map<String, List<String>> getConditionsByProjects(List<String> projectTags) throws PintException {
+	private static Map<String, List<String>> getConditionsByProjects(Collection<String> projectTags)
+			throws PintException {
 		final Map<String, List<String>> conditionsByProject = new THashMap<String, List<String>>();
 		for (final String projectTag : projectTags) {
 			final Set<Condition> experimentalConditions = RemoteServicesTasks
@@ -996,7 +1016,8 @@ public class DataExporter {
 		return conditionsByProject;
 	}
 
-	private static Map<String, List<RatioDescriptorBean>> getRatioDescriptorsByProjects(List<String> projectTags) {
+	private static Map<String, List<RatioDescriptorBean>> getRatioDescriptorsByProjects(
+			Collection<String> projectTags) {
 		final Map<String, List<RatioDescriptorBean>> ratiosByProject = new THashMap<String, List<RatioDescriptorBean>>();
 
 		final Set<String> projectTagSet = new THashSet<String>();

@@ -4,7 +4,7 @@ public class ServerConstants {
 	public static final String PINT_DEVELOPER_ENV_VAR = "SERVER_TEST";
 	public static final String PINT_SCRIPPS_ENV_VAR = "SCRIPPS_SERVER";
 
-	public static final String PROJECT_XML_CFG = "import_schema_0.7.xsd";
+	public static final String PROJECT_XML_CFG = "import_schema_0.8.xsd";
 
 	/**
 	 * Constants for reading default view file

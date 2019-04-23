@@ -1,5 +1,6 @@
 package edu.scripps.yates;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -116,10 +117,12 @@ public interface ProteinRetrievalService extends RemoteService {
 
 	Set<OrganismBean> getOrganismsByProject(String projectTag) throws PintException;
 
-	FileDescriptor getDownloadLinkForProteinsInProject(List<String> projectTags) throws PintException;
+	FileDescriptor getDownloadLinkForProteinsInProject(Collection<String> projectTags) throws PintException;
 
-	FileDescriptor getDownloadLinkForProteinGroupsInProject(List<String> projectTags,
+	FileDescriptor getDownloadLinkForProteinGroupsInProject(Collection<String> projectTags,
 			boolean separateNonConclusiveProteins) throws PintException;
+
+	FileDescriptor getDownloadLinkForInputFilesOfProject(String projectTag) throws PintException;
 
 	Set<String> getHiddenPTMs(String sessionID, String projectTag) throws PintException;
 

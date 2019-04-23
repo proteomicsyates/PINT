@@ -44,6 +44,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.scripps.yates.ProjectSaverServiceAsync;
 import edu.scripps.yates.ProteinRetrievalServiceAsync;
+import edu.scripps.yates.client.cache.ClientCacheInputDataFilesZipByProjectName;
 import edu.scripps.yates.client.cache.ClientCacheOrganismsByProjectTag;
 import edu.scripps.yates.client.cache.ClientCacheProjectBeansByProjectTag;
 import edu.scripps.yates.client.cache.ClientCacheProteinFileDescriptorByProjectName;
@@ -75,6 +76,7 @@ public class BrowsePanel extends InitializableComposite {
 	private Label speciesDataLabel;
 	private final Anchor proteinsLink = new Anchor();
 	private final Anchor proteinGroupsLink = new Anchor();
+	private final Anchor inputDataFilesZipLink = new Anchor();
 	private Grid grid;
 	private final MyClientBundle myClientBundle = MyClientBundle.INSTANCE;
 	private String selectedProjectTag;
@@ -90,8 +92,6 @@ public class BrowsePanel extends InitializableComposite {
 	private MyDialogBox loadingDialog;
 
 	public BrowsePanel() {
-		proteinGroupsLink.setStyleName("linkPINT");
-		proteinsLink.setStyleName("linkPINT");
 
 		final FlowPanel mainPanel = new FlowPanel();
 		mainPanel.setStyleName("MainPanel");
@@ -268,7 +268,7 @@ public class BrowsePanel extends InitializableComposite {
 		cptnpnlNewPanel.setStyleName("browserExperimentInformation");
 		verticalPanelRigth.add(cptnpnlNewPanel);
 
-		grid = new Grid(10, 2);
+		grid = new Grid(11, 2);
 		grid.setStyleName("browserExperimentInformationTable");
 		grid.setCellPadding(2);
 		grid.setCellSpacing(4);
@@ -311,13 +311,13 @@ public class BrowsePanel extends InitializableComposite {
 
 		final Label lblDescription = new Label("Description:");
 		lblDescription.setStyleName("browserExperimentInformationItemHeader");
-		grid.setWidget(9, 0, lblDescription);
+		grid.setWidget(10, 0, lblDescription);
 		lblDescription.setHeight("10em");
 
 		projectDescriptionLabel = new Label("-");
-		grid.setWidget(9, 1, projectDescriptionLabel);
-		grid.getCellFormatter().setWidth(9, 1, "100%");
-		grid.getCellFormatter().setWordWrap(9, 1, true);
+		grid.setWidget(10, 1, projectDescriptionLabel);
+		grid.getCellFormatter().setWidth(10, 1, "100%");
+		grid.getCellFormatter().setWordWrap(10, 1, true);
 		projectDescriptionLabel.setWidth("100%");
 		grid.getCellFormatter().setWidth(4, 1, "100%");
 		grid.getCellFormatter().setWidth(5, 1, "100%");
@@ -327,6 +327,7 @@ public class BrowsePanel extends InitializableComposite {
 		grid.getCellFormatter().setHorizontalAlignment(7, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		grid.getCellFormatter().setHorizontalAlignment(7, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		grid.getCellFormatter().setHorizontalAlignment(8, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+		grid.getCellFormatter().setHorizontalAlignment(9, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		final Label speciesLabel = new Label("Species:");
 		speciesLabel.setStyleName("browserExperimentInformationItemHeader");
@@ -371,6 +372,14 @@ public class BrowsePanel extends InitializableComposite {
 
 		final Label emptyLabel2 = new Label("-");
 		grid.setWidget(8, 1, emptyLabel2);
+
+		final Label inputIDZipLabel = new Label("Dataset's input files (zip)");
+		inputIDZipLabel.setStyleName("browserExperimentInformationItemHeader");
+		grid.setWidget(9, 0, inputIDZipLabel);
+
+		final Label emptyLabel3 = new Label("-");
+		grid.setWidget(9, 1, emptyLabel3);
+
 		grid.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
 		grid.getCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_TOP);
 		grid.getCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_TOP);
@@ -391,6 +400,8 @@ public class BrowsePanel extends InitializableComposite {
 		grid.getCellFormatter().setVerticalAlignment(8, 1, HasVerticalAlignment.ALIGN_TOP);
 		grid.getCellFormatter().setVerticalAlignment(9, 0, HasVerticalAlignment.ALIGN_TOP);
 		grid.getCellFormatter().setVerticalAlignment(9, 1, HasVerticalAlignment.ALIGN_TOP);
+		grid.getCellFormatter().setVerticalAlignment(10, 0, HasVerticalAlignment.ALIGN_TOP);
+		grid.getCellFormatter().setVerticalAlignment(10, 1, HasVerticalAlignment.ALIGN_TOP);
 
 		// load project list
 		loadProjectList();
@@ -609,6 +620,7 @@ public class BrowsePanel extends InitializableComposite {
 			loadOrganisms(null);
 			loadProteinLink(null);
 			loadProteinGroupLink(null);
+			loadInputDataFilesZipLink(null);
 			return;
 		}
 		ProjectBean projectBean = null;
@@ -709,9 +721,35 @@ public class BrowsePanel extends InitializableComposite {
 							}
 						});
 			}
+			// input data files zip link
+			if (ClientCacheInputDataFilesZipByProjectName.getInstance().contains(projectTag)) {
+				loadInputDataFilesZipLink(
+						ClientCacheInputDataFilesZipByProjectName.getInstance().getFromCache(projectTag));
+			} else {
+
+				proteinRetrievingService.getDownloadLinkForInputFilesOfProject(projectTag,
+						new AsyncCallback<FileDescriptor>() {
+
+							@Override
+							public void onFailure(Throwable caught) {
+								StatusReportersRegister.getInstance().notifyStatusReporters(caught.getMessage());
+								loadInputDataFilesZipLink(null);
+							}
+
+							@Override
+							public void onSuccess(FileDescriptor result) {
+								loadInputDataFilesZipLink(result);
+								if (result != null) {
+									ClientCacheInputDataFilesZipByProjectName.getInstance().addtoCache(result,
+											projectTag);
+								}
+							}
+						});
+			}
 		} else {
 			loadProteinLink(null);
 			loadProteinGroupLink(null);
+			loadInputDataFilesZipLink(null);
 		}
 	}
 
@@ -733,17 +771,37 @@ public class BrowsePanel extends InitializableComposite {
 		}
 	}
 
+	private void loadInputDataFilesZipLink(FileDescriptor file) {
+		if (file == null) {
+			setInputDataFilesZipLink(null);
+		} else {
+			loadLinkForInputDataFilesZip(file, inputDataFilesZipLink);
+			setInputDataFilesZipLink(inputDataFilesZipLink);
+		}
+	}
+
+	private void loadLinkForInputDataFilesZip(FileDescriptor fileDescriptor, Anchor anchor) {
+		if (fileDescriptor != null) {
+			final String href = ClientSafeHtmlUtils.getProjectZipDownloadURL(fileDescriptor.getName());
+			anchor.setText(fileDescriptor.getName() + ".zip [" + fileDescriptor.getSize() + "]");
+			anchor.setHref(href);
+			anchor.setTarget("_blank");
+			anchor.setStyleName("linkPINT");
+
+		} else {
+			anchor.setHref("");
+			anchor.setText("not available");
+		}
+	}
+
 	private void loadLink(FileDescriptor fileDescriptor, Anchor anchor) {
 		if (fileDescriptor != null) {
-			// final String href = GWT.getModuleBaseURL() + "/download?" +
-			// SharedConstants.FILE_TO_DOWNLOAD + "="
-			// + file.getName() + "&" + SharedConstants.FILE_TYPE + "=" +
-			// SharedConstants.ID_DATA_FILE_TYPE;
 			final String href = ClientSafeHtmlUtils.getDownloadURL(fileDescriptor.getName(),
 					SharedConstants.ID_DATA_FILE_TYPE);
 			anchor.setText("[" + fileDescriptor.getSize() + "]");
 			anchor.setHref(href);
 			anchor.setTarget("_blank");
+			anchor.setStyleName("linkPINT");
 		} else {
 			anchor.setHref("");
 			anchor.setText("not available");
@@ -788,6 +846,13 @@ public class BrowsePanel extends InitializableComposite {
 			projectTagLabel.setText("-");
 			projectStatusLabel.setText("-");
 		}
+	}
+
+	private void setInputDataFilesZipLink(Anchor anchor) {
+		if (anchor != null)
+			grid.setWidget(9, 1, anchor);
+		else
+			grid.setWidget(9, 1, new Label("N/A"));
 	}
 
 	private void setProteinGroupsLink(Anchor anchor) {

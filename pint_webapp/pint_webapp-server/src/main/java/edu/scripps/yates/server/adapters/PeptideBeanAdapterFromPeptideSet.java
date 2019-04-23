@@ -35,6 +35,7 @@ import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.TIntSet;
@@ -91,13 +92,21 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 		// }
 		for (final Peptide peptide : peptideSet) {
 			addPeptideInformation(ret, peptide);
+			if (ret.getFullSequence() == null) {
+				log.info("asdf");
+			}
 		}
-
+		if (ret.getFullSequence() == null) {
+			log.info("asdf");
+		}
 		return ret;
 	}
 
 	private void addPeptideInformation(PeptideBean ret, Peptide peptide) {
 		if (ret.getDbIds().contains(peptide.getId())) {
+			if (ret.getFullSequence() == null) {
+				log.info("asdf");
+			}
 			return;
 		}
 		ret.addDbId(peptide.getId());
@@ -110,8 +119,8 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 			ret.setSequence(peptide.getSequence());
 
 		}
-
-		if (!peptide.getFullSequence().equals(peptide.getSequence())) {
+		final String fullSequence = FastaParser.getSequenceInBetween(peptide.getFullSequence());
+		if (!fullSequence.equals(peptide.getSequence())) {
 			final TIntSet ptmIDs = PeptideIDToPTMIDTableMapper.getInstance().getPTMIDsFromPeptideID(peptide.getId());
 			if (!ptmIDs.isEmpty()) {
 				final List<Ptm> ptms = (List<Ptm>) PreparedCriteria.getBatchLoadByIDs(Ptm.class, ptmIDs, true, 10);
@@ -127,9 +136,11 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 					ret.addPtm(new PTMBeanAdapter(ptm).adapt());
 				}
 
+			} else {
+				log.warn("This shoudn't happen");
 			}
 		} else {
-			ret.setFullSequence(peptide.getSequence());
+			ret.setFullSequence(peptide.getFullSequence());
 		}
 
 		// final Set<Protein> proteins = peptide.getProteins();

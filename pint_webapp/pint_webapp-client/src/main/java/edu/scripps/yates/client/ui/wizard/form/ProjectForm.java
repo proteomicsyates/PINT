@@ -29,7 +29,7 @@ public class ProjectForm extends AbstractFormCollection {
 			pintImportCfgBean.setProject(project);
 		}
 		projectTag = new TextBoxFormInformation("Dataset tag",
-				"The short tag of the dataset. Maximum lenght of 7 characters", true, 7.0);
+				"The short tag of the dataset. Maximum lenght of 15 characters", true, 15.0);
 		add(projectTag);
 		projectTag.linkToObject(new UpdateAction() {
 

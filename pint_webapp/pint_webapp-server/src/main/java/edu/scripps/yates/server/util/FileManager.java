@@ -2,12 +2,15 @@ package edu.scripps.yates.server.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 
@@ -16,11 +19,17 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FormatType;
+import edu.scripps.yates.excel.proteindb.importcfg.jaxb.IdDescriptionType;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.PintImportCfg;
+import edu.scripps.yates.excel.proteindb.importcfg.jaxb.PrincipalInvestigatorType;
+import edu.scripps.yates.excel.proteindb.importcfg.jaxb.ProjectType;
+import edu.scripps.yates.excel.proteindb.importcfg.util.ImportCfgUtil;
 import edu.scripps.yates.server.projectCreator.ImportCfgFileParserUtil;
+import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.FileFormat;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
 import edu.scripps.yates.shared.util.SharedConstants;
+import edu.scripps.yates.utilities.files.ZipManager;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class FileManager {
@@ -323,30 +332,32 @@ public class FileManager {
 		final File projectDataFileFolder = getProjectDataFileFolder(importProcessIdentifier, true);
 		if (projectDataFileFolder.exists() && projectDataFileFolder.listFiles() != null) {
 			for (final File dataFileFolder : projectDataFileFolder.listFiles()) {
-				final String fileID = FilenameUtils.getBaseName(dataFileFolder.getAbsolutePath());
+				if (dataFileFolder.isDirectory()) {
+					final String fileID = FilenameUtils.getBaseName(dataFileFolder.getAbsolutePath());
 //				if (dataFileFolder.listFiles().length == 1) {
-				for (final File dataFileFormatFolder : dataFileFolder.listFiles()) {
+					for (final File dataFileFormatFolder : dataFileFolder.listFiles()) {
 
-					final FormatType formatFromFolder = FormatType
-							.fromValue(FilenameUtils.getBaseName(dataFileFormatFolder.getAbsolutePath()));
-					if (dataFileFormatFolder.listFiles().length > 0) {
-						for (final File dataFile : dataFileFormatFolder.listFiles()) {
+						final FormatType formatFromFolder = FormatType
+								.fromValue(FilenameUtils.getBaseName(dataFileFormatFolder.getAbsolutePath()));
+						if (dataFileFormatFolder.listFiles().length > 0) {
+							for (final File dataFile : dataFileFormatFolder.listFiles()) {
 
-							if (dataFile.exists()) {
-								// TODO substitute the null by something
-								FileWithFormat obj = null;
-								if (format != null) {
-									obj = new FileWithFormat(fileID, dataFile,
-											FormatType.fromValue(format.name().toLowerCase()), null);
-								} else {
-									obj = new FileWithFormat(fileID, dataFile, formatFromFolder, null);
-								}
-								if (filesByImportProcessID.containsKey(importProcessIdentifier)) {
-									filesByImportProcessID.get(importProcessIdentifier).add(obj);
-								} else {
-									final List<FileWithFormat> list = new ArrayList<FileWithFormat>();
-									list.add(obj);
-									filesByImportProcessID.put(importProcessIdentifier, list);
+								if (dataFile.exists()) {
+									// TODO substitute the null by something
+									FileWithFormat obj = null;
+									if (format != null) {
+										obj = new FileWithFormat(fileID, dataFile,
+												FormatType.fromValue(format.name().toLowerCase()), null);
+									} else {
+										obj = new FileWithFormat(fileID, dataFile, formatFromFolder, null);
+									}
+									if (filesByImportProcessID.containsKey(importProcessIdentifier)) {
+										filesByImportProcessID.get(importProcessIdentifier).add(obj);
+									} else {
+										final List<FileWithFormat> list = new ArrayList<FileWithFormat>();
+										list.add(obj);
+										filesByImportProcessID.put(importProcessIdentifier, list);
+									}
 								}
 							}
 						}
@@ -553,5 +564,139 @@ public class FileManager {
 			return file;
 		}
 		return null;
+	}
+
+	public static File getGZipFileForProject(String projectTag) {
+
+		final File projectCfgFileFolder = getProjectCfgFileFolder();
+		for (final File xmlFile : projectCfgFileFolder.listFiles()) {
+			if (xmlFile.isFile()) {
+				try {
+					final PintImportCfg pintImportFromFile = ImportCfgFileParserUtil.getPintImportFromFile(xmlFile);
+					if (pintImportFromFile.getProject().getTag().equals(projectTag)) {
+						final Integer importID = pintImportFromFile.getImportID();
+						final File projectDataFileFolder = getProjectDataFileFolder(importID, false);
+						if (projectDataFileFolder.exists()) {
+							final File outputgZipFile = new File(
+									projectDataFileFolder + File.separator + projectTag + ".zip");
+							if (outputgZipFile.exists() && outputgZipFile.length() > 0l) {
+								return outputgZipFile;
+							}
+							final List<FileWithFormat> filesWithFormat = getFilesByImportProcessID(importID);
+							final Set<File> files = filesWithFormat.stream().map(f -> f.getFile())
+									.collect(Collectors.toSet());
+							// add a metadata file with the principal investigator and the instruments
+							final File metadataFile = createMetadataFile(projectDataFileFolder,
+									pintImportFromFile.getProject());
+							if (metadataFile != null) {
+								files.add(metadataFile);
+							}
+							compressFiles(files, outputgZipFile);
+							return outputgZipFile;
+						}
+					}
+				} catch (final PintException e) {
+
+				} catch (final IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		// files not available.
+		return null;
+	}
+
+	private static File createMetadataFile(File projectDataFileFolder, ProjectType project) throws IOException {
+
+		final File metadataFile = new File(projectDataFileFolder.getAbsolutePath() + File.separator + "metadata.txt");
+		final FileWriter fw = new FileWriter(metadataFile);
+		fw.write("Metadata for the dataset '" + project.getTag()
+				+ "' stored in PINT following requirements from ProteomeXchange metadata\n\n\n");
+		// title
+		fw.write("TITLE:\t" + project.getName() + "\n\n");
+		// species
+		if (project.getExperimentalDesign() != null && project.getExperimentalDesign().getOrganismSet() != null
+				&& !project.getExperimentalDesign().getOrganismSet().getOrganism().isEmpty()) {
+			fw.write("SPECIES:\t");
+			final StringBuilder sb = new StringBuilder();
+			for (final IdDescriptionType organism : project.getExperimentalDesign().getOrganismSet().getOrganism()) {
+				if (!"".equals(sb.toString())) {
+					sb.append("\t");
+				}
+				sb.append("NCBITax ID: " + organism.getId());
+				if (organism.getDescription() != null && !"".equals(organism.getDescription())) {
+					sb.append(" (" + organism.getDescription() + ")");
+				}
+			}
+			fw.write(sb.toString() + "\n\n");
+		}
+		// instrument
+		if (project.getInstruments() != null && !"".equals(project.getInstruments())) {
+			final List<String> instruments = new ArrayList<String>();
+			if (project.getInstruments().contains(ImportCfgUtil.PI_SEPARATOR)) {
+				final String[] split = project.getInstruments().split(ImportCfgUtil.PI_SEPARATOR);
+				for (final String string : split) {
+					instruments.add(string);
+				}
+			} else {
+				instruments.add(project.getInstruments());
+			}
+			fw.write("INSTRUMENTS:\t");
+			final StringBuilder sb = new StringBuilder();
+			for (final String instrument : instruments) {
+				if (!"".equals(sb.toString())) {
+					sb.append("\t");
+				}
+				sb.append(instrument);
+			}
+			fw.write(sb.toString() + "\n\n");
+		}
+		// principal investigator
+		final PrincipalInvestigatorType principalInvestigator = project.getPrincipalInvestigator();
+		if (principalInvestigator != null) {
+			fw.write("PRINCIPAL INVESTIGATOR:\n");
+			fw.write("Name:\t");
+			if (principalInvestigator.getName() != null && !"".equals(principalInvestigator.getName())) {
+				fw.write(principalInvestigator.getName());
+			}
+			fw.write("\n");
+			fw.write("Email:\t");
+			if (principalInvestigator.getEmail() != null && !"".equals(principalInvestigator.getEmail())) {
+				fw.write(principalInvestigator.getEmail());
+			}
+			fw.write("\n");
+			fw.write("Institution:\t");
+			if (principalInvestigator.getInstitution() != null && !"".equals(principalInvestigator.getInstitution())) {
+				fw.write(principalInvestigator.getInstitution());
+			}
+			fw.write("\n");
+			fw.write("Country:\t");
+			if (principalInvestigator.getCountry() != null && !"".equals(principalInvestigator.getCountry())) {
+				fw.write(principalInvestigator.getCountry());
+			}
+			fw.write("\n\n");
+
+		}
+		if (project.getDescription() != null && !"".equals(project.getDescription())) {
+			fw.write("DESCRIPTION:\t" + project.getDescription() + "\n\n");
+		}
+		fw.close();
+		return metadataFile;
+	}
+
+	private static void compressFiles(Set<File> files, File outputgZipFile) throws IOException {
+		log.info("Compressing " + files.size() + " files to " + outputgZipFile.getAbsolutePath());
+		long totalSize = 0l;
+		for (final File file : files) {
+			totalSize += file.length();
+		}
+		log.info("Total size to compress among " + files.size() + " is: "
+				+ edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(totalSize));
+
+		ZipManager.compressZipFile(files, outputgZipFile);
+
+		log.info("File compressed to "
+				+ edu.scripps.yates.utilities.files.FileUtils.getDescriptiveSizeFromBytes(outputgZipFile.length())
+				+ " at " + outputgZipFile.getAbsolutePath());
 	}
 }

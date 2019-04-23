@@ -10,6 +10,7 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DateLabel;
@@ -22,17 +23,22 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 
+import edu.scripps.yates.ProteinRetrievalServiceAsync;
 import edu.scripps.yates.client.gui.QueryPanel;
 import edu.scripps.yates.client.gui.components.MyWelcomeProjectPanel;
+import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.projectStats.ProjectStats;
 import edu.scripps.yates.shared.model.projectStats.ProjectStatsFromProjectBean;
 import edu.scripps.yates.shared.util.DefaultView;
+import edu.scripps.yates.shared.util.FileDescriptor;
 import edu.scripps.yates.shared.util.ProjectNamedQuery;
 
 public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPanel<ProjectBean> {
 	private static ProjectStatsFromProjectItemPanel instance;
+	private static final edu.scripps.yates.ProteinRetrievalServiceAsync proteinRetrievingService = ProteinRetrievalServiceAsync.Util
+			.getInstance();
 
 	public static ProjectStatsFromProjectItemPanel getInstance(QueryPanel queryPanel, boolean testMode, ProjectBean t,
 			DefaultView defaultView, boolean resetItems) {
@@ -65,6 +71,7 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 	private static final int rowProjectPublicationLink = 8;
 	private static final int rowLoadWholeProjectLink = 9;
 	private static final int rowProjectRecommendedQueries = 10;
+	private static final int rowDownloadInputDataFiles = 11;
 	private final QueryPanel queryPanel;
 	private final boolean testMode;
 	private DefaultView defaultView;
@@ -215,6 +222,48 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 					HasVerticalAlignment.ALIGN_TOP);
 			row++;
 		}
+
+		// download input files for project
+		final Label label9 = new Label("Download dataset's files (gzip):");
+		label9.setStyleName("ProjectItemIndividualItemTitle");
+		table.setWidget(rowDownloadInputDataFiles, 0, label9);
+		table.getCellFormatter().setAlignment(rowDownloadInputDataFiles, 0, HasHorizontalAlignment.ALIGN_LEFT,
+				HasVerticalAlignment.ALIGN_TOP);
+		final Image loading = new Image(MyClientBundle.INSTANCE.smallLoader());
+		loading.setTitle("Preparing gzip to download dataset's files");
+		table.setWidget(rowDownloadInputDataFiles, 1, loading);
+
+		proteinRetrievingService.getDownloadLinkForInputFilesOfProject(projectBean.getTag(),
+				new AsyncCallback<FileDescriptor>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// set as N/A
+						final Label label = new Label("N/A");
+						table.setWidget(rowDownloadInputDataFiles, 1, label);
+						table.getCellFormatter().setAlignment(rowDownloadInputDataFiles, 1,
+								HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+					}
+
+					@Override
+					public void onSuccess(FileDescriptor result) {
+
+						if (result != null) {
+							final String fileName = SafeHtmlUtils.htmlEscape(result.getName());
+							final String fileSizeString = result.getSize();
+							final String href = ClientSafeHtmlUtils.getProjectZipDownloadURL(fileName);
+							final Anchor link = new Anchor();
+							link.setVisible(true);
+							link.setHref(href);
+							link.setTarget("_blank");
+							link.setText(fileName + ".zip (" + fileSizeString + ")");
+							link.setStyleName("linkPINT");
+							table.setWidget(rowDownloadInputDataFiles, 1, link);
+							table.getCellFormatter().setAlignment(rowDownloadInputDataFiles, 1,
+									HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+						}
+					}
+				});
 
 		return table;
 	}

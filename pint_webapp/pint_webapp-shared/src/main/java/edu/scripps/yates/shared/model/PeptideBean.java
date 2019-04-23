@@ -833,7 +833,10 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 			lightVersion.setFullSequence(getFullSequence());
 
 			for (final ProteinBean proteinBean : getProteins()) {
-				final ProteinBean lightProtein = proteinBean.cloneToLightProteinBean();
+				ProteinBean lightProtein = proteinBean.lightVersion;
+				if (lightProtein == null) {
+					lightProtein = proteinBean.cloneToLightProteinBean();
+				}
 				lightVersion.addProteinToPeptide(lightProtein);
 			}
 

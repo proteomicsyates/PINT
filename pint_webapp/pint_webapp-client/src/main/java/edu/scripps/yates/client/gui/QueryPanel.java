@@ -99,6 +99,7 @@ import edu.scripps.yates.shared.columns.PSMColumns;
 import edu.scripps.yates.shared.columns.PeptideColumns;
 import edu.scripps.yates.shared.columns.ProteinColumns;
 import edu.scripps.yates.shared.columns.ProteinGroupColumns;
+import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PSMBean;
 import edu.scripps.yates.shared.model.PeptideBean;
@@ -265,6 +266,33 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// create the tab panel
 		firstLevelTabPanel = new ScrolledTabLayoutPanel(null, null);
 		firstLevelTabPanel.setHeight("100%");
+		firstLevelTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+
+			@Override
+			public void onSelection(SelectionEvent<Integer> event) {
+				final Integer item = event.getSelectedItem();
+				if (item != null) {
+					if (item == 0) {
+						// project info
+					} else if (item == 1) {
+						// Dataset view
+						final int secondLevelIndex = secondLevelTabPanel.getSelectedIndex();
+						if (secondLevelIndex == 0) {
+							// protein groups
+							selectDataTab(proteinGroupTablePanel);
+						} else if (secondLevelIndex == 1) {
+							// proteins
+							selectDataTab(proteinTablePanel);
+						} else if (secondLevelIndex == 2) {
+							// peptides
+							selectDataTab(peptideOnlyTablePanel);
+						}
+					} else {
+						// other
+					}
+				}
+			}
+		});
 		// create the content panel
 		// Widget[] contentWidgets = { mainDataTabPanel };
 		final FlowPanel contentPanel = new FlowPanel();
@@ -1056,7 +1084,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				if (Pint.getPSMCentric()) {
 					psmTablePanel.setLoadingWidget();
 				} else {
-					peptideTablePanel.setLoadingWidget();
+
+					peptideTablePanel.setEmptyTableWidget(peptideTablePanel.getLoadingWidget());
+					peptideTablePanel.clearTable();
+
 				}
 				final Object source = event.getSource();
 
@@ -1076,12 +1107,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							peptideTablePanel.refreshData();
 						}
 					}
-					final Widget widget = null;
-					if (Pint.getPSMCentric()) {
-						psmTablePanel.setEmptyTableWidget(widget);
-					} else {
-						peptideTablePanel.setEmptyTableWidget(widget);
-					}
+
 				}
 			}
 
@@ -1131,7 +1157,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				if (Pint.getPSMCentric()) {
 					psmTablePanel.setLoadingWidget();
 				} else {
-					peptideTablePanel.setLoadingWidget();
+//					peptideTablePanel.setLoadingWidget();
+					peptideTablePanel.setEmptyTableWidget(peptideTablePanel.getLoadingWidget());
+
+					peptideTablePanel.clearTable();
 				}
 				if (source instanceof SingleSelectionModel) {
 					final SingleSelectionModel<ProteinGroupBean> selectionModel = (SingleSelectionModel<ProteinGroupBean>) source;
@@ -1147,13 +1176,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 						}
 
 					}
-					final Widget widget = null;
-					// set default widget
-					if (Pint.getPSMCentric()) {
-						psmTablePanel.setEmptyTableWidget(widget);
-					} else {
-						peptideTablePanel.setEmptyTableWidget(widget);
-					}
+
 				}
 
 			}
@@ -1241,15 +1264,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 					@Override
 					public void onSuccess(FileDescriptor result) {
-						if (result != null) {
-							final String fileName = SafeHtmlUtils.htmlEscape(result.getName());
-							final String fileSizeString = result.getSize();
-							queryEditorPanel.setSendingStatusText(null);
-							final String href = ClientSafeHtmlUtils.getDownloadURL(fileName,
-									SharedConstants.ID_DATA_FILE_TYPE);
-							queryEditorPanel.setLinksToResultsVisible(true);
-							queryEditorPanel.setLinksToProteinResults(href, "Proteins [" + fileSizeString + "]");
-						}
+						setDownloadProteinLink(result);
 					}
 				});
 		proteinRetrievingService.getDownloadLinkForProteinGroupsFromQuery(sessionID,
@@ -1264,23 +1279,68 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 					@Override
 					public void onSuccess(FileDescriptor result) {
-						if (result != null) {
-							final String fileName = SafeHtmlUtils.htmlEscape(result.getName());
-							final String fileSizeString = result.getSize();
-							queryEditorPanel.setSendingStatusText(null);
-							// final String href = GWT.getModuleBaseURL() +
-							// "download?" + SharedConstants.FILE_TO_DOWNLOAD
-							// + "=" + fileName + "&" +
-							// SharedConstants.FILE_TYPE + "="
-							// + SharedConstants.ID_DATA_FILE_TYPE;
-							final String href = ClientSafeHtmlUtils.getDownloadURL(fileName,
-									SharedConstants.ID_DATA_FILE_TYPE);
-							queryEditorPanel.setLinksToResultsVisible(true);
-							queryEditorPanel.setLinksToProteinGroupResults(href,
-									"Protein groups [" + fileSizeString + "]");
-						}
+						setDownloadProteinGroupLink(result);
 					}
 				});
+	}
+
+	private void prepareDownloadLinksForProject() {
+		proteinRetrievingService.getDownloadLinkForProteinsInProject(loadedProjects,
+				new AsyncCallback<FileDescriptor>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						updateStatus(caught);
+						queryEditorPanel.setLinksToResultsVisible(false);
+					}
+
+					@Override
+					public void onSuccess(FileDescriptor result) {
+						setDownloadProteinLink(result);
+
+					}
+				});
+		proteinRetrievingService.getDownloadLinkForProteinGroupsInProject(loadedProjects,
+				proteinGroupingCommandPanel.isSeparateNonConclusiveProteins(), new AsyncCallback<FileDescriptor>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						updateStatus(caught);
+						queryEditorPanel.setLinksToResultsVisible(false);
+					}
+
+					@Override
+					public void onSuccess(FileDescriptor result) {
+						setDownloadProteinGroupLink(result);
+					}
+				});
+	}
+
+	protected void setDownloadProteinGroupLink(FileDescriptor result) {
+		if (result != null) {
+			final String fileName = SafeHtmlUtils.htmlEscape(result.getName());
+			final String fileSizeString = result.getSize();
+			queryEditorPanel.setSendingStatusText(null);
+			// final String href = GWT.getModuleBaseURL() +
+			// "download?" + SharedConstants.FILE_TO_DOWNLOAD
+			// + "=" + fileName + "&" +
+			// SharedConstants.FILE_TYPE + "="
+			// + SharedConstants.ID_DATA_FILE_TYPE;
+			final String href = ClientSafeHtmlUtils.getDownloadURL(fileName, SharedConstants.ID_DATA_FILE_TYPE);
+			queryEditorPanel.setLinksToResultsVisible(true);
+			queryEditorPanel.setLinksToProteinGroupResults(href, "Protein groups [" + fileSizeString + "]");
+		}
+	}
+
+	protected void setDownloadProteinLink(FileDescriptor result) {
+		if (result != null) {
+			final String fileName = SafeHtmlUtils.htmlEscape(result.getName());
+			final String fileSizeString = result.getSize();
+			queryEditorPanel.setSendingStatusText(null);
+			final String href = ClientSafeHtmlUtils.getDownloadURL(fileName, SharedConstants.ID_DATA_FILE_TYPE);
+			queryEditorPanel.setLinksToResultsVisible(true);
+			queryEditorPanel.setLinksToProteinResults(href, "Proteins [" + fileSizeString + "]");
+		}
 	}
 
 	protected void requestUniprotVersionsFromProjects(Set<String> selectedProjects) {
@@ -1381,6 +1441,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					@Override
 					public void onFailure(Throwable caught) {
 						try {
+							if (caught instanceof PintException) {
+								GWT.log(caught.getMessage());
+							}
 							updateStatus(caught);
 							queryEditorPanel.setSendingStatusText(null);
 						} finally {
@@ -2287,13 +2350,15 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 													defaultView, //
 													true, // modifyColumns
 													false, // showMaxNumberOfProjectsAtOnceMessage
-													false, // changeToDataTab
+													true, // changeToDataTab
 													false, // bigProject
 													testMode, // testMode
 													true // showWelcomeProjectWindow
 											);
 										}
-
+										if (result.getNumTotalProteins() > 0) {
+											prepareDownloadLinksForProject();
+										}
 										// load on the grid
 										// loadProteinsOnGrid(result);
 										// NOT LOAD THE DATA YET, WAIT UNTIL
@@ -2362,6 +2427,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 			@Override
 			public void onClick(ClickEvent event) {
+				peptideOnlyTablePanel.setEmptyTableWidget(peptideOnlyTablePanel.getLoadingWidget());
+				peptideOnlyTablePanel.clearTable();
 				showMessage("Loading peptide table...");
 				peptideOnlyTablePanel.setReadyToShowData(true);
 				peptideOnlyTablePanel.refreshData();

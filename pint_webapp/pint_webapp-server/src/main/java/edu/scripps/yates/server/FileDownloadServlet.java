@@ -74,6 +74,9 @@ public class FileDownloadServlet extends HttpServlet {
 		} else if (fileType != null && fileType.equals(SharedConstants.REACTOME_ANALYSIS_RESULT_FILE_TYPE)) {
 			file = FileManager.getReactomeFile(filename);
 			// dont add the header, just keep the plain text file
+		} else if (fileType != null && fileType.equals(SharedConstants.DATASET_INPUT_FILES_ZIP)) {
+			file = FileManager.getGZipFileForProject(filename);
+			p_response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + ".zip" + "\"");
 		}
 		if (file == null)
 			return;

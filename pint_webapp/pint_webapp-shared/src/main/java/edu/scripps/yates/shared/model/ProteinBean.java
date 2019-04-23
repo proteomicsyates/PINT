@@ -1470,7 +1470,6 @@ public class ProteinBean
 			peptideDBIds3.addAll(peptideBean.getDbIds());
 		}
 		if (peptideDBIds3.size() != getPeptideDBIds().size()) {
-			System.out.println("Needs to query peptides from proteinBean " + this.getId());
 
 			return true;
 		}

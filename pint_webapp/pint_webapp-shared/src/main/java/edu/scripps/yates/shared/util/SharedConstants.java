@@ -1,6 +1,11 @@
 package edu.scripps.yates.shared.util;
 
 public class SharedConstants {
+	// CHANGE TO FALSE IF YOU WANT TO LOAD TABLES ON DEMAND
+	// Make it TRUE for loading all when server starts up, better for production
+	// server.
+	public static boolean loadTableIDMappingsOnCommonServlet = true;
+	//
 	public static final String UNIPROT_ACC_LINK = "http://www.uniprot.org/uniprot/";
 	public static final String NCBI_PROTEIN_LINK = "http://www.ncbi.nlm.nih.gov/protein/";
 	public static final String GENENAMES_LINK = "http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=";
@@ -49,7 +54,6 @@ public class SharedConstants {
 	// client sides
 	public static boolean SERVER_CACHE_ENABLED = true;
 	public static boolean CLIENT_CACHE_ENABLED = true;
-	public static boolean loadTableIDMappingsOnCommonServlet = true;
 
 	// aligment of peptides
 	public static final int DEFAULT_ALIGNMENT_SCORE = 20;
@@ -64,5 +68,6 @@ public class SharedConstants {
 	public static final boolean ADAPT_PSM_SCORES = false;
 	public static final String IMPORT_CFG_FILE_KEY = "IMPORT_CFG_FILE_KEY";
 	public static final String TEMPLATE = "TEMPLATE_FILE";
+	public static final String DATASET_INPUT_FILES_ZIP = "dataset input files zip";
 
 }

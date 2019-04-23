@@ -11,7 +11,9 @@ package edu.scripps.yates.shared.model.projectCreator.excel;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
+import edu.scripps.yates.shared.model.PrincipalInvestigatorBean;
 import edu.scripps.yates.shared.model.interfaces.HasId;
 
 public class ProjectTypeBean extends HasId implements Serializable {
@@ -25,6 +27,8 @@ public class ProjectTypeBean extends HasId implements Serializable {
 	protected RatiosTypeBean ratios;
 	protected MsRunsTypeBean msRuns;
 	protected ExperimentalDesignTypeBean experimentalDesign;
+	protected PrincipalInvestigatorBean principalInvestigator;
+	protected List<String> instruments;
 	protected String name;
 	protected Boolean quantitative;
 	protected Date releaseDate;
@@ -43,8 +47,7 @@ public class ProjectTypeBean extends HasId implements Serializable {
 	/**
 	 * Sets the value of the description property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
+	 * @param value allowed object is {@link String }
 	 *
 	 */
 	public void setDescription(String value) {
@@ -64,8 +67,7 @@ public class ProjectTypeBean extends HasId implements Serializable {
 	/**
 	 * Sets the value of the experimentalConditions property.
 	 *
-	 * @param value
-	 *            allowed object is {@link ExperimentalConditionsTypeBean }
+	 * @param value allowed object is {@link ExperimentalConditionsTypeBean }
 	 *
 	 */
 	public void setExperimentalConditions(ExperimentalConditionsTypeBean value) {
@@ -85,8 +87,7 @@ public class ProjectTypeBean extends HasId implements Serializable {
 	/**
 	 * Sets the value of the ratios property.
 	 *
-	 * @param value
-	 *            allowed object is {@link RatiosTypeBean }
+	 * @param value allowed object is {@link RatiosTypeBean }
 	 *
 	 */
 	public void setRatios(RatiosTypeBean value) {
@@ -106,8 +107,7 @@ public class ProjectTypeBean extends HasId implements Serializable {
 	/**
 	 * Sets the value of the msRuns property.
 	 *
-	 * @param value
-	 *            allowed object is {@link MsRunsTypeBean }
+	 * @param value allowed object is {@link MsRunsTypeBean }
 	 *
 	 */
 	public void setMsRuns(MsRunsTypeBean value) {
@@ -127,8 +127,7 @@ public class ProjectTypeBean extends HasId implements Serializable {
 	/**
 	 * Sets the value of the experimentalDesign property.
 	 *
-	 * @param value
-	 *            allowed object is {@link ExperimentalDesignTypeBean }
+	 * @param value allowed object is {@link ExperimentalDesignTypeBean }
 	 *
 	 */
 	public void setExperimentalDesign(ExperimentalDesignTypeBean value) {
@@ -148,8 +147,7 @@ public class ProjectTypeBean extends HasId implements Serializable {
 	/**
 	 * Sets the value of the name property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
+	 * @param value allowed object is {@link String }
 	 *
 	 */
 	public void setName(String value) {
@@ -169,8 +167,7 @@ public class ProjectTypeBean extends HasId implements Serializable {
 	/**
 	 * Sets the value of the quantitative property.
 	 *
-	 * @param value
-	 *            allowed object is {@link Boolean }
+	 * @param value allowed object is {@link Boolean }
 	 *
 	 */
 	public void setQuantitative(Boolean value) {
@@ -190,8 +187,7 @@ public class ProjectTypeBean extends HasId implements Serializable {
 	/**
 	 * Sets the value of the releaseDate property.
 	 *
-	 * @param value
-	 *            allowed object is {@link Date }
+	 * @param value allowed object is {@link Date }
 	 *
 	 */
 	public void setReleaseDate(Date value) {
@@ -211,8 +207,7 @@ public class ProjectTypeBean extends HasId implements Serializable {
 	/**
 	 * Sets the value of the tag property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
+	 * @param value allowed object is {@link String }
 	 *
 	 */
 	public void setTag(String value) {
@@ -222,6 +217,22 @@ public class ProjectTypeBean extends HasId implements Serializable {
 	@Override
 	public String getId() {
 		return getTag();
+	}
+
+	public PrincipalInvestigatorBean getPrincipalInvestigator() {
+		return principalInvestigator;
+	}
+
+	public void setPrincipalInvestigator(PrincipalInvestigatorBean principalInvestigator) {
+		this.principalInvestigator = principalInvestigator;
+	}
+
+	public List<String> getInstruments() {
+		return instruments;
+	}
+
+	public void setInstruments(List<String> instruments) {
+		this.instruments = instruments;
 	}
 
 }

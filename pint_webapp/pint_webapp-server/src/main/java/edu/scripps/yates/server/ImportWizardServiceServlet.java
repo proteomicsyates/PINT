@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -34,11 +35,13 @@ import javax.servlet.ServletException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.exception.DataException;
 import org.proteored.miapeapi.cv.ControlVocabularyManager;
 import org.proteored.miapeapi.cv.ControlVocabularyTerm;
 import org.proteored.miapeapi.cv.LocalOboControlVocabularyManager;
 import org.proteored.miapeapi.cv.LocalOboTestControlVocabularyManager;
 import org.proteored.miapeapi.cv.TissuesTypes;
+import org.proteored.miapeapi.cv.ms.SpectrometerName;
 import org.proteored.miapeapi.cv.msi.PeptideModificationName;
 import org.proteored.miapeapi.cv.msi.Score;
 import org.xml.sax.SAXException;
@@ -132,6 +135,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 	private List<String> scoreTypes;
 	private List<String> ptmNames;
 	private final Map<File, ExcelFileImpl> excelFileReaders = new THashMap<File, ExcelFileImpl>();
+	private List<String> spectrometers;
 
 	private final static List<String> tissues = new ArrayList<String>();
 	private final static List<String> organisms = new ArrayList<String>();
@@ -1154,6 +1158,12 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 			e.printStackTrace();
 			if (e instanceof PintException)
 				throw e;
+			if (e instanceof DataException) {
+				final DataException dataException = (DataException) e;
+				if (dataException.getCause() != null && dataException.getCause().getMessage() != null) {
+					throw new PintException(dataException.getCause().getMessage(), PINT_ERROR_TYPE.INTERNAL_ERROR);
+				}
+			}
 			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
 		}
 	}
@@ -1630,6 +1640,15 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		}
 		throw new PintException("Import session not found in the server. Please contact the administrator.",
 				PINT_ERROR_TYPE.INTERNAL_ERROR);
+	}
+
+	@Override
+	public List<String> getInstrumentList() throws PintException {
+		if (spectrometers == null) {
+			spectrometers = SpectrometerName.getInstance(cvManager).getPossibleValues().stream()
+					.map(cv -> cv.getPreferredName()).collect(Collectors.toList());
+		}
+		return spectrometers;
 	}
 
 }

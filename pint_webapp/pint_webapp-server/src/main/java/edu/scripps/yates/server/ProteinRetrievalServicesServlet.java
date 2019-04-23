@@ -107,6 +107,7 @@ import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SampleBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
+import edu.scripps.yates.shared.tasks.GetDownloadLinkForInputFilesOfProjectTask;
 import edu.scripps.yates.shared.tasks.GetDownloadLinkFromProteinGroupsFromQueryTask;
 import edu.scripps.yates.shared.tasks.GetDownloadLinkFromProteinGroupsInProjectTask;
 import edu.scripps.yates.shared.tasks.GetDownloadLinkFromProteinsInProjectTask;
@@ -163,7 +164,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	private static final Map<String, File> proteinResultFilesByQueryStringInOrder = new THashMap<String, File>();
 	private static final Map<String, File> proteinGroupResultFilesByQueryStringInOrder = new THashMap<String, File>();
-
+	private static final Map<String, File> gZipFileByProjects = new THashMap<String, File>();
 	private static final int MIN_PEPTIDE_ALIGNMENT_LENGTH = 6;
 
 	private int times = 0;
@@ -585,7 +586,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					queryInOrder = expressionTree.printInOrder();
 				} catch (final MalformedQueryException e1) {
 					e1.printStackTrace();
-					throw new IllegalArgumentException(e1.getMessage());
+					throw new PintException(e1, PINT_ERROR_TYPE.QUERY_ERROR);
 				}
 
 				File file = null;
@@ -630,7 +631,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	@Override
-	public FileDescriptor getDownloadLinkForProteinsInProject(List<String> projectTags) throws PintException {
+	public FileDescriptor getDownloadLinkForProteinsInProject(Collection<String> projectTags) throws PintException {
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		logMethodCall(enclosingMethod);
@@ -696,7 +697,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	@Override
-	public FileDescriptor getDownloadLinkForProteinGroupsInProject(List<String> projectTags,
+	public FileDescriptor getDownloadLinkForProteinGroupsInProject(Collection<String> projectTags,
 			boolean separateNonConclusiveProteins) throws PintException {
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
@@ -951,9 +952,6 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			//
 			//
 
-			final QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode, getPSMCentric());
-			final String queryInOrder = expressionTree.printInOrder();
-
 			// register task
 			ServerTaskRegister.getInstance().registerTask(task);
 
@@ -961,7 +959,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				LockerByTag.lock(sessionID, enclosingMethod);
 				LockerByTag.lock(projectTags, enclosingMethod);
 			}
-
+			final QueryInterface expressionTree = new QueryInterface(projectTags, queryText, testMode, getPSMCentric());
+			final String queryInOrder = expressionTree.printInOrder();
 			// clear map of current proteins for this sessionID
 			DataSetsManager.clearDataSet(sessionID);
 
@@ -1100,7 +1099,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				throw (PintException) e;
 			}
 
-			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+			throw new PintException(e.getMessage(), PINT_ERROR_TYPE.INTERNAL_ERROR);
 		} finally {
 			// release task
 			if (task != null) {
@@ -2824,6 +2823,59 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public FileDescriptor getDownloadLinkForInputFilesOfProject(String projectTag) throws PintException {
+		final Method enclosingMethod = new Object() {
+		}.getClass().getEnclosingMethod();
+		logMethodCall(enclosingMethod);
+		// create a Task
+		final GetDownloadLinkForInputFilesOfProjectTask task = new GetDownloadLinkForInputFilesOfProjectTask(
+				projectTag);
+		if (ServerTaskRegister.getInstance().isRunningTask(task)) {
+			log.info("Task " + task.getKey() + " is already running. Discarding this request.");
+			return null;
+		}
+		try {
+			// register task
+			ServerTaskRegister.getInstance().registerTask(task);
+			try {
+				// lock session
+//				LockerByTag.lock(sessionID, enclosingMethod);
+				// lock project
+				LockerByTag.lock(projectTag, enclosingMethod);
+
+				File file = null;
+				if (gZipFileByProjects.containsKey(projectTag)) {
+					file = gZipFileByProjects.get(projectTag);
+				} else {
+					file = FileManager.getGZipFileForProject(projectTag);
+					if (file != null && file.length() > 0) {
+						gZipFileByProjects.put(projectTag, file);
+					}
+				}
+				if (file != null && file.exists()) {
+					// prepare the return
+					final String name = FilenameUtils.getBaseName(file.getAbsolutePath());
+					final FileDescriptor ret = new FileDescriptor(name, FileManager.getFileSizeString(file));
+					return ret;
+				}
+				return null;
+			} finally {
+				LockerByTag.unlock(projectTag, enclosingMethod);
+//				LockerByTag.unlock(sessionID, enclosingMethod);
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+			if (e instanceof PintException) {
+				throw (PintException) e;
+			}
+			throw new PintException(e, PINT_ERROR_TYPE.INTERNAL_ERROR);
+		} finally {
+
+			ServerTaskRegister.getInstance().endTask(task);
+		}
 	}
 
 }

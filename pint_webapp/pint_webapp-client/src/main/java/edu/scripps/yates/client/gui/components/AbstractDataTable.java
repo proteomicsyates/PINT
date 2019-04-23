@@ -61,7 +61,7 @@ public abstract class AbstractDataTable<T> extends Composite
 	private final VerticalPanel loadingPanel;
 	private final static MyClientBundle myClientBundle = MyClientBundle.INSTANCE;
 	private final FooterManager<T> footerManager;
-	private final Widget emptyWidget;
+	private Widget emptyWidget;
 	protected final String sessionID;
 	protected final String tableName;
 	private final QueryPanel queryPanel;
@@ -189,8 +189,6 @@ public abstract class AbstractDataTable<T> extends Composite
 		getAsyncDataProvider().updateRowData(0, Collections.<T>emptyList());
 		setEmptyTableWidget(emptyWidget);
 
-//		refreshData();
-
 	}
 
 	/**
@@ -220,6 +218,7 @@ public abstract class AbstractDataTable<T> extends Composite
 	public final void setEmptyTableWidget(Widget emptyWidget) {
 		if (dataGrid != null) {
 			if (emptyWidget != null) {
+				this.emptyWidget = emptyWidget;
 				emptyWidget.getElement().getStyle().setMarginTop(30, Unit.PX);
 				dataGrid.setEmptyTableWidget(emptyWidget);
 			} else {
@@ -383,7 +382,10 @@ public abstract class AbstractDataTable<T> extends Composite
 	 */
 	public final void setLoadingWidget() {
 		dataGrid.setLoadingIndicator(loadingPanel);
+	}
 
+	public Widget getLoadingWidget() {
+		return loadingPanel;
 	}
 
 	/**
