@@ -17,7 +17,7 @@ public class ProteinBeanSubList extends DataSubList<ProteinBean> implements Seri
 
 	}
 
-	private ProteinBeanSubList(List<ProteinBean> proteins, int totalNumber) {
+	public ProteinBeanSubList(List<ProteinBean> proteins, int totalNumber) {
 		super(proteins, totalNumber);
 	}
 
@@ -26,6 +26,9 @@ public class ProteinBeanSubList extends DataSubList<ProteinBean> implements Seri
 		final List<ProteinBean> clonedProteins = new ArrayList<ProteinBean>();
 		for (final ProteinBean proteinBean : proteins) {
 			final ProteinBean clonedProtein = proteinBean.cloneToLightProteinBean();
+			clonedProtein.getDbIds().clear();
+			clonedProtein.getPeptideDBIds().clear();
+			clonedProtein.getPeptideDBIdsByCondition().clear();
 			clonedProteins.add(clonedProtein);
 
 		}

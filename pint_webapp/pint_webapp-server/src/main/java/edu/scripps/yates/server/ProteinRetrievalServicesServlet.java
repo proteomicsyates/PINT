@@ -139,6 +139,7 @@ import edu.scripps.yates.utilities.alignment.nwalign.NWResult;
 import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.email.EmailSender;
+import edu.scripps.yates.utilities.memory.InstrumentationAgent;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.UniprotLineHeader;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
@@ -1560,6 +1561,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					log.warn("Error while sorting proteins: " + e.getMessage() + ". Returning list anyway.");
 				}
 				final ProteinBeanSubList proteinBeanSubList = dataSet.getLightProteinBeanSubList(start, end);
+				log.info(InstrumentationAgent.getObjectSizeString(proteinBeanSubList));
 				return proteinBeanSubList;
 			}
 			return null;

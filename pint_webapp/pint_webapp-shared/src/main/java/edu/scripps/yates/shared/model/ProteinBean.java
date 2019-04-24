@@ -72,6 +72,7 @@ public class ProteinBean
 	private int numPSMs;
 	private int numPeptides;
 	ProteinBean lightVersion;
+	private boolean light;
 	private UniprotProteinExistence uniprotProteinExistence;
 	private char[] coverageArrayString;
 	private String ensemblID;
@@ -82,6 +83,7 @@ public class ProteinBean
 	private Map<String, ScoreBean> scores = new HashMap<String, ScoreBean>();
 	private Map<ExperimentalConditionBean, Integer> numPSMsByCondition;
 	private Map<String, PeptideRelation> peptideRelationsBySequence = new HashMap<String, PeptideRelation>();
+	private boolean annotated;
 	private static int uniqueIdentifiers = 0;
 	public static final String ANNOTATION_SEPARATOR = "###";
 
@@ -1038,10 +1040,13 @@ public class ProteinBean
 	 * @return
 	 */
 	public ProteinBean cloneToLightProteinBean() {
+		if (isLight()) {
+			return this;
+		}
 		if (lightVersion == null) {
 			lightVersion = new ProteinBean();
-			// set the light version of the light version to itself
-			lightVersion.lightVersion = lightVersion;
+			// set the light version as light
+			lightVersion.setLight(true);
 			// ret.psms.addAll(getPsms());
 
 			lightVersion.alternativeNamesString = getAlternativeNamesString();
@@ -1050,7 +1055,7 @@ public class ProteinBean
 			lightVersion.amountsByMSRunID.putAll(getAmountsByMSRunID());
 			lightVersion.annotations.addAll(getAnnotations());
 			lightVersion.coverage = getCoverage();
-			lightVersion.dbIds.addAll(dbIds);
+//			lightVersion.dbIds.addAll(dbIds);
 			lightVersion.descriptionString = getDescriptionString();
 			lightVersion.differentSequences.addAll(getDifferentSequences());
 			lightVersion.setNumPeptides(getDifferentSequences().size());
@@ -1089,8 +1094,8 @@ public class ProteinBean
 				final PeptideBean lightPeptide = peptideBean.cloneToLightPeptideBean();
 				lightVersion.addPeptideToProtein(lightPeptide);
 			}
-			lightVersion.getPSMDBIds().addAll(getPSMDBIds());
-			lightVersion.getPeptideDBIds().addAll(getPeptideDBIds());
+//			lightVersion.getPSMDBIds().addAll(getPSMDBIds());
+//			lightVersion.getPeptideDBIds().addAll(getPeptideDBIds());
 			lightVersion.coverageArrayString = coverageArrayString;
 			lightVersion.ratioDistributions = getRatioDistributions();
 			lightVersion.reactomePathways.addAll(getReactomePathways());
@@ -1100,12 +1105,13 @@ public class ProteinBean
 		}
 		if (needsToQueryPeptides()) {
 			for (final PeptideBean peptideBean : getPeptides()) {
-				PeptideBean lightPeptide = peptideBean.lightVersion;
+				PeptideBean lightPeptide = peptideBean.getLightVersion();
 				if (lightPeptide == null) {
 					lightPeptide = peptideBean.cloneToLightPeptideBean();
 				}
 				lightVersion.addPeptideToProtein(lightPeptide);
 			}
+			needsToQueryPeptides();
 		}
 		return lightVersion;
 	}
@@ -1463,7 +1469,9 @@ public class ProteinBean
 	 * @return
 	 */
 	public boolean needsToQueryPeptides() {
-
+		if (isLight()) {
+			return false;
+		}
 		final List<PeptideBean> peptides2 = getPeptides();
 		final Set<Integer> peptideDBIds3 = new HashSet<Integer>();
 		for (final PeptideBean peptideBean : peptides2) {
@@ -1474,5 +1482,21 @@ public class ProteinBean
 			return true;
 		}
 		return false;
+	}
+
+	public boolean isLight() {
+		return light;
+	}
+
+	public void setLight(boolean light) {
+		this.light = light;
+	}
+
+	public void setAnnotated(boolean b) {
+		this.annotated = b;
+	}
+
+	public boolean isAnnotated() {
+		return annotated;
 	}
 }

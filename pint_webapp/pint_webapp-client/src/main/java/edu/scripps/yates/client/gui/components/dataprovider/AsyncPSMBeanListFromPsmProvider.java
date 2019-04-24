@@ -28,7 +28,7 @@ public class AsyncPSMBeanListFromPsmProvider extends AbstractAsyncDataProvider<P
 	}
 
 	public void setPSMProvider(ContainsPSMs psmProvider) {
-		if (psmProvider.equals(this.psmProvider))
+		if (psmProvider != null && psmProvider.equals(this.psmProvider))
 			return;
 		this.psmProvider = psmProvider;
 		newProvider = true;
@@ -37,6 +37,10 @@ public class AsyncPSMBeanListFromPsmProvider extends AbstractAsyncDataProvider<P
 	@Override
 	protected void retrieveData(MyColumn<PSMBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
 			final Range range) {
+		if (psmProvider == null) {
+			retrievingDataFinished();
+			return;
+		}
 		GWT.log("Getting PSM beans sorted from provider");
 		final Comparator<PSMBean> comparator = column != null ? column.getComparator() : null;
 

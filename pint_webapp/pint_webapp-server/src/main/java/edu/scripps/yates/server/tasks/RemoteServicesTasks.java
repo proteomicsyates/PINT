@@ -235,17 +235,24 @@ public class RemoteServicesTasks {
 				UniprotProteinRetrievalSettings.getInstance().getUniprotReleasesFolder(),
 				UniprotProteinRetrievalSettings.getInstance().isUseIndex(), ignoreReferences, ignoreDBReferences);
 		uplr.setCacheEnabled(true);
-		log.info("Getting annotations from " + proteinBeans.size() + " protein beans using uniprot version: "
-				+ uniprotVersion);
+		if (proteinBeans.size() > 1) {
+			log.info("Getting annotations from " + proteinBeans.size() + " protein beans using uniprot version: "
+					+ uniprotVersion);
+		}
 		final Collection<String> accessions = SharedDataUtil.getPrimaryAccessions(proteinBeans,
 				edu.scripps.yates.shared.model.AccessionType.UNIPROT);
-		log.info("Getting annotations from " + accessions.size() + " primary UniProt accessions");
+		if (accessions.size() > 1) {
+			log.info("Getting annotations from " + accessions.size() + " primary UniProt accessions");
+		}
 		final Map<String, edu.scripps.yates.utilities.proteomicsmodel.Protein> annotatedProteins = uplr
 				.getAnnotatedProteins(accessions);
-		log.info("Received " + annotatedProteins.size() + " annotated proteins");
+		if (annotatedProteins.size() > 1) {
+			log.info("Received " + annotatedProteins.size() + " annotated proteins");
+		}
 		final Map<String, String> annotatedProteinsSequences = uplr.getAnnotatedProteinSequence(accessions);
-		log.info("Received " + annotatedProteinsSequences.size() + " annotated proteins sequences");
-
+		if (annotatedProteinsSequences.size() > 1) {
+			log.info("Received " + annotatedProteinsSequences.size() + " annotated proteins sequences");
+		}
 		// keep a map of the proteins by its primery accession, in order to
 		// merge if needed
 		final Map<String, ProteinBean> proteinMap = new THashMap<String, ProteinBean>();
@@ -254,6 +261,9 @@ public class RemoteServicesTasks {
 		while (iterator.hasNext()) {
 			lookForInterruption();
 			ProteinBean proteinBean = iterator.next();
+			if (proteinBean.isAnnotated()) {
+				continue;
+			}
 			String accession = proteinBean.getPrimaryAccession().getAccession();
 			// if (accession.contains("-")) {
 			// // annotate the isoform with the same entry
@@ -377,12 +387,18 @@ public class RemoteServicesTasks {
 			} else {
 				log.debug("There is no protein sequence for protein: " + accession);
 			}
+			proteinBean.setAnnotated(true);
 		}
-		log.info("Annotations retrieved for " + proteinBeans.size() + " proteins");
-		log.info(numSequences + " protein sequences retrieved");
+		if (proteinBeans.size() > 1) {
+			log.info("Annotations retrieved for " + proteinBeans.size() + " proteins");
+		}
+		if (numSequences > 1) {
+			log.info(numSequences + " protein sequences retrieved");
+		}
 		if (initialProteinNumber != proteinBeans.size()) {
 			log.info("Some proteins were merged. Before " + initialProteinNumber + ", after " + proteinBeans.size());
 		}
+
 	}
 
 	/**

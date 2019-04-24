@@ -29,6 +29,10 @@ public class AsyncPeptideBeanListFromPeptideProvider extends AbstractAsyncDataPr
 	@Override
 	protected void retrieveData(MyColumn<PeptideBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
 			final Range range) {
+		if (peptideProvider == null) {
+			retrievingDataFinished();
+			return;
+		}
 		GWT.log("Getting proteins beans sorted from peptide bean provider");
 		Comparator<PeptideBean> comparator = null;
 		if (column != null) {
@@ -73,7 +77,7 @@ public class AsyncPeptideBeanListFromPeptideProvider extends AbstractAsyncDataPr
 	}
 
 	public void setPeptideProvider(ContainsPeptides peptideProvider) {
-		if (peptideProvider.equals(this.peptideProvider))
+		if (peptideProvider != null && peptideProvider.equals(this.peptideProvider))
 			return;
 		this.peptideProvider = peptideProvider;
 		newProvider = true;

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Style.WhiteSpace;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -305,6 +306,7 @@ public class SharingPeptidesPanel extends Composite {
 							final ProteinBean proteinBean = proteinMap.get(proteinAcc);
 							proteinAccLabel.setTitle(getProteinAccessionTitle(proteinBean));
 							proteinAccLabel.setStyleName(getProteinCSSStyleName(proteinBean));
+							proteinAccLabel.getElement().getStyle().setWhiteSpace(WhiteSpace.NOWRAP);
 							table.setWidget(row, col, proteinAccLabel);
 							table.getCellFormatter().setAlignment(row, col, HasHorizontalAlignment.ALIGN_CENTER,
 									HasVerticalAlignment.ALIGN_MIDDLE);

@@ -1489,10 +1489,13 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 							);
 							proteinGroupTablePanel.reloadData();
 							proteinTablePanel.reloadData();
+
 							if (Pint.getPSMCentric()) {
+								asyncDataProviderForPSMsOfSelectedProtein.setPSMProvider(null);
 								psmOnlyTablePanel.reloadData();
 								psmTablePanel.reloadData();
 							} else {
+								asyncDataProviderForPeptidesOfSelectedProtein.setPeptideProvider(null);
 								peptideTablePanel.reloadData();
 							}
 							peptideOnlyTablePanel.reloadData();

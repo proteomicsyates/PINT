@@ -62,7 +62,8 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	private Set<String> rawSequences = new HashSet<String>();
 	private int peptideBeanUniqueIdentifier;
 	private int numPSMs;
-	PeptideBean lightVersion;
+	private PeptideBean lightVersion;
+	private boolean light = false;
 	private PeptideRelation relation;
 	private Map<String, RatioDistribution> ratioDistributions;
 	private List<PTMBean> ptms = new ArrayList<PTMBean>();
@@ -793,17 +794,19 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	private static Set<String> seqs = new HashSet<String>();
 
 	public PeptideBean cloneToLightPeptideBean() {
-
+		if (isLight()) {
+			return this;
+		}
 		if (lightVersion == null) {
 			seqs.add(getSequence());
 			lightVersion = new PeptideBean();
-			// set the light version of the light version to itself
-			lightVersion.lightVersion = lightVersion;
+			// set light to true
+			lightVersion.setLight(true);
 			lightVersion.setAmounts(getAmounts());
 			lightVersion.setAmountsByExperimentalCondition(getAmountsByExperimentalCondition());
 			lightVersion.setCalculatedMH(getCalculatedMH());
 			lightVersion.setConditions(getConditions());
-			lightVersion.setDbIds(getDbIds());
+//			lightVersion.setDbIds(getDbIds());
 			lightVersion.setLength(getLength());
 			lightVersion.setMsRuns(getMSRuns());
 			lightVersion.setOrganisms(getOrganisms());
@@ -843,13 +846,18 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		}
 		if (needsToQueryProteins()) {
 			for (final ProteinBean proteinBean : getProteins()) {
-				ProteinBean lightProtein = proteinBean.lightVersion;
+				ProteinBean lightProtein = proteinBean.getLightVersion();
 				if (lightProtein == null) {
 					lightProtein = proteinBean.cloneToLightProteinBean();
 				}
 				lightVersion.addProteinToPeptide(lightProtein);
 			}
+			needsToQueryProteins();
 		}
+		return lightVersion;
+	}
+
+	public PeptideBean getLightVersion() {
 		return lightVersion;
 	}
 
@@ -859,7 +867,9 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 	 * @return
 	 */
 	public boolean needsToQueryProteins() {
-
+		if (isLight()) {
+			return false;
+		}
 		final Set<ProteinBean> proteins2 = getProteins();
 		final Set<Integer> proteinDBIds3 = new HashSet<Integer>();
 		for (final ProteinBean proteinBean : proteins2) {
@@ -1042,5 +1052,13 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 //			ptmScoreString = SharedDataUtil.getPTMScoreString(ptmScoreName, ptms);
 //		}
 		return ptmScoreString;
+	}
+
+	public boolean isLight() {
+		return light;
+	}
+
+	public void setLight(boolean light) {
+		this.light = light;
 	}
 }

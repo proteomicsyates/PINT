@@ -6,7 +6,7 @@ import java.util.List;
 
 import edu.scripps.yates.shared.model.PeptideBean;
 
-public class PeptideBeanSubList extends DataSubList<PeptideBean>implements Serializable {
+public class PeptideBeanSubList extends DataSubList<PeptideBean> implements Serializable {
 
 	/**
 	 *
@@ -27,9 +27,11 @@ public class PeptideBeanSubList extends DataSubList<PeptideBean>implements Seria
 
 	public static PeptideBeanSubList getLightPeptideBeanSubList(List<PeptideBean> peptides, int totalNumberOfItems) {
 
-		List<PeptideBean> clonedPeptides = new ArrayList<PeptideBean>();
-		for (PeptideBean peptideBean : peptides) {
-			PeptideBean clonedPeptide = peptideBean.cloneToLightPeptideBean();
+		final List<PeptideBean> clonedPeptides = new ArrayList<PeptideBean>();
+		for (final PeptideBean peptideBean : peptides) {
+			final PeptideBean clonedPeptide = peptideBean.cloneToLightPeptideBean();
+			clonedPeptide.getDbIds().clear();
+			clonedPeptide.getProteinDBIds().clear();
 			clonedPeptides.add(clonedPeptide);
 
 		}

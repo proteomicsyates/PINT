@@ -14,6 +14,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.SimplePager;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -230,15 +231,27 @@ public abstract class AbstractDataTable<T> extends Composite
 
 	@Override
 	public final void refreshData() {
+		GWT.log("Refreshing data in table...");
 		// dataGrid.redrawVisibleItems();
 
 		if (asyncDataListProvider.getDataDisplays().isEmpty()) {
+			GWT.log("Adding datadisplay in table...");
 			asyncDataListProvider.addDataDisplay(dataGrid);
 		}
-
+		GWT.log("Setting visible to true in table...");
 		this.setVisible(true);
+		GWT.log("Setting forcetorefresh to true in table...");
 		dataGrid.setForceToRefresh(true);
-		RangeChangeEvent.fire(dataGrid, dataGrid.getVisibleRange());
+		GWT.log("schedulling firing rangechangeevent in table...");
+		Scheduler.get().scheduleDeferred(new Command() {
+			@Override
+			public void execute() {
+				GWT.log("actually firing rangechangeevent in table...");
+				RangeChangeEvent.fire(dataGrid, dataGrid.getVisibleRange());
+				GWT.log("firing rangechangeevent in table finished.");
+			}
+		});
+		GWT.log("Refreshing data in table finished.");
 	}
 
 	@Override

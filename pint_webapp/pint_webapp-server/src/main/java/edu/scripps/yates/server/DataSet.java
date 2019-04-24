@@ -290,8 +290,12 @@ public class DataSet {
 			final ProteinBean lightProteinBean = heavyProtein.cloneToLightProteinBean();
 			getPeptidesFromProtein(lightProteinBean);
 			lightProteins.add(lightProteinBean);
+			lightProteinBean.getDbIds().clear();
+			lightProteinBean.getPeptideDBIds().clear();
+			lightProteinBean.getPeptideDBIdsByCondition().clear();
 		}
-		return ProteinBeanSubList.getLightProteinBeanSubList(lightProteins, getProteins().size());
+		return new ProteinBeanSubList(lightProteins, getProteins().size());
+//		return ProteinBeanSubList.getLightProteinBeanSubList(lightProteins, getProteins().size());
 	}
 
 	public PeptideBeanSubList getLightPeptideBeanSubList(int start, int end) {
@@ -615,7 +619,9 @@ public class DataSet {
 	 * @param proteinBean
 	 */
 	private void annotateProtein(ProteinBean proteinBean) {
-
+		if (proteinBean.isAnnotated()) {
+			return;
+		}
 		final THashSet<ProteinBean> proteinBeans = new THashSet<ProteinBean>();
 		proteinBeans.add(proteinBean);
 		RemoteServicesTasks.annotateProteinBeansWithUniprot(proteinBeans, null, hiddenPTMs, true, true);
