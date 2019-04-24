@@ -23,6 +23,7 @@ import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinS
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePeptideSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriableProteinSet;
 import edu.scripps.yates.proteindb.queries.semantic.QueriablePsm;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import gnu.trove.list.array.TIntArrayList;
@@ -244,15 +245,24 @@ public class QueriesUtil {
 
 			final Map<String, List<Peptide>> peptideMap = getPeptideMap(proteinSet);
 			for (final String fullSequence : peptideMap.keySet()) {
-				final List<Peptide> peptideSet = peptideMap.get(fullSequence);
-				QueriablePeptideSet.getInstance(peptideSet, true).clearLinks();
-				numPeptides += peptideSet.size();
-				if (totalPeptideMap.containsKey(fullSequence)) {
-					totalPeptideMap.get(fullSequence).addAll(peptideSet);
-				} else {
-					final List<Peptide> set = new ArrayList<Peptide>();
-					set.addAll(peptideSet);
-					totalPeptideMap.put(fullSequence, set);
+				try {
+					final String cleanedSequence = FastaParser.cleanSequence(fullSequence);
+
+					final List<Peptide> peptideSet = peptideMap.get(fullSequence);
+					QueriablePeptideSet.getInstance(peptideSet, true).clearLinks();
+					numPeptides += peptideSet.size();
+					if (totalPeptideMap.containsKey(fullSequence)) {
+						totalPeptideMap.get(fullSequence).addAll(peptideSet);
+					} else {
+						final List<Peptide> set = new ArrayList<Peptide>();
+						set.addAll(peptideSet);
+						totalPeptideMap.put(fullSequence, set);
+					}
+				} catch (final IllegalArgumentException e) {
+					continue;
+					// to avoid non standard peptides that make an exception in
+					// FastaParser.cleanSequence(fullSequence);
+
 				}
 			}
 
