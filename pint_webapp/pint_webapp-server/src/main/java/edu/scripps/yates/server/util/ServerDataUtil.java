@@ -98,19 +98,24 @@ public class ServerDataUtil {
 			}
 		} else if (fullSequences != null) {
 			for (final String fulllSequence : fullSequences) {
-				final String pepSeq = FastaParser.cleanSequence(fulllSequence);
-				if (pepSeq != null && !"".equals(pepSeq)) {
-					final String specialString = getSpecialString(pepSeq.length());
-					final TIntArrayList positions = StringUtils.allPositionsOf(proteinSeq, pepSeq);
-					if (!positions.isEmpty()) {
-						for (final int position : positions.toArray()) {
+				try {
+					final String pepSeq = FastaParser.cleanSequence(fulllSequence);
+					if (pepSeq != null && !"".equals(pepSeq)) {
+						final String specialString = getSpecialString(pepSeq.length());
+						final TIntArrayList positions = StringUtils.allPositionsOf(proteinSeq, pepSeq);
+						if (!positions.isEmpty()) {
+							for (final int position : positions.toArray()) {
 //							peptideBean.addPositionByProtein(accession,
 //									new Pair<Integer, Integer>(position, position + pepSeq.length()));
-							// replace the peptide in the protein with
-							// an special string
-							proteinSeqTMP.replace(position - 1, position + pepSeq.length() - 1, specialString);
+								// replace the peptide in the protein with
+								// an special string
+								proteinSeqTMP.replace(position - 1, position + pepSeq.length() - 1, specialString);
+							}
 						}
 					}
+				} catch (final IllegalArgumentException e) {
+					continue;
+					// to avoid non standard peptides
 				}
 			}
 		}

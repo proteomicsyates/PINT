@@ -246,7 +246,7 @@ public class QueriesUtil {
 			final Map<String, List<Peptide>> peptideMap = getPeptideMap(proteinSet);
 			for (final String fullSequence : peptideMap.keySet()) {
 				try {
-					final String cleanedSequence = FastaParser.cleanSequence(fullSequence);
+					FastaParser.cleanSequence(fullSequence);
 
 					final List<Peptide> peptideSet = peptideMap.get(fullSequence);
 					QueriablePeptideSet.getInstance(peptideSet, true).clearLinks();
@@ -307,7 +307,8 @@ public class QueriesUtil {
 			for (final String peptideFullSequence : peptideMap.keySet()) {
 				final Collection<Peptide> peptideSet = totalPeptideMap.get(peptideFullSequence);
 				if (peptideSet == null) {
-					log.info(peptideFullSequence + " not found in peptides of proteins " + proteinACC);
+					log.debug(peptideFullSequence + " not found in peptides of proteins " + proteinACC);
+					continue;
 				}
 				final LinkBetweenQueriableProteinSetAndPeptideSet proteinSet2PeptideLink = new LinkBetweenQueriableProteinSetAndPeptideSet(
 						proteinSet, peptideSet);
