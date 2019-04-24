@@ -240,6 +240,8 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 					public void onFailure(Throwable caught) {
 						// set as N/A
 						final Label label = new Label("N/A");
+						label.setTitle("Datasets files are not available for this project.");
+
 						table.setWidget(rowDownloadInputDataFiles, 1, label);
 						table.getCellFormatter().setAlignment(rowDownloadInputDataFiles, 1,
 								HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
@@ -259,6 +261,12 @@ public class ProjectStatsFromProjectItemPanel extends AbstractProjectStatsItemPa
 							link.setText(fileName + ".zip (" + fileSizeString + ")");
 							link.setStyleName("linkPINT");
 							table.setWidget(rowDownloadInputDataFiles, 1, link);
+							table.getCellFormatter().setAlignment(rowDownloadInputDataFiles, 1,
+									HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+						} else {
+							final Label label = new Label("N/A");
+							label.setTitle("Datasets files are not available for this project.");
+							table.setWidget(rowDownloadInputDataFiles, 1, label);
 							table.getCellFormatter().setAlignment(rowDownloadInputDataFiles, 1,
 									HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
 						}
