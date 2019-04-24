@@ -29,6 +29,7 @@ public class ProteinBeanSubList extends DataSubList<ProteinBean> implements Seri
 			clonedProtein.getDbIds().clear();
 			clonedProtein.getPeptideDBIds().clear();
 			clonedProtein.getPeptideDBIdsByCondition().clear();
+			clonedProtein.getPeptides().clear();
 			clonedProteins.add(clonedProtein);
 
 		}

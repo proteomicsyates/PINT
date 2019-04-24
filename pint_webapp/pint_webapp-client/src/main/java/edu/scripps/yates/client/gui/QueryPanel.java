@@ -1087,7 +1087,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 					peptideTablePanel.setEmptyTableWidget(peptideTablePanel.getLoadingWidget());
 					peptideTablePanel.clearTable();
-
+					peptideTablePanel.refreshData();
 				}
 				final Object source = event.getSource();
 
