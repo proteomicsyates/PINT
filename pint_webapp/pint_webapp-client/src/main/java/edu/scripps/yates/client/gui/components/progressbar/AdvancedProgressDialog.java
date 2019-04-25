@@ -41,6 +41,8 @@ public class AdvancedProgressDialog extends ProgressLoadingDialog {
 										+ progressStatus.getMaxSteps());
 								setStatusOnBar(progressStatus);
 								center();
+							} else {
+								finishAndHide(1000);
 							}
 						}
 
