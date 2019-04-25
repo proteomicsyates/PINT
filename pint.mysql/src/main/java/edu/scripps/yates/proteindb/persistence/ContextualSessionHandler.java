@@ -363,9 +363,7 @@ public class ContextualSessionHandler {
 
 		} catch (final HibernateException e) {
 
-			// if there is no session currently bound to execution context, open one and
-			// bound it
-			currentSession = openSession();
+			return openSession();
 
 		}
 
@@ -373,13 +371,18 @@ public class ContextualSessionHandler {
 	}
 
 	public static void closeSession() {
+		try {
+			// log.info("Closing the session " + contador + " (closing)" +
+			// " from Thread: " + Thread.currentThread().getId());
+			final Session session = getCurrentSession();
+			if (session != null) {
+				session.close();
+			}
+		} finally {
 
-		// log.info("Closing the session " + contador + " (closing)" +
-		// " from Thread: " + Thread.currentThread().getId());
-		final Session session = getCurrentSession();
-		ManagedSessionContext.unbind(getSessionFactory());
-		session.close();
+			ManagedSessionContext.unbind(getSessionFactory());
 
+		}
 	}
 
 	public static void closeSessionFactory() {
