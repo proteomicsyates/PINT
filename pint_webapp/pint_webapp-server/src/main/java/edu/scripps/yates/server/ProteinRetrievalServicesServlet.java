@@ -37,6 +37,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToConditionIDTableMapper;
 import edu.scripps.yates.proteindb.queries.exception.MalformedQueryException;
 import edu.scripps.yates.proteindb.queries.semantic.Command;
 import edu.scripps.yates.proteindb.queries.semantic.Infix2QueryBinaryTree;
@@ -143,7 +144,9 @@ import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.UniprotLineHeader;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.TIntSet;
 
 /**
  * The server-side implementation of the RPC service.
@@ -1023,14 +1026,27 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					task.setCurrentStep(2);
 					// adapt experimental conditions first so that the
 					// proteintocondition mapper is ready
-
-					for (final String projectTag : projectTags) {
-						final List<Condition> conditions = PreparedCriteria
-								.getCriteriaForConditionsInProject(projectTag);
-						for (final Condition condition : conditions) {
-							new ConditionBeanAdapter(condition, true, includePeptides).adapt();
-						}
+					final TIntArrayList proteinDBIDs = new TIntArrayList();
+					result.getProteins().values().stream()
+							.forEach(queriableProtein -> proteinDBIDs.addAll(queriableProtein.getProteinDBIds()));
+					log.info(proteinDBIDs.size() + " proteins from the database are the result of this query");
+					final TIntSet conditionIDs = ProteinIDToConditionIDTableMapper.getInstance()
+							.getConditionIDsFromProteinIDs(proteinDBIDs);
+					log.info(conditionIDs.size() + " conditions from the database are the result of this query");
+					final List<Condition> conditions = (List<Condition>) PreparedCriteria
+							.getBatchLoadByIDs(Condition.class, conditionIDs, true, 100);
+					log.info("Getting mappings by conditions");
+					for (final Condition condition : conditions) {
+						new ConditionBeanAdapter(condition, true, includePeptides).adapt();
 					}
+					log.info("Mapping by conditions done");
+//					for (final String projectTag : projectTags) {
+//						final List<Condition> conditions = PreparedCriteria
+//								.getCriteriaForConditionsInProject(projectTag);
+//						for (final Condition condition : conditions) {
+//							new ConditionBeanAdapter(condition, true, includePeptides).adapt();
+//						}
+//					}
 
 					log.info("Getting UniprotKB annotations in session '" + sessionID + "'");
 					task.setTaskDescription("Retrieving annotations ");
