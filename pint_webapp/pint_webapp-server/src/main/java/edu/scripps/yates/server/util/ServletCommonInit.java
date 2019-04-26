@@ -163,9 +163,6 @@ public class ServletCommonInit {
 		};
 		final Thread t13 = new Thread(runnable13);
 		threads.add(t13);
-		for (final Thread thread : threads) {
-			thread.start();
-		}
 
 		final Runnable runnable14 = () -> {
 			// load condition-protein amount mapping
@@ -173,6 +170,10 @@ public class ServletCommonInit {
 		};
 		final Thread t14 = new Thread(runnable14);
 		threads.add(t14);
+
+		for (final Thread thread : threads) {
+			thread.start();
+		}
 
 		log.info("All ID map tables are loading in " + threads.size() + " threads");
 		final Runnable runnableWaiter = () -> {
