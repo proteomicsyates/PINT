@@ -20,6 +20,7 @@ import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtil;
 
@@ -39,7 +40,7 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 
 	private List<PeptideBean> peptides = new ArrayList<PeptideBean>();
 	private final Set<Integer> peptideDBIds = new HashSet<Integer>();
-	private ProteinGroupBean lightVersion;
+	private ProteinGroupBeanLight lightVersion;
 
 	// used only for the SPCs:
 	private Set<AmountBean> amounts = new HashSet<AmountBean>();
@@ -545,52 +546,42 @@ public class ProteinGroupBean extends ArrayList<ProteinBean> implements Serializ
 	 *
 	 * @return
 	 */
-	public ProteinGroupBean cloneToLightProteinGroupBean() {
+	public ProteinGroupBeanLight cloneToLightProteinGroupBean() {
 		if (lightVersion == null) {
-			lightVersion = new ProteinGroupBean();
-			final Set<String> sequences = new HashSet<String>();
-			final Set<Integer> psmIds = new HashSet<Integer>();
+			lightVersion = new ProteinGroupBeanLight();
+
 			for (final ProteinBean proteinBean : this) {
 				lightVersion.add(proteinBean.cloneToLightProteinBean());
-				sequences.addAll(proteinBean.getDifferentSequences());
-				psmIds.addAll(proteinBean.getDbIds());
 			}
 			for (final PeptideBean peptide : getPeptides()) {
 				lightVersion.addPeptide(peptide.cloneToLightPeptideBean());
 			}
-			// ret.psmDBIds.addAll(getPSMDBIds());
-			// lightVersion.setNumPeptides(sequences.size());
+			lightVersion.setNumPeptides(getDifferentSequences().size());
 			lightVersion.setNumPSMs(getPSMDBIds().size());
-			lightVersion.getNumPSMsByCondition().putAll(getNumPSMsByCondition());
-			// create the amounts for each condition:
-			final Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition = new HashMap<ExperimentalConditionBean, Set<Integer>>();
-			for (final ProteinBean proteinBean : this) {
-				final Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition2 = proteinBean
-						.getPSMDBIdsByCondition();
-				for (final ExperimentalConditionBean condition : psmdbIdsByCondition2.keySet()) {
-					if (psmdbIdsByCondition.containsKey(condition)) {
-						psmdbIdsByCondition.get(condition).addAll(psmdbIdsByCondition2.get(condition));
-					} else {
-						final Set<Integer> set = new HashSet<Integer>();
-						set.addAll(psmdbIdsByCondition2.get(condition));
-						psmdbIdsByCondition.put(condition, set);
-					}
-				}
-			}
-			for (final ExperimentalConditionBean condition : psmdbIdsByCondition.keySet()) {
-				final double spc = Double.valueOf(psmdbIdsByCondition.get(condition).size());
-				final AmountBean amount = new AmountBean();
-				amount.setAmountType(AmountType.SPC);
-				amount.setComposed(false);
-				amount.setExperimentalCondition(condition);
-				amount.setValue(spc);
-				lightVersion.amounts.add(amount);
-			}
-			lightVersion.ratioDistributions = getRatioDistributions();
-			// set the light version of the light version to itself
-			lightVersion.lightVersion = lightVersion;
+			lightVersion.setAmounts(getAmounts());
+			lightVersion.setNumPSMsByCondition(getNumPSMsByCondition());
+			lightVersion.setConditionsString(getConditionsString());
+			lightVersion.setRatioDistributions(getRatioDistributions());
+			lightVersion.setDifferentPrimaryAccessions(getDifferentPrimaryAccessions());
+			lightVersion.setGroupMemberEvidences(getGroupMemberEvidences());
+			lightVersion.setGroupMemberExistences(getGroupMemberExistences());
+			lightVersion.setOrganismsString(getOrganismsString());
+			lightVersion.setAlternativeNamesString(getAlternativeNamesString());
+			lightVersion.setSecondaryAccessionsString(getSecondaryAccessionsString());
+			lightVersion.setPrimaryAccessions(getPrimaryAccessions());
+			lightVersion.setPrimaryAccessionsString(getPrimaryAccessionsString());
+			lightVersion.setDescriptionsString(getDescriptionsString());
+			lightVersion.setAmountsByExperimentalCondition(getAmountsByExperimentalCondition());
 		}
 		return lightVersion;
+	}
+
+	private Set<String> getDifferentSequences() {
+		final Set<String> seqs = new HashSet<String>();
+		for (final ProteinBean protein : this) {
+			seqs.addAll(protein.getDifferentSequences());
+		}
+		return seqs;
 	}
 
 	@Override

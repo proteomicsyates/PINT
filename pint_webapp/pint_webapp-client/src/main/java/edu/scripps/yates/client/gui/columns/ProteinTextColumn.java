@@ -25,11 +25,12 @@ import edu.scripps.yates.shared.model.OmimEntryBean;
 import edu.scripps.yates.shared.model.OrganismBean;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.RatioBean;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.UniprotFeatures;
 
-public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements MyIdColumn<ProteinBean> {
+public class ProteinTextColumn extends CustomTextColumn<ProteinBeanLight> implements MyIdColumn<ProteinBeanLight> {
 	private final HtmlTemplates template = GWT.create(HtmlTemplates.class);
 
 	private final ColumnName columnName;
@@ -228,7 +229,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 	}
 
 	@Override
-	public String getValue(ProteinBean p) {
+	public String getValue(ProteinBeanLight p) {
 
 		final String value = ClientDataUtil.getProteinColumnValue(columnName, p, conditionName, condition2Name,
 				projectTag, amountType, scoreName, ratioName, false);
@@ -252,7 +253,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 	 * com.google.gwt.safehtml.shared.SafeHtmlBuilder)
 	 */
 	@Override
-	public void render(Context context, ProteinBean p, SafeHtmlBuilder sb) {
+	public void render(Context context, ProteinBeanLight p, SafeHtmlBuilder sb) {
 
 		// if (width == 0 || p == null) {
 		if (p == null) {
@@ -264,7 +265,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 		case ACC:
 			if (p.getSecondaryAccessions() != null && !p.getSecondaryAccessions().isEmpty()) {
 				String secAccs = "";
-				for (AccessionBean acc : p.getSecondaryAccessions()) {
+				for (final AccessionBean acc : p.getSecondaryAccessions()) {
 					if (!"".equals(secAccs))
 						secAccs += ",";
 					secAccs += acc.getAccession();
@@ -383,7 +384,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 			if (p.getEvidence() != null) {
 				sb.append(HtmlTemplates.instance.startToolTip(p.getEvidence().getDefinition()));
 				// super.render(context, p, sb);
-				String text = ClientDataUtil.getProteinColumnValue(columnName, p, conditionName, condition2Name,
+				final String text = ClientDataUtil.getProteinColumnValue(columnName, p, conditionName, condition2Name,
 						projectTag, amountType, null, ratioName, false);
 				sb.append(HtmlTemplates.instance
 						.spanClass(ClientSafeHtmlUtils.getProteinEvidenceCSSStyleName(p.getEvidence(), false), text));
@@ -396,7 +397,7 @@ public class ProteinTextColumn extends CustomTextColumn<ProteinBean> implements 
 						.startToolTip("Uniprot Protein existence: " + p.getUniprotProteinExistence().getLevel() + "-"
 								+ p.getUniprotProteinExistence().getDescription()));
 				// super.render(context, p, sb);
-				String text2 = ClientDataUtil.getProteinColumnValue(columnName, p, conditionName, condition2Name,
+				final String text2 = ClientDataUtil.getProteinColumnValue(columnName, p, conditionName, condition2Name,
 						projectTag, amountType, null, ratioName, false);
 				sb.append(HtmlTemplates.instance.spanClass(
 						ClientSafeHtmlUtils.getUniprotProteinExistenceCSSStyleName(p.getUniprotProteinExistence()),

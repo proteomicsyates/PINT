@@ -12,11 +12,11 @@ import com.google.gwt.user.client.Window;
 
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.shared.columns.ColumnName;
-import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsSequence;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 
-public class CustomClickableImageColumnOpenLinkToIntAct extends AbsctractCustomClickableImageColumn<ProteinBean>
-		implements MyColumn<ProteinBean> {
+public class CustomClickableImageColumnOpenLinkToIntAct extends AbsctractCustomClickableImageColumn<ProteinBeanLight>
+		implements MyColumn<ProteinBeanLight> {
 
 	public CustomClickableImageColumnOpenLinkToIntAct(ColumnName columnName, boolean visibleState,
 			Header<String> footer) {
@@ -26,19 +26,20 @@ public class CustomClickableImageColumnOpenLinkToIntAct extends AbsctractCustomC
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * com.google.gwt.user.cellview.client.Column#onBrowserEvent(com.google.gwt.
 	 * cell.client.Cell.Context, com.google.gwt.dom.client.Element,
 	 * java.lang.Object, com.google.gwt.dom.client.NativeEvent)
 	 */
 	@Override
-	public void onBrowserEventImplementation(Context context, Element elem, final ProteinBean object,
+	public void onBrowserEventImplementation(Context context, Element elem, final ProteinBeanLight object,
 			NativeEvent event) {
 		final String type = event.getType();
 		System.out.println(type);
 		if (type.equals(BrowserEvents.CLICK)) {
 
-			String url = "http://www.ebi.ac.uk/intact/query/" + object.getPrimaryAccession().getAccession();
+			final String url = "http://www.ebi.ac.uk/intact/query/" + object.getPrimaryAccession().getAccession();
 			Window.open(url, "_blank", "enabled");
 
 		}
@@ -46,14 +47,14 @@ public class CustomClickableImageColumnOpenLinkToIntAct extends AbsctractCustomC
 	}
 
 	@Override
-	public Comparator<ProteinBean> getComparator() {
-		return new Comparator<ProteinBean>() {
+	public Comparator<ProteinBeanLight> getComparator() {
+		return new Comparator<ProteinBeanLight>() {
 
 			@Override
-			public int compare(ProteinBean o1, ProteinBean o2) {
+			public int compare(ProteinBeanLight o1, ProteinBeanLight o2) {
 				if (o1 instanceof ContainsSequence) {
 					return ((ContainsSequence) o1).getSequence().compareTo(((ContainsSequence) o2).getSequence());
-				} else if (o1 instanceof ProteinBean) {
+				} else if (o1 instanceof ProteinBeanLight) {
 					return o1.getPrimaryAccession().getAccession().compareTo(o2.getPrimaryAccession().getAccession());
 				} else {
 					return 0;
@@ -64,20 +65,20 @@ public class CustomClickableImageColumnOpenLinkToIntAct extends AbsctractCustomC
 	}
 
 	@Override
-	public ImageResource getValue(ProteinBean object) {
+	public ImageResource getValue(ProteinBeanLight object) {
 		final ImageResource image = MyClientBundle.INSTANCE.intActLogo();
 		return image;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see
-	 * com.google.gwt.user.cellview.client.Column#render(com.google.gwt.cell.
+	 * 
+	 * @see com.google.gwt.user.cellview.client.Column#render(com.google.gwt.cell.
 	 * client.Cell.Context, java.lang.Object,
 	 * com.google.gwt.safehtml.shared.SafeHtmlBuilder)
 	 */
 	// @Override
-	// public void render(Context context, ProteinBean object, SafeHtmlBuilder
+	// public void render(Context context, ProteinBeanLight object, SafeHtmlBuilder
 	// sb) {
 	// sb.append(template.startToolTip("Search protein '" +
 	// object.getPrimaryAccession().getAccession()
@@ -88,7 +89,7 @@ public class CustomClickableImageColumnOpenLinkToIntAct extends AbsctractCustomC
 	// }
 
 	@Override
-	public String getTitle(ProteinBean object) {
+	public String getTitle(ProteinBeanLight object) {
 
 		return "Search protein '" + object.getPrimaryAccession().getAccession()
 				+ "' in IntAct Molecular Interaction Database (EBI)";

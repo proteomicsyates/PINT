@@ -9,16 +9,18 @@ import com.google.gwt.user.client.ui.ListBox;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.AmountType;
-import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PSMBeanLight;
 import edu.scripps.yates.shared.model.PTMBean;
 import edu.scripps.yates.shared.model.PTMSiteBean;
-import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDistribution;
 import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtil;
@@ -26,7 +28,7 @@ import edu.scripps.yates.shared.util.UniprotFeatures;
 
 public class ClientDataUtil {
 
-	public static String getProteinColumnValue(ColumnName columnName, ProteinBean p, String conditionName,
+	public static String getProteinColumnValue(ColumnName columnName, ProteinBeanLight p, String conditionName,
 			String condition2Name, String projectTag, AmountType amountType, String scoreName, String ratioName,
 			boolean skipRatioInfinities) {
 		switch (columnName) {
@@ -154,7 +156,7 @@ public class ClientDataUtil {
 		return SharedDataUtil.parseEmptyString(string);
 	}
 
-	public static String getPeptideColumnValue(ColumnName columnName, PeptideBean p, String conditionName,
+	public static String getPeptideColumnValue(ColumnName columnName, PeptideBeanLight p, String conditionName,
 			String condition2Name, String projectTag, AmountType amountType, String scoreName, String ratioName,
 			boolean skipRatioInfinities) {
 		if (p == null) {
@@ -359,9 +361,9 @@ public class ClientDataUtil {
 		return sb.toString();
 	}
 
-	public static String getProteinGroupColumnValue(ColumnName columnName, ProteinGroupBean p, String conditionName,
-			String condition2Name, String projectTag, AmountType amountType, String scoreName, String ratioName,
-			boolean skipRatioInfinities) {
+	public static String getProteinGroupColumnValue(ColumnName columnName, ProteinGroupBeanLight p,
+			String conditionName, String condition2Name, String projectTag, AmountType amountType, String scoreName,
+			String ratioName, boolean skipRatioInfinities) {
 		switch (columnName) {
 		case ACC:
 			return parseEmptyString(p.getPrimaryAccessionsString());
@@ -413,7 +415,7 @@ public class ClientDataUtil {
 
 	}
 
-	public static String getPSMColumnValue(ColumnName columnName, PSMBean p, String conditionName,
+	public static String getPSMColumnValue(ColumnName columnName, PSMBeanLight p, String conditionName,
 			String condition2Name, String projectTag, AmountType amountType, String scoreName, String ratioName,
 			boolean skipRatioInfinities) {
 		if (p == null) {

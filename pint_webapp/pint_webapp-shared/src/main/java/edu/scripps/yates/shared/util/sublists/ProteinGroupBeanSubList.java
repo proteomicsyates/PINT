@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.scripps.yates.shared.model.ProteinGroupBean;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 
-public class ProteinGroupBeanSubList extends DataSubList<ProteinGroupBean>implements Serializable {
+public class ProteinGroupBeanSubList extends DataSubList<ProteinGroupBeanLight> implements Serializable {
 
 	/**
 	 *
@@ -17,19 +18,19 @@ public class ProteinGroupBeanSubList extends DataSubList<ProteinGroupBean>implem
 
 	}
 
-	private ProteinGroupBeanSubList(List<ProteinGroupBean> proteinGroups, int totalNumber) {
+	private ProteinGroupBeanSubList(List<ProteinGroupBeanLight> proteinGroups, int totalNumber) {
 		super(proteinGroups, totalNumber);
 	}
 
 	public static ProteinGroupBeanSubList getLightProteinGroupBeanSubList(List<ProteinGroupBean> proteinGroups,
 			int totalNumberOfItems) {
-		List<ProteinGroupBean> clonedProteinGroups = new ArrayList<ProteinGroupBean>();
-		for (ProteinGroupBean proteinGroupBean : proteinGroups) {
-			ProteinGroupBean clonedProteinGroup = proteinGroupBean.cloneToLightProteinGroupBean();
-			clonedProteinGroups.add(clonedProteinGroup);
+		final List<ProteinGroupBeanLight> lightProteinGroups = new ArrayList<ProteinGroupBeanLight>();
+		for (final ProteinGroupBean proteinGroupBean : proteinGroups) {
+			final ProteinGroupBeanLight clonedProteinGroup = proteinGroupBean.cloneToLightProteinGroupBean();
+			lightProteinGroups.add(clonedProteinGroup);
 
 		}
-		return new ProteinGroupBeanSubList(clonedProteinGroups, totalNumberOfItems);
+		return new ProteinGroupBeanSubList(lightProteinGroups, totalNumberOfItems);
 	}
 
 }

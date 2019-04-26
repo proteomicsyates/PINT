@@ -3,7 +3,6 @@ package edu.scripps.yates.shared.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,24 +10,23 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.shared.model.interfaces.ContainsAmounts;
-import edu.scripps.yates.shared.model.interfaces.ContainsConditions;
-import edu.scripps.yates.shared.model.interfaces.ContainsId;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
 import edu.scripps.yates.shared.model.interfaces.ContainsScores;
 import edu.scripps.yates.shared.model.interfaces.ContainsSequence;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtil;
 
-public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, ContainsId, ContainsConditions,
-		ContainsPrimaryAccessions, ContainsSequence, ContainsScores {
+public class PSMBeanLight implements Serializable, ContainsRatios, ContainsAmounts, ContainsPrimaryAccessions,
+		ContainsSequence, ContainsScores {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1713998292042049510L;
 	private String psmID;
-	private Integer dbID;
 	private MSRunBean msRun;
 	private String fullSequence;
 	private String sequence;
@@ -36,15 +34,12 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	private Double experimentalMH;
 	private Double calculatedMH;
 	private Double massErrorPPM;
-	private Double totalIntensity;
-	private Integer spr;
-	private Double ionProportion;
 	private Double pi;
 	private Map<String, ScoreBean> scores = new HashMap<String, ScoreBean>();
 	private List<AmountBean> amounts = new ArrayList<AmountBean>();
 	private HashMap<String, List<AmountBean>> amountsByExperimentalCondition = new HashMap<String, List<AmountBean>>();
 	private HashMap<String, Set<RatioBean>> ratiosByExperimentalcondition = new HashMap<String, Set<RatioBean>>();
-	private Set<ProteinBean> proteins = new HashSet<ProteinBean>();
+	private Set<ProteinBeanLight> proteins = new HashSet<ProteinBeanLight>();
 	private Set<RatioBean> ratios = new HashSet<RatioBean>();
 	private List<AccessionBean> proteinsPrimaryAccessions = new ArrayList<AccessionBean>();
 	private String ptmString;
@@ -54,19 +49,18 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	private String chargeState;
 	private Map<String, List<Pair<Integer, Integer>>> startingPositions = new HashMap<String, List<Pair<Integer, Integer>>>();
 	private Set<OrganismBean> organisms = new HashSet<OrganismBean>();
-	private HashSet<Integer> proteinDBIds = new HashSet<Integer>();
-	private Set<ExperimentalConditionBean> conditions = new HashSet<ExperimentalConditionBean>();
 	private int numProteins;
 	private PeptideRelation relation;
-	private PSMBeanLight lightVersion;
-	private PeptideBean peptideBean;
+	private PeptideBeanLight peptideBean;
 	private Map<String, RatioDistribution> ratioDistributions = new HashMap<String, RatioDistribution>();
+	private String organismString;
+	private String conditionsString;
 
-	public PSMBean() {
+	public PSMBeanLight() {
 
 	}
 
-	public PSMBean(String psmID, MSRunBean msRun, String sequence, String fullSequence) {
+	public PSMBeanLight(String psmID, MSRunBean msRun, String sequence, String fullSequence) {
 		this.psmID = psmID;
 		this.msRun = msRun;
 		this.sequence = sequence;
@@ -87,18 +81,6 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 
 	public Double getMassErrorPPM() {
 		return massErrorPPM;
-	}
-
-	public Double getTotalIntensity() {
-		return totalIntensity;
-	}
-
-	public Integer getSPR() {
-		return spr;
-	}
-
-	public Double getIonProportion() {
-		return ionProportion;
 	}
 
 	public String getFullSequence() {
@@ -166,13 +148,6 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	}
 
 	/**
-	 * @return the spr
-	 */
-	public Integer getSpr() {
-		return spr;
-	}
-
-	/**
 	 * @return the pi
 	 */
 	public Double getPi() {
@@ -212,27 +187,6 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	 */
 	public void setMassErrorPPM(Double massErrorPPM) {
 		this.massErrorPPM = massErrorPPM;
-	}
-
-	/**
-	 * @param totalIntensity the totalIntensity to set
-	 */
-	public void setTotalIntensity(Double totalIntensity) {
-		this.totalIntensity = totalIntensity;
-	}
-
-	/**
-	 * @param spr the spr to set
-	 */
-	public void setSpr(Integer spr) {
-		this.spr = spr;
-	}
-
-	/**
-	 * @param ionProportion the ionProportion to set
-	 */
-	public void setIonProportion(Double ionProportion) {
-		this.ionProportion = ionProportion;
 	}
 
 	/**
@@ -355,36 +309,26 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		return proteinAccessionString;
 	}
 
-	public void addProteinToPSM(ProteinBean protein) {
+	public void addProteinToPSM(ProteinBeanLight protein) {
 		if (protein == null || proteins.contains(protein)) {
 			return;
 		}
-		if (!proteinsPrimaryAccessions.contains(protein.getPrimaryAccession())) {
-			proteinsPrimaryAccessions.add(protein.getPrimaryAccession());
-		}
+
 		proteins.add(protein);
 		protein.addPSMtoProtein(this);
 		protein.addPeptideToProtein(getPeptideBean());
 	}
 
-	public void setProteins(Set<ProteinBean> proteins) {
+	public void setProteins(Set<ProteinBeanLight> proteins) {
 		this.proteins = proteins;
 	}
 
-	public Set<ProteinBean> getProteins() {
+	public Set<ProteinBeanLight> getProteins() {
 		return proteins;
 	}
 
 	public String getProteinDescriptionString() {
-		if (proteinDescriptionString == null) {
-			final StringBuilder sb = new StringBuilder();
-			for (final ProteinBean proteinBean : proteins) {
-				if (!"".equals(sb.toString()))
-					sb.append(SharedConstants.SEPARATOR);
-				sb.append(proteinBean.getDescriptionString());
-			}
-			proteinDescriptionString = sb.toString();
-		}
+
 		return proteinDescriptionString;
 	}
 
@@ -553,20 +497,6 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		return ret;
 	}
 
-	/**
-	 * @return the dbID
-	 */
-	public Integer getDbID() {
-		return dbID;
-	}
-
-	/**
-	 * @param dbID the dbID to set
-	 */
-	public void setDbID(Integer dbID) {
-		this.dbID = dbID;
-	}
-
 	public String getChargeState() {
 		return chargeState;
 	}
@@ -576,23 +506,8 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	}
 
 	@Override
-	public String getId() {
-		return getPsmID();
-	}
-
-	@Override
 	public List<AccessionBean> getPrimaryAccessions() {
 		return getProteinsPrimaryAccessions();
-	}
-
-	public void addPositionByProtein(String accession, Pair<Integer, Integer> position) {
-		if (startingPositions.containsKey(accession)) {
-			startingPositions.get(accession).add(position);
-		} else {
-			final List<Pair<Integer, Integer>> list = new ArrayList<Pair<Integer, Integer>>();
-			list.add(position);
-			startingPositions.put(accession, list);
-		}
 	}
 
 	/**
@@ -695,24 +610,15 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	}
 
 	public String getOrganismsString() {
-		final StringBuilder sb = new StringBuilder();
-		final Set<OrganismBean> organisms = getOrganisms();
-		// sort them for allowing sorting in columns
-		final List<OrganismBean> list = new ArrayList<OrganismBean>();
-		list.addAll(organisms);
-		Collections.sort(list, new Comparator<OrganismBean>() {
+		return organismString;
+	}
 
-			@Override
-			public int compare(OrganismBean o1, OrganismBean o2) {
-				return o1.getId().compareTo(o2.getId());
-			}
-		});
-		for (final OrganismBean organismBean : list) {
-			if (!"".equals(sb.toString()))
-				sb.append(SharedConstants.SEPARATOR);
-			sb.append(organismBean.getId());
-		}
-		return sb.toString();
+	public String getOrganismString() {
+		return organismString;
+	}
+
+	public void setOrganismString(String organismString) {
+		this.organismString = organismString;
 	}
 
 	/**
@@ -720,20 +626,6 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	 */
 	public void setOrganisms(Set<OrganismBean> organisms) {
 		this.organisms = organisms;
-	}
-
-	/**
-	 * @return the proteinDBIds
-	 */
-	public HashSet<Integer> getProteinDBIds() {
-		return proteinDBIds;
-	}
-
-	/**
-	 * @param proteinDBIds the proteinDBIds to set
-	 */
-	public void setProteinDBIds(HashSet<Integer> proteinDBIds) {
-		this.proteinDBIds = proteinDBIds;
 	}
 
 	/**
@@ -780,62 +672,12 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		return ratioScores;
 	}
 
-	public void addCondition(ExperimentalConditionBean condition) {
-		conditions.add(condition);
-	}
-
-	@Override
-	public Set<ExperimentalConditionBean> getConditions() {
-		return conditions;
-	}
-
-	public void setConditions(Set<ExperimentalConditionBean> conditions) {
-		this.conditions = conditions;
-	}
-
 	public String getConditionsString() {
-		return SharedDataUtil.getConditionString(this);
+		return conditionsString;
 	}
 
-	public PSMBeanLight cloneToLightPsmBean() {
-		if (lightVersion == null) {
-			lightVersion = new PSMBeanLight();
-
-			lightVersion.setAmounts(getAmounts());
-			lightVersion.setAmountsByExperimentalCondition(getAmountsByExperimentalCondition());
-			lightVersion.setCalculatedMH(getCalculatedMH());
-			lightVersion.setChargeState(getChargeState());
-			lightVersion.setExperimentalMH(getExperimentalMH());
-			lightVersion.setFullSequence(getFullSequence());
-			lightVersion.setMassErrorPPM(getMassErrorPPM());
-			lightVersion.setMsRun(getMsRun());
-			lightVersion.setOrganisms(getOrganisms());
-			lightVersion.setPi(getPi());
-			// ret.setProteinDBIds(getProteinDBIds());
-
-			final Set<ProteinBean> proteins2 = getProteins();
-			for (final ProteinBean proteinBean : proteins2) {
-				lightVersion.addProteinToPSM(proteinBean.cloneToLightProteinBean());
-			}
-
-			lightVersion.setNumProteins(proteins2.size());
-			lightVersion.setProteinsPrimaryAccessions(getProteinsPrimaryAccessions());
-			lightVersion.setPsmID(getPsmID());
-			lightVersion.setPtms(getPtms());
-			lightVersion.setPtmScoreString(getPTMScoreString());
-			lightVersion.setPtmString(getPTMString());
-			lightVersion.setRatios(getRatios());
-			lightVersion.setRatiosByExperimentalcondition(getRatiosByExperimentalcondition());
-			lightVersion.setScores(getScores());
-			lightVersion.setSequence(getSequence());
-			lightVersion.setStartingPositions(getStartingPositions());
-			lightVersion.setRelation(getRelation());
-			lightVersion.setRatioDistributions(getRatioDistributions());
-			lightVersion.setOrganismString(getOrganismsString());
-			lightVersion.setConditionsString(getConditionsString());
-
-		}
-		return lightVersion;
+	public void setConditionsString(String conditionsString) {
+		this.conditionsString = conditionsString;
 	}
 
 	public void setNumProteins(int numProteins) {
@@ -914,7 +756,7 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		for (final ProteinBean protein : getProteins()) {
+		for (final ProteinBeanLight protein : getProteins()) {
 			sb.append(protein.getPrimaryAccession().getAccession() + ",");
 		}
 		String score = "";
@@ -925,22 +767,26 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 		return "[psmID=" + psmID + ", seq=" + fullSequence + ", prot=" + sb.toString() + ", " + score + "]";
 	}
 
-	public PeptideBean getPeptideBean() {
+	public PeptideBeanLight getPeptideBean() {
 		return peptideBean;
+	}
+
+	public void setPeptideBean(PeptideBeanLight peptideBean) {
+		this.peptideBean = peptideBean;
 	}
 
 	/**
 	 * @param peptideBean the peptideBean to set
 	 */
-	public void setPeptideBeanToPSM(PeptideBean peptideBean) {
+	public void setPeptideBeanToPSM(PeptideBeanLight peptideBean) {
 		if (peptideBean == null) {
 			return;
 		}
 		if (this.peptideBean == null) {
 			this.peptideBean = peptideBean;
 			// add the proteins of the peptide to the psm
-			final Set<ProteinBean> proteins2 = peptideBean.getProteins();
-			for (final ProteinBean proteinBean : proteins2) {
+			final Set<ProteinBeanLight> proteins2 = peptideBean.getProteins();
+			for (final ProteinBeanLight proteinBean : proteins2) {
 				addProteinToPSM(proteinBean);
 			}
 		}
@@ -956,18 +802,17 @@ public class PSMBean implements Serializable, ContainsRatios, ContainsAmounts, C
 
 	@Override
 	public void addRatioDistribution(RatioDistribution ratioDistribution) {
-		if (ratioDistribution == null) {
-			return;
-		}
-		final Map<String, RatioDistribution> ratioDistributions2 = getRatioDistributions();
-		if (!ratioDistributions2.containsKey(ratioDistribution.getRatioKey())) {
-			ratioDistributions.put(ratioDistribution.getRatioKey(), ratioDistribution);
-		}
+		throw new IllegalArgumentException("Not supported by PSMBeanLight. Use setter instead");
 	}
 
 	@Override
 	public RatioDistribution getRatioDistribution(RatioBean ratio) {
 		return ratioDistributions.get(SharedDataUtil.getRatioKey(ratio));
+
+	}
+
+	public void setRatioDistributions(Map<String, RatioDistribution> ratioDistributions2) {
+		this.ratioDistributions = ratioDistributions2;
 
 	}
 

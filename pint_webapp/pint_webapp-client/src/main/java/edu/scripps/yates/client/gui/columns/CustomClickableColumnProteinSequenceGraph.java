@@ -21,10 +21,10 @@ import com.google.gwt.user.client.ui.Label;
 import edu.scripps.yates.client.gui.components.WindowBox;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.shared.columns.ColumnName;
-import edu.scripps.yates.shared.model.ProteinBean;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 
-public class CustomClickableColumnProteinSequenceGraph extends Column<ProteinBean, Void>
-		implements MyColumn<ProteinBean> {
+public class CustomClickableColumnProteinSequenceGraph extends Column<ProteinBeanLight, Void>
+		implements MyColumn<ProteinBeanLight> {
 	private final ColumnName columnName;
 	private boolean visibleState;
 	private final double defaultWidth;
@@ -51,20 +51,20 @@ public class CustomClickableColumnProteinSequenceGraph extends Column<ProteinBea
 	}
 
 	@Override
-	public final void onBrowserEvent(Context context, Element elem, final ProteinBean object, NativeEvent event) {
+	public final void onBrowserEvent(Context context, Element elem, final ProteinBeanLight object, NativeEvent event) {
 		onBrowserEventImplementation(context, elem, object, event);
 		super.onBrowserEvent(context, elem, object, event);
 
 	}
 
-	private void onBrowserEventImplementation(Context context, Element elem, ProteinBean p, NativeEvent event) {
+	private void onBrowserEventImplementation(Context context, Element elem, ProteinBeanLight p, NativeEvent event) {
 		final String type = event.getType();
 		if (type.equals(BrowserEvents.CLICK)) {
 			showPopUpDialogWithSequenceGraph(p);
 		}
 	}
 
-	private void showPopUpDialogWithSequenceGraph(ProteinBean proteinBean) {
+	private void showPopUpDialogWithSequenceGraph(ProteinBeanLight ProteinBeanLight) {
 
 		final FlexTable table = new FlexTable();
 		table.getElement().getStyle().setMargin(20, Unit.PX);
@@ -79,9 +79,9 @@ public class CustomClickableColumnProteinSequenceGraph extends Column<ProteinBea
 		table.getFlexCellFormatter().setColSpan(0, 0, 2);
 
 		int row = 1;
-		final Label proteinLabel = new Label(proteinBean.getPrimaryAccession().getAccession());
-		proteinLabel.setTitle("Protein name: " + proteinBean.getDescriptionString() + "\n\n" + "Gene(s): "
-				+ ClientSafeHtmlUtils.getGenesTooltip(proteinBean));
+		final Label proteinLabel = new Label(ProteinBeanLight.getPrimaryAccession().getAccession());
+		proteinLabel.setTitle("Protein name: " + ProteinBeanLight.getDescriptionString() + "\n\n" + "Gene(s): "
+				+ ClientSafeHtmlUtils.getGenesTooltip(ProteinBeanLight));
 		proteinLabel.getElement().getStyle().setFontSize(13, Unit.PX);
 		proteinLabel.getElement().getStyle().setMarginRight(10, Unit.PX);
 
@@ -89,7 +89,7 @@ public class CustomClickableColumnProteinSequenceGraph extends Column<ProteinBea
 		table.getFlexCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 		table.getFlexCellFormatter().setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		//
-		final SafeHtml proteinCoverageGraphic = ClientSafeHtmlUtils.getProteinCoverageGraphic(proteinBean, true);
+		final SafeHtml proteinCoverageGraphic = ClientSafeHtmlUtils.getProteinCoverageGraphic(ProteinBeanLight, true);
 		final HTMLPanel panel = new HTMLPanel(proteinCoverageGraphic);
 //			panel.getElement().getStyle().setMarginTop(20, Unit.PX);
 //			panel.getElement().getStyle().setMarginBottom(40, Unit.PX);
@@ -113,7 +113,7 @@ public class CustomClickableColumnProteinSequenceGraph extends Column<ProteinBea
 	}
 
 	@Override
-	public void render(Context context, ProteinBean p, SafeHtmlBuilder sb) {
+	public void render(Context context, ProteinBeanLight p, SafeHtmlBuilder sb) {
 		sb.append(ClientSafeHtmlUtils.getProteinCoverageGraphic(p));
 		// super.render(context, object, sb);
 	}
@@ -165,13 +165,13 @@ public class CustomClickableColumnProteinSequenceGraph extends Column<ProteinBea
 	}
 
 	@Override
-	public Comparator<ProteinBean> getComparator() {
+	public Comparator<ProteinBeanLight> getComparator() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void getValue(ProteinBean object) {
+	public Void getValue(ProteinBeanLight object) {
 		return null;
 	}
 

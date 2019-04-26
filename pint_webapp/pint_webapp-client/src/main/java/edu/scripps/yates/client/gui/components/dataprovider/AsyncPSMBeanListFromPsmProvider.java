@@ -12,22 +12,23 @@ import com.google.gwt.view.client.Range;
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.PSMBean;
-import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
+import edu.scripps.yates.shared.model.PSMBeanLight;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPSMs;
 import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;
 
-public class AsyncPSMBeanListFromPsmProvider extends AbstractAsyncDataProvider<PSMBean> {
-	private ContainsPSMs psmProvider;
+public class AsyncPSMBeanListFromPsmProvider extends AbstractAsyncDataProvider<PSMBeanLight> {
+	private ContainsLightPSMs psmProvider;
 
 	public AsyncPSMBeanListFromPsmProvider(String sessionID) {
 		super(sessionID);
 	}
 
-	public AsyncPSMBeanListFromPsmProvider(ContainsPSMs psmProvider, String sessionID) {
+	public AsyncPSMBeanListFromPsmProvider(ContainsLightPSMs psmProvider, String sessionID) {
 		super(sessionID);
 		this.psmProvider = psmProvider;
 	}
 
-	public void setPSMProvider(ContainsPSMs psmProvider) {
+	public void setPSMProvider(ContainsLightPSMs psmProvider) {
 		if (psmProvider != null && psmProvider.equals(this.psmProvider))
 			return;
 		this.psmProvider = psmProvider;
@@ -35,14 +36,14 @@ public class AsyncPSMBeanListFromPsmProvider extends AbstractAsyncDataProvider<P
 	}
 
 	@Override
-	protected void retrieveData(MyColumn<PSMBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
+	protected void retrieveData(MyColumn<PSMBeanLight> column, final int start, int end, ColumnSortInfo columnSortInfo,
 			final Range range) {
 		if (psmProvider == null) {
 			retrievingDataFinished();
 			return;
 		}
 		GWT.log("Getting PSM beans sorted from provider");
-		final Comparator<PSMBean> comparator = column != null ? column.getComparator() : null;
+		final Comparator<PSMBean> comparator = column != null ? (Comparator<PSMBean>) column.getComparator() : null;
 
 		final boolean isAscending = columnSortInfo != null ? columnSortInfo.isAscending() : false;
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
@@ -50,8 +51,8 @@ public class AsyncPSMBeanListFromPsmProvider extends AbstractAsyncDataProvider<P
 			@Override
 			public void execute() {
 
-				service.getPsmBeansFromPsmProviderFromListSorted(sessionID, psmProvider, start, end,
-						column != null ? comparator : null, isAscending, new AsyncCallback<PsmBeanSubList>() {
+				service.getPsmBeansFromPsmProviderFromListSorted(sessionID, psmProvider, start, end, comparator,
+						isAscending, new AsyncCallback<PsmBeanSubList>() {
 
 							@Override
 							public void onSuccess(PsmBeanSubList result) {

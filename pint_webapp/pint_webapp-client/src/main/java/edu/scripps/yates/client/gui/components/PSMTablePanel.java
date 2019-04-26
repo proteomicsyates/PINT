@@ -17,12 +17,12 @@ import edu.scripps.yates.client.gui.components.dataprovider.AbstractAsyncDataPro
 import edu.scripps.yates.client.interfaces.ShowHiddePanel;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
-import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PSMBeanLight;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.DefaultView.ORDER;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class PSMTablePanel extends AbstractDataTable<PSMBean> {
+public class PSMTablePanel extends AbstractDataTable<PSMBeanLight> {
 	public static final String SELECT_PROTEIN_TO_LOAD_PSMS_TEXT = "Select one protein to load PSMs";
 	public static final String NO_DATA_FROM_THIS_PROTEIN = "There is not any PSM information for that selection";
 	public static final String WAIT_TO_BE_LOADED = "Please wait for PSMs to be loaded...";
@@ -30,25 +30,25 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 	private final ShowHiddePanel psmLoaderFromProjects;
 
 	public PSMTablePanel(String sessionID, String emptyLabel, ShowHiddePanel showhiddePSMPanel,
-			AbstractAsyncDataProvider<PSMBean> asyncDataListProvider, boolean multipleSelectionModel, String tableName,
-			QueryPanel queryPanel) {
+			AbstractAsyncDataProvider<PSMBeanLight> asyncDataListProvider, boolean multipleSelectionModel,
+			String tableName, QueryPanel queryPanel) {
 		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel, tableName, queryPanel);
 		psmLoaderFromProjects = showhiddePSMPanel;
 
 	}
 
 	@Override
-	protected MyDataGrid<PSMBean> makeDataGrid() {
+	protected MyDataGrid<PSMBeanLight> makeDataGrid() {
 		/**
 		 * The key provider that provides the unique ID of a PSMBean.
 		 */
-		final ProvidesKey<PSMBean> KEY_PROVIDER = new ProvidesKey<PSMBean>() {
+		final ProvidesKey<PSMBeanLight> KEY_PROVIDER = new ProvidesKey<PSMBeanLight>() {
 			@Override
-			public Object getKey(PSMBean item) {
+			public Object getKey(PSMBeanLight item) {
 				return item == null ? null : item.getPsmID();
 			}
 		};
-		final MyDataGrid<PSMBean> dataGrid = new MyDataGrid<PSMBean>(KEY_PROVIDER, tableName);
+		final MyDataGrid<PSMBeanLight> dataGrid = new MyDataGrid<PSMBeanLight>(KEY_PROVIDER, tableName);
 
 		return dataGrid;
 	}
@@ -76,12 +76,12 @@ public class PSMTablePanel extends AbstractDataTable<PSMBean> {
 	}
 
 	@Override
-	protected AbstractColumnManager<PSMBean> createColumnManager(FooterManager<PSMBean> footerManager) {
+	protected AbstractColumnManager<PSMBeanLight> createColumnManager(FooterManager<PSMBeanLight> footerManager) {
 		return new PSMColumnManager(footerManager);
 	}
 
 	@Override
-	protected FooterManager<PSMBean> createFooterManager(MyDataGrid<PSMBean> dataGrid) {
+	protected FooterManager<PSMBeanLight> createFooterManager(MyDataGrid<PSMBeanLight> dataGrid) {
 		return new PSMFooterManager(dataGrid);
 	}
 

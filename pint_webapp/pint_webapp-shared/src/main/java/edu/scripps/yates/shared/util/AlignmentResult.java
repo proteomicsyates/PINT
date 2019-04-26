@@ -2,7 +2,7 @@ package edu.scripps.yates.shared.util;
 
 import java.io.Serializable;
 
-import edu.scripps.yates.shared.model.PeptideBean;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
 
 public class AlignmentResult implements Serializable {
 
@@ -11,8 +11,8 @@ public class AlignmentResult implements Serializable {
 	 */
 	private static final long serialVersionUID = 4257564456172803859L;
 	private int finalAlignmentScore;
-	private PeptideBean seq1;
-	private PeptideBean seq2;
+	private PeptideBeanLight seq1;
+	private PeptideBeanLight seq2;
 	private int alignmentLength;
 	private int identicalLength;
 	private String alignmentString;
@@ -29,8 +29,7 @@ public class AlignmentResult implements Serializable {
 	}
 
 	/**
-	 * @param finalAlignmentScore
-	 *            the finalAlignmentScore to set
+	 * @param finalAlignmentScore the finalAlignmentScore to set
 	 */
 	public void setFinalAlignmentScore(int finalAlignmentScore) {
 		this.finalAlignmentScore = finalAlignmentScore;
@@ -39,30 +38,28 @@ public class AlignmentResult implements Serializable {
 	/**
 	 * @return the seq1
 	 */
-	public PeptideBean getSeq1() {
+	public PeptideBeanLight getSeq1() {
 		return seq1;
 	}
 
 	/**
-	 * @param peptideBean1
-	 *            the seq1 to set
+	 * @param peptideBean1 the seq1 to set
 	 */
-	public void setSeq1(PeptideBean peptideBean1) {
+	public void setSeq1(PeptideBeanLight peptideBean1) {
 		seq1 = peptideBean1;
 	}
 
 	/**
 	 * @return the seq2
 	 */
-	public PeptideBean getSeq2() {
+	public PeptideBeanLight getSeq2() {
 		return seq2;
 	}
 
 	/**
-	 * @param seq2
-	 *            the seq2 to set
+	 * @param seq2 the seq2 to set
 	 */
-	public void setSeq2(PeptideBean seq2) {
+	public void setSeq2(PeptideBeanLight seq2) {
 		this.seq2 = seq2;
 	}
 
@@ -74,8 +71,7 @@ public class AlignmentResult implements Serializable {
 	}
 
 	/**
-	 * @param alignmentLength
-	 *            the alignmentLength to set
+	 * @param alignmentLength the alignmentLength to set
 	 */
 	public void setAlignmentLength(int alignmentLength) {
 		this.alignmentLength = alignmentLength;
@@ -89,8 +85,7 @@ public class AlignmentResult implements Serializable {
 	}
 
 	/**
-	 * @param identicalLength
-	 *            the identicalLength to set
+	 * @param identicalLength the identicalLength to set
 	 */
 	public void setIdenticalLength(int identicalLength) {
 		this.identicalLength = identicalLength;
@@ -104,8 +99,7 @@ public class AlignmentResult implements Serializable {
 	}
 
 	/**
-	 * @param alignmentString
-	 *            the alignmentString to set
+	 * @param alignmentString the alignmentString to set
 	 */
 	public void setAlignmentString(String alignmentString) {
 		this.alignmentString = alignmentString;

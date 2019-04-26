@@ -15,7 +15,7 @@ import edu.scripps.yates.client.util.ClientNumberFormat;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.AmountType;
-import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PSMBeanLight;
 import edu.scripps.yates.shared.model.PTMBean;
 import edu.scripps.yates.shared.model.PTMSiteBean;
 import edu.scripps.yates.shared.model.RatioBean;
@@ -23,9 +23,9 @@ import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedMaths;
 
-public class PSMFooterManager extends FooterManager<PSMBean> {
+public class PSMFooterManager extends FooterManager<PSMBeanLight> {
 
-	public PSMFooterManager(MyDataGrid<PSMBean> datagrid) {
+	public PSMFooterManager(MyDataGrid<PSMBeanLight> datagrid) {
 		super(datagrid);
 		final ColumnName[] columnNames = ColumnName.values();
 		for (final ColumnName columnName : columnNames) {
@@ -65,13 +65,13 @@ public class PSMFooterManager extends FooterManager<PSMBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PSMBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PSMBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "-";
 				} else {
 					double sum = 0;
 					final List<Double> validAmounts = new ArrayList<Double>();
-					for (final PSMBean item : visibleItems) {
+					for (final PSMBeanLight item : visibleItems) {
 						final Set<AmountBean> amounts = new HashSet<AmountBean>();
 						final List<AmountBean> amounts2 = item.getAmounts();
 						for (final AmountBean amountBean : amounts2) {
@@ -133,13 +133,13 @@ public class PSMFooterManager extends FooterManager<PSMBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PSMBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PSMBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					double sum = 0;
 					final List<Double> validRatios = new ArrayList<Double>();
-					for (final PSMBean item : visibleItems) {
+					for (final PSMBeanLight item : visibleItems) {
 						Double ratioValue = 0.0;
 						boolean validRatioValue = false;
 						final List<RatioBean> ratiosByConditions = item.getRatiosByConditions(condition1Name,
@@ -189,13 +189,13 @@ public class PSMFooterManager extends FooterManager<PSMBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PSMBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PSMBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					final List<Double> validScores = new ArrayList<Double>();
 
-					for (final PSMBean item : visibleItems) {
+					for (final PSMBeanLight item : visibleItems) {
 						Double scoreValue = 0.0;
 						// try to convert to double the amountString
 						try {
@@ -235,13 +235,13 @@ public class PSMFooterManager extends FooterManager<PSMBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PSMBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PSMBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					double sum = 0;
 					int numScores = 0;
-					for (final PSMBean item : visibleItems) {
+					for (final PSMBeanLight item : visibleItems) {
 						final List<PTMBean> ptms = item.getPtms();
 						if (ptms != null) {
 							for (final PTMBean ptmBean : ptms) {
@@ -277,12 +277,12 @@ public class PSMFooterManager extends FooterManager<PSMBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PSMBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PSMBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "-";
 				} else {
 					final List<Integer> validNumPTMs = new ArrayList<Integer>();
-					for (final PSMBean item : visibleItems) {
+					for (final PSMBeanLight item : visibleItems) {
 						final List<PTMBean> ptms = item.getPtms();
 						if (ptms != null) {
 							final int numPTMs = ptms.size();
@@ -302,13 +302,13 @@ public class PSMFooterManager extends FooterManager<PSMBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PSMBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PSMBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "-";
 				} else {
 					final List<Integer> list = new ArrayList<Integer>();
 					boolean validValue = false;
-					for (final PSMBean item : visibleItems) {
+					for (final PSMBeanLight item : visibleItems) {
 						final List<PTMBean> ptms = item.getPtms();
 						int numPTMs = 0;
 						if (ptms != null) {
@@ -335,13 +335,13 @@ public class PSMFooterManager extends FooterManager<PSMBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PSMBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PSMBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					double sum = 0;
 					boolean validValue = false;
-					for (final PSMBean item : visibleItems) {
+					for (final PSMBeanLight item : visibleItems) {
 						final Double pi = item.getPi();
 						if (pi != null) {
 							sum += pi;
@@ -363,12 +363,12 @@ public class PSMFooterManager extends FooterManager<PSMBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PSMBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PSMBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					final List<Double> validRatioScores = new ArrayList<Double>();
-					for (final PSMBean item : visibleItems) {
+					for (final PSMBeanLight item : visibleItems) {
 						final List<RatioBean> ratios = item.getRatiosByConditions(condition1Name, condition2Name,
 								projectTag, ratioName, true);
 						if (ratios == null || ratios.isEmpty())

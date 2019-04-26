@@ -11,19 +11,19 @@ import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.PSMColumns;
 import edu.scripps.yates.shared.model.AmountType;
-import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PSMBeanLight;
 import edu.scripps.yates.shared.util.SharedDataUtil;
 
-public class PSMColumnManager extends AbstractColumnManager<PSMBean> {
+public class PSMColumnManager extends AbstractColumnManager<PSMBeanLight> {
 
-	public PSMColumnManager(FooterManager<PSMBean> footerManager) {
+	public PSMColumnManager(FooterManager<PSMBeanLight> footerManager) {
 		super(footerManager);
 
 		final List<ColumnWithVisibility> columns = PSMColumns.getInstance().getColumns();
-		for (ColumnWithVisibility columnWithOrder : columns) {
+		for (final ColumnWithVisibility columnWithOrder : columns) {
 			if (columnWithOrder.getColumn().isAddColumnByDefault()) {
 				if (columnWithOrder.getColumn() == ColumnName.LINK_TO_PRIDE_CLUSTER) {
-					final CustomClickableImageColumnOpenLinkToPRIDECluster<PSMBean> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<PSMBean>(
+					final CustomClickableImageColumnOpenLinkToPRIDECluster<PSMBeanLight> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<PSMBeanLight>(
 							columnWithOrder.getColumn(), columnWithOrder.isVisible(), null);
 					super.addColumn(customTextButtonColumn);
 				} else {
@@ -35,8 +35,8 @@ public class PSMColumnManager extends AbstractColumnManager<PSMBean> {
 	}
 
 	@Override
-	protected MyIdColumn<PSMBean> createColumn(ColumnName columnName, boolean visible) {
-		MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+	protected MyIdColumn<PSMBeanLight> createColumn(ColumnName columnName, boolean visible) {
+		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(columnName.getAbr()), columnName.getDescription());
 		return new PSMTextColumn(columnName, visible, header, footerManager.getFooter(columnName));
 	}
@@ -72,7 +72,7 @@ public class PSMColumnManager extends AbstractColumnManager<PSMBean> {
 	public PSMTextColumn addRatioColumn(ColumnName columnName, boolean visibleState, String condition1Name,
 			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
 			String ratioName) {
-		String headerName = SharedDataUtil.getRatioHeader(ratioName, condition1Symbol, condition2Symbol);
+		final String headerName = SharedDataUtil.getRatioHeader(ratioName, condition1Symbol, condition2Symbol);
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName),
 				SharedDataUtil.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
@@ -89,14 +89,14 @@ public class PSMColumnManager extends AbstractColumnManager<PSMBean> {
 	public PSMTextColumn addRatioScoreColumn(ColumnName columnName, boolean visibleState, String condition1Name,
 			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
 			String ratioName, String scoreName) {
-		String headerName = SharedDataUtil.getRatioScoreHeader(scoreName, ratioName, condition1Symbol,
+		final String headerName = SharedDataUtil.getRatioScoreHeader(scoreName, ratioName, condition1Symbol,
 				condition2Symbol);
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName), SharedDataUtil.getRatioScoreHeaderTooltip(columnName,
 						condition1Name, condition2Name, ratioName, scoreName));
-		final PSMTextColumn column = new PSMTextColumn(columnName,
-				visibleState, header, footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name,
-						projectTag, ratioName, scoreName),
+		final PSMTextColumn column = new PSMTextColumn(
+				columnName, visibleState, header, footerManager.getRatioScoreFooterByConditions(condition1Name,
+						condition2Name, projectTag, ratioName, scoreName),
 				condition1Name, condition2Name, projectTag, ratioName, scoreName);
 		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, condition1Name, condition1Symbol,
 				condition2Name, condition2Symbol, projectTag, ratioName, scoreName));

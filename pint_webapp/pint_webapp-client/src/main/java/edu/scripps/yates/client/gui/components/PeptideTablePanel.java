@@ -20,26 +20,26 @@ import edu.scripps.yates.client.gui.components.dataprovider.AsyncPeptideBeanList
 import edu.scripps.yates.client.interfaces.ShowHiddePanel;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
-import edu.scripps.yates.shared.model.PeptideBean;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.DefaultView.ORDER;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
+public class PeptideTablePanel extends AbstractDataTable<PeptideBeanLight> {
 	public static final String SELECT_PEPTIDE_TO_LOAD_PSMS_TEXT = "Select one peptide to load PSMs";
 	public static final String NO_DATA_FROM_THIS_PEPTIDE = "There is not any PSM information for that selection";
 	public static final String WAIT_TO_BE_LOADED = "Please wait for Peptides to be loaded...";
 	private final ShowHiddePanel peptideLoaderFromProjects;
 
 	public PeptideTablePanel(String sessionID, String emptyLabel, ShowHiddePanel showhiddePSMPanel,
-			AbstractAsyncDataProvider<PeptideBean> asyncDataListProvider, boolean multipleSelectionModel,
+			AbstractAsyncDataProvider<PeptideBeanLight> asyncDataListProvider, boolean multipleSelectionModel,
 			QueryPanel queryPanel) {
 		this(sessionID, emptyLabel, showhiddePSMPanel, asyncDataListProvider, multipleSelectionModel, "peptide table",
 				queryPanel);
 	}
 
 	public PeptideTablePanel(String sessionID, String emptyLabel, ShowHiddePanel showhiddePSMPanel,
-			AbstractAsyncDataProvider<PeptideBean> asyncDataListProvider, boolean multipleSelectionModel,
+			AbstractAsyncDataProvider<PeptideBeanLight> asyncDataListProvider, boolean multipleSelectionModel,
 			String tableTitle, QueryPanel queryPanel) {
 		super(sessionID, emptyLabel, asyncDataListProvider, multipleSelectionModel, tableTitle, queryPanel);
 		peptideLoaderFromProjects = showhiddePSMPanel;
@@ -60,7 +60,8 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 	 * createColumnManager()
 	 */
 	@Override
-	protected AbstractColumnManager<PeptideBean> createColumnManager(FooterManager<PeptideBean> footerManager) {
+	protected AbstractColumnManager<PeptideBeanLight> createColumnManager(
+			FooterManager<PeptideBeanLight> footerManager) {
 		return new PeptideColumnManager(footerManager);
 	}
 
@@ -71,22 +72,22 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 	 * createFooterManager()
 	 */
 	@Override
-	protected FooterManager<PeptideBean> createFooterManager(MyDataGrid<PeptideBean> dataGrid) {
+	protected FooterManager<PeptideBeanLight> createFooterManager(MyDataGrid<PeptideBeanLight> dataGrid) {
 		return new PeptideFooterManager(dataGrid);
 	}
 
 	@Override
-	public MyDataGrid<PeptideBean> makeDataGrid() {
+	public MyDataGrid<PeptideBeanLight> makeDataGrid() {
 		/**
 		 * The key provider that provides the unique ID of a PeptideBean.
 		 */
-		final ProvidesKey<PeptideBean> KEY_PROVIDER = new ProvidesKey<PeptideBean>() {
+		final ProvidesKey<PeptideBeanLight> KEY_PROVIDER = new ProvidesKey<PeptideBeanLight>() {
 			@Override
-			public Object getKey(PeptideBean item) {
+			public Object getKey(PeptideBeanLight item) {
 				return item == null ? null : item.getSequence();
 			}
 		};
-		final MyDataGrid<PeptideBean> dataGrid = new MyDataGrid<PeptideBean>(KEY_PROVIDER, tableName);
+		final MyDataGrid<PeptideBeanLight> dataGrid = new MyDataGrid<PeptideBeanLight>(KEY_PROVIDER, tableName);
 
 		return dataGrid;
 	}
@@ -140,7 +141,7 @@ public class PeptideTablePanel extends AbstractDataTable<PeptideBean> {
 	 * @param isReadyToShowData
 	 */
 	public void setReadyToShowData(boolean isReadyToShowData) {
-		final AsyncDataProvider<PeptideBean> asyncDataProvider = getAsyncDataProvider();
+		final AsyncDataProvider<PeptideBeanLight> asyncDataProvider = getAsyncDataProvider();
 		if (asyncDataProvider instanceof AsyncPeptideBeanListDataProvider) {
 			final AsyncPeptideBeanListDataProvider asyncPeptideBeanListDataProvider = (AsyncPeptideBeanListDataProvider) asyncDataProvider;
 			asyncPeptideBeanListDataProvider.setReadyForProvidingData(isReadyToShowData);

@@ -18,10 +18,12 @@ import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.comparator.ClientProteinGroupComparator;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> implements MyIdColumn<ProteinGroupBean> {
+public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBeanLight>
+		implements MyIdColumn<ProteinGroupBeanLight> {
 
 	private final ColumnName columnName;
 	private final Comparator<ProteinGroupBean> comparator;
@@ -131,7 +133,8 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 		super(columnName);
 		setSortable(true);
 		this.columnName = columnName;
-		comparator = new ClientProteinGroupComparator(columnName, condition1Name, condition2Name, projectTag, ratioName);
+		comparator = new ClientProteinGroupComparator(columnName, condition1Name, condition2Name, projectTag,
+				ratioName);
 		defaultWidth = getDefaultWidth(columnName);
 		conditionName = condition1Name;
 		this.condition2Name = condition2Name;
@@ -179,7 +182,7 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 	}
 
 	@Override
-	public String getValue(ProteinGroupBean p) {
+	public String getValue(ProteinGroupBeanLight p) {
 		final String value = ClientDataUtil.getProteinGroupColumnValue(columnName, p, conditionName, condition2Name,
 				projectTag, amountType, null, ratioName, false);
 		// if (width == 0) {
@@ -202,7 +205,7 @@ public class ProteinGroupTextColumn extends CustomTextColumn<ProteinGroupBean> i
 	 * com.google.gwt.safehtml.shared.SafeHtmlBuilder)
 	 */
 	@Override
-	public void render(Context context, ProteinGroupBean p, SafeHtmlBuilder sb) {
+	public void render(Context context, ProteinGroupBeanLight p, SafeHtmlBuilder sb) {
 		// if (width == 0) {
 		// return;
 		// }

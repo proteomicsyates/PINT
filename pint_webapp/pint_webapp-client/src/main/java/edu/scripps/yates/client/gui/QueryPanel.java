@@ -101,13 +101,13 @@ import edu.scripps.yates.shared.columns.ProteinColumns;
 import edu.scripps.yates.shared.columns.ProteinGroupColumns;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.model.AmountType;
-import edu.scripps.yates.shared.model.PSMBean;
-import edu.scripps.yates.shared.model.PeptideBean;
+import edu.scripps.yates.shared.model.PSMBeanLight;
 import edu.scripps.yates.shared.model.ProjectBean;
-import edu.scripps.yates.shared.model.ProteinBean;
-import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.ProteinProjection;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 import edu.scripps.yates.shared.tasks.CancellingTask;
 import edu.scripps.yates.shared.tasks.GetProteinsFromProjectTask;
 import edu.scripps.yates.shared.tasks.GetProteinsFromQuery;
@@ -134,11 +134,11 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 	private PSMTablePanel psmOnlyTablePanel;
 	private final PeptideTablePanel peptideOnlyTablePanel;
 	private PeptideTablePanel peptideTablePanel;
-	private final MyVerticalCheckBoxListPanel<ProteinBean> proteinColumnNamesPanel;
-	private final MyVerticalCheckBoxListPanel<PSMBean> psmColumnNamesPanel;
-	private MyVerticalCheckBoxListPanel<PeptideBean> peptideColumnNamesPanel;
+	private final MyVerticalCheckBoxListPanel<ProteinBeanLight> proteinColumnNamesPanel;
+	private final MyVerticalCheckBoxListPanel<PSMBeanLight> psmColumnNamesPanel;
+	private MyVerticalCheckBoxListPanel<PeptideBeanLight> peptideColumnNamesPanel;
 	private final ProteinGroupTablePanel proteinGroupTablePanel;
-	private final MyVerticalCheckBoxListPanel<ProteinGroupBean> proteinGroupColumnNamesPanel;
+	private final MyVerticalCheckBoxListPanel<ProteinGroupBeanLight> proteinGroupColumnNamesPanel;
 	private final ScrolledTabLayoutPanel secondLevelTabPanel;
 	private final MyVerticalListBoxPanel annotationsTypePanel;
 	private final MyVerticalListBoxPanel uniprotHeaderLinesPanel;
@@ -755,7 +755,8 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		proteinTablePanel = new ProteinTablePanel(sessionID, null, new AsyncProteinBeanListDataProvider(sessionID),
 				SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, this);
 
-		proteinColumnNamesPanel = new MyVerticalCheckBoxListPanel<ProteinBean>(proteinTablePanel.getColumnManager());
+		proteinColumnNamesPanel = new MyVerticalCheckBoxListPanel<ProteinBeanLight>(
+				proteinTablePanel.getColumnManager());
 
 		// PSM COLUMN NAMES
 		if (Pint.getPSMCentric()) {
@@ -775,11 +776,11 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		if (Pint.getPSMCentric()) {
 			layoutPanel.add(psmTablePanel);
 			layoutPanel.setWidgetBottomHeight(psmTablePanel, 0, Unit.PCT, 50, Unit.PCT);
-			psmColumnNamesPanel = new MyVerticalCheckBoxListPanel<PSMBean>(psmTablePanel.getColumnManager());
+			psmColumnNamesPanel = new MyVerticalCheckBoxListPanel<PSMBeanLight>(psmTablePanel.getColumnManager());
 		} else {
 			layoutPanel.add(peptideTablePanel);
 			layoutPanel.setWidgetBottomHeight(peptideTablePanel, 0, Unit.PCT, 50, Unit.PCT);
-			peptideColumnNamesPanel = new MyVerticalCheckBoxListPanel<PeptideBean>(
+			peptideColumnNamesPanel = new MyVerticalCheckBoxListPanel<PeptideBeanLight>(
 					peptideTablePanel.getColumnManager());
 			psmColumnNamesPanel = null;
 		}
@@ -792,7 +793,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		proteinGroupTablePanel = new ProteinGroupTablePanel(sessionID, emptyWidget,
 				new AsyncProteinGroupBeanListDataProvider(sessionID), false, this);
 
-		proteinGroupColumnNamesPanel = new MyVerticalCheckBoxListPanel<ProteinGroupBean>(
+		proteinGroupColumnNamesPanel = new MyVerticalCheckBoxListPanel<ProteinGroupBeanLight>(
 				proteinGroupTablePanel.getColumnManager());
 
 		// PSM ONLY TAB
@@ -806,7 +807,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		peptideOnlyTablePanel = new PeptideTablePanel(sessionID, null, this,
 				new AsyncPeptideBeanListDataProvider(sessionID), SharedConstants.TABLE_WITH_MULTIPLE_SELECTION, this);
 		if (Pint.getPSMCentric()) {
-			peptideColumnNamesPanel = new MyVerticalCheckBoxListPanel<PeptideBean>(
+			peptideColumnNamesPanel = new MyVerticalCheckBoxListPanel<PeptideBeanLight>(
 					peptideOnlyTablePanel.getColumnManager());
 		}
 		peptideColumnNamesPanel.addColumnManager(peptideOnlyTablePanel.getColumnManager());
@@ -1094,10 +1095,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				if (source instanceof SingleSelectionModel) {
 					GWT.log("protein table with a single selection model");
 
-					final SingleSelectionModel<ProteinBean> selectionModel = (SingleSelectionModel<ProteinBean>) source;
+					final SingleSelectionModel<ProteinBeanLight> selectionModel = (SingleSelectionModel<ProteinBeanLight>) source;
 					final Object selectedObject = selectionModel.getSelectedObject();
 					if (selectedObject != null) {
-						final ProteinBean selectedProtein = (ProteinBean) selectedObject;
+						final ProteinBeanLight selectedProtein = (ProteinBeanLight) selectedObject;
 						if (Pint.getPSMCentric()) {
 							asyncDataProviderForPSMsOfSelectedProtein.setPSMProvider(selectedProtein);
 							// psmTablePanel.reloadData();
@@ -1129,10 +1130,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				if (source instanceof SingleSelectionModel) {
 					GWT.log("peptide table with a single selection model");
 
-					final SingleSelectionModel<PeptideBean> selectionModel = (SingleSelectionModel<PeptideBean>) source;
+					final SingleSelectionModel<PeptideBeanLight> selectionModel = (SingleSelectionModel<PeptideBeanLight>) source;
 					final Object selectedObject = selectionModel.getSelectedObject();
 					if (selectedObject != null) {
-						final PeptideBean selectedPeptide = (PeptideBean) selectedObject;
+						final PeptideBeanLight selectedPeptide = (PeptideBeanLight) selectedObject;
 						asyncDataProviderForPSMsOfSelectedProtein.setPSMProvider(selectedPeptide);
 						// psmTablePanel.reloadData();
 						psmTablePanel.refreshData();
@@ -1163,10 +1164,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					peptideTablePanel.clearTable();
 				}
 				if (source instanceof SingleSelectionModel) {
-					final SingleSelectionModel<ProteinGroupBean> selectionModel = (SingleSelectionModel<ProteinGroupBean>) source;
+					final SingleSelectionModel<ProteinGroupBeanLight> selectionModel = (SingleSelectionModel<ProteinGroupBeanLight>) source;
 					final Object selectedObject = selectionModel.getSelectedObject();
 					if (selectedObject != null) {
-						final ProteinGroupBean selectedProteinGroup = (ProteinGroupBean) selectedObject;
+						final ProteinGroupBeanLight selectedProteinGroup = (ProteinGroupBeanLight) selectedObject;
 						if (Pint.getPSMCentric()) {
 							asyncDataProviderForPSMsOfSelectedProtein.setPSMProvider(selectedProteinGroup);
 							psmTablePanel.refreshData();

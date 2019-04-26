@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.scripps.yates.shared.model.PeptideBean;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
 
-public class PeptideBeanSubList extends DataSubList<PeptideBean> implements Serializable {
+public class PeptideBeanSubList extends DataSubList<PeptideBeanLight> implements Serializable {
 
 	/**
 	 *
@@ -21,21 +22,19 @@ public class PeptideBeanSubList extends DataSubList<PeptideBean> implements Seri
 
 	}
 
-	private PeptideBeanSubList(List<PeptideBean> peptides, int totalNumber) {
+	private PeptideBeanSubList(List<PeptideBeanLight> peptides, int totalNumber) {
 		super(peptides, totalNumber);
 	}
 
 	public static PeptideBeanSubList getLightPeptideBeanSubList(List<PeptideBean> peptides, int totalNumberOfItems) {
 
-		final List<PeptideBean> clonedPeptides = new ArrayList<PeptideBean>();
+		final List<PeptideBeanLight> lightPeptideBeans = new ArrayList<PeptideBeanLight>();
 		for (final PeptideBean peptideBean : peptides) {
-			final PeptideBean clonedPeptide = peptideBean.cloneToLightPeptideBean();
-			clonedPeptide.getDbIds().clear();
-			clonedPeptide.getProteinDBIds().clear();
+			final PeptideBeanLight clonedPeptide = peptideBean.cloneToLightPeptideBean();
 			clonedPeptide.getProteins().clear();
-			clonedPeptides.add(clonedPeptide);
+			lightPeptideBeans.add(clonedPeptide);
 		}
-		return new PeptideBeanSubList(clonedPeptides, totalNumberOfItems);
+		return new PeptideBeanSubList(lightPeptideBeans, totalNumberOfItems);
 	}
 
 }

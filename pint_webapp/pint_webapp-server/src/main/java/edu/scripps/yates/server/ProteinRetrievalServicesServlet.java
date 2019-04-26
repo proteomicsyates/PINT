@@ -106,8 +106,11 @@ import edu.scripps.yates.shared.model.ProteinPeptideCluster;
 import edu.scripps.yates.shared.model.ProteinProjection;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SampleBean;
-import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
-import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPSMs;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPeptides;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 import edu.scripps.yates.shared.tasks.GetDownloadLinkForInputFilesOfProjectTask;
 import edu.scripps.yates.shared.tasks.GetDownloadLinkFromProteinGroupsFromQueryTask;
 import edu.scripps.yates.shared.tasks.GetDownloadLinkFromProteinGroupsInProjectTask;
@@ -1725,7 +1728,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	@Override
-	public PsmBeanSubList getPsmBeansFromPsmProviderFromListSorted(String sessionID, ContainsPSMs psmProvider,
+	public PsmBeanSubList getPsmBeansFromPsmProviderFromListSorted(String sessionID, ContainsLightPSMs psmProvider,
 			int start, int end, Comparator<PSMBean> comparator, boolean ascendant) throws PintException {
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
@@ -1780,7 +1783,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	@Override
-	public PsmBeanSubList getPsmBeansFromPsmProviderFromList(String sessionID, ContainsPSMs psmProvider, int start,
+	public PsmBeanSubList getPsmBeansFromPsmProviderFromList(String sessionID, ContainsLightPSMs psmProvider, int start,
 			int end) throws PintException {
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
@@ -1888,7 +1891,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	}
 
 	@Override
-	public ProteinPeptideCluster getProteinsByPeptide(String sessionID, ContainsPeptides peptideProvider)
+	public ProteinPeptideCluster getProteinsByPeptide(String sessionID, ContainsLightPeptides peptideProvider)
 			throws PintException {
 
 		final Method enclosingMethod = new Object() {
@@ -1899,36 +1902,38 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			LockerByTag.lock(sessionID, enclosingMethod);
 			final DataSet dataSet = DataSetsManager.getDataSet(sessionID, null, false, getPSMCentric(), null);
 			if (!dataSet.isEmpty() && dataSet.isReady()) {
-				if (peptideProvider instanceof ProteinGroupBean) {
+				if (peptideProvider instanceof ProteinGroupBeanLight) {
 					log.info("Getting peptide-protein table for protein group "
-							+ ((ProteinGroupBean) peptideProvider).getPrimaryAccessionsString() + " in dataset '"
+							+ ((ProteinGroupBeanLight) peptideProvider).getPrimaryAccessionsString() + " in dataset '"
 							+ dataSet.getName() + "'");
 				} else if (peptideProvider instanceof ProteinBean) {
 					log.info("Getting peptide-protein table for protein group "
-							+ ((ProteinBean) peptideProvider).getPrimaryAccession().getAccession() + " in dataset '"
-							+ dataSet.getName() + "'");
+							+ ((ProteinBeanLight) peptideProvider).getPrimaryAccession().getAccession()
+							+ " in dataset '" + dataSet.getName() + "'");
 				}
 
 				//
 				ProteinPeptideCluster ret = null;
 				// get the non light version of the object
-				if (peptideProvider instanceof ProteinBean) {
-					final ProteinBean proteinBean = dataSet.getProteinBeansByUniqueIdentifier()
-							.get(((ProteinBean) peptideProvider).getProteinBeanUniqueIdentifier());
+				if (peptideProvider instanceof ProteinBeanLight) {
+
 					// this will force to query the peptides in case they have not been queried yet.
-					dataSet.getPeptidesFromPeptideProvider(proteinBean);
+					dataSet.getPeptidesFromPeptideProvider(peptideProvider);
+					//
+					final ProteinBean proteinBean = dataSet.getProteinBeansByUniqueIdentifier()
+							.get(((ProteinBeanLight) peptideProvider).getProteinBeanUniqueIdentifier());
 					ret = new ProteinPeptideCluster(proteinBean);
-				} else if (peptideProvider instanceof ProteinGroupBean) {
-					final ProteinGroupBean proteinGroupLight = (ProteinGroupBean) peptideProvider;
+				} else if (peptideProvider instanceof ProteinGroupBeanLight) {
+					final ProteinGroupBeanLight proteinGroupLight = (ProteinGroupBeanLight) peptideProvider;
 					final ProteinGroupBean proteinGroup = new ProteinGroupBean();
-					for (final ProteinBean proteinBeanLight : proteinGroupLight) {
+					for (final ProteinBeanLight proteinBeanLight : proteinGroupLight) {
 						final ProteinBean proteinBean = dataSet.getProteinBeansByUniqueIdentifier()
 								.get(proteinBeanLight.getProteinBeanUniqueIdentifier());
 						// this will force to query the peptides in case they have not been queried yet.
 						proteinGroup.add(proteinBean);
 					}
 					final List<PeptideBean> peptidesFromIndividualProteins = dataSet
-							.getPeptidesFromPeptideProvider(proteinGroup);
+							.getPeptidesFromPeptideProvider(proteinGroupLight);
 					for (final PeptideBean peptideBean : peptidesFromIndividualProteins) {
 						proteinGroup.addPeptide(peptideBean);
 					}
@@ -1954,17 +1959,17 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 	private ProteinPeptideClusterAlignmentResults getPeptideAlignment(ProteinPeptideCluster cluster)
 			throws PintException {
 		try {
-			final Set<PeptideBean> peptides = cluster.getPeptides();
-			final List<PeptideBean> peptideList = new ArrayList<PeptideBean>();
+			final Set<PeptideBeanLight> peptides = cluster.getPeptides();
+			final List<PeptideBeanLight> peptideList = new ArrayList<PeptideBeanLight>();
 			peptideList.addAll(peptides);
 			log.info("Getting alignments for cluster of " + peptides.size() + " peptides");
 
 			final ProteinPeptideClusterAlignmentResults ret = new ProteinPeptideClusterAlignmentResults(cluster);
 			for (int i = 0; i < peptideList.size(); i++) {
 				for (int j = i + 1; j < peptideList.size(); j++) {
-					final PeptideBean peptide1 = peptideList.get(i);
+					final PeptideBeanLight peptide1 = peptideList.get(i);
 					final String peptide1Seq = peptide1.getSequence();
-					final PeptideBean peptide2 = peptideList.get(j);
+					final PeptideBeanLight peptide2 = peptideList.get(j);
 					final String peptide2Seq = peptide2.getSequence();
 					// do not do the alignment if one peptide contains the other
 					if (peptide1Seq.contains(peptide2Seq) || peptide2Seq.contains(peptide1Seq)) {
@@ -2011,7 +2016,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 		}
 	}
 
-	private boolean shareOneProtein(PeptideBean peptide1, PeptideBean peptide2) {
+	private boolean shareOneProtein(PeptideBeanLight peptide1, PeptideBeanLight peptide2) {
 		final List<AccessionBean> primaryAccessions1 = peptide1.getPrimaryAccessions();
 		final List<AccessionBean> primaryAccessions2 = peptide2.getPrimaryAccessions();
 		for (final AccessionBean accessionBean : primaryAccessions1) {
@@ -2087,8 +2092,8 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public PeptideBeanSubList getPeptideBeansFromPeptideProviderFromListSorted(String sessionID,
-			ContainsPeptides peptideProvider, int start, int end, Comparator<PeptideBean> comparator, boolean ascendant)
-			throws PintException {
+			ContainsLightPeptides peptideProvider, int start, int end, Comparator<PeptideBean> comparator,
+			boolean ascendant) throws PintException {
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		logMethodCall(enclosingMethod);
@@ -2143,7 +2148,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 
 	@Override
 	public PeptideBeanSubList getPeptideBeansFromPeptideProviderFromList(String sessionID,
-			ContainsPeptides peptideProvider, int start, int end) throws PintException {
+			ContainsLightPeptides peptideProvider, int start, int end) throws PintException {
 		final Method enclosingMethod = new Object() {
 		}.getClass().getEnclosingMethod();
 		logMethodCall(enclosingMethod);

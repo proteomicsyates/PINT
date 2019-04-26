@@ -332,7 +332,7 @@ public interface ProteinRetrievalServiceAsync {
 	 * @see edu.scripps.yates.ProteinRetrievalService
 	 */
 	void getPsmBeansFromPsmProviderFromListSorted(java.lang.String sessionID,
-			edu.scripps.yates.shared.model.interfaces.ContainsPSMs psmProvider, int start, int end,
+			edu.scripps.yates.shared.model.interfaces.ContainsLightPSMs psmProvider, int start, int end,
 			java.util.Comparator<edu.scripps.yates.shared.model.PSMBean> comparator, boolean ascending,
 			AsyncCallback<edu.scripps.yates.shared.util.sublists.PsmBeanSubList> callback);
 
@@ -342,7 +342,7 @@ public interface ProteinRetrievalServiceAsync {
 	 * @see edu.scripps.yates.ProteinRetrievalService
 	 */
 	void getPsmBeansFromPsmProviderFromList(java.lang.String sessionID,
-			edu.scripps.yates.shared.model.interfaces.ContainsPSMs psmProvider, int start, int end,
+			edu.scripps.yates.shared.model.interfaces.ContainsLightPSMs psmProvider, int start, int end,
 			AsyncCallback<edu.scripps.yates.shared.util.sublists.PsmBeanSubList> callback);
 
 	/**
@@ -380,7 +380,7 @@ public interface ProteinRetrievalServiceAsync {
 	 * @see edu.scripps.yates.ProteinRetrievalService
 	 */
 	void getProteinsByPeptide(java.lang.String sessionID,
-			edu.scripps.yates.shared.model.interfaces.ContainsPeptides peptideProvider,
+			edu.scripps.yates.shared.model.interfaces.ContainsLightPeptides peptideProvider,
 			AsyncCallback<edu.scripps.yates.shared.model.ProteinPeptideCluster> callback);
 
 	/**
@@ -406,7 +406,7 @@ public interface ProteinRetrievalServiceAsync {
 	 * @see edu.scripps.yates.ProteinRetrievalService
 	 */
 	void getPeptideBeansFromPeptideProviderFromListSorted(java.lang.String sessionID,
-			edu.scripps.yates.shared.model.interfaces.ContainsPeptides peptideProvider, int start, int end,
+			edu.scripps.yates.shared.model.interfaces.ContainsLightPeptides peptideProvider, int start, int end,
 			java.util.Comparator<edu.scripps.yates.shared.model.PeptideBean> comparator, boolean ascending,
 			AsyncCallback<edu.scripps.yates.shared.util.sublists.PeptideBeanSubList> callback);
 
@@ -416,7 +416,7 @@ public interface ProteinRetrievalServiceAsync {
 	 * @see edu.scripps.yates.ProteinRetrievalService
 	 */
 	void getPeptideBeansFromPeptideProviderFromList(java.lang.String sessionID,
-			edu.scripps.yates.shared.model.interfaces.ContainsPeptides peptideProvider, int start, int end,
+			edu.scripps.yates.shared.model.interfaces.ContainsLightPeptides peptideProvider, int start, int end,
 			AsyncCallback<edu.scripps.yates.shared.util.sublists.PeptideBeanSubList> callback);
 
 	/**

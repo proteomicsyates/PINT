@@ -19,12 +19,13 @@ import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.comparator.ClientPSMComparator;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PSMBeanLight;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.UniprotFeatures;
 
-public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColumn<PSMBean> {
+public class PSMTextColumn extends CustomTextColumn<PSMBeanLight> implements MyIdColumn<PSMBeanLight> {
 
 	private final ColumnName columnName;
 	private final Comparator<PSMBean> comparator;
@@ -150,7 +151,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 	}
 
 	@Override
-	public String getValue(PSMBean p) {
+	public String getValue(PSMBeanLight p) {
 		final String value = ClientDataUtil.getPSMColumnValue(columnName, p, conditionName, condition2Name, projectTag,
 				amountType, scoreName, ratioName, false);
 		// if (width == 0) {
@@ -173,7 +174,7 @@ public class PSMTextColumn extends CustomTextColumn<PSMBean> implements MyIdColu
 	 * com.google.gwt.safehtml.shared.SafeHtmlBuilder)
 	 */
 	@Override
-	public void render(Context context, PSMBean psm, SafeHtmlBuilder sb) {
+	public void render(Context context, PSMBeanLight psm, SafeHtmlBuilder sb) {
 		// if (width == 0 || psm == null) {
 		if (psm == null) {
 			return;

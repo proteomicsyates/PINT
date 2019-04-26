@@ -17,18 +17,18 @@ import edu.scripps.yates.client.gui.columns.footers.ProteinFooterManager;
 import edu.scripps.yates.client.gui.components.dataprovider.AbstractAsyncDataProvider;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
-import edu.scripps.yates.shared.model.ProteinBean;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.DefaultView.ORDER;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
+public class ProteinTablePanel extends AbstractDataTable<ProteinBeanLight> {
 
 	private static final String cwDataGridEmpty = "No proteins shown";
 
 	public ProteinTablePanel(String sessionID, String emptyLabel,
-			AbstractAsyncDataProvider<ProteinBean> asyncProteinBeanListDataProvider, boolean multipleSelectionModel,
-			QueryPanel queryPanel) {
+			AbstractAsyncDataProvider<ProteinBeanLight> asyncProteinBeanListDataProvider,
+			boolean multipleSelectionModel, QueryPanel queryPanel) {
 		super(sessionID, emptyLabel, asyncProteinBeanListDataProvider, multipleSelectionModel, "protein table",
 				queryPanel);
 
@@ -36,15 +36,15 @@ public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
 	}
 
 	@Override
-	protected MyDataGrid<ProteinBean> makeDataGrid() {
-		final ProvidesKey<ProteinBean> KEY_PROVIDER = new ProvidesKey<ProteinBean>() {
+	protected MyDataGrid<ProteinBeanLight> makeDataGrid() {
+		final ProvidesKey<ProteinBeanLight> KEY_PROVIDER = new ProvidesKey<ProteinBeanLight>() {
 			@Override
-			public Object getKey(ProteinBean item) {
+			public Object getKey(ProteinBeanLight item) {
 
 				return item == null ? null : item.getProteinDBString();
 			}
 		};
-		final MyDataGrid<ProteinBean> dataGrid = new MyDataGrid<ProteinBean>(KEY_PROVIDER, tableName);
+		final MyDataGrid<ProteinBeanLight> dataGrid = new MyDataGrid<ProteinBeanLight>(KEY_PROVIDER, tableName);
 		dataGrid.setEmptyTableWidget(new Label(cwDataGridEmpty));
 
 		return dataGrid;
@@ -64,17 +64,18 @@ public class ProteinTablePanel extends AbstractDataTable<ProteinBean> {
 	 * @return the dataGrid
 	 */
 	@Override
-	public MyDataGrid<ProteinBean> getDataGrid() {
+	public MyDataGrid<ProteinBeanLight> getDataGrid() {
 		return dataGrid;
 	}
 
 	@Override
-	protected AbstractColumnManager<ProteinBean> createColumnManager(FooterManager<ProteinBean> footerManager) {
+	protected AbstractColumnManager<ProteinBeanLight> createColumnManager(
+			FooterManager<ProteinBeanLight> footerManager) {
 		return new ProteinColumnManager(footerManager, sessionID);
 	}
 
 	@Override
-	protected FooterManager<ProteinBean> createFooterManager(MyDataGrid<ProteinBean> dataGrid) {
+	protected FooterManager<ProteinBeanLight> createFooterManager(MyDataGrid<ProteinBeanLight> dataGrid) {
 		return new ProteinFooterManager(dataGrid);
 	}
 

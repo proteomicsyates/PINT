@@ -25,7 +25,7 @@ public interface MyColumn<T> {
 
 	public void setWidth(double width);
 
-	public Comparator<T> getComparator();
+	public Comparator<?> getComparator();
 
 	public void setVisible(boolean visible);
 

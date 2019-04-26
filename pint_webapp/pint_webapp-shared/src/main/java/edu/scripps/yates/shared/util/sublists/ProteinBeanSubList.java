@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.scripps.yates.shared.model.ProteinBean;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 
-public class ProteinBeanSubList extends DataSubList<ProteinBean> implements Serializable {
+public class ProteinBeanSubList extends DataSubList<ProteinBeanLight> implements Serializable {
 
 	/**
 	 *
@@ -17,26 +18,23 @@ public class ProteinBeanSubList extends DataSubList<ProteinBean> implements Seri
 
 	}
 
-	public ProteinBeanSubList(List<ProteinBean> proteins, int totalNumber) {
+	private ProteinBeanSubList(List<ProteinBeanLight> proteins, int totalNumber) {
 		super(proteins, totalNumber);
 	}
 
 	public static ProteinBeanSubList getLightProteinBeanSubList(List<ProteinBean> proteins, int totalNumberOfItems) {
 
-		final List<ProteinBean> clonedProteins = new ArrayList<ProteinBean>();
+		final List<ProteinBeanLight> lightProteinBeans = new ArrayList<ProteinBeanLight>();
 		for (final ProteinBean proteinBean : proteins) {
-			final ProteinBean clonedProtein = proteinBean.cloneToLightProteinBean();
-			clonedProtein.getDbIds().clear();
-			clonedProtein.getPeptideDBIds().clear();
-			clonedProtein.getPeptideDBIdsByCondition().clear();
+			final ProteinBeanLight clonedProtein = proteinBean.cloneToLightProteinBean();
 			clonedProtein.getPeptides().clear();
-			clonedProteins.add(clonedProtein);
+			lightProteinBeans.add(clonedProtein);
 
 		}
-		return new ProteinBeanSubList(clonedProteins, totalNumberOfItems);
+		return new ProteinBeanSubList(lightProteinBeans, totalNumberOfItems);
 	}
 
-	public static ProteinBeanSubList getLightProteinBeanSubListFromLightProteins(List<ProteinBean> lightProteins,
+	public static ProteinBeanSubList getLightProteinBeanSubListFromLightProteins(List<ProteinBeanLight> lightProteins,
 			int totalNumberOfItems) {
 
 		return new ProteinBeanSubList(lightProteins, totalNumberOfItems);

@@ -22,6 +22,7 @@ import edu.scripps.yates.shared.model.GeneBean;
 import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.OmimEntryBean;
 import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PSMBeanLight;
 import edu.scripps.yates.shared.model.PTMBean;
 import edu.scripps.yates.shared.model.PTMSiteBean;
 import edu.scripps.yates.shared.model.PeptideBean;
@@ -35,6 +36,8 @@ import edu.scripps.yates.shared.model.ThresholdBean;
 import edu.scripps.yates.shared.model.UniprotFeatureBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsConditions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 import edu.scripps.yates.shared.model.projectCreator.FileNameWithTypeBean;
 import edu.scripps.yates.shared.model.projectCreator.excel.FileTypeBean;
 
@@ -202,6 +205,18 @@ public class SharedDataUtil {
 		final Comparator<ProteinBean> comparatorByProteinPrimaryAcc = new Comparator<ProteinBean>() {
 			@Override
 			public int compare(ProteinBean o1, ProteinBean o2) {
+				return o1.getPrimaryAccession().getAccession().compareTo(o2.getPrimaryAccession().getAccession());
+			}
+		};
+
+		return comparatorByProteinPrimaryAcc;
+	}
+
+	public static Comparator<ProteinBeanLight> getComparatorByPrymaryAccForLightProteins() {
+
+		final Comparator<ProteinBeanLight> comparatorByProteinPrimaryAcc = new Comparator<ProteinBeanLight>() {
+			@Override
+			public int compare(ProteinBeanLight o1, ProteinBeanLight o2) {
 				return o1.getPrimaryAccession().getAccession().compareTo(o2.getPrimaryAccession().getAccession());
 			}
 		};
@@ -991,6 +1006,14 @@ public class SharedDataUtil {
 		return ret;
 	}
 
+	public static Map<String, ProteinBeanLight> getLightProteinBeansByPrimaryAccession(Set<ProteinBeanLight> proteins) {
+		final Map<String, ProteinBeanLight> ret = new HashMap<String, ProteinBeanLight>();
+		for (final ProteinBeanLight proteinBean : proteins) {
+			ret.put(proteinBean.getPrimaryAccession().getAccession(), proteinBean);
+		}
+		return ret;
+	}
+
 	public static String getUniprotFeatureString(PSMBean p, String... featureTypes) {
 		final Map<String, List<Pair<Integer, Integer>>> startingPositions = p.getStartingPositions();
 		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
@@ -1024,6 +1047,62 @@ public class SharedDataUtil {
 	}
 
 	public static String getUniprotFeatureString(ProteinBean p, String... featureTypes) {
+		final Set<UniprotFeatureBean> uniprotFeatures = new HashSet<UniprotFeatureBean>();
+		for (final String featureType : featureTypes) {
+			uniprotFeatures.addAll(p.getUniprotFeaturesByFeatureType(featureType));
+		}
+		final StringBuilder sb = new StringBuilder();
+		for (final UniprotFeatureBean uniprotFeature : uniprotFeatures) {
+			if (uniprotFeature.getDescription() != null) {
+				sb.append(uniprotFeature.getDescription());
+			} else {
+				sb.append(uniprotFeature.getFeatureType());
+			}
+			if (uniprotFeature.getPositionStart() > -1) {
+				if (uniprotFeature.getPositionStart() == uniprotFeature.getPositionEnd()) {
+					sb.append(" (").append(uniprotFeature.getPositionStart()).append(")");
+				} else {
+					sb.append(" (").append(uniprotFeature.getPositionStart()).append("-")
+							.append(uniprotFeature.getPositionEnd()).append(")");
+				}
+			}
+		}
+		return sb.toString();
+	}
+
+	public static String getUniprotFeatureString(PSMBeanLight p, String... featureTypes) {
+		final Map<String, List<Pair<Integer, Integer>>> startingPositions = p.getStartingPositions();
+		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
+		final Set<ProteinBeanLight> proteins = p.getProteins();
+		final Map<String, ProteinBeanLight> proteinBeanByAccession = getLightProteinBeansByPrimaryAccession(proteins);
+		// get a list of proteins according to the order of the primary
+		// accessions
+		final List<ProteinBeanLight> proteinBeanList = new ArrayList<ProteinBeanLight>();
+		for (final AccessionBean acc : primaryAccessions) {
+			if (proteinBeanByAccession.containsKey(acc.getAccession())) {
+				proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
+			}
+		}
+		return getUniprotFeatureStringFromLightProteins(startingPositions, proteinBeanList, featureTypes);
+	}
+
+	public static String getUniprotFeatureString(PeptideBeanLight p, String... featureTypes) {
+		final Map<String, List<Pair<Integer, Integer>>> startingPositions = p.getStartingPositions();
+		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
+		final Set<ProteinBeanLight> proteins = p.getProteins();
+		final Map<String, ProteinBeanLight> proteinBeanByAccession = getLightProteinBeansByPrimaryAccession(proteins);
+		// get a list of proteins according to the order of the primary
+		// accessions
+		final List<ProteinBeanLight> proteinBeanList = new ArrayList<ProteinBeanLight>();
+		for (final AccessionBean acc : primaryAccessions) {
+			if (proteinBeanByAccession.containsKey(acc.getAccession())) {
+				proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
+			}
+		}
+		return getUniprotFeatureStringFromLightProteins(startingPositions, proteinBeanList, featureTypes);
+	}
+
+	public static String getUniprotFeatureString(ProteinBeanLight p, String... featureTypes) {
 		final Set<UniprotFeatureBean> uniprotFeatures = new HashSet<UniprotFeatureBean>();
 		for (final String featureType : featureTypes) {
 			uniprotFeatures.addAll(p.getUniprotFeaturesByFeatureType(featureType));
@@ -1092,6 +1171,51 @@ public class SharedDataUtil {
 		return sb.toString();
 	}
 
+	private static String getUniprotFeatureStringFromLightProteins(
+			Map<String, List<Pair<Integer, Integer>>> startingPositionsByProtein, List<ProteinBeanLight> proteinBeans,
+			String... featureTypes) {
+		final StringBuilder sb = new StringBuilder();
+		for (final ProteinBeanLight p : proteinBeans) {
+			if (startingPositionsByProtein.containsKey(p.getPrimaryAccession().getAccession())) {
+				final Set<UniprotFeatureBean> uniprotFeatures = new HashSet<UniprotFeatureBean>();
+				for (final String featureType : featureTypes) {
+					uniprotFeatures.addAll(p.getUniprotFeaturesByFeatureType(featureType));
+				}
+
+				for (final UniprotFeatureBean uniprotFeature : uniprotFeatures) {
+					// only consider the ones with annotated start and end
+					// positions
+					if (uniprotFeature.getPositionStart() > -1 && uniprotFeature.getPositionEnd() > -1) {
+						final List<Pair<Integer, Integer>> startingPositions = startingPositionsByProtein
+								.get(p.getPrimaryAccession().getAccession());
+						final SequenceOverlapping included = isPeptideIncludedInThatRange(startingPositions,
+								uniprotFeature.getPositionStart(), uniprotFeature.getPositionEnd());
+						if (included != SequenceOverlapping.NOT_COVERED) {
+							sb.append(uniprotFeature.getFeatureType() + " ");
+							if (uniprotFeature.getDescription() != null) {
+								sb.append(uniprotFeature.getDescription());
+							}
+
+							if (uniprotFeature.getPositionStart() == uniprotFeature.getPositionEnd()) {
+								sb.append(" (").append(uniprotFeature.getPositionStart()).append(")");
+							} else {
+								sb.append(" (").append(uniprotFeature.getPositionStart()).append("-")
+										.append(uniprotFeature.getPositionEnd()).append(")");
+							}
+							sb.append(" (" + included.getDescription() + ")");
+						}
+					}
+				}
+			} else {
+				// there is not starting positions for this peptide in this
+				// protein
+			}
+			if (proteinBeans.size() > 1) {
+				sb.append(SharedConstants.NEW_LINE_JAVA);
+			}
+		}
+		return sb.toString();
+	}
 	// private boolean isPeptideIncludedInThatRange(List<Integer>
 	// startingPositions, int positionStart,
 	// int positionEnd) {

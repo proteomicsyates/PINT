@@ -25,10 +25,9 @@ import edu.scripps.yates.shared.model.AccessionType;
 import edu.scripps.yates.shared.model.GeneBean;
 import edu.scripps.yates.shared.model.OmimEntryBean;
 import edu.scripps.yates.shared.model.OrganismBean;
-import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PSMBeanLight;
 import edu.scripps.yates.shared.model.PTMBean;
 import edu.scripps.yates.shared.model.PTMSiteBean;
-import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.PeptideRelation;
 import edu.scripps.yates.shared.model.ProjectBean;
 import edu.scripps.yates.shared.model.ProteinBean;
@@ -43,6 +42,9 @@ import edu.scripps.yates.shared.model.UniprotProteinExistence;
 import edu.scripps.yates.shared.model.interfaces.ContainsGenes;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 import edu.scripps.yates.shared.util.Pair;
 import edu.scripps.yates.shared.util.SequenceOverlapping;
 import edu.scripps.yates.shared.util.SharedConstants;
@@ -279,7 +281,7 @@ public class ClientSafeHtmlUtils {
 		return sb.toString();
 	}
 
-	public static SafeHtml getProteinFunctionSafeHtml(ProteinBean p) {
+	public static SafeHtml getProteinFunctionSafeHtml(ProteinBeanLight p) {
 		final String function = p.getFunctionString();
 		String shortFunction = function;
 		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
@@ -317,7 +319,7 @@ public class ClientSafeHtmlUtils {
 
 	}
 
-	public static SafeHtml getOmimLinks(ProteinBean p) {
+	public static SafeHtml getOmimLinks(ProteinBeanLight p) {
 		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		final List<Integer> omimIDs = p.getOmimSortedIDs();
 		if (omimIDs != null && !omimIDs.isEmpty()) {
@@ -351,13 +353,14 @@ public class ClientSafeHtmlUtils {
 		return sb.toSafeHtml();
 	}
 
-	public static SafeHtml getGroupMemberEvidences(ProteinGroupBean proteinGroup) {
+	public static SafeHtml getGroupMemberEvidences(ProteinGroupBeanLight p) {
 		SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		final Set<ProteinEvidence> evidences = new HashSet<ProteinEvidence>();
 		final Set<String> accs = new HashSet<String>();
-		final Iterator<ProteinBean> iterator = proteinGroup.getIterator(SharedDataUtil.getComparatorByPrymaryAcc());
+		final Iterator<ProteinBeanLight> iterator = p
+				.getIterator(SharedDataUtil.getComparatorByPrymaryAccForLightProteins());
 		while (iterator.hasNext()) {
-			final ProteinBean proteinBean = iterator.next();
+			final ProteinBeanLight proteinBean = iterator.next();
 			if (accs.contains(proteinBean.getPrimaryAccession().getAccession()))
 				continue;
 			accs.add(proteinBean.getPrimaryAccession().getAccession());
@@ -381,13 +384,14 @@ public class ClientSafeHtmlUtils {
 		return sb.toSafeHtml();
 	}
 
-	public static SafeHtml getGroupMemberExistences(ProteinGroupBean proteinGroup) {
+	public static SafeHtml getGroupMemberExistences(ProteinGroupBeanLight proteinGroup) {
 		SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		final Set<UniprotProteinExistence> existences = new HashSet<UniprotProteinExistence>();
 		final Set<String> accs = new HashSet<String>();
-		final Iterator<ProteinBean> iterator = proteinGroup.getIterator(SharedDataUtil.getComparatorByPrymaryAcc());
+		final Iterator<ProteinBeanLight> iterator = proteinGroup
+				.getIterator(SharedDataUtil.getComparatorByPrymaryAccForLightProteins());
 		while (iterator.hasNext()) {
-			final ProteinBean proteinBean = iterator.next();
+			final ProteinBeanLight proteinBean = iterator.next();
 			if (accs.contains(proteinBean.getPrimaryAccession().getAccession()))
 				continue;
 			accs.add(proteinBean.getPrimaryAccession().getAccession());
@@ -444,12 +448,13 @@ public class ClientSafeHtmlUtils {
 		return "";
 	}
 
-	public static SafeHtml getProteinCoverageGraphic(ProteinGroupBean proteinGroup) {
+	public static SafeHtml getProteinCoverageGraphic(ProteinGroupBeanLight proteinGroup) {
 		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		final Set<String> accs = new HashSet<String>();
-		final Iterator<ProteinBean> iterator = proteinGroup.getIterator(SharedDataUtil.getComparatorByPrymaryAcc());
+		final Iterator<ProteinBeanLight> iterator = proteinGroup
+				.getIterator(SharedDataUtil.getComparatorByPrymaryAccForLightProteins());
 		while (iterator.hasNext()) {
-			final ProteinBean proteinBean = iterator.next();
+			final ProteinBeanLight proteinBean = iterator.next();
 			if (accs.contains(proteinBean.getPrimaryAccession().getAccession()))
 				continue;
 			accs.add(proteinBean.getPrimaryAccession().getAccession());
@@ -462,11 +467,11 @@ public class ClientSafeHtmlUtils {
 		return sb.toSafeHtml();
 	}
 
-	public static SafeHtml getProteinCoverageGraphic(ProteinBean p) {
+	public static SafeHtml getProteinCoverageGraphic(ProteinBeanLight p) {
 		return getProteinCoverageGraphic(p, false);
 	}
 
-	public static SafeHtml getProteinCoverageGraphic(ProteinBean p, boolean bigRepresentation) {
+	public static SafeHtml getProteinCoverageGraphic(ProteinBeanLight p, boolean bigRepresentation) {
 		final NumberFormat formatter = NumberFormat.getFormat("#.#");
 		final char[] coverageArrayString = p.getCoverageArrayString();
 		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
@@ -857,7 +862,7 @@ public class ClientSafeHtmlUtils {
 		return sb.toString();
 	}
 
-	public static SafeHtml getUniprotFeatureSafeHtml(ProteinBean p, String... featureTypes) {
+	public static SafeHtml getUniprotFeatureSafeHtml(ProteinBeanLight p, String... featureTypes) {
 		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		final List<String> uniprotFeatureList = new ArrayList<String>();
 		uniprotFeatureList.addAll(java.util.Arrays.asList(featureTypes));
@@ -919,45 +924,45 @@ public class ClientSafeHtmlUtils {
 
 	}
 
-	public static SafeHtml getUniprotFeatureSafeHtml(PSMBean p, String... featureTypes) {
+	public static SafeHtml getUniprotFeatureSafeHtml(PSMBeanLight p, String... featureTypes) {
 		final Map<String, List<Pair<Integer, Integer>>> startingPositions = p.getStartingPositions();
 		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
-		final Set<ProteinBean> proteins = p.getProteins();
-		final Map<String, ProteinBean> proteinBeanByAccession = SharedDataUtil
-				.getProteinBeansByPrimaryAccession(proteins);
+		final Set<ProteinBeanLight> proteins = p.getProteins();
+		final Map<String, ProteinBeanLight> proteinBeanByAccession = SharedDataUtil
+				.getLightProteinBeansByPrimaryAccession(proteins);
 		// get a list of proteins according to the order of the primary
 		// accessions
-		final List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
+		final List<ProteinBeanLight> proteinBeanList = new ArrayList<ProteinBeanLight>();
 		for (final AccessionBean acc : primaryAccessions) {
 			proteinBeanList.add(proteinBeanByAccession.get(acc.getAccession()));
 		}
 		return getUniprotFeatureSafeHtml(startingPositions, proteinBeanList, featureTypes);
 	}
 
-	public static SafeHtml getUniprotFeatureSafeHtml(PeptideBean p, String... featureTypes) {
+	public static SafeHtml getUniprotFeatureSafeHtml(PeptideBeanLight p, String... featureTypes) {
 		final Map<String, List<Pair<Integer, Integer>>> startingPositions = p.getStartingPositions();
 		final List<AccessionBean> primaryAccessions = p.getPrimaryAccessions();
-		final Set<ProteinBean> proteins = p.getProteins();
+		final Set<ProteinBeanLight> proteins = p.getProteins();
 
-		final Map<String, ProteinBean> proteinBeanByAccession = SharedDataUtil
-				.getProteinBeansByPrimaryAccession(proteins);
+		final Map<String, ProteinBeanLight> proteinBeanByAccession = SharedDataUtil
+				.getLightProteinBeansByPrimaryAccession(proteins);
 		// get a list of proteins according to the order of the primary
 		// accessions
-		final List<ProteinBean> proteinBeanList = new ArrayList<ProteinBean>();
+		final List<ProteinBeanLight> proteinBeanList = new ArrayList<ProteinBeanLight>();
 		for (final AccessionBean acc : primaryAccessions) {
-			final ProteinBean protein = proteinBeanByAccession.get(acc.getAccession());
+			final ProteinBeanLight protein = proteinBeanByAccession.get(acc.getAccession());
 			proteinBeanList.add(protein);
 		}
 		return getUniprotFeatureSafeHtml(startingPositions, proteinBeanList, featureTypes);
 	}
 
 	private static SafeHtml getUniprotFeatureSafeHtml(
-			Map<String, List<Pair<Integer, Integer>>> startingPositionsByProtein, List<ProteinBean> proteinBeans,
+			Map<String, List<Pair<Integer, Integer>>> startingPositionsByProtein, List<ProteinBeanLight> proteinBeans,
 			String... featureTypes) {
 		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		for (final String featureType : featureTypes) {
-			final Map<UniprotFeatureBean, Set<ProteinBean>> proteinBeansByUniprotFeatureBean = new HashMap<UniprotFeatureBean, Set<ProteinBean>>();
-			for (final ProteinBean p : proteinBeans) {
+			final Map<UniprotFeatureBean, Set<ProteinBeanLight>> proteinBeansByUniprotFeatureBean = new HashMap<UniprotFeatureBean, Set<ProteinBeanLight>>();
+			for (final ProteinBeanLight p : proteinBeans) {
 
 				final AccessionBean primaryAccession = p.getPrimaryAccession();
 				if (startingPositionsByProtein.containsKey(primaryAccession.getAccession())) {
@@ -979,7 +984,7 @@ public class ClientSafeHtmlUtils {
 								if (proteinBeansByUniprotFeatureBean.containsKey(uniprotFeature)) {
 									proteinBeansByUniprotFeatureBean.get(uniprotFeature).add(p);
 								} else {
-									final Set<ProteinBean> proteinSet = new HashSet<ProteinBean>();
+									final Set<ProteinBeanLight> proteinSet = new HashSet<ProteinBeanLight>();
 									proteinSet.add(p);
 									proteinBeansByUniprotFeatureBean.put(uniprotFeature, proteinSet);
 								}
@@ -1014,9 +1019,9 @@ public class ClientSafeHtmlUtils {
 							.append(uniprotFeature.getPositionEnd()).appendEscaped(")");
 				}
 
-				final Set<ProteinBean> proteinSet = proteinBeansByUniprotFeatureBean.get(uniprotFeature);
-				final Map<SequenceOverlapping, List<ProteinBean>> proteinsBySequenceOverlapping = new HashMap<SequenceOverlapping, List<ProteinBean>>();
-				for (final ProteinBean proteinBean : proteinSet) {
+				final Set<ProteinBeanLight> proteinSet = proteinBeansByUniprotFeatureBean.get(uniprotFeature);
+				final Map<SequenceOverlapping, List<ProteinBeanLight>> proteinsBySequenceOverlapping = new HashMap<SequenceOverlapping, List<ProteinBeanLight>>();
+				for (final ProteinBeanLight proteinBean : proteinSet) {
 
 					final List<Pair<Integer, Integer>> startingPositions = startingPositionsByProtein
 							.get(proteinBean.getPrimaryAccession().getAccession());
@@ -1025,7 +1030,7 @@ public class ClientSafeHtmlUtils {
 					if (proteinsBySequenceOverlapping.containsKey(sequenceOverlapping)) {
 						proteinsBySequenceOverlapping.get(sequenceOverlapping).add(proteinBean);
 					} else {
-						final List<ProteinBean> list = new ArrayList<ProteinBean>();
+						final List<ProteinBeanLight> list = new ArrayList<ProteinBeanLight>();
 						list.add(proteinBean);
 						proteinsBySequenceOverlapping.put(sequenceOverlapping, list);
 					}
@@ -1033,7 +1038,7 @@ public class ClientSafeHtmlUtils {
 
 				for (final SequenceOverlapping overlapping : SequenceOverlapping.values()) {
 					if (proteinsBySequenceOverlapping.containsKey(overlapping)) {
-						final List<ProteinBean> proteinList = proteinsBySequenceOverlapping.get(overlapping);
+						final List<ProteinBeanLight> proteinList = proteinsBySequenceOverlapping.get(overlapping);
 						if (!proteinList.isEmpty()) {
 							Collections.sort(proteinList);// because is
 															// comparable
@@ -1044,7 +1049,7 @@ public class ClientSafeHtmlUtils {
 							}
 							sb.appendEscaped(" (" + overlapping.getDescription() + " in protein" + plural + " ");
 							boolean first = true;
-							for (final ProteinBean proteinBean : proteinList) {
+							for (final ProteinBeanLight proteinBean : proteinList) {
 								if (!first) {
 									sb.appendEscaped(",");
 								}
@@ -1088,7 +1093,7 @@ public class ClientSafeHtmlUtils {
 		return sb.toString();
 	}
 
-	public static SafeHtml getReactomeSafeHtml(ProteinBean p) {
+	public static SafeHtml getReactomeSafeHtml(ProteinBeanLight p) {
 		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 
 		final Set<String> ids = new HashSet<String>();

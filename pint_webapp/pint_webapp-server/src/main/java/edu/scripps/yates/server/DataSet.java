@@ -42,9 +42,12 @@ import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.RatioDistribution;
 import edu.scripps.yates.shared.model.ScoreBean;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
-import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
-import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPSMs;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPeptides;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 import edu.scripps.yates.shared.util.SharedDataUtil;
 import edu.scripps.yates.shared.util.sublists.PeptideBeanSubList;
 import edu.scripps.yates.shared.util.sublists.ProteinBeanSubList;
@@ -298,17 +301,14 @@ public class DataSet {
 		log.info("Getting protein list from " + start + " to " + end + " dataset '" + getName() + "' in session ID: "
 				+ sessionId);
 		final List<ProteinBean> proteins2 = getProteins(start, end);
-		final List<ProteinBean> lightProteins = new ArrayList<ProteinBean>();
+		final List<ProteinBeanLight> lightProteins = new ArrayList<ProteinBeanLight>();
 		for (final ProteinBean heavyProtein : proteins2) {
-			final ProteinBean lightProteinBean = heavyProtein.cloneToLightProteinBean();
-			getPeptidesFromProtein(lightProteinBean);
+			getPeptidesFromProtein(heavyProtein);
+			final ProteinBeanLight lightProteinBean = heavyProtein.cloneToLightProteinBean();
 			lightProteins.add(lightProteinBean);
-			lightProteinBean.getDbIds().clear();
-			lightProteinBean.getPeptideDBIds().clear();
-			lightProteinBean.getPeptideDBIdsByCondition().clear();
 			lightProteinBean.getPeptides().clear();
 		}
-		return new ProteinBeanSubList(lightProteins, getProteins().size());
+		return ProteinBeanSubList.getLightProteinBeanSubListFromLightProteins(lightProteins, getProteins().size());
 //		return ProteinBeanSubList.getLightProteinBeanSubList(lightProteins, getProteins().size());
 	}
 
@@ -441,40 +441,45 @@ public class DataSet {
 		assignRatioDistributions(list);
 	}
 
-	public List<PSMBean> getPsmsFromPsmProvider(ContainsPSMs psmProvider) {
+	public List<PSMBean> getPsmsFromPsmProvider(ContainsLightPSMs psmProvider) {
 		log.info("Getting PSMs from psmProvider");
 		if (psmProvider instanceof ProteinBean) {
 			log.info("psmProvider is a Protein");
-			return getPsmsFromProtein((ProteinBean) psmProvider);
+			return getPsmsFromProtein((ProteinBeanLight) psmProvider);
 		} else if (psmProvider instanceof ProteinGroupBean) {
 			log.info("psmProvider is a ProteinGroup");
-			return getPsmsFromProteinGroup((ProteinGroupBean) psmProvider);
-		} else if (psmProvider instanceof PeptideBean) {
+			return getPsmsFromProteinGroup((ProteinGroupBeanLight) psmProvider);
+		} else if (psmProvider instanceof PeptideBeanLight) {
 			log.info("psmProvider is a peptide");
 			return getPsmsFromPeptide((PeptideBean) psmProvider);
 		}
 		return Collections.emptyList();
 	}
 
-	public List<PeptideBean> getPeptidesFromPeptideProvider(ContainsPeptides peptideProvider) {
+	public List<PeptideBean> getPeptidesFromPeptideProvider(ContainsLightPeptides peptideProvider) {
 
 		log.info("Getting peptides from peptideProvider");
-		if (peptideProvider instanceof ProteinBean) {
+		if (peptideProvider instanceof ProteinBeanLight) {
 			log.info("peptideProvider is a Protein");
-			return getPeptidesFromProtein((ProteinBean) peptideProvider);
-		} else if (peptideProvider instanceof ProteinGroupBean) {
+
+			final ProteinBeanLight proteinBeanLight = (ProteinBeanLight) peptideProvider;
+			final ProteinBean proteinBean = proteinsByProteinBeanUniqueIdentifier
+					.get(proteinBeanLight.getProteinBeanUniqueIdentifier());
+			return getPeptidesFromProtein(proteinBean);
+		} else if (peptideProvider instanceof ProteinGroupBeanLight) {
+
 			log.info("peptideProvider is a ProteinGroup");
-			return getPeptidesFromProteinGroup((ProteinGroupBean) peptideProvider);
+			return getPeptidesFromProteinGroup((ProteinGroupBeanLight) peptideProvider);
 		}
 		return Collections.emptyList();
 
 	}
 
-	public List<PSMBean> getPsmsFromProteinGroup(ProteinGroupBean proteinGroup) {
+	public List<PSMBean> getPsmsFromProteinGroup(ProteinGroupBeanLight proteinGroup) {
 		if (proteinGroup != null) {
 			log.info("Getting PSMs from protein Group " + proteinGroup.getPrimaryAccessionsString());
 			final List<PSMBean> ret = new ArrayList<PSMBean>();
-			for (final ProteinBean proteinBean : proteinGroup) {
+			for (final ProteinBeanLight proteinBean : proteinGroup) {
 				final List<PSMBean> psms2 = getPsmsFromPsmProvider(proteinBean);
 				for (final PSMBean psmBean : psms2) {
 					if (!ret.contains(psmBean)) {
@@ -483,6 +488,28 @@ public class DataSet {
 				}
 			}
 			log.info("ProteinGroup " + proteinGroup.getPrimaryAccessionsString() + " contains " + ret.size() + " PSMs");
+			return ret;
+		}
+		log.info("ProteinGroup is null...returning empty PSM list");
+		return Collections.emptyList();
+	}
+
+	private List<PeptideBean> getPeptidesFromProteinGroup(ProteinGroupBeanLight proteinGroupLight) {
+		if (proteinGroupLight != null) {
+			log.info("Getting Peptides from protein Group " + proteinGroupLight.getPrimaryAccessionsString());
+			final List<PeptideBean> ret = new ArrayList<PeptideBean>();
+			for (final ProteinBeanLight proteinBeanLight : proteinGroupLight) {
+				final ProteinBean proteinBean = proteinsByProteinBeanUniqueIdentifier
+						.get(proteinBeanLight.getProteinBeanUniqueIdentifier());
+				final List<PeptideBean> peptides2 = getPeptidesFromProtein(proteinBean);
+				for (final PeptideBean peptideBean : peptides2) {
+					if (!ret.contains(peptideBean)) {
+						ret.add(peptideBean);
+					}
+				}
+			}
+			log.info("ProteinGroup " + proteinGroupLight.getPrimaryAccessionsString() + " contains " + ret.size()
+					+ " Peptides");
 			return ret;
 		}
 		log.info("ProteinGroup is null...returning empty PSM list");
@@ -509,7 +536,7 @@ public class DataSet {
 		return Collections.emptyList();
 	}
 
-	public List<PSMBean> getPsmsFromProtein(ProteinBean protein) {
+	public List<PSMBean> getPsmsFromProtein(ProteinBeanLight protein) {
 		if (protein != null) {
 			log.info("Getting PSMs from protein " + protein.getPrimaryAccession().getAccession());
 			// search for the proteinbean with the same unique identifier
@@ -556,24 +583,24 @@ public class DataSet {
 		return Collections.emptyList();
 	}
 
-	private List<PeptideBean> getPeptidesFromProtein(ProteinBean lightProtein) {
+	private List<PeptideBean> getPeptidesFromProtein(ProteinBean protein) {
 
-		if (lightProtein != null) {
+		if (protein != null) {
 
-			log.debug("Getting Peptides from protein " + lightProtein.getPrimaryAccession().getAccession());
+			log.debug("Getting Peptides from protein " + protein.getPrimaryAccession().getAccession());
 			// search for the proteinbean with the same unique identifier
-			final int uniqueId = lightProtein.getProteinBeanUniqueIdentifier();
+			final int uniqueId = protein.getProteinBeanUniqueIdentifier();
 			if (proteinsByProteinBeanUniqueIdentifier.containsKey(uniqueId)) {
 
 				final ProteinBean proteinBean = proteinsByProteinBeanUniqueIdentifier.get(uniqueId);
 				if (!proteinBean.needsToQueryPeptides()) {
 					final List<PeptideBean> peptides2 = proteinBean.getPeptides();
-					log.debug("Protein " + lightProtein.getPrimaryAccession().getAccession() + " contains "
+					log.debug("Protein " + protein.getPrimaryAccession().getAccession() + " contains "
 							+ peptides2.size() + " peptides");
 					return peptides2;
 				} else {
 					// they are not retrieved yet from the database
-					log.debug("Peptide from proteins " + lightProtein.getPrimaryAccession().getAccession()
+					log.debug("Peptide from proteins " + protein.getPrimaryAccession().getAccession()
 							+ " were not retrived from DB yet....now querying them...");
 					final Set<Integer> peptideDBIds = proteinBean.getPeptideDBIds();
 					final TIntSet tintset = new TIntHashSet(peptideDBIds);
@@ -587,7 +614,7 @@ public class DataSet {
 								psmCentric).adapt();
 
 						ret.add(peptideBean);
-						peptideBean.addProteinToPeptide(lightProtein);
+						peptideBean.addProteinToPeptide(protein);
 						proteinBean.addPeptideToProtein(peptideBean);
 						//
 						final Map<String, Collection<Protein>> proteinsFromPeptides = PersistenceUtils

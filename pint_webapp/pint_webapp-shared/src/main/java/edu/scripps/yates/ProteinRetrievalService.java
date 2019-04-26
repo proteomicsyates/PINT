@@ -23,8 +23,8 @@ import edu.scripps.yates.shared.model.ProteinPeptideCluster;
 import edu.scripps.yates.shared.model.ProteinProjection;
 import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SampleBean;
-import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
-import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPSMs;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPeptides;
 import edu.scripps.yates.shared.tasks.Task;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantAnnotationDatabase;
 import edu.scripps.yates.shared.thirdparty.pseaquant.PSEAQuantCVTol;
@@ -147,11 +147,11 @@ public interface ProteinRetrievalService extends RemoteService {
 
 	String login(String clientToken, String userName, String password) throws PintException;
 
-	PsmBeanSubList getPsmBeansFromPsmProviderFromListSorted(String sessionID, ContainsPSMs psmProvider, int start,
+	PsmBeanSubList getPsmBeansFromPsmProviderFromListSorted(String sessionID, ContainsLightPSMs psmProvider, int start,
 			int end, Comparator<PSMBean> comparator, boolean ascending) throws PintException;
 
-	PsmBeanSubList getPsmBeansFromPsmProviderFromList(String sessionID, ContainsPSMs psmProvider, int start, int end)
-			throws PintException;
+	PsmBeanSubList getPsmBeansFromPsmProviderFromList(String sessionID, ContainsLightPSMs psmProvider, int start,
+			int end) throws PintException;
 
 	void closeSession(String sessionID) throws PintException;
 
@@ -162,7 +162,8 @@ public interface ProteinRetrievalService extends RemoteService {
 			PSEAQuantQuantType quantType, PSEAQuantAnnotationDatabase annotationDatabase, PSEAQuantCVTol cvTol,
 			Double cvTolFactor, PSEAQuantLiteratureBias literatureBias) throws PintException;
 
-	ProteinPeptideCluster getProteinsByPeptide(String sessionID, ContainsPeptides peptideProvider) throws PintException;
+	ProteinPeptideCluster getProteinsByPeptide(String sessionID, ContainsLightPeptides peptideProvider)
+			throws PintException;
 
 	PeptideBeanSubList getPeptideBeansFromListSorted(String sessionID, int start, int end,
 			Comparator<PeptideBean> comparator, boolean ascendant) throws PintException;
@@ -170,11 +171,11 @@ public interface ProteinRetrievalService extends RemoteService {
 	PeptideBeanSubList getPeptideBeansFromList(String sessionID, int start, int end) throws PintException;
 
 	PeptideBeanSubList getPeptideBeansFromPeptideProviderFromListSorted(String sessionID,
-			ContainsPeptides peptideProvider, int start, int end, Comparator<PeptideBean> comparator, boolean ascending)
-			throws PintException;
+			ContainsLightPeptides peptideProvider, int start, int end, Comparator<PeptideBean> comparator,
+			boolean ascending) throws PintException;
 
-	PeptideBeanSubList getPeptideBeansFromPeptideProviderFromList(String sessionID, ContainsPeptides peptideProvider,
-			int start, int end) throws PintException;
+	PeptideBeanSubList getPeptideBeansFromPeptideProviderFromList(String sessionID,
+			ContainsLightPeptides peptideProvider, int start, int end) throws PintException;
 
 	int getNumMSRuns() throws PintException;
 

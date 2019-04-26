@@ -10,7 +10,10 @@ import java.util.Set;
 
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPeptides;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 import edu.scripps.yates.shared.util.ProteinPeptideClusterAlignmentResults;
 
 public class ProteinPeptideCluster implements Serializable {
@@ -20,12 +23,12 @@ public class ProteinPeptideCluster implements Serializable {
 	 */
 	private static final long serialVersionUID = -7422548863426356304L;
 
-	private ContainsPeptides lightPeptideProvider;
-	private Set<PeptideBean> peptides = new HashSet<PeptideBean>();
+	private ContainsLightPeptides lightPeptideProvider;
+	private Set<PeptideBeanLight> peptides = new HashSet<PeptideBeanLight>();
 	private Set<Integer> peptideUniqueIdentifiers = new HashSet<Integer>();
-	private Set<ProteinBean> proteinSet = new HashSet<ProteinBean>();
+	private Set<ProteinBeanLight> proteinSet = new HashSet<ProteinBeanLight>();
 	private Set<Integer> proteinUniqueIdentifier = new HashSet<Integer>();
-	private Map<String, ProteinBean> proteinMap;
+	private Map<String, ProteinBeanLight> proteinMap;
 	private ProteinPeptideClusterAlignmentResults aligmentResults = new ProteinPeptideClusterAlignmentResults();
 
 	public ProteinPeptideCluster() {
@@ -47,7 +50,7 @@ public class ProteinPeptideCluster implements Serializable {
 			final ProteinBean protein = (ProteinBean) peptideProvider;
 			proteinSet.add(protein.cloneToLightProteinBean());
 			if (lightPeptideProvider instanceof ProteinBean) {
-				proteinSet.add((ProteinBean) lightPeptideProvider);
+				proteinSet.add((ProteinBeanLight) lightPeptideProvider);
 			}
 		} else {
 			final ProteinGroupBean proteinGroup = (ProteinGroupBean) peptideProvider;
@@ -85,7 +88,7 @@ public class ProteinPeptideCluster implements Serializable {
 					continue;
 				}
 				proteinUniqueIdentifier.add(proteinBean.getProteinBeanUniqueIdentifier());
-				final ProteinBean lightProteinBean = proteinBean.cloneToLightProteinBean();
+				final ProteinBeanLight lightProteinBean = proteinBean.cloneToLightProteinBean();
 				proteinSet.add(lightProteinBean);
 				if (!proteinBean.equals(peptideProvider)) {
 					proteinsToFollowUp.add(proteinBean);
@@ -102,45 +105,45 @@ public class ProteinPeptideCluster implements Serializable {
 	/**
 	 * @return the peptideProvider
 	 */
-	public ContainsPeptides getLightPeptideProvider() {
+	public ContainsLightPeptides getLightPeptideProvider() {
 		return lightPeptideProvider;
 	}
 
 	/**
 	 * @param peptideProvider the peptideProvider to set
 	 */
-	public void setLightPeptideProvider(ContainsPeptides peptideProvider) {
+	public void setLightPeptideProvider(ContainsLightPeptides peptideProvider) {
 		this.lightPeptideProvider = peptideProvider;
 	}
 
 	/**
 	 * @return the peptides
 	 */
-	public Set<PeptideBean> getPeptides() {
+	public Set<PeptideBeanLight> getPeptides() {
 		return peptides;
 	}
 
 	/**
 	 * @param peptides the peptides to set
 	 */
-	public void setPeptides(Set<PeptideBean> peptides) {
+	public void setPeptides(Set<PeptideBeanLight> peptides) {
 		this.peptides = peptides;
 	}
 
 	/**
 	 * @param proteins the proteins to set
 	 */
-	public void setProteins(Set<ProteinBean> proteins) {
+	public void setProteins(Set<ProteinBeanLight> proteins) {
 		proteinSet = proteins;
 	}
 
-	public Map<PeptideBean, Set<ProteinBean>> getRelationships() {
-		final Map<PeptideBean, Set<ProteinBean>> ret = new HashMap<PeptideBean, Set<ProteinBean>>();
-		final List<PeptideBean> peptides = lightPeptideProvider.getPeptides();
-		for (final PeptideBean peptideBean : peptides) {
+	public Map<PeptideBeanLight, Set<ProteinBeanLight>> getRelationships() {
+		final Map<PeptideBeanLight, Set<ProteinBeanLight>> ret = new HashMap<PeptideBeanLight, Set<ProteinBeanLight>>();
+		final List<PeptideBeanLight> peptides = lightPeptideProvider.getPeptides();
+		for (final PeptideBeanLight peptideBean : peptides) {
 
 			final List<AccessionBean> primaryAccessions = peptideBean.getPrimaryAccessions();
-			final Set<ProteinBean> proteins = new HashSet<ProteinBean>();
+			final Set<ProteinBeanLight> proteins = new HashSet<ProteinBeanLight>();
 			for (final AccessionBean acc : primaryAccessions) {
 				proteins.add(getProteinMap().get(acc.getAccession()));
 			}
@@ -153,25 +156,25 @@ public class ProteinPeptideCluster implements Serializable {
 		return ret;
 	}
 
-	private Map<String, ProteinBean> getProteinMap() {
+	private Map<String, ProteinBeanLight> getProteinMap() {
 		if (proteinMap == null) {
-			proteinMap = new HashMap<String, ProteinBean>();
-			for (final ProteinBean protein : proteinSet) {
+			proteinMap = new HashMap<String, ProteinBeanLight>();
+			for (final ProteinBeanLight protein : proteinSet) {
 				proteinMap.put(protein.getPrimaryAccession().getAccession(), protein);
 			}
 		}
 		return proteinMap;
 	}
 
-	public Map<PeptideBean, Set<ProteinBean>> getExtendedRelationships() {
-		final Map<PeptideBean, Set<ProteinBean>> ret = new HashMap<PeptideBean, Set<ProteinBean>>();
+	public Map<PeptideBeanLight, Set<ProteinBeanLight>> getExtendedRelationships() {
+		final Map<PeptideBeanLight, Set<ProteinBeanLight>> ret = new HashMap<PeptideBeanLight, Set<ProteinBeanLight>>();
 		final Set<String> seqs = new HashSet<String>();
-		for (final ProteinBean proteinBean : proteinSet) {
-			final List<PeptideBean> peptides = proteinBean.getPeptides();
-			for (final PeptideBean peptideBean : peptides) {
+		for (final ProteinBeanLight proteinBean : proteinSet) {
+			final List<PeptideBeanLight> peptides = proteinBean.getPeptides();
+			for (final PeptideBeanLight peptideBean : peptides) {
 
 				final List<AccessionBean> primaryAccessions = peptideBean.getPrimaryAccessions();
-				final Set<ProteinBean> proteins = new HashSet<ProteinBean>();
+				final Set<ProteinBeanLight> proteins = new HashSet<ProteinBeanLight>();
 				for (final AccessionBean acc : primaryAccessions) {
 					proteins.add(getProteinMap().get(acc.getAccession()));
 				}
@@ -204,14 +207,14 @@ public class ProteinPeptideCluster implements Serializable {
 	/**
 	 * @return the proteinSet
 	 */
-	public Set<ProteinBean> getProteinSet() {
+	public Set<ProteinBeanLight> getProteinSet() {
 		return proteinSet;
 	}
 
 	/**
 	 * @param proteinSet the proteinSet to set
 	 */
-	public void setProteinSet(Set<ProteinBean> proteinSet) {
+	public void setProteinSet(Set<ProteinBeanLight> proteinSet) {
 		this.proteinSet = proteinSet;
 	}
 

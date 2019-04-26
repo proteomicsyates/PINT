@@ -18,15 +18,15 @@ import edu.scripps.yates.client.gui.columns.footers.ProteinGroupFooterManager;
 import edu.scripps.yates.client.gui.components.dataprovider.AbstractAsyncDataProvider;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
-import edu.scripps.yates.shared.model.ProteinGroupBean;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.DefaultView.ORDER;
 import edu.scripps.yates.shared.util.SharedConstants;
 
-public class ProteinGroupTablePanel extends AbstractDataTable<ProteinGroupBean> {
+public class ProteinGroupTablePanel extends AbstractDataTable<ProteinGroupBeanLight> {
 
 	public ProteinGroupTablePanel(String sessionID, Widget emptyWidget,
-			AbstractAsyncDataProvider<ProteinGroupBean> asyncDataProvider, boolean multipleSelectionModel,
+			AbstractAsyncDataProvider<ProteinGroupBeanLight> asyncDataProvider, boolean multipleSelectionModel,
 			QueryPanel queryPanel) {
 		super(sessionID, emptyWidget, asyncDataProvider, multipleSelectionModel, "protein group table", queryPanel);
 	}
@@ -41,15 +41,16 @@ public class ProteinGroupTablePanel extends AbstractDataTable<ProteinGroupBean> 
 	}
 
 	@Override
-	public MyDataGrid<ProteinGroupBean> makeDataGrid() {
-		final ProvidesKey<ProteinGroupBean> KEY_PROVIDER = new ProvidesKey<ProteinGroupBean>() {
+	public MyDataGrid<ProteinGroupBeanLight> makeDataGrid() {
+		final ProvidesKey<ProteinGroupBeanLight> KEY_PROVIDER = new ProvidesKey<ProteinGroupBeanLight>() {
 			@Override
-			public Object getKey(ProteinGroupBean item) {
+			public Object getKey(ProteinGroupBeanLight item) {
 
 				return item == null ? null : item.getProteinDBString();
 			}
 		};
-		final MyDataGrid<ProteinGroupBean> dataGrid = new MyDataGrid<ProteinGroupBean>(KEY_PROVIDER, tableName);
+		final MyDataGrid<ProteinGroupBeanLight> dataGrid = new MyDataGrid<ProteinGroupBeanLight>(KEY_PROVIDER,
+				tableName);
 
 		return dataGrid;
 	}
@@ -86,13 +87,13 @@ public class ProteinGroupTablePanel extends AbstractDataTable<ProteinGroupBean> 
 	}
 
 	@Override
-	protected AbstractColumnManager<ProteinGroupBean> createColumnManager(
-			FooterManager<ProteinGroupBean> footerManager) {
+	protected AbstractColumnManager<ProteinGroupBeanLight> createColumnManager(
+			FooterManager<ProteinGroupBeanLight> footerManager) {
 		return new ProteinGroupColumnManager(footerManager, sessionID);
 	}
 
 	@Override
-	protected FooterManager<ProteinGroupBean> createFooterManager(MyDataGrid<ProteinGroupBean> dataGrid) {
+	protected FooterManager<ProteinGroupBeanLight> createFooterManager(MyDataGrid<ProteinGroupBeanLight> dataGrid) {
 		return new ProteinGroupFooterManager(dataGrid);
 	}
 

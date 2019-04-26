@@ -14,6 +14,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.interfaces.ContainsAmounts;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 
 /**
@@ -140,6 +141,24 @@ public class DataGridRenderValue implements Serializable {
 			}
 		}
 		return new DataGridRenderValue("-", null, "");
+	}
+
+	public static DataGridRenderValue getSPCPerConditionDataGridRenderValue(ContainsLightPSMs p, String conditionName,
+			String projectTag) {
+
+		final StringBuilder tooltip = new StringBuilder();
+
+		tooltip.append("Experimental condition: " + conditionName);
+
+		final int spc = p.getNumPSMsByCondition(projectTag, conditionName);
+		if (spc > 0) {
+			tooltip.append(SharedConstants.SEPARATOR + AmountType.SPC);
+			tooltip.append(SharedConstants.SEPARATOR + spc);
+			return new DataGridRenderValue(String.valueOf(spc), Integer.valueOf(spc).doubleValue(), tooltip.toString());
+		} else {
+			return new DataGridRenderValue("-", null, "");
+		}
+
 	}
 
 	public static DataGridRenderValue getSPCPerConditionDataGridRenderValue(ContainsPSMs p, String conditionName,

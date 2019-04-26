@@ -20,11 +20,12 @@ import edu.scripps.yates.shared.columns.comparator.ClientPeptideComparator;
 import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.RatioBean;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.UniprotFeatures;
 
-public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements MyIdColumn<PeptideBean> {
+public class PeptideTextColumn extends CustomTextColumn<PeptideBeanLight> implements MyIdColumn<PeptideBeanLight> {
 
 	private final ColumnName columnName;
 	private final Comparator<PeptideBean> comparator;
@@ -150,7 +151,7 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 	}
 
 	@Override
-	public String getValue(PeptideBean p) {
+	public String getValue(PeptideBeanLight p) {
 		final String value = ClientDataUtil.getPeptideColumnValue(columnName, p, conditionName, condition2Name,
 				projectTag, amountType, scoreName, ratioName, false);
 		// if (width == 0) {
@@ -173,7 +174,7 @@ public class PeptideTextColumn extends CustomTextColumn<PeptideBean> implements 
 	 * com.google.gwt.safehtml.shared.SafeHtmlBuilder)
 	 */
 	@Override
-	public void render(Context context, PeptideBean pep, SafeHtmlBuilder sb) {
+	public void render(Context context, PeptideBeanLight pep, SafeHtmlBuilder sb) {
 		// if (width == 0 || pep == null) {
 		if (pep == null) {
 			return;

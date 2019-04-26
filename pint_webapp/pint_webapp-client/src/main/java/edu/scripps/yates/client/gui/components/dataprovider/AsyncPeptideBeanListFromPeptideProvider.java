@@ -10,25 +10,26 @@ import com.google.gwt.view.client.Range;
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.PeptideBean;
-import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPeptides;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
 import edu.scripps.yates.shared.util.sublists.PeptideBeanSubList;
 
-public class AsyncPeptideBeanListFromPeptideProvider extends AbstractAsyncDataProvider<PeptideBean> {
-	private ContainsPeptides peptideProvider;
+public class AsyncPeptideBeanListFromPeptideProvider extends AbstractAsyncDataProvider<PeptideBeanLight> {
+	private ContainsLightPeptides peptideProvider;
 
 	public AsyncPeptideBeanListFromPeptideProvider(String sessionID) {
 		super(sessionID);
 	}
 
-	public AsyncPeptideBeanListFromPeptideProvider(ContainsPeptides peptideProvider, String sessionID) {
+	public AsyncPeptideBeanListFromPeptideProvider(ContainsLightPeptides peptideProvider, String sessionID) {
 		super(sessionID);
 		this.peptideProvider = peptideProvider;
 
 	}
 
 	@Override
-	protected void retrieveData(MyColumn<PeptideBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
-			final Range range) {
+	protected void retrieveData(MyColumn<PeptideBeanLight> column, final int start, int end,
+			ColumnSortInfo columnSortInfo, final Range range) {
 		if (peptideProvider == null) {
 			retrievingDataFinished();
 			return;
@@ -36,7 +37,7 @@ public class AsyncPeptideBeanListFromPeptideProvider extends AbstractAsyncDataPr
 		GWT.log("Getting proteins beans sorted from peptide bean provider");
 		Comparator<PeptideBean> comparator = null;
 		if (column != null) {
-			comparator = column.getComparator();
+			comparator = (Comparator<PeptideBean>) column.getComparator();
 		}
 		boolean isAscending = false;
 		if (columnSortInfo != null) {
@@ -76,7 +77,7 @@ public class AsyncPeptideBeanListFromPeptideProvider extends AbstractAsyncDataPr
 
 	}
 
-	public void setPeptideProvider(ContainsPeptides peptideProvider) {
+	public void setPeptideProvider(ContainsLightPeptides peptideProvider) {
 		if (peptideProvider != null && peptideProvider.equals(this.peptideProvider))
 			return;
 		this.peptideProvider = peptideProvider;

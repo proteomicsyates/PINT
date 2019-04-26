@@ -11,20 +11,20 @@ import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.PeptideColumns;
 import edu.scripps.yates.shared.model.AmountType;
-import edu.scripps.yates.shared.model.PeptideBean;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
 import edu.scripps.yates.shared.util.SharedDataUtil;
 
-public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
+public class PeptideColumnManager extends AbstractColumnManager<PeptideBeanLight> {
 
-	public PeptideColumnManager(FooterManager<PeptideBean> footerManager) {
+	public PeptideColumnManager(FooterManager<PeptideBeanLight> footerManager) {
 		super(footerManager);
 
 		final List<ColumnWithVisibility> columns = PeptideColumns.getInstance().getColumns();
-		for (ColumnWithVisibility columnWithOrder : columns) {
+		for (final ColumnWithVisibility columnWithOrder : columns) {
 			if (columnWithOrder.getColumn().isAddColumnByDefault()) {
 				final ColumnName columnName = columnWithOrder.getColumn();
 				if (columnName == ColumnName.LINK_TO_PRIDE_CLUSTER) {
-					final CustomClickableImageColumnOpenLinkToPRIDECluster<PeptideBean> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<PeptideBean>(
+					final CustomClickableImageColumnOpenLinkToPRIDECluster<PeptideBeanLight> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<PeptideBeanLight>(
 							columnName, columnWithOrder.isVisible(), null);
 					super.addColumn(customTextButtonColumn);
 				} else {
@@ -36,8 +36,8 @@ public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
 	}
 
 	@Override
-	protected MyIdColumn<PeptideBean> createColumn(ColumnName columnName, boolean visible) {
-		MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
+	protected MyIdColumn<PeptideBeanLight> createColumn(ColumnName columnName, boolean visible) {
+		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(columnName.getAbr()), columnName.getDescription());
 		return new PeptideTextColumn(columnName, visible, header, footerManager.getFooter(columnName));
 	}
@@ -73,7 +73,7 @@ public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
 	public PeptideTextColumn addRatioColumn(ColumnName columnName, boolean visibleState, String condition1Name,
 			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
 			String ratioName) {
-		String headerName = SharedDataUtil.getRatioHeader(ratioName, condition1Symbol, condition2Symbol);
+		final String headerName = SharedDataUtil.getRatioHeader(ratioName, condition1Symbol, condition2Symbol);
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName),
 				SharedDataUtil.getRatioHeaderTooltip(columnName, condition1Name, condition2Name, ratioName));
@@ -90,14 +90,14 @@ public class PeptideColumnManager extends AbstractColumnManager<PeptideBean> {
 	public PeptideTextColumn addRatioScoreColumn(ColumnName columnName, boolean visibleState, String condition1Name,
 			String condition1Symbol, String condition2Name, String condition2Symbol, String projectTag,
 			String ratioName, String scoreName) {
-		String headerName = SharedDataUtil.getRatioScoreHeader(scoreName, ratioName, condition1Symbol,
+		final String headerName = SharedDataUtil.getRatioScoreHeader(scoreName, ratioName, condition1Symbol,
 				condition2Symbol);
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(headerName), SharedDataUtil.getRatioScoreHeaderTooltip(columnName,
 						condition1Name, condition2Name, ratioName, scoreName));
-		final PeptideTextColumn column = new PeptideTextColumn(columnName,
-				visibleState, header, footerManager.getRatioScoreFooterByConditions(condition1Name, condition2Name,
-						projectTag, ratioName, scoreName),
+		final PeptideTextColumn column = new PeptideTextColumn(
+				columnName, visibleState, header, footerManager.getRatioScoreFooterByConditions(condition1Name,
+						condition2Name, projectTag, ratioName, scoreName),
 				condition1Name, condition2Name, projectTag, ratioName, scoreName);
 		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, condition1Name, condition1Symbol,
 				condition2Name, condition2Symbol, projectTag, ratioName, scoreName));

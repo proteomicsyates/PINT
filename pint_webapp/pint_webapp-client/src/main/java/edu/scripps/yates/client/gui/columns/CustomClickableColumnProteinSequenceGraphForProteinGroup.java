@@ -21,11 +21,11 @@ import com.google.gwt.user.client.ui.Label;
 import edu.scripps.yates.client.gui.components.WindowBox;
 import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.shared.columns.ColumnName;
-import edu.scripps.yates.shared.model.ProteinBean;
-import edu.scripps.yates.shared.model.ProteinGroupBean;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 
-public class CustomClickableColumnProteinSequenceGraphForProteinGroup extends Column<ProteinGroupBean, Void>
-		implements MyColumn<ProteinGroupBean> {
+public class CustomClickableColumnProteinSequenceGraphForProteinGroup extends Column<ProteinGroupBeanLight, Void>
+		implements MyColumn<ProteinGroupBeanLight> {
 	private final ColumnName columnName;
 	private boolean visibleState;
 	private final double defaultWidth;
@@ -52,20 +52,22 @@ public class CustomClickableColumnProteinSequenceGraphForProteinGroup extends Co
 	}
 
 	@Override
-	public final void onBrowserEvent(Context context, Element elem, final ProteinGroupBean object, NativeEvent event) {
+	public final void onBrowserEvent(Context context, Element elem, final ProteinGroupBeanLight object,
+			NativeEvent event) {
 		onBrowserEventImplementation(context, elem, object, event);
 		super.onBrowserEvent(context, elem, object, event);
 
 	}
 
-	private void onBrowserEventImplementation(Context context, Element elem, ProteinGroupBean p, NativeEvent event) {
+	private void onBrowserEventImplementation(Context context, Element elem, ProteinGroupBeanLight p,
+			NativeEvent event) {
 		final String type = event.getType();
 		if (type.equals(BrowserEvents.CLICK)) {
 			showPopUpDialogWithSequenceGraph(p);
 		}
 	}
 
-	private void showPopUpDialogWithSequenceGraph(ProteinGroupBean p) {
+	private void showPopUpDialogWithSequenceGraph(ProteinGroupBeanLight p) {
 
 		final FlexTable table = new FlexTable();
 		table.getElement().getStyle().setMargin(20, Unit.PX);
@@ -80,7 +82,7 @@ public class CustomClickableColumnProteinSequenceGraphForProteinGroup extends Co
 		table.getFlexCellFormatter().setColSpan(0, 0, 2);
 
 		int row = 1;
-		for (final ProteinBean proteinBean : p) {
+		for (final ProteinBeanLight proteinBean : p) {
 
 			final Label proteinLabel = new Label(proteinBean.getPrimaryAccession().getAccession());
 			proteinLabel.setTitle("Protein name: " + proteinBean.getDescriptionString() + "\n\n" + "Gene(s): "
@@ -115,7 +117,7 @@ public class CustomClickableColumnProteinSequenceGraphForProteinGroup extends Co
 	}
 
 	@Override
-	public void render(Context context, ProteinGroupBean p, SafeHtmlBuilder sb) {
+	public void render(Context context, ProteinGroupBeanLight p, SafeHtmlBuilder sb) {
 		sb.append(ClientSafeHtmlUtils.getProteinCoverageGraphic(p));
 		// super.render(context, object, sb);
 	}
@@ -167,13 +169,13 @@ public class CustomClickableColumnProteinSequenceGraphForProteinGroup extends Co
 	}
 
 	@Override
-	public Comparator<ProteinGroupBean> getComparator() {
+	public Comparator<ProteinGroupBeanLight> getComparator() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void getValue(ProteinGroupBean object) {
+	public Void getValue(ProteinGroupBeanLight object) {
 		return null;
 	}
 

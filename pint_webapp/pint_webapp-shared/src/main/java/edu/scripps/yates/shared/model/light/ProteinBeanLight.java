@@ -1,41 +1,53 @@
-package edu.scripps.yates.shared.model;
+package edu.scripps.yates.shared.model.light;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.scripps.yates.shared.model.AccessionBean;
+import edu.scripps.yates.shared.model.AccessionType;
+import edu.scripps.yates.shared.model.AmountBean;
+import edu.scripps.yates.shared.model.AmountType;
+import edu.scripps.yates.shared.model.ExperimentalConditionBean;
+import edu.scripps.yates.shared.model.GeneBean;
+import edu.scripps.yates.shared.model.MSRunBean;
+import edu.scripps.yates.shared.model.OmimEntryBean;
+import edu.scripps.yates.shared.model.OrganismBean;
+import edu.scripps.yates.shared.model.PSMBeanLight;
+import edu.scripps.yates.shared.model.PeptideRelation;
+import edu.scripps.yates.shared.model.ProteinAnnotationBean;
+import edu.scripps.yates.shared.model.ProteinEvidence;
+import edu.scripps.yates.shared.model.RatioBean;
+import edu.scripps.yates.shared.model.RatioDistribution;
+import edu.scripps.yates.shared.model.ReactomePathwayRef;
+import edu.scripps.yates.shared.model.ScoreBean;
+import edu.scripps.yates.shared.model.ThresholdBean;
+import edu.scripps.yates.shared.model.UniprotFeatureBean;
+import edu.scripps.yates.shared.model.UniprotProteinExistence;
 import edu.scripps.yates.shared.model.interfaces.ContainsAmounts;
-import edu.scripps.yates.shared.model.interfaces.ContainsConditions;
 import edu.scripps.yates.shared.model.interfaces.ContainsGenes;
-import edu.scripps.yates.shared.model.interfaces.ContainsId;
-import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
-import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPSMs;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPeptides;
 import edu.scripps.yates.shared.model.interfaces.ContainsPrimaryAccessions;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
 import edu.scripps.yates.shared.model.interfaces.ContainsScores;
-import edu.scripps.yates.shared.model.light.PeptideBeanLight;
-import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 import edu.scripps.yates.shared.util.SharedConstants;
 import edu.scripps.yates.shared.util.SharedDataUtil;
 
-public class ProteinBean
-		implements Comparable<ProteinBean>, Serializable, ContainsRatios, ContainsAmounts, ContainsId, ContainsGenes,
-		ContainsPrimaryAccessions, ContainsPSMs, ContainsPeptides, ContainsConditions, ContainsScores, Cloneable {
+public class ProteinBeanLight implements Comparable<ProteinBeanLight>, Serializable, ContainsRatios, ContainsAmounts,
+		ContainsGenes, ContainsPrimaryAccessions, ContainsLightPSMs, ContainsLightPeptides, ContainsScores {
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = -1435542806814270031L;
-	private Set<Integer> dbIds = new HashSet<Integer>();
-	private List<PSMBean> psms = new ArrayList<PSMBean>();
-	private List<PeptideBean> peptides = new ArrayList<PeptideBean>();
+	private List<PSMBeanLight> psms = new ArrayList<PSMBeanLight>();
+	private List<PeptideBeanLight> peptides = new ArrayList<PeptideBeanLight>();
 
 	private Set<AccessionBean> secondaryAccessions = new HashSet<AccessionBean>();
 
@@ -59,65 +71,29 @@ public class ProteinBean
 	private String alternativeNamesString;
 	private String geneString;
 	private String descriptionString;
-	private Set<MSRunBean> msruns = new HashSet<MSRunBean>();
-	private Set<Integer> psmIds = new HashSet<Integer>();
-	private Set<String> differentSequences = new HashSet<String>();
 	private OrganismBean organism;
-	private Set<String> functions = new HashSet<String>();
-	private Map<ExperimentalConditionBean, Set<Integer>> psmIdsByCondition = new HashMap<ExperimentalConditionBean, Set<Integer>>();
-	private final Map<ExperimentalConditionBean, Set<Integer>> peptideIdsByCondition = new HashMap<ExperimentalConditionBean, Set<Integer>>();
 
-	private Map<MSRunBean, Set<Integer>> psmIdsbyMSRun = new HashMap<MSRunBean, Set<Integer>>();
-
-	private Set<ExperimentalConditionBean> conditions = new HashSet<ExperimentalConditionBean>();
 	private Map<Integer, OmimEntryBean> omimEntries = new HashMap<Integer, OmimEntryBean>();
 	private int numPSMs;
 	private int numPeptides;
-	private ProteinBeanLight lightVersion;
 	private UniprotProteinExistence uniprotProteinExistence;
 	private char[] coverageArrayString;
 	private String ensemblID;
 	private Map<String, RatioDistribution> ratioDistributions;
 	private Map<String, List<UniprotFeatureBean>> uniprotFeatures = new HashMap<String, List<UniprotFeatureBean>>();
 	private List<ReactomePathwayRef> reactomePathways = new ArrayList<ReactomePathwayRef>();
-	private Set<Integer> peptideDBIds = new HashSet<Integer>();
 	private Map<String, ScoreBean> scores = new HashMap<String, ScoreBean>();
 	private Map<ExperimentalConditionBean, Integer> numPSMsByCondition;
 	private Map<String, PeptideRelation> peptideRelationsBySequence = new HashMap<String, PeptideRelation>();
 	private boolean annotated;
+	private String proteinDBString;
+	private String conditionsString;
+	private String functionString;
 	private static int uniqueIdentifiers = 0;
 	public static final String ANNOTATION_SEPARATOR = "###";
 
-	public ProteinBean() {
+	public ProteinBeanLight() {
 		proteinBeanUniqueIdentifier = uniqueIdentifiers++;
-	}
-
-	/**
-	 * @return the msruns
-	 */
-	public Set<MSRunBean> getMsruns() {
-		return msruns;
-	}
-
-	/**
-	 * @param msruns the msruns to set
-	 */
-	public void setMsruns(Set<MSRunBean> msruns) {
-		this.msruns = msruns;
-	}
-
-	/**
-	 * @return the psmIdsByCondition
-	 */
-	public Map<ExperimentalConditionBean, Set<Integer>> getPsmIdsByCondition() {
-		return psmIdsByCondition;
-	}
-
-	/**
-	 * @return the psmIdsbyMSRun
-	 */
-	public Map<MSRunBean, Set<Integer>> getPsmIdsbyMSRun() {
-		return psmIdsbyMSRun;
 	}
 
 	/**
@@ -142,23 +118,9 @@ public class ProteinBean
 	}
 
 	/**
-	 * @return the functions
-	 */
-	public Set<String> getFunctions() {
-		return functions;
-	}
-
-	/**
-	 * @param functions the functions to set
-	 */
-	public void setFunctions(Set<String> functions) {
-		this.functions = functions;
-	}
-
-	/**
 	 * @return the genes
 	 */
-	public Set<GeneBean> getGenes() {
+	private Set<GeneBean> getGenes() {
 		return genes;
 	}
 
@@ -206,21 +168,18 @@ public class ProteinBean
 
 	public String getProteinDBString() {
 
-		final List<Integer> sorted = new ArrayList<Integer>();
-		sorted.addAll(dbIds);
-		Collections.sort(sorted);
-		String ret = "";
-		for (final Integer integer : sorted) {
-			ret += integer + "-";
-		}
-		return ret;
+		return proteinDBString;
+	}
+
+	public void setProteinDBString(String proteinDBString) {
+		this.proteinDBString = proteinDBString;
 	}
 
 	/**
 	 * @return the psms
 	 */
 	@Override
-	public List<PSMBean> getPsms() {
+	public List<PSMBeanLight> getPsms() {
 		return psms;
 	}
 
@@ -228,14 +187,14 @@ public class ProteinBean
 	 * @return the psms
 	 */
 	@Override
-	public List<PeptideBean> getPeptides() {
+	public List<PeptideBeanLight> getPeptides() {
 		return peptides;
 	}
 
 	/**
 	 * @param psms the psms to set
 	 */
-	public void setPsms(List<PSMBean> psms) {
+	public void setPsms(List<PSMBeanLight> psms) {
 		this.psms = psms;
 	}
 
@@ -278,127 +237,38 @@ public class ProteinBean
 
 	}
 
-	public void addPSMtoProtein(PSMBean psmBean) {
-		if (psmBean == null || psms.contains(psmBean) || (psmIds.contains(psmBean.getDbID()) && !psms.isEmpty())) {
+	public void addPSMtoProtein(PSMBeanLight psmBeanLight) {
+		if (psmBeanLight == null || psms.contains(psmBeanLight)) {
 			return;
 		}
-		psms.add(psmBean);
-		psmBean.addProteinToPSM(this);
-		addPSMToMapByconditions(psmBean);
-		addPSMToMapByRuns(psmBean);
-		psmIds.add(psmBean.getDbID());
-		addPeptideToProtein(psmBean.getPeptideBean());
+		psms.add(psmBeanLight);
+		psmBeanLight.addProteinToPSM(this);
+
+		addPeptideToProtein(psmBeanLight.getPeptideBean());
 
 	}
 
-	private void addPSMToMapByconditions(PSMBean psmBean) {
-		// add to psm ids by conditions
-		final Set<ExperimentalConditionBean> conditions2 = psmBean.getConditions();
-		if (conditions2.isEmpty()) {
-			return;
-		}
-		for (final ExperimentalConditionBean experimentalConditionBean : conditions2) {
-			if (psmIdsByCondition.containsKey(experimentalConditionBean)) {
-				psmIdsByCondition.get(experimentalConditionBean).add(psmBean.getDbID());
-			} else {
-				final Set<Integer> set = new HashSet<Integer>();
-				set.add(psmBean.getDbID());
-				psmIdsByCondition.put(experimentalConditionBean, set);
-			}
-		}
-	}
-
-	private void addPSMToMapByRuns(PSMBean psmBean) {
-		// add to psm ids by conditions
-		final MSRunBean msrun = psmBean.getMsRun();
-
-		if (psmIdsbyMSRun.containsKey(msrun)) {
-			psmIdsbyMSRun.get(msrun).add(psmBean.getDbID());
-		} else {
-			final Set<Integer> set = new HashSet<Integer>();
-			set.add(psmBean.getDbID());
-			psmIdsbyMSRun.put(msrun, set);
-		}
-
-	}
-
-	public boolean addPeptideToProtein(PeptideBean peptideBean) {
-		if (peptideBean == null || peptides.contains(peptideBean))
+	public boolean addPeptideToProtein(PeptideBeanLight lightPeptide) {
+		if (lightPeptide == null || peptides.contains(lightPeptide))
 			return false;
-		final boolean ret = peptideDBIds.addAll(peptideBean.getDbIds());
-		peptides.add(peptideBean);
-		peptideBean.addProteinToPeptide(this);
-		final List<PSMBean> psms2 = peptideBean.getPsms();
-		for (final PSMBean psmBean : psms2) {
+
+		final boolean ret = peptides.add(lightPeptide);
+		lightPeptide.addProteinToPeptide(this);
+		final List<PSMBeanLight> psms2 = lightPeptide.getPsms();
+		for (final PSMBeanLight psmBean : psms2) {
 			addPSMtoProtein(psmBean);
 		}
 		return ret;
 	}
 
-	/**
-	 * @return the dbId
-	 */
-	public Set<Integer> getDbIds() {
-		return dbIds;
-	}
-
-	public void addDbId(int dbId) {
-		dbIds.add(dbId);
-	}
-
-	public void addDbIds(Collection<Integer> dbIds) {
-		this.dbIds.addAll(dbIds);
-	}
-
-	public void addDbIds(int[] dbIds) {
-		for (final int dbId : dbIds) {
-			this.dbIds.add(dbId);
-		}
-
-	}
-
-	/**
-	 * @param dbId the dbId to set
-	 */
-	public void setDbIds(Set<Integer> dbIds) {
-		this.dbIds = dbIds;
-	}
-
 	@Override
-	public int compareTo(ProteinBean proteinBean) {
+	public int compareTo(ProteinBeanLight proteinBean) {
 		return getPrimaryAccession().getAccession().compareTo(proteinBean.getPrimaryAccession().getAccession());
 
 	}
 
 	public String getDescriptionString() {
-		if (descriptionString == null) {
-			// to avoid redundancies, store first in a set
-			final List<String> list = new ArrayList<String>();
-			final StringBuilder sb = new StringBuilder();
-			final Set<AccessionBean> uniprotACCs = getAccessions(edu.scripps.yates.shared.model.AccessionType.UNIPROT);
-			if (uniprotACCs != null) {
-				for (final AccessionBean acc : uniprotACCs) {
-					if (!list.contains(acc.getDescription()) && acc.getDescription() != null) {
-						list.add(acc.getDescription());
-					}
-				}
-			}
-			final Set<AccessionBean> ipiACCs = getAccessions(edu.scripps.yates.shared.model.AccessionType.IPI);
-			if (ipiACCs != null && !ipiACCs.isEmpty()) {
 
-				for (final AccessionBean acc : ipiACCs) {
-					if (!list.contains(acc.getDescription()) && acc.getDescription() != null) {
-						list.add(acc.getDescription());
-					}
-				}
-			}
-			for (final String description : list) {
-				if (!"".equals(sb.toString()))
-					sb.append(",");
-				sb.append(description);
-			}
-			descriptionString = sb.toString();
-		}
 		return descriptionString;
 	}
 
@@ -542,7 +412,7 @@ public class ProteinBean
 	@Override
 	public List<GeneBean> getGenes(boolean onlyPrimary) {
 		final List<GeneBean> list = new ArrayList<GeneBean>();
-		for (final GeneBean gene : genes) {
+		for (final GeneBean gene : getGenes()) {
 			if (!onlyPrimary || GeneBean.PRIMARY.equals(gene.getGeneType())) {
 				list.add(gene);
 				if (onlyPrimary) {
@@ -555,36 +425,11 @@ public class ProteinBean
 		return list;
 	}
 
-	public GeneBean getRepresentativeGene() {
-
-		// look for a primary one
-		for (final GeneBean gene : genes) {
-			if (GeneBean.PRIMARY.equals(gene.getGeneType())) {
-				return gene;
-			}
-		}
-		if (!genes.isEmpty()) {
-			// sort genes by name alphabetically
-			final List<GeneBean> list = new ArrayList<GeneBean>();
-			list.addAll(genes);
-			Collections.sort(list, new Comparator<GeneBean>() {
-
-				@Override
-				public int compare(GeneBean o1, GeneBean o2) {
-					return o1.getName().compareTo(o2.getName());
-				}
-			});
-			// return the first one in the list
-			return list.get(0);
-		}
-		return null;
-	}
-
 	public void addGene(GeneBean gene) {
-		genes.add(gene);
+		getGenes().add(gene);
 	}
 
-	public String getGenesString(String type, boolean onlyPrimary) {
+	private String getGenesString(String type, boolean onlyPrimary) {
 
 		final StringBuilder sb = new StringBuilder();
 		final Set<String> set = new HashSet<String>();
@@ -615,26 +460,9 @@ public class ProteinBean
 	 * @param primaryAccession the primaryAccession to set
 	 */
 	public void setPrimaryAccession(AccessionBean primaryAccession) {
-		boolean overrideAcc = true;
-		if (primaryAccession != null && primaryAccession.getDescription() != null) {
-			if (primaryAccession.getDescription().startsWith("This entry was marked as obsolete")) {
-				overrideAcc = false;
-			}
-		}
-		if (this.primaryAccession == null || (overrideAcc && primaryAccession != null)) {
-			this.primaryAccession = primaryAccession;
-			// check whether there are one secondary accession equal to the
-			// primary, and in that case, remove it
-			if (getSecondaryAccessions() != null) {
-				final Iterator<AccessionBean> secondaryAccessionsIterator = secondaryAccessions.iterator();
-				while (secondaryAccessionsIterator.hasNext()) {
-					final AccessionBean secondaryAccession = secondaryAccessionsIterator.next();
-					if (secondaryAccession.getAccession().equals(primaryAccession.getAccession())) {
-						secondaryAccessionsIterator.remove();
-					}
-				}
-			}
-		}
+
+		this.primaryAccession = primaryAccession;
+
 	}
 
 	/**
@@ -709,19 +537,11 @@ public class ProteinBean
 		thresholds.add(threshold);
 	}
 
-	public void addCondition(ExperimentalConditionBean condition) {
-		conditions.add(condition);
-	}
-
 	/**
 	 * @return the numPSMs
 	 */
+	@Override
 	public int getNumPSMs() {
-		if (numPSMs == 0) {
-			for (final PeptideBean peptide : getPeptides()) {
-				numPSMs += peptide.getNumPSMs();
-			}
-		}
 		return numPSMs;
 	}
 
@@ -736,12 +556,6 @@ public class ProteinBean
 	 * @return the numPeptides
 	 */
 	public int getNumPeptides() {
-		if (numPeptides == 0) {
-			final Set<String> differentSequences2 = getDifferentSequences();
-			if (differentSequences2 != null && !differentSequences2.isEmpty()) {
-				numPeptides = differentSequences2.size();
-			}
-		}
 		return numPeptides;
 	}
 
@@ -852,32 +666,6 @@ public class ProteinBean
 		return ret;
 	}
 
-	public Set<String> getDifferentSequences() {
-		return differentSequences;
-	}
-
-	/**
-	 * @return the psmIds
-	 */
-	@Override
-	public Set<Integer> getPSMDBIds() {
-		return psmIds;
-	}
-
-	/**
-	 * @param psmIds the psmIds to set
-	 */
-	public void setPsmIds(Set<Integer> psmIds) {
-		this.psmIds = psmIds;
-	}
-
-	/**
-	 * @param differentSequences the differentSequences to set
-	 */
-	public void setDifferentSequences(Set<String> differentSequences) {
-		this.differentSequences = differentSequences;
-	}
-
 	/**
 	 * @return the evidence
 	 */
@@ -901,19 +689,11 @@ public class ProteinBean
 	}
 
 	public String getFunctionString() {
-		final StringBuilder sb = new StringBuilder();
-		for (final String function : functions) {
-			if (!"".equals(sb.toString()))
-				sb.append(SharedConstants.SEPARATOR);
-			sb.append(function.replace("\n", ""));
-		}
-		return sb.toString();
+		return functionString;
 	}
 
-	public void addFunction(String function) {
-		if (functions == null)
-			functions = new HashSet<String>();
-		functions.add(function);
+	public void setFunctionString(String functionString) {
+		this.functionString = functionString;
 	}
 
 	public void addUniprotFeature(UniprotFeatureBean uniprotFeature) {
@@ -953,11 +733,6 @@ public class ProteinBean
 	}
 
 	@Override
-	public String getId() {
-		return getPrimaryAccession().getAccession();
-	}
-
-	@Override
 	public List<AccessionBean> getPrimaryAccessions() {
 		final List<AccessionBean> list = new ArrayList<AccessionBean>();
 		list.add(getPrimaryAccession());
@@ -972,8 +747,8 @@ public class ProteinBean
 	}
 
 	/**
-	 * Returns true if the {@link ProteinBean} has been identified in the provided
-	 * projects, which means that at least one {@link AmountBean} or one
+	 * Returns true if the {@link ProteinBeanLight} has been identified in the
+	 * provided projects, which means that at least one {@link AmountBean} or one
 	 * {@link RatioBean} points to that project
 	 *
 	 * @param projectTag
@@ -1002,7 +777,7 @@ public class ProteinBean
 				}
 			}
 			if (psms != null) {
-				for (final PSMBean psmBean : psms) {
+				for (final PSMBeanLight psmBean : psms) {
 					if (psmBean.isFromThisProject(projectTag)) {
 						return true;
 					}
@@ -1010,104 +785,6 @@ public class ProteinBean
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * @return the psmIdsByCondition
-	 */
-	@Override
-	public Map<ExperimentalConditionBean, Set<Integer>> getPSMDBIdsByCondition() {
-		return psmIdsByCondition;
-	}
-
-	/**
-	 * @param psmIdsByCondition the psmIdsByCondition to set
-	 */
-	public void setPsmIdsByCondition(Map<ExperimentalConditionBean, Set<Integer>> psmIdsByCondition) {
-		this.psmIdsByCondition = psmIdsByCondition;
-	}
-
-	/**
-	 * @param psmIdsbyMSRun the psmIdsbyMSRun to set
-	 */
-	public void setPsmIdsbyMSRun(Map<MSRunBean, Set<Integer>> psmIdsbyMSRun) {
-		this.psmIdsbyMSRun = psmIdsbyMSRun;
-	}
-
-	/**
-	 * Creates a light version of a {@link ProteinBean}, without any list of
-	 * {@link PSMBean} or PSMIds
-	 *
-	 * @return
-	 */
-	public ProteinBeanLight cloneToLightProteinBean() {
-		if (getLightVersion() == null) {
-			setLightVersion(new ProteinBeanLight());
-
-			// ret.psms.addAll(getPsms());
-
-			getLightVersion().setAlternativeNamesString(getAlternativeNamesString());
-			getLightVersion().setAmounts(getAmounts());
-			getLightVersion().setAmountsByExperimentalCondition(getAmountsByExperimentalCondition());
-			getLightVersion().setAmountsByMSRunID(getAmountsByMSRunID());
-			getLightVersion().setAnnotations(getAnnotations());
-			getLightVersion().setCoverage(getCoverage());
-//			lightVersion.dbIds.addAll(dbIds);
-			getLightVersion().setDescriptionString(getDescriptionString());
-			getLightVersion().setNumPeptides(getDifferentSequences().size());
-			getLightVersion().setDescriptionString(getDescriptionString());
-			getLightVersion().setEvidence(getEvidence());
-			getLightVersion().setGenes(getGenes());
-			getLightVersion().setGeneString(getGeneString());
-			getLightVersion().setLength(getLength());
-			getLightVersion().setMw(getMw());
-			getLightVersion().setOrganism(getOrganism());
-			getLightVersion().setPi(getPi());
-			getLightVersion().setPrimaryAccession(getPrimaryAccession());
-			getLightVersion().setProteinBeanUniqueIdentifier(getProteinBeanUniqueIdentifier());
-			// ret.psmIds.addAll(psmIds);
-//			lightVersion.setNumPSMs(getPSMDBIds().size());
-			getLightVersion().setNumPSMs(getNumPSMs());
-			getLightVersion().setNumPSMsByCondition(getNumPSMsByCondition());
-			// disabled for performance
-			// ret.psmIdsByCondition.putAll(getPsmIdsByCondition());
-			getLightVersion().setRatios(getRatios());
-			getLightVersion().setScores(getScores());
-			getLightVersion().setRatiosByExperimentalcondition(getRatiosByExperimentalcondition());
-			getLightVersion().setSecondaryAccessions(getSecondaryAccessions());
-			getLightVersion().setThresholds(getThresholds());
-			getLightVersion().setConditionsString(getConditionsString());
-			getLightVersion().setOmimEntries(getOmimEntries());
-			getLightVersion().setUniprotFeatures(getUniprotFeatures());
-			getLightVersion().setUniprotProteinExistence(getUniprotProteinExistence());
-			getLightVersion().setProteinDBString(getProteinDBString());
-			getLightVersion().setFunctionString(getFunctionString());
-			// allow peptides in proteins.
-			// IMPORTANT: do it after cloning all the other features of the
-			// protein
-			for (final PeptideBean peptideBean : getPeptides()) {
-				final PeptideBeanLight lightPeptide = peptideBean.cloneToLightPeptideBean();
-				getLightVersion().addPeptideToProtein(lightPeptide);
-			}
-//			lightVersion.getPSMDBIds().addAll(getPSMDBIds());
-//			lightVersion.getPeptideDBIds().addAll(getPeptideDBIds());
-			getLightVersion().setCoverageArrayString(getCoverageArrayString());
-			getLightVersion().setRatioDistributions(getRatioDistributions());
-			getLightVersion().setReactomePathways(getReactomePathways());
-
-			getLightVersion().setPeptideRelationsBySequence(getPeptideRelationsBySequence());
-
-		}
-		if (needsToQueryPeptides()) {
-			for (final PeptideBean peptideBean : getPeptides()) {
-				PeptideBeanLight lightPeptide = peptideBean.getLightVersion();
-				if (lightPeptide == null) {
-					lightPeptide = peptideBean.cloneToLightPeptideBean();
-				}
-				getLightVersion().addPeptideToProtein(lightPeptide);
-			}
-		}
-		return getLightVersion();
 	}
 
 	@Override
@@ -1120,23 +797,12 @@ public class ProteinBean
 		return ratioScores;
 	}
 
-	/**
-	 * @return the conditions
-	 */
-	@Override
-	public Set<ExperimentalConditionBean> getConditions() {
-		return conditions;
-	}
-
-	/**
-	 * @param conditions the conditions to set
-	 */
-	public void setConditions(Set<ExperimentalConditionBean> conditions) {
-		this.conditions = conditions;
-	}
-
 	public String getConditionsString() {
-		return SharedDataUtil.getConditionString(this);
+		return conditionsString;
+	}
+
+	public void setConditionsString(String conditionsString) {
+		this.conditionsString = conditionsString;
 	}
 
 	public void addOMIMEntries(Collection<OmimEntryBean> omimEntries) {
@@ -1199,7 +865,7 @@ public class ProteinBean
 	/**
 	 * @param peptides the peptides to set
 	 */
-	public void setPeptides(List<PeptideBean> peptides) {
+	public void setPeptides(List<PeptideBeanLight> peptides) {
 		this.peptides = peptides;
 	}
 
@@ -1270,11 +936,6 @@ public class ProteinBean
 		return ensemblID;
 	}
 
-	public void addMsrun(MSRunBean msRun) {
-		msruns.add(msRun);
-
-	}
-
 	@Override
 	public Map<String, RatioDistribution> getRatioDistributions() {
 		if (ratioDistributions == null) {
@@ -1343,18 +1004,6 @@ public class ProteinBean
 
 	}
 
-	@Override
-	public Set<Integer> getPeptideDBIds() {
-		return peptideDBIds;
-	}
-
-	/**
-	 * @param peptideDBIds the peptideDBIds to set
-	 */
-	public void setPeptideDBIds(Set<Integer> peptideDBIds) {
-		this.peptideDBIds = peptideDBIds;
-	}
-
 	public void setEnsemblID(String ensemblID) {
 		this.ensemblID = ensemblID;
 	}
@@ -1406,35 +1055,7 @@ public class ProteinBean
 
 	@Override
 	public Map<ExperimentalConditionBean, Integer> getNumPSMsByCondition() {
-		if (numPSMsByCondition == null) {
-			numPSMsByCondition = new HashMap<ExperimentalConditionBean, Integer>();
-			// this is only going to work for psmCentric
-			// but for peptideCentric this is going to be filled in the adapter
-			final Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition = getPSMDBIdsByCondition();
-			for (final ExperimentalConditionBean conditionBean : psmdbIdsByCondition.keySet()) {
-				numPSMsByCondition.put(conditionBean, psmdbIdsByCondition.get(conditionBean).size());
-			}
-		}
 		return numPSMsByCondition;
-	}
-
-	public Map<ExperimentalConditionBean, Set<Integer>> getPeptideDBIdsByCondition() {
-		return peptideIdsByCondition;
-	}
-
-	public void addDifferentSequence(String sequence) {
-		differentSequences.add(sequence);
-	}
-
-	public void addDifferentSequences(Set<String> differentSequences) {
-		this.differentSequences.addAll(differentSequences);
-	}
-
-	public void addPeptideDBId(Integer peptideDBId) {
-		if (peptideDBIds == null) {
-			peptideDBIds = new HashSet<Integer>();
-		}
-		peptideDBIds.add(peptideDBId);
 	}
 
 	public void addPeptideRelation(String peptideSequence, PeptideRelation peptideRelation) {
@@ -1449,24 +1070,6 @@ public class ProteinBean
 		this.peptideRelationsBySequence = peptideRelationsBySequence;
 	}
 
-	/**
-	 * Returns true if some peptideDBIds are not retrieved yet
-	 * 
-	 * @return
-	 */
-	public boolean needsToQueryPeptides() {
-		final List<PeptideBean> peptides2 = getPeptides();
-		final Set<Integer> peptideDBIds3 = new HashSet<Integer>();
-		for (final PeptideBean peptideBean : peptides2) {
-			peptideDBIds3.addAll(peptideBean.getDbIds());
-		}
-		if (peptideDBIds3.size() != getPeptideDBIds().size()) {
-
-			return true;
-		}
-		return false;
-	}
-
 	public void setAnnotated(boolean b) {
 		this.annotated = b;
 	}
@@ -1475,11 +1078,7 @@ public class ProteinBean
 		return annotated;
 	}
 
-	public ProteinBeanLight getLightVersion() {
-		return lightVersion;
-	}
-
-	public void setLightVersion(ProteinBeanLight lightVersion) {
-		this.lightVersion = lightVersion;
+	public void setNumPSMsByCondition(Map<ExperimentalConditionBean, Integer> numPSMsByCondition2) {
+		this.numPSMsByCondition = numPSMsByCondition2;
 	}
 }

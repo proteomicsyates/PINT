@@ -15,18 +15,18 @@ import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.ProteinGroupColumns;
 import edu.scripps.yates.shared.model.AmountType;
-import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.ProteinPeptideCluster;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.SharedDataUtil;
 
-public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGroupBean> {
+public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGroupBeanLight> {
 
-	public ProteinGroupColumnManager(FooterManager<ProteinGroupBean> footerManager, String sessionID) {
+	public ProteinGroupColumnManager(FooterManager<ProteinGroupBeanLight> footerManager, String sessionID) {
 		this(footerManager, null, sessionID);
 	}
 
-	public ProteinGroupColumnManager(FooterManager<ProteinGroupBean> footerManager, DefaultView defaultView,
+	public ProteinGroupColumnManager(FooterManager<ProteinGroupBeanLight> footerManager, DefaultView defaultView,
 			String sessionID) {
 
 		super(footerManager);
@@ -39,7 +39,7 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 		for (final ColumnWithVisibility columnWithVisibility : columns) {
 			if (columnWithVisibility.getColumn().isAddColumnByDefault()) {
 				if (columnWithVisibility.getColumn() == ColumnName.PEPTIDES_TABLE_BUTTON) {
-					final CustomClickableImageColumnShowPeptideTable<ProteinGroupBean> column = new CustomClickableImageColumnShowPeptideTable<ProteinGroupBean>(
+					final CustomClickableImageColumnShowPeptideTable<ProteinGroupBeanLight> column = new CustomClickableImageColumnShowPeptideTable<ProteinGroupBeanLight>(
 							sessionID, columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
 					column.setFieldUpdater(getMyFieldUpdater(column, sessionID));
 					super.addColumn(column);
@@ -58,7 +58,7 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 	}
 
 	@Override
-	protected MyColumn<ProteinGroupBean> createColumn(ColumnName columnName, boolean visible) {
+	protected MyColumn<ProteinGroupBeanLight> createColumn(ColumnName columnName, boolean visible) {
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(columnName.getAbr()), columnName.getDescription());
 		return new ProteinGroupTextColumn(columnName, visible, header, footerManager.getFooter(columnName));
@@ -98,7 +98,7 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 	}
 
 	@Override
-	public CustomTextColumn<ProteinGroupBean> addScoreColumn(ColumnName columnName, boolean visibleState,
+	public CustomTextColumn<ProteinGroupBeanLight> addScoreColumn(ColumnName columnName, boolean visibleState,
 			String scoreName) {
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(scoreName), scoreName);
@@ -110,7 +110,7 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 	}
 
 	@Override
-	public CustomTextColumn<ProteinGroupBean> addRatioScoreColumn(ColumnName columnName, boolean visibleState,
+	public CustomTextColumn<ProteinGroupBeanLight> addRatioScoreColumn(ColumnName columnName, boolean visibleState,
 			String condition1Name, String condition1Symbol, String condition2Name, String condition2Symbol,
 			String projectTag, String ratioName, String ratioScore) {
 		final String headerName = SharedDataUtil.getRatioScoreHeader(ratioScore, ratioName, condition1Symbol,
@@ -128,13 +128,13 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 		return column;
 	}
 
-	private FieldUpdater<ProteinGroupBean, ImageResource> getMyFieldUpdater(
-			final CustomClickableImageColumnShowPeptideTable<ProteinGroupBean> customTextButtonColumn,
+	private FieldUpdater<ProteinGroupBeanLight, ImageResource> getMyFieldUpdater(
+			final CustomClickableImageColumnShowPeptideTable<ProteinGroupBeanLight> customTextButtonColumn,
 			final String sessionID) {
-		final FieldUpdater<ProteinGroupBean, ImageResource> ret = new FieldUpdater<ProteinGroupBean, ImageResource>() {
+		final FieldUpdater<ProteinGroupBeanLight, ImageResource> ret = new FieldUpdater<ProteinGroupBeanLight, ImageResource>() {
 
 			@Override
-			public void update(int index, final ProteinGroupBean proteinBean, ImageResource image) {
+			public void update(int index, final ProteinGroupBeanLight proteinBean, ImageResource image) {
 				service.getProteinsByPeptide(sessionID, proteinBean, new AsyncCallback<ProteinPeptideCluster>() {
 
 					@Override

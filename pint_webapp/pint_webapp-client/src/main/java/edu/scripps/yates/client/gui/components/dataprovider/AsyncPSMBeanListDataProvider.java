@@ -10,21 +10,22 @@ import com.google.gwt.view.client.Range;
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.PSMBean;
+import edu.scripps.yates.shared.model.PSMBeanLight;
 import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;
 
-public class AsyncPSMBeanListDataProvider extends AbstractAsyncDataProvider<PSMBean> {
+public class AsyncPSMBeanListDataProvider extends AbstractAsyncDataProvider<PSMBeanLight> {
 
 	public AsyncPSMBeanListDataProvider(String sessionID) {
 		super(sessionID);
 	}
 
 	@Override
-	protected void retrieveData(MyColumn<PSMBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
+	protected void retrieveData(MyColumn<PSMBeanLight> column, final int start, int end, ColumnSortInfo columnSortInfo,
 			final Range range) {
 		GWT.log("Getting PSM beans sorted");
 		Comparator<PSMBean> comparator = null;
 		if (column != null) {
-			comparator = column.getComparator();
+			comparator = (Comparator<PSMBean>) column.getComparator();
 		}
 		boolean isAscending = false;
 		if (columnSortInfo != null) {

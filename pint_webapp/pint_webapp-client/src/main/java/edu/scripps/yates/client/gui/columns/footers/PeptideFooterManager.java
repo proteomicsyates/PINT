@@ -13,13 +13,13 @@ import edu.scripps.yates.client.util.ClientNumberFormat;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountBean;
 import edu.scripps.yates.shared.model.AmountType;
-import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.RatioBean;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
 import edu.scripps.yates.shared.util.DataGridRenderValue;
 import edu.scripps.yates.shared.util.SharedMaths;
 
-public class PeptideFooterManager extends FooterManager<PeptideBean> {
-	public PeptideFooterManager(MyDataGrid<PeptideBean> datagrid) {
+public class PeptideFooterManager extends FooterManager<PeptideBeanLight> {
+	public PeptideFooterManager(MyDataGrid<PeptideBeanLight> datagrid) {
 		super(datagrid);
 		final ColumnName[] columnNames = ColumnName.values();
 		for (final ColumnName columnName : columnNames) {
@@ -56,12 +56,12 @@ public class PeptideFooterManager extends FooterManager<PeptideBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PeptideBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PeptideBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "-";
 				} else {
 					final List<Double> validAmounts = new ArrayList<Double>();
-					for (final PeptideBean item : visibleItems) {
+					for (final PeptideBeanLight item : visibleItems) {
 						boolean validAmount = false;
 						final List<AmountBean> amounts = item.getAmountsByExperimentalCondition().get(conditionName);
 						if (amounts == null || amounts.isEmpty())
@@ -111,12 +111,12 @@ public class PeptideFooterManager extends FooterManager<PeptideBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PeptideBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PeptideBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					final List<Double> validRatios = new ArrayList<Double>();
-					for (final PeptideBean item : visibleItems) {
+					for (final PeptideBeanLight item : visibleItems) {
 						final List<RatioBean> ratios = item.getRatiosByConditions(condition1Name, condition2Name,
 								projectTag, ratioName, true);
 						if (ratios == null || ratios.isEmpty())
@@ -163,13 +163,13 @@ public class PeptideFooterManager extends FooterManager<PeptideBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PeptideBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PeptideBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					int sum = 0;
 					int total = 0;
-					for (final PeptideBean item : visibleItems) {
+					for (final PeptideBeanLight item : visibleItems) {
 						final int specCount = item.getNumPSMs();
 						if (specCount > 0) {
 							sum += specCount;
@@ -187,13 +187,13 @@ public class PeptideFooterManager extends FooterManager<PeptideBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PeptideBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PeptideBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					int sumLength = 0;
 					int total = 0;
-					for (final PeptideBean item : visibleItems) {
+					for (final PeptideBeanLight item : visibleItems) {
 						final int length = item.getLength();
 						if (length > 0) {
 							sumLength += length;
@@ -225,12 +225,12 @@ public class PeptideFooterManager extends FooterManager<PeptideBean> {
 		final Header<String> header = new Header<String>(new TextCell()) {
 			@Override
 			public String getValue() {
-				final List<PeptideBean> visibleItems = dataGrid.getVisibleItems();
+				final List<PeptideBeanLight> visibleItems = dataGrid.getVisibleItems();
 				if (visibleItems.size() == 0) {
 					return "";
 				} else {
 					final List<Double> validRatioScores = new ArrayList<Double>();
-					for (final PeptideBean item : visibleItems) {
+					for (final PeptideBeanLight item : visibleItems) {
 						final List<RatioBean> ratios = item.getRatiosByConditions(condition1Name, condition2Name,
 								projectTag, ratioName, true);
 						if (ratios == null || ratios.isEmpty())

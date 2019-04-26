@@ -16,18 +16,19 @@ import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.columns.ColumnWithVisibility;
 import edu.scripps.yates.shared.columns.ProteinColumns;
 import edu.scripps.yates.shared.model.AmountType;
-import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ProteinPeptideCluster;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 import edu.scripps.yates.shared.util.DefaultView;
 import edu.scripps.yates.shared.util.SharedDataUtil;
 
-public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
+public class ProteinColumnManager extends AbstractColumnManager<ProteinBeanLight> {
 
-	public ProteinColumnManager(FooterManager<ProteinBean> footerManager, String sessionID) {
+	public ProteinColumnManager(FooterManager<ProteinBeanLight> footerManager, String sessionID) {
 		this(footerManager, null, sessionID);
 	}
 
-	public ProteinColumnManager(FooterManager<ProteinBean> footerManager, DefaultView defaultView, String sessionID) {
+	public ProteinColumnManager(FooterManager<ProteinBeanLight> footerManager, DefaultView defaultView,
+			String sessionID) {
 
 		super(footerManager);
 		List<ColumnWithVisibility> columns = null;
@@ -40,11 +41,11 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 			GWT.log(columnWithVisibility.getColumn().getName() + " column");
 			if (columnWithVisibility.getColumn().isAddColumnByDefault()) {
 				if (columnWithVisibility.getColumn() == ColumnName.LINK_TO_PRIDE_CLUSTER) {
-					final CustomClickableImageColumnOpenLinkToPRIDECluster<ProteinBean> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<ProteinBean>(
+					final CustomClickableImageColumnOpenLinkToPRIDECluster<ProteinBeanLight> customTextButtonColumn = new CustomClickableImageColumnOpenLinkToPRIDECluster<ProteinBeanLight>(
 							columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
 					super.addColumn(customTextButtonColumn);
 				} else if (columnWithVisibility.getColumn() == ColumnName.PEPTIDES_TABLE_BUTTON) {
-					final CustomClickableImageColumnShowPeptideTable<ProteinBean> customTextButtonColumn = new CustomClickableImageColumnShowPeptideTable<ProteinBean>(
+					final CustomClickableImageColumnShowPeptideTable<ProteinBeanLight> customTextButtonColumn = new CustomClickableImageColumnShowPeptideTable<ProteinBeanLight>(
 							sessionID, columnWithVisibility.getColumn(), columnWithVisibility.isVisible(), null);
 					customTextButtonColumn.setFieldUpdater(getMyFieldUpdater(customTextButtonColumn, sessionID));
 					super.addColumn(customTextButtonColumn);
@@ -71,7 +72,7 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 	}
 
 	@Override
-	protected MyColumn<ProteinBean> createColumn(ColumnName columnName, boolean visible) {
+	protected MyColumn<ProteinBeanLight> createColumn(ColumnName columnName, boolean visible) {
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(columnName.getAbr()), columnName.getDescription());
 		return new ProteinTextColumn(columnName, visible, header, footerManager.getFooter(columnName));
@@ -131,7 +132,8 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 	}
 
 	@Override
-	public CustomTextColumn<ProteinBean> addScoreColumn(ColumnName columnName, boolean visibleState, String scoreName) {
+	public CustomTextColumn<ProteinBeanLight> addScoreColumn(ColumnName columnName, boolean visibleState,
+			String scoreName) {
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName,
 				SafeHtmlUtils.fromSafeConstant(scoreName), scoreName);
 		final ProteinTextColumn column = new ProteinTextColumn(columnName, visibleState, header,
@@ -141,19 +143,19 @@ public class ProteinColumnManager extends AbstractColumnManager<ProteinBean> {
 		return column;
 	}
 
-	private FieldUpdater<ProteinBean, ImageResource> getMyFieldUpdater(
-			final CustomClickableImageColumnShowPeptideTable<ProteinBean> customTextButtonColumn,
+	private FieldUpdater<ProteinBeanLight, ImageResource> getMyFieldUpdater(
+			final CustomClickableImageColumnShowPeptideTable<ProteinBeanLight> customTextButtonColumn,
 			final String sessionID) {
-		final FieldUpdater<ProteinBean, ImageResource> ret = new FieldUpdater<ProteinBean, ImageResource>() {
+		final FieldUpdater<ProteinBeanLight, ImageResource> ret = new FieldUpdater<ProteinBeanLight, ImageResource>() {
 
 			@Override
-			public void update(int index, final ProteinBean proteinBean, ImageResource image) {
+			public void update(int index, final ProteinBeanLight ProteinBeanLight, ImageResource image) {
 
-				service.getProteinsByPeptide(sessionID, proteinBean, new AsyncCallback<ProteinPeptideCluster>() {
+				service.getProteinsByPeptide(sessionID, ProteinBeanLight, new AsyncCallback<ProteinPeptideCluster>() {
 
 					@Override
 					public void onSuccess(ProteinPeptideCluster result) {
-						customTextButtonColumn.showSharingPeptidesTablePanel(proteinBean, result);
+						customTextButtonColumn.showSharingPeptidesTablePanel(ProteinBeanLight, result);
 					}
 
 					@Override

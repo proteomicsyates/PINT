@@ -10,21 +10,22 @@ import com.google.gwt.view.client.Range;
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.ProteinBean;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 import edu.scripps.yates.shared.util.sublists.ProteinBeanSubList;
 
-public class AsyncProteinBeanListDataProvider extends AbstractAsyncDataProvider<ProteinBean> {
+public class AsyncProteinBeanListDataProvider extends AbstractAsyncDataProvider<ProteinBeanLight> {
 
 	public AsyncProteinBeanListDataProvider(String sessionID) {
 		super(sessionID);
 	}
 
 	@Override
-	protected void retrieveData(MyColumn<ProteinBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
-			final Range range) {
+	protected void retrieveData(MyColumn<ProteinBeanLight> column, final int start, int end,
+			ColumnSortInfo columnSortInfo, final Range range) {
 		GWT.log("Getting proteins beans sorted");
 		Comparator<ProteinBean> comparator = null;
 		if (column != null) {
-			comparator = column.getComparator();
+			comparator = (Comparator<ProteinBean>) column.getComparator();
 		}
 		boolean isAscending = false;
 		if (columnSortInfo != null) {

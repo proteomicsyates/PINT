@@ -10,9 +10,10 @@ import com.google.gwt.view.client.Range;
 import edu.scripps.yates.client.gui.columns.MyColumn;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.model.PeptideBean;
+import edu.scripps.yates.shared.model.light.PeptideBeanLight;
 import edu.scripps.yates.shared.util.sublists.PeptideBeanSubList;
 
-public class AsyncPeptideBeanListDataProvider extends AbstractAsyncDataProvider<PeptideBean> {
+public class AsyncPeptideBeanListDataProvider extends AbstractAsyncDataProvider<PeptideBeanLight> {
 	private boolean isReadyForProvidingData = false;
 
 	public AsyncPeptideBeanListDataProvider(String sessionID) {
@@ -20,8 +21,8 @@ public class AsyncPeptideBeanListDataProvider extends AbstractAsyncDataProvider<
 	}
 
 	@Override
-	protected void retrieveData(MyColumn<PeptideBean> column, final int start, int end, ColumnSortInfo columnSortInfo,
-			final Range range) {
+	protected void retrieveData(MyColumn<PeptideBeanLight> column, final int start, int end,
+			ColumnSortInfo columnSortInfo, final Range range) {
 		if (!isReadyForProvidingData) {
 			GWT.log("Asynchronous data provider for peptides is not set to ready, so it will not ask for data");
 			retrievingDataFinished();
@@ -30,7 +31,7 @@ public class AsyncPeptideBeanListDataProvider extends AbstractAsyncDataProvider<
 		GWT.log("Getting peptide beans sorted");
 		Comparator<PeptideBean> comparator = null;
 		if (column != null) {
-			comparator = column.getComparator();
+			comparator = (Comparator<PeptideBean>) column.getComparator();
 		}
 		boolean isAscending = false;
 		if (columnSortInfo != null) {

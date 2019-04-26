@@ -23,11 +23,13 @@ import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.ProteinPeptideCluster;
-import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPeptides;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 import edu.scripps.yates.shared.tasks.ShowPeptidesSharedByProteinsTask;
 import edu.scripps.yates.shared.tasks.Task;
 
-public class CustomClickableImageColumnShowPeptideTable<T extends ContainsPeptides>
+public class CustomClickableImageColumnShowPeptideTable<T extends ContainsLightPeptides>
 		extends AbsctractCustomClickableImageColumn<T> implements MyColumn<T> {
 	private static final ProteinRetrievalServiceAsync service = ProteinRetrievalServiceAsync.Util.getInstance();
 	private final String sessionID;
@@ -75,7 +77,7 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsPeptid
 
 	}
 
-	protected void showSharingPeptidesTablePanel(final ContainsPeptides containsPeptides,
+	protected void showSharingPeptidesTablePanel(final ContainsLightPeptides containsPeptides,
 			final ProteinPeptideCluster result) {
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
@@ -83,9 +85,9 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsPeptid
 			public void execute() {
 				final SharingPeptidesPanel table = new SharingPeptidesPanel(result);
 				WindowBox window = null;
-				if (containsPeptides instanceof ProteinGroupBean) {
+				if (containsPeptides instanceof ProteinGroupBeanLight) {
 					window = new WindowBox(table, "Peptides explaining protein group");
-				} else if (containsPeptides instanceof ProteinBean) {
+				} else if (containsPeptides instanceof ProteinBeanLight) {
 					window = new WindowBox(table, "Peptides explaining protein");
 				}
 				if (window != null) {
@@ -109,7 +111,7 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsPeptid
 	}
 
 	@Override
-	public ImageResource getValue(ContainsPeptides object) {
+	public ImageResource getValue(ContainsLightPeptides object) {
 		return MyClientBundle.INSTANCE.arrowUp();
 	}
 
