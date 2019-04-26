@@ -12,6 +12,7 @@ import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ConditionIDToProteinAmountIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ConditionIDToRatioDescriptorIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToConditionIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToMSRunIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToPTMIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToConditionIDTableMapper;
@@ -165,6 +166,13 @@ public class ServletCommonInit {
 		for (final Thread thread : threads) {
 			thread.start();
 		}
+
+		final Runnable runnable14 = () -> {
+			// load condition-protein amount mapping
+			PeptideIDToConditionIDTableMapper.getInstance();
+		};
+		final Thread t14 = new Thread(runnable14);
+		threads.add(t14);
 
 		log.info("All ID map tables are loading in " + threads.size() + " threads");
 		final Runnable runnableWaiter = () -> {

@@ -2194,7 +2194,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 		// load PSM score types
 		// loadPSMScoreTypes(projectNames);
 		// load ratios
-		loadRatioDescriptors(projectNames);
+//		loadRatioDescriptors(projectNames);
 
 	}
 
@@ -2343,6 +2343,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 										// if they are coming from peptides?
 										addPTMScoreNames(result.getPsmScores());
 										addScoreTypes(result.getScoreTypes());
+										addRatioDescriptorsToTables(result.getRatioDescriptors(), loadedProjects);
 										// apply default views
 										final String projectTag = loadedProjects.iterator().next();
 										if (!loadedProjects.isEmpty() && ClientCacheDefaultViewByProjectTag
@@ -2872,7 +2873,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 	private void loadRatioDescriptors(final Set<String> selectedProjects) {
 		ratioNamesPanel.clearList();
-		final Set<String> uniqueRatioNames = new HashSet<String>();
+
 		GWT.log("Loading ratios from " + selectedProjects.size() + " projects");
 		proteinRetrievingService.getRatioDescriptorsFromProjects(selectedProjects,
 				new AsyncCallback<List<RatioDescriptorBean>>() {
@@ -2884,326 +2885,289 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 					@Override
 					public void onSuccess(List<RatioDescriptorBean> result) {
-						// remove the previous columns related to ratios
-						proteinTablePanel.removeColumn(ColumnName.PROTEIN_RATIO);
-						proteinGroupTablePanel.removeColumn(ColumnName.PROTEIN_RATIO);
-						proteinTablePanel.removeColumn(ColumnName.PROTEIN_RATIO_SCORE);
-
-						if (Pint.getPSMCentric()) {
-							psmTablePanel.removeColumn(ColumnName.PSM_RATIO);
-							psmOnlyTablePanel.removeColumn(ColumnName.PSM_RATIO);
-							psmTablePanel.removeColumn(ColumnName.PSM_RATIO_SCORE);
-							psmOnlyTablePanel.removeColumn(ColumnName.PSM_RATIO_SCORE);
-						} else {
-							peptideTablePanel.removeColumn(ColumnName.PEPTIDE_RATIO);
-							peptideTablePanel.removeColumn(ColumnName.PEPTIDE_RATIO_SCORE);
-						}
-
-						peptideOnlyTablePanel.removeColumn(ColumnName.PEPTIDE_RATIO);
-						peptideOnlyTablePanel.removeColumn(ColumnName.PEPTIDE_RATIO_SCORE);
-
-						// create the columns related to the ratio descriptors
-						if (!result.isEmpty()) {
-							for (final RatioDescriptorBean ratioDescriptor : result) {
-								if (!uniqueRatioNames.contains(ratioDescriptor.getRatioName())) {
-									ratioNamesPanel.getListBox().addItem(ratioDescriptor.getRatioName());
-									uniqueRatioNames.add(ratioDescriptor.getRatioName());
-								}
-							}
-							updateStatus(uniqueRatioNames.size() + " ratio names loaded.");
-							for (final String projectTag : selectedProjects) {
-								// get the conditions from the
-								// "Condition" list panel
-
-								for (final RatioDescriptorBean ratioDescriptor : result) {
-									final String condition1 = ratioDescriptor.getCondition1Name();
-									final String projectNameFromRatio = ratioDescriptor.getProjectTag();
-									if (projectTag.equals(projectNameFromRatio)) {
-										final String condition2 = ratioDescriptor.getCondition2Name();
-										final String letter1 = getProjectConditionSymbolOfCondition(condition1,
-												projectTag);
-										final String letter2 = getProjectConditionSymbolOfCondition(condition2,
-												projectTag);
-
-										final ColumnWithVisibility proteinRatioColumn = ProteinColumns.getInstance()
-												.getColumn(ColumnName.PROTEIN_RATIO);
-										final String ratioName = ratioDescriptor.getRatioName();
-										final String keyName = MyVerticalCheckBoxListPanel.getKeyName(
-												ColumnName.PROTEIN_RATIO, condition1, letter1, condition2, letter2,
-												projectTag, ratioName);
-										final String ratioCheckBoxName = MyVerticalCheckBoxListPanel
-												.getCheckBoxNameForRatio(ratioName, letter1, letter2);
-										final String proteinRatioGraphCheckBoxName = MyVerticalCheckBoxListPanel
-												.getCheckBoxNameForRatioGraph(ColumnName.PROTEIN_RATIO_GRAPH,
-														ratioName);
-										switch (ratioDescriptor.getAggregationLevel()) {
-										// addcolumn for pairs of conditions of
-										// the ratio descriptors
-										// add the corresponding ratio score
-										// column
-										case PROTEINGROUP:
-											// add checkbox for ProteinRatio for
-											// that ratio
-											proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(
-													ColumnName.PROTEIN_RATIO, ratioCheckBoxName, keyName);
-
-											proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(
-													ColumnName.PROTEIN_RATIO_GRAPH, proteinRatioGraphCheckBoxName,
-													MyVerticalCheckBoxListPanel.getKeyName(
-															ColumnName.PEPTIDE_RATIO_GRAPH, condition1, letter1,
-															condition2, letter2, projectTag, ratioName));
-											proteinGroupTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO,
-													proteinRatioColumn.isVisible(), condition1, letter1, condition2,
-													letter2, projectTag, ratioName);
-
-											proteinGroupTablePanel.addColumnForConditionRatio(
-													ColumnName.PROTEIN_RATIO_GRAPH, proteinRatioColumn.isVisible(),
-													condition1, letter1, condition2, letter2, projectTag, ratioName);
-											// proteinGroupColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
-											// ColumnName.PROTEIN_RATIO,
-											// ratioCheckBoxName, condition1,
-											// condition2,
-											// projectTag, conditionsPanel);
-											final String proteinGroupRatioScoreName = ratioDescriptor
-													.getProteinScoreName();
-											if (proteinGroupRatioScoreName != null) {
-												proteinGroupTablePanel.addColumnForConditionRatioScore(
-														ColumnName.PROTEIN_RATIO_SCORE,
-														ProteinColumns.getInstance()
-																.getColumn(ColumnName.PROTEIN_RATIO_SCORE).isVisible(),
-														condition1, letter1, condition2, letter2, projectTag, ratioName,
-														proteinGroupRatioScoreName);
-												proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(
-														ColumnName.PROTEIN_RATIO_SCORE, proteinGroupRatioScoreName,
-														MyVerticalCheckBoxListPanel.getKeyName(
-																ColumnName.PROTEIN_RATIO_SCORE, condition1, letter1,
-																condition2, letter2, projectTag, ratioName,
-																proteinGroupRatioScoreName));
-												final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
-														.getCheckBoxNameForRatioScore(proteinGroupRatioScoreName,
-																ratioName);
-												// proteinGroupColumnNamesPanel
-												// .addRatioConditionRelatedColumnCheckBoxHandler(
-												// ColumnName.PROTEIN_RATIO_SCORE,
-												// ratioScoreCheckBoxName,
-												// condition1, condition2,
-												// projectTag, conditionsPanel);
-											}
-											break;
-										case PROTEIN:
-											// add checkbox for ProteinRatio for
-											// that ratio
-											proteinColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_RATIO,
-													ratioCheckBoxName, keyName);
-
-											proteinColumnNamesPanel.addColumnCheckBoxByKeyName(
-													ColumnName.PROTEIN_RATIO_GRAPH, proteinRatioGraphCheckBoxName,
-													MyVerticalCheckBoxListPanel.getKeyName(
-															ColumnName.PROTEIN_RATIO_GRAPH, condition1, letter1,
-															condition2, letter2, projectTag, ratioName));
-											proteinTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO,
-													proteinRatioColumn.isVisible(), condition1, letter1, condition2,
-													letter2, projectTag, ratioName);
-
-											proteinTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO_GRAPH,
-													ProteinColumns.getInstance()
-															.getColumn(ColumnName.PROTEIN_RATIO_GRAPH).isVisible(),
-													condition1, letter1, condition2, letter2, projectTag, ratioName);
-											// proteinColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
-											// ColumnName.PROTEIN_RATIO,
-											// ratioCheckBoxName, condition1,
-											// condition2,
-											// projectTag, conditionsPanel);
-											final String proteinRatioScoreName = ratioDescriptor.getProteinScoreName();
-											if (proteinRatioScoreName != null) {
-												proteinTablePanel.addColumnForConditionRatioScore(
-														ColumnName.PROTEIN_RATIO_SCORE,
-														ProteinColumns.getInstance()
-																.getColumn(ColumnName.PROTEIN_RATIO_SCORE).isVisible(),
-														condition1, letter1, condition2, letter2, projectTag, ratioName,
-														proteinRatioScoreName);
-												final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
-														.getCheckBoxNameForRatioScore(proteinRatioScoreName, ratioName);
-												proteinColumnNamesPanel.addColumnCheckBoxByKeyName(
-														ColumnName.PROTEIN_RATIO_SCORE, ratioScoreCheckBoxName,
-														MyVerticalCheckBoxListPanel.getKeyName(
-																ColumnName.PROTEIN_RATIO_SCORE, condition1, letter1,
-																condition2, letter2, projectTag, ratioName,
-																proteinRatioScoreName));
-												// proteinColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
-												// ColumnName.PROTEIN_RATIO_SCORE,
-												// ratioScoreCheckBoxName,
-												// condition1, condition2,
-												// projectTag, conditionsPanel);
-											}
-											break;
-										case PEPTIDE:
-											// add checkbox for ProteinRatio for
-											// that ratio
-											peptideColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PEPTIDE_RATIO,
-													ratioCheckBoxName,
-													MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PEPTIDE_RATIO,
-															condition1, letter1, condition2, letter2, projectTag,
-															ratioName));
-											final String peptideRatioGraphCheckBoxName = MyVerticalCheckBoxListPanel
-													.getCheckBoxNameForRatioGraph(ColumnName.PEPTIDE_RATIO_GRAPH,
-															ratioName);
-											peptideColumnNamesPanel.addColumnCheckBoxByKeyName(
-													ColumnName.PEPTIDE_RATIO_GRAPH, peptideRatioGraphCheckBoxName,
-													MyVerticalCheckBoxListPanel.getKeyName(
-															ColumnName.PEPTIDE_RATIO_GRAPH, condition1, letter1,
-															condition2, letter2, projectTag, ratioName));
-											final ColumnWithVisibility peptideRatioColumn = PeptideColumns.getInstance()
-													.getColumn(ColumnName.PEPTIDE_RATIO);
-											peptideOnlyTablePanel.addColumnForConditionRatio(ColumnName.PEPTIDE_RATIO,
-													peptideRatioColumn.isVisible(), condition1, letter1, condition2,
-													letter2, projectTag, ratioName);
-											peptideOnlyTablePanel.addColumnForConditionRatio(
-													ColumnName.PEPTIDE_RATIO_GRAPH,
-													PeptideColumns.getInstance()
-															.getColumn(ColumnName.PEPTIDE_RATIO_GRAPH).isVisible(),
-													condition1, letter1, condition2, letter2, projectTag, ratioName);
-											if (!Pint.getPSMCentric()) {
-												peptideTablePanel.addColumnForConditionRatio(ColumnName.PEPTIDE_RATIO,
-														peptideRatioColumn.isVisible(), condition1, letter1, condition2,
-														letter2, projectTag, ratioName);
-												peptideTablePanel.addColumnForConditionRatio(
-														ColumnName.PEPTIDE_RATIO_GRAPH,
-														PeptideColumns.getInstance()
-																.getColumn(ColumnName.PEPTIDE_RATIO_GRAPH).isVisible(),
-														condition1, letter1, condition2, letter2, projectTag,
-														ratioName);
-											}
-											// peptideColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
-											// ColumnName.PEPTIDE_RATIO,
-											// ratioCheckBoxName, condition1,
-											// condition2,
-											// projectTag, conditionsPanel);
-											final String peptideRatioScoreName = ratioDescriptor.getPeptideScoreName();
-											if (peptideRatioScoreName != null) {
-												peptideOnlyTablePanel.addColumnForConditionRatioScore(
-														ColumnName.PEPTIDE_RATIO_SCORE,
-														PeptideColumns.getInstance()
-																.getColumn(ColumnName.PEPTIDE_RATIO_SCORE).isVisible(),
-														condition1, letter1, condition2, letter2, projectTag, ratioName,
-														peptideRatioScoreName);
-												if (!Pint.getPSMCentric()) {
-													peptideTablePanel.addColumnForConditionRatioScore(
-															ColumnName.PEPTIDE_RATIO_SCORE,
-															PeptideColumns.getInstance()
-																	.getColumn(ColumnName.PEPTIDE_RATIO_SCORE)
-																	.isVisible(),
-															condition1, letter1, condition2, letter2, projectTag,
-															ratioName, peptideRatioScoreName);
-												}
-												final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
-														.getCheckBoxNameForRatioScore(peptideRatioScoreName, ratioName);
-												peptideColumnNamesPanel.addColumnCheckBoxByKeyName(
-														ColumnName.PEPTIDE_RATIO_SCORE, ratioScoreCheckBoxName,
-														MyVerticalCheckBoxListPanel.getKeyName(
-																ColumnName.PEPTIDE_RATIO_SCORE, condition1, letter1,
-																condition2, letter2, projectTag, ratioName,
-																peptideRatioScoreName));
-												// peptideColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
-												// ColumnName.PEPTIDE_RATIO_SCORE,
-												// ratioScoreCheckBoxName,
-												// condition1, condition2,
-												// projectTag, conditionsPanel);
-											}
-											break;
-										case PSM:
-											if (Pint.getPSMCentric()) {
-												// add checkbox for ProteinRatio
-												// for
-												// that ratio
-												psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PSM_RATIO,
-														ratioCheckBoxName,
-														MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PSM_RATIO,
-																condition1, letter1, condition2, letter2, projectTag,
-																ratioName));
-												final String psmRatioGraphCheckBoxName = MyVerticalCheckBoxListPanel
-														.getCheckBoxNameForRatioGraph(ColumnName.PSM_RATIO_GRAPH,
-																ratioName);
-												psmColumnNamesPanel.addColumnCheckBoxByKeyName(
-														ColumnName.PSM_RATIO_GRAPH, psmRatioGraphCheckBoxName,
-														MyVerticalCheckBoxListPanel.getKeyName(
-																ColumnName.PSM_RATIO_GRAPH, condition1, letter1,
-																condition2, letter2, projectTag, ratioName));
-												psmTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO,
-														PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO)
-																.isVisible(),
-														condition1, letter1, condition2, letter2, projectTag,
-														ratioName);
-												psmTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO_GRAPH,
-														PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_GRAPH)
-																.isVisible(),
-														condition1, letter1, condition2, letter2, projectTag,
-														ratioName);
-												psmOnlyTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO,
-														PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO)
-																.isVisible(),
-														condition1, letter1, condition2, letter2, projectTag,
-														ratioName);
-												psmOnlyTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO_GRAPH,
-														PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_GRAPH)
-																.isVisible(),
-														condition1, letter1, condition2, letter2, projectTag,
-														ratioName);
-												// psmColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
-												// ColumnName.PSM_RATIO,
-												// ratioCheckBoxName,
-												// condition1,
-												// condition2,
-												// projectTag, conditionsPanel);
-												final String psmRatioScoreName = ratioDescriptor.getPsmScoreName();
-												if (psmRatioScoreName != null) {
-													psmTablePanel.addColumnForConditionRatioScore(
-															ColumnName.PSM_RATIO_SCORE,
-															PSMColumns.getInstance()
-																	.getColumn(ColumnName.PSM_RATIO_SCORE).isVisible(),
-															condition1, letter1, condition2, letter2, projectTag,
-															ratioName, psmRatioScoreName);
-													psmOnlyTablePanel.addColumnForConditionRatioScore(
-															ColumnName.PSM_RATIO_SCORE,
-															PSMColumns.getInstance()
-																	.getColumn(ColumnName.PSM_RATIO_SCORE).isVisible(),
-															condition1, letter1, condition2, letter2, projectTag,
-															ratioName, psmRatioScoreName);
-													final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
-															.getCheckBoxNameForRatioScore(psmRatioScoreName, ratioName);
-													psmColumnNamesPanel.addColumnCheckBoxByKeyName(
-															ColumnName.PSM_RATIO_SCORE, ratioScoreCheckBoxName,
-															MyVerticalCheckBoxListPanel.getKeyName(
-																	ColumnName.PSM_RATIO_SCORE, condition1, letter1,
-																	condition2, letter2, projectTag, ratioName,
-																	psmRatioScoreName));
-													// psmColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
-													// ColumnName.PSM_RATIO_SCORE,
-													// ratioScoreCheckBoxName,
-													// condition1,
-													// condition2, projectTag,
-													// conditionsPanel);
-												}
-											}
-											break;
-
-										default:
-											break;
-										}
-
-										// add column handlers
-
-									}
-								}
-							}
-
-						}
-						// set to false in order to force its application again
-						// when performing a query
+						addRatioDescriptorsToTables(result, selectedProjects);
 					}
 
 				});
 
+	}
+
+	protected void addRatioDescriptorsToTables(List<RatioDescriptorBean> result, Collection<String> selectedProjects) {
+		final Set<String> uniqueRatioNames = new HashSet<String>();
+		// remove the previous columns related to ratios
+		proteinTablePanel.removeColumn(ColumnName.PROTEIN_RATIO);
+		proteinGroupTablePanel.removeColumn(ColumnName.PROTEIN_RATIO);
+		proteinTablePanel.removeColumn(ColumnName.PROTEIN_RATIO_SCORE);
+
+		if (Pint.getPSMCentric()) {
+			psmTablePanel.removeColumn(ColumnName.PSM_RATIO);
+			psmOnlyTablePanel.removeColumn(ColumnName.PSM_RATIO);
+			psmTablePanel.removeColumn(ColumnName.PSM_RATIO_SCORE);
+			psmOnlyTablePanel.removeColumn(ColumnName.PSM_RATIO_SCORE);
+		} else {
+			peptideTablePanel.removeColumn(ColumnName.PEPTIDE_RATIO);
+			peptideTablePanel.removeColumn(ColumnName.PEPTIDE_RATIO_SCORE);
+		}
+
+		peptideOnlyTablePanel.removeColumn(ColumnName.PEPTIDE_RATIO);
+		peptideOnlyTablePanel.removeColumn(ColumnName.PEPTIDE_RATIO_SCORE);
+
+		// create the columns related to the ratio descriptors
+		if (!result.isEmpty()) {
+			for (final RatioDescriptorBean ratioDescriptor : result) {
+				if (!uniqueRatioNames.contains(ratioDescriptor.getRatioName())) {
+					ratioNamesPanel.getListBox().addItem(ratioDescriptor.getRatioName());
+					uniqueRatioNames.add(ratioDescriptor.getRatioName());
+				}
+			}
+			updateStatus(uniqueRatioNames.size() + " ratio names loaded.");
+			for (final String projectTag : selectedProjects) {
+				// get the conditions from the
+				// "Condition" list panel
+
+				for (final RatioDescriptorBean ratioDescriptor : result) {
+					final String condition1 = ratioDescriptor.getCondition1Name();
+					final String projectNameFromRatio = ratioDescriptor.getProjectTag();
+					if (projectTag.equals(projectNameFromRatio)) {
+						final String condition2 = ratioDescriptor.getCondition2Name();
+						final String letter1 = getProjectConditionSymbolOfCondition(condition1, projectTag);
+						final String letter2 = getProjectConditionSymbolOfCondition(condition2, projectTag);
+
+						final ColumnWithVisibility proteinRatioColumn = ProteinColumns.getInstance()
+								.getColumn(ColumnName.PROTEIN_RATIO);
+						final String ratioName = ratioDescriptor.getRatioName();
+						final String keyName = MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PROTEIN_RATIO,
+								condition1, letter1, condition2, letter2, projectTag, ratioName);
+						final String ratioCheckBoxName = MyVerticalCheckBoxListPanel.getCheckBoxNameForRatio(ratioName,
+								letter1, letter2);
+						final String proteinRatioGraphCheckBoxName = MyVerticalCheckBoxListPanel
+								.getCheckBoxNameForRatioGraph(ColumnName.PROTEIN_RATIO_GRAPH, ratioName);
+						switch (ratioDescriptor.getAggregationLevel()) {
+						// addcolumn for pairs of conditions of
+						// the ratio descriptors
+						// add the corresponding ratio score
+						// column
+						case PROTEINGROUP:
+							// add checkbox for ProteinRatio for
+							// that ratio
+							proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_RATIO,
+									ratioCheckBoxName, keyName);
+
+							proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_RATIO_GRAPH,
+									proteinRatioGraphCheckBoxName,
+									MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PEPTIDE_RATIO_GRAPH, condition1,
+											letter1, condition2, letter2, projectTag, ratioName));
+							proteinGroupTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO,
+									proteinRatioColumn.isVisible(), condition1, letter1, condition2, letter2,
+									projectTag, ratioName);
+
+							proteinGroupTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO_GRAPH,
+									proteinRatioColumn.isVisible(), condition1, letter1, condition2, letter2,
+									projectTag, ratioName);
+							// proteinGroupColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+							// ColumnName.PROTEIN_RATIO,
+							// ratioCheckBoxName, condition1,
+							// condition2,
+							// projectTag, conditionsPanel);
+							final String proteinGroupRatioScoreName = ratioDescriptor.getProteinScoreName();
+							if (proteinGroupRatioScoreName != null) {
+								proteinGroupTablePanel.addColumnForConditionRatioScore(ColumnName.PROTEIN_RATIO_SCORE,
+										ProteinColumns.getInstance().getColumn(ColumnName.PROTEIN_RATIO_SCORE)
+												.isVisible(),
+										condition1, letter1, condition2, letter2, projectTag, ratioName,
+										proteinGroupRatioScoreName);
+								proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_RATIO_SCORE,
+										proteinGroupRatioScoreName,
+										MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PROTEIN_RATIO_SCORE,
+												condition1, letter1, condition2, letter2, projectTag, ratioName,
+												proteinGroupRatioScoreName));
+								final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
+										.getCheckBoxNameForRatioScore(proteinGroupRatioScoreName, ratioName);
+								// proteinGroupColumnNamesPanel
+								// .addRatioConditionRelatedColumnCheckBoxHandler(
+								// ColumnName.PROTEIN_RATIO_SCORE,
+								// ratioScoreCheckBoxName,
+								// condition1, condition2,
+								// projectTag, conditionsPanel);
+							}
+							break;
+						case PROTEIN:
+							// add checkbox for ProteinRatio for
+							// that ratio
+							proteinColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_RATIO,
+									ratioCheckBoxName, keyName);
+
+							proteinColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_RATIO_GRAPH,
+									proteinRatioGraphCheckBoxName,
+									MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PROTEIN_RATIO_GRAPH, condition1,
+											letter1, condition2, letter2, projectTag, ratioName));
+							proteinTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO,
+									proteinRatioColumn.isVisible(), condition1, letter1, condition2, letter2,
+									projectTag, ratioName);
+
+							proteinTablePanel.addColumnForConditionRatio(ColumnName.PROTEIN_RATIO_GRAPH,
+									ProteinColumns.getInstance().getColumn(ColumnName.PROTEIN_RATIO_GRAPH).isVisible(),
+									condition1, letter1, condition2, letter2, projectTag, ratioName);
+							// proteinColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+							// ColumnName.PROTEIN_RATIO,
+							// ratioCheckBoxName, condition1,
+							// condition2,
+							// projectTag, conditionsPanel);
+							final String proteinRatioScoreName = ratioDescriptor.getProteinScoreName();
+							if (proteinRatioScoreName != null) {
+								proteinTablePanel.addColumnForConditionRatioScore(ColumnName.PROTEIN_RATIO_SCORE,
+										ProteinColumns.getInstance().getColumn(ColumnName.PROTEIN_RATIO_SCORE)
+												.isVisible(),
+										condition1, letter1, condition2, letter2, projectTag, ratioName,
+										proteinRatioScoreName);
+								final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
+										.getCheckBoxNameForRatioScore(proteinRatioScoreName, ratioName);
+								proteinColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PROTEIN_RATIO_SCORE,
+										ratioScoreCheckBoxName,
+										MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PROTEIN_RATIO_SCORE,
+												condition1, letter1, condition2, letter2, projectTag, ratioName,
+												proteinRatioScoreName));
+								// proteinColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+								// ColumnName.PROTEIN_RATIO_SCORE,
+								// ratioScoreCheckBoxName,
+								// condition1, condition2,
+								// projectTag, conditionsPanel);
+							}
+							break;
+						case PEPTIDE:
+							// add checkbox for ProteinRatio for
+							// that ratio
+							peptideColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PEPTIDE_RATIO,
+									ratioCheckBoxName, MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PEPTIDE_RATIO,
+											condition1, letter1, condition2, letter2, projectTag, ratioName));
+							final String peptideRatioGraphCheckBoxName = MyVerticalCheckBoxListPanel
+									.getCheckBoxNameForRatioGraph(ColumnName.PEPTIDE_RATIO_GRAPH, ratioName);
+							peptideColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PEPTIDE_RATIO_GRAPH,
+									peptideRatioGraphCheckBoxName,
+									MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PEPTIDE_RATIO_GRAPH, condition1,
+											letter1, condition2, letter2, projectTag, ratioName));
+							final ColumnWithVisibility peptideRatioColumn = PeptideColumns.getInstance()
+									.getColumn(ColumnName.PEPTIDE_RATIO);
+							peptideOnlyTablePanel.addColumnForConditionRatio(ColumnName.PEPTIDE_RATIO,
+									peptideRatioColumn.isVisible(), condition1, letter1, condition2, letter2,
+									projectTag, ratioName);
+							peptideOnlyTablePanel.addColumnForConditionRatio(ColumnName.PEPTIDE_RATIO_GRAPH,
+									PeptideColumns.getInstance().getColumn(ColumnName.PEPTIDE_RATIO_GRAPH).isVisible(),
+									condition1, letter1, condition2, letter2, projectTag, ratioName);
+							if (!Pint.getPSMCentric()) {
+								peptideTablePanel.addColumnForConditionRatio(ColumnName.PEPTIDE_RATIO,
+										peptideRatioColumn.isVisible(), condition1, letter1, condition2, letter2,
+										projectTag, ratioName);
+								peptideTablePanel.addColumnForConditionRatio(ColumnName.PEPTIDE_RATIO_GRAPH,
+										PeptideColumns.getInstance().getColumn(ColumnName.PEPTIDE_RATIO_GRAPH)
+												.isVisible(),
+										condition1, letter1, condition2, letter2, projectTag, ratioName);
+							}
+							// peptideColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+							// ColumnName.PEPTIDE_RATIO,
+							// ratioCheckBoxName, condition1,
+							// condition2,
+							// projectTag, conditionsPanel);
+							final String peptideRatioScoreName = ratioDescriptor.getPeptideScoreName();
+							if (peptideRatioScoreName != null) {
+								peptideOnlyTablePanel.addColumnForConditionRatioScore(ColumnName.PEPTIDE_RATIO_SCORE,
+										PeptideColumns.getInstance().getColumn(ColumnName.PEPTIDE_RATIO_SCORE)
+												.isVisible(),
+										condition1, letter1, condition2, letter2, projectTag, ratioName,
+										peptideRatioScoreName);
+								if (!Pint.getPSMCentric()) {
+									peptideTablePanel.addColumnForConditionRatioScore(ColumnName.PEPTIDE_RATIO_SCORE,
+											PeptideColumns.getInstance().getColumn(ColumnName.PEPTIDE_RATIO_SCORE)
+													.isVisible(),
+											condition1, letter1, condition2, letter2, projectTag, ratioName,
+											peptideRatioScoreName);
+								}
+								final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
+										.getCheckBoxNameForRatioScore(peptideRatioScoreName, ratioName);
+								peptideColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PEPTIDE_RATIO_SCORE,
+										ratioScoreCheckBoxName,
+										MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PEPTIDE_RATIO_SCORE,
+												condition1, letter1, condition2, letter2, projectTag, ratioName,
+												peptideRatioScoreName));
+								// peptideColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+								// ColumnName.PEPTIDE_RATIO_SCORE,
+								// ratioScoreCheckBoxName,
+								// condition1, condition2,
+								// projectTag, conditionsPanel);
+							}
+							break;
+						case PSM:
+							if (Pint.getPSMCentric()) {
+								// add checkbox for ProteinRatio
+								// for
+								// that ratio
+								psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PSM_RATIO, ratioCheckBoxName,
+										MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PSM_RATIO, condition1,
+												letter1, condition2, letter2, projectTag, ratioName));
+								final String psmRatioGraphCheckBoxName = MyVerticalCheckBoxListPanel
+										.getCheckBoxNameForRatioGraph(ColumnName.PSM_RATIO_GRAPH, ratioName);
+								psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PSM_RATIO_GRAPH,
+										psmRatioGraphCheckBoxName,
+										MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PSM_RATIO_GRAPH, condition1,
+												letter1, condition2, letter2, projectTag, ratioName));
+								psmTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO,
+										PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO).isVisible(),
+										condition1, letter1, condition2, letter2, projectTag, ratioName);
+								psmTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO_GRAPH,
+										PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_GRAPH).isVisible(),
+										condition1, letter1, condition2, letter2, projectTag, ratioName);
+								psmOnlyTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO,
+										PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO).isVisible(),
+										condition1, letter1, condition2, letter2, projectTag, ratioName);
+								psmOnlyTablePanel.addColumnForConditionRatio(ColumnName.PSM_RATIO_GRAPH,
+										PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_GRAPH).isVisible(),
+										condition1, letter1, condition2, letter2, projectTag, ratioName);
+								// psmColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+								// ColumnName.PSM_RATIO,
+								// ratioCheckBoxName,
+								// condition1,
+								// condition2,
+								// projectTag, conditionsPanel);
+								final String psmRatioScoreName = ratioDescriptor.getPsmScoreName();
+								if (psmRatioScoreName != null) {
+									psmTablePanel.addColumnForConditionRatioScore(ColumnName.PSM_RATIO_SCORE,
+											PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_SCORE).isVisible(),
+											condition1, letter1, condition2, letter2, projectTag, ratioName,
+											psmRatioScoreName);
+									psmOnlyTablePanel.addColumnForConditionRatioScore(ColumnName.PSM_RATIO_SCORE,
+											PSMColumns.getInstance().getColumn(ColumnName.PSM_RATIO_SCORE).isVisible(),
+											condition1, letter1, condition2, letter2, projectTag, ratioName,
+											psmRatioScoreName);
+									final String ratioScoreCheckBoxName = MyVerticalCheckBoxListPanel
+											.getCheckBoxNameForRatioScore(psmRatioScoreName, ratioName);
+									psmColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.PSM_RATIO_SCORE,
+											ratioScoreCheckBoxName,
+											MyVerticalCheckBoxListPanel.getKeyName(ColumnName.PSM_RATIO_SCORE,
+													condition1, letter1, condition2, letter2, projectTag, ratioName,
+													psmRatioScoreName));
+									// psmColumnNamesPanel.addRatioConditionRelatedColumnCheckBoxHandler(
+									// ColumnName.PSM_RATIO_SCORE,
+									// ratioScoreCheckBoxName,
+									// condition1,
+									// condition2, projectTag,
+									// conditionsPanel);
+								}
+							}
+							break;
+
+						default:
+							break;
+						}
+
+						// add column handlers
+
+					}
+				}
+			}
+
+		}
+		// set to false in order to force its application again
+		// when performing a query
 	}
 
 	/**

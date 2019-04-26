@@ -14,12 +14,21 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
+import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.Protein;
+import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
+import edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue;
+import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ConditionIDToRatioDescriptorIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PSMIDToConditionIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToConditionIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToConditionIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToPeptideIDTableMapper;
 import edu.scripps.yates.server.adapters.PeptideBeanAdapterFromPeptideSet;
 import edu.scripps.yates.server.adapters.ProteinBeanAdapterFromProteinSet;
+import edu.scripps.yates.server.adapters.RatioDescriptorAdapter;
 import edu.scripps.yates.server.tasks.RemoteServicesTasks;
 import edu.scripps.yates.server.util.RatioAnalyzer;
 import edu.scripps.yates.shared.model.PSMBean;
@@ -29,8 +38,10 @@ import edu.scripps.yates.shared.model.PeptideBean;
 import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.RatioBean;
+import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.RatioDistribution;
 import edu.scripps.yates.shared.model.ScoreBean;
+import edu.scripps.yates.shared.model.SharedAggregationLevel;
 import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
 import edu.scripps.yates.shared.model.interfaces.ContainsPeptides;
 import edu.scripps.yates.shared.model.interfaces.ContainsRatios;
@@ -39,6 +50,7 @@ import edu.scripps.yates.shared.util.sublists.PeptideBeanSubList;
 import edu.scripps.yates.shared.util.sublists.ProteinBeanSubList;
 import edu.scripps.yates.shared.util.sublists.ProteinGroupBeanSubList;
 import edu.scripps.yates.shared.util.sublists.PsmBeanSubList;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.TIntSet;
@@ -76,6 +88,7 @@ public class DataSet {
 	private final boolean psmCentric;
 	private final Set<String> hiddenPTMs;
 	private boolean readyForGettingPeptides;
+	private List<RatioDescriptorBean> ratioDescriptors;
 
 	public DataSet(String sessionID, String name, boolean psmCentric, Set<String> hiddenPTMs) {
 		sessionId = sessionID;
@@ -293,6 +306,7 @@ public class DataSet {
 			lightProteinBean.getDbIds().clear();
 			lightProteinBean.getPeptideDBIds().clear();
 			lightProteinBean.getPeptideDBIdsByCondition().clear();
+			lightProteinBean.getPeptides().clear();
 		}
 		return new ProteinBeanSubList(lightProteins, getProteins().size());
 //		return ProteinBeanSubList.getLightProteinBeanSubList(lightProteins, getProteins().size());
@@ -929,5 +943,89 @@ public class DataSet {
 
 	protected boolean isReadyForGettingPeptides() {
 		return readyForGettingPeptides;
+	}
+
+	public List<RatioDescriptorBean> getRatioDescritptors() {
+		if (ratioDescriptors == null) {
+			log.info("Getting ratio descriptors for " + getProteins().size() + " proteins in dataset");
+			ratioDescriptors = new ArrayList<RatioDescriptorBean>();
+			ratioDescriptors.addAll(getRatioDescriptorsFromProteins());
+			log.info("Getting ratio descriptors for " + getPeptides().size() + " peptides in dataset");
+			ratioDescriptors.addAll(getRatioDescriptorsFromPeptides());
+			if (psmCentric) {
+				log.info("Getting ratio descriptors for " + getPsms().size() + " psms in dataset");
+				ratioDescriptors.addAll(getRatioDescriptorsFromPSMs());
+			}
+			log.info(ratioDescriptors.size() + " ratio descriptors in total in dataset");
+		}
+		return ratioDescriptors;
+	}
+
+	private TIntArrayList getProteinIDs() {
+		final TIntArrayList ret = new TIntArrayList();
+		getProteins().stream().forEach(p -> ret.addAll(p.getDbIds()));
+		return ret;
+	}
+
+	private TIntArrayList getPeptideIDs() {
+		final TIntArrayList ret = new TIntArrayList();
+		getPeptides().stream().forEach(p -> ret.addAll(p.getDbIds()));
+		return ret;
+	}
+
+	private TIntArrayList getPSMsIDs() {
+		final TIntArrayList ret = new TIntArrayList();
+		getPsms().stream().forEach(p -> ret.add(p.getDbID()));
+		return ret;
+	}
+
+	private List<RatioDescriptorBean> getRatioDescriptorsFromProteins() {
+		final List<RatioDescriptorBean> ret = new ArrayList<RatioDescriptorBean>();
+		final TIntArrayList proteinIDs = getProteinIDs();
+		final TIntSet conditionIDs = ProteinIDToConditionIDTableMapper.getInstance()
+				.getConditionIDsFromProteinIDs(proteinIDs);
+		final TIntSet ratioDescriptorIDs = ConditionIDToRatioDescriptorIDTableMapper.getInstance()
+				.getRatioDescriptorIDsFromConditionIDs(conditionIDs);
+		final List<RatioDescriptor> ratioDescriptors = PreparedCriteria
+				.getRatioDescriptorsFromRatioDescriptorIDs(ratioDescriptorIDs, true, 100);
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptors) {
+			final ProteinRatioValue prv = null;
+			ret.add(new RatioDescriptorAdapter(ratioDescriptor, SharedAggregationLevel.PROTEIN, prv).adapt());
+		}
+
+		return ret;
+	}
+
+	private List<RatioDescriptorBean> getRatioDescriptorsFromPeptides() {
+		final List<RatioDescriptorBean> ret = new ArrayList<RatioDescriptorBean>();
+		final TIntArrayList peptideIDs = getPeptideIDs();
+		final TIntSet conditionIDs = PeptideIDToConditionIDTableMapper.getInstance()
+				.getConditionIDsFromPeptideIDs(peptideIDs);
+		final TIntSet ratioDescriptorIDs = ConditionIDToRatioDescriptorIDTableMapper.getInstance()
+				.getRatioDescriptorIDsFromConditionIDs(conditionIDs);
+		final List<RatioDescriptor> ratioDescriptors = PreparedCriteria
+				.getRatioDescriptorsFromRatioDescriptorIDs(ratioDescriptorIDs, true, 100);
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptors) {
+			final PeptideRatioValue prv = null;
+			ret.add(new RatioDescriptorAdapter(ratioDescriptor, SharedAggregationLevel.PEPTIDE, prv).adapt());
+		}
+
+		return ret;
+	}
+
+	private List<RatioDescriptorBean> getRatioDescriptorsFromPSMs() {
+		final List<RatioDescriptorBean> ret = new ArrayList<RatioDescriptorBean>();
+		final TIntArrayList psmIDs = getPSMsIDs();
+		final TIntSet conditionIDs = PSMIDToConditionIDTableMapper.getInstance().getConditionIDsFromPSMIDs(psmIDs);
+		final TIntSet ratioDescriptorIDs = ConditionIDToRatioDescriptorIDTableMapper.getInstance()
+				.getRatioDescriptorIDsFromConditionIDs(conditionIDs);
+		final List<RatioDescriptor> ratioDescriptors = PreparedCriteria
+				.getRatioDescriptorsFromRatioDescriptorIDs(ratioDescriptorIDs, true, 100);
+		for (final RatioDescriptor ratioDescriptor : ratioDescriptors) {
+			final PsmRatioValue prv = null;
+			ret.add(new RatioDescriptorAdapter(ratioDescriptor, SharedAggregationLevel.PSM, prv).adapt());
+		}
+
+		return ret;
 	}
 }

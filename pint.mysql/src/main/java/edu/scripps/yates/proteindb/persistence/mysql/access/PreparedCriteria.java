@@ -1172,6 +1172,27 @@ public class PreparedCriteria {
 	}
 
 	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first, the psm id
+	 * and the second the condition id
+	 * 
+	 * @return
+	 */
+	public static int[][] getPSMToConditionTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select * from psm_has_condition");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
 	 * Gets a matrix in which in each row we have 3 elements, the first, the ratio
 	 * descriptor id, the second a condition id and the third a condition id
 	 * 

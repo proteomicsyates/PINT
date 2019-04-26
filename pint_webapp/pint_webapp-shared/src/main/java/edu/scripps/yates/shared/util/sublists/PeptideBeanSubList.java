@@ -32,8 +32,8 @@ public class PeptideBeanSubList extends DataSubList<PeptideBean> implements Seri
 			final PeptideBean clonedPeptide = peptideBean.cloneToLightPeptideBean();
 			clonedPeptide.getDbIds().clear();
 			clonedPeptide.getProteinDBIds().clear();
+			clonedPeptide.getProteins().clear();
 			clonedPeptides.add(clonedPeptide);
-
 		}
 		return new PeptideBeanSubList(clonedPeptides, totalNumberOfItems);
 	}

@@ -1,7 +1,10 @@
 package edu.scripps.yates.shared.util.sublists;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+
+import edu.scripps.yates.shared.model.RatioDescriptorBean;
 
 public class QueryResultSubLists implements Serializable {
 	/**
@@ -22,6 +25,7 @@ public class QueryResultSubLists implements Serializable {
 	private List<String> psmScores;
 	private List<String> ptmScores;
 	private List<String> scoreTypes;
+	private List<RatioDescriptorBean> ratioDescriptors;
 
 	public QueryResultSubLists(List<String> proteinScores, List<String> peptideScores, List<String> psmScores,
 			List<String> ptmScores, List<String> scoreTypes) {
@@ -197,5 +201,20 @@ public class QueryResultSubLists implements Serializable {
 
 	public void setNumTotalProteinGroups(int numTotalProteinGroups) {
 		this.numTotalProteinGroups = numTotalProteinGroups;
+	}
+
+	public List<RatioDescriptorBean> getRatioDescriptors() {
+		return ratioDescriptors;
+	}
+
+	public void setRatioDescriptors(List<RatioDescriptorBean> ratioDescriptors) {
+		this.ratioDescriptors = ratioDescriptors;
+	}
+
+	public void addRatioDescriptor(RatioDescriptorBean ratioDescriptor) {
+		if (this.ratioDescriptors == null) {
+			this.ratioDescriptors = new ArrayList<RatioDescriptorBean>();
+		}
+		ratioDescriptors.add(ratioDescriptor);
 	}
 }

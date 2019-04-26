@@ -1255,6 +1255,9 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 //		ret.setPsmSubList(psmBeanSubList);
 		ret.setNumTotalPSMs(dataSet.getPsms().size());
 
+		// ratio descriptors
+		ret.setRatioDescriptors(dataSet.getRatioDescritptors());
+
 		log.info("Sublists data ready to be returned");
 		return ret;
 	}

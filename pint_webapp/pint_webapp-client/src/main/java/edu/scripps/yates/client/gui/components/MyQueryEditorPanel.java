@@ -219,7 +219,7 @@ public class MyQueryEditorPanel extends FlowPanel {
 		flexTable.setWidget(0, 0, lblForHelpAbout);
 
 		final Anchor lblLink = new Anchor(true);
-		lblLink.setHref("PINT_help_Query_Commands.pdf");
+		lblLink.setHref("pint/PINT_help_Query_Commands.pdf");
 		lblLink.setTarget("_blank");
 		lblLink.setText("(here)");
 		lblLink.setStyleName("linkPINT");
