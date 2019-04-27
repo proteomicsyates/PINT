@@ -365,12 +365,6 @@ public class ProteinBeanLight implements Comparable<ProteinBeanLight>, Serializa
 		return ratios;
 	}
 
-	public void addAmount(AmountBean proteinAmount) {
-		amounts.add(proteinAmount);
-
-		addAmountToMap(proteinAmount);
-	}
-
 	private void addAmountToMap(AmountBean proteinAmount) {
 		// index by experiment condition
 		if (amountsByExperimentalCondition.containsKey(proteinAmount.getExperimentalCondition().getId())) {

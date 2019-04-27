@@ -30,9 +30,7 @@ import edu.scripps.yates.shared.model.PTMBean;
 import edu.scripps.yates.shared.model.PTMSiteBean;
 import edu.scripps.yates.shared.model.PeptideRelation;
 import edu.scripps.yates.shared.model.ProjectBean;
-import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.ProteinEvidence;
-import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.RatioBean;
 import edu.scripps.yates.shared.model.RatioDistribution;
 import edu.scripps.yates.shared.model.ReactomePathwayRef;
@@ -169,17 +167,18 @@ public class ClientSafeHtmlUtils {
 	}
 
 	public static SafeHtml getGeneLinks(ContainsGenes p, boolean includeTitle) {
-		if (p instanceof ProteinBean) {
+		if (p instanceof ProteinBeanLight) {
 			return getGeneLink(p, includeTitle);
-		} else if (p instanceof ProteinGroupBean) {
+		} else if (p instanceof ProteinGroupBeanLight) {
 			final SafeHtmlBuilder sb = new SafeHtmlBuilder();
-			final ProteinGroupBean proteinGroup = (ProteinGroupBean) p;
+			final ProteinGroupBeanLight proteinGroup = (ProteinGroupBeanLight) p;
 			final Set<String> accs = new HashSet<String>();
 			boolean addNewLine = false;
 
-			final Iterator<ProteinBean> iterator = proteinGroup.getIterator(SharedDataUtil.getComparatorByPrymaryAcc());
+			final Iterator<ProteinBeanLight> iterator = proteinGroup
+					.getIterator(SharedDataUtil.getComparatorByPrymaryAccForLightProteins());
 			while (iterator.hasNext()) {
-				final ProteinBean proteinBean = iterator.next();
+				final ProteinBeanLight proteinBean = iterator.next();
 				if (accs.contains(proteinBean.getPrimaryAccession().getAccession())) {
 					continue;
 				}

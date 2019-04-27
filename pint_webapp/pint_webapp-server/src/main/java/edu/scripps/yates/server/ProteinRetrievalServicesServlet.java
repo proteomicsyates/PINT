@@ -1906,7 +1906,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					log.info("Getting peptide-protein table for protein group "
 							+ ((ProteinGroupBeanLight) peptideProvider).getPrimaryAccessionsString() + " in dataset '"
 							+ dataSet.getName() + "'");
-				} else if (peptideProvider instanceof ProteinBean) {
+				} else if (peptideProvider instanceof ProteinBeanLight) {
 					log.info("Getting peptide-protein table for protein group "
 							+ ((ProteinBeanLight) peptideProvider).getPrimaryAccession().getAccession()
 							+ " in dataset '" + dataSet.getName() + "'");

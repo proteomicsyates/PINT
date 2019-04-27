@@ -12,8 +12,8 @@ import com.google.gwt.user.client.Window;
 
 import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.shared.columns.ColumnName;
-import edu.scripps.yates.shared.model.ProteinBean;
 import edu.scripps.yates.shared.model.interfaces.ContainsSequence;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
 
 public class CustomClickableImageColumnOpenLinkToPRIDECluster<T> extends AbsctractCustomClickableImageColumn<T>
 		implements MyColumn<T> {
@@ -29,7 +29,8 @@ public class CustomClickableImageColumnOpenLinkToPRIDECluster<T> extends Absctra
 		System.out.println(type);
 		if (type.equals(BrowserEvents.CLICK)) {
 
-			String url = "http://www.ebi.ac.uk/pride/cluster/#/list?q=" + getSearchTerm(object) + "&page=1&size=20";
+			final String url = "http://www.ebi.ac.uk/pride/cluster/#/list?q=" + getSearchTerm(object)
+					+ "&page=1&size=20";
 			Window.open(url, "_blank", "enabled");
 
 		}
@@ -44,9 +45,9 @@ public class CustomClickableImageColumnOpenLinkToPRIDECluster<T> extends Absctra
 			public int compare(T o1, T o2) {
 				if (o1 instanceof ContainsSequence) {
 					return ((ContainsSequence) o1).getSequence().compareTo(((ContainsSequence) o2).getSequence());
-				} else if (o1 instanceof ProteinBean) {
-					return ((ProteinBean) o1).getPrimaryAccession().getAccession()
-							.compareTo(((ProteinBean) o2).getPrimaryAccession().getAccession());
+				} else if (o1 instanceof ProteinBeanLight) {
+					return ((ProteinBeanLight) o1).getPrimaryAccession().getAccession()
+							.compareTo(((ProteinBeanLight) o2).getPrimaryAccession().getAccession());
 				} else {
 					return 0;
 				}
@@ -64,8 +65,7 @@ public class CustomClickableImageColumnOpenLinkToPRIDECluster<T> extends Absctra
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.google.gwt.user.cellview.client.Column#render(com.google.gwt.cell.
+	 * @see com.google.gwt.user.cellview.client.Column#render(com.google.gwt.cell.
 	 * client.Cell.Context, java.lang.Object,
 	 * com.google.gwt.safehtml.shared.SafeHtmlBuilder)
 	 */
@@ -82,8 +82,8 @@ public class CustomClickableImageColumnOpenLinkToPRIDECluster<T> extends Absctra
 	private String getSearchTerm(T object) {
 		if (object instanceof ContainsSequence) {
 			return ((ContainsSequence) object).getSequence();
-		} else if (object instanceof ProteinBean) {
-			return ((ProteinBean) object).getPrimaryAccession().getAccession();
+		} else if (object instanceof ProteinBeanLight) {
+			return ((ProteinBeanLight) object).getPrimaryAccession().getAccession();
 		} else {
 			return null;
 		}
@@ -92,7 +92,7 @@ public class CustomClickableImageColumnOpenLinkToPRIDECluster<T> extends Absctra
 	private String getSearchTypeTerm(T object) {
 		if (object instanceof ContainsSequence) {
 			return "peptide";
-		} else if (object instanceof ProteinBean) {
+		} else if (object instanceof ProteinBeanLight) {
 			return "protein";
 		} else {
 			return null;

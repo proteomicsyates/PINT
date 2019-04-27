@@ -12,10 +12,10 @@ import edu.scripps.yates.client.gui.components.WindowBox;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.shared.columns.ColumnName;
 import edu.scripps.yates.shared.model.AmountType;
-import edu.scripps.yates.shared.model.ProteinBean;
-import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.ProteinPeptideCluster;
-import edu.scripps.yates.shared.model.interfaces.ContainsPSMs;
+import edu.scripps.yates.shared.model.interfaces.ContainsLightPSMs;
+import edu.scripps.yates.shared.model.light.ProteinBeanLight;
+import edu.scripps.yates.shared.model.light.ProteinGroupBeanLight;
 
 public class CustomTextButtonColumn<T> extends Column<T, String> implements MyIdColumn<T> {
 	private final ColumnName columnName;
@@ -39,15 +39,15 @@ public class CustomTextButtonColumn<T> extends Column<T, String> implements MyId
 		setCellStyleNames("textButtonColumn");
 	}
 
-	void showSharingPeptidesTablePanel(ContainsPSMs containsPSMs, ProteinPeptideCluster result) {
-		SharingPeptidesPanel table = new SharingPeptidesPanel(result);
+	void showSharingPeptidesTablePanel(ContainsLightPSMs containsPSMs, ProteinPeptideCluster result) {
+		final SharingPeptidesPanel table = new SharingPeptidesPanel(result);
 		WindowBox window = null;
-		if (containsPSMs instanceof ProteinGroupBean) {
+		if (containsPSMs instanceof ProteinGroupBeanLight) {
 			window = new WindowBox(table, "Peptides explaining protein group '"
-					+ ((ProteinGroupBean) containsPSMs).getPrimaryAccessionsString() + "'");
-		} else if (containsPSMs instanceof ProteinBean) {
+					+ ((ProteinGroupBeanLight) containsPSMs).getPrimaryAccessionsString() + "'");
+		} else if (containsPSMs instanceof ProteinBeanLight) {
 			window = new WindowBox(table, "Peptides explaining protein '"
-					+ ((ProteinBean) containsPSMs).getPrimaryAccession().getAccession() + "'");
+					+ ((ProteinBeanLight) containsPSMs).getPrimaryAccession().getAccession() + "'");
 		}
 		if (window != null) {
 			window.setAnimationEnabled(true);

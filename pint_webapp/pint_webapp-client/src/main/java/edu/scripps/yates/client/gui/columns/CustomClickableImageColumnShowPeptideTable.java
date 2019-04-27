@@ -20,8 +20,6 @@ import edu.scripps.yates.client.gui.templates.MyClientBundle;
 import edu.scripps.yates.client.statusreporter.StatusReportersRegister;
 import edu.scripps.yates.client.tasks.PendingTasksManager;
 import edu.scripps.yates.shared.columns.ColumnName;
-import edu.scripps.yates.shared.model.ProteinBean;
-import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.ProteinPeptideCluster;
 import edu.scripps.yates.shared.model.interfaces.ContainsLightPeptides;
 import edu.scripps.yates.shared.model.light.ProteinBeanLight;
@@ -45,10 +43,10 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsLightP
 		final String type = event.getType();
 		if (type.equals(BrowserEvents.CLICK)) {
 			String proteinAcc = object.toString();
-			if (object instanceof ProteinBean) {
-				proteinAcc = ((ProteinBean) object).getPrimaryAccession().getAccession();
-			} else if (object instanceof ProteinGroupBean) {
-				proteinAcc = ((ProteinGroupBean) object).getPrimaryAccessionsString();
+			if (object instanceof ProteinBeanLight) {
+				proteinAcc = ((ProteinBeanLight) object).getPrimaryAccession().getAccession();
+			} else if (object instanceof ProteinGroupBeanLight) {
+				proteinAcc = ((ProteinGroupBeanLight) object).getPrimaryAccessionsString();
 			}
 
 			final Task task = PendingTasksManager.addPendingTask(new ShowPeptidesSharedByProteinsTask(proteinAcc));
@@ -126,7 +124,7 @@ public class CustomClickableImageColumnShowPeptideTable<T extends ContainsLightP
 
 	private String getToolTip(T object) {
 		String className = "protein";
-		if (object instanceof ProteinGroupBean) {
+		if (object instanceof ProteinGroupBeanLight) {
 			className = "protein group";
 		}
 		return "Show peptides explaining " + className;

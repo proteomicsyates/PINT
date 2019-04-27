@@ -36,7 +36,6 @@ import edu.scripps.yates.client.util.ClientSafeHtmlUtils;
 import edu.scripps.yates.shared.exceptions.PintException;
 import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.model.OrganismBean;
-import edu.scripps.yates.shared.model.ProteinGroupBean;
 import edu.scripps.yates.shared.model.ProteinPeptideCluster;
 import edu.scripps.yates.shared.model.light.PeptideBeanLight;
 import edu.scripps.yates.shared.model.light.ProteinBeanLight;
@@ -72,7 +71,7 @@ public class SharingPeptidesPanel extends Composite {
 		final FlowPanel explanationFlowPanel = new FlowPanel();
 		final SafeHtmlBuilder sb = new SafeHtmlBuilder();
 		String protenProviderType = "protein";
-		if (proteinPeptideCluster.getLightPeptideProvider() instanceof ProteinGroupBean) {
+		if (proteinPeptideCluster.getLightPeptideProvider() instanceof ProteinGroupBeanLight) {
 			protenProviderType = "protein group";
 		}
 		sb.appendEscapedLines("Here you can see all shared peptides of the selected " + protenProviderType + ".\n"
