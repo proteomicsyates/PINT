@@ -496,6 +496,9 @@ public class ProteinBean
 	}
 
 	public void addAmount(AmountBean proteinAmount) {
+		if (amounts.contains(proteinAmount)) {
+			return;
+		}
 		amounts.add(proteinAmount);
 
 		addAmountToMap(proteinAmount);
@@ -1464,7 +1467,7 @@ public class ProteinBean
 
 			return true;
 		}
-		if (getPeptides().size()!=lightVersion.getPeptides().size()) {
+		if (getPeptides().size() != lightVersion.getPeptides().size()) {
 			return true;
 		}
 		return false;
