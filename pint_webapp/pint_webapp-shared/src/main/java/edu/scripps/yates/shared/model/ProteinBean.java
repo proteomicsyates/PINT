@@ -1464,6 +1464,9 @@ public class ProteinBean
 
 			return true;
 		}
+		if (getPeptides().size()!=lightVersion.getPeptides().size()) {
+			return true;
+		}
 		return false;
 	}
 
