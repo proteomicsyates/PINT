@@ -335,9 +335,9 @@ public class QueriableProteinSet {
 					final TIntList peptideIDs = new TIntArrayList();
 					link.getQueriablePeptideSet().getIndividualPeptides().stream()
 							.forEach(peptide -> peptideIDs.add(peptide.getId()));
-					final TIntSet psmIDs = PeptideIDToPSMIDTableMapper.getInstance()
+					final TIntSet psmIDs2 = PeptideIDToPSMIDTableMapper.getInstance()
 							.getPSMIDsFromPeptideIDs(peptideIDs);
-					for (final int psmID : psmIDs.toArray()) {
+					for (final int psmID : psmIDs2.toArray()) {
 						if (!psmIDs.contains(psmID)) {
 							psmIDs.add(psmID);
 						}
