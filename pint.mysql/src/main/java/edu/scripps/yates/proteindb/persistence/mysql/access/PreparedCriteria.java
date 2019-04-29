@@ -1088,6 +1088,27 @@ public class PreparedCriteria {
 	}
 
 	/**
+	 * Gets a matrix in which in each row we have 2 elements, the first, the peptide
+	 * id and the second the psm id
+	 * 
+	 * @return
+	 */
+	public static int[][] getPeptideToPSMTable() {
+		final SQLQuery cr = ContextualSessionHandler.getCurrentSession()
+				.createSQLQuery("Select peptide_id, id from psm");
+		final List<Object> list = cr.list();
+		final int[][] ret = new int[list.size()][2];
+		int i = 0;
+		for (final Object object : list) {
+			final Object[] ids = (Object[]) object;
+			ret[i][0] = (int) ids[0];
+			ret[i][1] = (int) ids[1];
+			i++;
+		}
+		return ret;
+	}
+
+	/**
 	 * Gets a matrix in which in each row we have 2 elements, the first, the protein
 	 * id and the second the msRun id
 	 * 

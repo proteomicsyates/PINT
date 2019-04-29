@@ -82,7 +82,6 @@ public class ProteinBean
 	private List<ReactomePathwayRef> reactomePathways = new ArrayList<ReactomePathwayRef>();
 	private Set<Integer> peptideDBIds = new HashSet<Integer>();
 	private Map<String, ScoreBean> scores = new HashMap<String, ScoreBean>();
-	private Map<ExperimentalConditionBean, Integer> numPSMsByCondition;
 	private Map<String, PeptideRelation> peptideRelationsBySequence = new HashMap<String, PeptideRelation>();
 	private boolean annotated;
 	private static int uniqueIdentifiers = 0;
@@ -1071,7 +1070,13 @@ public class ProteinBean
 			// ret.psmIds.addAll(psmIds);
 //			lightVersion.setNumPSMs(getPSMDBIds().size());
 			getLightVersion().setNumPSMs(getNumPSMs());
-			getLightVersion().setNumPSMsByCondition(getNumPSMsByCondition());
+
+			//
+			final Map<ExperimentalConditionBean, Integer> numPSMsByCondition = new HashMap<ExperimentalConditionBean, Integer>();
+			for (final ExperimentalConditionBean condition : getPSMDBIdsByCondition().keySet()) {
+				numPSMsByCondition.put(condition, getPSMDBIdsByCondition().get(condition).size());
+			}
+			getLightVersion().setNumPSMsByCondition(numPSMsByCondition);
 			// disabled for performance
 			// ret.psmIdsByCondition.putAll(getPsmIdsByCondition());
 			getLightVersion().setRatios(getRatios());
@@ -1395,30 +1400,16 @@ public class ProteinBean
 
 	@Override
 	public int getNumPSMsByCondition(String projectTag, String conditionName) {
-		if (!getNumPSMsByCondition().isEmpty()) {
-			for (final ExperimentalConditionBean conditionBean : getNumPSMsByCondition().keySet()) {
+		if (!getPSMDBIdsByCondition().isEmpty()) {
+			for (final ExperimentalConditionBean conditionBean : getPSMDBIdsByCondition().keySet()) {
 				if (conditionBean.getId().equals(conditionName)) {
 					if (conditionBean.getProject().getTag().equals(projectTag)) {
-						return getNumPSMsByCondition().get(conditionBean);
+						return getPSMDBIdsByCondition().get(conditionBean).size();
 					}
 				}
 			}
 		}
 		return 0;
-	}
-
-	@Override
-	public Map<ExperimentalConditionBean, Integer> getNumPSMsByCondition() {
-		if (numPSMsByCondition == null) {
-			numPSMsByCondition = new HashMap<ExperimentalConditionBean, Integer>();
-			// this is only going to work for psmCentric
-			// but for peptideCentric this is going to be filled in the adapter
-			final Map<ExperimentalConditionBean, Set<Integer>> psmdbIdsByCondition = getPSMDBIdsByCondition();
-			for (final ExperimentalConditionBean conditionBean : psmdbIdsByCondition.keySet()) {
-				numPSMsByCondition.put(conditionBean, psmdbIdsByCondition.get(conditionBean).size());
-			}
-		}
-		return numPSMsByCondition;
 	}
 
 	public Map<ExperimentalConditionBean, Set<Integer>> getPeptideDBIdsByCondition() {
@@ -1487,5 +1478,21 @@ public class ProteinBean
 
 	public void setLightVersion(ProteinBeanLight lightVersion) {
 		this.lightVersion = lightVersion;
+	}
+
+	public void addPSMID(int psmID) {
+		psmIds.add(psmID);
+	}
+
+	public void addPSMIDsByCondition(ExperimentalConditionBean conditionBean, int[] psmIDs) {
+		final Set<Integer> psmIDSet = new HashSet<Integer>();
+		for (final Integer psmID : psmIDs) {
+			psmIDSet.add(psmID);
+		}
+		if (this.psmIdsByCondition.containsKey(conditionBean)) {
+			this.psmIdsByCondition.get(conditionBean).addAll(psmIDSet);
+		} else {
+			this.psmIdsByCondition.put(conditionBean, psmIDSet);
+		}
 	}
 }

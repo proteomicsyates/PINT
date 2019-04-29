@@ -23,6 +23,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToProteinTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ProteinAmountToProteinTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ProteinRatioToProteinTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToPSMIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToMSRunIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToProteinThresholdIDTableMapper;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
@@ -32,6 +33,7 @@ import edu.scripps.yates.server.cache.ServerCacheProteinBeansByProteinDBId;
 import edu.scripps.yates.shared.exceptions.PintException.PINT_ERROR_TYPE;
 import edu.scripps.yates.shared.exceptions.PintRuntimeException;
 import edu.scripps.yates.shared.model.AmountBean;
+import edu.scripps.yates.shared.model.AmountType;
 import edu.scripps.yates.shared.model.ExperimentalConditionBean;
 import edu.scripps.yates.shared.model.MSRunBean;
 import edu.scripps.yates.shared.model.PSMBean;
@@ -42,6 +44,7 @@ import edu.scripps.yates.shared.model.RatioDescriptorBean;
 import edu.scripps.yates.shared.model.SharedAggregationLevel;
 import edu.scripps.yates.shared.model.ThresholdBean;
 import edu.scripps.yates.utilities.proteomicsmodel.Gene;
+import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.TIntSet;
@@ -232,12 +235,21 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 					AmountBean proteinAmountValueBean = AmountBeanAdapter
 							.getBeanByProteinAmountValueID(proteinAmountValue.getId());
 					if (proteinAmountValueBean == null) {
+						final AmountType amountType = edu.scripps.yates.shared.model.AmountType
+								.fromValue(proteinAmountValue.getAmountType().getName());
+						if (amountType == AmountType.SPC) {
+							if (proteinAmountValue.getManualSPC() == null || !proteinAmountValue.getManualSPC()) {
+								// do not include this spectral count unless is a manual entered one, The SPC
+								// will be counted by the actual PSMs
+								continue;
+							}
+						}
 						proteinAmountValueBean = new AmountBean();
 						proteinAmountValueBean.setExperimentalCondition(
 								ConditionBeanAdapter.getBeanByConditionID(proteinAmountValue.getCondition().getId()));
 						if (proteinAmountValue.getAmountType() != null) {
-							proteinAmountValueBean.setAmountType(edu.scripps.yates.shared.model.AmountType
-									.fromValue(proteinAmountValue.getAmountType().getName()));
+
+							proteinAmountValueBean.setAmountType(amountType);
 						}
 						proteinAmountValueBean.setValue(proteinAmountValue.getValue());
 						proteinAmountValueBean.setManualSPC(proteinAmountValue.getManualSPC());
@@ -389,6 +401,8 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 			if (individualProteinsAlreadyAdded.contains(protein.getId())) {
 				continue;
 			}
+
+			// Conditions
 			final TIntArrayList conditionIDs = ConditionToProteinTableMapper.getInstance().mapIDs1(protein);
 			if (conditionIDs != null) {
 				for (final int conditionID : conditionIDs.toArray()) {
@@ -404,6 +418,27 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 					}
 					if (conditionBean != null) {
 						proteinBean.addCondition(conditionBean);
+						// get the psmsIDs using the links
+
+						if (queriableProtein.getLinksToPeptides() != null
+								&& !queriableProtein.getLinksToPeptides().isEmpty()) {
+							final TIntList peptideIDs = new TIntArrayList();
+							for (final LinkBetweenQueriableProteinSetAndPeptideSet link : queriableProtein
+									.getLinksToPeptides()) {
+								link.getQueriablePeptideSet().getIndividualPeptides()
+										.forEach(peptide -> peptideIDs.add(peptide.getId()));
+							}
+							final TIntSet psmIDs = PeptideIDToPSMIDTableMapper.getInstance()
+									.getPSMIDsFromPeptideIDs(peptideIDs);
+							proteinBean.addPSMIDsByCondition(conditionBean, psmIDs.toArray());
+						} else if (queriableProtein.getLinksToPSMs() != null
+								&& !queriableProtein.getLinksToPSMs().isEmpty()) {
+							final TIntArrayList psmIDs = new TIntArrayList();
+							queriableProtein.getLinksToPSMs()
+									.forEach(link -> psmIDs.add(link.getQueriablePsm().getPsm().getId()));
+							proteinBean.addPSMIDsByCondition(conditionBean, psmIDs.toArray());
+						}
+
 					}
 				}
 			}
@@ -449,10 +484,15 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 			log.debug("PSMs: " + proteinBean.getPSMDBIds().size());
 			log.debug("PSMs by conditions: " + proteinBean.getPSMDBIdsByCondition().size());
 		}
+
 		// TODO
 		// I think this has to be disabled because the peptidebeans are created
 		// after creating the protein beans, from the Dataset.getPeptides()
 		if (queriableProtein.getLinksToPeptides() != null) {
+			final TIntList psmiDs = queriableProtein.getPSMIDs();
+			for (final int psmID : psmiDs.toArray()) {
+				proteinBean.addPSMID(psmID);
+			}
 			for (final LinkBetweenQueriableProteinSetAndPeptideSet link : queriableProtein.getLinksToPeptides()) {
 				if (Thread.interrupted()) {
 					throw new PintRuntimeException("Thread interrupted while adapting proteinBean from proteinSet",
@@ -468,6 +508,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 					numPSMs += link2.getQueriablePeptideSet().getNumPSMs();
 				}
 				proteinBean.setNumPSMs(numPSMs);
+
 				if (!includePeptides) {
 					// add peptideDBIds to proteinBean
 					if (link.getQueriablePeptideSet() != null) {

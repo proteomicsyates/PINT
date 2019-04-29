@@ -964,7 +964,6 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 		return 0;
 	}
 
-	@Override
 	public Map<ExperimentalConditionBean, Integer> getNumPSMsByCondition() {
 		if (numPSMsByCondition == null) {
 			numPSMsByCondition = new HashMap<ExperimentalConditionBean, Integer>();

@@ -27,9 +27,9 @@ import edu.scripps.yates.proteindb.persistence.mysql.Tissue;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.ProteinAccessionAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.PersistenceUtils;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToPSMIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToConditionIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToMSRunIDTableMapper;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToPSMIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToPeptideIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToProteinScoreIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToProteinThresholdIDTableMapper;
@@ -41,6 +41,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.GeneEx;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.TIntCollection;
+import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.TIntSet;
@@ -77,6 +78,7 @@ public class QueriableProteinSet {
 	private Organism organism;
 	private List<Tissue> tissues;
 	private List<Psm> psmList;
+	private TIntList psmIDs;
 	private List<Peptide> peptideList;
 	private static UniprotProteinLocalRetriever uplr;
 
@@ -207,6 +209,8 @@ public class QueriableProteinSet {
 		final boolean removed = linksToPSMs.remove(link);
 		// force to recreate the individual proteins
 		individualProteins = null;
+		// force to recreate psms
+		psmList = null;
 		if (!removed)
 			log.warn("BAD");
 	}
@@ -215,6 +219,8 @@ public class QueriableProteinSet {
 		final boolean removed = linksToPeptides.remove(link);
 		// force to recreate the individual proteins
 		individualProteins = null;
+		// force to recreate psms
+		psmList = null;
 		if (!removed)
 			log.warn("BAD");
 	}
@@ -287,25 +293,61 @@ public class QueriableProteinSet {
 
 	public List<Psm> getPsms() {
 		if (psmList == null || psmList.isEmpty()) {
-			final TIntArrayList proteinIds = new TIntArrayList();
-			for (final Protein protein : getIndividualProteins()) {
-				proteinIds.add(protein.getId());
-			}
-			final TIntSet psmIDs = ProteinIDToPSMIDTableMapper.getInstance().getPSMIDsFromProteinIDs(proteinIds);
-			psmList = (List<Psm>) PreparedCriteria.getBatchLoadByIDs(Psm.class, psmIDs, true, 250);
+			if (getLinksToPSMs() != null) {
+				psmList = new ArrayList<Psm>();
+				getLinksToPSMs().stream().forEach(link -> psmList.add(link.getQueriablePsm().getPsm()));
+			} else if (getLinksToPeptides() != null) {
+				psmList = new ArrayList<Psm>();
+				for (final LinkBetweenQueriableProteinSetAndPeptideSet link : getLinksToPeptides()) {
+					final TIntList peptideIDs = new TIntArrayList();
+					link.getQueriablePeptideSet().getIndividualPeptides().stream()
+							.forEach(peptide -> peptideIDs.add(peptide.getId()));
+					final TIntSet psmIDs = PeptideIDToPSMIDTableMapper.getInstance()
+							.getPSMIDsFromPeptideIDs(peptideIDs);
+					final List<Psm> psmListTMP = (List<Psm>) PreparedCriteria.getBatchLoadByIDs(Psm.class, psmIDs, true,
+							250);
+					for (final Psm psm : psmListTMP) {
+						if (!psmList.contains(psm)) {
+							psmList.add(psm);
+						}
+					}
 
-//		final Set<Psm> psmSet = new THashSet<Psm>();
-//		for (final Protein protein : getIndividualProteins()) {
-//			final Set<Psm> psms = protein.getPsms();
-//			for (Psm psm : psms) {
-//				if (!ContextualSessionHandler.getCurrentSession().contains(psm)) {
-//					psm = (Psm) ContextualSessionHandler.load(psm.getId(), Psm.class);
-//				}
-//				psmSet.add(psm);
-//			}
-//		}
+				}
+
+			}
 		}
 		return psmList;
+	}
+
+	/**
+	 * Gets the IDs of the PSMs by iterating over the links to peptides or PSMs
+	 * 
+	 * @return
+	 */
+	public TIntList getPSMIDs() {
+		if (psmIDs == null || psmIDs.isEmpty()) {
+			if (getLinksToPSMs() != null && !getLinksToPSMs().isEmpty()) {
+				psmIDs = new TIntArrayList();
+				getLinksToPSMs().stream().forEach(link -> psmIDs.add(link.getQueriablePsm().getPsm().getId()));
+			} else if (getLinksToPeptides() != null && !getLinksToPeptides().isEmpty()) {
+				psmIDs = new TIntArrayList();
+				for (final LinkBetweenQueriableProteinSetAndPeptideSet link : getLinksToPeptides()) {
+					final TIntList peptideIDs = new TIntArrayList();
+					link.getQueriablePeptideSet().getIndividualPeptides().stream()
+							.forEach(peptide -> peptideIDs.add(peptide.getId()));
+					final TIntSet psmIDs = PeptideIDToPSMIDTableMapper.getInstance()
+							.getPSMIDsFromPeptideIDs(peptideIDs);
+					for (final int psmID : psmIDs.toArray()) {
+						if (!psmIDs.contains(psmID)) {
+							psmIDs.add(psmID);
+						}
+					}
+
+				}
+
+			}
+		}
+		return psmIDs;
 	}
 
 	public Set<String> getProteinAccessions() {

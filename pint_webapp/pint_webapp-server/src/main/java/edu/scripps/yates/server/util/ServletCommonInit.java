@@ -14,10 +14,10 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablema
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ConditionIDToRatioDescriptorIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToConditionIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToMSRunIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToPSMIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToPTMIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToConditionIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToMSRunIDTableMapper;
-import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToPSMIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToPeptideIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToProteinScoreIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToProteinThresholdIDTableMapper;
@@ -89,8 +89,8 @@ public class ServletCommonInit {
 		threads.add(t);
 
 		final Runnable runnable2 = () -> {
-			// load protein-psm mapping
-			ProteinIDToPSMIDTableMapper.getInstance();
+			// load peptide-psm mapping
+			PeptideIDToPSMIDTableMapper.getInstance();
 		};
 		final Thread t2 = new Thread(runnable2);
 		threads.add(t2);
