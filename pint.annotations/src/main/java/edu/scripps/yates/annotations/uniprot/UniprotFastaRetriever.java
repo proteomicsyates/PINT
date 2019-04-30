@@ -34,43 +34,52 @@ public class UniprotFastaRetriever {
 		final URL url = new URL(location).toURI().toURL();
 		log.debug("Submitting " + locationBuilder + " from thread " + Thread.currentThread().getId() + "...");
 		final long t1 = System.currentTimeMillis();
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		HttpURLConnection.setFollowRedirects(true);
-		conn.setDoInput(true);
-		conn.connect();
+		HttpURLConnection conn = null;
 
-		int status = conn.getResponseCode();
-		while (true) {
-			int wait = 0;
-			final String header = conn.getHeaderField("Retry-After");
-			if (header != null)
-				wait = Integer.valueOf(header);
-			if (wait == 0)
-				break;
-			log.info("Waiting (" + wait + ")...");
-			conn.disconnect();
-			Thread.sleep(wait * 1000);
-			conn = (HttpURLConnection) new URL(location).openConnection();
+		try {
+			conn = (HttpURLConnection) url.openConnection();
+			HttpURLConnection.setFollowRedirects(true);
 			conn.setDoInput(true);
 			conn.connect();
-			status = conn.getResponseCode();
-		}
-		if (status == HttpURLConnection.HTTP_OK) {
-			final long t2 = System.currentTimeMillis();
-			log.debug("Got a OK reply in " + DatesUtil.getDescriptiveTimeFromMillisecs(t2 - t1));
-			final InputStream is = conn.getInputStream();
-			URLConnection.guessContentTypeFromStream(is);
-			final Entry fastaEntry = UniprotProteinRemoteRetriever.parseFASTAResponse(is, uniprotACC);
-			if (fastaEntry != null) {
-				return fastaEntry;
-			} else {
-				log.debug("Adding " + uniprotACC + " to the list of proteins with no FASTA sequence available.");
-				synchronized (UniprotProteinRemoteRetriever.entriesWithNoFASTA) {
-					UniprotProteinRemoteRetriever.entriesWithNoFASTA.add(uniprotACC);
+
+			int status = conn.getResponseCode();
+			while (true) {
+				int wait = 0;
+				final String header = conn.getHeaderField("Retry-After");
+				if (header != null)
+					wait = Integer.valueOf(header);
+				if (wait == 0)
+					break;
+				log.info("Waiting (" + wait + ")...");
+				conn.disconnect();
+				Thread.sleep(wait * 1000);
+				conn = (HttpURLConnection) new URL(location).openConnection();
+				conn.setDoInput(true);
+				conn.connect();
+				status = conn.getResponseCode();
+			}
+			if (status == HttpURLConnection.HTTP_OK) {
+				final long t2 = System.currentTimeMillis();
+				log.debug("Got a OK reply in " + DatesUtil.getDescriptiveTimeFromMillisecs(t2 - t1));
+				final InputStream is = conn.getInputStream();
+				URLConnection.guessContentTypeFromStream(is);
+				final Entry fastaEntry = UniprotProteinRemoteRetriever.parseFASTAResponse(is, uniprotACC);
+				if (fastaEntry != null) {
+					return fastaEntry;
+				} else {
+					log.debug("Adding " + uniprotACC + " to the list of proteins with no FASTA sequence available.");
+					synchronized (UniprotProteinRemoteRetriever.entriesWithNoFASTA) {
+						UniprotProteinRemoteRetriever.entriesWithNoFASTA.add(uniprotACC);
+					}
 				}
 			}
-		}
-		return null;
 
+			return null;
+
+		} finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
+		}
 	}
 }

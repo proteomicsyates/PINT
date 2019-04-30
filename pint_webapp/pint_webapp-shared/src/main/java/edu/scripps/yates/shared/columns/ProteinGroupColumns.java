@@ -60,14 +60,14 @@ public class ProteinGroupColumns implements ColumnProvider<ProteinGroupBean> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.SEQUENCE_COUNT, true);
 			columns.add(col);
-			if (
-			// Pint.psmCentric
-			false) {
-				col = new ColumnWithVisibility(ColumnName.SPECTRUM_COUNT, true);
-				columns.add(col);
-				col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
-				columns.add(col);
-			}
+//			if (
+//			// Pint.psmCentric
+//			false) {
+			col = new ColumnWithVisibility(ColumnName.SPECTRUM_COUNT, true);
+			columns.add(col);
+			col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
+			columns.add(col);
+//			}
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_AMOUNT, false);
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_RATIO, false);

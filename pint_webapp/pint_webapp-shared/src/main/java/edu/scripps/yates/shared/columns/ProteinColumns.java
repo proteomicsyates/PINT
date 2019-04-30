@@ -63,12 +63,12 @@ public class ProteinColumns implements ColumnProvider<ProteinBean> {
 			columns.add(col);
 			col = new ColumnWithVisibility(ColumnName.SPECTRUM_COUNT, true);
 			columns.add(col);
-			if (
-			// Pint.psmCentric
-			false) {
-				col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
-				columns.add(col);
-			}
+//			if (
+//			// Pint.psmCentric
+//			false) {
+			col = new ColumnWithVisibility(ColumnName.SPC_PER_CONDITION, false);
+			columns.add(col);
+//			}
 
 			col = new ColumnWithVisibility(ColumnName.PROTEIN_SCORE, false);
 			columns.add(col);

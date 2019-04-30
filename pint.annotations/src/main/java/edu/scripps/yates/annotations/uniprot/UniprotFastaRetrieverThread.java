@@ -49,6 +49,7 @@ public class UniprotFastaRetrieverThread extends Thread {
 				iterator.register(e);
 			} catch (final IOException e) {
 				e.printStackTrace();
+				log.warn("Error getting FASTA from https://www.uniprot.org/uniprot/" + accession + ".fasta");
 				log.warn(e.getMessage());
 				iterator.register(e);
 			} catch (final InterruptedException e) {

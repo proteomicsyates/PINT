@@ -25,6 +25,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ProteinAm
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ProteinRatioToProteinTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.PeptideIDToPSMIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToMSRunIDTableMapper;
+import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToPeptideIDTableMapper;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.idtablemapper.ProteinIDToProteinThresholdIDTableMapper;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPSM;
 import edu.scripps.yates.proteindb.queries.semantic.LinkBetweenQueriableProteinSetAndPeptideSet;
@@ -139,6 +140,9 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	 */
 	private void addProteinInformationToProteinBean(ProteinBean proteinBean, QueriableProteinSet queriableProtein,
 			Set<String> hiddenPTMs) {
+		if (queriableProtein.getPrimaryAccession().equals("Q8C196")) {
+			log.info("asdf");
+		}
 		// keep the ones already added in a set, so that we ignore them in the loops of
 		// this method
 		final TIntSet individualProteinsAlreadyAdded = new TIntHashSet();
@@ -418,26 +422,31 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 					}
 					if (conditionBean != null) {
 						proteinBean.addCondition(conditionBean);
-						// get the psmsIDs using the links
 
-						if (queriableProtein.getLinksToPeptides() != null
-								&& !queriableProtein.getLinksToPeptides().isEmpty()) {
-							final TIntList peptideIDs = new TIntArrayList();
-							for (final LinkBetweenQueriableProteinSetAndPeptideSet link : queriableProtein
-									.getLinksToPeptides()) {
-								link.getQueriablePeptideSet().getIndividualPeptides()
-										.forEach(peptide -> peptideIDs.add(peptide.getId()));
+						// PSMs by condition. we have to take the PSMs from the peptides that are in
+						// this condition only, so, from this protein object only. but instead of
+						// getting peptides from protein, we use table id maps. Then, we check that are
+						// in the links (valid ones).
+						// get the psmsIDs using the links
+						// we keep peptide ids that are valid
+						final TIntSet allPeptideIDsFromLinks = new TIntHashSet();
+						queriableProtein.getLinksToPeptides().stream().forEach(
+								link -> allPeptideIDsFromLinks.addAll(link.getQueriablePeptideSet().getPeptideIDs()));
+						// we get peptide IDs from this protein
+						final TIntSet peptideIDs = ProteinIDToPeptideIDTableMapper.getInstance()
+								.getPeptideIDsFromProteinID(protein.getId());
+						final TIntList peptideIDsToQuery = new TIntArrayList();
+						for (final int peptideID : peptideIDs.toArray()) {
+							// if it is among the valid ones (from links), we consider it
+							if (allPeptideIDsFromLinks.contains(peptideID)) {
+								peptideIDsToQuery.add(peptideID);
+							} else {
+								log.debug("not valid peptide");
 							}
-							final TIntSet psmIDs = PeptideIDToPSMIDTableMapper.getInstance()
-									.getPSMIDsFromPeptideIDs(peptideIDs);
-							proteinBean.addPSMIDsByCondition(conditionBean, psmIDs.toArray());
-						} else if (queriableProtein.getLinksToPSMs() != null
-								&& !queriableProtein.getLinksToPSMs().isEmpty()) {
-							final TIntArrayList psmIDs = new TIntArrayList();
-							queriableProtein.getLinksToPSMs()
-									.forEach(link -> psmIDs.add(link.getQueriablePsm().getPsm().getId()));
-							proteinBean.addPSMIDsByCondition(conditionBean, psmIDs.toArray());
 						}
+						final TIntSet psmIDs = PeptideIDToPSMIDTableMapper.getInstance()
+								.getPSMIDsFromPeptideIDs(peptideIDsToQuery);
+						proteinBean.addPSMIDsByCondition(conditionBean, psmIDs.toArray());
 
 					}
 				}

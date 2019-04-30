@@ -433,11 +433,10 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 				boolean showProteinGroupSPCPercondition = false;
 				boolean showProteinSPCPercondition = false;
-				if (Pint.getPSMCentric()) {
-					showProteinGroupSPCPercondition = proteinGroupColumnNamesPanel
-							.isSelected(ColumnName.SPC_PER_CONDITION);
-					showProteinSPCPercondition = proteinColumnNamesPanel.isSelected(ColumnName.SPC_PER_CONDITION);
-				}
+//				if (Pint.getPSMCentric()) {
+				showProteinGroupSPCPercondition = proteinGroupColumnNamesPanel.isSelected(ColumnName.SPC_PER_CONDITION);
+				showProteinSPCPercondition = proteinColumnNamesPanel.isSelected(ColumnName.SPC_PER_CONDITION);
+//				}
 				final boolean showPeptideSPCPercondition = peptideColumnNamesPanel
 						.isSelected(ColumnName.SPC_PER_CONDITION);
 
@@ -1620,23 +1619,22 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 				MyVerticalCheckBoxListPanel.getKeyName(ColumnName.SPC_PER_CONDITION, conditionName, conditionSymbol,
 						AmountType.SPC.name(), projectTag));
 		// to proteins
-		if (Pint.getPSMCentric()) {
-			final ColumnWithVisibility proteinColumn = ProteinColumns.getInstance()
-					.getColumn(ColumnName.SPC_PER_CONDITION);
-			proteinTablePanel.addColumnForConditionAmount(ColumnName.SPC_PER_CONDITION, proteinColumn.isVisible(),
-					conditionName, conditionSymbol, AmountType.SPC, projectTag);
-			proteinColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.SPC_PER_CONDITION, checkBoxName,
-					MyVerticalCheckBoxListPanel.getKeyName(ColumnName.SPC_PER_CONDITION, conditionName, conditionSymbol,
-							AmountType.SPC.name(), projectTag));
-			// o protein groups
-			final ColumnWithVisibility proteinGroupColumn = ProteinGroupColumns.getInstance()
-					.getColumn(ColumnName.SPC_PER_CONDITION);
-			proteinGroupTablePanel.addColumnForConditionAmount(ColumnName.SPC_PER_CONDITION,
-					proteinGroupColumn.isVisible(), conditionName, conditionSymbol, AmountType.SPC, projectTag);
-			proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.SPC_PER_CONDITION, checkBoxName,
-					MyVerticalCheckBoxListPanel.getKeyName(ColumnName.SPC_PER_CONDITION, conditionName, conditionSymbol,
-							AmountType.SPC.name(), projectTag));
-		}
+//		if (Pint.getPSMCentric()) {
+		final ColumnWithVisibility proteinColumn = ProteinColumns.getInstance().getColumn(ColumnName.SPC_PER_CONDITION);
+		proteinTablePanel.addColumnForConditionAmount(ColumnName.SPC_PER_CONDITION, proteinColumn.isVisible(),
+				conditionName, conditionSymbol, AmountType.SPC, projectTag);
+		proteinColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.SPC_PER_CONDITION, checkBoxName,
+				MyVerticalCheckBoxListPanel.getKeyName(ColumnName.SPC_PER_CONDITION, conditionName, conditionSymbol,
+						AmountType.SPC.name(), projectTag));
+		// o protein groups
+		final ColumnWithVisibility proteinGroupColumn = ProteinGroupColumns.getInstance()
+				.getColumn(ColumnName.SPC_PER_CONDITION);
+		proteinGroupTablePanel.addColumnForConditionAmount(ColumnName.SPC_PER_CONDITION, proteinGroupColumn.isVisible(),
+				conditionName, conditionSymbol, AmountType.SPC, projectTag);
+		proteinGroupColumnNamesPanel.addColumnCheckBoxByKeyName(ColumnName.SPC_PER_CONDITION, checkBoxName,
+				MyVerticalCheckBoxListPanel.getKeyName(ColumnName.SPC_PER_CONDITION, conditionName, conditionSymbol,
+						AmountType.SPC.name(), projectTag));
+//		}
 	}
 
 	private void addPSMAmountColumns(final String projectTag, final String conditionName,

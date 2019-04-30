@@ -23,6 +23,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.AmountTypeAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToPeptideTableMapper;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType;
+import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -38,6 +39,7 @@ public class QueriablePeptideSet {
 	private Set<PeptideAmount> peptideAmounts;
 	private Set<Ptm> ptms;
 	private int numPSMs;
+	private TIntList peptideIDs;
 	private static final Map<String, QueriablePeptideSet> map = new THashMap<String, QueriablePeptideSet>();
 	private final static Logger log = Logger.getLogger(QueriablePeptideSet.class);
 
@@ -269,6 +271,14 @@ public class QueriablePeptideSet {
 			}
 		}
 		return numPSMs;
+	}
+
+	public TIntList getPeptideIDs() {
+		if (peptideIDs == null) {
+			peptideIDs = new TIntArrayList(getPeptides().size());
+			getPeptides().forEach(peptide -> peptideIDs.add(peptide.getId()));
+		}
+		return peptideIDs;
 	}
 
 }
