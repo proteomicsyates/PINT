@@ -685,12 +685,14 @@ public class RemoteServicesTasks {
 
 	public static Set<ProjectBean> getProjectBeans(boolean includeHidden) {
 		final Set<ProjectBean> ret = new HashSet<ProjectBean>();
-
+		log.info("Getting projects (including hidden ones= " + includeHidden);
 		final List<edu.scripps.yates.proteindb.persistence.mysql.Project> retrieveList = ContextualSessionHandler
 				.retrieveList(edu.scripps.yates.proteindb.persistence.mysql.Project.class);
+		log.info(retrieveList.size() + " projects retrieved");
 		for (final edu.scripps.yates.proteindb.persistence.mysql.Project project : retrieveList) {
 			if (!includeHidden && project.isHidden())
 				continue;
+			log.info("Adapting project " + project.getTag());
 			final ProjectBean projectBean = new ProjectBeanAdapter(project, false, false).adapt();
 			ServerCacheProjectBeanByProjectTag.getInstance().addtoCache(projectBean, projectBean.getTag());
 			ret.add(projectBean);
