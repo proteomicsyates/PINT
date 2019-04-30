@@ -3,6 +3,7 @@ package edu.scripps.yates.proteindb.persistence.mysql.access;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -645,7 +646,7 @@ public class MySQLDeleter {
 
 			for (final Condition condition : conditions) {
 
-				deleteCondition(condition);
+				deleteCondition(condition, false);
 
 			}
 			for (final Condition condition : conditions) {
@@ -677,16 +678,23 @@ public class MySQLDeleter {
 			ContextualSessionHandler.beginGoodTransaction();
 			ContextualSessionHandler.refresh(hibProject);
 			final Set<MsRun> msRuns = hibProject.getMsRuns();
-			for (final MsRun msRun : msRuns) {
-				ContextualSessionHandler.beginGoodTransaction();
-				deleteMSRun(msRun);
-				log.info("Flushing session...");
-				ContextualSessionHandler.flush();
+			boolean deleteProteins = false;
+			if (!msRuns.isEmpty()) {
+				for (final MsRun msRun : msRuns) {
+					ContextualSessionHandler.beginGoodTransaction();
+					deleteMSRun(msRun);
+					log.info("Flushing session...");
+					ContextualSessionHandler.flush();
 //				log.info("Clearing session...");
 //				ContextualSessionHandler.clear();
-				log.info("Session clear. Now finishing transaction");
-				ContextualSessionHandler.finishGoodTransaction();
-				log.info("Transaction finished.");
+					log.info("Session clear. Now finishing transaction");
+					ContextualSessionHandler.finishGoodTransaction();
+					log.info("Transaction finished.");
+				}
+			} else {
+				// there is no msRuns, but we can delete protein, peptides and so on from
+				// conditions
+				deleteProteins = true;
 			}
 			ContextualSessionHandler.beginGoodTransaction();
 			if (initialMSRunNumber == 0) {
@@ -697,7 +705,7 @@ public class MySQLDeleter {
 
 			for (final Condition condition : conditions) {
 
-				deleteCondition(condition);
+				deleteCondition(condition, deleteProteins);
 
 			}
 			for (final Condition condition : conditions) {
@@ -771,19 +779,86 @@ public class MySQLDeleter {
 		return conditionsByMSRun;
 	}
 
-	private void deleteCondition(Condition condition) {
+	private void deleteCondition(Condition condition, boolean deleteProteins) throws InterruptedException {
+		if (deleteProteins) {
+			deleteProteinsFromCondition(condition);
+		}
+		final Set<RatioDescriptor> set = new HashSet<RatioDescriptor>();
 		// ratio descriptors
-		final Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition1Id = condition
-				.getRatioDescriptorsForExperimentalCondition1Id();
-		for (final RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition1Id) {
+		set.addAll(condition.getRatioDescriptorsForExperimentalCondition1Id());
+		set.addAll(condition.getRatioDescriptorsForExperimentalCondition2Id());
+		for (final RatioDescriptor ratioDescriptor : set) {
 			deleteRatioDescriptor(ratioDescriptor);
 		}
-		final Set<RatioDescriptor> ratioDescriptorsForExperimentalCondition2Id = condition
-				.getRatioDescriptorsForExperimentalCondition2Id();
-		for (final RatioDescriptor ratioDescriptor : ratioDescriptorsForExperimentalCondition2Id) {
-			deleteRatioDescriptor(ratioDescriptor);
-		}
+
 		ContextualSessionHandler.delete(condition);
+	}
+
+	private void deleteProteinsFromCondition(Condition condition) throws InterruptedException {
+		log.info("Deleting condition:  " + condition.getId() + " of project " + condition.getProject().getTag());
+		ContextualSessionHandler.refresh(condition);
+
+		final Set<Protein> proteins = condition.getProteins();
+		ProgressCounter counter = new ProgressCounter(proteins.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
+		counter.setShowRemainingTime(true);
+		counter.setSuffix("proteins deleted");
+		final Iterator<Protein> iterator = proteins.iterator();
+		while (iterator.hasNext()) {
+			final Protein protein = iterator.next();
+			counter.increment();
+			final String printIfNecessary = counter.printIfNecessary();
+			if (printIfNecessary != null && !"".equals(printIfNecessary)) {
+				ContextualSessionHandler.flush();
+				log.info(printIfNecessary);
+			}
+			deleteProtein(protein);
+			iterator.remove();
+			if (Thread.interrupted()) {
+				throw new InterruptedException();
+			}
+		}
+		final Set<Peptide> peptides = condition.getPeptides();
+		counter = new ProgressCounter(peptides.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
+		counter.setShowRemainingTime(true);
+		counter.setSuffix("peptides deleted");
+		final Iterator<Peptide> iterator2 = peptides.iterator();
+		while (iterator2.hasNext()) {
+			final Peptide peptide = iterator2.next();
+			counter.increment();
+			final String print = counter.printIfNecessary();
+			if (print != null && !"".equals(print)) {
+				ContextualSessionHandler.flush();
+				log.info(print);
+			}
+			deletePeptide(peptide);
+			iterator2.remove();
+			if (Thread.interrupted()) {
+				throw new InterruptedException();
+			}
+		}
+
+		final Set<Psm> psms = condition.getPsms();
+		counter = new ProgressCounter(psms.size(), ProgressPrintingType.PERCENTAGE_STEPS, 0);
+		counter.setShowRemainingTime(true);
+		counter.setSuffix("PSMs deleted");
+		final Iterator<Psm> iterator3 = psms.iterator();
+		while (iterator3.hasNext()) {
+			final Psm psm = iterator3.next();
+			counter.increment();
+			final String print = counter.printIfNecessary();
+			if (print != null && !"".equals(print)) {
+				ContextualSessionHandler.flush();
+				log.info(print);
+			}
+			deletePSM(psm);
+			iterator3.remove();
+			if (Thread.interrupted()) {
+				throw new InterruptedException();
+			}
+		}
+
+		ContextualSessionHandler.delete(condition);
+
 	}
 
 	private Map<Condition, Set<MsRun>> getMSRunsByCondition(Map<MsRun, Set<Condition>> conditionsByMSRun) {
