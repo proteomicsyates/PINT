@@ -1533,11 +1533,12 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 			}
 			proteinGroupTablePanel.removeColumn(ColumnName.PROTEIN_AMOUNT);
 			proteinTablePanel.removeColumn(ColumnName.PROTEIN_AMOUNT);
+			proteinGroupTablePanel.removeColumn(ColumnName.SPC_PER_CONDITION);
+			proteinTablePanel.removeColumn(ColumnName.SPC_PER_CONDITION);
 			if (Pint.getPSMCentric()) {
 				psmTablePanel.removeColumn(ColumnName.PSM_AMOUNT);
 				psmOnlyTablePanel.removeColumn(ColumnName.PSM_AMOUNT);
-				proteinGroupTablePanel.removeColumn(ColumnName.SPC_PER_CONDITION);
-				proteinTablePanel.removeColumn(ColumnName.SPC_PER_CONDITION);
+
 			} else {
 				peptideTablePanel.removeColumn(ColumnName.PEPTIDE_AMOUNT);
 				peptideTablePanel.removeColumn(ColumnName.SPC_PER_CONDITION);

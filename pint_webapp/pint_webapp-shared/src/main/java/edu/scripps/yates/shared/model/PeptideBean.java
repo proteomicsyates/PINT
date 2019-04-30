@@ -867,7 +867,7 @@ public class PeptideBean implements Comparable<PeptideBean>, Serializable, Conta
 			System.out.println("Needs to query proteins from peptideBean " + this.getId());
 			return true;
 		}
-		if (getProteins().size() != lightVersion.getProteins().size()) {
+		if (lightVersion != null && getProteins().size() != lightVersion.getProteins().size()) {
 			return true;
 		}
 		return false;

@@ -71,8 +71,8 @@ public class ProteinGroupColumnManager extends AbstractColumnManager<ProteinGrou
 				.fromSafeConstant(SharedDataUtil.getAmountHeader(amountType, conditionSymbol));
 		final MySafeHtmlHeaderWithTooltip header = new MySafeHtmlHeaderWithTooltip(columnName, headerName,
 				SharedDataUtil.getAmountHeaderTooltip(amountType, conditionName, projectName));
-		final ProteinGroupTextColumn column = new ProteinGroupTextColumn(ColumnName.PROTEIN_AMOUNT, visibleState,
-				header, footerManager.getAmountFooterByCondition(conditionName, amountType, projectName), conditionName,
+		final ProteinGroupTextColumn column = new ProteinGroupTextColumn(columnName, visibleState, header,
+				footerManager.getAmountFooterByCondition(conditionName, amountType, projectName), conditionName,
 				amountType, projectName);
 		column.setKeyName(MyVerticalCheckBoxListPanel.getKeyName(columnName, conditionName, conditionSymbol,
 				amountType.name(), projectName));
