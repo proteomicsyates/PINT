@@ -80,7 +80,7 @@ public class DeleteHiddenProjects extends PintServerDaemonTask {
 					}
 				}
 			}
-		} catch (final IOException e1) {
+		} catch (final Exception e1) {
 			e1.printStackTrace();
 		} finally {
 			// Close the Session

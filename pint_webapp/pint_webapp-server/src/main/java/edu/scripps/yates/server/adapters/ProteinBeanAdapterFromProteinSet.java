@@ -140,9 +140,6 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 	 */
 	private void addProteinInformationToProteinBean(ProteinBean proteinBean, QueriableProteinSet queriableProtein,
 			Set<String> hiddenPTMs) {
-		if (queriableProtein.getPrimaryAccession().equals("Q8C196")) {
-			log.info("asdf");
-		}
 		// keep the ones already added in a set, so that we ignore them in the loops of
 		// this method
 		final TIntSet individualProteinsAlreadyAdded = new TIntHashSet();

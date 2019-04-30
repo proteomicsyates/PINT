@@ -682,8 +682,8 @@ public class MySQLDeleter {
 				deleteMSRun(msRun);
 				log.info("Flushing session...");
 				ContextualSessionHandler.flush();
-				log.info("Clearing session...");
-				ContextualSessionHandler.clear();
+//				log.info("Clearing session...");
+//				ContextualSessionHandler.clear();
 				log.info("Session clear. Now finishing transaction");
 				ContextualSessionHandler.finishGoodTransaction();
 				log.info("Transaction finished.");
