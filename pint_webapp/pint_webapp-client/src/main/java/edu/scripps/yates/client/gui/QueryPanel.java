@@ -2297,7 +2297,7 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 
 				scoreNamesPanel.clearList();
 				scoreTypesPanel.clearList();
-
+				ratioNamesPanel.clearList();
 				// final ProteinsByProjectLoadingDialog progressDialog = new
 				// ProteinsByProjectLoadingDialog(sessionID,
 				// projectTag, uniprotVersion);
