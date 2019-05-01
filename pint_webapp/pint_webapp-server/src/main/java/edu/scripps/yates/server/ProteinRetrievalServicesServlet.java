@@ -504,7 +504,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				// lock session
 				LockerByTag.lock(sessionID, enclosingMethod);
 				// lock project
-				LockerByTag.lock(projectTags, enclosingMethod);
+				LockerByTag.lock(task, enclosingMethod);
 
 				// get the queryInOrder String
 				final Infix2QueryBinaryTree tree = new Infix2QueryBinaryTree();
@@ -546,7 +546,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				}
 				return null;
 			} finally {
-				LockerByTag.unlock(projectTags, enclosingMethod);
+				LockerByTag.unlock(task, enclosingMethod);
 				LockerByTag.unlock(sessionID, enclosingMethod);
 			}
 		} catch (final Exception e) {
@@ -581,7 +581,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				// lock session
 				LockerByTag.lock(sessionID, enclosingMethod);
 				// lock projects
-				LockerByTag.lock(projectTags, enclosingMethod);
+				LockerByTag.lock(task, enclosingMethod);
 
 				// get the queryInOrder String
 				final Infix2QueryBinaryTree tree = new Infix2QueryBinaryTree();
@@ -624,7 +624,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				}
 				return null;
 			} finally {
-				LockerByTag.unlock(projectTags, enclosingMethod);
+				LockerByTag.unlock(task, enclosingMethod);
 				LockerByTag.unlock(sessionID, enclosingMethod);
 			}
 		} catch (final Exception e) {
@@ -678,7 +678,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			}
 			try {
 				// lock project
-				LockerByTag.lock(projectTags, enclosingMethod);
+				LockerByTag.lock(task, enclosingMethod);
 				// create a new one
 				final String omimAPIKey = ServerUtil.getPINTProperties(getServletContext()).getOmimKey();
 				file = DataExporter.exportProteinsFromProjects(projectTags, omimAPIKey, getPSMCentric());
@@ -692,7 +692,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				log.info("File descriptor created: " + ret.getName() + " - " + ret.getSize());
 				return ret;
 			} finally {
-				LockerByTag.unlock(projectTags, enclosingMethod);
+				LockerByTag.unlock(task, enclosingMethod);
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();
@@ -748,7 +748,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			}
 			try {
 				// lock projects
-				LockerByTag.lock(projectTags, enclosingMethod);
+				LockerByTag.lock(task, enclosingMethod);
 				// create a new one
 				final String omimAPIKey = ServerUtil.getPINTProperties(getServletContext()).getOmimKey();
 				file = DataExporter.exportProteinGroupsFromProjects(projectTags, separateNonConclusiveProteins,
@@ -764,7 +764,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				log.info("File descriptor created: " + ret.getName() + " - " + ret.getSize());
 				return ret;
 			} finally {
-				LockerByTag.unlock(projectTags, enclosingMethod);
+				LockerByTag.unlock(task, enclosingMethod);
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();
@@ -2870,7 +2870,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				// lock session
 //				LockerByTag.lock(sessionID, enclosingMethod);
 				// lock project
-				LockerByTag.lock(projectTag, enclosingMethod);
+				LockerByTag.lock(task, enclosingMethod);
 
 				File file = null;
 				if (gZipFileByProjects.containsKey(projectTag)) {
@@ -2889,7 +2889,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				}
 				return null;
 			} finally {
-				LockerByTag.unlock(projectTag, enclosingMethod);
+				LockerByTag.unlock(task, enclosingMethod);
 //				LockerByTag.unlock(sessionID, enclosingMethod);
 			}
 		} catch (final Exception e) {

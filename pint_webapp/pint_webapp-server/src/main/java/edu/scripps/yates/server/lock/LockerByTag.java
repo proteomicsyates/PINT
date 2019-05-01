@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.shared.tasks.Task;
 import gnu.trove.map.hash.THashMap;
 
 public class LockerByTag {
@@ -36,6 +37,10 @@ public class LockerByTag {
 		} finally {
 			mapLock.writeLock().unlock();
 		}
+	}
+
+	public static void lock(Task task, Method method) {
+		lock(task.getKey().getTaskKey(), method);
 	}
 
 	/**
@@ -72,6 +77,10 @@ public class LockerByTag {
 		} else {
 			log.info("Lock acquired by thread " + Thread.currentThread().getId() + " for tag '" + lockTag + "'");
 		}
+	}
+
+	public static void unlock(Task task, Method method) {
+		unlock(task.getKey().getTaskKey(), method);
 	}
 
 	/**
