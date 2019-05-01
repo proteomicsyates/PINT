@@ -14,6 +14,7 @@ import gnu.trove.set.hash.TIntHashSet;
 public class ProteinIDToProteinThresholdIDTableMapper extends IDTableMapper {
 	private final static Logger log = Logger.getLogger(ProteinIDToProteinThresholdIDTableMapper.class);
 	private static ProteinIDToProteinThresholdIDTableMapper instance;
+	private static String lock = "";
 
 	private ProteinIDToProteinThresholdIDTableMapper() {
 		super();
@@ -22,14 +23,16 @@ public class ProteinIDToProteinThresholdIDTableMapper extends IDTableMapper {
 				+ getProteinsByProteinThresholdsTableMap().size() + " Protein Thresholds");
 	}
 
-	public synchronized static ProteinIDToProteinThresholdIDTableMapper getInstance() {
-		if (instance == null) {
-			instance = new ProteinIDToProteinThresholdIDTableMapper();
+	public static ProteinIDToProteinThresholdIDTableMapper getInstance() {
+		synchronized (lock) {
+			if (instance == null) {
+				instance = new ProteinIDToProteinThresholdIDTableMapper();
+			}
+			if (instance.get_1By2Map().isEmpty()) {
+				instance.processDataFromDB(instance.getMapTableFromDB());
+			}
+			return instance;
 		}
-		if (instance.get_1By2Map().isEmpty()) {
-			instance.processDataFromDB(instance.getMapTableFromDB());
-		}
-		return instance;
 	}
 
 	public TIntSet getProteinThresholdIDsFromProteinIDs(Collection<Integer> proteinIds) {

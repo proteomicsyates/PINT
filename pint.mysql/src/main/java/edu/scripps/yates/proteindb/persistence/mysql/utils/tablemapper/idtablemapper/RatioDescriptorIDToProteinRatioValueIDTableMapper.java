@@ -14,6 +14,7 @@ import gnu.trove.set.hash.TIntHashSet;
 public class RatioDescriptorIDToProteinRatioValueIDTableMapper extends IDTableMapper {
 	private final static Logger log = Logger.getLogger(RatioDescriptorIDToProteinRatioValueIDTableMapper.class);
 	private static RatioDescriptorIDToProteinRatioValueIDTableMapper instance;
+	private static String lock = "";
 
 	private RatioDescriptorIDToProteinRatioValueIDTableMapper() {
 		super();
@@ -22,14 +23,16 @@ public class RatioDescriptorIDToProteinRatioValueIDTableMapper extends IDTableMa
 				+ getRatioDescriptorsByProteinRatioValuesTableMap().size() + " protein ratio values");
 	}
 
-	public synchronized static RatioDescriptorIDToProteinRatioValueIDTableMapper getInstance() {
-		if (instance == null) {
-			instance = new RatioDescriptorIDToProteinRatioValueIDTableMapper();
+	public static RatioDescriptorIDToProteinRatioValueIDTableMapper getInstance() {
+		synchronized (lock) {
+			if (instance == null) {
+				instance = new RatioDescriptorIDToProteinRatioValueIDTableMapper();
+			}
+			if (instance.get_1By2Map().isEmpty()) {
+				instance.processDataFromDB(instance.getMapTableFromDB());
+			}
+			return instance;
 		}
-		if (instance.get_1By2Map().isEmpty()) {
-			instance.processDataFromDB(instance.getMapTableFromDB());
-		}
-		return instance;
 	}
 
 	public TIntSet getProteinRatioValueIDsFromRatioDescriptorIDs(Collection<Integer> ratioDescriptorIDs) {

@@ -14,6 +14,7 @@ import gnu.trove.set.hash.TIntHashSet;
 public class PeptideIDToPTMIDTableMapper extends IDTableMapper {
 	private final static Logger log = Logger.getLogger(PeptideIDToPTMIDTableMapper.class);
 	private static PeptideIDToPTMIDTableMapper instance;
+	private static String lock = "";
 
 	private PeptideIDToPTMIDTableMapper() {
 		super();
@@ -22,14 +23,16 @@ public class PeptideIDToPTMIDTableMapper extends IDTableMapper {
 				+ " ptms");
 	}
 
-	public synchronized static PeptideIDToPTMIDTableMapper getInstance() {
-		if (instance == null) {
-			instance = new PeptideIDToPTMIDTableMapper();
+	public static PeptideIDToPTMIDTableMapper getInstance() {
+		synchronized (lock) {
+			if (instance == null) {
+				instance = new PeptideIDToPTMIDTableMapper();
+			}
+			if (instance.get_1By2Map().isEmpty()) {
+				instance.processDataFromDB(instance.getMapTableFromDB());
+			}
+			return instance;
 		}
-		if (instance.get_1By2Map().isEmpty()) {
-			instance.processDataFromDB(instance.getMapTableFromDB());
-		}
-		return instance;
 	}
 
 	public TIntSet getPTMIDsFromPeptideIDs(Collection<Integer> peptideIDs) {

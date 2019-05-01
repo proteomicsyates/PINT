@@ -14,6 +14,7 @@ import gnu.trove.set.hash.TIntHashSet;
 public class ProteinIDToConditionIDTableMapper extends IDTableMapper {
 	private final static Logger log = Logger.getLogger(ProteinIDToConditionIDTableMapper.class);
 	private static ProteinIDToConditionIDTableMapper instance;
+	private static String lock = "";
 
 	private ProteinIDToConditionIDTableMapper() {
 		super();
@@ -22,14 +23,16 @@ public class ProteinIDToConditionIDTableMapper extends IDTableMapper {
 				+ getProteinsByConditionsTableMap().size() + " conditions");
 	}
 
-	public synchronized static ProteinIDToConditionIDTableMapper getInstance() {
-		if (instance == null) {
-			instance = new ProteinIDToConditionIDTableMapper();
+	public static ProteinIDToConditionIDTableMapper getInstance() {
+		synchronized (lock) {
+			if (instance == null) {
+				instance = new ProteinIDToConditionIDTableMapper();
+			}
+			if (instance.get_1By2Map().isEmpty()) {
+				instance.processDataFromDB(instance.getMapTableFromDB());
+			}
+			return instance;
 		}
-		if (instance.get_1By2Map().isEmpty()) {
-			instance.processDataFromDB(instance.getMapTableFromDB());
-		}
-		return instance;
 	}
 
 	public TIntSet getConditionIDsFromProteinIDs(Collection<Integer> proteinIds) {

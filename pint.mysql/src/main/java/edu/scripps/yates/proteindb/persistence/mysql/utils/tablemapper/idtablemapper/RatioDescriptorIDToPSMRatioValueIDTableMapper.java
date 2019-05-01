@@ -14,6 +14,7 @@ import gnu.trove.set.hash.TIntHashSet;
 public class RatioDescriptorIDToPSMRatioValueIDTableMapper extends IDTableMapper {
 	private final static Logger log = Logger.getLogger(RatioDescriptorIDToPSMRatioValueIDTableMapper.class);
 	private static RatioDescriptorIDToPSMRatioValueIDTableMapper instance;
+	private static String lock = "";
 
 	private RatioDescriptorIDToPSMRatioValueIDTableMapper() {
 		super();
@@ -22,14 +23,16 @@ public class RatioDescriptorIDToPSMRatioValueIDTableMapper extends IDTableMapper
 				+ getRatioDescriptorsByPSMRatioValuesTableMap().size() + " psm ratio values");
 	}
 
-	public synchronized static RatioDescriptorIDToPSMRatioValueIDTableMapper getInstance() {
-		if (instance == null) {
-			instance = new RatioDescriptorIDToPSMRatioValueIDTableMapper();
+	public static RatioDescriptorIDToPSMRatioValueIDTableMapper getInstance() {
+		synchronized (lock) {
+			if (instance == null) {
+				instance = new RatioDescriptorIDToPSMRatioValueIDTableMapper();
+			}
+			if (instance.get_1By2Map().isEmpty()) {
+				instance.processDataFromDB(instance.getMapTableFromDB());
+			}
+			return instance;
 		}
-		if (instance.get_1By2Map().isEmpty()) {
-			instance.processDataFromDB(instance.getMapTableFromDB());
-		}
-		return instance;
 	}
 
 	public TIntSet getPSMRatioValueIDsFromRatioDescriptorIDs(Collection<Integer> ratioDescriptorIDs) {

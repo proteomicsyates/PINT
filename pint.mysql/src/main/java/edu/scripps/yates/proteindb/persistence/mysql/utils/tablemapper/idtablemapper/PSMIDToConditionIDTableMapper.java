@@ -14,6 +14,7 @@ import gnu.trove.set.hash.TIntHashSet;
 public class PSMIDToConditionIDTableMapper extends IDTableMapper {
 	private final static Logger log = Logger.getLogger(PSMIDToConditionIDTableMapper.class);
 	private static PSMIDToConditionIDTableMapper instance;
+	private static String lock = "";
 
 	private PSMIDToConditionIDTableMapper() {
 		super();
@@ -22,14 +23,16 @@ public class PSMIDToConditionIDTableMapper extends IDTableMapper {
 				+ " conditions");
 	}
 
-	public synchronized static PSMIDToConditionIDTableMapper getInstance() {
-		if (instance == null) {
-			instance = new PSMIDToConditionIDTableMapper();
+	public static PSMIDToConditionIDTableMapper getInstance() {
+		synchronized (lock) {
+			if (instance == null) {
+				instance = new PSMIDToConditionIDTableMapper();
+			}
+			if (instance.get_1By2Map().isEmpty()) {
+				instance.processDataFromDB(instance.getMapTableFromDB());
+			}
+			return instance;
 		}
-		if (instance.get_1By2Map().isEmpty()) {
-			instance.processDataFromDB(instance.getMapTableFromDB());
-		}
-		return instance;
 	}
 
 	public TIntSet getConditionIDsFromPSMIDs(Collection<Integer> psmIds) {
