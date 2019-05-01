@@ -81,7 +81,7 @@ public class AnalysisSubmiter {
 					dataURL = ClientSafeHtmlUtils.getDownloadURL(fileDescriptor.getName(),
 							SharedConstants.REACTOME_ANALYSIS_RESULT_FILE_TYPE);
 				} else {
-					dataURL = "http://sealion.scripps.edu/pint/pint/download?" + SharedConstants.FILE_TO_DOWNLOAD
+					dataURL = "http://pint.scripps.edu/pint/download?" + SharedConstants.FILE_TO_DOWNLOAD
 							+ "=Reactome.txt&" + SharedConstants.FILE_TYPE + "="
 							+ SharedConstants.REACTOME_ANALYSIS_RESULT_FILE_TYPE;
 				}

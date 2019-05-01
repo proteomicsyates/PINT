@@ -196,8 +196,8 @@
 	<!-- servlet-mappings -->
 	<servlet-mapping>
 		<servlet-name>ReactomeRESTfulAPI</servlet-name>
-<!-- 		<url-pattern>/reactome/*</url-pattern> -->
-		<url-pattern>/pint/reactome/*</url-pattern>
+		<url-pattern>/reactome/*</url-pattern>
+<!-- 		<url-pattern>/pint/reactome/*</url-pattern> -->
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ReactomeFigures</servlet-name>
@@ -205,8 +205,8 @@
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ReactomeAnalysis</servlet-name>
-<!-- 		<url-pattern>/reactome/AnalysisService/*</url-pattern> -->
-		<url-pattern>/pint/reactome/AnalysisService/*</url-pattern>
+		<url-pattern>/reactome/AnalysisService/*</url-pattern>
+<!-- 		<url-pattern>/pint/reactome/AnalysisService/*</url-pattern> -->
 	</servlet-mapping>
 
 	<servlet-mapping>
