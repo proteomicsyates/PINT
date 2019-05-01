@@ -694,10 +694,12 @@ public class RemoteServicesTasks {
 				continue;
 			log.info("Adapting project " + project.getTag());
 			final ProjectBean projectBean = new ProjectBeanAdapter(project, false, false).adapt();
+			log.info("project " + project.getTag() + " apapted");
 			ServerCacheProjectBeanByProjectTag.getInstance().addtoCache(projectBean, projectBean.getTag());
+			log.info("project " + project.getTag() + " added to cache");
 			ret.add(projectBean);
 		}
-
+		log.info(ret.size() + " projects adapted");
 		return ret;
 	}
 
