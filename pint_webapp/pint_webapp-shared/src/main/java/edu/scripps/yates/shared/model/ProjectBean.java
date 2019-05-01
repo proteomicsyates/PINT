@@ -10,9 +10,13 @@ import edu.scripps.yates.shared.model.interfaces.HasId;
 public class ProjectBean extends HasId implements Serializable {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2419654954863075610L;
+
+	/**
 	 *
 	 */
-	private static final long serialVersionUID = 3810351430216977374L;
 	private String name;
 	private String description;
 	private String pubmedLink;
@@ -27,6 +31,14 @@ public class ProjectBean extends HasId implements Serializable {
 	private boolean hidden;
 	private PrincipalInvestigatorBean principalInvestigator;
 	private List<String> instruments = new ArrayList<String>();
+
+	public ProjectBean() {
+
+	}
+
+	public String getName() {
+		return name;
+	}
 
 	public void setName(String name) {
 		this.name = name;

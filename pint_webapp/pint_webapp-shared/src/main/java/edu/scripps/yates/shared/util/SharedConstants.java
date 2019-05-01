@@ -4,7 +4,7 @@ public class SharedConstants {
 	// CHANGE TO FALSE IF YOU WANT TO LOAD TABLES ON DEMAND
 	// Make it TRUE for loading all when server starts up, better for production
 	// server.
-	public static boolean loadTableIDMappingsOnCommonServlet = false;
+	public static boolean loadTableIDMappingsOnCommonServlet = true;
 	//
 	public static final String UNIPROT_ACC_LINK = "http://www.uniprot.org/uniprot/";
 	public static final String NCBI_PROTEIN_LINK = "http://www.ncbi.nlm.nih.gov/protein/";
@@ -45,7 +45,7 @@ public class SharedConstants {
 	public static final boolean FOOTERS_ENABLED = false;
 	// enable or disable the daemon tasks in PintserverDaemon.java
 	public static final boolean DAEMON_TASKS_ENABLED = true;
-	public static final boolean DAEMON_TASKS_ENABLED_IN_TEST_SERVER = true;
+	public static final boolean DAEMON_TASKS_ENABLED_IN_TEST_SERVER = false;
 
 	// for development purposes. Set to Integer.MAX_VALUE in production mode.
 	public static final int MAX_NUM_PROTEINS = Integer.MAX_VALUE;
