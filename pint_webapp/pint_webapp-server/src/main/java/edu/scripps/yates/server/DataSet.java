@@ -205,6 +205,8 @@ public class DataSet {
 	}
 
 	public void clearDataSet() {
+		ready = false;
+
 		proteins.clear();
 		psms.clear();
 		proteinGroups.clear();
@@ -216,7 +218,11 @@ public class DataSet {
 		peptides.clear();
 		peptidesByPeptideBeanUniqueIdentifier.clear();
 		peptidesBySequence.clear();
-		ready = false;
+		ratioDescriptors.clear();
+		ptmScores.clear();
+		psmScores.clear();
+		proteinScores.clear();
+		peptideScores.clear();
 	}
 
 	/**
@@ -403,9 +409,11 @@ public class DataSet {
 		this.ready = ready;
 
 		// assign ratioDistributions
-		assignRatioDistributionsToPSMs();
-		assignRatioDistributionsToPeptides();
-		assignRatioDistributionsToProteins();
+		if (ready) {
+			assignRatioDistributionsToPSMs();
+			assignRatioDistributionsToPeptides();
+			assignRatioDistributionsToProteins();
+		}
 	}
 
 	private void assignRatioDistributions(Collection<ContainsRatios> containsRatios) {
