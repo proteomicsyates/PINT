@@ -218,7 +218,9 @@ public class DataSet {
 		peptides.clear();
 		peptidesByPeptideBeanUniqueIdentifier.clear();
 		peptidesBySequence.clear();
-		ratioDescriptors.clear();
+		if (ratioDescriptors != null) {
+			ratioDescriptors.clear();
+		}
 		ptmScores.clear();
 		psmScores.clear();
 		proteinScores.clear();
