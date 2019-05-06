@@ -1525,10 +1525,11 @@ public class RemoteServicesTasks {
 			}
 			for (final edu.scripps.yates.proteindb.persistence.mysql.AmountType amountType : amountTypeMap
 					.get(condition)) {
-				proteinAmountMapByProject.get(projectTag).get(condition.getName())
-						.add(AmountType.fromValue(amountType.getName()));
+
+				final AmountType amountTypeFromValue = AmountType.fromValue(amountType.getName());
+				proteinAmountMapByProject.get(projectTag).get(condition.getName()).add(amountTypeFromValue);
 				if (condition.getName().equals(conditionName)) {
-					final AmountType fromValue = AmountType.fromValue(amountType.getName());
+					final AmountType fromValue = amountTypeFromValue;
 					set.add(fromValue);
 				}
 			}
