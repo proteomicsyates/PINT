@@ -496,8 +496,10 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 		// after creating the protein beans, from the Dataset.getPeptides()
 		if (queriableProtein.getLinksToPeptides() != null) {
 			final TIntList psmiDs = queriableProtein.getPSMIDs();
-			for (final int psmID : psmiDs.toArray()) {
-				proteinBean.addPSMID(psmID);
+			if (psmiDs != null) {
+				for (final int psmID : psmiDs.toArray()) {
+					proteinBean.addPSMID(psmID);
+				}
 			}
 			for (final LinkBetweenQueriableProteinSetAndPeptideSet link : queriableProtein.getLinksToPeptides()) {
 				if (Thread.interrupted()) {
