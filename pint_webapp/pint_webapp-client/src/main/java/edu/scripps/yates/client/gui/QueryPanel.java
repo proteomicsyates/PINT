@@ -1753,6 +1753,9 @@ public class QueryPanel extends InitializableComposite implements ShowHiddePanel
 					public void onSuccess(Set<AmountType> result) {
 						if (result != null) {
 							for (final AmountType amountType : result) {
+								if (amountType == AmountType.SPC) {
+									continue;
+								}
 								final ColumnWithVisibility proteinAmountColumn = ProteinColumns.getInstance()
 										.getColumn(ColumnName.PROTEIN_AMOUNT);
 								proteinTablePanel.addColumnForConditionAmount(ColumnName.PROTEIN_AMOUNT,
