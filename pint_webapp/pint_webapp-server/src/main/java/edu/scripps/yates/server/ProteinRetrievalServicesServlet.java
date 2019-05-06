@@ -1582,6 +1582,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 					log.warn("Error while sorting proteins: " + e.getMessage() + ". Returning list anyway.");
 				}
 				final ProteinBeanSubList proteinBeanSubList = dataSet.getLightProteinBeanSubList(start, end);
+				log.info("Sorted protein list ready");
 				return proteinBeanSubList;
 			}
 			return null;

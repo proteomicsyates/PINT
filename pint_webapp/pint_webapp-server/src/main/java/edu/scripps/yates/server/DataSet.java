@@ -306,18 +306,23 @@ public class DataSet {
 	}
 
 	public ProteinBeanSubList getLightProteinBeanSubList(int start, int end) {
-		log.info("Getting protein list from " + start + " to " + end + " dataset '" + getName() + "' in session ID: "
-				+ sessionId);
-		final List<ProteinBean> proteins2 = getProteins(start, end);
-		final List<ProteinBeanLight> lightProteins = new ArrayList<ProteinBeanLight>();
-		for (final ProteinBean heavyProtein : proteins2) {
-			getPeptidesFromProtein(heavyProtein);
-			final ProteinBeanLight lightProteinBean = heavyProtein.cloneToLightProteinBean();
-			lightProteins.add(lightProteinBean);
-			lightProteinBean.getPeptides().clear();
-		}
-		return ProteinBeanSubList.getLightProteinBeanSubListFromLightProteins(lightProteins, getProteins().size());
+		try {
+			log.info("Getting protein list from " + start + " to " + end + " dataset '" + getName()
+					+ "' in session ID: " + sessionId);
+			final List<ProteinBean> proteins2 = getProteins(start, end);
+			final List<ProteinBeanLight> lightProteins = new ArrayList<ProteinBeanLight>();
+			for (final ProteinBean heavyProtein : proteins2) {
+				getPeptidesFromProtein(heavyProtein);
+				final ProteinBeanLight lightProteinBean = heavyProtein.cloneToLightProteinBean();
+				lightProteins.add(lightProteinBean);
+				lightProteinBean.getPeptides().clear();
+			}
+			log.info("Getting protein list is almost finished");
+			return ProteinBeanSubList.getLightProteinBeanSubListFromLightProteins(lightProteins, getProteins().size());
+		} finally {
+			log.info("Getting protein list is finished");
 //		return ProteinBeanSubList.getLightProteinBeanSubList(lightProteins, getProteins().size());
+		}
 	}
 
 	public PeptideBeanSubList getLightPeptideBeanSubList(int start, int end) {
