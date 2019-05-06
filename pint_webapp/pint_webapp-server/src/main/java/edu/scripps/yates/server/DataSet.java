@@ -319,6 +319,9 @@ public class DataSet {
 			}
 			log.info("Getting protein list is almost finished");
 			return ProteinBeanSubList.getLightProteinBeanSubListFromLightProteins(lightProteins, getProteins().size());
+		} catch (final Exception e) {
+			e.printStackTrace();
+			throw e;
 		} finally {
 			log.info("Getting protein list is finished");
 //		return ProteinBeanSubList.getLightProteinBeanSubList(lightProteins, getProteins().size());
