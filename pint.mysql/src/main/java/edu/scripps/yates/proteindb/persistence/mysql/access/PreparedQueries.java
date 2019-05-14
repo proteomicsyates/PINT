@@ -15,6 +15,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.GenericJDBCException;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
+import edu.scripps.yates.proteindb.persistence.mysql.Condition;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
@@ -279,7 +280,7 @@ public class PreparedQueries {
 
 	private final static String PTM_SITES_WITH_SCORES_BY_PROJECT = "select distinct ptm_site from " + "Project project "
 			+ "join project.conditions condition " + "join condition.psms psm " + "join psm.ptms ptm "
-			+ "join ptm.ptmSites ptm_site " + "join ptm_site.confidenceScoreType score_type";
+			+ "join ptm.ptmSites ptm_site ";
 
 	/**
 	 * projectTag can be null for querying over all projects
@@ -1126,4 +1127,77 @@ public class PreparedQueries {
 		return peptideList;
 	}
 
+	private final static String PSM_AMOUNT_TYPES_BY_CONDITION = "select distinct amountType from PsmAmount psmAmount";
+	private final static String PEPTIDE_AMOUNT_TYPES_BY_CONDITION = "select distinct amountType from PeptideAmount peptideAmount";;
+	private final static String PROTEIN_AMOUNT_TYPES_BY_CONDITION = "select distinct amountType from ProteinAmount proteinAmount";
+
+	public static Map<Condition, Set<String>> getPSMAmountTypesByConditions(Collection<Condition> conditions) {
+		final Map<Condition, Set<String>> map = new THashMap<Condition, Set<String>>();
+		for (final Condition condition : conditions) {
+			// PSM AMOUNTS
+			final Set<Object> set = new THashSet<Object>();
+			set.add(condition);
+			final Query query = parseParametersForQuerySpecial2(PSM_AMOUNT_TYPES_BY_CONDITION, "psmAmount.condition",
+					"condition", set);
+			query.setCacheable(true);
+			final List<String> list = query.list();
+			if (!list.isEmpty()) {
+				if (map.containsKey(condition)) {
+					map.get(condition).addAll(list);
+				} else {
+					final Set<String> set2 = new THashSet<String>();
+					set2.addAll(list);
+					map.put(condition, set2);
+				}
+			}
+		}
+		return map;
+	}
+
+	public static Map<Condition, Set<String>> getPeptideAmountTypesByConditions(Collection<Condition> conditions) {
+		final Map<Condition, Set<String>> map = new THashMap<Condition, Set<String>>();
+		for (final Condition condition : conditions) {
+			// PEPTIDE AMOUNTS
+			final Set<Object> set = new THashSet<Object>();
+			set.add(condition);
+			final Query query = parseParametersForQuerySpecial2(PEPTIDE_AMOUNT_TYPES_BY_CONDITION,
+					"peptideAmount.condition", "condition", set);
+			query.setCacheable(true);
+			final List<String> list = query.list();
+			if (!list.isEmpty()) {
+				if (map.containsKey(condition)) {
+					map.get(condition).addAll(list);
+				} else {
+					final Set<String> set2 = new THashSet<String>();
+					set2.addAll(list);
+					map.put(condition, set2);
+				}
+			}
+
+		}
+		return map;
+	}
+
+	public static Map<Condition, Set<String>> getProteinAmountTypesByConditions(Collection<Condition> conditions) {
+		final Map<Condition, Set<String>> map = new THashMap<Condition, Set<String>>();
+		for (final Condition condition : conditions) {
+			// PROTEIN AMOUNTS
+			final Set<Object> set = new THashSet<Object>();
+			set.add(condition);
+			final Query query = parseParametersForQuerySpecial2(PROTEIN_AMOUNT_TYPES_BY_CONDITION,
+					"proteinAmount.condition", "condition", set);
+			query.setCacheable(true);
+			final List<String> list = query.list();
+			if (!list.isEmpty()) {
+				if (map.containsKey(condition)) {
+					map.get(condition).addAll(list);
+				} else {
+					final Set<String> set2 = new THashSet<String>();
+					set2.addAll(list);
+					map.put(condition, set2);
+				}
+			}
+		}
+		return map;
+	}
 }

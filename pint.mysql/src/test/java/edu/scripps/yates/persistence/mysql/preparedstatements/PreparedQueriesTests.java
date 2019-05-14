@@ -12,9 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
-import edu.scripps.yates.proteindb.persistence.mysql.AmountType;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
@@ -28,6 +26,7 @@ import edu.scripps.yates.proteindb.persistence.mysql.PtmSite;
 import edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedCriteria;
 import edu.scripps.yates.proteindb.persistence.mysql.access.PreparedQueries;
+import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.set.hash.THashSet;
@@ -256,12 +255,15 @@ public class PreparedQueriesTests {
 	public void getPSMScoreTypes() {
 
 		// psm scores by project
-		final List<ConfidenceScoreType> list = PreparedQueries.getPSMScoreTypeNames();
+		final long t1 = System.currentTimeMillis();
+		final List<String> list = PreparedQueries.getPSMScoreTypeNames();
+		System.out.println(DatesUtil.getDescriptiveTimeFromMillisecs((System.currentTimeMillis() - t1)));
 		Assert.assertTrue(!list.isEmpty());
 		System.out.println(list.size() + " elements");
-		for (final ConfidenceScoreType psmScore : list) {
-			System.out.println(psmScore.getName());
+		for (final String psmScore : list) {
+			System.out.println(psmScore);
 		}
+
 	}
 
 	@Test
@@ -287,7 +289,7 @@ public class PreparedQueriesTests {
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 		for (final PtmSite ptmSite : list) {
-			System.out.println(ptmSite.getConfidenceScoreName() + " " + ptmSite.getConfidenceScoreType().getName() + " "
+			System.out.println(ptmSite.getConfidenceScoreName() + " " + ptmSite.getConfidenceScoreType() + " "
 					+ ptmSite.getConfidenceScoreValue());
 		}
 		list = PreparedQueries.getPTMSitesWithScoresByProject(sandraProject);
@@ -307,7 +309,7 @@ public class PreparedQueriesTests {
 	@Test
 	public void getDistinctPTMScoreTypeNames() {
 
-		final List<ConfidenceScoreType> list = PreparedQueries.getPTMScoreTypeNames();
+		final List<String> list = PreparedQueries.getPTMScoreTypeNames();
 		Assert.assertFalse(list.isEmpty());
 		System.out.println(list.size() + " elements");
 	}
@@ -901,13 +903,13 @@ public class PreparedQueriesTests {
 		try {
 			ContextualSessionHandler.beginGoodTransaction();
 			final List<Condition> conditionList = ContextualSessionHandler.retrieveList(Condition.class);
-			final Map<Condition, Set<AmountType>> amountsByConditions = PreparedQueries
+			final Map<Condition, Set<String>> amountsByConditions = PreparedQueries
 					.getPSMAmountTypesByConditions(conditionList);
 			for (final Condition condition : amountsByConditions.keySet()) {
 				System.out.println("Condition: " + condition.getName());
-				final Set<AmountType> amountTypes = amountsByConditions.get(condition);
-				for (final AmountType amountType : amountTypes) {
-					System.out.println("\t" + amountType.getName());
+				final Set<String> amountTypes = amountsByConditions.get(condition);
+				for (final String amountType : amountTypes) {
+					System.out.println("\t" + amountType);
 				}
 			}
 
@@ -921,13 +923,13 @@ public class PreparedQueriesTests {
 		try {
 			ContextualSessionHandler.beginGoodTransaction();
 			final List<Condition> conditionList = ContextualSessionHandler.retrieveList(Condition.class);
-			final Map<Condition, Set<AmountType>> amountsByConditions = PreparedQueries
+			final Map<Condition, Set<String>> amountsByConditions = PreparedQueries
 					.getPeptideAmountTypesByConditions(conditionList);
 			for (final Condition condition : amountsByConditions.keySet()) {
 				System.out.println("Condition: " + condition.getName());
-				final Set<AmountType> amountTypes = amountsByConditions.get(condition);
-				for (final AmountType amountType : amountTypes) {
-					System.out.println("\t" + amountType.getName());
+				final Set<String> amountTypes = amountsByConditions.get(condition);
+				for (final String amountType : amountTypes) {
+					System.out.println("\t" + amountType);
 				}
 			}
 
@@ -941,13 +943,13 @@ public class PreparedQueriesTests {
 		try {
 			ContextualSessionHandler.beginGoodTransaction();
 			final List<Condition> conditionList = ContextualSessionHandler.retrieveList(Condition.class);
-			final Map<Condition, Set<AmountType>> amountsByConditions = PreparedQueries
+			final Map<Condition, Set<String>> amountsByConditions = PreparedQueries
 					.getProteinAmountTypesByConditions(conditionList);
 			for (final Condition condition : amountsByConditions.keySet()) {
 				System.out.println("Condition: " + condition.getName());
-				final Set<AmountType> amountTypes = amountsByConditions.get(condition);
-				for (final AmountType amountType : amountTypes) {
-					System.out.println("\t" + amountType.getName());
+				final Set<String> amountTypes = amountsByConditions.get(condition);
+				for (final String amountType : amountTypes) {
+					System.out.println("\t" + amountType);
 				}
 			}
 

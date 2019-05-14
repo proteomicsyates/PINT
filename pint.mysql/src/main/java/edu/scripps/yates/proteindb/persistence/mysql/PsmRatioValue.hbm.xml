@@ -8,9 +8,6 @@
             <column name="id" />
             <generator class="identity" />
         </id>
-        <many-to-one name="combinationType" class="edu.scripps.yates.proteindb.persistence.mysql.CombinationType" fetch="select">
-            <column name="Combination_Type_name" length="90" />
-        </many-to-one>
         <many-to-one name="ratioDescriptor" class="edu.scripps.yates.proteindb.persistence.mysql.RatioDescriptor" fetch="select">
             <column name="Ratio_Descriptor_id" not-null="true" />
         </many-to-one>
@@ -28,6 +25,9 @@
         </property>
         <property name="confidenceScoreType" type="string">
             <column name="Confidence_Score_Type_name" length="90" />
+        </property>
+        <property name="combinationType" type="string">
+            <column name="Combination_Type_name" length="90" />
         </property>
         
     </class>
