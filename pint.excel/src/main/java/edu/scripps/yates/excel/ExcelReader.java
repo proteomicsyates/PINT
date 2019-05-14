@@ -238,8 +238,8 @@ public class ExcelReader {
 	}
 
 	/**
-	 * Gets a list of the colum names (first row string values) mapped to the
-	 * index of each sheet of the workbook
+	 * Gets a list of the colum names (first row string values) mapped to the index
+	 * of each sheet of the workbook
 	 *
 	 * @return
 	 * @throws IOException
@@ -339,6 +339,14 @@ public class ExcelReader {
 	 */
 	public ColumnIndexManager getColumnIndexManager() {
 		return columnIndexManager;
+	}
+
+	public int getColumnIndex(int sheetIndex, String string) throws IOException {
+		final List<String> list = getColumnNames().get(sheetIndex);
+		if (list != null) {
+			return list.indexOf(string);
+		}
+		return -1;
 	}
 
 }
