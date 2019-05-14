@@ -15,9 +15,6 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.GenericJDBCException;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
-import edu.scripps.yates.proteindb.persistence.mysql.AmountType;
-import edu.scripps.yates.proteindb.persistence.mysql.Condition;
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
@@ -261,7 +258,7 @@ public class PreparedQueries {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<ConfidenceScoreType> getPSMScoreTypeNames() {
+	public static List<String> getPSMScoreTypeNames() {
 		return parseParametersForQuery(PSM_SCORES_TYPES).list();
 	}
 
@@ -313,7 +310,7 @@ public class PreparedQueries {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<ConfidenceScoreType> getPTMScoreTypeNames() {
+	public static List<String> getPTMScoreTypeNames() {
 		return parseParametersForQuery(PTM_SCORE_TYPE_NAMES).list();
 	}
 
@@ -1003,80 +1000,6 @@ public class PreparedQueries {
 				"project.tag=:projectTag", projectTag);
 		final List<Protein> list1 = query.list();
 		return list1;
-	}
-
-	private final static String PSM_AMOUNT_TYPES_BY_CONDITION = "select distinct amountType from AmountType amountType join amountType.psmAmounts psmAmount";
-	private final static String PEPTIDE_AMOUNT_TYPES_BY_CONDITION = "select distinct amountType from AmountType amountType join amountType.peptideAmounts peptideAmount";
-	private final static String PROTEIN_AMOUNT_TYPES_BY_CONDITION = "select distinct amountType from AmountType amountType join amountType.proteinAmounts proteinAmount";
-
-	public static Map<Condition, Set<AmountType>> getPSMAmountTypesByConditions(Collection<Condition> conditions) {
-		final Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
-		for (final Condition condition : conditions) {
-			// PSM AMOUNTS
-			final Set<Object> set = new THashSet<Object>();
-			set.add(condition);
-			final Query query = parseParametersForQuerySpecial2(PSM_AMOUNT_TYPES_BY_CONDITION, "psmAmount.condition",
-					"condition", set);
-			query.setCacheable(true);
-			final List<AmountType> list = query.list();
-			if (!list.isEmpty()) {
-				if (map.containsKey(condition)) {
-					map.get(condition).addAll(list);
-				} else {
-					final Set<AmountType> set2 = new THashSet<AmountType>();
-					set2.addAll(list);
-					map.put(condition, set2);
-				}
-			}
-		}
-		return map;
-	}
-
-	public static Map<Condition, Set<AmountType>> getPeptideAmountTypesByConditions(Collection<Condition> conditions) {
-		final Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
-		for (final Condition condition : conditions) {
-			// PEPTIDE AMOUNTS
-			final Set<Object> set = new THashSet<Object>();
-			set.add(condition);
-			final Query query = parseParametersForQuerySpecial2(PEPTIDE_AMOUNT_TYPES_BY_CONDITION,
-					"peptideAmount.condition", "condition", set);
-			query.setCacheable(true);
-			final List<AmountType> list = query.list();
-			if (!list.isEmpty()) {
-				if (map.containsKey(condition)) {
-					map.get(condition).addAll(list);
-				} else {
-					final Set<AmountType> set2 = new THashSet<AmountType>();
-					set2.addAll(list);
-					map.put(condition, set2);
-				}
-			}
-
-		}
-		return map;
-	}
-
-	public static Map<Condition, Set<AmountType>> getProteinAmountTypesByConditions(Collection<Condition> conditions) {
-		final Map<Condition, Set<AmountType>> map = new THashMap<Condition, Set<AmountType>>();
-		for (final Condition condition : conditions) {
-			// PROTEIN AMOUNTS
-			final Set<Object> set = new THashSet<Object>();
-			set.add(condition);
-			final Query query = parseParametersForQuerySpecial2(PROTEIN_AMOUNT_TYPES_BY_CONDITION,
-					"proteinAmount.condition", "condition", set);
-			query.setCacheable(true);
-			final List<AmountType> list = query.list();
-			if (!list.isEmpty()) {
-				if (map.containsKey(condition)) {
-					map.get(condition).addAll(list);
-				} else {
-					final Set<AmountType> set2 = new THashSet<AmountType>();
-					set2.addAll(list);
-					map.put(condition, set2);
-				}
-			}
-		}
-		return map;
 	}
 
 	private final static String PSMS_WITH_MSRUN = "select distinct psm from " + "MsRun msrun " + "join msrun.psms psm "

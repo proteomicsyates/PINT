@@ -29,11 +29,11 @@ public class ProteinAmountAdapter
 	@Override
 	public ProteinAmount adapt() {
 
-		ProteinAmount ret = new ProteinAmount();
+		final ProteinAmount ret = new ProteinAmount();
 
-		ret.setAmountType(new AmountTypeAdapter(proteinAmount.getAmountType()).adapt());
+		ret.setAmountType(proteinAmount.getAmountType().name());
 		if (proteinAmount.getCombinationType() != null)
-			ret.setCombinationType(new CombinationTypeAdapter(proteinAmount.getCombinationType(), ret).adapt());
+			ret.setCombinationType(proteinAmount.getCombinationType().getName());
 
 		ret.setValue(proteinAmount.getValue());
 		ret.setCondition(new ConditionAdapter(proteinAmount.getCondition(), project).adapt());

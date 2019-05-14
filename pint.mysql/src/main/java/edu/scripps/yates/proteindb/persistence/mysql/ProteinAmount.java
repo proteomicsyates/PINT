@@ -9,25 +9,24 @@ public class ProteinAmount implements java.io.Serializable {
 
 	private Integer id;
 	private Protein protein;
-	private AmountType amountType;
+	private String amountType;
 	private Condition condition;
-	private CombinationType combinationType;
+	private String combinationType;
 	private double value;
 	private Boolean manualSPC;
 
 	public ProteinAmount() {
 	}
 
-	public ProteinAmount(Protein protein, AmountType amountType,
-			Condition condition, double value) {
+	public ProteinAmount(Protein protein, String amountType, Condition condition, double value) {
 		this.protein = protein;
 		this.amountType = amountType;
 		this.condition = condition;
 		this.value = value;
 	}
 
-	public ProteinAmount(Protein protein, AmountType amountType,
-			Condition condition, CombinationType combinationType, double value) {
+	public ProteinAmount(Protein protein, String amountType, Condition condition, String combinationType,
+			double value) {
 		this.protein = protein;
 		this.amountType = amountType;
 		this.condition = condition;
@@ -51,11 +50,11 @@ public class ProteinAmount implements java.io.Serializable {
 		this.protein = protein;
 	}
 
-	public AmountType getAmountType() {
+	public String getAmountType() {
 		return amountType;
 	}
 
-	public void setAmountType(AmountType amountType) {
+	public void setAmountType(String amountType) {
 		this.amountType = amountType;
 	}
 
@@ -67,11 +66,11 @@ public class ProteinAmount implements java.io.Serializable {
 		this.condition = condition;
 	}
 
-	public CombinationType getCombinationType() {
+	public String getCombinationType() {
 		return combinationType;
 	}
 
-	public void setCombinationType(CombinationType combinationType) {
+	public void setCombinationType(String combinationType) {
 		this.combinationType = combinationType;
 	}
 
@@ -91,8 +90,7 @@ public class ProteinAmount implements java.io.Serializable {
 	}
 
 	/**
-	 * @param manualSPC
-	 *            the manualSPC to set
+	 * @param manualSPC the manualSPC to set
 	 */
 	public void setManualSPC(Boolean manualSPC) {
 		this.manualSPC = manualSPC;

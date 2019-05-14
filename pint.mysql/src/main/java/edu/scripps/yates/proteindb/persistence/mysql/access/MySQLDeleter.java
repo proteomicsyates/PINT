@@ -12,11 +12,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
-import edu.scripps.yates.proteindb.persistence.mysql.AmountType;
 import edu.scripps.yates.proteindb.persistence.mysql.AnnotationType;
-import edu.scripps.yates.proteindb.persistence.mysql.CombinationType;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.Label;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
@@ -458,25 +455,6 @@ public class MySQLDeleter {
 		// if (combinationType != null) {
 		// deleteCombinationType(combinationType);
 		// }
-	}
-
-	private void deleteAmountType(AmountType amountType) {
-
-		ContextualSessionHandler.delete(amountType);
-	}
-
-	private void deleteCombinationType(CombinationType combinationType) {
-
-		ContextualSessionHandler.delete(combinationType);
-	}
-
-	private void deleteConfidenceScoreType(ConfidenceScoreType confidenceScoreType) {
-		if (confidenceScoreType.getPeptideRatioValues().isEmpty() && confidenceScoreType.getPeptideScores().isEmpty()
-				&& confidenceScoreType.getProteinRatioValues().isEmpty()
-				&& confidenceScoreType.getProteinScores().isEmpty() && confidenceScoreType.getPsmRatioValues().isEmpty()
-				&& confidenceScoreType.getPsmScores().isEmpty() && confidenceScoreType.getPtmSites().isEmpty()) {
-			ContextualSessionHandler.delete(confidenceScoreType);
-		}
 	}
 
 	private void deleteProteinAnnotation(ProteinAnnotation proteinAnnotation) {

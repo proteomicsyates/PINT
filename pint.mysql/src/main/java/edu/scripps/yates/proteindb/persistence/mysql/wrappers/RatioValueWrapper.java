@@ -1,21 +1,17 @@
 package edu.scripps.yates.proteindb.persistence.mysql.wrappers;
 
-import edu.scripps.yates.proteindb.persistence.mysql.CombinationType;
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
-
 public class RatioValueWrapper {
 	private final Integer id;
-	private final ConfidenceScoreType confidenceScoreType;
+	private final String confidenceScoreType;
 	private final int proteinPeptideOrPSMID;
-	private final CombinationType combinationType;
+	private final String combinationType;
 	private final double value;
 	private final Double confidenceScoreValue;
 	private final String confidenceScoreName;
 	private final int ratioDescriptorID;
 
-	public RatioValueWrapper(Integer id, ConfidenceScoreType confidenceScoreType, int proteinID,
-			CombinationType combinationType, double value, Double confidenceScoreValue, String confidenceScoreName,
-			int ratioDescriptorID) {
+	public RatioValueWrapper(Integer id, String confidenceScoreType, int proteinID, String combinationType,
+			double value, Double confidenceScoreValue, String confidenceScoreName, int ratioDescriptorID) {
 		super();
 		this.id = id;
 		this.confidenceScoreType = confidenceScoreType;
@@ -31,7 +27,7 @@ public class RatioValueWrapper {
 		return id;
 	}
 
-	public ConfidenceScoreType getConfidenceScoreType() {
+	public String getConfidenceScoreType() {
 		return confidenceScoreType;
 	}
 
@@ -39,7 +35,7 @@ public class RatioValueWrapper {
 		return proteinPeptideOrPSMID;
 	}
 
-	public CombinationType getCombinationType() {
+	public String getCombinationType() {
 		return combinationType;
 	}
 

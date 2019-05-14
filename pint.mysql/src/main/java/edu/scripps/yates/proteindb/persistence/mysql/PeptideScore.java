@@ -8,7 +8,7 @@ package edu.scripps.yates.proteindb.persistence.mysql;
 public class PeptideScore implements java.io.Serializable {
 
 	private Integer id;
-	private ConfidenceScoreType confidenceScoreType;
+	private String confidenceScoreType;
 	private Peptide peptide;
 	private String name;
 	private double value;
@@ -16,8 +16,7 @@ public class PeptideScore implements java.io.Serializable {
 	public PeptideScore() {
 	}
 
-	public PeptideScore(ConfidenceScoreType confidenceScoreType,
-			Peptide peptide, String name, double value) {
+	public PeptideScore(String confidenceScoreType, Peptide peptide, String name, double value) {
 		this.confidenceScoreType = confidenceScoreType;
 		this.peptide = peptide;
 		this.name = name;
@@ -32,11 +31,11 @@ public class PeptideScore implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public ConfidenceScoreType getConfidenceScoreType() {
+	public String getConfidenceScoreType() {
 		return this.confidenceScoreType;
 	}
 
-	public void setConfidenceScoreType(ConfidenceScoreType confidenceScoreType) {
+	public void setConfidenceScoreType(String confidenceScoreType) {
 		this.confidenceScoreType = confidenceScoreType;
 	}
 

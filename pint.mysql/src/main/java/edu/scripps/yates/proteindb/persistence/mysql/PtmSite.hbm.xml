@@ -8,9 +8,6 @@
             <column name="id" />
             <generator class="identity" />
         </id>
-        <many-to-one name="confidenceScoreType" class="edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType" fetch="select">
-            <column name="Confidence_Score_Type_name" length="90" />
-        </many-to-one>
         <many-to-one name="ptm" class="edu.scripps.yates.proteindb.persistence.mysql.Ptm" fetch="select">
             <column name="PTM_id" not-null="true" />
         </many-to-one>
@@ -26,5 +23,9 @@
         <property name="confidenceScoreName" type="string">
             <column name="confidence_score_name" length="45" />
         </property>
+        <property name="confidenceScoreType" type="string">
+            <column name="Confidence_Score_Type_name" length="90" />
+        </property>
+        
     </class>
 </hibernate-mapping>

@@ -111,11 +111,11 @@ public class ProjectAdapter implements Adapter<edu.scripps.yates.proteindb.persi
 
 	public static void clearStaticInformation() {
 		log.info("Clearing static information");
-		AmountTypeAdapter.clearStaticInformation();
+
 		AnnotationTypeAdapter.clearStaticInformation();
-		CombinationTypeAdapter.clearStaticInformation();
+
 		ConditionAdapter.clearStaticInformation();
-		ConfidenceScoreTypeAdapter.clearStaticInformation();
+
 		LabelAdapter.clearStaticInformation();
 		MSRunAdapter.clearStaticInformation();
 		OrganismAdapter.clearStaticInformation();

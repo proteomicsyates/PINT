@@ -8,7 +8,7 @@ package edu.scripps.yates.proteindb.persistence.mysql;
 public class PtmSite implements java.io.Serializable {
 
 	private Integer id;
-	private ConfidenceScoreType confidenceScoreType;
+	private String confidenceScoreType;
 	private Ptm ptm;
 	private String aa;
 	private int position;
@@ -24,8 +24,7 @@ public class PtmSite implements java.io.Serializable {
 		this.position = position;
 	}
 
-	public PtmSite(ConfidenceScoreType confidenceScoreType, Ptm ptm, String aa,
-			int position, String confidenceScoreValue,
+	public PtmSite(String confidenceScoreType, Ptm ptm, String aa, int position, String confidenceScoreValue,
 			String confidenceScoreName) {
 		this.confidenceScoreType = confidenceScoreType;
 		this.ptm = ptm;
@@ -43,11 +42,11 @@ public class PtmSite implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public ConfidenceScoreType getConfidenceScoreType() {
+	public String getConfidenceScoreType() {
 		return this.confidenceScoreType;
 	}
 
-	public void setConfidenceScoreType(ConfidenceScoreType confidenceScoreType) {
+	public void setConfidenceScoreType(String confidenceScoreType) {
 		this.confidenceScoreType = confidenceScoreType;
 	}
 

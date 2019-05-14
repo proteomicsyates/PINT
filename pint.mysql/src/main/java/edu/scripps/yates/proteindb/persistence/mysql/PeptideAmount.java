@@ -9,24 +9,23 @@ public class PeptideAmount implements java.io.Serializable {
 
 	private Integer id;
 	private Peptide peptide;
-	private AmountType amountType;
+	private String amountType;
 	private Condition condition;
-	private CombinationType combinationType;
+	private String combinationType;
 	private double value;
 
 	public PeptideAmount() {
 	}
 
-	public PeptideAmount(Peptide peptide, AmountType amountType,
-			Condition condition, double value) {
+	public PeptideAmount(Peptide peptide, String amountType, Condition condition, double value) {
 		this.peptide = peptide;
 		this.amountType = amountType;
 		this.condition = condition;
 		this.value = value;
 	}
 
-	public PeptideAmount(Peptide peptide, AmountType amountType,
-			Condition condition, CombinationType combinationType, double value) {
+	public PeptideAmount(Peptide peptide, String amountType, Condition condition, String combinationType,
+			double value) {
 		this.peptide = peptide;
 		this.amountType = amountType;
 		this.condition = condition;
@@ -50,11 +49,11 @@ public class PeptideAmount implements java.io.Serializable {
 		this.peptide = peptide;
 	}
 
-	public AmountType getAmountType() {
+	public String getAmountType() {
 		return this.amountType;
 	}
 
-	public void setAmountType(AmountType amountType) {
+	public void setAmountType(String amountType) {
 		this.amountType = amountType;
 	}
 
@@ -66,11 +65,11 @@ public class PeptideAmount implements java.io.Serializable {
 		this.condition = condition;
 	}
 
-	public CombinationType getCombinationType() {
+	public String getCombinationType() {
 		return this.combinationType;
 	}
 
-	public void setCombinationType(CombinationType combinationType) {
+	public void setCombinationType(String combinationType) {
 		this.combinationType = combinationType;
 	}
 

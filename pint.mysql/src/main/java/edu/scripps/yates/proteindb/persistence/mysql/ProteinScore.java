@@ -8,7 +8,7 @@ package edu.scripps.yates.proteindb.persistence.mysql;
 public class ProteinScore implements java.io.Serializable {
 
 	private Integer id;
-	private ConfidenceScoreType confidenceScoreType;
+	private String confidenceScoreType;
 	private Protein protein;
 	private String name;
 	private double value;
@@ -16,8 +16,7 @@ public class ProteinScore implements java.io.Serializable {
 	public ProteinScore() {
 	}
 
-	public ProteinScore(ConfidenceScoreType confidenceScoreType,
-			Protein protein, String name, double value) {
+	public ProteinScore(String confidenceScoreType, Protein protein, String name, double value) {
 		this.confidenceScoreType = confidenceScoreType;
 		this.protein = protein;
 		this.name = name;
@@ -32,11 +31,11 @@ public class ProteinScore implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public ConfidenceScoreType getConfidenceScoreType() {
+	public String getConfidenceScoreType() {
 		return this.confidenceScoreType;
 	}
 
-	public void setConfidenceScoreType(ConfidenceScoreType confidenceScoreType) {
+	public void setConfidenceScoreType(String confidenceScoreType) {
 		this.confidenceScoreType = confidenceScoreType;
 	}
 

@@ -22,10 +22,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
-import edu.scripps.yates.proteindb.persistence.mysql.AmountType;
-import edu.scripps.yates.proteindb.persistence.mysql.CombinationType;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
@@ -916,10 +913,9 @@ public class PreparedCriteria {
 				confidenceScoreType = list[1].toString();
 			}
 			final int proteinID = Integer.valueOf(list[2].toString());
-			CombinationType combinationType = null;
+			String combinationType = null;
 			if (list[3] != null) {
-				combinationType = new CombinationType();
-				combinationType.setName(list[3].toString());
+				combinationType = list[3].toString();
 			}
 			final double value = Double.valueOf(list[4].toString());
 			Double confidenceScoreValue = null;
@@ -931,8 +927,8 @@ public class PreparedCriteria {
 				confidenceScoreName = list[6].toString();
 			}
 
-			ret.add(new RatioValueWrapper(id, new ConfidenceScoreType(confidenceScoreType), proteinID, combinationType,
-					value, confidenceScoreValue, confidenceScoreName, ratioDescriptor.getId()));
+			ret.add(new RatioValueWrapper(id, confidenceScoreType, proteinID, combinationType, value,
+					confidenceScoreValue, confidenceScoreName, ratioDescriptor.getId()));
 		}
 		return ret;
 	}
@@ -964,15 +960,13 @@ public class PreparedCriteria {
 			final int id = Integer.valueOf(list[0].toString());
 			final double value = Double.valueOf(list[1].toString());
 			final int itemID = Integer.valueOf(list[2].toString());
-			AmountType amountType = null;
+			String amountType = null;
 			if (list[3] != null) {
-				amountType = new AmountType();
-				amountType.setName(list[3].toString());
+				amountType = list[3].toString();
 			}
-			CombinationType combinationType = null;
+			String combinationType = null;
 			if (list[4] != null) {
-				combinationType = new CombinationType();
-				combinationType.setName(list[4].toString());
+				combinationType = list[4].toString();
 			}
 
 			Boolean manualSPC = null;

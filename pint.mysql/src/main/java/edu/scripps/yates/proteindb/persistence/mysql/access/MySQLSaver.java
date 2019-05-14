@@ -6,11 +6,8 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.census.read.model.StaticQuantMaps;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
-import edu.scripps.yates.proteindb.persistence.mysql.AmountType;
 import edu.scripps.yates.proteindb.persistence.mysql.AnnotationType;
-import edu.scripps.yates.proteindb.persistence.mysql.CombinationType;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.Label;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Organism;
@@ -270,10 +267,6 @@ public class MySQLSaver {
 
 	private void savePSMScore(PsmScore psmScore) {
 
-		final ConfidenceScoreType confidenceScoreType = psmScore.getConfidenceScoreType();
-		if (confidenceScoreType != null) {
-			saveConfidenceScoreTypeForPsmScore(confidenceScoreType, psmScore);
-		}
 		if (psmScore.getPsm() == null) {
 			log.info(psmScore);
 		} else if (psmScore.getPsm().getId() == null) {
@@ -284,19 +277,11 @@ public class MySQLSaver {
 
 	private void savePeptideScore(PeptideScore score) {
 
-		final ConfidenceScoreType confidenceScoreType = score.getConfidenceScoreType();
-		if (confidenceScoreType != null) {
-			saveConfidenceScoreTypeForPeptideScore(confidenceScoreType, score);
-		}
 		ContextualSessionHandler.save(score);
 	}
 
 	private void saveProteinScore(ProteinScore score) {
 
-		final ConfidenceScoreType confidenceScoreType = score.getConfidenceScoreType();
-		if (confidenceScoreType != null) {
-			saveConfidenceScoreTypeForProteinScore(confidenceScoreType, score);
-		}
 		ContextualSessionHandler.save(score);
 	}
 
@@ -305,10 +290,6 @@ public class MySQLSaver {
 		final Set<PtmSite> ptmSites = ptm.getPtmSites();
 		if (ptmSites != null) {
 			for (final PtmSite ptmSite : ptmSites) {
-				final ConfidenceScoreType confidenceScoreType = ptmSite.getConfidenceScoreType();
-				if (confidenceScoreType != null) {
-					saveConfidenceScoreTypeForPtmSite(confidenceScoreType, ptmSite);
-				}
 				ContextualSessionHandler.save(ptmSite);
 			}
 		}
@@ -324,16 +305,6 @@ public class MySQLSaver {
 			return;
 		}
 		ContextualSessionHandler.save(proteinRatioValue);
-		final ConfidenceScoreType scoreType = proteinRatioValue.getConfidenceScoreType();
-		if (scoreType != null) {
-			saveConfidenceScoreTypeForProteinRatioValue(scoreType, proteinRatioValue);
-		}
-
-		// combination type
-		final CombinationType combinationType = proteinRatioValue.getCombinationType();
-		if (combinationType != null) {
-			saveCombinationTypeForProteinRatioValue(combinationType, proteinRatioValue);
-		}
 
 	}
 
@@ -343,35 +314,12 @@ public class MySQLSaver {
 
 		ContextualSessionHandler.save(peptideRatioValue);
 
-		final ConfidenceScoreType scoreType = peptideRatioValue.getConfidenceScoreType();
-		if (scoreType != null) {
-			saveConfidenceScoreTypeForPeptideRatioValue(scoreType, peptideRatioValue);
-
-		}
-
-		// combination type
-		final CombinationType combinationType = peptideRatioValue.getCombinationType();
-		if (combinationType != null) {
-			saveCombinationTypeForPeptideRatioValue(combinationType, peptideRatioValue);
-		}
-
 	}
 
 	private void savePsmRatio(PsmRatioValue psmRatioValue) {
 
 		savePSM(psmRatioValue.getPsm());
 		ContextualSessionHandler.save(psmRatioValue);
-		final ConfidenceScoreType scoreType = psmRatioValue.getConfidenceScoreType();
-		if (scoreType != null) {
-			saveConfidenceScoreTypeForPsmRatioValue(scoreType, psmRatioValue);
-
-		}
-
-		// combination type
-		final CombinationType combinationType = psmRatioValue.getCombinationType();
-		if (combinationType != null) {
-			saveCombinationTypeForPsmRatioValue(combinationType, psmRatioValue);
-		}
 
 	}
 
@@ -425,18 +373,6 @@ public class MySQLSaver {
 		// saveProteinAmount(proteinAmountChild);
 		// }
 
-		// amount type
-		final AmountType amountType = proteinAmount.getAmountType();
-		if (amountType != null) {
-			saveAmountTypeForProtein(amountType, proteinAmount);
-		}
-
-		// combination type
-		final CombinationType combinationType = proteinAmount.getCombinationType();
-		if (combinationType != null) {
-			saveCombinationTypeForProteinAmount(combinationType, proteinAmount);
-
-		}
 		// condition
 		final Condition condition = proteinAmount.getCondition();
 		saveExperimentalCondition(condition);
@@ -465,18 +401,6 @@ public class MySQLSaver {
 		// saveProteinAmount(proteinAmountChild);
 		// }
 
-		// amount type
-		final AmountType amountType = peptideAmount.getAmountType();
-		if (amountType != null) {
-			saveAmountTypeForPeptide(amountType, peptideAmount);
-		}
-
-		// combination type
-		final CombinationType combinationType = peptideAmount.getCombinationType();
-		if (combinationType != null) {
-			saveCombinationTypeForPeptideAmount(combinationType, peptideAmount);
-
-		}
 		// condition
 		final Condition condition = peptideAmount.getCondition();
 		saveExperimentalCondition(condition);
@@ -505,18 +429,6 @@ public class MySQLSaver {
 		// saveProteinAmount(proteinAmountChild);
 		// }
 
-		// amount type
-		final AmountType amountType = psmAmount.getAmountType();
-		if (amountType != null) {
-			saveAmountTypeForPSM(amountType, psmAmount);
-		}
-
-		// combination type
-		final CombinationType combinationType = psmAmount.getCombinationType();
-		if (combinationType != null) {
-			saveCombinationTypeForPsmAmount(combinationType, psmAmount);
-
-		}
 		// condition
 		final Condition condition = psmAmount.getCondition();
 		saveExperimentalCondition(condition);
@@ -529,276 +441,6 @@ public class MySQLSaver {
 			log.info(psmAmount);
 		}
 		ContextualSessionHandler.save(psmAmount);
-
-	}
-
-	private void saveAmountTypeForProtein(AmountType amountType, ProteinAmount proteinAmount) {
-		final AmountType amountTypeInDB = ContextualSessionHandler.load(amountType.getName(), AmountType.class);
-		if (amountTypeInDB != null) {
-			// amountTypeInDB.getProteinAmounts().add(proteinAmount);
-			proteinAmount.setAmountType(amountTypeInDB);
-			// ContextualSessionHandler.saveOrUpdate(proteinAmount);
-			ContextualSessionHandler.saveOrUpdate(amountTypeInDB);
-			amountType = amountTypeInDB;
-		} else {
-			ContextualSessionHandler.save(amountType);
-
-		}
-
-	}
-
-	private void saveAmountTypeForPeptide(AmountType amountType, PeptideAmount peptideAmount) {
-		final AmountType amountTypeInDB = ContextualSessionHandler.load(amountType.getName(), AmountType.class);
-		if (amountTypeInDB != null) {
-			// amountTypeInDB.getPeptideAmounts().add(peptideAmount);
-			peptideAmount.setAmountType(amountTypeInDB);
-			// ContextualSessionHandler.saveOrUpdate(peptideAmount);
-			ContextualSessionHandler.saveOrUpdate(amountTypeInDB);
-			amountType = amountTypeInDB;
-		} else {
-			ContextualSessionHandler.save(amountType);
-		}
-
-	}
-
-	private void saveAmountTypeForPSM(AmountType amountType, PsmAmount psmAmount) {
-		final AmountType amountTypeInDB = ContextualSessionHandler.load(amountType.getName(), AmountType.class);
-		if (amountTypeInDB != null) {
-			// amountTypeInDB.getPsmAmounts().add(psmAmount);
-			psmAmount.setAmountType(amountTypeInDB);
-			// ContextualSessionHandler.saveOrUpdate(psmAmount);
-			ContextualSessionHandler.saveOrUpdate(amountTypeInDB);
-			amountType = amountTypeInDB;
-		} else {
-			ContextualSessionHandler.save(amountType);
-
-		}
-
-	}
-
-	private void saveCombinationTypeForProteinRatioValue(CombinationType combinationType,
-			ProteinRatioValue proteinRatioValue) {
-		final CombinationType combinationTypeInDB = ContextualSessionHandler.load(combinationType.getName(),
-				CombinationType.class);
-		if (combinationTypeInDB != null) {
-			combinationTypeInDB.setDescription(combinationType.getDescription());
-			// combinationTypeInDB.getProteinRatioValues().add(proteinRatioValue);
-			proteinRatioValue.setCombinationType(combinationTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(proteinRatioValue);
-			ContextualSessionHandler.saveOrUpdate(combinationTypeInDB);
-			combinationType = combinationTypeInDB;
-		} else {
-			ContextualSessionHandler.save(combinationType);
-
-		}
-
-	}
-
-	private void saveCombinationTypeForPeptideRatioValue(CombinationType combinationType,
-			PeptideRatioValue peptideRatioValue) {
-		final CombinationType combinationTypeInDB = ContextualSessionHandler.load(combinationType.getName(),
-				CombinationType.class);
-		if (combinationTypeInDB != null) {
-			combinationTypeInDB.setDescription(combinationType.getDescription());
-			// combinationTypeInDB.getPeptideRatioValues().add(peptideRatioValue);
-			peptideRatioValue.setCombinationType(combinationTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(peptideRatioValue);
-			ContextualSessionHandler.saveOrUpdate(combinationTypeInDB);
-			combinationType = combinationTypeInDB;
-		} else {
-			ContextualSessionHandler.save(combinationType);
-
-		}
-
-	}
-
-	private void saveCombinationTypeForPsmRatioValue(CombinationType combinationType, PsmRatioValue psmRatioValue) {
-		final CombinationType combinationTypeInDB = ContextualSessionHandler.load(combinationType.getName(),
-				CombinationType.class);
-		if (combinationTypeInDB != null) {
-			combinationTypeInDB.setDescription(combinationType.getDescription());
-			// combinationTypeInDB.getPsmRatioValues().add(psmRatioValue);
-			psmRatioValue.setCombinationType(combinationTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(psmRatioValue);
-			ContextualSessionHandler.saveOrUpdate(combinationTypeInDB);
-			combinationType = combinationTypeInDB;
-		} else {
-			ContextualSessionHandler.save(combinationType);
-
-		}
-
-	}
-
-	private void saveCombinationTypeForProteinAmount(CombinationType combinationType, ProteinAmount proteinAmount) {
-		final CombinationType combinationTypeInDB = ContextualSessionHandler.load(combinationType.getName(),
-				CombinationType.class);
-		if (combinationTypeInDB != null) {
-			combinationTypeInDB.setDescription(combinationType.getDescription());
-			// combinationTypeInDB.getProteinAmounts().add(proteinAmount);
-			proteinAmount.setCombinationType(combinationTypeInDB);
-			// ContextualSessionHandler.saveOrUpdate(proteinAmount);
-			ContextualSessionHandler.saveOrUpdate(combinationTypeInDB);
-			combinationType = combinationTypeInDB;
-		} else {
-			ContextualSessionHandler.save(combinationType);
-
-		}
-
-	}
-
-	private void saveCombinationTypeForPeptideAmount(CombinationType combinationType, PeptideAmount peptideAmount) {
-		final CombinationType combinationTypeInDB = ContextualSessionHandler.load(combinationType.getName(),
-				CombinationType.class);
-		if (combinationTypeInDB != null) {
-			combinationTypeInDB.setDescription(combinationType.getDescription());
-			// combinationTypeInDB.getPeptideAmounts().add(peptideAmount);
-			peptideAmount.setCombinationType(combinationTypeInDB);
-			// ContextualSessionHandler.saveOrUpdate(peptideAmount);
-			ContextualSessionHandler.saveOrUpdate(combinationTypeInDB);
-			combinationType = combinationTypeInDB;
-		} else {
-			ContextualSessionHandler.save(combinationType);
-
-		}
-
-	}
-
-	private void saveCombinationTypeForPsmAmount(CombinationType combinationType, PsmAmount psmAmount) {
-		final CombinationType combinationTypeInDB = ContextualSessionHandler.load(combinationType.getName(),
-				CombinationType.class);
-		if (combinationTypeInDB != null) {
-			combinationTypeInDB.setDescription(combinationType.getDescription());
-			// combinationTypeInDB.getPsmAmounts().add(psmAmount);
-			psmAmount.setCombinationType(combinationTypeInDB);
-			// ContextualSessionHandler.saveOrUpdate(psmAmount);
-			ContextualSessionHandler.saveOrUpdate(combinationTypeInDB);
-			combinationType = combinationTypeInDB;
-		} else {
-			ContextualSessionHandler.save(combinationType);
-
-		}
-
-	}
-
-	private void saveConfidenceScoreTypeForPsmScore(ConfidenceScoreType confidenceScoreType, PsmScore score) {
-		final ConfidenceScoreType confidenceScoreTypeInDB = ContextualSessionHandler.load(confidenceScoreType.getName(),
-				ConfidenceScoreType.class);
-		if (confidenceScoreTypeInDB != null) {
-			confidenceScoreTypeInDB.setName(confidenceScoreType.getName());
-			confidenceScoreTypeInDB.setDescription(confidenceScoreType.getDescription());
-			// confidenceScoreTypeInDB.getPsmScores().add(score);
-			score.setConfidenceScoreType(confidenceScoreTypeInDB);
-			// ContextualSessionHandler.saveOrUpdate(score);
-			ContextualSessionHandler.saveOrUpdate(confidenceScoreTypeInDB);
-			confidenceScoreType = confidenceScoreTypeInDB;
-		} else {
-			ContextualSessionHandler.save(confidenceScoreType);
-		}
-
-	}
-
-	private void saveConfidenceScoreTypeForPeptideScore(ConfidenceScoreType confidenceScoreType, PeptideScore score) {
-		final ConfidenceScoreType confidenceScoreTypeInDB = ContextualSessionHandler.load(confidenceScoreType.getName(),
-				ConfidenceScoreType.class);
-		if (confidenceScoreTypeInDB != null) {
-			confidenceScoreTypeInDB.setName(confidenceScoreType.getName());
-			confidenceScoreTypeInDB.setDescription(confidenceScoreType.getDescription());
-			// confidenceScoreTypeInDB.getPeptideScores().add(score);
-			score.setConfidenceScoreType(confidenceScoreTypeInDB);
-			// ContextualSessionHandler.saveOrUpdate(score);
-			ContextualSessionHandler.saveOrUpdate(confidenceScoreTypeInDB);
-			confidenceScoreType = confidenceScoreTypeInDB;
-		} else {
-			ContextualSessionHandler.save(confidenceScoreType);
-		}
-
-	}
-
-	private void saveConfidenceScoreTypeForProteinScore(ConfidenceScoreType confidenceScoreType, ProteinScore score) {
-		final ConfidenceScoreType confidenceScoreTypeInDB = ContextualSessionHandler.load(confidenceScoreType.getName(),
-				ConfidenceScoreType.class);
-		if (confidenceScoreTypeInDB != null) {
-			confidenceScoreTypeInDB.setName(confidenceScoreType.getName());
-			confidenceScoreTypeInDB.setDescription(confidenceScoreType.getDescription());
-			// confidenceScoreTypeInDB.getProteinScores().add(score);
-			score.setConfidenceScoreType(confidenceScoreTypeInDB);
-			// ContextualSessionHandler.saveOrUpdate(score);
-			ContextualSessionHandler.saveOrUpdate(confidenceScoreTypeInDB);
-			confidenceScoreType = confidenceScoreTypeInDB;
-		} else {
-			ContextualSessionHandler.save(confidenceScoreType);
-		}
-
-	}
-
-	private void saveConfidenceScoreTypeForPtmSite(ConfidenceScoreType confidenceScoreType, PtmSite ptmSite) {
-		final ConfidenceScoreType confidenceScoreTypeInDB = ContextualSessionHandler.load(confidenceScoreType.getName(),
-				ConfidenceScoreType.class);
-		if (confidenceScoreTypeInDB != null) {
-			confidenceScoreTypeInDB.setName(confidenceScoreType.getName());
-			confidenceScoreTypeInDB.setDescription(confidenceScoreType.getDescription());
-			// confidenceScoreTypeInDB.getPtmSites().add(ptmSite);
-			ptmSite.setConfidenceScoreType(confidenceScoreTypeInDB);
-			// ContextualSessionHandler.saveOrUpdate(ptmSite);
-			ContextualSessionHandler.saveOrUpdate(confidenceScoreTypeInDB);
-			confidenceScoreType = confidenceScoreTypeInDB;
-		} else {
-			ContextualSessionHandler.save(confidenceScoreType);
-		}
-
-	}
-
-	private void saveConfidenceScoreTypeForProteinRatioValue(ConfidenceScoreType confidenceScoreType,
-			ProteinRatioValue proteinRatioValue) {
-		final ConfidenceScoreType confidenceScoreTypeInDB = ContextualSessionHandler.load(confidenceScoreType.getName(),
-				ConfidenceScoreType.class);
-		if (confidenceScoreTypeInDB != null) {
-			confidenceScoreTypeInDB.setName(confidenceScoreType.getName());
-			confidenceScoreTypeInDB.setDescription(confidenceScoreType.getDescription());
-			// confidenceScoreTypeInDB.getProteinRatioValues().add(proteinRatioValue);
-			proteinRatioValue.setConfidenceScoreType(confidenceScoreTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(proteinRatioValue);
-			ContextualSessionHandler.saveOrUpdate(confidenceScoreTypeInDB);
-			confidenceScoreType = confidenceScoreTypeInDB;
-		} else {
-			ContextualSessionHandler.save(confidenceScoreType);
-		}
-
-	}
-
-	private void saveConfidenceScoreTypeForPeptideRatioValue(ConfidenceScoreType confidenceScoreType,
-			PeptideRatioValue peptideRatioValue) {
-		final ConfidenceScoreType confidenceScoreTypeInDB = ContextualSessionHandler.load(confidenceScoreType.getName(),
-				ConfidenceScoreType.class);
-		if (confidenceScoreTypeInDB != null) {
-			confidenceScoreTypeInDB.setName(confidenceScoreType.getName());
-			confidenceScoreTypeInDB.setDescription(confidenceScoreType.getDescription());
-			// confidenceScoreTypeInDB.getPeptideRatioValues().add(peptideRatioValue);
-			peptideRatioValue.setConfidenceScoreType(confidenceScoreTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(peptideRatioValue);
-			ContextualSessionHandler.saveOrUpdate(confidenceScoreTypeInDB);
-			confidenceScoreType = confidenceScoreTypeInDB;
-		} else {
-			ContextualSessionHandler.save(confidenceScoreType);
-		}
-
-	}
-
-	private void saveConfidenceScoreTypeForPsmRatioValue(ConfidenceScoreType confidenceScoreType,
-			PsmRatioValue psmRatioValue) {
-		final ConfidenceScoreType confidenceScoreTypeInDB = ContextualSessionHandler.load(confidenceScoreType.getName(),
-				ConfidenceScoreType.class);
-		if (confidenceScoreTypeInDB != null) {
-			confidenceScoreTypeInDB.setName(confidenceScoreType.getName());
-			confidenceScoreTypeInDB.setDescription(confidenceScoreType.getDescription());
-			// confidenceScoreTypeInDB.getPsmRatioValues().add(psmRatioValue);
-			psmRatioValue.setConfidenceScoreType(confidenceScoreTypeInDB);
-			ContextualSessionHandler.saveOrUpdate(psmRatioValue);
-			ContextualSessionHandler.saveOrUpdate(confidenceScoreTypeInDB);
-			confidenceScoreType = confidenceScoreTypeInDB;
-		} else {
-			ContextualSessionHandler.save(confidenceScoreType);
-		}
 
 	}
 

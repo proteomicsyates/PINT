@@ -8,14 +8,8 @@
             <column name="id" />
             <generator class="identity" />
         </id>
-        <many-to-one name="amountType" class="edu.scripps.yates.proteindb.persistence.mysql.AmountType" fetch="select">
-            <column name="Amount_Type_name" length="90" not-null="true" />
-        </many-to-one>
         <many-to-one name="condition" class="edu.scripps.yates.proteindb.persistence.mysql.Condition" fetch="select">
             <column name="Condition_id" not-null="true" />
-        </many-to-one>
-        <many-to-one name="combinationType" class="edu.scripps.yates.proteindb.persistence.mysql.CombinationType" fetch="select">
-            <column name="Combination_Type_name" length="90" />
         </many-to-one>
         <many-to-one name="psm" class="edu.scripps.yates.proteindb.persistence.mysql.Psm" fetch="select">
             <column name="PSM_id" not-null="true" />
@@ -26,5 +20,12 @@
         <property name="singleton" type="java.lang.Boolean">
             <column name="Singleton" />
         </property>
+        <property name="combinationType" type="string">
+            <column name="Combination_Type_name" length="90" />
+        </property>
+        <property name="amountType" type="string" >
+            <column name="Amount_Type_name" length="90" not-null="true" />
+        </property>
+        
     </class>
 </hibernate-mapping>

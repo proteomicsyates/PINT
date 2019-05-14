@@ -28,11 +28,11 @@ public class PeptideAmountAdapter
 
 	@Override
 	public PeptideAmount adapt() {
-		PeptideAmount ret = new PeptideAmount();
+		final PeptideAmount ret = new PeptideAmount();
 
-		ret.setAmountType(new AmountTypeAdapter(amount.getAmountType()).adapt());
+		ret.setAmountType(amount.getAmountType().name());
 		if (amount.getCombinationType() != null)
-			ret.setCombinationType(new CombinationTypeAdapter(amount.getCombinationType(), ret).adapt());
+			ret.setCombinationType(amount.getCombinationType().getName());
 
 		ret.setValue(amount.getValue());
 

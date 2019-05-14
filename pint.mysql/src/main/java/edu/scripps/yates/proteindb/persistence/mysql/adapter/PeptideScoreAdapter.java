@@ -22,8 +22,8 @@ public class PeptideScoreAdapter implements Adapter<PeptideScore>, Serializable 
 	@Override
 	public PeptideScore adapt() {
 
-		PeptideScore ret = new PeptideScore(new ConfidenceScoreTypeAdapter(score).adapt(), peptide,
-				score.getScoreName(), Double.valueOf(score.getValue()));
+		final PeptideScore ret = new PeptideScore(score.getScoreType(), peptide, score.getScoreName(),
+				Double.valueOf(score.getValue()));
 		return ret;
 	}
 

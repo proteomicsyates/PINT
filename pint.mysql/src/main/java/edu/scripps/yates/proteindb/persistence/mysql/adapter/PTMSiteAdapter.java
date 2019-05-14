@@ -22,12 +22,12 @@ public class PTMSiteAdapter implements Adapter<PtmSite>, Serializable {
 
 	@Override
 	public PtmSite adapt() {
-		PtmSite ret = new PtmSite(ptm, ptmSite.getAA(), ptmSite.getPosition());
+		final PtmSite ret = new PtmSite(ptm, ptmSite.getAA(), ptmSite.getPosition());
 
 		final Score score = ptmSite.getScore();
 		if (score != null) {
 			ret.setConfidenceScoreValue(score.getValue());
-			ret.setConfidenceScoreType(new ConfidenceScoreTypeAdapter(score).adapt());
+			ret.setConfidenceScoreType(score.getScoreType());
 			ret.setConfidenceScoreName(score.getScoreName());
 		}
 

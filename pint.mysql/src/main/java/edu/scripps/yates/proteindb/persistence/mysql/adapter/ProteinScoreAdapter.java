@@ -22,8 +22,8 @@ public class ProteinScoreAdapter implements Adapter<ProteinScore>, Serializable 
 	@Override
 	public ProteinScore adapt() {
 
-		ProteinScore ret = new ProteinScore(new ConfidenceScoreTypeAdapter(score).adapt(), protein,
-				score.getScoreName(), Double.valueOf(score.getValue()));
+		final ProteinScore ret = new ProteinScore(score.getScoreType(), protein, score.getScoreName(),
+				Double.valueOf(score.getValue()));
 		return ret;
 	}
 

@@ -8,9 +8,9 @@ package edu.scripps.yates.proteindb.persistence.mysql;
 public class PeptideRatioValue implements java.io.Serializable {
 
 	private Integer id;
-	private ConfidenceScoreType confidenceScoreType;
+	private String confidenceScoreType;
 	private Peptide peptide;
-	private CombinationType combinationType;
+	private String combinationType;
 	private RatioDescriptor ratioDescriptor;
 	private double value;
 	private Double confidenceScoreValue;
@@ -19,17 +19,14 @@ public class PeptideRatioValue implements java.io.Serializable {
 	public PeptideRatioValue() {
 	}
 
-	public PeptideRatioValue(Peptide peptide, RatioDescriptor ratioDescriptor,
-			double value) {
+	public PeptideRatioValue(Peptide peptide, RatioDescriptor ratioDescriptor, double value) {
 		this.peptide = peptide;
 		this.ratioDescriptor = ratioDescriptor;
 		this.value = value;
 	}
 
-	public PeptideRatioValue(ConfidenceScoreType confidenceScoreType,
-			Peptide peptide, CombinationType combinationType,
-			RatioDescriptor ratioDescriptor, double value,
-			Double confidenceScoreValue, String confidenceScoreName) {
+	public PeptideRatioValue(String confidenceScoreType, Peptide peptide, String combinationType,
+			RatioDescriptor ratioDescriptor, double value, Double confidenceScoreValue, String confidenceScoreName) {
 		this.confidenceScoreType = confidenceScoreType;
 		this.peptide = peptide;
 		this.combinationType = combinationType;
@@ -47,11 +44,11 @@ public class PeptideRatioValue implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public ConfidenceScoreType getConfidenceScoreType() {
+	public String getConfidenceScoreType() {
 		return this.confidenceScoreType;
 	}
 
-	public void setConfidenceScoreType(ConfidenceScoreType confidenceScoreType) {
+	public void setConfidenceScoreType(String confidenceScoreType) {
 		this.confidenceScoreType = confidenceScoreType;
 	}
 
@@ -63,11 +60,11 @@ public class PeptideRatioValue implements java.io.Serializable {
 		this.peptide = peptide;
 	}
 
-	public CombinationType getCombinationType() {
+	public String getCombinationType() {
 		return this.combinationType;
 	}
 
-	public void setCombinationType(CombinationType combinationType) {
+	public void setCombinationType(String combinationType) {
 		this.combinationType = combinationType;
 	}
 

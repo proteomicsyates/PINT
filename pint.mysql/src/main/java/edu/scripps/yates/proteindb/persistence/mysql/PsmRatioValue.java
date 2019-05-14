@@ -8,8 +8,8 @@ package edu.scripps.yates.proteindb.persistence.mysql;
 public class PsmRatioValue implements java.io.Serializable {
 
 	private Integer id;
-	private ConfidenceScoreType confidenceScoreType;
-	private CombinationType combinationType;
+	private String confidenceScoreType;
+	private String combinationType;
 	private RatioDescriptor ratioDescriptor;
 	private Psm psm;
 	private double value;
@@ -25,10 +25,8 @@ public class PsmRatioValue implements java.io.Serializable {
 		this.value = value;
 	}
 
-	public PsmRatioValue(ConfidenceScoreType confidenceScoreType,
-			CombinationType combinationType, RatioDescriptor ratioDescriptor,
-			Psm psm, double value, Double confidenceScoreValue,
-			String confidenceScoreName) {
+	public PsmRatioValue(String confidenceScoreType, String combinationType, RatioDescriptor ratioDescriptor, Psm psm,
+			double value, Double confidenceScoreValue, String confidenceScoreName) {
 		this.confidenceScoreType = confidenceScoreType;
 		this.combinationType = combinationType;
 		this.ratioDescriptor = ratioDescriptor;
@@ -46,19 +44,19 @@ public class PsmRatioValue implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public ConfidenceScoreType getConfidenceScoreType() {
+	public String getConfidenceScoreType() {
 		return this.confidenceScoreType;
 	}
 
-	public void setConfidenceScoreType(ConfidenceScoreType confidenceScoreType) {
+	public void setConfidenceScoreType(String confidenceScoreType) {
 		this.confidenceScoreType = confidenceScoreType;
 	}
 
-	public CombinationType getCombinationType() {
+	public String getCombinationType() {
 		return this.combinationType;
 	}
 
-	public void setCombinationType(CombinationType combinationType) {
+	public void setCombinationType(String combinationType) {
 		this.combinationType = combinationType;
 	}
 

@@ -22,7 +22,7 @@ public class PSMScoreAdapter implements Adapter<PsmScore>, Serializable {
 	@Override
 	public PsmScore adapt() {
 
-		PsmScore ret = new PsmScore(new ConfidenceScoreTypeAdapter(score).adapt(), psm, score.getScoreName(),
+		final PsmScore ret = new PsmScore(score.getScoreType(), psm, score.getScoreName(),
 				Double.valueOf(score.getValue()));
 		return ret;
 	}

@@ -1,18 +1,15 @@
 package edu.scripps.yates.proteindb.persistence.mysql.wrappers;
 
-import edu.scripps.yates.proteindb.persistence.mysql.AmountType;
-import edu.scripps.yates.proteindb.persistence.mysql.CombinationType;
-
 public class AmountValueWrapper {
 	private final int id;
 	private final double value;
 	private final int itemID;
-	private final AmountType amountType;
-	private final CombinationType combinationType;
+	private final String amountType;
+	private final String combinationType;
 	private final Boolean manualSPC;
 	private final int conditionID;
 
-	public AmountValueWrapper(int id, double value, int itemID, AmountType amountType, CombinationType combinationType,
+	public AmountValueWrapper(int id, double value, int itemID, String amountType, String combinationType,
 			Boolean manualSPC, int conditionID) {
 		this.id = id;
 		this.value = value;
@@ -35,11 +32,11 @@ public class AmountValueWrapper {
 		return itemID;
 	}
 
-	public AmountType getAmountType() {
+	public String getAmountType() {
 		return amountType;
 	}
 
-	public CombinationType getCombinationType() {
+	public String getCombinationType() {
 		return combinationType;
 	}
 

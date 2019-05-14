@@ -27,11 +27,11 @@ public class PSMAmountAdapter
 
 	@Override
 	public PsmAmount adapt() {
-		PsmAmount ret = new PsmAmount();
+		final PsmAmount ret = new PsmAmount();
 
-		ret.setAmountType(new AmountTypeAdapter(amount.getAmountType()).adapt());
+		ret.setAmountType(amount.getAmountType().name());
 		if (amount.getCombinationType() != null)
-			ret.setCombinationType(new CombinationTypeAdapter(amount.getCombinationType(), ret).adapt());
+			ret.setCombinationType(amount.getCombinationType().getName());
 
 		ret.setValue(amount.getValue());
 		ret.setCondition(new ConditionAdapter(amount.getCondition(), hibProject).adapt());

@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.PsmRatioValue;
@@ -39,7 +38,7 @@ public class PSMRatioValueAdapter
 	@Override
 	public PsmRatioValue adapt() {
 
-		PsmRatioValue ret = new PsmRatioValue();
+		final PsmRatioValue ret = new PsmRatioValue();
 
 		final RatioDescriptor peptideRatioDescriptor = new RatioDescriptorAdapter(ratio.getDescription(),
 				ratio.getCondition1(), ratio.getCondition2(), ret, hibProject).adapt();
@@ -52,14 +51,14 @@ public class PSMRatioValueAdapter
 			try {
 				final Double scoreValue = Double.valueOf(score.getValue());
 				if (!Double.isNaN(scoreValue)) {
-					final ConfidenceScoreType scoreType = new ConfidenceScoreTypeAdapter(score).adapt();
+					final String scoreType = score.getScoreType();
 					ret.setConfidenceScoreType(scoreType);
 					ret.setConfidenceScoreValue(scoreValue);
 					ret.setConfidenceScoreName(score.getScoreName());
 				} else {
 					log.debug("Nan score. Ignoring it");
 				}
-			} catch (NumberFormatException e) {
+			} catch (final NumberFormatException e) {
 				e.printStackTrace();
 				throw new IllegalArgumentException(
 						"Error parsing PSM ratio score: " + score.getScoreName() + " with value: " + score.getValue());
@@ -68,7 +67,7 @@ public class PSMRatioValueAdapter
 		// combination type
 		final CombinationType combinationType = ratio.getCombinationType();
 		if (combinationType != null) {
-			ret.setCombinationType(new CombinationTypeAdapter(combinationType, ret).adapt());
+			ret.setCombinationType(combinationType.getName());
 		}
 		ret.setValue(PersistenceUtils.parseRatioValueRemoveInfinities(ratio.getValue()));
 

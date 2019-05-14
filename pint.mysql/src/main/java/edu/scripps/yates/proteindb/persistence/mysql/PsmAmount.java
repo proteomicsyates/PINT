@@ -8,9 +8,9 @@ package edu.scripps.yates.proteindb.persistence.mysql;
 public class PsmAmount implements java.io.Serializable {
 
 	private Integer id;
-	private AmountType amountType;
+	private String amountType;
 	private Condition condition;
-	private CombinationType combinationType;
+	private String combinationType;
 	private Psm psm;
 	private double value;
 	private Boolean singleton;
@@ -18,16 +18,14 @@ public class PsmAmount implements java.io.Serializable {
 	public PsmAmount() {
 	}
 
-	public PsmAmount(AmountType amountType, Condition condition, Psm psm,
-			double value) {
+	public PsmAmount(String amountType, Condition condition, Psm psm, double value) {
 		this.amountType = amountType;
 		this.condition = condition;
 		this.psm = psm;
 		this.value = value;
 	}
 
-	public PsmAmount(AmountType amountType, Condition condition,
-			CombinationType combinationType, Psm psm, double value,
+	public PsmAmount(String amountType, Condition condition, String combinationType, Psm psm, double value,
 			Boolean singleton) {
 		this.amountType = amountType;
 		this.condition = condition;
@@ -45,11 +43,11 @@ public class PsmAmount implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public AmountType getAmountType() {
+	public String getAmountType() {
 		return this.amountType;
 	}
 
-	public void setAmountType(AmountType amountType) {
+	public void setAmountType(String amountType) {
 		this.amountType = amountType;
 	}
 
@@ -61,11 +59,11 @@ public class PsmAmount implements java.io.Serializable {
 		this.condition = condition;
 	}
 
-	public CombinationType getCombinationType() {
+	public String getCombinationType() {
 		return this.combinationType;
 	}
 
-	public void setCombinationType(CombinationType combinationType) {
+	public void setCombinationType(String combinationType) {
 		this.combinationType = combinationType;
 	}
 

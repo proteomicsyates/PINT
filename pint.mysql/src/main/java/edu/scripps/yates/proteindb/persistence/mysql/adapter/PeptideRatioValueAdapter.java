@@ -2,7 +2,6 @@ package edu.scripps.yates.proteindb.persistence.mysql.adapter;
 
 import java.io.Serializable;
 
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.Project;
@@ -32,7 +31,7 @@ public class PeptideRatioValueAdapter
 
 	@Override
 	public PeptideRatioValue adapt() {
-		PeptideRatioValue ret = new PeptideRatioValue();
+		final PeptideRatioValue ret = new PeptideRatioValue();
 
 		final RatioDescriptor peptideRatioDescriptor = new RatioDescriptorAdapter(ratio.getDescription(),
 				ratio.getCondition1(), ratio.getCondition2(), ret, hibProject).adapt();
@@ -42,11 +41,11 @@ public class PeptideRatioValueAdapter
 		// score
 		final Score score = ratio.getAssociatedConfidenceScore();
 		if (score != null) {
-			final ConfidenceScoreType scoreType = new ConfidenceScoreTypeAdapter(score).adapt();
+			final String scoreType = score.getScoreType();
 			ret.setConfidenceScoreType(scoreType);
 			try {
 				ret.setConfidenceScoreValue(Double.valueOf(score.getValue()));
-			} catch (NumberFormatException e) {
+			} catch (final NumberFormatException e) {
 				e.printStackTrace();
 				throw new IllegalArgumentException("Error parsing peptide ratio score: " + score.getScoreName()
 						+ " with value: " + score.getValue());
@@ -56,7 +55,7 @@ public class PeptideRatioValueAdapter
 		// combination type
 		final CombinationType combinationType = ratio.getCombinationType();
 		if (combinationType != null) {
-			ret.setCombinationType(new CombinationTypeAdapter(combinationType, ret).adapt());
+			ret.setCombinationType(combinationType.getName());
 		}
 		ret.setValue(PersistenceUtils.parseRatioValueRemoveInfinities(ratio.getValue()));
 
