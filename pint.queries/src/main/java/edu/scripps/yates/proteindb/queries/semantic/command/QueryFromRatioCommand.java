@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinRatioValue;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
@@ -178,7 +177,7 @@ public class QueryFromRatioCommand extends AbstractQuery {
 						String scoreType = null;
 						String scoreValue = null;
 						if (psmRatio.getConfidenceScoreType() != null) {
-							scoreType = psmRatio.getConfidenceScoreType().getName();
+							scoreType = psmRatio.getConfidenceScoreType();
 						}
 						if (psmRatio.getConfidenceScoreValue() != null) {
 							scoreValue = psmRatio.getConfidenceScoreValue().toString();
@@ -249,7 +248,7 @@ public class QueryFromRatioCommand extends AbstractQuery {
 						String scoreType = null;
 						String scoreValue = null;
 						if (peptideRatio.getConfidenceScoreType() != null) {
-							scoreType = peptideRatio.getConfidenceScoreType().getName();
+							scoreType = peptideRatio.getConfidenceScoreType();
 						}
 						if (peptideRatio.getConfidenceScoreValue() != null) {
 							scoreValue = peptideRatio.getConfidenceScoreValue().toString();
@@ -319,12 +318,9 @@ public class QueryFromRatioCommand extends AbstractQuery {
 
 				if (scoreThresholdQuery != null) {
 					if (proteinRatio.getConfidenceScoreValue() != null) {
-						final ConfidenceScoreType confidenceScoreType = proteinRatio.getConfidenceScoreType();
-						String scoreType = null;
+						final String scoreType = proteinRatio.getConfidenceScoreType();
 						String scoreValue = null;
-						if (confidenceScoreType != null) {
-							scoreType = confidenceScoreType.getName();
-						}
+
 						if (proteinRatio.getConfidenceScoreValue() != null) {
 							scoreValue = proteinRatio.getConfidenceScoreValue().toString();
 						}

@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideScore;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinScore;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
@@ -143,7 +142,7 @@ public class QueryFromScoreCommand extends AbstractQuery {
 		if (psmScores != null) {
 			boolean scoreFound = false;
 			for (final PsmScore score : psmScores) {
-				if (isThisScore(score.getName(), score.getConfidenceScoreType().getName())) {
+				if (isThisScore(score.getName(), score.getConfidenceScoreType())) {
 					scoreFound = true;
 
 					if (evaluateScore(score)) {
@@ -178,12 +177,10 @@ public class QueryFromScoreCommand extends AbstractQuery {
 				if (ptmSites != null) {
 					for (final PtmSite ptmSite : ptmSites) {
 						if (ptmSite.getConfidenceScoreName() != null) {
-							if (isThisScore(ptmSite.getConfidenceScoreName(),
-									ptmSite.getConfidenceScoreType().getName())) {
+							if (isThisScore(ptmSite.getConfidenceScoreName(), ptmSite.getConfidenceScoreType())) {
 								scoreFound = true;
 
-								if (evaluateScore(ptmSite.getConfidenceScoreName(),
-										ptmSite.getConfidenceScoreType().getName(),
+								if (evaluateScore(ptmSite.getConfidenceScoreName(), ptmSite.getConfidenceScoreType(),
 										ptmSite.getConfidenceScoreValue())) {
 
 									return true;
@@ -221,7 +218,7 @@ public class QueryFromScoreCommand extends AbstractQuery {
 			boolean scoreFound = false;
 			for (final ProteinScore score : proteinScores) {
 
-				if (isThisScore(score.getName(), score.getConfidenceScoreType().getName())) {
+				if (isThisScore(score.getName(), score.getConfidenceScoreType())) {
 					scoreFound = true;
 
 					if (evaluateScore(score)) {
@@ -259,7 +256,7 @@ public class QueryFromScoreCommand extends AbstractQuery {
 		if (peptideScores != null) {
 			boolean scoreFound = false;
 			for (final PeptideScore score : peptideScores) {
-				if (isThisScore(score.getName(), score.getConfidenceScoreType().getName())) {
+				if (isThisScore(score.getName(), score.getConfidenceScoreType())) {
 					scoreFound = true;
 
 					if (evaluateScore(score)) {
@@ -294,12 +291,10 @@ public class QueryFromScoreCommand extends AbstractQuery {
 				if (ptmSites != null) {
 					for (final PtmSite ptmSite : ptmSites) {
 						if (ptmSite.getConfidenceScoreName() != null) {
-							if (isThisScore(ptmSite.getConfidenceScoreName(),
-									ptmSite.getConfidenceScoreType().getName())) {
+							if (isThisScore(ptmSite.getConfidenceScoreName(), ptmSite.getConfidenceScoreType())) {
 								scoreFound = true;
 
-								if (evaluateScore(ptmSite.getConfidenceScoreName(),
-										ptmSite.getConfidenceScoreType().getName(),
+								if (evaluateScore(ptmSite.getConfidenceScoreName(), ptmSite.getConfidenceScoreType(),
 										ptmSite.getConfidenceScoreValue())) {
 
 									return true;
@@ -332,18 +327,16 @@ public class QueryFromScoreCommand extends AbstractQuery {
 	}
 
 	public boolean evaluateScore(ProteinScore score) {
-		return evaluateScore(score.getName(), score.getConfidenceScoreType().getName(), score.getValue());
+		return evaluateScore(score.getName(), score.getConfidenceScoreType(), score.getValue());
 	}
 
 	public boolean evaluateScore(PeptideScore score) {
-		return evaluateScore(score.getName(), score.getConfidenceScoreType().getName(), score.getValue());
+		return evaluateScore(score.getName(), score.getConfidenceScoreType(), score.getValue());
 	}
 
 	public boolean evaluateScore(PsmScore score) {
-		final ConfidenceScoreType confidenceScoreType = score.getConfidenceScoreType();
-		String scoreTypeName = null;
-		if (confidenceScoreType != null)
-			scoreTypeName = confidenceScoreType.getName();
+		final String scoreTypeName = score.getConfidenceScoreType();
+
 		return evaluateScore(score.getName(), scoreTypeName, score.getValue());
 	}
 

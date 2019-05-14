@@ -222,7 +222,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 		for (final PsmAmount psmAmount : psmAmounts) {
 			if (amountType == null) {
 				ret.add(psmAmount);
-			} else if (amountType != null && psmAmount.getAmountType().getName().equalsIgnoreCase(amountType.name())) {
+			} else if (amountType != null && psmAmount.getAmountType().equalsIgnoreCase(amountType.name())) {
 				ret.add(psmAmount);
 				continue;
 			}
@@ -237,8 +237,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 		for (final ProteinAmount proteinAmount : proteinAmounts) {
 			if (amountType == null) {
 				ret.add(proteinAmount);
-			} else if (amountType != null
-					&& proteinAmount.getAmountType().getName().equalsIgnoreCase(amountType.name())) {
+			} else if (amountType != null && proteinAmount.getAmountType().equalsIgnoreCase(amountType.name())) {
 				if (condition != null && !condition.passCondition(proteinAmount.getCondition())) {
 					continue;
 				}
@@ -263,7 +262,7 @@ public class QueryFromAmountCommand extends AbstractQuery {
 
 	public ProteinAmount getSpectralCountProteinAmount(Condition condition, QueriableProteinSet protein) {
 		final ProteinAmount spc = new ProteinAmount();
-		spc.setAmountType(new edu.scripps.yates.proteindb.persistence.mysql.AmountType(AmountType.SPC.name()));
+		spc.setAmountType(AmountType.SPC.name());
 		spc.setManualSPC(false);
 		int spcNum = 0;
 

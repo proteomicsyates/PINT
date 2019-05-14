@@ -20,7 +20,6 @@ import edu.scripps.yates.proteindb.persistence.mysql.Protein;
 import edu.scripps.yates.proteindb.persistence.mysql.ProteinAmount;
 import edu.scripps.yates.proteindb.persistence.mysql.Psm;
 import edu.scripps.yates.proteindb.persistence.mysql.Ptm;
-import edu.scripps.yates.proteindb.persistence.mysql.adapter.AmountTypeAdapter;
 import edu.scripps.yates.proteindb.persistence.mysql.utils.tablemapper.ConditionToPeptideTableMapper;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType;
 import gnu.trove.list.TIntList;
@@ -217,7 +216,7 @@ public class QueriablePeptideSet {
 				if (AmountType.SPC != amountType) {
 					final Set<PeptideAmount> peptideAmounts2 = peptide.getPeptideAmounts();
 					for (PeptideAmount peptideAmount : peptideAmounts2) {
-						if (peptideAmount.getAmountType().getName().equalsIgnoreCase(
+						if (peptideAmount.getAmountType().equalsIgnoreCase(
 								edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.SPC.name())) {
 							hasSPC = true;
 						}
@@ -232,9 +231,8 @@ public class QueriablePeptideSet {
 					final Set<Condition> conditions2 = peptide.getConditions();
 					for (final Condition condition : conditions2) {
 						final PeptideAmount spc = new PeptideAmount(peptide,
-								new AmountTypeAdapter(edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.SPC)
-										.adapt(),
-								condition, peptide.getNumPsms());
+								edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType.SPC.name(), condition,
+								peptide.getNumPsms());
 						peptideAmounts.add(spc);
 					}
 				}
