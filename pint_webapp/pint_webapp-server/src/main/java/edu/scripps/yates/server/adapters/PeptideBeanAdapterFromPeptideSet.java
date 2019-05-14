@@ -211,7 +211,7 @@ public class PeptideBeanAdapterFromPeptideSet implements Adapter<PeptideBean> {
 					peptideAmountValueBean.setExperimentalCondition(condition);
 					if (peptideAmountValueWrapper.getAmountType() != null) {
 						peptideAmountValueBean.setAmountType(edu.scripps.yates.shared.model.AmountType
-								.fromValue(peptideAmountValueWrapper.getAmountType().getName()));
+								.fromValue(peptideAmountValueWrapper.getAmountType()));
 					}
 					peptideAmountValueBean.setValue(peptideAmountValueWrapper.getValue());
 					peptideAmountValueBean.setManualSPC(peptideAmountValueWrapper.getManualSPC());

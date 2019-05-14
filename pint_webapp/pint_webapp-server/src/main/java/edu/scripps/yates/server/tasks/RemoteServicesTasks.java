@@ -39,7 +39,6 @@ import edu.scripps.yates.dtaselectparser.DTASelectParser;
 import edu.scripps.yates.proteindb.persistence.ContextualSessionHandler;
 import edu.scripps.yates.proteindb.persistence.Parameter;
 import edu.scripps.yates.proteindb.persistence.mysql.Condition;
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.MsRun;
 import edu.scripps.yates.proteindb.persistence.mysql.Peptide;
 import edu.scripps.yates.proteindb.persistence.mysql.PeptideRatioValue;
@@ -507,10 +506,10 @@ public class RemoteServicesTasks {
 		final List<String> ret = new ArrayList<String>();
 		// for (String projectName : projectNames) {
 		// get the PSM scores from the projects
-		final List<ConfidenceScoreType> psmScoresByProject = PreparedQueries.getPSMScoreTypeNames();
-		for (final ConfidenceScoreType psmScore : psmScoresByProject) {
-			if (!ret.contains(psmScore.getName()))
-				ret.add(psmScore.getName());
+		final List<String> psmScoresByProject = PreparedQueries.getPSMScoreTypeNames();
+		for (final String psmScore : psmScoresByProject) {
+			if (!ret.contains(psmScore))
+				ret.add(psmScore);
 		}
 		// }
 		Collections.sort(ret);
@@ -1428,20 +1427,17 @@ public class RemoteServicesTasks {
 		}
 		final Set<AmountType> set = new HashSet<AmountType>();
 		final Set<Condition> conditions = RemoteServicesTasks.getExperimentalConditionsFromProject(projectTag);
-		final Map<Condition, Set<edu.scripps.yates.proteindb.persistence.mysql.AmountType>> amountTypeMap = PreparedQueries
-				.getPSMAmountTypesByConditions(conditions);
+		final Map<Condition, Set<String>> amountTypeMap = PreparedQueries.getPSMAmountTypesByConditions(conditions);
 		for (final Condition condition : amountTypeMap.keySet()) {
 			if (!psmAmountMapByProject.get(projectTag).containsKey(condition.getName())) {
 				final Set<AmountType> set2 = new HashSet<AmountType>();
 				psmAmountMapByProject.get(projectTag).put(condition.getName(), set2);
 			}
 
-			for (final edu.scripps.yates.proteindb.persistence.mysql.AmountType amountType : amountTypeMap
-					.get(condition)) {
-				psmAmountMapByProject.get(projectTag).get(condition.getName())
-						.add(AmountType.fromValue(amountType.getName()));
+			for (final String amountType : amountTypeMap.get(condition)) {
+				psmAmountMapByProject.get(projectTag).get(condition.getName()).add(AmountType.fromValue(amountType));
 				if (condition.getName().equals(conditionName)) {
-					final AmountType fromValue = AmountType.fromValue(amountType.getName());
+					final AmountType fromValue = AmountType.fromValue(amountType);
 					set.add(fromValue);
 				}
 			}
@@ -1472,20 +1468,18 @@ public class RemoteServicesTasks {
 		}
 		final Set<AmountType> set = new HashSet<AmountType>();
 		final Set<Condition> conditions = RemoteServicesTasks.getExperimentalConditionsFromProject(projectTag);
-		final Map<Condition, Set<edu.scripps.yates.proteindb.persistence.mysql.AmountType>> amountTypeMap = PreparedQueries
-				.getPeptideAmountTypesByConditions(conditions);
+		final Map<Condition, Set<String>> amountTypeMap = PreparedQueries.getPeptideAmountTypesByConditions(conditions);
 		for (final Condition condition : amountTypeMap.keySet()) {
 			if (!peptideAmountMapByProject.get(projectTag).containsKey(condition.getName())) {
 				final Set<AmountType> set2 = new HashSet<AmountType>();
 				peptideAmountMapByProject.get(projectTag).put(condition.getName(), set2);
 			}
 
-			for (final edu.scripps.yates.proteindb.persistence.mysql.AmountType amountType : amountTypeMap
-					.get(condition)) {
+			for (final String amountType : amountTypeMap.get(condition)) {
 				peptideAmountMapByProject.get(projectTag).get(condition.getName())
-						.add(AmountType.fromValue(amountType.getName()));
+						.add(AmountType.fromValue(amountType));
 				if (condition.getName().equals(conditionName)) {
-					final AmountType fromValue = AmountType.fromValue(amountType.getName());
+					final AmountType fromValue = AmountType.fromValue(amountType);
 					set.add(fromValue);
 				}
 			}
@@ -1516,17 +1510,15 @@ public class RemoteServicesTasks {
 		}
 		final Set<AmountType> set = new HashSet<AmountType>();
 		final Set<Condition> conditions = RemoteServicesTasks.getExperimentalConditionsFromProject(projectTag);
-		final Map<Condition, Set<edu.scripps.yates.proteindb.persistence.mysql.AmountType>> amountTypeMap = PreparedQueries
-				.getProteinAmountTypesByConditions(conditions);
+		final Map<Condition, Set<String>> amountTypeMap = PreparedQueries.getProteinAmountTypesByConditions(conditions);
 		for (final Condition condition : amountTypeMap.keySet()) {
 			if (!proteinAmountMapByProject.get(projectTag).containsKey(condition.getName())) {
 				final Set<AmountType> set2 = new HashSet<AmountType>();
 				proteinAmountMapByProject.get(projectTag).put(condition.getName(), set2);
 			}
-			for (final edu.scripps.yates.proteindb.persistence.mysql.AmountType amountType : amountTypeMap
-					.get(condition)) {
+			for (final String amountType : amountTypeMap.get(condition)) {
 
-				final AmountType amountTypeFromValue = AmountType.fromValue(amountType.getName());
+				final AmountType amountTypeFromValue = AmountType.fromValue(amountType);
 				proteinAmountMapByProject.get(projectTag).get(condition.getName()).add(amountTypeFromValue);
 				if (condition.getName().equals(conditionName)) {
 					final AmountType fromValue = amountTypeFromValue;

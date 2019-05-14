@@ -63,7 +63,7 @@ public class AmountBeanAdapter implements Adapter<AmountBean> {
 			if (mapPro.get().containsKey(proteinAmount.getId()))
 				return mapPro.get().get(proteinAmount.getId());
 			mapPro.get().put(proteinAmount.getId(), ret);
-			ret.setAmountType(AmountType.fromValue(proteinAmount.getAmountType().getName()));
+			ret.setAmountType(AmountType.fromValue(proteinAmount.getAmountType()));
 			ret.setComposed(proteinAmount.getCombinationType() != null);
 			ret.setValue(proteinAmount.getValue());
 			ret.setExperimentalCondition(new ConditionBeanAdapter(proteinAmount.getCondition(), true, true).adapt());
@@ -74,7 +74,7 @@ public class AmountBeanAdapter implements Adapter<AmountBean> {
 			if (mapPep.get().containsKey(peptideAmount.getId()))
 				return mapPep.get().get(peptideAmount.getId());
 			mapPep.get().put(peptideAmount.getId(), ret);
-			ret.setAmountType(AmountType.fromValue(peptideAmount.getAmountType().getName()));
+			ret.setAmountType(AmountType.fromValue(peptideAmount.getAmountType()));
 			ret.setComposed(peptideAmount.getCombinationType() != null);
 			ret.setValue(peptideAmount.getValue());
 			ret.setExperimentalCondition(new ConditionBeanAdapter(peptideAmount.getCondition(), true, true).adapt());
@@ -83,7 +83,7 @@ public class AmountBeanAdapter implements Adapter<AmountBean> {
 			if (mapPsm.get().containsKey(psmAmount.getId()))
 				return mapPsm.get().get(psmAmount.getId());
 			mapPsm.get().put(psmAmount.getId(), ret);
-			ret.setAmountType(AmountType.fromValue(psmAmount.getAmountType().getName()));
+			ret.setAmountType(AmountType.fromValue(psmAmount.getAmountType()));
 			ret.setComposed(psmAmount.getCombinationType() != null);
 			ret.setValue(psmAmount.getValue());
 			ret.setExperimentalCondition(new ConditionBeanAdapter(psmAmount.getCondition(), true, true).adapt());

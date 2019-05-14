@@ -237,7 +237,7 @@ public class ProteinBeanAdapterFromProteinSet implements Adapter<ProteinBean> {
 							.getBeanByProteinAmountValueID(proteinAmountValue.getId());
 					if (proteinAmountValueBean == null) {
 						final AmountType amountType = edu.scripps.yates.shared.model.AmountType
-								.fromValue(proteinAmountValue.getAmountType().getName());
+								.fromValue(proteinAmountValue.getAmountType());
 						if (amountType == AmountType.SPC) {
 							if (proteinAmountValue.getManualSPC() == null || !proteinAmountValue.getManualSPC()) {
 								// do not include this spectral count unless is a manual entered one, The SPC

@@ -7,21 +7,21 @@ import edu.scripps.yates.shared.model.projectCreator.excel.AmountTypeBean;
 
 public class AmountTypeBeanAdapter implements Adapter<AmountTypeBean> {
 	private final AmountType amountType;
-	private final edu.scripps.yates.proteindb.persistence.mysql.AmountType hibAmountType;
+	private final String hibAmountType;
 
 	public AmountTypeBeanAdapter(AmountType amountType) {
 		this.amountType = amountType;
 		hibAmountType = null;
 	}
 
-	public AmountTypeBeanAdapter(edu.scripps.yates.proteindb.persistence.mysql.AmountType amountType) {
+	public AmountTypeBeanAdapter(String amountType) {
 		this.amountType = null;
 		hibAmountType = amountType;
 	}
 
 	@Override
 	public AmountTypeBean adapt() {
-		AmountTypeBean ret = new AmountTypeBean();
+		final AmountTypeBean ret = new AmountTypeBean();
 
 		if (amountType != null) {
 			ret.setColumnRef(amountType.getColumnRef());
@@ -33,9 +33,8 @@ public class AmountTypeBeanAdapter implements Adapter<AmountTypeBean> {
 			}
 		} else if (hibAmountType != null) {
 
-			if (hibAmountType.getName() != null) {
-				ret.setType(edu.scripps.yates.shared.model.AmountType.fromValue(hibAmountType.getName()));
-			}
+			ret.setType(edu.scripps.yates.shared.model.AmountType.fromValue(hibAmountType));
+
 		}
 		return ret;
 	}

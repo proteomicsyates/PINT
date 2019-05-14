@@ -1,16 +1,14 @@
 package edu.scripps.yates.server.adapters;
 
-import edu.scripps.yates.proteindb.persistence.mysql.ConfidenceScoreType;
 import edu.scripps.yates.proteindb.persistence.mysql.adapter.Adapter;
 import edu.scripps.yates.shared.model.ScoreBean;
 
 public class ScoreBeanAdapter implements Adapter<ScoreBean> {
 	private final String scoreValue;
 	private final String scoreName;
-	private final ConfidenceScoreType scoreType;
+	private final String scoreType;
 
-	public ScoreBeanAdapter(String scoreValue, String scoreName,
-			ConfidenceScoreType scoreType) {
+	public ScoreBeanAdapter(String scoreValue, String scoreName, String scoreType) {
 		this.scoreName = scoreName;
 		this.scoreType = scoreType;
 		this.scoreValue = scoreValue;
@@ -18,10 +16,10 @@ public class ScoreBeanAdapter implements Adapter<ScoreBean> {
 
 	@Override
 	public ScoreBean adapt() {
-		ScoreBean ret = new ScoreBean();
+		final ScoreBean ret = new ScoreBean();
 		if (scoreType != null) {
-			ret.setDescription(scoreType.getDescription());
-			ret.setScoreType(scoreType.getName());
+//			ret.setDescription(scoreType.getDescription());
+			ret.setScoreType(scoreType);
 		}
 		ret.setScoreName(scoreName);
 		if (scoreValue != null)
