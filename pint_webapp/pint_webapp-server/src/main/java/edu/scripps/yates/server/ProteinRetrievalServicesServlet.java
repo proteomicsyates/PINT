@@ -661,24 +661,27 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			// register task
 			ServerTaskRegister.getInstance().registerTask(task);
 
-			log.info("Getting download link for proteins in project: " + projectTagCollectionKey);
-			if (ServerCacheProteinFileDescriptorByProjectName.getInstance().contains(projectTagCollectionKey)) {
-				log.info("link found in cache");
-				return ServerCacheProteinFileDescriptorByProjectName.getInstance()
-						.getFromCache(projectTagCollectionKey);
-			}
-
-			File file = DataExporter.existsFileProteinsFromProjects(projectTags);
-			if (file != null) {
-				final FileDescriptor ret = new FileDescriptor(FilenameUtils.getName(file.getAbsolutePath()),
-						FileManager.getFileSizeString(file));
-				ServerCacheProteinFileDescriptorByProjectName.getInstance().addtoCache(ret, projectTagCollectionKey);
-				log.info("File descriptor for proteins is already created: " + ret.getName() + " - " + ret.getSize());
-				return ret;
-			}
 			try {
 				// lock project
 				LockerByTag.lock(task, enclosingMethod);
+				log.info("Getting download link for proteins in project: " + projectTagCollectionKey);
+				if (ServerCacheProteinFileDescriptorByProjectName.getInstance().contains(projectTagCollectionKey)) {
+					log.info("link found in cache");
+					return ServerCacheProteinFileDescriptorByProjectName.getInstance()
+							.getFromCache(projectTagCollectionKey);
+				}
+
+				File file = DataExporter.existsFileProteinsFromProjects(projectTags);
+				if (file != null) {
+					final FileDescriptor ret = new FileDescriptor(FilenameUtils.getName(file.getAbsolutePath()),
+							FileManager.getFileSizeString(file));
+					ServerCacheProteinFileDescriptorByProjectName.getInstance().addtoCache(ret,
+							projectTagCollectionKey);
+					log.info("File descriptor for proteins is already created: " + ret.getName() + " - "
+							+ ret.getSize());
+					return ret;
+				}
+
 				// create a new one
 				final String omimAPIKey = ServerUtil.getPINTProperties(getServletContext()).getOmimKey();
 				file = DataExporter.exportProteinsFromProjects(projectTags, omimAPIKey, getPSMCentric());
@@ -729,26 +732,28 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 			ServerTaskRegister.getInstance().registerTask(task);
 
 			log.info("Getting download link for proteins groups in project: " + projectTagCollectionKey);
-
-			if (ServerCacheProteinGroupFileDescriptorByProjectName.getInstance().contains(projectTagCollectionKey)) {
-				log.info("link found in cache");
-				return ServerCacheProteinGroupFileDescriptorByProjectName.getInstance()
-						.getFromCache(projectTagCollectionKey);
-			}
-
-			File file = DataExporter.existsFileProteinGroupsFromProjects(projectTags, separateNonConclusiveProteins);
-			if (file != null) {
-				final FileDescriptor ret = new FileDescriptor(FilenameUtils.getName(file.getAbsolutePath()),
-						FileManager.getFileSizeString(file));
-				ServerCacheProteinGroupFileDescriptorByProjectName.getInstance().addtoCache(ret,
-						projectTagCollectionKey);
-				log.info("File descriptor for protein groups is already created: " + ret.getName() + " - "
-						+ ret.getSize());
-				return ret;
-			}
 			try {
 				// lock projects
 				LockerByTag.lock(task, enclosingMethod);
+				if (ServerCacheProteinGroupFileDescriptorByProjectName.getInstance()
+						.contains(projectTagCollectionKey)) {
+					log.info("link found in cache");
+					return ServerCacheProteinGroupFileDescriptorByProjectName.getInstance()
+							.getFromCache(projectTagCollectionKey);
+				}
+
+				File file = DataExporter.existsFileProteinGroupsFromProjects(projectTags,
+						separateNonConclusiveProteins);
+				if (file != null) {
+					final FileDescriptor ret = new FileDescriptor(FilenameUtils.getName(file.getAbsolutePath()),
+							FileManager.getFileSizeString(file));
+					ServerCacheProteinGroupFileDescriptorByProjectName.getInstance().addtoCache(ret,
+							projectTagCollectionKey);
+					log.info("File descriptor for protein groups is already created: " + ret.getName() + " - "
+							+ ret.getSize());
+					return ret;
+				}
+
 				// create a new one
 				final String omimAPIKey = ServerUtil.getPINTProperties(getServletContext()).getOmimKey();
 				file = DataExporter.exportProteinGroupsFromProjects(projectTags, separateNonConclusiveProteins,
