@@ -75,7 +75,7 @@
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Project.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Tissue.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ProteinThreshold.hbm.xml" />
-        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/AmountType.hbm.xml" />
+<!--         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/AmountType.hbm.xml" /> -->
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Protein.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ProteinAccession.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Organism.hbm.xml" />
@@ -87,8 +87,8 @@
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/PeptideRatioValue.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/PsmRatioValue.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/OperatorType.hbm.xml" />
-        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/CombinationType.hbm.xml" />
-        <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ConfidenceScoreType.hbm.xml" />
+<!--         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/CombinationType.hbm.xml" /> -->
+<!--         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/ConfidenceScoreType.hbm.xml" /> -->
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Psm.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Peptide.hbm.xml" />
         <mapping resource="edu/scripps/yates/proteindb/persistence/mysql/Ptm.hbm.xml" />
