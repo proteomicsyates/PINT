@@ -188,6 +188,10 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 
 	}
 
+	public File getUniprotReleasesFolder() {
+		return uniprotReleasesFolder;
+	}
+
 	public Set<String> getUniprotVersionsForProjects(Map<String, Date> uploadedDateByProjectTags) {
 		final Set<String> ret = new THashSet<>();
 		if (uniprotReleasesFolder != null) {
