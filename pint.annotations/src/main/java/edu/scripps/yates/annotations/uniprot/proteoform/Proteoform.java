@@ -47,7 +47,9 @@ public class Proteoform {
 		if (obj instanceof Proteoform) {
 			final Proteoform p = (Proteoform) obj;
 			if (p.getId().equals(getId())) {
-				return true;
+				if (p.getProteoformType() == getProteoformType()) {
+					return true;
+				}
 			}
 			return false;
 		}
@@ -73,7 +75,7 @@ public class Proteoform {
 
 	@Override
 	public String toString() {
-		return "Variant [id=" + id + ", seq=" + seq + ", description=" + description + "]";
+		return getProteoformType() + " [id=" + id + ", seq=" + seq + ", description=" + description + "]";
 	}
 
 	public boolean isOriginal() {

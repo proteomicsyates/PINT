@@ -66,13 +66,11 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 	/**
 	 * 
 	 * @param uniprotACCs
-	 * @param retrieveProteoforms
-	 *            if false, only main entry will be retrieved. if true, variants
-	 *            and alternative products will be retrieved
-	 * @param retrieveIsoforms
-	 *            if true, the isoforms will be rertieved
-	 * @param retrievePTMs
-	 *            if true, the PTM annotations will be retrieved
+	 * @param retrieveProteoforms if false, only main entry will be retrieved. if
+	 *                            true, variants and alternative products will be
+	 *                            retrieved
+	 * @param retrieveIsoforms    if true, the isoforms will be rertieved
+	 * @param retrievePTMs        if true, the PTM annotations will be retrieved
 	 * @param uniprotVersion
 	 * @param uplr
 	 * @return
@@ -97,7 +95,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					}
 				}
 				if (!mainIsoforms.isEmpty()) {
-					annotatedProteins = uplr.getAnnotatedProteins(uniprotVersion, mainIsoforms, true);
+					annotatedProteins = uplr.getAnnotatedProteins(uniprotVersion, mainIsoforms, true, true);
 					for (final String acc : mainIsoforms) {
 						if (annotatedProteins.containsKey(acc)) {
 							final Entry mainEntry = annotatedProteins.get(acc);
@@ -130,7 +128,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					annotatedProteins.putAll(isoforms);
 				}
 			} else {
-				annotatedProteins = uplr.getAnnotatedProteins(null, uniprotAccList, true);
+				annotatedProteins = uplr.getAnnotatedProteins(null, uniprotAccList, true, true);
 			}
 			// to not repeat proteoforms
 			final Set<String> accSet = new HashSet<String>();
@@ -349,8 +347,8 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 	}
 
 	/**
-	 * whether to search for variants and alternative products or not. If this
-	 * is false, PTMs will not be retrieved
+	 * whether to search for variants and alternative products or not. If this is
+	 * false, PTMs will not be retrieved
 	 * 
 	 * @param retrieveProteoforms
 	 */

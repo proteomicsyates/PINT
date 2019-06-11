@@ -69,6 +69,7 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 
 	private static final UniprotEntryCache cache = new UniprotEntryCache();
 	private boolean retrieveFastaIsoforms = true;
+	private boolean retrieveFastaIsoformsFromMainForms = false;
 	private final List<String> entryKeys = new ArrayList<>();
 	private final boolean ignoreReferences;
 	private final boolean ignoreDBReferences;
@@ -377,12 +378,13 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 
 	@Override
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions) {
-		return getAnnotatedProteins(uniprotVersion, accessions, retrieveFastaIsoforms);
+		return getAnnotatedProteins(uniprotVersion, accessions, retrieveFastaIsoforms,
+				retrieveFastaIsoformsFromMainForms);
 	}
 
 	@Override
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions,
-			boolean retrieveFastaIsoforms) {
+			boolean retrieveFastaIsoforms, boolean retrieveFastaIsoformsFromMainForms) {
 		if (accessions.size() > 1) {
 			log.info("Getting uniprot annotations from " + accessions.size());
 		}
@@ -533,9 +535,11 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 							log.warn("Error trying to unify the uniprot xml files");
 						}
 					} else {
-						log.info("Reading unified XML file in " + projectFolder.getAbsolutePath());
-						entries.addAll(parseXmlFile(
-								new File(projectFolder.getAbsolutePath() + File.separator + xmlfilesNames[0])));
+						if (xmlfilesNames.length > 0) {
+							log.info("Reading unified XML file in " + projectFolder.getAbsolutePath());
+							entries.addAll(parseXmlFile(
+									new File(projectFolder.getAbsolutePath() + File.separator + xmlfilesNames[0])));
+						}
 					}
 				}
 			}
@@ -594,6 +598,7 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 
 					final UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever();
 					uprr.setLookForIsoforms(retrieveFastaIsoforms);
+					uprr.setLookForIsoformsFromMainForms(retrieveFastaIsoformsFromMainForms);
 					log.debug("Trying to retrieve  " + missingCanonicalForms.size()
 							+ " proteins that were not present in the local system");
 					final Map<String, Entry> foundMissingCanonicalEntries = uprr.getAnnotatedProteins(uniprotVersion,
@@ -838,6 +843,14 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 	public void setRetrieveFastaIsoforms(boolean b) {
 		retrieveFastaIsoforms = b;
 
+	}
+
+	public boolean isRetrieveFastaIsoformsFromMainForms() {
+		return retrieveFastaIsoformsFromMainForms;
+	}
+
+	public void setRetrieveFastaIsoformsFromMainForms(boolean retrieveFastaIsoformsFromMainForms) {
+		this.retrieveFastaIsoformsFromMainForms = retrieveFastaIsoformsFromMainForms;
 	}
 
 }

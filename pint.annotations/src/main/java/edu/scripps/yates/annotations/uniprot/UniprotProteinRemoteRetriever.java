@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.util.PropertiesUtil;
 import edu.scripps.yates.annotations.util.UniprotEntryCache;
+import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.utilities.cores.SystemCoreManager;
@@ -62,6 +63,7 @@ public class UniprotProteinRemoteRetriever {
 
 	private Set<String> missingAccessions = new THashSet<>();
 	private boolean lookForIsoforms = false;
+	private boolean lookForIsoformsFromMainForms = false;
 	// private Unmarshaller unmarshaller;
 	private JAXBContext jaxbContext;
 	private final static Set<String> doNotFound = new THashSet<>();
@@ -130,7 +132,9 @@ public class UniprotProteinRemoteRetriever {
 		entryMap.putAll(uniprotEntriesInParallel);
 
 		// now, if there are isoforms, look for the protein sequences of them
-		if (lookForIsoforms) {
+		if (lookForIsoforms && !isoformList.isEmpty()) {
+			log.info("Now getting protein sequences from " + isoformList.size()
+					+ " isoforms from the input accession list");
 			final Map<String, Entry> fastaEntries = getFASTASequencesInParallel(isoformList);
 
 			// store it with the isoform acc
@@ -138,6 +142,22 @@ public class UniprotProteinRemoteRetriever {
 
 			log.debug("Response parsed succesfully");
 
+		}
+		if (lookForIsoformsFromMainForms) {
+
+			final Set<String> isoformList2 = new THashSet<String>();
+			for (final Entry entry : uniprotEntriesInParallel.values()) {
+				final List<String> isoformsAccs = UniprotEntryUtil.getIsoforms(entry);
+				isoformList2.addAll(isoformsAccs);
+			}
+			log.info("Now getting protein sequences from " + isoformList2.size()
+					+ " isoforms derived from main forms of input accession list");
+			final Map<String, Entry> fastaEntries = getFASTASequencesInParallel(isoformList2);
+
+			// store it with the isoform acc
+			entryMap.putAll(fastaEntries);
+
+			log.debug("Response parsed succesfully");
 		}
 		final Uniprot uniprot = new Uniprot();
 		uniprot.getEntry().addAll(entryMap.values());
@@ -315,9 +335,11 @@ public class UniprotProteinRemoteRetriever {
 			return Collections.emptyMap();
 		}
 		final int threadCount = Math.min(SystemCoreManager.getAvailableNumSystemCores(8), accessions.size());
-		log.debug("getting fasta sequences of " + accessions.size() + " proteins in parallel using " + threadCount
-				+ " threads...");
-		final ParIterator<String> iterator = ParIteratorFactory.createParIterator(accessions, threadCount,
+		if (validToLook.size() > 1) {
+			log.info("getting fasta sequences of " + validToLook.size() + " proteins in parallel using " + threadCount
+					+ " threads...");
+		}
+		final ParIterator<String> iterator = ParIteratorFactory.createParIterator(validToLook, threadCount,
 				Schedule.GUIDED);
 		final Reducible<Map<String, Entry>> reducibleEntryMap = new Reducible<>();
 		final List<UniprotFastaRetrieverThread> runners = new ArrayList<>();
@@ -642,6 +664,14 @@ public class UniprotProteinRemoteRetriever {
 
 	public void setLookForIsoforms(boolean lookForIsoforms) {
 		this.lookForIsoforms = lookForIsoforms;
+	}
+
+	public boolean isLookForIsoformsFromMainForms() {
+		return lookForIsoformsFromMainForms;
+	}
+
+	public void setLookForIsoformsFromMainForms(boolean lookForIsoformsFromMainForms) {
+		this.lookForIsoformsFromMainForms = lookForIsoformsFromMainForms;
 	}
 
 }
