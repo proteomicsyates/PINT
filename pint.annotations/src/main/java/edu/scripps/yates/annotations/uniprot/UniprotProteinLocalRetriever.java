@@ -386,7 +386,7 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions,
 			boolean retrieveFastaIsoforms, boolean retrieveFastaIsoformsFromMainForms) {
 		if (accessions.size() > 1) {
-			log.info("Getting uniprot annotations from " + accessions.size());
+			log.info("Getting uniprot annotations from " + accessions.size() + " proteins");
 		}
 		final Set<String> accsToSearch = new THashSet<>();
 		for (final String acc : accessions) {
