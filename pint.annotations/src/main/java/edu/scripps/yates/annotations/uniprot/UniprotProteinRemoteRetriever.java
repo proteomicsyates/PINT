@@ -554,7 +554,7 @@ public class UniprotProteinRemoteRetriever {
 			// long t3 = System.currentTimeMillis();
 			final Map<String, Entry> map = new THashMap<>();
 			UniprotProteinLocalRetriever.addEntriesToMap(map, proteins.getEntry());
-			checkIfSomeProteinIsMissing(toSearch, map, uniprotVersion, cache);
+			checkIfSomeProteinIsMissing(accessions, map, uniprotVersion, cache);
 
 			return map;
 		}
