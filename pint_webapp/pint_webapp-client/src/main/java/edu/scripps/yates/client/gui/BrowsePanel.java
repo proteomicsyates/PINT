@@ -162,7 +162,7 @@ public class BrowsePanel extends InitializableComposite {
 		// selectedProjectLabelVerticalPanel.setSpacing(10);
 
 		numSelectedProjectsLabel = new InlineLabel(NO_SELECTION);
-		numSelectedProjectsLabel.setWordWrap(false);
+//		numSelectedProjectsLabel.setWordWrap(false);
 		numSelectedProjectsLabel.setStyleName("selectionLabel");
 		numSelectedProjectsLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		horizontalPanel_1.setWidget(0, 0, numSelectedProjectsLabel);
