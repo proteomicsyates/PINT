@@ -174,7 +174,7 @@ public class ProteinImplFromUniprotEntry extends AbstractProtein {
 
 	@Override
 	public Set<ProteinAnnotation> getAnnotations() {
-		if (getKey().equals("P16884")) {
+		if (getKey().equals("Q14739")) {
 			log.info(" asdf");
 		}
 		if (!annotationsParsed) {
@@ -451,9 +451,10 @@ public class ProteinImplFromUniprotEntry extends AbstractProtein {
 	}
 
 	/**
-	 * Decides if the feature is valid for this protein or not because sometimes the
-	 * entry is coming from the canonical Uniprot protein and this is actually an
-	 * isoform. So we want to skip all annotations regarding the isoforms.
+	 * Decides if the feature is valid for this protein or not because sometimes
+	 * the entry is coming from the canonical Uniprot protein and this is
+	 * actually an isoform. So we want to skip all annotations regarding the
+	 * isoforms.
 	 *
 	 * @param feature
 	 * @return
@@ -665,8 +666,8 @@ public class ProteinImplFromUniprotEntry extends AbstractProtein {
 	}
 
 	/**
-	 * Look for a particular {@link IsoformType} into the entry/comment/isoform/id
-	 * XPath
+	 * Look for a particular {@link IsoformType} into the
+	 * entry/comment/isoform/id XPath
 	 *
 	 * @param isoformID
 	 * @return
