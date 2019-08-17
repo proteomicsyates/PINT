@@ -31,9 +31,9 @@ public class GroupableExtendedProteinBean implements GroupableProtein {
 	}
 
 	@Override
-	public int getUniqueID() {
+	public String getUniqueID() {
 		// using the hascode to differentiate
-		return protein.hashCode();
+		return protein.getId();
 	}
 
 	@Override
