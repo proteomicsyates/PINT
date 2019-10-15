@@ -1,6 +1,7 @@
 package edu.scripps.yates.annotations.uniprot;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -233,14 +234,18 @@ public class UniprotProteinRemoteRetriever {
 			@Override
 			public Map<String, Entry> reduce(Map<String, Entry> first, Map<String, Entry> second) {
 				final Map<String, Entry> ret = new THashMap<>();
-				for (final String acc : first.keySet()) {
-					if (!ret.containsKey(acc)) {
-						ret.put(acc, first.get(acc));
+				if (first != null) {
+					for (final String acc : first.keySet()) {
+						if (!ret.containsKey(acc)) {
+							ret.put(acc, first.get(acc));
+						}
 					}
 				}
-				for (final String acc : second.keySet()) {
-					if (!ret.containsKey(acc)) {
-						ret.put(acc, second.get(acc));
+				if (second != null) {
+					for (final String acc : second.keySet()) {
+						if (!ret.containsKey(acc)) {
+							ret.put(acc, second.get(acc));
+						}
 					}
 				}
 				return ret;
@@ -341,11 +346,13 @@ public class UniprotProteinRemoteRetriever {
 		}
 		final ParIterator<String> iterator = ParIteratorFactory.createParIterator(validToLook, threadCount,
 				Schedule.GUIDED);
-		final Reducible<Map<String, Entry>> reducibleEntryMap = new Reducible<>();
-		final List<UniprotFastaRetrieverThread> runners = new ArrayList<>();
+		final Reducible<Map<String, Entry>> reducibleEntryMap = new Reducible<Map<String, Entry>>();
+		final List<UniprotFastaRetrieverFromEBIDbFetchThread> runners = new ArrayList<UniprotFastaRetrieverFromEBIDbFetchThread>();
+		final CloseableHttpClient httpClient = ThreadSafeHttpClient.createNewHttpClient();
 		for (int numCore = 0; numCore < threadCount; numCore++) {
 			// take current DB session
-			final UniprotFastaRetrieverThread runner = new UniprotFastaRetrieverThread(iterator, reducibleEntryMap);
+			final UniprotFastaRetrieverFromEBIDbFetchThread runner = new UniprotFastaRetrieverFromEBIDbFetchThread(
+					numCore + 1, iterator, reducibleEntryMap, httpClient);
 			runners.add(runner);
 			runner.start();
 		}
@@ -358,25 +365,33 @@ public class UniprotProteinRemoteRetriever {
 				e.printStackTrace();
 			}
 		}
+		log.info("all threads finished");
 
 		final Reduction<Map<String, Entry>> entryReduction = new Reduction<Map<String, Entry>>() {
 			@Override
 			public Map<String, Entry> reduce(Map<String, Entry> first, Map<String, Entry> second) {
+				log.debug("Reducing " + first + " and " + second + ".");
 				final Map<String, Entry> ret = new THashMap<>();
-				for (final String acc : first.keySet()) {
-					if (!ret.containsKey(acc)) {
-						ret.put(acc, first.get(acc));
+				if (first != null) {
+					for (final String acc : first.keySet()) {
+						if (!ret.containsKey(acc)) {
+							ret.put(acc, first.get(acc));
+						}
 					}
 				}
-				for (final String acc : second.keySet()) {
-					if (!ret.containsKey(acc)) {
-						ret.put(acc, second.get(acc));
+				if (second != null) {
+					for (final String acc : second.keySet()) {
+						if (!ret.containsKey(acc)) {
+							ret.put(acc, second.get(acc));
+						}
 					}
 				}
+				log.debug(ret.size() + " after reduction");
 				return ret;
 			}
 
 		};
+		log.info("Reducing map from " + reducibleEntryMap.countOfThreadLocalValues() + " threads...");
 		final Map<String, Entry> ret = reducibleEntryMap.reduce(entryReduction);
 		if (!ret.isEmpty() && ret.size() > 10) {
 			log.info("Retrieved " + ret.size() + " FASTA entries in paralell");
@@ -672,6 +687,29 @@ public class UniprotProteinRemoteRetriever {
 
 	public void setLookForIsoformsFromMainForms(boolean lookForIsoformsFromMainForms) {
 		this.lookForIsoformsFromMainForms = lookForIsoformsFromMainForms;
+	}
+
+	public Map<String, Entry> getIsoformFASTASequencesFromUniprot(Set<String> isoformAccs, File uniprotReleasesFolder,
+			String uniprotVersion) {
+		if (uniprotVersion == null) {
+			uniprotVersion = getCurrentUniprotRemoteVersion();
+		}
+		final UniprotFastaRetrieverFromUniprotIsoformFastaFile ufrfuiff = new UniprotFastaRetrieverFromUniprotIsoformFastaFile(
+				uniprotReleasesFolder, uniprotVersion);
+		final Map<String, Entry> run = ufrfuiff.run();
+		final Map<String, Entry> ret = new THashMap<String, Entry>();
+		for (final String acc : isoformAccs) {
+			if (run.containsKey(acc)) {
+				ret.put(acc, run.get(acc));
+			} else {
+				final String isoformVersion = FastaParser.getIsoformVersion(acc);
+				if (isoformVersion != null && Integer.valueOf(isoformVersion) > 1) {
+					entriesWithNoFASTA.add(acc);
+				}
+			}
+		}
+		return ret;
+
 	}
 
 }

@@ -573,8 +573,11 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 						}
 					}
 					// if we have isoforms, first look for their fasta sequences
-					final Map<String, Entry> isoformProteinSequences = UniprotProteinRemoteRetriever
-							.getFASTASequencesInParallel(missingIsoforms);
+//					final Map<String, Entry> isoformProteinSequences = UniprotProteinRemoteRetriever
+//							.getFASTASequencesInParallel(missingIsoforms);
+					final UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever();
+					final Map<String, Entry> isoformProteinSequences = uprr.getIsoformFASTASequencesFromUniprot(
+							missingIsoforms, this.uniprotReleasesFolder, uniprotVersion);
 					final Map<String, Entry> foundIsoformEntries = new HashMap<String, Entry>();
 					for (final String missingIsoform : missingIsoforms) {
 						if (isoformProteinSequences.containsKey(missingIsoform)) {
@@ -596,7 +599,6 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 						log.warn("Error while saving isoform entries to the local index");
 					}
 
-					final UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever();
 					uprr.setLookForIsoforms(retrieveFastaIsoforms);
 					uprr.setLookForIsoformsFromMainForms(retrieveFastaIsoformsFromMainForms);
 					log.debug("Trying to retrieve  " + missingCanonicalForms.size()

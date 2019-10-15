@@ -44,12 +44,12 @@ import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class UniprotEntryRetrieverThread extends Thread {
-	private static final String UNIPROT_EBI_SERVER = PropertiesUtil.getInstance(PropertiesUtil.UNIPROT_PROPERTIES_FILE)
+	public static final String UNIPROT_EBI_SERVER = PropertiesUtil.getInstance(PropertiesUtil.UNIPROT_PROPERTIES_FILE)
 			.getPropertyValue(PropertiesUtil.UNIPROT_EBI_SERVER_PROP);
 	private static final String UNIPROT_EBI_PROTEINS_REST_PATH = PropertiesUtil
 			.getInstance(PropertiesUtil.UNIPROT_PROPERTIES_FILE)
 			.getPropertyValue(PropertiesUtil.UNIPROT_EBI_PROTEINS_REST_PATH);
-	private static final int MAX_NUM_TO_RETRIEVE = 100; // defined by EBI
+	public static final int MAX_NUM_TO_RETRIEVE = 100; // defined by EBI
 	private static final int PAGE_SIZE = 100; // defined by EBI
 	private static Logger log = Logger.getLogger(UniprotEntryRetrieverThread.class);
 	private final Reducible<Map<String, Entry>> reducibleMap;
