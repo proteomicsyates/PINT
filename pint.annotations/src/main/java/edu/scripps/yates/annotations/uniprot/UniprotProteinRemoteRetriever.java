@@ -77,7 +77,8 @@ public class UniprotProteinRemoteRetriever {
 
 	// service
 
-	public Uniprot getProteins(Collection<String> accessions, String uniprotVersion, UniprotEntryCache cache) {
+	public Uniprot getProteins(Collection<String> accessions, File uniprotReleasesFolder, String uniprotVersion,
+			UniprotEntryCache cache) {
 		if (accessions == null || accessions.isEmpty()) {
 			return new Uniprot();
 		}
@@ -136,7 +137,8 @@ public class UniprotProteinRemoteRetriever {
 		if (lookForIsoforms && !isoformList.isEmpty()) {
 			log.info("Now getting protein sequences from " + isoformList.size()
 					+ " isoforms from the input accession list");
-			final Map<String, Entry> fastaEntries = getFASTASequencesInParallel(isoformList);
+			final Map<String, Entry> fastaEntries = getIsoformFASTASequencesFromUniprot(isoformList,
+					uniprotReleasesFolder, uniprotVersion);
 
 			// store it with the isoform acc
 			entryMap.putAll(fastaEntries);
@@ -153,7 +155,8 @@ public class UniprotProteinRemoteRetriever {
 			}
 			log.info("Now getting protein sequences from " + isoformList2.size()
 					+ " isoforms derived from main forms of input accession list");
-			final Map<String, Entry> fastaEntries = getFASTASequencesInParallel(isoformList2);
+			final Map<String, Entry> fastaEntries = getIsoformFASTASequencesFromUniprot(isoformList2,
+					uniprotReleasesFolder, uniprotVersion);
 
 			// store it with the isoform acc
 			entryMap.putAll(fastaEntries);
@@ -530,8 +533,8 @@ public class UniprotProteinRemoteRetriever {
 		}
 		final UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever();
 		uprr.setLookForIsoforms(true);
-		final Uniprot uniprot = uprr.getProteins(set, UniprotProteinRemoteRetriever.getCurrentUniprotRemoteVersion(),
-				null);
+		final Uniprot uniprot = uprr.getProteins(set, new File("z:\\share\\salva\\data\\uniprotKB"),
+				UniprotProteinRemoteRetriever.getCurrentUniprotRemoteVersion(), null);
 		for (final Entry entry2 : uniprot.getEntry()) {
 			final List<String> names = entry2.getName();
 			for (final String string : names) {
@@ -540,8 +543,8 @@ public class UniprotProteinRemoteRetriever {
 		}
 	}
 
-	public synchronized Map<String, Entry> getAnnotatedProteins(String uniprotVersion, Collection<String> accessions,
-			UniprotEntryCache cache) throws IllegalArgumentException {
+	public synchronized Map<String, Entry> getAnnotatedProteins(File uniprotFolder, String uniprotVersion,
+			Collection<String> accessions, UniprotEntryCache cache) throws IllegalArgumentException {
 		final String currentUniprotRemoteVersion = getCurrentUniprotRemoteVersion();
 		if (currentUniprotRemoteVersion.equals(uniprotVersion)) {
 			log.debug("Current uniprot release matches with the provided: " + uniprotVersion);
@@ -560,7 +563,7 @@ public class UniprotProteinRemoteRetriever {
 					}
 				}
 			}
-			final Uniprot proteins = getProteins(toSearch, uniprotVersion, cache);
+			final Uniprot proteins = getProteins(toSearch, uniprotFolder, uniprotVersion, cache);
 
 			final long t2 = System.currentTimeMillis();
 
@@ -569,7 +572,7 @@ public class UniprotProteinRemoteRetriever {
 			// long t3 = System.currentTimeMillis();
 			final Map<String, Entry> map = new THashMap<>();
 			UniprotProteinLocalRetriever.addEntriesToMap(map, proteins.getEntry());
-			checkIfSomeProteinIsMissing(accessions, map, uniprotVersion, cache);
+			checkIfSomeProteinIsMissing(accessions, map, uniprotFolder, uniprotVersion, cache);
 
 			return map;
 		}
@@ -579,13 +582,13 @@ public class UniprotProteinRemoteRetriever {
 	}
 
 	private synchronized void checkIfSomeProteinIsMissing(Collection<String> accessions, Map<String, Entry> retrieved,
-			String uniprotVersion, UniprotEntryCache cache) {
+			File uniprotFolder, String uniprotVersion, UniprotEntryCache cache) {
 		final int numBeforeRecovery = retrieved.size();
 		final Set<String> missingProteins = getMissingAccs(retrieved, accessions);
 		if (!missingProteins.isEmpty()) {
 			log.debug("Trying to recover " + missingProteins.size() + " proteins");
 
-			final Uniprot proteins = getProteins(missingProteins, uniprotVersion, cache);
+			final Uniprot proteins = getProteins(missingProteins, uniprotFolder, uniprotVersion, cache);
 			final List<Entry> entries = proteins.getEntry();
 			UniprotProteinLocalRetriever.addEntriesToMap(retrieved, entries);
 			final int numRecovered = retrieved.size() - numBeforeRecovery;
@@ -671,10 +674,11 @@ public class UniprotProteinRemoteRetriever {
 		return missingAccessions;
 	}
 
-	public Map<String, Entry> getAnnotatedProtein(String uniprotVersion, String accession, UniprotEntryCache cache) {
+	public Map<String, Entry> getAnnotatedProtein(File uniprotFolder, String uniprotVersion, String accession,
+			UniprotEntryCache cache) {
 		final Set<String> accessions = new THashSet<>();
 		accessions.add(accession);
-		return getAnnotatedProteins(uniprotVersion, accessions, cache);
+		return getAnnotatedProteins(uniprotFolder, uniprotVersion, accessions, cache);
 	}
 
 	public void setLookForIsoforms(boolean lookForIsoforms) {
@@ -689,8 +693,8 @@ public class UniprotProteinRemoteRetriever {
 		this.lookForIsoformsFromMainForms = lookForIsoformsFromMainForms;
 	}
 
-	public Map<String, Entry> getIsoformFASTASequencesFromUniprot(Set<String> isoformAccs, File uniprotReleasesFolder,
-			String uniprotVersion) {
+	public Map<String, Entry> getIsoformFASTASequencesFromUniprot(Collection<String> isoformAccs,
+			File uniprotReleasesFolder, String uniprotVersion) {
 		if (uniprotVersion == null) {
 			uniprotVersion = getCurrentUniprotRemoteVersion();
 		}

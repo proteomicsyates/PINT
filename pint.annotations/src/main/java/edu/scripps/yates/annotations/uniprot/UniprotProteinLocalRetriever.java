@@ -603,8 +603,8 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 					uprr.setLookForIsoformsFromMainForms(retrieveFastaIsoformsFromMainForms);
 					log.debug("Trying to retrieve  " + missingCanonicalForms.size()
 							+ " proteins that were not present in the local system");
-					final Map<String, Entry> foundMissingCanonicalEntries = uprr.getAnnotatedProteins(uniprotVersion,
-							missingCanonicalForms, cache);
+					final Map<String, Entry> foundMissingCanonicalEntries = uprr
+							.getAnnotatedProteins(uniprotReleasesFolder, uniprotVersion, missingCanonicalForms, cache);
 					if (cacheEnabled) {
 						checkMemoryForCache(foundMissingCanonicalEntries.size());
 						cache.addtoCache(foundMissingCanonicalEntries);
@@ -638,8 +638,8 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 				log.info("Local information (local index folder) not found " + folderPath);
 				log.info("Trying to get it remotely from Uniprot repository");
 				final UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever();
-				final Map<String, Entry> queryProteinsMap = uprr.getAnnotatedProteins(uniprotVersion, accsToSearch,
-						cache);
+				final Map<String, Entry> queryProteinsMap = uprr.getAnnotatedProteins(uniprotReleasesFolder,
+						uniprotVersion, accsToSearch, cache);
 				// map main isoforms to the corresponding no isoform entries,
 
 				return queryProteinsMap;
