@@ -26,9 +26,11 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 	private static final String ISOFORMS_SUBFOLDER_NAME = "isoforms";
 	private static Logger log = Logger.getLogger(UniprotFastaRetrieverFromUniprotIsoformFastaFile.class);
 	private final File isoformsFolder;
-	private Map<String, Entry> fastas;
+	private final String uniprotVersion;
+	private static Map<String, Map<String, Entry>> fastasByUniprotVersion = new THashMap<String, Map<String, Entry>>();
 
 	public UniprotFastaRetrieverFromUniprotIsoformFastaFile(File uniprotFolder, String uniprotVersion) {
+		this.uniprotVersion = uniprotVersion;
 		this.isoformsFolder = new File(uniprotFolder.getAbsolutePath() + File.separator + uniprotVersion
 				+ File.separator + ISOFORMS_SUBFOLDER_NAME);
 		if (!isoformsFolder.exists()) {
@@ -38,7 +40,8 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 	}
 
 	public Map<String, Entry> run() {
-		if (fastas == null) {
+
+		if (!fastasByUniprotVersion.containsKey(uniprotVersion)) {
 			BufferedOutputStream fos = null;
 			try {
 
@@ -57,8 +60,8 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 					log.debug("File downloaded in " + DatesUtil.getDescriptiveTimeFromMillisecs(t2 - t1));
 				}
 				final long t2 = System.currentTimeMillis();
-				fastas = parseFASTAFile(isoformsZippedFile);
-
+				final Map<String, Entry> fastas = parseFASTAFile(isoformsZippedFile);
+				fastasByUniprotVersion.put(uniprotVersion, fastas);
 				final long t3 = System.currentTimeMillis();
 				log.debug("File processed in " + DatesUtil.getDescriptiveTimeFromMillisecs(t3 - t2));
 
@@ -81,7 +84,7 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 				}
 			}
 		}
-		return fastas;
+		return fastasByUniprotVersion.get(uniprotVersion);
 	}
 
 	private final Map<String, Entry> parseFASTAFile(final File gzFile) throws IOException {
@@ -110,9 +113,6 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 					if (!"".equals(sequence.toString())) {
 						final Entry entry = new UniprotEntryAdapterFromFASTA(accession, fastaHeader,
 								sequence.toString()).adapt();
-						if (ret.containsKey(accession)) {
-							log.info("Really" + line);
-						}
 						ret.put(accession, entry);
 					}
 					fastaHeader = line;
