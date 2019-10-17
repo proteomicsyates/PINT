@@ -297,7 +297,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			}
 		}
 		if (ret.size() != listofpairs.size()) {
-			log.info("keys to access the index were merged to optimze access from " + listofpairs.size() + " to "
+			log.debug("keys to access the index were merged to optimze access from " + listofpairs.size() + " to "
 					+ ret.size());
 		}
 		return ret;
