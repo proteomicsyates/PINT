@@ -2,16 +2,19 @@ package edu.scripps.yates.annotations.uniprot.fasta;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import edu.scripps.yates.utilities.annotations.uniprot.ProteinExistence;
 import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.Fasta;
 import edu.scripps.yates.utilities.fasta.FastaImpl;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.pattern.Adapter;
 import edu.scripps.yates.utilities.util.Pair;
 
 public class FastaAdapterFromUniprotEntry implements Adapter<Fasta> {
-
+	private static Logger log = Logger.getLogger(FastaAdapterFromUniprotEntry.class);
 	private final Entry entry;
 
 	public FastaAdapterFromUniprotEntry(Entry entry) {
@@ -29,6 +32,9 @@ public class FastaAdapterFromUniprotEntry implements Adapter<Fasta> {
 			sp = "tr";
 		}
 		String defline = ">" + sp + "|" + primaryAcc + "|" + name + " " + description;
+		if (FastaParser.isReverse(primaryAcc)) {
+			defline = ">" + primaryAcc + " " + description;
+		}
 		final List<Pair<String, String>> geneNames = UniprotEntryUtil.getGeneName(entry, true, true);
 		if (geneNames != null && !geneNames.isEmpty()) {
 			defline += " GN=" + geneNames.get(0).getFirstelement();
