@@ -38,8 +38,8 @@ public class ProteoFormFastaReader extends FastaReader {
 	/**
 	 * 
 	 * 
-	 * @param canonicalUniprotEntries
-	 *            set of uniprot accessions to consider from the fasta file
+	 * @param canonicalUniprotEntries set of uniprot accessions to consider from the
+	 *                                fasta file
 	 * @param proteoFormRetriever
 	 */
 	public ProteoFormFastaReader(String fastaFileName, Set<String> canonicalUniprotEntries,
@@ -74,7 +74,7 @@ public class ProteoFormFastaReader extends FastaReader {
 			uniprotACCs = new HashSet<String>();
 			uniprotACCs.addAll(canonicalUniprotEntries);
 		} else {
-			uniprotACCs = getUniprotACCsFromFasta();
+			uniprotACCs = getACCsFromFasta();
 		}
 
 		// look for proteoforms of the proteins
