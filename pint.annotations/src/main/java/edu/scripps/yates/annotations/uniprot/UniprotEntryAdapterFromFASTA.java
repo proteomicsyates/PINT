@@ -8,8 +8,8 @@ import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.OrganismNameType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.OrganismType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType;
-import edu.scripps.yates.utilities.annotations.uniprot.xml.SequenceType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.RecommendedName;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.SequenceType;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.pattern.Adapter;
 
@@ -26,6 +26,7 @@ public class UniprotEntryAdapterFromFASTA implements Adapter<Entry> {
 	private final String sequenceVersion;
 	private final String organismNCBIID;
 	private final String name;
+	private final boolean isSwissprot;
 
 	public UniprotEntryAdapterFromFASTA(String accession, String fastaHeader, String sequence) {
 		this.accession = accession;
@@ -36,6 +37,7 @@ public class UniprotEntryAdapterFromFASTA implements Adapter<Entry> {
 		organism = FastaParser.getOrganismNameFromFastaHeader(fastaHeader, null);
 		organismNCBIID = FastaParser.getOrganismNCBIIDFromFastaHeader(fastaHeader);
 		sequenceVersion = FastaParser.getSequenceVersionFromFastaHeader(fastaHeader);
+		isSwissprot = FastaParser.isSwissProt(fastaHeader);
 	}
 
 	@Override
@@ -51,7 +53,7 @@ public class UniprotEntryAdapterFromFASTA implements Adapter<Entry> {
 		if (name != null) {
 			ret.getName().add(name);
 		}
-
+		ret.setDataset(isSwissprot ? "Swiss-Prot" : "TrEMBL");
 		if (description != null) {
 			final ProteinType protein = new ProteinType();
 			final EvidencedStringType evidence = new EvidencedStringType();
