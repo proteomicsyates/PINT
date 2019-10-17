@@ -1,5 +1,6 @@
 package edu.scripps.yates.annotations.uniprot.fasta;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,11 +11,19 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.compomics.dbtoolkit.io.implementations.FASTADBLoader;
+import com.compomics.dbtoolkit.io.interfaces.DBLoader;
+import com.compomics.util.protein.Protein;
+
+import edu.scripps.yates.annotations.uniprot.UniprotEntryAdapterFromFASTA;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.proteoform.fasta.ProteoFormFastaReader;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.Fasta;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.fasta.FastaReader;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Implementation of a FastaReader that get the sequences from Uniprot once they
@@ -30,6 +39,8 @@ public class FastaReaderFromUniprot extends FastaReader {
 	private final UniprotProteinLocalRetriever uplr;
 	private final Set<String> canonicalUniprotEntries;
 	private final String uniprotVersion;
+	private final Map<String, String> proteinSequencesFromFASTAByAcc = new THashMap<String, String>();
+	private final Map<String, String> fastaHeadersFromFastaByAcc = new THashMap<String, String>();
 
 	public FastaReaderFromUniprot(String fastaFileName, String uniprotVersion, UniprotProteinLocalRetriever uplr) {
 		this(fastaFileName, null, uniprotVersion, uplr);
@@ -67,7 +78,7 @@ public class FastaReaderFromUniprot extends FastaReader {
 			uniprotACCs = new HashSet<String>();
 			uniprotACCs.addAll(canonicalUniprotEntries);
 		} else {
-			uniprotACCs = getUniprotACCsFromFasta();
+			uniprotACCs = getACCsFromFasta();
 		}
 
 		// look for proteoforms of the proteins
@@ -82,7 +93,27 @@ public class FastaReaderFromUniprot extends FastaReader {
 		final List<Entry> ret = new ArrayList<Entry>();
 		for (final String acc : uniprotACCs) {
 			if (annotatedProteins.containsKey(acc)) {
-				ret.add(annotatedProteins.get(acc));
+				final Entry entry = annotatedProteins.get(acc);
+				if (entry != null) {
+					ret.add(entry);
+				} else {
+					throw new IllegalArgumentException("Entry for " + acc + " shoudn't be null");
+				}
+				// remove sequence and fasta header from local maps to save memory
+				proteinSequencesFromFASTAByAcc.remove(acc);
+				fastaHeadersFromFastaByAcc.remove(acc);
+			} else {
+				// if not in the uniprot, it may be because of it is an obsolete sequence in the
+				// database, or because it is a decoy
+				// so, we get the sequence from the actual FASTA file.
+				if (proteinSequencesFromFASTAByAcc.containsKey(acc)) {
+					final String seq = proteinSequencesFromFASTAByAcc.get(acc);
+					final String fastaHeader = fastaHeadersFromFastaByAcc.get(acc);
+					ret.add(new UniprotEntryAdapterFromFASTA(acc, fastaHeader, seq).adapt());
+				} else {
+					throw new IllegalArgumentException(
+							"Protein sequence for protein " + acc + " is not found in Uniprot nor in FASTA file??");
+				}
 			}
 		}
 		return ret.iterator();
@@ -91,5 +122,31 @@ public class FastaReaderFromUniprot extends FastaReader {
 	@Override
 	public int getNumberFastas() throws IOException {
 		throw new IOException("Using an iterator doesn't allow to know how many entries we have");
+	}
+
+	/**
+	 * We override this method in order to keep protein sequences from FASTA. Then
+	 * if some of the proteins are not found in Uniprot, we will take those from the
+	 * FASTA
+	 */
+	@Override
+	public Set<String> getACCsFromFasta() throws IOException {
+		if (proteinACCs == null || proteinACCs.isEmpty()) {
+			proteinACCs = new THashSet<String>();
+			final DBLoader loader = new FASTADBLoader();
+			if (fastaFileName != null && loader.canReadFile(new File(fastaFileName))) {
+
+				Protein protein = null;
+				loader.load(fastaFileName);
+				while ((protein = loader.nextProtein()) != null) {
+					final String accession = FastaParser.getACC(protein.getHeader().getFullHeaderWithAddenda())
+							.getAccession();
+					proteinACCs.add(accession);
+					this.proteinSequencesFromFASTAByAcc.put(accession, protein.getSequence().getSequence());
+					this.fastaHeadersFromFastaByAcc.put(accession, protein.getHeader().getFullHeaderWithAddenda());
+				}
+			}
+		}
+		return proteinACCs;
 	}
 }
