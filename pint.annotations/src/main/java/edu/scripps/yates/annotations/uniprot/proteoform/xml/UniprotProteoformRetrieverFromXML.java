@@ -65,7 +65,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 
 	/**
 	 * 
-	 * @param uniprotACCs
+	 * @param accs
 	 * @param retrieveProteoforms if false, only main entry will be retrieved. if
 	 *                            true, variants and alternative products will be
 	 *                            retrieved
@@ -75,12 +75,19 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 	 * @param uplr
 	 * @return
 	 */
-	protected static Map<String, List<Proteoform>> getProteoformsFromList(Collection<String> uniprotACCs,
+	protected static Map<String, List<Proteoform>> getProteoformsFromList(Collection<String> accs,
 			boolean retrieveProteoforms, boolean retrieveIsoforms, boolean retrievePTMs, String uniprotVersion,
 			UniprotProteinLocalRetriever uplr) {
 		final Map<String, List<Proteoform>> ret = new HashMap<String, List<Proteoform>>();
 		final List<String> uniprotAccList = new ArrayList<String>();
-		uniprotAccList.addAll(uniprotACCs);
+		for (final String acc : accs) {
+			final String uniprotAcc = FastaParser.getUniProtACC(acc);
+			if (uniprotAcc != null) {
+				uniprotAccList.add(uniprotAcc);
+			} else {
+				log.debug(acc + " is not Uniprot Acc. Skipping it...");
+			}
+		}
 		try {
 			Map<String, Entry> annotatedProteins = new HashMap<String, Entry>();
 			if (retrieveIsoforms) {
