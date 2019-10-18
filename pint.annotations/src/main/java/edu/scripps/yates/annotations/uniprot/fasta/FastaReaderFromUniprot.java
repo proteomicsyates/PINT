@@ -139,11 +139,10 @@ public class FastaReaderFromUniprot extends FastaReader {
 				Protein protein = null;
 				loader.load(fastaFileName);
 				while ((protein = loader.nextProtein()) != null) {
-					final String accession = FastaParser.getACC(protein.getHeader().getFullHeaderWithAddenda())
-							.getAccession();
+					final String accession = FastaParser.getACC(protein.getHeader().getRawHeader()).getAccession();
 					proteinACCs.add(accession);
 					this.proteinSequencesFromFASTAByAcc.put(accession, protein.getSequence().getSequence());
-					this.fastaHeadersFromFastaByAcc.put(accession, protein.getHeader().getFullHeaderWithAddenda());
+					this.fastaHeadersFromFastaByAcc.put(accession, protein.getHeader().getRawHeader());
 				}
 			}
 		}
