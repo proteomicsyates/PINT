@@ -25,7 +25,14 @@ public class FastaAdapterFromUniprotEntry implements Adapter<Fasta> {
 	public Fasta adapt() {
 		final String description = UniprotEntryUtil.getProteinDescription(entry);
 		final String primaryAcc = UniprotEntryUtil.getPrimaryAccession(entry);
-		final String name = UniprotEntryUtil.getNames(entry).get(0);
+		final List<String> names = UniprotEntryUtil.getNames(entry);
+		String name = null;
+		if (names == null || names.isEmpty()) {
+			log.warn("No names for uniprot Entry " + primaryAcc);
+			name = description;
+		} else {
+			name = names.get(0);
+		}
 
 		String sp = "sp";
 		if (!UniprotEntryUtil.isSwissProt(entry)) {
