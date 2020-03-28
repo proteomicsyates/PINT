@@ -170,7 +170,7 @@
   <organization>
   	<name>TSRI</name>
   </organization>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.3-SNAPSHOT</version>
   <parent>
   	<groupId>edu.scripps.yates</groupId>
   	<artifactId>pint.parent</artifactId>
