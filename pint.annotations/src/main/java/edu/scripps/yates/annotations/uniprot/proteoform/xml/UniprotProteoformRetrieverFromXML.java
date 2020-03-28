@@ -230,9 +230,25 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 						final Collection<FeatureType> conflicts = UniprotEntryEBIUtil.getFeatures(entry,
 								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CONFLICT);
 						for (final FeatureType feature : conflicts) {
+							if ("In Ref. 3; AK225532.".equals(feature.getDescription())
+									&& "K".equals(feature.getOriginal()) && "P78346".equals(acc)) {
+								log.info("asdf");
+							}
+							// if the feature is referred to an isoform, that is feature/location/sequence
+							// is an isoform accession with version >1, then ignore it because the isoform
+							// variance should have been captured before as isoform
+							if (feature.getLocation() != null && feature.getLocation().getSequence() != null
+									&& !"".equals(feature.getLocation().getSequence())) {
+								String isoVersion = FastaParser.getIsoformVersion(feature.getLocation().getSequence());
+								if (isoVersion != null && Integer.valueOf(isoVersion) > 1) {
+									continue;
+								}
+							}
 							final Proteoform variant = new ProteoformAdapterFromConflictFeature(acc, name, description,
 									feature, originalSequence, gene, taxonomy).adapt();
+
 							ret.get(acc).add(variant);
+
 						}
 						// mutagens
 						final Collection<FeatureType> mutagens = UniprotEntryEBIUtil.getFeatures(entry,
