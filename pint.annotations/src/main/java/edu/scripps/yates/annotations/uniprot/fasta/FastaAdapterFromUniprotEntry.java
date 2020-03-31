@@ -23,8 +23,13 @@ public class FastaAdapterFromUniprotEntry implements Adapter<Fasta> {
 
 	@Override
 	public Fasta adapt() {
+		boolean isProteoform = false;
 		final String description = UniprotEntryUtil.getProteinDescription(entry);
 		final String primaryAcc = UniprotEntryUtil.getPrimaryAccession(entry);
+		final String isoformVersion = FastaParser.getIsoformVersion(primaryAcc);
+		if (isoformVersion != null) {
+			isProteoform = true;
+		}
 		final List<String> names = UniprotEntryUtil.getNames(entry);
 		String name = null;
 		if (names == null || names.isEmpty()) {
@@ -62,7 +67,7 @@ public class FastaAdapterFromUniprotEntry implements Adapter<Fasta> {
 		if (pe != null) {
 			defline += " PE=" + pe.getNum();
 		}
-		final Fasta fasta = new FastaImpl(defline, UniprotEntryUtil.getProteinSequence(entry), false);
+		final Fasta fasta = new FastaImpl(defline, UniprotEntryUtil.getProteinSequence(entry), isProteoform);
 		return fasta;
 	}
 
