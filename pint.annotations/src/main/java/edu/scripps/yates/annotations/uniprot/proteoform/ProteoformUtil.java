@@ -1,8 +1,8 @@
 package edu.scripps.yates.annotations.uniprot.proteoform;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import edu.scripps.yates.utilities.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.LocationType;
@@ -43,8 +43,11 @@ public class ProteoformUtil {
 			}
 		}
 		ret += newSeq;
-
-		ret += wholeOriginalSeq.substring(end, wholeOriginalSeq.length());
+		try {
+			ret += wholeOriginalSeq.substring(end, wholeOriginalSeq.length());
+		} catch (final StringIndexOutOfBoundsException e) {
+			System.out.println(" asdf");
+		}
 		return ret;
 	}
 
@@ -246,31 +249,54 @@ public class ProteoformUtil {
 	 * Filters the input list of proteoforms by returning all proteoforms that are
 	 * NOT the type of the proteoformType
 	 * 
-	 * @param isoformType
-	 * @param proteoforms
+	 * 
+	 * @param proteoforms * @param proteoformTypes
 	 * @return
 	 */
-	public static List<Proteoform> getProteoformsDifferentThan(ProteoformType proteoformType,
-			List<Proteoform> proteoforms) {
+	public static List<Proteoform> getProteoformsDifferentThan(List<Proteoform> proteoforms,
+			ProteoformType... proteoformTypes) {
 		if (proteoforms == null) {
 			return Collections.emptyList();
 		}
-		return proteoforms.stream().filter(p -> p.getProteoformType() != proteoformType).collect(Collectors.toList());
+		final List<Proteoform> ret = new ArrayList<Proteoform>();
+		for (final Proteoform proteoform : proteoforms) {
+			boolean valid = true;
+			for (final ProteoformType type : proteoformTypes) {
+				if (proteoform.getProteoformType() == type) {
+					valid = false;
+					break;
+				}
+			}
+			if (valid) {
+				ret.add(proteoform);
+			}
+		}
+		return ret;
 	}
 
 	/**
 	 * Filters the input list of proteoforms by returning all proteoforms that ARE
-	 * the type of the proteoformType
+	 * of any of the types of the proteoformTypes
 	 * 
-	 * @param isoformType
+	 * 
 	 * @param proteoforms
+	 * @param proteoformTypes
 	 * @return
 	 */
-	public static List<Proteoform> getProteoformsAs(ProteoformType proteoformType, List<Proteoform> proteoforms) {
+	public static List<Proteoform> getProteoformsAs(List<Proteoform> proteoforms, ProteoformType... proteoformTypes) {
 		if (proteoforms == null) {
 			return Collections.emptyList();
 		}
-		return proteoforms.stream().filter(p -> p.getProteoformType() == proteoformType).collect(Collectors.toList());
+		final List<Proteoform> ret = new ArrayList<Proteoform>();
+		for (final Proteoform proteoform : proteoforms) {
+			for (final ProteoformType type : proteoformTypes) {
+				if (proteoform.getProteoformType() == type) {
+					ret.add(proteoform);
+					break;
+				}
+			}
+		}
+		return ret;
 	}
 
 }

@@ -161,9 +161,11 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 						final List<Proteoform> list = new ArrayList<Proteoform>();
 						ret.put(acc, list);
 					}
-					final String description = UniprotEntryUtil.getProteinDescription(entry);
+					final String description = UniprotEntryUtil.getFullFastaHeader(entry);
 					final String name = UniprotEntryUtil.getNames(entry).get(0);
 					final String taxonomy = UniprotEntryUtil.getTaxonomyName(entry);
+					final String taxID = UniprotEntryUtil.getTaxonomyNCBIID(entry);
+					final boolean isSwissprot = UniprotEntryUtil.isSwissProt(entry);
 					final List<Pair<String, String>> genes = UniprotEntryUtil.getGeneName(entry, true, true);
 					String gene = null;
 					if (genes != null && !genes.isEmpty()) {
@@ -172,7 +174,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					Proteoform proteoform = null;
 					if (mainFormAcc.equals(acc)) {
 						proteoform = new Proteoform(acc, originalSequence, acc, originalSequence, name, description,
-								gene, taxonomy, ProteoformType.MAIN_ENTRY, true);
+								gene, taxonomy, taxID, ProteoformType.MAIN_ENTRY, true, isSwissprot);
 						ret.get(acc).add(proteoform);
 					}
 
@@ -183,7 +185,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 						for (final FeatureType feature : features) {
 
 							final Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, name, description,
-									feature, originalSequence, gene, taxonomy).adapt();
+									feature, originalSequence, gene, taxonomy, taxID, isSwissprot).adapt();
 							ret.get(acc).add(variant);
 						}
 					}
@@ -219,6 +221,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								final String name2 = UniprotEntryUtil.getNames(isoformEntry).get(0);
 								final String description2 = UniprotEntryUtil.getProteinDescription(isoformEntry);
 								final String taxonomy2 = UniprotEntryUtil.getTaxonomyName(isoformEntry);
+								final String taxID2 = UniprotEntryUtil.getTaxonomyNCBIID(isoformEntry);
 								final List<Pair<String, String>> genes2 = UniprotEntryUtil.getGeneName(isoformEntry,
 										true, true);
 								String gene2 = null;
@@ -227,7 +230,8 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								}
 
 								final Proteoform variant = new Proteoform(acc, originalSequence, isoformACC,
-										isoformSequence, name2, description2, gene2, taxonomy2, ProteoformType.ISOFORM);
+										isoformSequence, name2, description2, gene2, taxonomy2, taxID2,
+										ProteoformType.ISOFORM, isSwissprot);
 								if (acc.equals(isoformACC)) {
 									proteoform = variant;
 									ret.get(acc).add(variant);
@@ -245,7 +249,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								mainEntry, uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CONFLICT));
 						for (final FeatureType feature : conflicts) {
 							final Proteoform variant = new ProteoformAdapterFromConflictFeature(acc, name, description,
-									feature, originalSequence, gene, taxonomy).adapt();
+									feature, originalSequence, gene, taxonomy, taxID, isSwissprot).adapt();
 
 							ret.get(acc).add(variant);
 
@@ -255,7 +259,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								mainEntry, uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.MUTAGEN));
 						for (final FeatureType feature : mutagens) {
 							final Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, name, description,
-									feature, originalSequence, gene, taxonomy).adapt();
+									feature, originalSequence, gene, taxonomy, taxID, isSwissprot).adapt();
 							ret.get(acc).add(variant);
 						}
 					}

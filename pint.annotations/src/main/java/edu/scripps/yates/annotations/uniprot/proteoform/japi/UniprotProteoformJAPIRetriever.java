@@ -26,6 +26,7 @@ import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.util.Pair;
 import uk.ac.ebi.kraken.interfaces.uniprot.Gene;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntryType;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.AlternativeProductsComment;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.AlternativeProductsIsoform;
 import uk.ac.ebi.kraken.interfaces.uniprot.comments.Comment;
@@ -70,7 +71,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 	 * @return
 	 */
 	public static UniProtService createService() {
-		UniProtService service = Client.getServiceFactoryInstance().getUniProtQueryService();
+		final UniProtService service = Client.getServiceFactoryInstance().getUniProtQueryService();
 
 		return service;
 	}
@@ -169,6 +170,8 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 				final QueryResult<UniProtEntry> result = service.getEntries(query);
 				while (result.hasNext()) {
 					final UniProtEntry mainEntry = result.next();
+					final boolean isSwissprot = mainEntry.getType() == UniProtEntryType.SWISSPROT;
+
 					final String originalSequence = mainEntry.getSequence().getValue();
 					// original variant
 					final String acc = mainEntry.getPrimaryUniProtAccession().getValue();
@@ -197,9 +200,15 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 						}
 					}
 					String taxonomy = null;
+					String taxID = null;
 					if (mainEntry.getOrganism() != null) {
 						if (mainEntry.getOrganism().getScientificName() != null) {
 							taxonomy = mainEntry.getOrganism().getScientificName().getValue();
+						}
+						if (mainEntry.getNcbiTaxonomyIds() != null) {
+							if (!mainEntry.getNcbiTaxonomyIds().isEmpty()) {
+								taxID = mainEntry.getNcbiTaxonomyIds().get(0).getValue();
+							}
 						}
 					}
 					String name = null;
@@ -207,7 +216,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 						name = mainEntry.getUniProtId().getValue();
 					}
 					final Proteoform originalvariant = new Proteoform(acc, originalSequence, acc, originalSequence,
-							name, description, gene, taxonomy, ProteoformType.MAIN_ENTRY, true);
+							name, description, gene, taxonomy, taxID, ProteoformType.MAIN_ENTRY, true, isSwissprot);
 					ret.get(acc).add(originalvariant);
 
 					// query for variants
@@ -215,7 +224,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 					for (final Feature feature : features) {
 						final VariantFeature varSeq = (VariantFeature) feature;
 						final Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, name, description,
-								varSeq, originalSequence, gene, taxonomy).adapt();
+								varSeq, originalSequence, gene, taxonomy, taxID, isSwissprot).adapt();
 						ret.get(acc).add(variant);
 					}
 					// alternative products
@@ -256,8 +265,8 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 								final String name2 = UniprotEntryUtil.getNames(isoformEntry).get(0);
 								final String proteinDescription = UniprotEntryUtil.getProteinDescription(isoformEntry);
 								final Proteoform variant = new Proteoform(acc, originalSequence, isoformACC,
-										isoformSequence, name2, proteinDescription, gene2, taxonomy2,
-										ProteoformType.ISOFORM);
+										isoformSequence, name2, proteinDescription, gene2, taxonomy2, taxID,
+										ProteoformType.ISOFORM, isSwissprot);
 								ret.get(acc).add(variant);
 							}
 						} else {
@@ -276,8 +285,8 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 									}
 									final String taxonomy2 = UniprotEntryUtil.getTaxonomyName(isoformEntry);
 									final Proteoform variant = new Proteoform(acc, originalSequence, isoformACC,
-											isoformSequence, name2, description2, gene2, taxonomy2,
-											ProteoformType.ISOFORM);
+											isoformSequence, name2, description2, gene2, taxonomy2, taxID,
+											ProteoformType.ISOFORM, isSwissprot);
 									ret.get(acc).add(variant);
 								}
 							}
@@ -289,7 +298,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 
 						final ConflictFeature conflictFeature = (ConflictFeature) feature;
 						final Proteoform variant = new ProteoFormAdapterFromConflictFeature(acc, name, description,
-								conflictFeature, originalSequence, gene, taxonomy).adapt();
+								conflictFeature, originalSequence, gene, taxonomy, taxID, isSwissprot).adapt();
 						ret.get(acc).add(variant);
 					}
 					// mutagens
@@ -297,7 +306,7 @@ public class UniprotProteoformJAPIRetriever implements UniprotProteoformRetrieve
 					for (final Feature feature : mutagens) {
 						final MutagenFeature mutagenFeature = (MutagenFeature) feature;
 						final Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, name, description,
-								mutagenFeature, originalSequence, gene, taxonomy).adapt();
+								mutagenFeature, originalSequence, gene, taxonomy, taxID, isSwissprot).adapt();
 						ret.get(acc).add(variant);
 					}
 					// ptms

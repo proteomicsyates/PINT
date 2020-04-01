@@ -44,6 +44,7 @@ public class FastaReaderFromUniprot extends FastaReader {
 	private final Map<String, String> proteinSequencesFromFASTAByAcc = new THashMap<String, String>();
 	private final Map<String, String> fastaHeadersFromFastaByAcc = new THashMap<String, String>();
 	private final boolean includeIsoforms;
+	private Integer numFastas;
 
 	/**
 	 * 
@@ -164,11 +165,15 @@ public class FastaReaderFromUniprot extends FastaReader {
 				}
 			}
 		}
+		numFastas = ret.size();
 		return ret.iterator();
 	}
 
 	@Override
 	public int getNumberFastas() throws IOException {
+		if (numFastas != null) {
+			return numFastas;
+		}
 		throw new IOException("Using an iterator doesn't allow to know how many entries we have");
 	}
 

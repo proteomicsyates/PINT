@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.scripps.yates.utilities.fasta.FastaParser;
+
 public class Proteoform {
 	private final String id;
 	private final String seq;
@@ -18,9 +20,12 @@ public class Proteoform {
 	private final String taxonomy;
 	private final String originalSeq;
 	private final String name;
+	private final boolean isSwissprot;
+	private final String taxID;
 
 	public Proteoform(String originalACC, String originalSeq, String id, String seq, String name, String description,
-			String gene, String taxonomy, ProteoformType proteoformType, boolean original) {
+			String gene, String taxonomy, String taxID, ProteoformType proteoformType, boolean original,
+			boolean isSwissprot) {
 		this.originalACC = originalACC;
 		this.originalSeq = originalSeq;
 		this.id = id;
@@ -29,8 +34,10 @@ public class Proteoform {
 		this.description = description;
 		this.gene = gene;
 		this.taxonomy = taxonomy;
+		this.taxID = taxID;
 		this.proteoformType = proteoformType;
 		this.original = original;
+		this.isSwissprot = isSwissprot;
 //		if ("1".equals(FastaParser.getIsoformVersion(id))) {
 //			System.out.println("asdf");
 //		}
@@ -57,8 +64,9 @@ public class Proteoform {
 	}
 
 	public Proteoform(String originalACC, String originalSeq, String id, String seq, String name, String description,
-			String gene, String taxonomy, ProteoformType variantType) {
-		this(originalACC, originalSeq, id, seq, name, description, gene, taxonomy, variantType, false);
+			String gene, String taxonomy, String taxID, ProteoformType variantType, boolean isSwissprot) {
+		this(originalACC, originalSeq, id, seq, name, description, gene, taxonomy, taxID, variantType, false,
+				isSwissprot);
 	}
 
 	public String getId() {
@@ -118,5 +126,34 @@ public class Proteoform {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getFastaHeader() {
+
+		String sp = "sp";
+		if (!isSwissprot) {
+			sp = "tr";
+		}
+		String defline = ">" + sp + "|" + this.id + "|" + name + " " + description;
+		if (FastaParser.isReverse(id)) {
+			defline = ">" + id + " " + description;
+		}
+
+		if (gene != null) {
+			defline += " GN=" + gene;
+		}
+
+		if (taxonomy != null) {
+			defline += " OS=" + taxonomy;
+		}
+
+		if (taxID != null) {
+			defline += " OX=" + taxID;
+		}
+		return defline;
+	}
+
+	public boolean isSwissprot() {
+		return isSwissprot;
 	}
 }

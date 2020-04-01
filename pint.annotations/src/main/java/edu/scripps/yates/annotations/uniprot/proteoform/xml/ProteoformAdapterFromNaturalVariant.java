@@ -15,9 +15,12 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 	private final String gene;
 	private final String originalDescription;
 	private final String name;
+	private final String taxID;
+	private final boolean isSwissprot;
 
 	public ProteoformAdapterFromNaturalVariant(String originalACC, String name, String originalDescription,
-			FeatureType feature, String wholeOriginalSeq, String gene, String taxonomy) {
+			FeatureType feature, String wholeOriginalSeq, String gene, String taxonomy, String taxID,
+			boolean isSwissprot) {
 		varSeq = feature;
 		this.wholeOriginalSeq = wholeOriginalSeq;
 		this.originalACC = originalACC;
@@ -25,6 +28,8 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 		this.taxonomy = taxonomy;
 		this.gene = gene;
 		this.originalDescription = originalDescription;
+		this.taxID = taxID;
+		this.isSwissprot = isSwissprot;
 	}
 
 	@Override
@@ -33,7 +38,7 @@ public class ProteoformAdapterFromNaturalVariant implements Adapter<Proteoform> 
 		final String seq = ProteoformUtil.translateSequence(varSeq, wholeOriginalSeq);
 		final String description = ProteoformUtil.getDescription(varSeq, originalDescription);
 		final Proteoform variant = new Proteoform(originalACC, wholeOriginalSeq, id, seq, name, description, gene,
-				taxonomy, ProteoformType.NATURAL_VARIANT);
+				taxonomy, taxID, ProteoformType.NATURAL_VARIANT, isSwissprot);
 		return variant;
 	}
 
