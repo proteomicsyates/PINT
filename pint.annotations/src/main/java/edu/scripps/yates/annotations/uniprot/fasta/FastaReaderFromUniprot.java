@@ -16,8 +16,10 @@ import com.compomics.dbtoolkit.io.interfaces.DBLoader;
 import com.compomics.util.protein.Protein;
 
 import edu.scripps.yates.annotations.uniprot.UniprotEntryAdapterFromFASTA;
+import edu.scripps.yates.annotations.uniprot.UniprotFastaRetrieverFromUniprotIsoformFastaFile;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.annotations.uniprot.proteoform.fasta.ProteoFormFastaReader;
+import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.Fasta;
 import edu.scripps.yates.utilities.fasta.FastaParser;
@@ -41,24 +43,48 @@ public class FastaReaderFromUniprot extends FastaReader {
 	private final String uniprotVersion;
 	private final Map<String, String> proteinSequencesFromFASTAByAcc = new THashMap<String, String>();
 	private final Map<String, String> fastaHeadersFromFastaByAcc = new THashMap<String, String>();
+	private final boolean includeIsoforms;
+	private Integer numFastas;
 
-	public FastaReaderFromUniprot(String fastaFileName, String uniprotVersion, UniprotProteinLocalRetriever uplr) {
-		this(fastaFileName, null, uniprotVersion, uplr);
+	/**
+	 * 
+	 * @param fastaFileName
+	 * @param uniprotVersion
+	 * @param uplr
+	 * @param includeIsoforms if true, isoforms from main forms will be retrieved
+	 *                        too from uniprot even though they may not be in the
+	 *                        fasta file
+	 */
+	public FastaReaderFromUniprot(String fastaFileName, String uniprotVersion, UniprotProteinLocalRetriever uplr,
+			boolean includeIsoforms) {
+		this(fastaFileName, null, uniprotVersion, uplr, includeIsoforms);
 	}
 
 	/**
 	 * 
 	 * 
-	 * @param canonicalUniprotEntries set of uniprot accessions to consider from the
-	 *                                fasta file
+	 * @param canonicalUniprotEntries
 	 * @param uplr
 	 */
+
+	/**
+	 * 
+	 * @param fastaFileName
+	 * @param canonicalUniprotEntries set of uniprot accessions to consider from the
+	 *                                fasta file
+	 * @param uniprotVersion
+	 * @param uplr
+	 * @param includeIsoforms         if true, isoforms from main forms will be
+	 *                                retrieved too from uniprot even though they
+	 *                                may not be in the fasta file
+	 */
 	public FastaReaderFromUniprot(String fastaFileName, Set<String> canonicalUniprotEntries, String uniprotVersion,
-			UniprotProteinLocalRetriever uplr) {
+			UniprotProteinLocalRetriever uplr, boolean includeIsoforms) {
 		super(fastaFileName);
 		this.uplr = uplr;
 		this.uniprotVersion = uniprotVersion;
 		this.canonicalUniprotEntries = canonicalUniprotEntries;
+		this.includeIsoforms = includeIsoforms;
 	}
 
 	@Override
@@ -90,6 +116,14 @@ public class FastaReaderFromUniprot extends FastaReader {
 
 	private Iterator<Entry> getUniprotEntryIterator(Set<String> uniprotACCs) {
 		final Map<String, Entry> annotatedProteins = uplr.getAnnotatedProteins(uniprotVersion, uniprotACCs);
+
+		UniprotFastaRetrieverFromUniprotIsoformFastaFile isoformfastaRetriever = null;
+		Map<String, Entry> isoformEntries = null;
+		if (includeIsoforms) {
+			isoformfastaRetriever = new UniprotFastaRetrieverFromUniprotIsoformFastaFile(
+					uplr.getUniprotReleasesFolder(), uplr.getLatestUniprotVersionFolderName());
+			isoformEntries = isoformfastaRetriever.run();
+		}
 		final List<Entry> ret = new ArrayList<Entry>();
 		for (final String acc : uniprotACCs) {
 			if (annotatedProteins.containsKey(acc)) {
@@ -102,6 +136,21 @@ public class FastaReaderFromUniprot extends FastaReader {
 				// remove sequence and fasta header from local maps to save memory
 				proteinSequencesFromFASTAByAcc.remove(acc);
 				fastaHeadersFromFastaByAcc.remove(acc);
+				if (includeIsoforms && isoformfastaRetriever != null && isoformEntries != null) {
+					// now, check whether the entry is a main form and if so, get the isoforms
+					// entries
+					final String isoformVersion = FastaParser.getIsoformVersion(acc);
+					if (isoformVersion == null || "1".equals(isoformVersion)) {
+						final List<String> isoformsAccs = UniprotEntryUtil.getIsoforms(entry);
+						for (final String isoformAcc : isoformsAccs) {
+							if (isoformEntries.containsKey(isoformAcc)) {
+								final Entry isoformEntry = isoformEntries.get(isoformAcc);
+								ret.add(isoformEntry);
+							}
+						}
+
+					}
+				}
 			} else {
 				// if not in the uniprot, it may be because of it is an obsolete sequence in the
 				// database, or because it is a decoy
@@ -116,11 +165,15 @@ public class FastaReaderFromUniprot extends FastaReader {
 				}
 			}
 		}
+		numFastas = ret.size();
 		return ret.iterator();
 	}
 
 	@Override
 	public int getNumberFastas() throws IOException {
+		if (numFastas != null) {
+			return numFastas;
+		}
 		throw new IOException("Using an iterator doesn't allow to know how many entries we have");
 	}
 

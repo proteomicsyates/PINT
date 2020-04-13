@@ -15,9 +15,12 @@ public class ProteoFormAdapterFromConflictFeature implements Adapter<Proteoform>
 	private final String taxonomy;
 	private final String originalDescription;
 	private final String name;
+	private final String taxID;
+	private final boolean isSwissprot;
 
 	public ProteoFormAdapterFromConflictFeature(String originalACC, String name, String originalDescription,
-			ConflictFeature conflictFeature, String wholeOriginalSeq, String gene, String taxonomy) {
+			ConflictFeature conflictFeature, String wholeOriginalSeq, String gene, String taxonomy, String taxID,
+			boolean isSwissprot) {
 		this.conflictFeature = conflictFeature;
 		this.wholeOriginalSeq = wholeOriginalSeq;
 		this.name = name;
@@ -25,6 +28,8 @@ public class ProteoFormAdapterFromConflictFeature implements Adapter<Proteoform>
 		this.gene = gene;
 		this.taxonomy = taxonomy;
 		this.originalDescription = originalDescription;
+		this.taxID = taxID;
+		this.isSwissprot = isSwissprot;
 	}
 
 	@Override
@@ -35,7 +40,7 @@ public class ProteoFormAdapterFromConflictFeature implements Adapter<Proteoform>
 		final String description = ProteoformUtil.getDescription(conflictFeature, originalDescription);
 
 		final Proteoform variant = new Proteoform(originalACC, wholeOriginalSeq, id, seq, name, description, gene,
-				taxonomy, ProteoformType.SEQUENCE_CONFLICT);
+				taxonomy, taxID, ProteoformType.SEQUENCE_CONFLICT, isSwissprot);
 		return variant;
 	}
 

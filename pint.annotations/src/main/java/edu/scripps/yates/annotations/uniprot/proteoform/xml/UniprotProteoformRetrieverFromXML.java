@@ -28,6 +28,7 @@ import edu.scripps.yates.utilities.annotations.uniprot.xml.IsoformType;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * It uses the Uniprot local XML files to get the variants of proteins
@@ -80,12 +81,15 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 			UniprotProteinLocalRetriever uplr) {
 		final Map<String, List<Proteoform>> ret = new HashMap<String, List<Proteoform>>();
 		final List<String> uniprotAccList = new ArrayList<String>();
+		final Set<String> uniprotAccSetToQuery = new THashSet<String>();
 		for (final String acc : accs) {
 			final String uniprotAcc = FastaParser.getUniProtACC(acc);
 			if (uniprotAcc != null) {
 				uniprotAccList.add(uniprotAcc);
+				uniprotAccSetToQuery.add(FastaParser.getNoIsoformAccession(uniprotAcc));
+				uniprotAccSetToQuery.add(uniprotAcc);
 			} else {
-				log.debug(acc + " is not Uniprot Acc. Skipping it...");
+				log.debug(acc + " is  not Uniprot Acc. Skipping it...");
 			}
 		}
 		try {
@@ -135,56 +139,61 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 					annotatedProteins.putAll(isoforms);
 				}
 			} else {
-				annotatedProteins = uplr.getAnnotatedProteins(null, uniprotAccList, true, true);
+				annotatedProteins = uplr.getAnnotatedProteins(null, uniprotAccSetToQuery, true, true);
 			}
 			// to not repeat proteoforms
 			final Set<String> accSet = new HashSet<String>();
 
-			for (String acc : uniprotAccList) {
+			for (final String acc : uniprotAccList) {
 				final Map<String, String> isoformSequenceReferences = new HashMap<String, String>();
-				final String isoformVersion = FastaParser.getIsoformVersion(acc);
-				if (isoformVersion != null) {
-					acc = FastaParser.getNoIsoformAccession(acc);
-				}
+
 				if (accSet.contains(acc)) {
 					continue;
 				}
 				accSet.add(acc);
-				if (annotatedProteins.containsKey(acc)) {
+				final String mainFormAcc = FastaParser.getNoIsoformAccession(acc);
+				if (annotatedProteins.containsKey(mainFormAcc)) {
+					final Entry mainEntry = annotatedProteins.get(mainFormAcc);
 					final Entry entry = annotatedProteins.get(acc);
-
 					final String originalSequence = UniprotEntryUtil.getProteinSequence(entry);
 					// original variant
 					if (!ret.containsKey(acc)) {
 						final List<Proteoform> list = new ArrayList<Proteoform>();
 						ret.put(acc, list);
 					}
-					final String description = UniprotEntryUtil.getProteinDescription(entry);
+					final String description = UniprotEntryUtil.getFullFastaHeader(entry);
 					final String name = UniprotEntryUtil.getNames(entry).get(0);
 					final String taxonomy = UniprotEntryUtil.getTaxonomyName(entry);
+					final String taxID = UniprotEntryUtil.getTaxonomyNCBIID(entry);
+					final boolean isSwissprot = UniprotEntryUtil.isSwissProt(entry);
 					final List<Pair<String, String>> genes = UniprotEntryUtil.getGeneName(entry, true, true);
 					String gene = null;
 					if (genes != null && !genes.isEmpty()) {
 						gene = genes.get(0).getFirstelement();
 					}
-					final Proteoform originalvariant = new Proteoform(acc, originalSequence, acc, originalSequence,
-							name, description, gene, taxonomy, ProteoformType.MAIN_ENTRY, true);
-					ret.get(acc).add(originalvariant);
+					Proteoform proteoform = null;
+					if (mainFormAcc.equals(acc)) {
+						proteoform = new Proteoform(acc, originalSequence, acc, originalSequence, name, description,
+								gene, taxonomy, taxID, ProteoformType.MAIN_ENTRY, true, isSwissprot);
+						ret.get(acc).add(proteoform);
+					}
 
 					// query for variants
 					if (retrieveProteoforms) {
-						final List<FeatureType> features = UniprotEntryEBIUtil.getFeatures(entry,
-								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.VARIANT);
+						final List<FeatureType> features = filterFeatures(acc, UniprotEntryEBIUtil.getFeatures(
+								mainEntry, uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.VARIANT));
 						for (final FeatureType feature : features) {
 
 							final Proteoform variant = new ProteoformAdapterFromNaturalVariant(acc, name, description,
-									feature, originalSequence, gene, taxonomy).adapt();
+									feature, originalSequence, gene, taxonomy, taxID, isSwissprot).adapt();
 							ret.get(acc).add(variant);
 						}
 					}
-					if (retrieveIsoforms) {
+					// we enter only if retrieveIsoform is true or if the acc of interest is a
+					// isoform
+					if (retrieveIsoforms || !mainFormAcc.equals(acc)) {
 						// alternative products
-						final List<CommentType> alternativeProductsComments = UniprotEntryEBIUtil.getComments(entry,
+						final List<CommentType> alternativeProductsComments = UniprotEntryEBIUtil.getComments(mainEntry,
 								uk.ac.ebi.kraken.interfaces.uniprot.comments.CommentType.ALTERNATIVE_PRODUCTS);
 						// store isoforms ACCs
 						final Set<String> isoformsACCs = new HashSet<String>();
@@ -212,6 +221,7 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								final String name2 = UniprotEntryUtil.getNames(isoformEntry).get(0);
 								final String description2 = UniprotEntryUtil.getProteinDescription(isoformEntry);
 								final String taxonomy2 = UniprotEntryUtil.getTaxonomyName(isoformEntry);
+								final String taxID2 = UniprotEntryUtil.getTaxonomyNCBIID(isoformEntry);
 								final List<Pair<String, String>> genes2 = UniprotEntryUtil.getGeneName(isoformEntry,
 										true, true);
 								String gene2 = null;
@@ -220,20 +230,24 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 								}
 
 								final Proteoform variant = new Proteoform(acc, originalSequence, isoformACC,
-										isoformSequence, name2, description2, gene2, taxonomy2, ProteoformType.ISOFORM);
-								ret.get(acc).add(variant);
+										isoformSequence, name2, description2, gene2, taxonomy2, taxID2,
+										ProteoformType.ISOFORM, isSwissprot);
+								if (acc.equals(isoformACC)) {
+									proteoform = variant;
+									ret.get(acc).add(variant);
+								} else if (retrieveIsoforms) {
+									ret.get(acc).add(variant);
+								}
+							} else {
+//								log.warn("no sequence for that isoform " + isoformACC);
 							}
 						}
 					}
 					if (retrieveProteoforms) {
 						// sequence conflicts
-						final Collection<FeatureType> conflicts = UniprotEntryEBIUtil.getFeatures(entry,
-								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CONFLICT);
+						final Collection<FeatureType> conflicts = filterFeatures(acc, UniprotEntryEBIUtil.getFeatures(
+								mainEntry, uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CONFLICT));
 						for (final FeatureType feature : conflicts) {
-							if ("In Ref. 3; AK225532.".equals(feature.getDescription())
-									&& "K".equals(feature.getOriginal()) && "P78346".equals(acc)) {
-								log.info("asdf");
-							}
 							// if the feature is referred to an isoform, that is feature/location/sequence
 							// is an isoform accession with version >1, then ignore it because the isoform
 							// variance should have been captured before as isoform
@@ -245,55 +259,59 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 									continue;
 								}
 							}
+
 							final Proteoform variant = new ProteoformAdapterFromConflictFeature(acc, name, description,
-									feature, originalSequence, gene, taxonomy).adapt();
+									feature, originalSequence, gene, taxonomy, taxID, isSwissprot).adapt();
 
 							ret.get(acc).add(variant);
 
 						}
 						// mutagens
-						final Collection<FeatureType> mutagens = UniprotEntryEBIUtil.getFeatures(entry,
-								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.MUTAGEN);
+						final Collection<FeatureType> mutagens = filterFeatures(acc, UniprotEntryEBIUtil.getFeatures(
+								mainEntry, uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.MUTAGEN));
 						for (final FeatureType feature : mutagens) {
 							final Proteoform variant = new ProteoformAdapterFromMutagenFeature(acc, name, description,
-									feature, originalSequence, gene, taxonomy).adapt();
+									feature, originalSequence, gene, taxonomy, taxID, isSwissprot).adapt();
 							ret.get(acc).add(variant);
 						}
 					}
 					// ptms
 					if (retrievePTMs) {
-						final Collection<FeatureType> modifiedResiduesFeatures = UniprotEntryEBIUtil.getFeatures(entry,
-								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.MOD_RES);
+						final Collection<FeatureType> modifiedResiduesFeatures = filterFeatures(acc,
+								UniprotEntryEBIUtil.getFeatures(mainEntry,
+										uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.MOD_RES));
 						for (final FeatureType feature : modifiedResiduesFeatures) {
 							final UniprotPTM uniprotPTM = new UniprotPTMAdapterFromFeature(feature).adapt();
 							if (uniprotPTM != null) {
-								originalvariant.addPTM(uniprotPTM);
+								proteoform.addPTM(uniprotPTM);
 							}
 						}
-						final Collection<FeatureType> siteFeatures = UniprotEntryEBIUtil.getFeatures(entry,
-								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.SITE);
+						final Collection<FeatureType> siteFeatures = filterFeatures(acc, UniprotEntryEBIUtil
+								.getFeatures(mainEntry, uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.SITE));
 						for (final FeatureType feature : siteFeatures) {
 							final UniprotPTM uniprotPTM = new UniprotPTMAdapterFromFeature(feature).adapt();
 							if (uniprotPTM != null) {
-								originalvariant.addPTM(uniprotPTM);
+								proteoform.addPTM(uniprotPTM);
 							}
 						}
-						final Collection<FeatureType> carbohydFeatures = UniprotEntryEBIUtil.getFeatures(entry,
-								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CARBOHYD);
+						final Collection<FeatureType> carbohydFeatures = filterFeatures(acc,
+								UniprotEntryEBIUtil.getFeatures(mainEntry,
+										uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CARBOHYD));
 						for (final FeatureType feature : carbohydFeatures) {
 							final UniprotPTM uniprotPTM = new UniprotPTMAdapterFromCarbohydFeature(feature).adapt();
 							if (uniprotPTM != null) {
-								originalvariant.addPTM(uniprotPTM);
+								proteoform.addPTM(uniprotPTM);
 							}
 						}
-						final Collection<FeatureType> crosslinkFeatures = UniprotEntryEBIUtil.getFeatures(entry,
-								uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CROSSLNK);
+						final Collection<FeatureType> crosslinkFeatures = filterFeatures(acc,
+								UniprotEntryEBIUtil.getFeatures(mainEntry,
+										uk.ac.ebi.kraken.interfaces.uniprot.features.FeatureType.CROSSLNK));
 						for (final FeatureType feature : crosslinkFeatures) {
 							final List<UniprotPTM> uniprotPTMs = new UniprotPTMAdapterFromCrosslinkFeature(feature)
 									.adapt();
 							if (uniprotPTMs != null) {
 								for (final UniprotPTM uniprotPTM : uniprotPTMs) {
-									originalvariant.addPTM(uniprotPTM);
+									proteoform.addPTM(uniprotPTM);
 								}
 
 							}
@@ -302,6 +320,46 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 				}
 			}
 		} finally {
+
+		}
+		return ret;
+
+	}
+
+	/**
+	 * Eliminates {@link FeatureType} that should not be applied to the protein acc
+	 * by looking to the /location/sequence reference, which should correspong to
+	 * the protein acc (if present). In case the /location/sequence reference is
+	 * empty, the feature will be valid only if the protein acc is a main form, not
+	 * an isoform
+	 * 
+	 * @param acc
+	 * @param features
+	 * @return
+	 */
+	private static List<FeatureType> filterFeatures(String acc, List<FeatureType> features) {
+		final boolean isIsoform = FastaParser.getIsoformVersion(acc) != null;
+		final List<FeatureType> ret = new ArrayList<FeatureType>();
+		for (final FeatureType feature : features) {
+			if (feature.getLocation() != null && feature.getLocation().getSequence() != null
+					&& !"".equals(feature.getLocation().getSequence())) {
+				// if the feature refers toa location in a sequence,
+				final String referredAcc = feature.getLocation().getSequence();
+				// only is valid if the reference is the same as the acc we want
+				if (!referredAcc.equals(acc)) {
+					continue;
+				}
+			} else if (isIsoform) {
+				// if the feature doesn't refers to a location in a sequence means that it
+				// refers to the non Isoform form (main form) and then, it is only valid if it
+				// is not an isoform.
+				continue;
+			}
+			if (isIsoform) {
+				log.debug(acc + " has a feature that applies to it: Id=" + feature.getId() + " description="
+						+ feature.getDescription());
+			}
+			ret.add(feature);
 
 		}
 		return ret;
