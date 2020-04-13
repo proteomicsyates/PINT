@@ -1132,7 +1132,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 				validateImportConfigurationFile(projectCfgFileByImportProcessID);
 			}
 			// save project into the database
-			final ImportCfgFileReader importReader = new ImportCfgFileReader();
+			final ImportCfgFileReader importReader = new ImportCfgFileReader(
+					ServerConstants.distinguishModifiedSequences, ServerConstants.distinguishModifiedSequences);
 			// TODO
 			ImportCfgFileReader.ignoreDTASelectParameterT = true;
 			// TODO
@@ -1619,7 +1620,8 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 				for (final File file : files) {
 					if (FilenameUtils.getExtension(file.getAbsolutePath()).equals("xml")) {
 						final String name = FilenameUtils.getName(file.getAbsolutePath());
-						final ImportCfgFileReader reader = new ImportCfgFileReader();
+						final ImportCfgFileReader reader = new ImportCfgFileReader(
+								ServerConstants.distinguishModifiedSequences, ServerConstants.chargeStateSensible);
 						try {
 							final PintImportCfg readCfgFile = reader.readCfgFile(file);
 							ret.put(name, readCfgFile.getProject().getDescription());

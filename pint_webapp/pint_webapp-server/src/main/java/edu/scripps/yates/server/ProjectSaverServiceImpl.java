@@ -81,7 +81,8 @@ public class ProjectSaverServiceImpl extends RemoteServiceServlet implements Pro
 				// it is important to have a new ImportCfgFileReader per
 				// project. Otherwise, the information in local variables can be
 				// mixed between projects
-				ImportCfgFileReader importReader = new ImportCfgFileReader();
+				ImportCfgFileReader importReader = new ImportCfgFileReader(ServerConstants.distinguishModifiedSequences,
+						ServerConstants.chargeStateSensible);
 				final Project projectFromCfgFile = importReader.getProjectFromCfgFile(xmlFile,
 						FileManager.getFastaIndexFolder());
 				log.info(projectFromCfgFile.getName() + " file readed");

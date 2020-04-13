@@ -48,5 +48,8 @@ public class ServerConstants {
 	public static final String PINT_LATEST_DELETED_PROJECTS_FILE = "pint_latest_deleted_projects.txt";
 
 	public static boolean psmCentricByDefault = false;
+	// for peptide collection:
+	public static boolean distinguishModifiedSequences = true;
+	public static boolean chargeStateSensible = true;
 
 }
