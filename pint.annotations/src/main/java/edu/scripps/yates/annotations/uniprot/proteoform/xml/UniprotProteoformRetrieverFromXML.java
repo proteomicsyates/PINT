@@ -239,7 +239,8 @@ public class UniprotProteoformRetrieverFromXML implements UniprotProteoformRetri
 							// variance should have been captured before as isoform
 							if (feature.getLocation() != null && feature.getLocation().getSequence() != null
 									&& !"".equals(feature.getLocation().getSequence())) {
-								String isoVersion = FastaParser.getIsoformVersion(feature.getLocation().getSequence());
+								final String isoVersion = FastaParser
+										.getIsoformVersion(feature.getLocation().getSequence());
 								if (isoVersion != null && Integer.valueOf(isoVersion) > 1) {
 									continue;
 								}
