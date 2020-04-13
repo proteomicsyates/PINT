@@ -27,18 +27,22 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 	private final ExcelFileReader excelFileReader;
 	private final MSRun msRun;
 	private final Condition condition;
+	private final boolean distinguishModifiedSequence;
+	private final boolean chargeStateSensible;
 
 	// private static final Map<String, TIntObjectHashMap< Set<PSM>>>
 	// psmsByMSRunAndRowIndex = new THashMap<String, TIntObjectHashMap<
 	// Set<PSM>>>();
 
 	public PSMAdapterByExcel(int rowIndex, IdentificationExcelType excelCfg, ExcelFileReader excelFileReader,
-			MSRun msRun, Condition condition) {
+			MSRun msRun, Condition condition, boolean distinguishModifiedSequence, boolean chargeStateSensible) {
 		this.rowIndex = rowIndex;
 		this.excelCfg = excelCfg;
 		this.excelFileReader = excelFileReader;
 		this.msRun = msRun;
 		this.condition = condition;
+		this.distinguishModifiedSequence = distinguishModifiedSequence;
+		this.chargeStateSensible = chargeStateSensible;
 	}
 
 	@Override
@@ -77,7 +81,8 @@ public class PSMAdapterByExcel implements Adapter<PSM> {
 			} else if (StaticProteomicsModelStorage.containsPSM(msRun.getRunId(), null, -1, psmId)) {
 				psm = StaticProteomicsModelStorage.getPSM(msRun.getRunId(), null, -1, psmId).iterator().next();
 			} else {
-				psm = new PSMEx(psmId, cleanPsmSequence, rawPsmSequence);
+				psm = new PSMEx(psmId, cleanPsmSequence, rawPsmSequence, distinguishModifiedSequence,
+						chargeStateSensible);
 				psm.setMSRun(msRun);
 
 				// psmMap.put(psmId, psm);

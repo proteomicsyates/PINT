@@ -53,6 +53,8 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	private final Sample sample;
 	// this is the MSRun that will be used to assign to PSMs
 	private MSRun psmsMSRun;
+	private final boolean distinguishModifiedSequence;
+	private final boolean chargeStateSensible;
 
 	// in order to take the same protein for different psms
 	// private final static Map<String, Map<String, ProteinEx>>
@@ -75,7 +77,8 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 	 * @param organism
 	 */
 	public ProteinsAdapterByExcel(IdentificationExcelType excelTypeCfg, ExcelFileReader excelFileReader,
-			Condition expCondition, Collection<MsRunType> msRuns, Sample sample, Project project) {
+			Condition expCondition, Collection<MsRunType> msRuns, Sample sample, Project project,
+			boolean distinguishModifiedSequence, boolean chargeStateSensible) {
 		excelCfg = excelTypeCfg;
 		this.excelFileReader = excelFileReader;
 		this.expCondition = expCondition;
@@ -88,6 +91,8 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 			}
 		}
 		this.sample = sample;
+		this.distinguishModifiedSequence = distinguishModifiedSequence;
+		this.chargeStateSensible = chargeStateSensible;
 	}
 
 	@Override
@@ -227,8 +232,8 @@ public class ProteinsAdapterByExcel implements edu.scripps.yates.utilities.patte
 					// we do not create a PSM until the end of the process
 					if (excelCfg.getPsmId() != null) {
 						// get the psms
-						psm = new PSMAdapterByExcel(rowIndex, excelCfg, excelFileReader, psmsMSRun, expCondition)
-								.adapt();
+						psm = new PSMAdapterByExcel(rowIndex, excelCfg, excelFileReader, psmsMSRun, expCondition,
+								distinguishModifiedSequence, chargeStateSensible).adapt();
 					}
 					if (psm != null) {
 						// add the psm to the proteins

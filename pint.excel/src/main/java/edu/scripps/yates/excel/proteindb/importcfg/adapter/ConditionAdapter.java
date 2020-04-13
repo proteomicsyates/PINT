@@ -58,10 +58,13 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	private static final Map<String, Condition> conditionsById = new THashMap<String, Condition>();
 
 	private final Set<String> thereIsProteinSetReferenceFromExcelByMSRunID = new THashSet<String>();
+	private final boolean distinguishModifiedSequence;
+	private final boolean chargeStateSensible;
 
 	public ConditionAdapter(ExperimentalConditionType expConditionCfg, MsRunsType msRunsType,
 			ExperimentalDesignType experimentalDesignCfg, OrganismSetType organismTypeCfg, Project project,
-			ExcelFileReader excelReader, RemoteFileReader remoteFileReader) {
+			ExcelFileReader excelReader, RemoteFileReader remoteFileReader, boolean distinguishModifiedSequence,
+			boolean chargeStateSensible) {
 		this.expConditionCfg = expConditionCfg;
 		this.experimentalDesignCfg = experimentalDesignCfg;
 		this.project = project;
@@ -69,6 +72,8 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 		this.remoteFileReader = remoteFileReader;
 		msRunsCfg = msRunsType;
 		this.organismTypeCfg = organismTypeCfg;
+		this.distinguishModifiedSequence = distinguishModifiedSequence;
+		this.chargeStateSensible = chargeStateSensible;
 	}
 
 	@Override
@@ -116,7 +121,8 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 					final List<String> msRunIDs = msRunCfgs.stream().map(msRunType -> msRunType.getId())
 							.collect(Collectors.toList());
 					final ProteinsAdapterByExcel proteinsAdapterByExcel = new ProteinsAdapterByExcel(excelInfo,
-							excelFileReader, ret, msRunCfgs, sample, project);
+							excelFileReader, ret, msRunCfgs, sample, project, distinguishModifiedSequence,
+							chargeStateSensible);
 					final Set<Protein> proteins = proteinsAdapterByExcel.adapt();
 					log.info(proteins.size() + " proteins from MS RUN(s): " + excelInfo.getMsRunRef());
 

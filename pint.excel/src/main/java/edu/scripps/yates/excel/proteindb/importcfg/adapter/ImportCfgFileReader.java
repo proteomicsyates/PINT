@@ -112,13 +112,17 @@ public class ImportCfgFileReader {
 	public static final String SINGLETON_INTENSITY_RATIO = "Singleton intensity ratio";
 	private final Map<String, Set<Protein>> proteinMap = new THashMap<String, Set<Protein>>();
 	private Pattern discardDecoyRegexp;
+	private final boolean distinguishModifiedSequence;
+	private final boolean chargeStateSensible;
 
 	public static boolean ALLOW_PROTEINS_IN_EXCEL_NOT_FOUND_BEFORE = false;
 
 	// JUST FOR TESTING:
 	public static boolean ignoreNotFoundProteins = false;
 
-	public ImportCfgFileReader() {
+	public ImportCfgFileReader(boolean distinguishModifiedSequence, boolean chargeStateSensible) {
+		this.distinguishModifiedSequence = distinguishModifiedSequence;
+		this.chargeStateSensible = chargeStateSensible;
 		try {
 			jaxbContext = JAXBContext.newInstance("edu.scripps.yates.excel.proteindb.importcfg.jaxb");
 		} catch (final JAXBException e) {
@@ -269,7 +273,7 @@ public class ImportCfgFileReader {
 				.getExperimentalCondition()) {
 			final ConditionAdapter conditionAdapter = new ConditionAdapter(expConditionCfg, msRuns,
 					projectCfg.getExperimentalDesign(), projectCfg.getExperimentalDesign().getOrganismSet(), project,
-					excelReader, remoteFileReader);
+					excelReader, remoteFileReader, distinguishModifiedSequence, chargeStateSensible);
 			final Condition condition = conditionAdapter.adapt();
 			conditionsByConditionID.put(condition.getName(), condition);
 			project.getConditions().add(condition);
@@ -296,7 +300,8 @@ public class ImportCfgFileReader {
 						if (map.containsKey(key)) {
 							psm = map.get(key);
 						} else {
-							psm = new PSMEx("PSM" + psmIDNumber++, peptide.getSequence(), peptide.getFullSequence());
+							psm = new PSMEx("PSM" + psmIDNumber++, peptide.getSequence(), peptide.getFullSequence(),
+									isDistinguishModifiedSequence(), isChargeStateSensible());
 							map.put(key, psm);
 						}
 						psm.setMSRun(msRun2);
@@ -2428,6 +2433,14 @@ public class ImportCfgFileReader {
 		// PeptideAdapterByExcel.clearStaticInformationByRow();
 
 		StaticProteomicsModelStorage.clearData();
+	}
+
+	public boolean isDistinguishModifiedSequence() {
+		return distinguishModifiedSequence;
+	}
+
+	public boolean isChargeStateSensible() {
+		return chargeStateSensible;
 	}
 
 }
