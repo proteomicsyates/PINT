@@ -435,15 +435,7 @@ public class Pint implements EntryPoint {
 				GWT.log("HISTORY VALUE: " + historyToken);
 				// Parse the history token
 				if (historyToken.contains(TargetHistory.QUERY.getTargetHistory())) {
-//					GWT.runAsync(new RunAsyncCallback() {
-//
-//						@Override
-//						public void onFailure(Throwable reason) {
-//							StatusReportersRegister.getInstance().notifyStatusReporters(reason);
-//						}
-//
-//						@Override
-//						public void onSuccess() {
+ 
 					// queryPanel is suppose to be already created
 					if (queryPanel == null || queryPanel.getLoadedProjects().isEmpty()) {
 						final PopUpPanelRedirector popup = new PopUpPanelRedirector(true, true, true,
