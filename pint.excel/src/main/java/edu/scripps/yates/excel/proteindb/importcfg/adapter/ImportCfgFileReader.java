@@ -120,6 +120,10 @@ public class ImportCfgFileReader {
 	// JUST FOR TESTING:
 	public static boolean ignoreNotFoundProteins = false;
 
+	public ImportCfgFileReader() {
+		this(true, true);
+	}
+
 	public ImportCfgFileReader(boolean distinguishModifiedSequence, boolean chargeStateSensible) {
 		this.distinguishModifiedSequence = distinguishModifiedSequence;
 		this.chargeStateSensible = chargeStateSensible;
