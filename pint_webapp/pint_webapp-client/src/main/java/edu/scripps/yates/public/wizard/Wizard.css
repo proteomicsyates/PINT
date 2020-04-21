@@ -152,6 +152,9 @@
 	white-space: pre-line;
 }
 
+	
+
+
 .wizard-Button {
   margin: 0;
   padding: 5px 7px;
@@ -288,6 +291,12 @@
 	color: grey;
 }
 .wizardFormTextLabel{
+	font-size: 1.2em;
+	font-family: Circular,arial,sans-serif;
+	white-space: nowrap;
+}
+.wizardFormTextLabelDisabled{
+	color: #91b8b3;
 	font-size: 1.2em;
 	font-family: Circular,arial,sans-serif;
 	white-space: nowrap;
