@@ -701,9 +701,10 @@ public class UniprotProteinRemoteRetriever {
 		final UniprotFastaRetrieverFromUniprotIsoformFastaFile ufrfuiff = new UniprotFastaRetrieverFromUniprotIsoformFastaFile(
 				uniprotReleasesFolder, uniprotVersion);
 		final Map<String, Entry> run = ufrfuiff.run();
+
 		final Map<String, Entry> ret = new THashMap<String, Entry>();
 		for (final String acc : isoformAccs) {
-			if (run.containsKey(acc)) {
+			if (run != null && run.containsKey(acc)) {
 				ret.put(acc, run.get(acc));
 			} else {
 				final String isoformVersion = FastaParser.getIsoformVersion(acc);
