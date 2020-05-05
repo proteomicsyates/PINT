@@ -42,6 +42,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Sample;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.AmountEx;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.ConditionEx;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.utils.KeyUtils;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -150,7 +151,10 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 						final Set<Peptide> peptides = protein.getPeptides();
 						if (peptides != null) {
 							for (final Peptide peptide : peptides) {
-								StaticProteomicsModelStorage.addPeptide(peptide, msRunIDs, expConditionCfg.getId());
+								final String peptideKey = KeyUtils.getInstance().getSequenceChargeKey(peptide, true,
+										true);
+								StaticProteomicsModelStorage.addPeptide(peptide, msRunIDs, expConditionCfg.getId(),
+										peptideKey);
 								ret.addPeptide(peptide);
 								peptide.addCondition(ret);
 							}
@@ -205,7 +209,9 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 						}
 						final Set<Peptide> peptides = protein.getPeptides();
 						for (final Peptide peptide : peptides) {
-							StaticProteomicsModelStorage.addPeptide(peptide, msRunIDs, expConditionCfg.getId());
+							final String peptideKey = KeyUtils.getInstance().getSequenceChargeKey(peptide, true, true);
+							StaticProteomicsModelStorage.addPeptide(peptide, msRunIDs, expConditionCfg.getId(),
+									peptideKey);
 							ret.addPeptide(peptide);
 						}
 					}
@@ -222,7 +228,9 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 						final Set<Peptide> peptides = protein.getPeptides();
 						for (final Peptide peptide : peptides) {
 							ret.addPeptide(peptide);
-							StaticProteomicsModelStorage.addPeptide(peptide, msRunIDs, expConditionCfg.getId());
+							final String peptideKey = KeyUtils.getInstance().getSequenceChargeKey(peptide, true, true);
+							StaticProteomicsModelStorage.addPeptide(peptide, msRunIDs, expConditionCfg.getId(),
+									peptideKey);
 						}
 					}
 				}

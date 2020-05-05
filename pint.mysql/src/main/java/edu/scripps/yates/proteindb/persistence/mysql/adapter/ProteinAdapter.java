@@ -234,18 +234,18 @@ public class ProteinAdapter implements Adapter<Protein>, Serializable {
 			// PSMs and Proteins
 			final List<PSM> psms = protein.getPSMs();
 			if (psms != null) {
-				final Map<String, Set<PSM>> psmMapBySequence = ModelUtils.getPSMMapBySequence(psms);
+				final Map<String, Set<PSM>> psmMapByKey = ModelUtils.getPSMMapBySequence(psms, true, true);
 
-				for (final String sequence : psmMapBySequence.keySet()) {
-					final Set<PSM> psmsWithThatSequence = psmMapBySequence.get(sequence);
+				for (final String sequenceKey : psmMapByKey.keySet()) {
+					final Set<PSM> psmsWithThatSequence = psmMapByKey.get(sequenceKey);
 					Peptide peptide = null;
-					if (StaticProteomicsModelStorage.containsPeptide(msRuns, null, sequence)) {
-						peptide = StaticProteomicsModelStorage.getSinglePeptide(msRuns, null, sequence);
+					if (StaticProteomicsModelStorage.containsPeptide(msRuns, null, sequenceKey)) {
+						peptide = StaticProteomicsModelStorage.getSinglePeptide(msRuns, null, sequenceKey);
 					} else {
 						// create the peptide
-						peptide = new PeptideEx(sequence);
+						peptide = new PeptideEx(sequenceKey, sequenceKey);
 
-						StaticProteomicsModelStorage.addPeptide(peptide, msRuns, null);
+						StaticProteomicsModelStorage.addPeptide(peptide, msRuns, null, sequenceKey);
 					}
 					peptide.addProtein(protein, true);
 					// add the relationships with the psms

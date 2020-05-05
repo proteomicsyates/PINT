@@ -62,10 +62,11 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 			// }
 
 			Peptide peptide = null;
-			if (StaticProteomicsModelStorage.containsPeptide(msRuns, null, sequenceInBetween)) {
-				peptide = StaticProteomicsModelStorage.getSinglePeptide(msRuns, null, sequenceInBetween);
+			final String peptideKey = rawPeptideSequence;
+			if (StaticProteomicsModelStorage.containsPeptide(msRuns, null, peptideKey)) {
+				peptide = StaticProteomicsModelStorage.getSinglePeptide(msRuns, null, peptideKey);
 			} else {
-				peptide = new PeptideEx(rawPeptideSequence);
+				peptide = new PeptideEx(rawPeptideSequence, peptideKey);
 				// peptideMap.put(cleanPeptideSequence, peptide);
 			}
 			for (final MSRun msRun2 : msRuns) {
@@ -74,7 +75,7 @@ public class PeptideAdapterByExcel implements Adapter<Peptide> {
 
 			peptide.addCondition(condition);
 			// addPeptideByRowIndex(rowIndex, peptide);
-			StaticProteomicsModelStorage.addPeptide(peptide, msRuns, condition.getName(), rowIndex);
+			StaticProteomicsModelStorage.addPeptide(peptide, msRuns, condition.getName(), rowIndex, peptideKey);
 			// ratios
 			// DISABLED SINCE THE RATIOS ARE ASSIGNED TO THE PSMs ON
 			// ImportCfgFileReader

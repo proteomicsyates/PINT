@@ -35,6 +35,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.OrganismEx;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.utils.KeyUtils;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -206,7 +207,8 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 					final Set<Peptide> peptides = protein.getPeptides();
 					if (peptides != null) {
 						for (final Peptide peptide : peptides) {
-							StaticProteomicsModelStorage.addPeptide(peptide, msruns, condition.getName());
+							final String peptideKey = KeyUtils.getInstance().getSequenceChargeKey(peptide, true, true);
+							StaticProteomicsModelStorage.addPeptide(peptide, msruns, condition.getName(), peptideKey);
 							peptide.addCondition(condition);
 						}
 					}
@@ -237,7 +239,8 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 				final Set<Peptide> peptides = protein.getPeptides();
 				if (peptides != null) {
 					for (final Peptide peptide : peptides) {
-						StaticProteomicsModelStorage.addPeptide(peptide, msruns, condition.getName());
+						final String peptideKey = KeyUtils.getInstance().getSequenceChargeKey(peptide, true, true);
+						StaticProteomicsModelStorage.addPeptide(peptide, msruns, condition.getName(), peptideKey);
 						peptide.addCondition(condition);
 					}
 				}
