@@ -24,7 +24,7 @@ public class Scramble_project {
 	@Test
 	public void Scramble_projectSaveTest() throws IOException {
 		File file = new ClassPathResource("CFTR_Scramble.xml").getFile();
-		ImportCfgFileReader importReader = new ImportCfgFileReader();
+		ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
 		ImportCfgFileReader.ignoreDTASelectParameterT = true;
 		final Project projectFromCfgFile = importReader.getProjectFromCfgFile(file, null);
 		final int numProteins = projectFromCfgFile.getConditions().iterator().next().getProteins().size();

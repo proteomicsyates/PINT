@@ -14,8 +14,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Project;
 public class TinnyTestProject {
 	@Before
 	public void setAnnotationsIndex() {
-		UniprotProteinRetrievalSettings.getInstance(new File(
-				"C:\\Users\\Salva\\Desktop\\tmp\\PInt\\uniprot"), true);
+		UniprotProteinRetrievalSettings.getInstance(new File("C:\\Users\\Salva\\Desktop\\tmp\\PInt\\uniprot"), true);
 
 	}
 
@@ -23,9 +22,8 @@ public class TinnyTestProject {
 	public void tinny_Test_Project_save() {
 
 		String cfgFilePath = "C:\\Users\\Salva\\Desktop\\data\\PINT projects\\test_tinny_project\\tinny project.xml";
-		ImportCfgFileReader importReader = new ImportCfgFileReader();
-		final Project project = importReader.getProjectFromCfgFile(new File(
-				cfgFilePath), null);
+		ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
+		final Project project = importReader.getProjectFromCfgFile(new File(cfgFilePath), null);
 		ContextualSessionHandler.beginGoodTransaction();
 		new MySQLSaver().saveProject(project);
 

@@ -22,7 +22,7 @@ public class GCProjectSave {
 
 	@Test
 	public void GCProjectSaveTest() {
-		ImportCfgFileReader importReader = new ImportCfgFileReader();
+		ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
 		final Project projectFromCfgFile = importReader.getProjectFromCfgFile(new File(cfgFilePath), null);
 		ContextualSessionHandler.beginGoodTransaction();
 		new MySQLSaver().saveProject(projectFromCfgFile);

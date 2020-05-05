@@ -27,7 +27,7 @@ public class NavinsProjectSave {
 
 	@Test
 	public void navinsProjectSaveTestData() {
-		ImportCfgFileReader importReader = new ImportCfgFileReader();
+		ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
 		final Project projectFromCfgFile = importReader.getProjectFromCfgFile(new File(cfgFilePath), null);
 		for (Condition condition : projectFromCfgFile.getConditions()) {
 			if (condition.getName().equals("WT")) {
@@ -86,7 +86,7 @@ public class NavinsProjectSave {
 
 	@Test
 	public void navinsProjectSave() {
-		ImportCfgFileReader importReader = new ImportCfgFileReader();
+		ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
 		final Project projectFromCfgFile = importReader.getProjectFromCfgFile(new File(cfgFilePath), null);
 		ContextualSessionHandler.beginGoodTransaction();
 		new MySQLSaver().saveProject(projectFromCfgFile);

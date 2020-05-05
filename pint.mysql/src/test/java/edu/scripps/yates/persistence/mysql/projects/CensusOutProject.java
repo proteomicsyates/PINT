@@ -34,7 +34,7 @@ public class CensusOutProject {
 
 	@Test
 	public void save1() {
-		ImportCfgFileReader importReader = new ImportCfgFileReader();
+		ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
 		final Project projectFromCfgFile = importReader.getProjectFromCfgFile(new File(cfgFilePath), null);
 		ContextualSessionHandler.beginGoodTransaction();
 		new MySQLSaver().saveProject(projectFromCfgFile);
@@ -45,7 +45,7 @@ public class CensusOutProject {
 
 	@Test
 	public void save2() {
-		ImportCfgFileReader importReader = new ImportCfgFileReader();
+		ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
 		final Project projectFromCfgFile = importReader.getProjectFromCfgFile(new File(cfgFilePath2), null);
 		ContextualSessionHandler.beginGoodTransaction();
 		new MySQLSaver().saveProject(projectFromCfgFile);

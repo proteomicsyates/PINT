@@ -21,7 +21,7 @@ public class TG_x_linksProjectSave {
 
 	@Test
 	public void TG_x_linksProjectSave() {
-		ImportCfgFileReader importReader = new ImportCfgFileReader();
+		ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
 		final Project projectFromCfgFile = importReader.getProjectFromCfgFile(new File(cfgFilePath), null);
 		ContextualSessionHandler.beginGoodTransaction();
 		new MySQLSaver().saveProject(projectFromCfgFile);

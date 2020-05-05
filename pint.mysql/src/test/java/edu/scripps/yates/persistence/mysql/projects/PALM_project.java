@@ -16,17 +16,15 @@ public class PALM_project {
 
 	@Before
 	public void defineUniprotAnnotationSettings() {
-		UniprotProteinRetrievalSettings.getInstance(new File(
-				"C:\\Users\\Salva\\Desktop\\tmp\\PInt\\uniprot"), true);
+		UniprotProteinRetrievalSettings.getInstance(new File("C:\\Users\\Salva\\Desktop\\tmp\\PInt\\uniprot"), true);
 	}
 
 	@Test
 	public void PALM_projectSaveTest() {
 
-		ImportCfgFileReader importReader = new ImportCfgFileReader();
+		ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
 		importReader.ignoreDTASelectParameterT = true;
-		final Project projectFromCfgFile = importReader.getProjectFromCfgFile(
-				new File(cfgFilePath), null);
+		final Project projectFromCfgFile = importReader.getProjectFromCfgFile(new File(cfgFilePath), null);
 		ContextualSessionHandler.beginGoodTransaction();
 		new MySQLSaver().saveProject(projectFromCfgFile);
 

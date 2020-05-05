@@ -45,7 +45,7 @@ public class Fmr_silam {
 	public void fmrSilam_Project_save() {
 		ImportCfgFileReader.ALLOW_PROTEINS_IN_EXCEL_NOT_FOUND_BEFORE = true;
 		final String cfgFilePath = "C:\\Users\\Salva\\Desktop\\data\\PINT projects\\Silam\\fmr_silam - forTest.xml";
-		final ImportCfgFileReader importReader = new ImportCfgFileReader();
+		final ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
 		final Project project = importReader.getProjectFromCfgFile(new File(cfgFilePath), null);
 		ContextualSessionHandler.beginGoodTransaction();
 		new MySQLSaver().saveProject(project);
@@ -58,7 +58,7 @@ public class Fmr_silam {
 	public void fmrSilam_Project() {
 		ImportCfgFileReader.ignoreUniprotAnnotations = true;
 		final String cfgFilePath = "C:\\Users\\Salva\\Desktop\\data\\PINT projects\\Silam\\fmr_silam - forTest.xml";
-		final ImportCfgFileReader importReader = new ImportCfgFileReader();
+		final ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
 		final Project project = importReader.getProjectFromCfgFile(new File(cfgFilePath), null);
 		final Set<Condition> conditions = project.getConditions();
 		final Set<Protein> ret = new THashSet<Protein>();

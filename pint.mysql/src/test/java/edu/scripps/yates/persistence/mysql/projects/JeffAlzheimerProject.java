@@ -476,6 +476,7 @@ public class JeffAlzheimerProject {
 
 	private enum Model {
 		N5("N5"), PDAPP("PD");
+
 		String name;
 
 		Model(String name) {
@@ -1133,7 +1134,7 @@ public class JeffAlzheimerProject {
 
 			for (final File file3 : listofFiles) {
 
-				final ImportCfgFileReader r = new ImportCfgFileReader();
+				final ImportCfgFileReader r = new ImportCfgFileReader(true, true);
 				final Project projectFromCfgFile = r.getProjectFromCfgFile(file3, null);
 
 				final Set<Protein> proteins = projectFromCfgFile.getConditions().iterator().next().getProteins();
@@ -1200,7 +1201,7 @@ public class JeffAlzheimerProject {
 			ImportCfgFileReader.ignoreDTASelectParameterT = true;
 			final File file = new File(
 					"C:\\Users\\Salva\\Desktop\\data\\PINT projects\\Alzheimer dataset Jeff\\Alzheimer_ad_pre_ctx - Tinny.xml");
-			final ImportCfgFileReader r = new ImportCfgFileReader();
+			final ImportCfgFileReader r = new ImportCfgFileReader(true, true);
 			final Project projectFromCfgFile = r.getProjectFromCfgFile(file, null);
 			final MySQLSaver saver = new MySQLSaver();
 

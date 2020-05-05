@@ -14,8 +14,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Project;
 public class IsotopologuesReferenceDataSetSave {
 	@Before
 	public void defineUniprotAnnotationSettings() {
-		UniprotProteinRetrievalSettings.getInstance(new File(
-				"C:\\Users\\Salva\\Desktop\\tmp\\PInt\\uniprot"), true);
+		UniprotProteinRetrievalSettings.getInstance(new File("C:\\Users\\Salva\\Desktop\\tmp\\PInt\\uniprot"), true);
 
 	}
 
@@ -23,9 +22,8 @@ public class IsotopologuesReferenceDataSetSave {
 	public void referencedataSetSave() {
 
 		String cfgFilePath = "C:\\Users\\Salva\\Desktop\\tmp\\PInt\\xml\\HEK_TlLh.xml";
-		ImportCfgFileReader importReader = new ImportCfgFileReader();
-		final Project project = importReader.getProjectFromCfgFile(new File(
-				cfgFilePath), null);
+		ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
+		final Project project = importReader.getProjectFromCfgFile(new File(cfgFilePath), null);
 
 		// look for singleton psms
 		IsotopologuesTestUtils.lookForsingletonPSMS(project);
@@ -34,8 +32,7 @@ public class IsotopologuesReferenceDataSetSave {
 		IsotopologuesTestUtils.lookForPSMsWithRatios(project);
 		// look for repeated psms (same psm id), but belonging to different
 		// conditions
-		IsotopologuesTestUtils
-				.lookForRepeatedPSMsBelongingToDifferentConditions(project);
+		IsotopologuesTestUtils.lookForRepeatedPSMsBelongingToDifferentConditions(project);
 
 		ContextualSessionHandler.beginGoodTransaction();
 		new MySQLSaver().saveProject(project);

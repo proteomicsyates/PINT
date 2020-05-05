@@ -36,7 +36,7 @@ public class TripleLabelingProjectSave {
 
 	@Test
 	public void projectSave() {
-		final ImportCfgFileReader importReader = new ImportCfgFileReader();
+		final ImportCfgFileReader importReader = new ImportCfgFileReader(true, true);
 		Project project;
 		try {
 			project = importReader.getProjectFromCfgFile(new ClassPathResource(cfgFileName).getFile(), null);
