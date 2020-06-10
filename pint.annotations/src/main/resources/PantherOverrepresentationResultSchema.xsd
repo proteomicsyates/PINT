@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created with Liquid Technologies Online Tools 1.0 (https://www.liquid-technologies.com) -->
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="overrepresentation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="test_type" type="xs:string" />
+        <xs:element name="annotation_type" type="xs:string" />
+        <xs:element name="tool_release_date" type="xs:unsignedInt" />
+        <xs:element name="data_version_release_date" type="xs:string" />
+        <xs:element name="correction" type="xs:string" />
+        <xs:element name="reference">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="reference_organism" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="upload_lists">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="input_list">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="list_name" type="xs:string" />
+                    <xs:element name="organism" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element maxOccurs="unbounded" name="group">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="result">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="term">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="id" type="xs:string" />
+                          <xs:element name="level" type="xs:unsignedByte" />
+                          <xs:element name="label" type="xs:string" />
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="number_in_reference" type="xs:unsignedShort" />
+                    <xs:element name="input_list">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="list_name" type="xs:string" />
+                          <xs:element name="number_in_list" type="xs:unsignedByte" />
+                          <xs:element name="expected" type="xs:decimal" />
+                          <xs:element name="plus_minus" type="xs:string" />
+                          <xs:element name="pValue" type="xs:double" />
+                          <xs:element name="fold_enrichment" type="xs:decimal" />
+                          <xs:element name="fdr" type="xs:double" />
+                          <xs:element name="mapped_id_list">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element maxOccurs="unbounded" name="mapped_id" type="xs:string" />
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -10,7 +10,7 @@
 	<property name="packagename" value="edu.scripps.yates.uniprot.xml" />
 	<property name="packagename_omim" value="edu.scripps.yates.uniprot.omim.xml" />
 	<property name="packagename_peptidematch" value="edu.scripps.yates.uniprot.peptidematch.xml" />
-	
+	<property name="packagename_panther" value="edu.scripps.yates.annotations.panther.overrepresentation.xml" />
 	<property name="packagename_uniref" value="edu.scripps.yates.uniprot.uniref.xml" />
 	
 	<property name="dirName" value="edu/scripps/yates/proteindb/uniprot/xml" />
@@ -32,6 +32,11 @@
 		<path location="${mockito.library}" />
 		<path location="${libraries_path}" />
 	</path>
+	<property name="panther.schema.location" value="../src/main/resources/PantherOverrepresentationResultSchema.xsd"/>
+			<path id="testlib">
+			<path location="${mockito.library}" />
+			<path location="${libraries_path}" />
+		</path>
 	<property name="uniref.schema.location" value="../src/main/resources/uniref.xsd"/>
 		<path id="testlib">
 		<path location="${mockito.library}" />
@@ -66,7 +71,9 @@
 	<target name="proteintlas" description="Produces java classes from peptidematch xml xchema">
 				<xjc schema="${peptidematch.schema.location}" destdir="${src.java}" package="${packagename_peptidematch}" />
 		</target>
-	
+	<target name="panther" description="Produces java classes from panther xml xchema">
+					<xjc schema="${panther.schema.location}" destdir="${src.java}" package="${packagename_panther}" />
+			</target>
 	<target name="clean-spectrum-generation">
 			<delete>
 				<fileset dir="${dirName}">
