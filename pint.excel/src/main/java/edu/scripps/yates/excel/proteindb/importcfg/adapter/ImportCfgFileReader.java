@@ -25,6 +25,7 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.census.analysis.QuantCondition;
+import edu.scripps.yates.census.read.QuantParserException;
 import edu.scripps.yates.census.read.model.CensusRatio;
 import edu.scripps.yates.census.read.model.Ion;
 import edu.scripps.yates.census.read.model.IsobaricQuantifiedPSM;
@@ -207,12 +208,13 @@ public class ImportCfgFileReader {
 	 * @return
 	 * @throws IOException
 	 * @throws URISyntaxException
+	 * @throws QuantParserException
 	 */
 	// this method is synchonized in order to keep other threads waiting and
 	// therefore, avoid potential errors due to the use and the clearing of the
 	// static information
 	private synchronized Project getProjectFromCfgFile(PintImportCfgType cfg, File fastaIndexFolder)
-			throws IOException, URISyntaxException {
+			throws IOException, URISyntaxException, QuantParserException {
 		log.info("Clearing static Quant information");
 		StaticQuantMaps.clearInfo();
 		StaticProteomicsModelStorage.clearData();
@@ -796,7 +798,7 @@ public class ImportCfgFileReader {
 
 	}
 
-	private void createRatios(RatiosType ratiosCfg, Project project) throws IOException {
+	private void createRatios(RatiosType ratiosCfg, Project project) throws IOException, QuantParserException {
 		if (ratiosCfg != null) {
 			if (ratiosCfg.getProteinAmountRatios() != null) {
 				createProteinRatios(ratiosCfg.getProteinAmountRatios(), project);
@@ -810,7 +812,8 @@ public class ImportCfgFileReader {
 		}
 	}
 
-	private void createPSMRatios(PsmRatiosType psmAmountRatios, Project project) throws IOException {
+	private void createPSMRatios(PsmRatiosType psmAmountRatios, Project project)
+			throws IOException, QuantParserException {
 		if (psmAmountRatios != null) {
 			if (psmAmountRatios.getExcelRatio() != null && !psmAmountRatios.getExcelRatio().isEmpty()) {
 				createPSMRatiosFromExcel(psmAmountRatios.getExcelRatio(), project);
@@ -821,7 +824,8 @@ public class ImportCfgFileReader {
 		}
 	}
 
-	private void createPeptideRatios(PeptideRatiosType peptideAmountRatios, Project project) throws IOException {
+	private void createPeptideRatios(PeptideRatiosType peptideAmountRatios, Project project)
+			throws IOException, QuantParserException {
 		if (peptideAmountRatios != null) {
 			if (peptideAmountRatios.getExcelRatio() != null && !peptideAmountRatios.getExcelRatio().isEmpty()) {
 				createPeptideRatiosFromExcel(peptideAmountRatios.getExcelRatio(), project);
@@ -858,8 +862,10 @@ public class ImportCfgFileReader {
 	 * @param remoteFileRatiosCfg
 	 * @param msRunsCfg
 	 * @throws IOException
+	 * @throws QuantParserException
 	 */
-	private void createPeptideRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) throws IOException {
+	private void createPeptideRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg)
+			throws IOException, QuantParserException {
 		if (remoteFileRatiosCfg != null) {
 			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
@@ -1148,7 +1154,8 @@ public class ImportCfgFileReader {
 
 	}
 
-	private void createPSMRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) throws IOException {
+	private void createPSMRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg)
+			throws IOException, QuantParserException {
 		if (remoteFileRatiosCfg != null) {
 			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
@@ -1443,7 +1450,8 @@ public class ImportCfgFileReader {
 		return ret;
 	}
 
-	private void createProteinRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg) throws IOException {
+	private void createProteinRatiosFromRemoteFile(List<RemoteFilesRatioType> remoteFileRatiosCfg)
+			throws IOException, QuantParserException {
 		if (remoteFileRatiosCfg != null) {
 			for (final RemoteFilesRatioType remoteFilesRatioType : remoteFileRatiosCfg) {
 
@@ -1795,7 +1803,8 @@ public class ImportCfgFileReader {
 		return ret.get(0);
 	}
 
-	private void createProteinRatios(ProteinRatiosType proteinAmountRatios, Project project) throws IOException {
+	private void createProteinRatios(ProteinRatiosType proteinAmountRatios, Project project)
+			throws IOException, QuantParserException {
 		if (proteinAmountRatios != null && proteinAmountRatios.getExcelRatio() != null
 				&& !proteinAmountRatios.getExcelRatio().isEmpty()) {
 			createProteinRatiosFromExcel(proteinAmountRatios.getExcelRatio(), project);

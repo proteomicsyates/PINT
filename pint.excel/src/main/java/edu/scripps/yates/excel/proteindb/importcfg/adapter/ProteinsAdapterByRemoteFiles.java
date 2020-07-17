@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
+import edu.scripps.yates.census.read.QuantParserException;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
 import edu.scripps.yates.dbindex.DBIndexImpl;
@@ -91,13 +92,15 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 
 		} catch (final IOException e) {
 			e.printStackTrace();
+		} catch (final QuantParserException e) {
+			e.printStackTrace();
 		}
 
 		return retMap;
 	}
 
 	private Map<String, Protein> createProteinsFromRemoteFiles(Set<String> fileRefSet, DBIndexImpl fastaDBIndex)
-			throws IOException {
+			throws IOException, QuantParserException {
 		final Map<String, Protein> retMap = new THashMap<String, Protein>();
 		String fileRefString = "";
 
@@ -277,7 +280,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 	}
 
 	private void loadUniprotAnnotations(List<IdentificationsParser> identificationsParsers, QuantParser quantParser)
-			throws IOException {
+			throws IOException, QuantParserException {
 		final Set<String> accessions = getUniprotAccs(identificationsParsers, quantParser);
 		log.info("Getting annotations from " + accessions.size() + " proteins");
 		final UniprotProteinRetriever upr = new UniprotProteinRetriever(null,
@@ -287,7 +290,7 @@ public class ProteinsAdapterByRemoteFiles implements edu.scripps.yates.utilities
 	}
 
 	private Set<String> getUniprotAccs(List<IdentificationsParser> identificationsParsers, QuantParser quantParser)
-			throws IOException {
+			throws IOException, QuantParserException {
 		final Set<String> accessions = new THashSet<String>();
 		if (identificationsParsers != null) {
 			for (final IdentificationsParser identificationsParser : identificationsParsers) {

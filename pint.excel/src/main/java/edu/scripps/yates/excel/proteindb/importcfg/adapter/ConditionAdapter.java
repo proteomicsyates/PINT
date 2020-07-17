@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.census.read.QuantParserException;
 import edu.scripps.yates.census.read.model.interfaces.QuantParser;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.dbindex.DBIndexImpl;
@@ -242,6 +243,9 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 		} catch (final IOException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
+		} catch (final QuantParserException e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 
 		log.info(ret.getProteins().size() + " proteins in exp condition " + ret.getName());
@@ -250,7 +254,8 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 		return ret;
 	}
 
-	private void createAmounts(QuantificationInfoType quantificationInfo, Condition condition) throws IOException {
+	private void createAmounts(QuantificationInfoType quantificationInfo, Condition condition)
+			throws IOException, QuantParserException {
 		if (quantificationInfo != null) {
 			if (quantificationInfo.getExcelQuantInfo() != null && !quantificationInfo.getExcelQuantInfo().isEmpty())
 				createAmountsFromExcel(quantificationInfo.getExcelQuantInfo(), condition);
@@ -261,7 +266,7 @@ public class ConditionAdapter implements edu.scripps.yates.utilities.pattern.Ada
 	}
 
 	private void createAmountsFromRemoteFiles(List<RemoteInfoType> remoteFilesInfo, Condition condition)
-			throws IOException {
+			throws IOException, QuantParserException {
 		log.info("Creating amounts from " + remoteFilesInfo.size() + " remote files");
 		for (final RemoteInfoType remoteInfoType : remoteFilesInfo) {
 

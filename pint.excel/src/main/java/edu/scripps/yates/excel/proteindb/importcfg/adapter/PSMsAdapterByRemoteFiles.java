@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.census.read.CensusChroParser;
+import edu.scripps.yates.census.read.QuantParserException;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.excel.proteindb.importcfg.RemoteFileReader;
 import edu.scripps.yates.excel.proteindb.importcfg.jaxb.FileReferenceType;
@@ -82,6 +83,8 @@ public class PSMsAdapterByRemoteFiles implements edu.scripps.yates.utilities.pat
 							+ "' is not reachable. Review the connection settings to server");
 				}
 			} catch (final IOException e) {
+				e.printStackTrace();
+			} catch (final QuantParserException e) {
 				e.printStackTrace();
 			}
 

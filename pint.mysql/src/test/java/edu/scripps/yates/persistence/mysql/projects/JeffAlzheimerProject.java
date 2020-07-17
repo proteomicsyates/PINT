@@ -33,6 +33,7 @@ import org.junit.Test;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinRetrievalSettings;
 import edu.scripps.yates.census.analysis.QuantCondition;
 import edu.scripps.yates.census.read.CensusOutParser;
+import edu.scripps.yates.census.read.QuantParserException;
 import edu.scripps.yates.census.read.model.interfaces.QuantRatio;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedPSMInterface;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
@@ -1112,6 +1113,9 @@ public class JeffAlzheimerProject {
 			e.printStackTrace();
 			fail();
 		} catch (final IOException e) {
+			e.printStackTrace();
+			fail();
+		} catch (final QuantParserException e) {
 			e.printStackTrace();
 			fail();
 		}
