@@ -32,6 +32,7 @@ import edu.scripps.yates.annotations.uniprot.UniprotProteinRetriever;
 import edu.scripps.yates.census.analysis.QuantCondition;
 import edu.scripps.yates.census.read.CensusChroParser;
 import edu.scripps.yates.census.read.CensusOutParser;
+import edu.scripps.yates.census.read.QuantParserException;
 import edu.scripps.yates.census.read.model.interfaces.QuantifiedProteinInterface;
 import edu.scripps.yates.census.read.util.QuantificationLabel;
 import edu.scripps.yates.dbindex.DBIndexImpl;
@@ -750,7 +751,7 @@ public class RemoteServicesTasks {
 			}
 			log.info("returning " + ret.size() + " protein accessions from census chro file");
 			return ret;
-		} catch (final IOException e) {
+		} catch (final QuantParserException e) {
 
 			e.printStackTrace();
 			return Collections.emptyList();
@@ -834,7 +835,7 @@ public class RemoteServicesTasks {
 			}
 			log.info("returning " + ret.size() + " protein accessions from census chro file");
 			return ret;
-		} catch (final IOException e) {
+		} catch (final QuantParserException e) {
 			e.printStackTrace();
 			return Collections.emptyList();
 		} finally {
