@@ -1090,11 +1090,11 @@ public class JeffAlzheimerProject {
 	@Test
 	public void readCensusFiles() {
 		try {
-			final Map<QuantCondition, QuantificationLabel> labelsByConditions = new THashMap<QuantCondition, QuantificationLabel>();
+			final Map<QuantificationLabel, QuantCondition> conditionsByLabels = new THashMap<QuantificationLabel, QuantCondition>();
 			final QuantCondition cond1 = new QuantCondition("condition1");
 			final QuantCondition cond2 = new QuantCondition("condition2");
-			labelsByConditions.put(cond1, QuantificationLabel.LIGHT);
-			labelsByConditions.put(cond2, QuantificationLabel.HEAVY);
+			conditionsByLabels.put(QuantificationLabel.LIGHT, cond1);
+			conditionsByLabels.put(QuantificationLabel.HEAVY, cond2);
 			final List<FileType> censusFiles2 = getCensusFiles();
 			for (final FileType fileType : censusFiles2) {
 				final File tmpFile = File.createTempFile("test", "txt");
@@ -1105,7 +1105,7 @@ public class JeffAlzheimerProject {
 
 				CensusOutParser parser;
 
-				parser = new CensusOutParser(ref, labelsByConditions, QuantificationLabel.N14, QuantificationLabel.N15);
+				parser = new CensusOutParser(ref, conditionsByLabels, QuantificationLabel.N14, QuantificationLabel.N15);
 				final Map<String, QuantifiedProteinInterface> proteinMap = parser.getProteinMap();
 
 			}

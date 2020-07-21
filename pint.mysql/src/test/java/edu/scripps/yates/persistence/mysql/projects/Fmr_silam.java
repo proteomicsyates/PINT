@@ -116,10 +116,10 @@ public class Fmr_silam {
 			final FileSetType fileSet = pintImportCfg.getFileSet();
 
 			// TODO ADD ELEMENTS TO THIS!!!
-			final Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditions = null;
+			final Map<String, Map<QuantificationLabel, QuantCondition>> conditionsByLabels = null;
 
 			final RemoteFileReader reader = new RemoteFileReader(fileSet, pintImportCfg.getServers(), null,
-					labelsByConditions, null);
+					conditionsByLabels, null);
 			for (final FileType fileType : fileSet.getFile()) {
 				if (fileType.getFormat() == FormatType.DTA_SELECT_FILTER_TXT) {
 					final DTASelectParser dtaSelectFilterParser = reader.getDTASelectFilterParser(fileType.getId());

@@ -250,7 +250,7 @@ public class ImportCfgFileReader {
 		excelReader = new ExcelFileReader(cfg.getFileSet(), cfg.getServers());
 
 		// TODO CHANGE THIS!!
-		final Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile = getLabelsByConditions(
+		final Map<String, Map<QuantificationLabel, QuantCondition>> labelsByConditionsByFile = getConditionsByLabels(
 				cfg);
 		final Map<String, QuantificationLabel> numeratorLabelsByFile = getNumeratorLabelsByFile(cfg,
 				labelsByConditionsByFile);
@@ -407,7 +407,7 @@ public class ImportCfgFileReader {
 	}
 
 	private Map<String, Set<RatioDescriptor>> getRatioDescriptorsByFile(PintImportCfgType cfg,
-			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile) {
+			Map<String, Map<QuantificationLabel, QuantCondition>> conditionsByLabelsByFile) {
 		final Map<String, Set<RatioDescriptor>> ret = new THashMap<String, Set<RatioDescriptor>>();
 
 		if (cfg != null && cfg.getProject() != null && cfg.getProject().getRatios() != null) {
@@ -418,7 +418,7 @@ public class ImportCfgFileReader {
 
 					final String fileRef = remoteFileRatio.getFileRef();
 					final RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
-							labelsByConditionsByFile.get(fileRef));
+							conditionsByLabelsByFile.get(fileRef));
 					if (ret.containsKey(fileRef)) {
 						ret.get(fileRef).add(ratioDescriptor);
 					} else {
@@ -435,7 +435,7 @@ public class ImportCfgFileReader {
 
 					final String fileRef = remoteFileRatio.getFileRef();
 					final RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
-							labelsByConditionsByFile.get(fileRef));
+							conditionsByLabelsByFile.get(fileRef));
 					if (ret.containsKey(fileRef)) {
 						ret.get(fileRef).add(ratioDescriptor);
 					} else {
@@ -451,7 +451,7 @@ public class ImportCfgFileReader {
 						.getRemoteFilesRatio()) {
 					final String fileRef = remoteFileRatio.getFileRef();
 					final RatioDescriptor ratioDescriptor = getRatioDescriptor(remoteFileRatio,
-							labelsByConditionsByFile.get(fileRef));
+							conditionsByLabelsByFile.get(fileRef));
 					if (ret.containsKey(fileRef)) {
 						ret.get(fileRef).add(ratioDescriptor);
 					} else {
@@ -468,13 +468,13 @@ public class ImportCfgFileReader {
 	}
 
 	private RatioDescriptor getRatioDescriptor(RemoteFilesRatioType remoteFileRatio,
-			Map<QuantCondition, QuantificationLabel> labelsByConditions) {
+			Map<QuantificationLabel, QuantCondition> conditionsByLabels) {
 		QuantCondition condition1 = null;
 		QuantificationLabel label1 = null;
 		QuantCondition condition2 = null;
 		QuantificationLabel label2 = null;
-		for (final QuantCondition condition : labelsByConditions.keySet()) {
-			final QuantificationLabel label = labelsByConditions.get(condition);
+		for (final QuantificationLabel label : conditionsByLabels.keySet()) {
+			final QuantCondition condition = conditionsByLabels.get(label);
 			if (remoteFileRatio.getNumerator().getConditionRef().equals(condition.getName())) {
 				label1 = label;
 				condition1 = condition;
@@ -490,7 +490,7 @@ public class ImportCfgFileReader {
 	}
 
 	private Map<String, QuantificationLabel> getNumeratorLabelsByFile(PintImportCfgType cfg,
-			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile) {
+			Map<String, Map<QuantificationLabel, QuantCondition>> labelsByConditionsByFile) {
 		final Map<String, QuantificationLabel> ret = new THashMap<String, QuantificationLabel>();
 		if (cfg != null && cfg.getProject() != null && cfg.getProject().getRatios() != null) {
 			if (cfg.getProject().getRatios().getPsmAmountRatios() != null
@@ -498,12 +498,13 @@ public class ImportCfgFileReader {
 				for (final RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPsmAmountRatios()
 						.getRemoteFilesRatio()) {
 					final String fileRef = remoteFileRatio.getFileRef();
-					final Map<QuantCondition, QuantificationLabel> labelsByConditions = labelsByConditionsByFile
+					final Map<QuantificationLabel, QuantCondition> conditionsByLabels = labelsByConditionsByFile
 							.get(fileRef);
 					final String numeratorConditionID = remoteFileRatio.getNumerator().getConditionRef();
-					for (final QuantCondition quantCondition : labelsByConditions.keySet()) {
+					for (final QuantificationLabel label : conditionsByLabels.keySet()) {
+						final QuantCondition quantCondition = conditionsByLabels.get(label);
 						if (quantCondition.getName().equals(numeratorConditionID)) {
-							ret.put(remoteFileRatio.getFileRef(), labelsByConditions.get(quantCondition));
+							ret.put(remoteFileRatio.getFileRef(), label);
 						}
 					}
 				}
@@ -513,12 +514,13 @@ public class ImportCfgFileReader {
 				for (final RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getProteinAmountRatios()
 						.getRemoteFilesRatio()) {
 					final String fileRef = remoteFileRatio.getFileRef();
-					final Map<QuantCondition, QuantificationLabel> labelsByConditions = labelsByConditionsByFile
+					final Map<QuantificationLabel, QuantCondition> conditionsByLabels = labelsByConditionsByFile
 							.get(fileRef);
 					final String numeratorConditionID = remoteFileRatio.getNumerator().getConditionRef();
-					for (final QuantCondition quantCondition : labelsByConditions.keySet()) {
+					for (final QuantificationLabel label : conditionsByLabels.keySet()) {
+						final QuantCondition quantCondition = conditionsByLabels.get(label);
 						if (quantCondition.getName().equals(numeratorConditionID)) {
-							ret.put(remoteFileRatio.getFileRef(), labelsByConditions.get(quantCondition));
+							ret.put(remoteFileRatio.getFileRef(), label);
 						}
 					}
 				}
@@ -537,7 +539,7 @@ public class ImportCfgFileReader {
 	}
 
 	private Map<String, QuantificationLabel> getDenominatorLabelsByFile(PintImportCfgType cfg,
-			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFile) {
+			Map<String, Map<QuantificationLabel, QuantCondition>> conditionsByLabelsByFile) {
 		final Map<String, QuantificationLabel> ret = new THashMap<String, QuantificationLabel>();
 		if (cfg != null && cfg.getProject() != null && cfg.getProject().getRatios() != null) {
 			if (cfg.getProject().getRatios().getPsmAmountRatios() != null
@@ -545,12 +547,13 @@ public class ImportCfgFileReader {
 				for (final RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getPsmAmountRatios()
 						.getRemoteFilesRatio()) {
 					final String fileRef = remoteFileRatio.getFileRef();
-					final Map<QuantCondition, QuantificationLabel> labelsByConditions = labelsByConditionsByFile
+					final Map<QuantificationLabel, QuantCondition> conditionsByLabels = conditionsByLabelsByFile
 							.get(fileRef);
 					final String denominatorConditionID = remoteFileRatio.getDenominator().getConditionRef();
-					for (final QuantCondition quantCondition : labelsByConditions.keySet()) {
+					for (final QuantificationLabel label : conditionsByLabels.keySet()) {
+						final QuantCondition quantCondition = conditionsByLabels.get(label);
 						if (quantCondition.getName().equals(denominatorConditionID)) {
-							ret.put(remoteFileRatio.getFileRef(), labelsByConditions.get(quantCondition));
+							ret.put(remoteFileRatio.getFileRef(), label);
 						}
 					}
 				}
@@ -560,12 +563,13 @@ public class ImportCfgFileReader {
 				for (final RemoteFilesRatioType remoteFileRatio : cfg.getProject().getRatios().getProteinAmountRatios()
 						.getRemoteFilesRatio()) {
 					final String fileRef = remoteFileRatio.getFileRef();
-					final Map<QuantCondition, QuantificationLabel> labelsByConditions = labelsByConditionsByFile
+					final Map<QuantificationLabel, QuantCondition> conditionsByLabels = conditionsByLabelsByFile
 							.get(fileRef);
 					final String denominatorConditionID = remoteFileRatio.getDenominator().getConditionRef();
-					for (final QuantCondition quantCondition : labelsByConditions.keySet()) {
+					for (final QuantificationLabel label : conditionsByLabels.keySet()) {
+						final QuantCondition quantCondition = conditionsByLabels.get(label);
 						if (quantCondition.getName().equals(denominatorConditionID)) {
-							ret.put(remoteFileRatio.getFileRef(), labelsByConditions.get(quantCondition));
+							ret.put(remoteFileRatio.getFileRef(), label);
 						}
 					}
 				}
@@ -627,8 +631,8 @@ public class ImportCfgFileReader {
 	 * @param cfg
 	 * @return
 	 */
-	private Map<String, Map<QuantCondition, QuantificationLabel>> getLabelsByConditions(PintImportCfgType cfg) {
-		final Map<String, Map<QuantCondition, QuantificationLabel>> ret = new THashMap<String, Map<QuantCondition, QuantificationLabel>>();
+	private Map<String, Map<QuantificationLabel, QuantCondition>> getConditionsByLabels(PintImportCfgType cfg) {
+		final Map<String, Map<QuantificationLabel, QuantCondition>> ret = new THashMap<String, Map<QuantificationLabel, QuantCondition>>();
 
 		// get all census-chro
 		// List<FileType> censusChroFiles =
@@ -637,7 +641,7 @@ public class ImportCfgFileReader {
 			if (fileType.getFormat() == FormatType.CENSUS_CHRO_XML
 					|| fileType.getFormat() == FormatType.CENSUS_OUT_TXT) {
 				// add the map in any case
-				final Map<QuantCondition, QuantificationLabel> map = new THashMap<QuantCondition, QuantificationLabel>();
+				final Map<QuantificationLabel, QuantCondition> map = new THashMap<QuantificationLabel, QuantCondition>();
 				ret.put(fileType.getId(), map);
 				final String fileId = fileType.getId();
 				for (final ExperimentalConditionType conditionType : cfg.getProject().getExperimentalConditions()
@@ -653,7 +657,7 @@ public class ImportCfgFileReader {
 									final SampleType sampleType = getSampleType(sampleRef, cfg);
 									if (sampleType != null) {
 										final String labelID = sampleType.getLabelRef();
-										map.put(condition, QuantificationLabel.getByName(labelID));
+										map.put(QuantificationLabel.getByName(labelID), condition);
 									}
 								}
 							}
@@ -669,7 +673,7 @@ public class ImportCfgFileReader {
 									final SampleType sampleType = getSampleType(sampleRef, cfg);
 									if (sampleType != null) {
 										final String labelID = sampleType.getLabelRef();
-										map.put(condition, QuantificationLabel.getByName(labelID));
+										map.put(QuantificationLabel.getByName(labelID), condition);
 									}
 								}
 							}
@@ -701,8 +705,8 @@ public class ImportCfgFileReader {
 										final SampleType sampleType = getSampleType(sampleRef, cfg);
 										if (sampleType != null) {
 											final String labelID = sampleType.getLabelRef();
-											map.put(new QuantCondition(conditionType.getId(), projectCfg.getTag()),
-													QuantificationLabel.getByName(labelID));
+											map.put(QuantificationLabel.getByName(labelID),
+													new QuantCondition(conditionType.getId(), projectCfg.getTag()));
 										}
 									}
 								}
@@ -716,8 +720,8 @@ public class ImportCfgFileReader {
 										final SampleType sampleType = getSampleType(sampleRef, cfg);
 										if (sampleType != null) {
 											final String labelID = sampleType.getLabelRef();
-											map.put(new QuantCondition(conditionType.getId(), projectCfg.getTag()),
-													QuantificationLabel.getByName(labelID));
+											map.put(QuantificationLabel.getByName(labelID),
+													new QuantCondition(conditionType.getId(), projectCfg.getTag()));
 										}
 									}
 								}

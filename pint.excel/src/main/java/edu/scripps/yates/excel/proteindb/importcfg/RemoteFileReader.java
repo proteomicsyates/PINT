@@ -54,7 +54,7 @@ public class RemoteFileReader {
 	private final Map<String, FastaDisgestionType> fastaDigestionByFileId = new THashMap<String, FastaDisgestionType>();
 
 	private final List<IonExclusion> censusIonExlusions = new ArrayList<IonExclusion>();
-	private final Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFileID;
+	private final Map<String, Map<QuantificationLabel, QuantCondition>> conditionsByLabelsByFileID;
 	private final Map<String, Set<RatioDescriptor>> ratioDescriptorsByFile;
 
 	/**
@@ -67,13 +67,13 @@ public class RemoteFileReader {
 	 * @throws IOException
 	 */
 	public RemoteFileReader(FileSetType fileSet, ServersType servers, File fastaIndexFolder,
-			Map<String, Map<QuantCondition, QuantificationLabel>> labelsByConditionsByFileID,
+			Map<String, Map<QuantificationLabel, QuantCondition>> conditionsByLabelsByFileID,
 			Map<String, Set<RatioDescriptor>> ratioDescriptorsByFile) throws IOException {
 
 		// TODO change this by a configurable thing in fileSetType
 		censusIonExlusions.add(new IonExclusion(IonSerieType.B, 1));
 		censusIonExlusions.add(new IonExclusion(IonSerieType.Y, 1));
-		this.labelsByConditionsByFileID = labelsByConditionsByFileID;
+		this.conditionsByLabelsByFileID = conditionsByLabelsByFileID;
 		this.ratioDescriptorsByFile = ratioDescriptorsByFile;
 		final List<FileType> files = fileSet.getFile();
 
@@ -195,7 +195,7 @@ public class RemoteFileReader {
 						final Set<RatioDescriptor> ratioDescriptors = ratioDescriptorsByFile.get(fileID);
 						if (ratioDescriptors.size() == 1) {
 							final RatioDescriptor ratioDescriptor = ratioDescriptors.iterator().next();
-							parser.addFile(file, labelsByConditionsByFileID.get(fileID), ratioDescriptor.getLabel1(),
+							parser.addFile(file, conditionsByLabelsByFileID.get(fileID), ratioDescriptor.getLabel1(),
 									ratioDescriptor.getLabel2());
 						} else {
 							QuantificationLabel labelL = null;
@@ -223,7 +223,7 @@ public class RemoteFileReader {
 									labelM = label2;
 								}
 							}
-							parser.addFile(file, labelsByConditionsByFileID.get(fileID), labelL, labelM, labelH);
+							parser.addFile(file, conditionsByLabelsByFileID.get(fileID), labelL, labelM, labelH);
 
 						}
 					}
@@ -272,7 +272,7 @@ public class RemoteFileReader {
 						}
 						if (ratioDescriptors.size() == 1) {
 							final RatioDescriptor ratioDescriptor = ratioDescriptors.iterator().next();
-							parser.addFile(file, labelsByConditionsByFileID.get(fileID), ratioDescriptor.getLabel1(),
+							parser.addFile(file, conditionsByLabelsByFileID.get(fileID), ratioDescriptor.getLabel1(),
 									ratioDescriptor.getLabel2());
 						} else {
 							QuantificationLabel labelL = null;
@@ -321,7 +321,7 @@ public class RemoteFileReader {
 										+ "')\nEither you have to define the label HEAVY or you have to define LIGHT/HEAVY and MEDIUM/HEAVY ratios\n"
 										+ "Otherwise, you may have selected the same input file for two different ratios.");
 							}
-							parser.addFile(file, labelsByConditionsByFileID.get(fileID), labelL, labelM, labelH);
+							parser.addFile(file, conditionsByLabelsByFileID.get(fileID), labelL, labelM, labelH);
 						}
 					} // only return parser if it has at least one file to read
 					if (!parser.getRemoteFileRetrievers().isEmpty()) {
