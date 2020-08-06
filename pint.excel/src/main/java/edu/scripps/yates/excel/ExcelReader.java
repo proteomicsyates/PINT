@@ -13,8 +13,8 @@ import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
-import org.apache.poi.POIXMLException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ooxml.POIXMLException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -99,13 +99,13 @@ public class ExcelReader {
 		if (row != null) {
 			final int max = row.getLastCellNum();
 			for (int i = 0; i < max; i++) {
-				final Cell cell = row.getCell(i, Row.RETURN_NULL_AND_BLANK);
+				final Cell cell = row.getCell(i, Row.MissingCellPolicy.RETURN_NULL_AND_BLANK);
 				if (cell != null) {
 					switch (cell.getCellType()) {
-					case Cell.CELL_TYPE_STRING:
+					case STRING:
 						ret.add(cell.getStringCellValue());
 						break;
-					case Cell.CELL_TYPE_NUMERIC:
+					case NUMERIC:
 						if (DateUtil.isCellDateFormatted(cell)) {
 							ret.add(cell.getDateCellValue().toString());
 						} else {
@@ -143,7 +143,7 @@ public class ExcelReader {
 			final Sheet sheetAt = getWorkbook().getSheetAt(sheetNumber);
 			final Row row = sheetAt.getRow(numRow);
 			if (row != null) {
-				final Cell cell = row.getCell(numCol, Row.RETURN_BLANK_AS_NULL);
+				final Cell cell = row.getCell(numCol, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 				if (cell == null) {
 					return null;
 				}
@@ -176,7 +176,7 @@ public class ExcelReader {
 			if (row == null) {
 				return null;
 			}
-			final Cell cell = row.getCell(numCol, Row.RETURN_BLANK_AS_NULL);
+			final Cell cell = row.getCell(numCol, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 			if (cell == null) {
 				return null;
 			}
@@ -209,10 +209,10 @@ public class ExcelReader {
 				// System.out.println(columnName);
 				if (cell != null) {
 					switch (cell.getCellType()) {
-					case Cell.CELL_TYPE_STRING:
+					case STRING:
 						ret.put(columnName, cell.getStringCellValue());
 						break;
-					case Cell.CELL_TYPE_NUMERIC:
+					case NUMERIC:
 						try {
 							if (DateUtil.isCellDateFormatted(cell)) {
 								ret.put(columnName, cell.getDateCellValue().toString());
@@ -331,7 +331,7 @@ public class ExcelReader {
 	 * @return
 	 */
 	public static Workbook openWorkbook(String filePath) {
-		return openWorkbook(filePath, Row.RETURN_NULL_AND_BLANK);
+		return openWorkbook(filePath, Row.MissingCellPolicy.RETURN_NULL_AND_BLANK);
 	}
 
 	/**

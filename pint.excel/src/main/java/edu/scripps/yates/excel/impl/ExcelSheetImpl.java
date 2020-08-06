@@ -84,13 +84,13 @@ public class ExcelSheetImpl implements ExcelSheet {
 	private Object getCellValue(Cell cell) {
 		if (cell != null) {
 			switch (cell.getCellType()) {
-			case Cell.CELL_TYPE_BLANK:
+			case BLANK:
 				return null;
-			case Cell.CELL_TYPE_BOOLEAN:
+			case BOOLEAN:
 				return Boolean.valueOf(cell.getBooleanCellValue());
-			case Cell.CELL_TYPE_ERROR:
+			case ERROR:
 				return "";
-			case Cell.CELL_TYPE_FORMULA:
+			case FORMULA:
 				try {
 					return Double.valueOf(cell.getStringCellValue());
 				} catch (final NumberFormatException ex) {
@@ -101,14 +101,14 @@ public class ExcelSheetImpl implements ExcelSheet {
 
 				}
 
-			case Cell.CELL_TYPE_NUMERIC:
+			case NUMERIC:
 				try {
 					return Double.valueOf(cell.getNumericCellValue());
 				} catch (final NumberFormatException ex) {
 					return cell.getStringCellValue();
 
 				}
-			case Cell.CELL_TYPE_STRING:
+			case STRING:
 				try {
 					return Double.valueOf(cell.getNumericCellValue());
 				} catch (final NumberFormatException ex) {
