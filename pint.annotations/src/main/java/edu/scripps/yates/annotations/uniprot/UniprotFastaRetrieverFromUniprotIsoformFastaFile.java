@@ -49,6 +49,9 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 				final URL url = new URL(
 						"https://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot_varsplic.fasta.gz");
 				if (!isoformsZippedFile.exists() || isoformsZippedFile.length() == 0l) {
+					if (!isoformsZippedFile.getParentFile().exists()) {
+						isoformsZippedFile.getParentFile().mkdirs();
+					}
 					final long t1 = System.currentTimeMillis();
 					log.info("Downloading isoform sequences from uniprot at: " + url.toString());
 					final InputStream is = url.openStream();
