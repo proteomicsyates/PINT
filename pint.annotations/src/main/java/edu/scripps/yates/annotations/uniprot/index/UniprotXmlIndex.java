@@ -94,6 +94,9 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 	private static synchronized void writePositionsInIndex(UniprotXmlIndex index,
 			Map<String, Pair<Long, Long>> itemPositions, boolean appendOnIndexFile) throws IOException {
 		// write the positions in the index
+		if (!index.indexFile.getParentFile().exists()) {
+			index.indexFile.getParentFile().mkdirs();
+		}
 		final FileWriter fw = new FileWriter(index.indexFile, appendOnIndexFile);
 		final StringBuilder sb = new StringBuilder();
 		try {
