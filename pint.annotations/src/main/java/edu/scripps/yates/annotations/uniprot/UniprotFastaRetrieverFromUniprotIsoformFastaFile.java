@@ -111,9 +111,19 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 	private final Map<String, Entry> parseFASTAFile(final File gzFile) throws IOException {
 		final Map<String, Entry> ret = new THashMap<String, Entry>();
 		log.info("Parsing " + gzFile.getAbsolutePath());
-		final InputStream fileStream = new FileInputStream(gzFile.getAbsolutePath());
+		final FileInputStream fileStream = new FileInputStream(gzFile.getAbsolutePath());
+		FileLock lock = fileStream.getChannel().tryLock(0, Long.MAX_VALUE, true);
+		while (lock == null) {
+			lock = fileStream.getChannel().tryLock(0, Long.MAX_VALUE, true);
+			try {
+				Thread.sleep(1000);
+			} catch (final InterruptedException e) {
+			}
+			log.info("Waiting for reading access for file " + gzFile.getAbsolutePath());
+		}
 		final InputStream gzipStream = new GZIPInputStream(fileStream);
 		final Reader decoder = new InputStreamReader(gzipStream, "UTF-8");
+
 		BufferedReader buffered = null;
 
 		try {
@@ -124,11 +134,7 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 			String accession = null;
 			String line = null;
 			while ((line = buffered.readLine()) != null) {
-
-				int numHeaders = 0;
-
 				if (line.startsWith(">")) {
-					numHeaders++;
 					// check if there was a sequence before and it was the
 					// correct one (takeSequence=true)
 					if (!"".equals(sequence.toString())) {
@@ -150,6 +156,9 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 			log.info("Parsing " + gzFile.getAbsolutePath() + " yielded " + ret.size() + " sequences");
 			return ret;
 		} finally {
+			if (lock != null) {
+				lock.release();
+			}
 			if (buffered != null) {
 				buffered.close();
 			}
