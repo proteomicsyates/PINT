@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.nio.channels.FileLock;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
@@ -31,8 +32,8 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 
 	public UniprotFastaRetrieverFromUniprotIsoformFastaFile(File uniprotFolder, String uniprotVersion) {
 		this.uniprotVersion = uniprotVersion;
-		this.isoformsFolder = new File(uniprotFolder.getAbsolutePath() + File.separator + uniprotVersion
-				+ File.separator + ISOFORMS_SUBFOLDER_NAME);
+		isoformsFolder = new File(uniprotFolder.getAbsolutePath() + File.separator + uniprotVersion + File.separator
+				+ ISOFORMS_SUBFOLDER_NAME);
 		if (!isoformsFolder.exists()) {
 			isoformsFolder.mkdirs();
 		}
@@ -55,9 +56,26 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 					final long t1 = System.currentTimeMillis();
 					log.info("Downloading isoform sequences from uniprot at: " + url.toString());
 					final InputStream is = url.openStream();
-					fos = new BufferedOutputStream(new FileOutputStream(isoformsZippedFile));
-					IOUtils.copy(is, fos);
-					fos.close();
+					FileOutputStream out = new FileOutputStream(isoformsZippedFile);
+					FileLock lock = out.getChannel().tryLock();
+					while (lock == null) {
+						out = null;
+						if (isoformsZippedFile.exists()) {
+							break;
+						}
+						out = new FileOutputStream(isoformsZippedFile);
+						lock = out.getChannel().tryLock();
+						Thread.sleep(1000);
+						log.info("Waiting for writting access to file '" + isoformsZippedFile.getAbsolutePath() + "'");
+					}
+					if (out != null) {
+						fos = new BufferedOutputStream(out);
+						IOUtils.copy(is, fos);
+					}
+					lock.release();
+					if (out != null) {
+						fos.close();
+					}
 
 					final long t2 = System.currentTimeMillis();
 					log.debug("File downloaded in " + DatesUtil.getDescriptiveTimeFromMillisecs(t2 - t1));
@@ -139,7 +157,7 @@ public class UniprotFastaRetrieverFromUniprotIsoformFastaFile {
 	}
 
 	private File getIsoformsZippedFile() {
-		return new File(this.isoformsFolder.getAbsolutePath() + File.separator + "uniprot_sprot_varsplic.fasta.gz");
+		return new File(isoformsFolder.getAbsolutePath() + File.separator + "uniprot_sprot_varsplic.fasta.gz");
 	}
 
 }
