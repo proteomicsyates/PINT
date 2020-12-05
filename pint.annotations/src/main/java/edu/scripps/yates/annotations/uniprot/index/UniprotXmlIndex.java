@@ -340,7 +340,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 				final FileInputStream fis = new FileInputStream(indexFile);
 				FileLock lock = fis.getChannel().tryLock(0, Long.MAX_VALUE, true);
 				while (lock == null) {
-					lock = fis.getChannel().tryLock();
+					lock = fis.getChannel().tryLock(0, Long.MAX_VALUE, true);
 					try {
 						Thread.sleep(1000);
 					} catch (final InterruptedException e) {
