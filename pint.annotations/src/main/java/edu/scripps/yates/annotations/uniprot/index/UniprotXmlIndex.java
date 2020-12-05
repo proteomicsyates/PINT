@@ -1,12 +1,15 @@
 package edu.scripps.yates.annotations.uniprot.index;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -97,7 +100,18 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		if (!index.indexFile.getParentFile().exists()) {
 			index.indexFile.getParentFile().mkdirs();
 		}
-		final FileWriter fw = new FileWriter(index.indexFile, appendOnIndexFile);
+		final FileOutputStream fos = new FileOutputStream(index.indexFile, appendOnIndexFile);
+		FileLock lock = null;
+		while (lock == null) {
+			lock = fos.getChannel().tryLock();
+			try {
+				Thread.sleep(1000);
+			} catch (final InterruptedException e) {
+			}
+			log.info("Waiting for writting access to file " + index.indexFile.getAbsolutePath());
+		}
+		final BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+
 		final StringBuilder sb = new StringBuilder();
 		try {
 			for (final String key : itemPositions.keySet()) {
@@ -107,11 +121,15 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 						+ pair.getSecondElement() + "]");
 			}
 		} finally {
-			fw.write(sb.toString());
-			fw.close();
+			bw.write(sb.toString());
+			bw.close();
 			index.status = Status.READY;
 			// if (index.indexFile.length() % 1000 == 0){
 			log.debug("Indexing done. Size of index: " + index.indexFile.length() / 1000 + " Kb");
+			if (lock != null) {
+				lock.release();
+			}
+
 			// }
 		}
 
@@ -320,7 +338,17 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		// if index Map is empty, read the index file
 		if (indexMap.isEmpty()) {
 			if (indexFile.length() > 0) {
-				final BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile)));
+				final FileInputStream fis = new FileInputStream(indexFile);
+				FileLock lock = fis.getChannel().tryLock();
+				while (lock == null) {
+					lock = fis.getChannel().tryLock();
+					try {
+						Thread.sleep(1000);
+					} catch (final InterruptedException e) {
+					}
+					log.info("Waiting for reading access to file " + indexFile.getAbsolutePath());
+				}
+				final BufferedReader fr = new BufferedReader(new InputStreamReader(fis));
 				try {
 					String line;
 					while ((line = fr.readLine()) != null) {
@@ -340,6 +368,9 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 					}
 					fr.close();
 					status = Status.READY;
+					if (lock != null) {
+						lock.release();
+					}
 				}
 			}
 		}
