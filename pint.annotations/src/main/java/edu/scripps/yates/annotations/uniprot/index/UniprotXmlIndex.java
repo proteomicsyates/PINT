@@ -27,12 +27,11 @@ import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.index.FileIndex;
-import edu.scripps.yates.utilities.index.TextFileIndex;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 
 public class UniprotXmlIndex implements FileIndex<Entry> {
-	private static final Logger log = Logger.getLogger(TextFileIndex.class);
+	private static final Logger log = Logger.getLogger(UniprotXmlIndex.class);
 	private final File fileToIndex;
 	private final File indexFile;
 	protected final Map<String, Pair<Long, Long>> indexMap = new THashMap<>();

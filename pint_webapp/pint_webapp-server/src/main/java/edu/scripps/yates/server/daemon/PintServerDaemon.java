@@ -80,8 +80,8 @@ public class PintServerDaemon implements ServletContextListener {
 			// pintServerDaemonTasks.add(new
 			// ProteinAccessionsUpdaterScroll(sce.getServletContext()));
 
-			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", sce.getServletContext()));
 			pintServerDaemonTasks.add(new DeleteHiddenProjects(sce.getServletContext()));
+			pintServerDaemonTasks.add(new PreLoadPublicProjects("DAEMON_SESSION", sce.getServletContext()));
 
 			// pintServerDaemonTasks.add(new
 			// ProteinAccessionsUpdater(sce.getServletContext()));

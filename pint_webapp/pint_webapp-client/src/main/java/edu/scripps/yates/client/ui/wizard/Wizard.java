@@ -675,16 +675,18 @@ public class Wizard<C extends WizardContext> extends Composite {
 	}
 
 	private void removePageTitle(String title) {
-		// Add the title to the list... maybe.
-		boolean removeTitle = true;
-		if (title == null || title.isEmpty())
-			removeTitle = false;
+
+		if (title == null || title.isEmpty()) {
+			return;
+		}
+		boolean removeTitle = false;
+
 		final Iterator<WizardPage<C>> iter = pages.iterator();
-		while (iter.hasNext() && removeTitle) {
+		while (iter.hasNext()) {
 			final WizardPage<C> pageToCheck = iter.next();
 			final String titleToCheck = pageToCheck.getTitle();
 			if (titleToCheck.equals(title)) {
-				removeTitle = false;
+				removeTitle = true;
 			}
 		}
 		if (removeTitle)
