@@ -100,7 +100,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			index.indexFile.getParentFile().mkdirs();
 		}
 		final FileOutputStream fos = new FileOutputStream(index.indexFile, appendOnIndexFile);
-		FileLock lock = null;
+		FileLock lock = fos.getChannel().tryLock();
 		while (lock == null) {
 			lock = fos.getChannel().tryLock();
 			try {
@@ -121,13 +121,13 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 			}
 		} finally {
 			bw.write(sb.toString());
+			if (lock != null) {
+				lock.release();
+			}
 			bw.close();
 			index.status = Status.READY;
 			// if (index.indexFile.length() % 1000 == 0){
 			log.debug("Indexing done. Size of index: " + index.indexFile.length() / 1000 + " Kb");
-			if (lock != null) {
-				lock.release();
-			}
 
 			// }
 		}
@@ -338,7 +338,7 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		if (indexMap.isEmpty()) {
 			if (indexFile.length() > 0) {
 				final FileInputStream fis = new FileInputStream(indexFile);
-				FileLock lock = fis.getChannel().tryLock();
+				FileLock lock = fis.getChannel().tryLock(0, Long.MAX_VALUE, true);
 				while (lock == null) {
 					lock = fis.getChannel().tryLock();
 					try {
@@ -365,11 +365,12 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 					if (!indexMap.isEmpty()) {
 						log.info(indexMap.size() + " entries in the index");
 					}
-					fr.close();
-					status = Status.READY;
 					if (lock != null) {
 						lock.release();
 					}
+					fr.close();
+					status = Status.READY;
+
 				}
 			}
 		}
