@@ -698,11 +698,14 @@ public class UniprotProteinRemoteRetriever {
 		if (uniprotVersion == null) {
 			uniprotVersion = getCurrentUniprotRemoteVersion();
 		}
+		final Map<String, Entry> ret = new THashMap<String, Entry>();
+		if (isoformAccs == null || isoformAccs.isEmpty()) {
+			return ret;
+		}
 		final UniprotFastaRetrieverFromUniprotIsoformFastaFile ufrfuiff = new UniprotFastaRetrieverFromUniprotIsoformFastaFile(
 				uniprotReleasesFolder, uniprotVersion);
 		final Map<String, Entry> run = ufrfuiff.run();
 
-		final Map<String, Entry> ret = new THashMap<String, Entry>();
 		for (final String acc : isoformAccs) {
 			if (run != null && run.containsKey(acc)) {
 				ret.put(acc, run.get(acc));
