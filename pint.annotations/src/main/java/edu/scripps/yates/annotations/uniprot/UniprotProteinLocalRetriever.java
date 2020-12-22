@@ -576,29 +576,31 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 //					final Map<String, Entry> isoformProteinSequences = UniprotProteinRemoteRetriever
 //							.getFASTASequencesInParallel(missingIsoforms);
 					final UniprotProteinRemoteRetriever uprr = new UniprotProteinRemoteRetriever();
-					final Map<String, Entry> isoformProteinSequences = uprr.getIsoformFASTASequencesFromUniprot(
-							missingIsoforms, this.uniprotReleasesFolder, uniprotVersion);
-					final Map<String, Entry> foundIsoformEntries = new HashMap<String, Entry>();
-					for (final String missingIsoform : missingIsoforms) {
-						if (isoformProteinSequences.containsKey(missingIsoform)) {
-							final Entry isoformEntry = isoformProteinSequences.get(missingIsoform);
+					if (retrieveFastaIsoforms) {
 
-							// store it with the isoform acc
-							foundIsoformEntries.put(missingIsoform, isoformEntry);
+						final Map<String, Entry> isoformProteinSequences = uprr.getIsoformFASTASequencesFromUniprot(
+								missingIsoforms, uniprotReleasesFolder, uniprotVersion);
+						final Map<String, Entry> foundIsoformEntries = new HashMap<String, Entry>();
+						for (final String missingIsoform : missingIsoforms) {
+							if (isoformProteinSequences.containsKey(missingIsoform)) {
+								final Entry isoformEntry = isoformProteinSequences.get(missingIsoform);
+
+								// store it with the isoform acc
+								foundIsoformEntries.put(missingIsoform, isoformEntry);
+							}
+						}
+						// merge with main map
+						queryProteinsMap.putAll(foundIsoformEntries);
+						// now save them in the local index
+						try {
+							if (!foundIsoformEntries.isEmpty()) {
+								saveUniprotToLocalFilesystem(foundIsoformEntries, uniprotVersion, useIndex);
+							}
+						} catch (final JAXBException | IOException e) {
+							e.printStackTrace();
+							log.warn("Error while saving isoform entries to the local index");
 						}
 					}
-					// merge with main map
-					queryProteinsMap.putAll(foundIsoformEntries);
-					// now save them in the local index
-					try {
-						if (!foundIsoformEntries.isEmpty()) {
-							saveUniprotToLocalFilesystem(foundIsoformEntries, uniprotVersion, useIndex);
-						}
-					} catch (final JAXBException | IOException e) {
-						e.printStackTrace();
-						log.warn("Error while saving isoform entries to the local index");
-					}
-
 					uprr.setLookForIsoforms(retrieveFastaIsoforms);
 					uprr.setLookForIsoformsFromMainForms(retrieveFastaIsoformsFromMainForms);
 					log.debug("Trying to retrieve  " + missingCanonicalForms.size()
