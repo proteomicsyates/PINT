@@ -443,10 +443,14 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 			defaultUniprotVersion = UniprotProteinRemoteRetriever.getCurrentUniprotRemoteVersion();
 			// if was not possible to get the uniprot version through Internet,
 			// take the latest local folder
-			log.info("if was not possible to get the uniprot version through Internet take the latest local folder");
+
 			if ("".equals(defaultUniprotVersion)) {
 				defaultUniprotVersion = getLatestUniprotVersionFolderName();
+				log.warn(
+						"it was not possible to get the uniprot version through Internet, so we take the latest local folder: "
+								+ defaultUniprotVersion);
 			}
+
 			uniprotVersion = defaultUniprotVersion;
 		}
 		if (uniprotVersion == null) {

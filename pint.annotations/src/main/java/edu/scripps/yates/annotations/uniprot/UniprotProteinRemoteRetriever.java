@@ -179,7 +179,7 @@ public class UniprotProteinRemoteRetriever {
 		if (accessions == null || accessions.isEmpty()) {
 			return Collections.emptyMap();
 		}
-		final int threadCount = Math.min(SystemCoreManager.getAvailableNumSystemCores(), accessions.size());
+		final int threadCount = Math.min(SystemCoreManager.getAvailableNumSystemCores() * 2, accessions.size());
 		// threadCount = 2;
 		log.info("getting Uniprot entries of " + accessions.size() + " proteins in parallel using " + threadCount
 				+ " threads...");
@@ -257,7 +257,7 @@ public class UniprotProteinRemoteRetriever {
 		};
 		final Map<String, Entry> ret = reducibleEntryMap.reduce(entryReduction);
 		if (!ret.isEmpty()) {
-			log.info("Retrieved " + ret.size() + " uniprot entries in paralell");
+			log.info("Retrieved " + ret.size() + " uniprot entries in parallel");
 		}
 		return ret;
 
@@ -633,7 +633,7 @@ public class UniprotProteinRemoteRetriever {
 				.getPropertyValue(PropertiesUtil.UNIPROT_RELEASES_NOTES_PROP);
 
 		if (releaseNotesURLString != null) {
-			log.info("Getting uniprot current release from " + releaseNotesURLString);
+			log.debug("Getting uniprot current release from " + releaseNotesURLString);
 			URL url;
 			try {
 				notTryUntilNextDay = false;

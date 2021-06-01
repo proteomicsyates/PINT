@@ -88,8 +88,8 @@ public class UniprotXmlIndex implements FileIndex<Entry> {
 		writePositionsInIndex(this, indexMap, false);
 		final long t3 = System.currentTimeMillis();
 
-		log.info(DatesUtil.getDescriptiveTimeFromMillisecs(t2 - t1) + " to read the input file");
-		log.info(DatesUtil.getDescriptiveTimeFromMillisecs(t3 - t2) + " to write the index to "
+		log.debug(DatesUtil.getDescriptiveTimeFromMillisecs(t2 - t1) + " to read the input file");
+		log.debug(DatesUtil.getDescriptiveTimeFromMillisecs(t3 - t2) + " to write the index to "
 				+ indexFile.getAbsolutePath());
 	}
 
