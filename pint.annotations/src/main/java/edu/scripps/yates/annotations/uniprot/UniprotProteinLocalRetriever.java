@@ -858,4 +858,14 @@ public class UniprotProteinLocalRetriever implements UniprotProteinLocalRetrieve
 		this.retrieveFastaIsoformsFromMainForms = retrieveFastaIsoformsFromMainForms;
 	}
 
+	public void clearMemory() {
+		cache.clearCache();
+		loadedIndexes.clear();
+		entryKeys.clear();
+		missingAccessions.clear();
+		UniprotProteinRemoteRetriever.entriesWithNoFASTA.clear();
+		UniprotProteinRemoteRetriever.entriesWithNoInfo.clear();
+
+	}
+
 }
