@@ -21,3 +21,8 @@ It is divided in different modules, being [**pint_webapp**](https://github.com/p
   <url>http://sealion.scripps.edu/archiva/repository/snapshots/</url>  
 </snapshotRepository>  
 ```
+
+## pint.annotations module: a package to integrate Uniprot annotations  
+This module was initially developed for PINT project byt now is used in many other different projects.  
+This is a basic guide of how to easily query Uniprot for annotations:  
+
