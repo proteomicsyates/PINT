@@ -1483,7 +1483,7 @@ public class ProteinRetrievalServicesServlet extends RemoteServiceServlet implem
 				final String to = "salvador@scripps.edu";
 				final String subject = "PINT tracking email at " + DateFormat.getDateInstance().format(new Date());
 				log.info("Trying to send the tracking email with text: " + text);
-				final String error = EmailSender.sendEmail(subject, text.toString(), to, from);
+				final String error = EmailSender.sendEmail(subject, text.toString(), to, null, from);
 				if (error != null) {
 					log.warn(error);
 				}
