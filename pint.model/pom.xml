@@ -11,6 +11,57 @@
 			<url>http://sealion.scripps.edu/archiva/repository/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
+	<repositories>
+		<repository>
+			<id>internal</id>
+			<name>John Yates's lab releases maven repository</name>
+			<url>http://sealion.scripps.edu/archiva/repository/internal/</url>
+		</repository>
+		<repository>
+			<id>snapshots</id>
+			<name>John Yates's lab snapshots maven repository</name>
+			<url>http://sealion.scripps.edu/archiva/repository/snapshots/</url>
+		</repository>
+		<repository>
+			<id>nexus-ebi-repo</id>
+			<name>The EBI internal repository</name>
+			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+		</repository>
+		<repository>
+			<id>nexus-ebi-snapshot-repo</id>
+			<name>The EBI internal snapshot repository</name>
+			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
+		</repository>
+		<repository>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>ebi-repo</id>
+			<name>The EBI Maven 2 repository</name>
+			<url>http://www.ebi.ac.uk/~maven/m2repo</url>
+		</repository>
+		<repository>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>ebi-repo-snapshots</id>
+			<name>The EBI internal repository</name>
+			<url>http://www.ebi.ac.uk/~maven/m2repo_snapshots</url>
+		</repository>
+		<repository>
+			<id>genesis-maven2-repository</id>
+			<name>Genesis maven2 repository</name>
+			<url>http://genesis.UGent.be/maven2</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -92,8 +143,18 @@
 			<artifactId>utilities</artifactId>
 			<version>1.6-SNAPSHOT</version>
 		</dependency>
-
-
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.16.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.16.0</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
