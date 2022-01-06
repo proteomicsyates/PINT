@@ -17,7 +17,9 @@
 			<url>http://sealion.scripps.edu/archiva/repository/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
-  <dependencies>
+
+
+	<dependencies>
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>pint.annotations</artifactId>
@@ -100,7 +102,7 @@
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
     	<artifactId>utilities</artifactId>
-    	<version>1.6-SNAPSHOT</version>
+    	<version>1.7-SNAPSHOT</version>
     </dependency>
     <dependency>
     	<groupId>edu.scripps.yates</groupId>
@@ -188,6 +190,7 @@
         <snapshots>
             <enabled>false</enabled>
         </snapshots>
+
     </repository>
     <!-- Scripps SNAPSHOT repo -->
     <repository>
@@ -201,5 +204,44 @@
             <enabled>true</enabled>
         </snapshots>
     </repository>
+	   <repository>
+		   <id>nexus-ebi-repo</id>
+		   <name>The EBI internal repository</name>
+		   <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+	   </repository>
+	   <repository>
+		   <id>nexus-ebi-snapshot-repo</id>
+		   <name>The EBI internal snapshot repository</name>
+		   <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
+	   </repository>
+	   <repository>
+		   <releases>
+			   <enabled>true</enabled>
+		   </releases>
+		   <snapshots>
+			   <enabled>false</enabled>
+		   </snapshots>
+		   <id>ebi-repo</id>
+		   <name>The EBI Maven 2 repository</name>
+		   <url>http://www.ebi.ac.uk/~maven/m2repo</url>
+	   </repository>
+	   <repository>
+		   <releases>
+			   <enabled>false</enabled>
+		   </releases>
+		   <snapshots>
+			   <enabled>true</enabled>
+		   </snapshots>
+		   <id>ebi-repo-snapshots</id>
+		   <name>The EBI internal repository</name>
+		   <url>http://www.ebi.ac.uk/~maven/m2repo_snapshots</url>
+	   </repository>
+	   <repository>
+		   <id>genesis-maven2-repository</id>
+		   <name>Genesis maven2 repository</name>
+		   <url>http://genesis.UGent.be/maven2</url>
+		   <layout>default</layout>
+	   </repository>
+
    </repositories>
 </project>
