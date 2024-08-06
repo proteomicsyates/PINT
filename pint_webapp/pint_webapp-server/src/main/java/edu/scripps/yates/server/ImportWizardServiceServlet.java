@@ -1333,7 +1333,7 @@ public class ImportWizardServiceServlet extends RemoteServiceServlet implements 
 		} else if (adminPassword.equals(encryptedPassword)) {
 			return;
 		} else {
-			//throw new PintException("Password is not correct", PINT_ERROR_TYPE.LOGIN_FAILED);
+			throw new PintException("Password is not correct", PINT_ERROR_TYPE.LOGIN_FAILED);
 		}
 
 	}
